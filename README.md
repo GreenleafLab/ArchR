@@ -83,7 +83,7 @@ proj <- ArchRProject(
   ArrowFiles = ArrowFiles, 
   genomeAnnotation = genomeAnnoHg19,
   geneAnnotation = geneAnnoHg19,
-  outputDirectory = "PBMC_Tutorial",
+  outputDirectory = "PBMC_Tutorial"
 )
 
 #Filter Cells by TSS, Number of Fragments and Doublet Score
