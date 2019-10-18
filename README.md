@@ -2,11 +2,8 @@
 
 ```r
 
-if (!requireNamespace("devtools", quietly = TRUE))
-	install.packages("devtools")
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-	install.packages("BiocManager")
+if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 
 devtools::install_github("GreenleafLab/ArchR",
 	auth_token = token, #Need a token to download (see personalized access tokens)
