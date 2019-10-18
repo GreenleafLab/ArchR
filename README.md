@@ -2,11 +2,8 @@
 
 ```r
 
-if (!requireNamespace("devtools", quietly = TRUE))
-	install.packages("devtools")
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-	install.packages("BiocManager")
+if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 
 devtools::install_github("GreenleafLab/ArchR",
 	auth_token = token, #Need a token to download (see personalized access tokens)
@@ -70,13 +67,12 @@ inputFiles <- c(
 
 #Create Arrow Files
 ArrowFiles <- createArrowFiles(
-	inputFiles = inputFiles,
-	sampleNames = names(inputFiles),
-	outputNames = names(inputFiles),
-	geneAnno = geneAnnoHg19,
-	genomeAnno = genomeAnnoHg19,
-	threads = threads,
-  force = TRUE
+  inputFiles = inputFiles,
+  sampleNames = names(inputFiles),
+  outputNames = names(inputFiles),
+  geneAnno = geneAnnoHg19,
+  genomeAnno = genomeAnnoHg19,
+  threads = threads
 )
 
 #Add Infered Doublet Scores to each Arrow File
@@ -87,7 +83,7 @@ proj <- ArchRProject(
   ArrowFiles = ArrowFiles, 
   genomeAnnotation = genomeAnnoHg19,
   geneAnnotation = geneAnnoHg19,
-  outputDirectory = "PBMC_Tutorial",
+  outputDirectory = "PBMC_Tutorial"
 )
 
 #Filter Cells by TSS, Number of Fragments and Doublet Score
