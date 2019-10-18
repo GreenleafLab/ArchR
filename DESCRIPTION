@@ -1,0 +1,39 @@
+Package: ArchR
+Type: Package
+Date: 2019-10-17
+Title: Analyzing regulatory chromatin in R
+Version: 0.1.4
+Author: Jeffrey Granja [aut, cre], Ryan Corces [aut]
+Maintainer: Jeffrey Granja <jgranja.stanford@gmail.com>
+Description: This package is designed to streamline scATAC analyses in R.
+License: GPL (>= 2)
+LinkingTo: Rcpp
+LazyData: TRUE
+RoxygenNote: 6.1.1
+Encoding: UTF-8
+Imports:
+    Rcpp (>= 0.12.16),
+    matrixStats,
+    plyr,
+    SummarizedExperiment,
+    Matrix,
+    nabor,
+    motifmatchr,
+    chromVAR,
+    uwot,
+    ggrepel,
+    Rsamtools,
+    gtable,
+    grid,
+    gridExtra,
+    Biostrings,
+    ComplexHeatmap,
+Depends:
+    ggplot2,
+    data.table,
+    rhdf5,
+    magrittr,
+    S4Vectors (>= 0.9.25),
+    BiocGenerics,
+    GenomicRanges,
+        

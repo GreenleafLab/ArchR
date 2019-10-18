@@ -1,0 +1,279 @@
+#' Add FeatureMatrix to Arrows/ArchRProject
+#' 
+#' This function for each sample will independently compute counts for each feature
+#' per cell in the Arrow File
+#'
+#' @param input ArchRProject or ArrowFiles
+#' @param features GRanges to count for each cell
+#' @param matrixName matrix output name in ArrowFiles cannot be a protected matrix name
+#' @param ceiling ceiling for the number of counts per feature
+#' @param binarize binarize matrix
+#' @param threads number of threads
+#' @param parallelParam parallel parameters for batch style execution
+#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @export
+addFeatureMatrix <- function(
+  input,
+  features = NULL,
+  matrixName = "FeatureMatrix",
+  ceiling = Inf, 
+  binarize = FALSE,
+  threads = 1,
+  parallelParam = NULL,
+  force = FALSE,
+  ...
+){
+
+  matrixName <- .isProtectedArray(matrixName)
+
+  if(inherits(input, "ArchRProject")){
+    ArrowFiles <- getArrowFiles(input)
+    allCells <- rownames(getCellColData(input))
+    outDir <- getOutputDirectory(input)
+  }else if(inherits(input, "character")){
+    outDir <- ""
+    ArrowFiles <- input
+    allCells <- NULL
+  }else{
+    stop("Error Unrecognized Input!")
+  }
+  if(!all(file.exists(ArrowFiles))){
+    stop("Error Input Arrow Files do not all exist!")
+  }
+
+  #Add args to list
+  args <- mget(names(formals()),sys.frame(sys.nframe()))
+  args$ArrowFiles <- ArrowFiles
+  args$allCells <- allCells
+  args$X <- seq_along(ArrowFiles)
+  args$FUN <- .addFeatureMatrix
+  args$registryDir <- file.path(outDir, "CountFeaturesRegistry")
+
+  #Run With Parallel or lapply
+  outList <- .batchlapply(args)
+
+  if(inherits(input, "ArchRProject")){
+    return(input)
+  }else{
+    return(unlist(outList))
+  }
+
+}
+
+#' Add PeakMatrix to Arrows in ArchRProject
+#' 
+#' This function for each sample will independently compute counts for each peak
+#' per cell in the Arrow File
+#'
+#' @param ArchRProj ArchRProject
+#' @param ceiling ceiling for the number of counts per feature
+#' @param binarize binarize matrix
+#' @param threads number of threads
+#' @param parallelParam parallel parameters for batch style execution
+#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @export
+addPeakMatrix <- function(
+  ArchRProj,
+  ceiling = 4, 
+  binarize = FALSE,
+  parallelParam = NULL,
+  threads = 1,
+  force = FALSE,
+  ...
+){
+
+  if(!inherits(ArchRProj, "ArchRProject")){
+    stop("Adding a PeakMatrix is only for ArchRProject!")
+  }
+
+  ArrowFiles <- getArrowFiles(ArchRProj)
+  allCells <- rownames(getCellColData(ArchRProj))
+  outDir <- getOutputDirectory(ArchRProj)
+
+  if(!all(file.exists(ArrowFiles))){
+    stop("Error Input Arrow Files do not all exist!")
+  }
+
+  #Add args to list
+  args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
+  args$ArrowFiles <- ArrowFiles
+  args$allCells <- allCells
+  args$matrixName = "PeakMatrix"
+  args$features <- ArchRProj@peakSet
+  args$X <- seq_along(ArrowFiles)
+  args$FUN <- .addFeatureMatrix
+  args$registryDir <- file.path(outDir, "CountPeaksRegistry")
+
+  #Run With Parallel or lapply
+  outList <- .batchlapply(args)
+
+  readsInPeaks <- lapply(outList, function(x) x$RIP) %>% unlist
+  FRIP <- lapply(outList, function(x) x$FRIP) %>% unlist
+  ArchRProj <- addCellColData(ArchRProj, data = readsInPeaks, name = "ReadsInPeaks", names(readsInPeaks))
+  ArchRProj <- addCellColData(ArchRProj, data = FRIP, name = "FRIP", names(readsInPeaks))
+  return(ArchRProj)
+
+}
+
+.addFeatureMatrix <- function(
+  i,
+  ArrowFiles, 
+  features,
+  cellNames = NULL, 
+  allCells = NULL,
+  matrixName = "PeakMatrix", 
+  ceiling = 4, 
+  binarize = FALSE,
+  force = FALSE,
+  ...
+  ){
+
+  ArrowFile <- ArrowFiles[i]
+
+  o <- h5closeAll()
+  
+  #Check
+  if(!suppressMessages(h5createGroup(file = ArrowFile, matrixName))){
+    if(force){
+      o <- h5delete(file = ArrowFile, name = matrixName)
+      o <- h5createGroup(ArrowFile, matrixName)
+    }else{
+      stop(sprintf("%s Already Exists!, set force = TRUE to override!", matrixName))
+    }
+  }
+  
+  tstart <- Sys.time()
+ 
+  #Get all cell ids before constructing matrix
+  if(is.null(cellNames)){
+    cellNames <- .availableCells(ArrowFile)
+  }
+
+  if(!is.null(allCells)){
+    cellNames <- cellNames[cellNames %in% allCells]
+  }
+
+  dfParams <- data.frame(
+    ceiling = ceiling, 
+    binarize = binarize * 1,
+    stringsAsFactors = FALSE)
+
+  if("name" %in% colnames(mcols(features))){
+    featureDF <- data.frame(
+      seqnames = paste0(seqnames(features)), 
+      idx = mcols(features)$idx, 
+      start = start(features), 
+      end = end(features), 
+      name = mcols(features)$name,
+      stringsAsFactors = FALSE)
+  }else{
+    featureDF <- data.frame(
+      seqnames = paste0(seqnames(features)), 
+      idx = mcols(features)$idx, 
+      start = start(features), 
+      end = end(features), 
+      stringsAsFactors = FALSE)
+  }
+  
+  ######################################
+  # Initialize SP Mat Group
+  ######################################
+  if(binarize){
+    Class <- "binary"
+  }else{
+    Class <- "integer"
+  }
+  o <- .initializeMat(
+    ArrowFile = ArrowFile,
+    Group = matrixName,
+    Class = Class,
+    cellNames = cellNames,
+    params = dfParams,
+    featureDF = featureDF,
+    force = force
+  )
+
+  ######################################
+  # Add To SP Mat Group
+  ######################################
+  uniqueChr <- as.character(unique(seqnames(features)@values))
+  insertionsInPeaks <- rep(0, length(cellNames))
+  names(insertionsInPeaks) <- cellNames
+  totalInsertions <- insertionsInPeaks
+
+  for(z in seq_along(uniqueChr)){
+
+    o <- h5closeAll()
+    chr <- uniqueChr[z]
+    featurez <- features[BiocGenerics::which(seqnames(features)==chr)]
+    .messageDiffTime(sprintf("Adding %s for Chromosome %s of %s to Arrow File!", matrixName, z, length(uniqueChr)), tstart)
+
+    #Read in Fragments
+    fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)
+    tabFrags <- table(mcols(fragments)$RG)
+
+    #Count Left Insertion
+    temp <- IRanges(start = start(fragments), width = 1)
+    stopifnot(length(temp) == length(fragments))
+    oleft <- findOverlaps(ranges(featurez), temp)
+    oleft <- DataFrame(queryHits=Rle(queryHits(oleft)), subjectHits = subjectHits(oleft))
+
+    #Count Right Insertion
+    temp <- IRanges(start = end(fragments), width = 1)
+    stopifnot(length(temp) == length(fragments))
+    oright <- findOverlaps(ranges(featurez), temp)
+    oright <- DataFrame(queryHits=Rle(queryHits(oright)), subjectHits = subjectHits(oright))
+    remove(temp)
+
+    #Feature Idx
+    oleft$queryHits@values <- mcols(featurez)$idx[oleft$queryHits@values]
+    oright$queryHits@values <- mcols(featurez)$idx[oright$queryHits@values]
+
+    #Correct to RG ID
+    oleft$subjectHits <- as.integer(BiocGenerics::match(mcols(fragments)$RG[oleft$subjectHits], cellNames))
+    oright$subjectHits <- as.integer(BiocGenerics::match(mcols(fragments)$RG[oright$subjectHits], cellNames))
+    remove(fragments)
+
+    #Create Sparse Matrix
+    mat <- Matrix::sparseMatrix(
+      i = c( oleft$queryHits, oright$queryHits ),
+      j = c( oleft$subjectHits, oright$subjectHits ),
+      x = rep(1, nrow(oleft) + nrow(oright)),
+      dims = c(max(mcols(featurez)$idx), length(cellNames))
+      )
+    colnames(mat) <- cellNames
+    
+    #Compute total reads in Peak
+    totalInsertions[names(tabFrags)] <- totalInsertions[names(tabFrags)] + 2 * tabFrags
+    insertionsInPeaks <- insertionsInPeaks + Matrix::colSums(mat)
+
+    #Ceiling
+    if(!is.null(ceiling)){
+      mat@x[mat@x > ceiling] <- ceiling
+    }
+    if(binarize){
+      mat@x[mat@x > 0] <- 1
+    }
+
+    #Write sparseMatrix to Arrow File!
+    o <- .addMatToArrow(
+      mat = mat, 
+      ArrowFile = ArrowFile, 
+      Group = paste0(matrixName,"/", chr), 
+      binarize = binarize,
+      addColSums = TRUE,
+      addRowSums = TRUE
+      ) 
+    gc()
+
+  }
+
+  out <- list(ArrowFile = ArrowFile, RIP = insertionsInPeaks, FRIP = insertionsInPeaks / totalInsertions)
+
+  return(out)
+
+}
+
+
+
+
