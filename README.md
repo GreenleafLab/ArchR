@@ -67,13 +67,12 @@ inputFiles <- c(
 
 #Create Arrow Files
 ArrowFiles <- createArrowFiles(
-	inputFiles = inputFiles,
-	sampleNames = names(inputFiles),
-	outputNames = names(inputFiles),
-	geneAnno = geneAnnoHg19,
-	genomeAnno = genomeAnnoHg19,
-	threads = threads,
-  force = TRUE
+  inputFiles = inputFiles,
+  sampleNames = names(inputFiles),
+  outputNames = names(inputFiles),
+  geneAnno = geneAnnoHg19,
+  genomeAnno = genomeAnnoHg19,
+  threads = threads
 )
 
 #Add Infered Doublet Scores to each Arrow File
