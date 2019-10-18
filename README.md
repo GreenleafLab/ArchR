@@ -8,8 +8,8 @@ if (!requireNamespace("devtools", quietly = TRUE))
 if (!requireNamespace("BiocManager", quietly = TRUE))
 	install.packages("BiocManager")
 
-devtools::install_github("jgranja24/ArchR",
-	auth_token = token, #please email me for a token
+devtools::install_github("GreenleafLab/ArchR",
+	auth_token = token, #Need a token to download (see personalized access tokens)
 	repos = BiocManager::repositories()
 )
 
