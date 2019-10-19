@@ -36,7 +36,7 @@ devtools::install_github('immunogenomics/presto')
 ```
 
 # ArchR PBMC Tutorial
-
+![ArchR Workflow](https://web.stanford.edu/~mcorces/ArchR_Workflow_v1.PNG)
 ```r
 
 #Input Libraries
