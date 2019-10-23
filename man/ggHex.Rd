@@ -2,28 +2,47 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggHex}
 \alias{ggHex}
-\title{GG Violin Plot}
+\title{Ggplot Hexplot summary of points in a standardized manner}
 \usage{
-ggHex(x, y, color, extend = 0.05, ratioYX = 1, xlim = NULL,
-  ylim = NULL, bins = 150, pal = paletteContinuous(set =
-  "solar_extra"), title = "", baseSize = 12, xlabel = "x",
-  ylabel = "y", fun = "median", ...)
+ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
+  = "solar_extra"), bins = 150, xlim = NULL, ylim = NULL,
+  extend = 0.05, xlabel = "x", ylabel = "y", title = "",
+  colorTitle = "values", baseSize = 6, ratioYX = 1, FUN = "median",
+  ...)
 }
 \arguments{
-\item{x}{categorical values to each y value}
+\item{x}{x vector of data to be plot}
 
-\item{y}{numeric values}
+\item{y}{y vector of data to be plot}
 
-\item{pal}{color palette see paletteDiscrete for examples}
+\item{color}{color vector of values to be plot (must be same length as x,y)}
 
-\item{xlabel}{xlabel}
+\item{pal}{custom palette option}
 
-\item{ylabel}{ylabel}
+\item{bins}{number of bins for hexplot}
 
-\item{base_size}{base_size of theme}
+\item{xlim}{xlimits for plot}
 
-\item{size}{size of barplot lines}
+\item{ylim}{ylimits for plot}
+
+\item{extend}{extend limits by this proportion if not set by xlim or ylim}
+
+\item{xlabel}{label for x-axis}
+
+\item{ylabel}{label for y-axis}
+
+\item{title}{title of plot}
+
+\item{colorTitle}{title for legend corresponding to color}
+
+\item{baseSize}{baseSize for fonts}
+
+\item{ratioYX}{ratio of y to x in plot}
+
+\item{FUN}{function for summarizing hexagons}
+
+\item{...}{additional params to pass}
 }
 \description{
-GG Violin Plot
+This function will plot x,y coordinates values summarized in hexagons in a standardized manner
 }

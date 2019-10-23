@@ -12,25 +12,25 @@ theme_ArchR(color = "black", baseSize = 6, baseFamily = "",
 \arguments{
 \item{color}{color of theme}
 
-\item{base_size}{is the size of the font for the axis text and title}
+\item{baseSize}{is the size of the font for the axis text and title}
 
-\item{base_family}{is family for font}
+\item{baseFamily}{is family for font}
 
-\item{base_line_size}{is the size of line}
+\item{baseLineSize}{is the size of line}
 
-\item{base_rect_size}{is the size of rectangle boxes}
+\item{baseRectSize}{is the size of rectangle boxes}
 
-\item{plot_margin_cm}{plot margin in cm}
+\item{plotMarginCm}{plot margin in cm}
 
-\item{legend_position}{where is the legend default bottom}
+\item{legendPosition}{where is the legend default bottom}
 
-\item{legend_text_size}{0.75*base_size}
+\item{legendTextSize}{0.75*base_size}
 
-\item{axis_tick_length_cm}{axis tick length in cm}
+\item{axisTickCm}{axis tick length in cm}
 
-\item{rotate_x_axis_text_90}{rotate x axis text 90 degrees}
+\item{xText90}{rotate x axis text 90 degrees}
 
-\item{rotate_y_axis_text_90}{rotate y axis text 90 degrees}
+\item{yText90}{rotate y axis text 90 degrees}
 }
 \description{
 This function returns a ggplot2 theme that is black borded with black font.

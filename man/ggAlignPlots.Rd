@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggAlignPlots}
 \alias{ggAlignPlots}
-\title{Align GG Plots}
+\title{Align Ggplots vertically or horizontally}
 \usage{
 ggAlignPlots(..., sizes, type = "v", plotList = NULL,
   grobList = NULL)
@@ -13,7 +13,11 @@ ggAlignPlots(..., sizes, type = "v", plotList = NULL,
 \item{sizes}{sizes are a vector or list of values for each ggplot ie c(1,1) for two plots}
 
 \item{type}{v,vertical or h,horizontal}
+
+\item{plotList}{add a list of plots to be aligned}
+
+\item{grobList}{add a list of grobs to be aligned}
 }
 \description{
-Align GG Plots
+This function aligns ggplots vertically or horizontally
 }

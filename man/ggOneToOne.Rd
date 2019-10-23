@@ -4,21 +4,20 @@
 \alias{ggOneToOne}
 \title{GG Plot One to One Heatscatter}
 \usage{
-ggOneToOne(x, y, nPlot = 100 * 10^3, nKernel = 100, size = 2,
-  xlabel = "x", ylabel = "y", title = "Sample Correlation",
-  min = 0.1, max = 0.9999, densityMax = 0.95, extend = 0.05,
-  alpha = 1, baseSize = 12, pal = paletteContinuous(set = "viridis"))
+ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
+  ylabel = "y", title = "Correlation", min = 0.1, max = 0.9999,
+  nPlot = 100 * 10^3, nKernel = 100, densityMax = 0.95,
+  extend = 0.05, baseSize = 6, pal = paletteContinuous(set =
+  "viridis"), ...)
 }
 \arguments{
-\item{x}{x}
+\item{x}{x vector of data to be plot}
 
-\item{y}{y}
+\item{y}{y vector of data to be plot}
 
-\item{nPlot}{number of points to plot}
+\item{size}{plot point size}
 
-\item{nKernel}{n for MASS::kde2d default = 100}
-
-\item{size}{geom_point size}
+\item{alpha}{alpha transperancy of points}
 
 \item{xlabel}{xlabel}
 
@@ -26,15 +25,17 @@ ggOneToOne(x, y, nPlot = 100 * 10^3, nKernel = 100, size = 2,
 
 \item{title}{ggtitle}
 
-\item{min}{xmin quantile [0,1]}
+\item{min}{x/y min quantile [0,1]}
 
-\item{max}{xmax quantile [0,1]}
+\item{max}{x/y max quantile [0,1]}
 
-\item{alpha}{geom_point alpha}
+\item{nPlot}{number of points to plot (correlations computed prior)}
 
-\item{baseSize}{base_font size default is 12}
+\item{nKernel}{n for MASS::kde2d default = 100}
 
-\item{pal}{continuous color palette to use}
+\item{baseSize}{base size of fonts in plot}
+
+\item{pal}{color palette to use for density}
 }
 \description{
 GG Plot One to One Heatscatter
