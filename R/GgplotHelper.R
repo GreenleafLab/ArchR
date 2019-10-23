@@ -18,13 +18,13 @@
 ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion", 
     labelMeans = FALSE, continuousSet = "solar_extra", pal = NULL, colorDensity = FALSE,
     size = 1, xlim = NULL, ylim = NULL, extend = 0.05, xlabel = "x", randomize = FALSE, seed = 1,
-    ylabel = "y", title = "", alpha = 1, baseSize = 6, ratioYX = 1, 
+    ylabel = "y", title = "", colorTitle = NULL, colorOrder = NULL, alpha = 1, baseSize = 6, ratioYX = 1, 
     labelType = "ggrepel", bgColor = "white", fgColor = NULL, labelSize = 1.5,
     addFit = NULL, nullColor = "lightGrey", rastr = FALSE, dpi = 300){
     
     stopifnot(is.numeric(x))
     stopifnot(is.numeric(y))
-    stopifnot(length(y)==length(x))
+    stopifnot(length(y) == length(x))
 
     if(randomize){
       set.seed(seed)
@@ -35,6 +35,7 @@ ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion
 
     df <- data.frame(x = x, y = y)
     include <- which(is.finite(x) & is.finite(y))
+    
     if(length(include) != length(x)){
       message("Some values are not finite! Excluding these points!")
       df <- df[include,]
@@ -44,22 +45,27 @@ ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion
         color <- color[include]
       }
     }
-    if (is.null(xlim)) {
+
+    if(is.null(xlim)){
         xlim <- range(df$x) %>% extendrange(f = extend)
     }
-    if (is.null(ylim)) {
+
+    if(is.null(ylim)){
         ylim <- range(df$y) %>% extendrange(f = extend)
     }
+
     ratioXY <- ratioYX * diff(xlim)/diff(ylim)
 
     #Plot
-    library(ggplot2)
+    .requirePackage("ggplot2")
 
     if (is.null(color) & !colorDensity) {
 
-      p <- ggplot(df[idx,], aes(x = x, y = y)) + coord_equal(ratio = ratioXY, xlim = xlim, 
-              ylim = ylim, expand = F) + xlab(xlabel) + ylab(ylabel) + 
-              ggtitle(title) + theme_ArchR(baseSize = baseSize)
+      p <- ggplot(df[idx,], aes(x = x, y = y)) + 
+          coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = F) + 
+          xlab(xlabel) + ylab(ylabel) + 
+          ggtitle(title) + 
+          theme_ArchR(baseSize = baseSize)
 
       if(rastr){
         if(!requireNamespace("ggrastr", quietly = TRUE)){
@@ -76,21 +82,44 @@ ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion
     }else {
 
         if(colorDensity){
+          
           discrete <- FALSE
           df <- getDensity(x, y, n = 100, sample = NULL) #change
           df <- df[order(df$density), ,drop=FALSE]
           df$color <- df$density
+          
+          if(is.null(colorTitle)){
+            colorTitle <- "density"
+          }
+
         }else if(discrete){
+
+          if(!is.null(colorOrder)){
+            if(!all(color %in% colorOrder)){
+              stop("Not all colors are in colorOrder!")
+            }
+          }else{
+            colorOrder <- gtools::mixedsort(unique(color))
+          }
+
+          if(is.null(colorTitle)){
+            colorTitle <- "color"
+          }
+
           stopifnot(length(color) == nrow(df))
-            df$color <- factor(color, levels = sort(unique(color)))
-        }else {
+          df$color <- factor(color, levels = colorOrder)
+          
+        }else{
           stopifnot(length(color) == nrow(df))
-            df$color <- color
+          df$color <- color
         }
-        p <- ggplot(df[idx,], aes(x = x, y = y, color = color)) +  coord_equal(ratio = ratioXY, xlim = xlim, 
-            ylim = ylim, expand = F) + xlab(xlabel) + ylab(ylabel) + 
-            ggtitle(title) + theme_ArchR(baseSize = baseSize) +
-            theme(legend.direction="horizontal" , legend.box.background = element_rect(color = NA))
+
+        p <- ggplot(df[idx,], aes(x = x, y = y, color = color)) +  
+              coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = F) + 
+              xlab(xlabel) + ylab(ylabel) + 
+              ggtitle(title) + theme_ArchR(baseSize = baseSize) +
+              theme(legend.direction = "horizontal", legend.box.background = element_rect(color = NA)) +
+              labs(color = colorTitle)
 
       if(rastr){
         
@@ -113,15 +142,21 @@ ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion
           if (!is.null(pal)) {
               p <- p + scale_color_manual(values = pal)
           }else {
-              p <- p + scale_color_manual(values = paletteDiscrete(set = discreteSet, 
-                values = sort(unique(color))))
+              p <- p + scale_color_manual(values = paletteDiscrete(set = discreteSet, values = colorOrder))
           }
 
           if (labelMeans) {
+              
               dfMean <- split(df, df$color) %>% lapply(., function(x) {
-                data.frame(x = mean(x[, 1]), y = mean(x[, 2]), 
-                  color = x[1, 3])
+                data.frame(x = mean(x[, 1]), y = mean(x[, 2]), color = x[1, 3])
               }) %>% Reduce("rbind", .)
+
+              #Check Packages!
+              if(tolower(labelType) == "repel" | tolower(labelType) == "ggrepel"){
+                .requirePackage("ggrepel")
+              }else if(tolower(labelType) == "shadow" | tolower(labelType) == "shadowtext"){
+                .requirePackage("shadowtext")
+              }
 
               if(tolower(labelType) == "repel" | tolower(labelType) == "ggrepel"){
 
@@ -134,9 +169,9 @@ ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion
               }else if(tolower(labelType) == "shadow" | tolower(labelType) == "shadowtext"){
 
                 if(!is.null(fgColor)){
-                  p <- p + geom_shadowtext(data = dfMean, aes(x, y, label = color), color = fgColor, bg.colour = bgColor, size = labelSize)
+                  p <- p + shadowtext::geom_shadowtext(data = dfMean, aes(x, y, label = color), color = fgColor, bg.colour = bgColor, size = labelSize)
                 }else{
-                  p <- p + geom_shadowtext(data = dfMean, aes(x, y, label = color), bg.colour = bgColor, size = labelSize)
+                  p <- p + shadowtext::geom_shadowtext(data = dfMean, aes(x, y, label = color), bg.colour = bgColor, size = labelSize)
                 }
         
               }else{
@@ -154,13 +189,14 @@ ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion
       }
 
     }
+
     if (!is.null(addFit)) {
-        p <- p + geom_smooth(data = df, aes(color = NULL), method = addFit, 
-            color = "black") + ggtitle(paste0(title, "\nPearson = ", 
-            round(cor(df$x, df$y), 3), "\nSpearman = ", round(cor(df$x, 
-                df$y, method = "spearman"), 3)))
+        p <- p + geom_smooth(data = df, aes(color = NULL), method = addFit, color = "black") + 
+          ggtitle(paste0(title, "\nPearson = ", round(cor(df$x, df$y), 3), "\nSpearman = ", round(cor(df$x, df$y, method = "spearman"), 3)))
     }
+
     return(p)
+
 }
 
 #' GG Plot One to One Heatscatter

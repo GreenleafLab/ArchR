@@ -9,10 +9,10 @@ ggPoint(x, y, color = NULL, discrete = TRUE,
   continuousSet = "solar_extra", pal = NULL, colorDensity = FALSE,
   size = 1, xlim = NULL, ylim = NULL, extend = 0.05,
   xlabel = "x", randomize = FALSE, seed = 1, ylabel = "y",
-  title = "", alpha = 1, baseSize = 6, ratioYX = 1,
-  labelType = "ggrepel", bgColor = "white", fgColor = NULL,
-  labelSize = 1.5, addFit = NULL, nullColor = "lightGrey",
-  rastr = FALSE, dpi = 300)
+  title = "", colorTitle = NULL, colorOrder = NULL, alpha = 1,
+  baseSize = 6, ratioYX = 1, labelType = "ggrepel",
+  bgColor = "white", fgColor = NULL, labelSize = 1.5,
+  addFit = NULL, nullColor = "lightGrey", rastr = FALSE, dpi = 300)
 }
 \arguments{
 \item{x}{x}
