@@ -805,7 +805,6 @@ availableFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select =
     }
     grepNames
   }
-
 }
 
 #' Plot PDF in outputDirectory of ArchRProject

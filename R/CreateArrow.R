@@ -495,7 +495,7 @@ createArrowFiles <- function(
       }
       stopifnot(length(temp) == length(fragments))
 
-      o <- findOverlaps(ranges(featurex),temp)
+      o <- findOverlaps(ranges(featurex), temp)
       remove(temp)
       gc()
       

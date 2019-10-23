@@ -223,8 +223,6 @@ addDoubletScores <- function(
   xlim <- range(df$X1) %>% extendrange(f = 0.05)
   ylim <- range(df$X2) %>% extendrange(f = 0.05)
   
-  
-
   if(!requireNamespace("ggrastr", quietly = TRUE)){
     
     message("ggrastr is not available for rastr of points, continuing without rastr!")
@@ -239,7 +237,7 @@ addDoubletScores <- function(
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
         ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
-        legend.box.background = element_rect(color = NA))
+        legend.box.background = element_rect(color = NA)) + labs(color = "Simulated Doublet Density")
 
   }else{
 
@@ -255,11 +253,11 @@ addDoubletScores <- function(
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
         ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
-        legend.box.background = element_rect(color = NA))
+        legend.box.background = element_rect(color = NA)) + labs(color = "Simulated Doublet Density")
 
   }
   
-  print(.fixPlotSize(pdensity, plotWidth = unit(6, "in"), plotHeight = unit(6, "in")))
+  print(.fixPlotSize(pdensity, plotWidth = 6, plotHeight = 6))
 
   #Plot Doublet Score
   pscore <- ggPoint(
@@ -277,9 +275,9 @@ addDoubletScores <- function(
     rastr = TRUE,
     baseSize = 6
     ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-          axis.text.y = element_blank(), axis.ticks.y = element_blank())
+          axis.text.y = element_blank(), axis.ticks.y = element_blank()) + labs(color = "Doublet Scores -log10(FDR)")
   
-  print(.fixPlotSize(pscore, plotWidth = unit(6, "in"), plotHeight = unit(6, "in")))
+  print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
   
   #Plot Enrichment Summary
   penrich <- ggPoint(
@@ -296,9 +294,9 @@ addDoubletScores <- function(
     title = "Doublet Enrichment",
     rastr = TRUE
     ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-          axis.text.y = element_blank(), axis.ticks.y = element_blank())
+          axis.text.y = element_blank(), axis.ticks.y = element_blank()) + labs(color = "Doublet Enrichment")
   
-  print(.fixPlotSize(penrich, plotWidth = unit(6, "in"), plotHeight = unit(6, "in")))
+  print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
 
   dev.off()
 
@@ -321,7 +319,17 @@ addDoubletScores <- function(
   names(allDoubletEnrichment) <- allCells
   allDoubletEnrichment[names(simDoublets$doubletEnrich)] <- simDoublets$doubletEnrich
 
+  allDoubUMAP1 <- rep(NA, length(allCells))
+  names(allDoubUMAP1) <- allCells
+  allDoubUMAP1[rownames(df)] <- df[,1]
+
+  allDoubUMAP2 <- rep(NA, length(allCells))
+  names(allDoubUMAP2) <- allCells
+  allDoubUMAP2[rownames(df)] <- df[,2]
+
   o <- h5closeAll()
+  h5write(allDoubUMAP1, file = ArrowFile, "Metadata/Doublet_UMAP1")
+  h5write(allDoubUMAP2, file = ArrowFile, "Metadata/Doublet_UMAP2")
   h5write(allDoubletScores, file = ArrowFile, "Metadata/DoubletScore")
   h5write(allDoubletEnrichment, file = ArrowFile, "Metadata/DoubletEnrichment")
   o <- h5closeAll()
