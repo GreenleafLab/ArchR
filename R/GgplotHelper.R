@@ -353,7 +353,7 @@ ggOneToOne <- function (
 #' @param pal color palette see paletteDiscrete for examples
 #' @export
 #'
-ggViolin <- function (
+ggViolin <- function(
   x = NULL, 
   y = NULL, 
   xlabel = NULL, 
@@ -362,7 +362,7 @@ ggViolin <- function (
   points = FALSE,
   size = 1,  
   baseSize = 6, 
-  ratioYX = 1,
+  ratioYX = NULL,
   sampleRatio = 0.1, 
   title = "", 
   pal = paletteDiscrete(values=x, set = "stallion"),
@@ -389,13 +389,16 @@ ggViolin <- function (
   df$x <- factor(df$x, xOrder)
   
   p <- ggplot(df, aes_string(x = "x", y = "y", color = "x")) + 
-    coord_fixed(ratioYX, expand = TRUE) +
     geom_violin(aes_string(fill="x"), alpha = 0.35) +
     geom_boxplot(size = size, outlier.size = 0, outlier.stroke = 0, fill = NA) + 
     scale_color_manual(values = pal, guide = FALSE) + 
     scale_fill_manual(values = pal, guide = FALSE) + 
     theme_ArchR(xText90 = TRUE, baseSize = baseSize) +
     ggtitle(title)
+
+  if(!is.null(ratioYX)){
+    p <- p + coord_fixed(ratioYX, expand = TRUE)
+  }
 
   if(points){
 
@@ -508,7 +511,7 @@ ggHex <- function(
 #' @param grobList add a list of grobs to be aligned
 #' @export
 #'
-ggAlignPlots <- function(..., sizes, type = "v", plotList = NULL, grobList = NULL){
+ggAlignPlots <- function(..., sizes, type = "v", plotList = NULL, grobList = NULL, draw = TRUE){
   
   #http://stackoverflow.com/a/21503904
 
@@ -578,9 +581,14 @@ ggAlignPlots <- function(..., sizes, type = "v", plotList = NULL, grobList = NUL
   }else{
     stop("Unrecognized type ", type)
   }
-  grid::grid.newpage()
-  grid::grid.draw(combined)
 
+  if(draw){
+    grid::grid.newpage()
+    grid::grid.draw(combined)
+  }else{
+    combined    
+  }
+  
 }
 
 #' ggplot2 default theme for ArchR

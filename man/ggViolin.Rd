@@ -6,7 +6,7 @@
 \usage{
 ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
   xOrder = NULL, points = FALSE, size = 1, baseSize = 6,
-  ratioYX = 1, sampleRatio = 0.1, title = "",
+  ratioYX = NULL, sampleRatio = 0.1, title = "",
   pal = paletteDiscrete(values = x, set = "stallion"), ...)
 }
 \arguments{

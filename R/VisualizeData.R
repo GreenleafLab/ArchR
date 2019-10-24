@@ -20,8 +20,6 @@
 #' @param baseSize base size for text in plot
 #' @param plotContinuous how to plot continuous features (points and hex)
 #' @param plotParams additional params to pass to ggPoint/ggHex
-#' @param plotWidth plot width used for creating a consistent plot independent of legend size
-#' @param plotHeight plot height used for creating a consistent plot independent of legend size
 #' @param ... additional args
 #' @export
 VisualizeEmbedding <- function(
@@ -42,8 +40,6 @@ VisualizeEmbedding <- function(
   baseSize = 6,
   plotContinuous = NULL,
   plotParams = list(),
-  plotWidth = 5,
-  plotHeight = 5,
   ...
   ){
 
@@ -140,7 +136,7 @@ VisualizeEmbedding <- function(
     out <- out + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
   }
 
-  .fixPlotSize(out, plotWidth = unit(plotWidth, "in"), plotHeight = unit(plotHeight,"in"), margin = 0.1)
+  out
 
 }
 
@@ -160,8 +156,6 @@ VisualizeEmbedding <- function(
 #' @param baseSize rastr points in ggplot
 #' @param ratioYX ratio of Y axis to X axis
 #' @param points add points to plot using quasirandom
-#' @param plotWidth plot width used for creating a consistent plot independent of legend size
-#' @param plotHeight plot height used for creating a consistent plot independent of legend size
 #' @param ... additional args
 #' @export
 VisualizeGroups <- function(
@@ -176,8 +170,6 @@ VisualizeGroups <- function(
   baseSize = 6, 
   ratioYX = NULL, 
   points = FALSE, 
-  plotWidth = 6,
-  plotHeight = 4,
   ...
   ){
   
@@ -188,12 +180,12 @@ VisualizeGroups <- function(
   if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
     values <- getCellColData(ArchRProj, name, drop = TRUE)
   }else{
-  if (tolower(colorBy) == "genescorematrix"){
-    if(is.null(log2Norm)){
-      log2Norm <- TRUE
+    if (tolower(colorBy) == "genescorematrix"){
+      if(is.null(log2Norm)){
+        log2Norm <- TRUE
+      }
     }
-  }
-  values <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)
+    values <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)
   }
 
   if(is.null(ylim)){
@@ -215,7 +207,7 @@ VisualizeGroups <- function(
     points = points
     )
 
-  .fixPlotSize(p, height = 1 / ratioYX, margin = 0.1, plotWidth = plotWidth, plotHeight = plotHeight)
+  p
 
 }
 
@@ -273,6 +265,7 @@ VisualizeGroups <- function(
   margin = 0.25,
   height = 1,
   it = 0.05,
+  newPage = FALSE,
   ...
   ){
 
@@ -353,11 +346,11 @@ VisualizeGroups <- function(
       valueOnly = TRUE
     )
 
-    p <- grid.arrange(g, gl, ncol=1, nrow=2, heights = unit.c(unit(sgh,"in"), unit(slh, "in")))
+    p <- grid.arrange(g, gl, ncol=1, nrow=2, heights = unit.c(unit(sgh,"in"), unit(slh, "in")), newpage = newPage)
 
   }else{
 
-    p <- grid.arrange(g)
+    p <- grid.arrange(g, newpage = newPage)
 
   }
 

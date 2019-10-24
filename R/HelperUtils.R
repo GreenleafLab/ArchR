@@ -412,6 +412,36 @@
 ##########################################################################################
 
 #' @export
+.loadAllHiddenFN <- function(package = "ArchR"){
+
+  #https://stackoverflow.com/questions/37832869/export-all-hidden-functions-from-a-package
+
+  # get all the function names of the given package "mypack"
+  r <- unclass(lsf.str(envir = asNamespace(package), all = T))
+
+  # filter weird names
+  if(length(which(grepl("\\[", r))) > 0){
+    r <- r[-which(grepl("\\[", r))]
+  }
+  if(length(which(grepl("<-", r))) > 0){
+    r <- r[-which(grepl("<-", r))]
+  }
+
+  # create functions in the Global Env. with the same name
+  for(name in r){
+    tryCatch({
+      eval(parse(text=paste0(name, "<-", package,":::", name)))
+    },error =function(x){
+
+    })
+  }
+
+  return(0)
+
+}
+
+
+#' @export
 .suppressAll <- function(expr){
   suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
 }

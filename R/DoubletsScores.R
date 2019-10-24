@@ -232,7 +232,8 @@ addDoubletScores <- function(
       geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
         scale_colour_gradientn(colors = paletteContinuous(set = "white_blue_purple")) + 
         xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-        guides(fill = FALSE) + theme_ArchR(base_size = 6) +
+        guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
+        labs(color = "Simulated Doublet Density") +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
@@ -248,12 +249,13 @@ addDoubletScores <- function(
       geom_point_rast(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
         scale_colour_gradientn(colors = paletteContinuous(set = "white_blue_purple")) + 
         xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-        guides(fill = FALSE) + theme_ArchR(base_size = 6) +
+        labs(color = "Simulated Doublet Density") +
+        guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
         ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
-        legend.box.background = element_rect(color = NA)) + labs(color = "Simulated Doublet Density")
+        legend.box.background = element_rect(color = NA))
 
   }
   
@@ -272,10 +274,11 @@ addDoubletScores <- function(
     ylab = "UMAP Dimension 2",
     continuousSet = "white_blue_purple",
     title = "Doublet Scores -log10(FDR)",
+    colorTitle = "Doublet Scores -log10(FDR)",
     rastr = TRUE,
     baseSize = 6
     ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-          axis.text.y = element_blank(), axis.ticks.y = element_blank()) + labs(color = "Doublet Scores -log10(FDR)")
+          axis.text.y = element_blank(), axis.ticks.y = element_blank())
   
   print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
   
@@ -292,9 +295,10 @@ addDoubletScores <- function(
     ylab = "UMAP Dimension 2",
     continuousSet = "white_blue_purple",
     title = "Doublet Enrichment",
+    colorTitle = "Doublet Enrichment",
     rastr = TRUE
     ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-          axis.text.y = element_blank(), axis.ticks.y = element_blank()) + labs(color = "Doublet Enrichment")
+          axis.text.y = element_blank(), axis.ticks.y = element_blank())
   
   print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
 

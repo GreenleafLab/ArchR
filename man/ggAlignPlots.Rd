@@ -5,7 +5,7 @@
 \title{Align Ggplots vertically or horizontally}
 \usage{
 ggAlignPlots(..., sizes, type = "v", plotList = NULL,
-  grobList = NULL)
+  grobList = NULL, draw = TRUE)
 }
 \arguments{
 \item{...}{ggplots}

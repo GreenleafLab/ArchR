@@ -9,8 +9,7 @@ VisualizeEmbedding(ArchRProj = NULL, embedding = "UMAP",
   pal = NULL, size = 0.5, rastr = TRUE, quantCut = c(0.05, 0.95),
   quantHex = 0.5, discreteSet = NULL, continuousSet = NULL,
   randomize = TRUE, keepAxis = FALSE, baseSize = 6,
-  plotContinuous = NULL, plotParams = list(), plotWidth = 5,
-  plotHeight = 5, ...)
+  plotContinuous = NULL, plotParams = list(), ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}
@@ -46,10 +45,6 @@ VisualizeEmbedding(ArchRProj = NULL, embedding = "UMAP",
 \item{plotContinuous}{how to plot continuous features (points and hex)}
 
 \item{plotParams}{additional params to pass to ggPoint/ggHex}
-
-\item{plotWidth}{plot width used for creating a consistent plot independent of legend size}
-
-\item{plotHeight}{plot height used for creating a consistent plot independent of legend size}
 
 \item{...}{additional args}
 }
