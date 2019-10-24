@@ -271,7 +271,7 @@ ggOneToOne <- function (
   xlabel = "x", 
   ylabel = "y", 
   title = "Correlation",
-  min = 0.1, 
+  min = 0.05, 
   max = 0.9999, 
   nPlot = 100 * 10^3, 
   nKernel = 100, 
@@ -306,7 +306,7 @@ ggOneToOne <- function (
   
   #GGPlot
   message("plotting...")
-  gg <- ggPlotPoint(
+  gg <- ggPoint(
       x = df$x, 
       y = df$y, 
       color = df$density, 
@@ -335,7 +335,7 @@ ggOneToOne <- function (
   df$density <- dens$z[ii]
   df$density[df$density > quantile(unique(df$density),densityMax)] <- quantile(unique(df$density),densityMax) #make sure the higher end doesnt bias colors
   if(!is.null(sample)){
-    df <- nSample(df,sample,type="r")
+    df <- df[sample(nrow(df), min(sample,nrow(df))),]
   }
   return(df)
 }
