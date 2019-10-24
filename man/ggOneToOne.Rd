@@ -5,7 +5,7 @@
 \title{GG Plot One to One Heatscatter}
 \usage{
 ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
-  ylabel = "y", title = "Correlation", min = 0.1, max = 0.9999,
+  ylabel = "y", title = "Correlation", min = 0.05, max = 0.9999,
   nPlot = 100 * 10^3, nKernel = 100, densityMax = 0.95,
   extend = 0.05, baseSize = 6, pal = paletteContinuous(set =
   "viridis"), ...)
