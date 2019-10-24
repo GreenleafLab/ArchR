@@ -210,7 +210,7 @@ addDoubletScores <- function(
   doubUMAP <- simDoublets$doubletUMAP
   dfDoub <- data.frame(
     row.names = paste0("doublet_", seq_len(nrow(doubUMAP))), 
-    ArchR:::getDensity(doubUMAP[,1], doubUMAP[,2]), 
+    .getDensity(doubUMAP[,1], doubUMAP[,2]), 
     type = "simulated_doublet"
   )
   dfDoub <- dfDoub[order(dfDoub$density), , drop = FALSE]
