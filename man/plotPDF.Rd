@@ -6,7 +6,7 @@
 \usage{
 plotPDF(..., name = "Plot", width = 6, height = 6,
   ArchRProj = NULL, addDOC = TRUE, useDingbats = FALSE,
-  plotList = NULL)
+  plotList = NULL, useSink = TRUE)
 }
 \arguments{
 \item{...}{additional args to pdf}

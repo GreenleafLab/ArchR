@@ -819,10 +819,13 @@ availableFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select =
 #' @param useDingbats use dingbats characters for plotting
 #' @param ... additional args to pdf
 #' @export
-plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL, addDOC = TRUE, useDingbats = FALSE, plotList = NULL){
+plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL, addDOC = TRUE, 
+  useDingbats = FALSE, plotList = NULL, useSink = TRUE){
 
-  tmpFile <- tempfile(tmpdir="./")
-  sink(tmpFile)
+  if(useSink){
+    tmpFile <- tempfile(tmpdir="./")
+    sink(tmpFile)
+  }
 
   if(is.null(plotList)){
       plotList <- list(...)
@@ -849,19 +852,36 @@ plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL,
     
     if(inherits(plotList[[i]], "gg")){
       
+      print("plotting ggplot!")
+
       print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
       if(i != length(plotList)){
         grid::grid.newpage()
       }
     
     }else if(inherits(plotList[[i]], "gtable")){
+
+      print("plotting gtable!")
       
       print(grid::grid.draw(plotList[[i]]))
       if(i != length(plotList)){
         grid::grid.newpage()
       }
 
+    }else if(attr(class(plotList[[i]]),"package") == "ComplexHeatmap"){
+      
+      print("plotting copmleheatmap!")
+
+      padding <- 45
+      draw(plotList[[i]], 
+        padding = unit(c(padding, padding, padding, padding), "mm"), 
+        heatmap_legend_side = "bot", 
+        annotation_legend_side = "bot"
+      )
+
     }else{
+
+      print("plotting with print")
      
       print(plotList[[i]])
 
@@ -870,8 +890,10 @@ plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL,
   }
   dev.off()
 
-  sink()
-  file.remove(tmpFile)
+  if(useSink){
+    sink()
+    file.remove(tmpFile)
+  }
 
 }
 

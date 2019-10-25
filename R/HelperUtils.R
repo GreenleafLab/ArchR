@@ -474,16 +474,16 @@
 #' @param path check on top of path a custom path
 #' @param error cause error if not in path
 #' @export
-.checkPath <- function(u=NULL, path=NULL, error = TRUE){
+.checkPath <- function(u = NULL, path = NULL, throwError = TRUE){
   if(is.null(u)){
     out <- TRUE
   }
   out <- lapply(u, function(x, error = TRUE){
     if (Sys.which(x) == "") {
-      if(!is.null(path) && file.exists(file.path(path,x))){
+      if(!is.null(path) && file.exists(file.path(path, x))){
         o <- TRUE
       }else{
-        if(error){
+        if(throwError){
           stop(x, " not found in path, please add ", x, " to path!")
         }else{
           o <- FALSE

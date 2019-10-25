@@ -33,7 +33,7 @@ addReproduciblePeakSet <- function(
 	peaksPerCell = 500,
 	maxPeaks = 150000,
 	excludeChr = c("chrM","chrY"),
-	pathToMacs2 = "macs2",
+	pathToMacs2 = findMacs2(),
 	genomeSize = NULL, 
 	shift = -75, 
 	extsize = 150, 
@@ -400,4 +400,23 @@ plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 	return(out)
 
 }
+
+#' @export
+findMacs2 <- function(){
+  #Check if in path
+  if(.suppressAll(.checkPath("macs2", throwError = FALSE))){
+    return("macs2")
+  }
+  #Try seeing if its pip installed
+  search <- system2("pip", "show macs2", stdout = TRUE, stderr = NULL)
+  path2Install <- gsub("Location: ","",search[grep("Location", search, ignore.case=TRUE)])
+  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+    path2Bin
+  }else{
+    stop("Could not find macs2 locally or with pip!")
+  }
+}
+
+
 

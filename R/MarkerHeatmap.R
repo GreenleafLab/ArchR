@@ -3,8 +3,7 @@
 #' This function will plot a heatmap of the results from markerFeatures
 #' 
 #' @param seMarker Summarized Experiment result from markerFeatures
-#' @param FDR False-Discovery Rate Cutoff to Be called a Marker
-#' @param log2FC Log2 Fold Change Cutoff to Be called a Marker
+#' @param cutoff Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker
 #' @param log2Norm log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)
 #' @param scaleTo scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing
 #' @param scaleRows compute row z-scores on matrix
@@ -19,9 +18,8 @@
 #' @param ... additional args
 #' @export
 markerHeatmap <- function(
-  seMarker, 
-  FDR = 0.001, 
-  log2FC = 0.1, 
+  seMarker,
+  cutOff = "FDR <= 0.001 & Log2FC >= 0.1",
   log2Norm = TRUE,
   scaleTo = 10^4,
   scaleRows = TRUE,
@@ -36,7 +34,17 @@ markerHeatmap <- function(
   ...
   ){
 
-  passMat <- SummarizedExperiment::assays(seMarker)[["Log2FC"]] >= log2FC & SummarizedExperiment::assays(seMarker)[["FDR"]] <= FDR
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+
+  #Now Get Values
   mat <- SummarizedExperiment::assays(seMarker)[["Mean"]]
   idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
   if(log2Norm){
@@ -132,13 +140,14 @@ markerHeatmap <- function(
     labelCols = TRUE,
     customRowLabel = mn,
     showColDendrogram = TRUE,
+    draw = FALSE,
     ...
   )
 
   if(returnMat){
     return(mat)
   }else{
-    return(0)
+    return(ht)
   }
 
 }

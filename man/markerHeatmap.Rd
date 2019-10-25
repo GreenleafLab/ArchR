@@ -4,18 +4,14 @@
 \alias{markerHeatmap}
 \title{Plot a Heatmap of Identified Marker Features}
 \usage{
-markerHeatmap(seMarker, FDR = 0.001, log2FC = 0.1, log2Norm = TRUE,
-  scaleTo = 10^4, scaleRows = TRUE, limits = c(-2, 2),
-  grepExclude = NULL, pal = NULL, binaryClusterRows = TRUE,
+markerHeatmap(seMarker, cutOff = "FDR <= 0.001 & Log2FC >= 0.1",
+  log2Norm = TRUE, scaleTo = 10^4, scaleRows = TRUE, limits = c(-2,
+  2), grepExclude = NULL, pal = NULL, binaryClusterRows = TRUE,
   labelMarkers = NULL, labelTop = NULL, labelRows = FALSE,
   returnMat = FALSE, ...)
 }
 \arguments{
 \item{seMarker}{Summarized Experiment result from markerFeatures}
-
-\item{FDR}{False-Discovery Rate Cutoff to Be called a Marker}
-
-\item{log2FC}{Log2 Fold Change Cutoff to Be called a Marker}
 
 \item{log2Norm}{log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)}
 
@@ -40,6 +36,8 @@ markerHeatmap(seMarker, FDR = 0.001, log2FC = 0.1, log2Norm = TRUE,
 \item{returnMat}{return final matrix that is used for plotting heatmap}
 
 \item{...}{additional args}
+
+\item{cutoff}{Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker}
 }
 \description{
 This function will plot a heatmap of the results from markerFeatures

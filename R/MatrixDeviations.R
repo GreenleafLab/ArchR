@@ -15,6 +15,7 @@
 addDeviationsMatrix <- function(
   ArchRProj,
   annotations = NULL,
+  bdgPeaks = getBdgPeaks(ArchRProj),
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,
@@ -52,44 +53,21 @@ addDeviationsMatrix <- function(
   gc()
 
   ##############################################################
-  #Get Row Sums for Expectation!
+  #Get Expectations!
   ##############################################################
-  .messageDiffTime("Computing Expectations!", tstart, addHeader = TRUE)
+  ArrowFiles <- getArrowFiles(ArchRProj)
   useMatrix <- "PeakMatrix"
   availableChr <- .availableSeqnames(ArrowFiles, useMatrix)
-  rS <- .getRowSums(
+  
+  rS <- suppressMessages(.getRowSums(
       ArrowFiles = ArrowFiles, 
       seqnames = availableChr,
       useMatrix = useMatrix,
       filter0 = FALSE
-    )
+    ))
   rS$start <- start(ArchRProj@peakSet)
   rS$end <- end(ArchRProj@peakSet)
   rS$GC <- ArchRProj@peakSet$GC
-
-  if(!is.null(metadata(getPeakSet(ArchRProj))$backgroundPeaks)){
-    
-    if(file.exists(metadata(getPeakSet(ArchRProj))$backgroundPeaks)){
-      .messageDiffTime("Using Previous Background Peaks!", tstart, addHeader = TRUE)
-      bdgPeaks <- readRDS(metadata(getPeakSet(ArchRProj))$backgroundPeaks)
-    }
-    .messageDiffTime("Previous Background Peaks file does not exists! Identifying Background Peaks!", tstart, addHeader = TRUE)
-    bdgPeaks <- .getBackgroundPeaks(rS$value, rS$GC)
-  
-  }else{
-    
-    .messageDiffTime("Identifying Background Peaks!", tstart, addHeader = TRUE)
-    bdgPeaks <- .getBackgroundPeaks(rS$value, rS$GC)
-
-  }
-  if(length(getPeakSet(ArchRProj)) != nrow(bdgPeaks)){
-    stop("Number of rows in background peaks does not match peakSet!")
-  }
-
-  #Save Background Peaks
-  outFile <- file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds")
-  metadata(ArchRProj@peakSet)$backgroundPeaks <- outFile
-  saveRDS(bdgPeaks, outFile, compress = FALSE)
 
   #Create args list
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
@@ -98,7 +76,6 @@ addDeviationsMatrix <- function(
   args$annotations <- NULL
   rm(annotations)
   args$annotationsMatrix <- annotationsMatrix
-  args$bdgPeaks <- bdgPeaks
   args$featureDF <- rS
   args$useMatrix <- useMatrix
   args$ArrowFiles <- ArrowFiles
@@ -414,73 +391,134 @@ addDeviationsMatrix <- function(
 }
 
 #' @export
-addBackgroundPeaks <- function(
-  ArchRProj,
-  bias = "GC", 
+addBdgPeaks <- function(
+  ArchRProj, 
   niterations = 50, 
   w = 0.1, 
   binSize = 50, 
   seed = 1,
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  binarize = FALSE,
   force = FALSE,
-  ...
-  ){
-  
+  ...){
+
+  if(!is.null(metadata(getPeakSet(ArchRProj))$bdgPeaks) & !force){
+    
+    if(file.exists(metadata(getPeakSet(ArchRProj))$bdgPeaks)){
+      
+      stop("Background Peaks Already Exist! set force = TRUE to addBdgPeaks!")
+
+    }else{
+
+      if(force){
+      
+        message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
+        bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+      
+      }else{
+      
+        stop("Previous Background Peaks file does not exist! set force = TRUE to addBdgPeaks!")
+      
+      }
+
+    }
+
+  }else{
+    
+    message("Identifying Background Peaks!")
+    bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+
+  }
+
+  if(length(getPeakSet(ArchRProj)) != nrow(bdgPeaks)){
+    stop("Number of rows in Background Peaks does not match peakSet!")
+  }
+
+  metadata(ArchRProj@peakSet)$bdgPeaks <- outFile
+  ArchRProj
+
+}
+
+#' @export
+getBdgPeaks <- function(
+  ArchRProj, 
+  niterations = 50, 
+  w = 0.1, 
+  binSize = 50, 
+  seed = 1,
+  force = FALSE,
+  ...){
+
+  if(!is.null(metadata(getPeakSet(ArchRProj))$bdgPeaks) & !force){
+    
+    if(file.exists(metadata(getPeakSet(ArchRProj))$bdgPeaks)){
+      
+      message("Using Previous Background Peaks!")
+      bdgPeaks <- readRDS(metadata(getPeakSet(ArchRProj))$bdgPeaks)
+
+    }else{
+
+      if(force){
+      
+        message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
+        bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+      
+      }else{
+      
+        stop("Previous Background Peaks file does not exist! set add = TRUE to addBdgPeaks!")
+      
+      }
+
+    }
+
+  }else{
+    
+    message("Identifying Background Peaks!")
+    bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+
+  }
+
+  if(length(getPeakSet(ArchRProj)) != nrow(bdgPeaks)){
+    stop("Number of rows in Background Peaks does not match peakSet!")
+  }
+
+  bdgPeaks
+
+}
+
+.getBdgPeaks <- function(
+  ArchRProj, 
+  niterations = 50,
+  w = 0.1, 
+  binSize = 50, 
+  seed = 1, 
+  outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
+  ...){
+
   set.seed(1)
-  tstart <- Sys.time()
-  if(!inherits(ArchRProj, "ArchRProject")){
-    stop("Error Needs to be ArchR Project for Input!")
-  }
-  ArrowFiles <- getSampleColData(ArchRProj)$ArrowFiles
-  allCells <- rownames(getCellColData(ArchRProj))
-  outDir <- getOutputDirectory(ArchRProj)
-  if(!all(file.exists(ArrowFiles))){
-    stop("Error Input Arrow Files do not all exist!")
-  }
-  ##############################################################
-  #Get Row Sums for Expectation!
-  ##############################################################
-  .messageDiffTime("Computing Expectations!", tstart, addHeader = TRUE)
+  .requirePackage("chromVAR")
+
+  #Get Expectations
+  ArrowFiles <- getArrowFiles(ArchRProj)
   useMatrix <- "PeakMatrix"
   availableChr <- .availableSeqnames(ArrowFiles, useMatrix)
-  rS <- .getRowSums(
+  
+  rS <- suppressMessages(.getRowSums(
       ArrowFiles = ArrowFiles, 
       seqnames = availableChr,
       useMatrix = useMatrix,
       filter0 = FALSE
-    )
+    ))
   rS$start <- start(ArchRProj@peakSet)
   rS$end <- end(ArchRProj@peakSet)
-  rS$bias <- mcols(ArchRProj@peakSet)[,bias]
-
-  .messageDiffTime("Identifying Background Peaks!", tstart, addHeader = TRUE)
-  bdgPeaks <- .getBackgroundPeaks(
-      values = rS$value, 
-      bias = rS$bias, 
-      niterations = niterations, 
-      w = w, 
-      binSize = binSize, 
-      seed = seed
-    )
-  metadata(ArchRProj@peakSet)$backgroundPeaks <- outFile
-  saveRDS(bdgPeaks, outFile, compress = FALSE)
-
-  return(ArchRProj)
-
-}
-
-.getBackgroundPeaks <- function(values, bias, niterations = 50, w = 0.1, binSize = 50, seed = 1){
-
-  .requirePackage("chromVAR")
+  rS$GC <- ArchRProj@peakSet$GC
 
   #minimal chromVAR change
   #chromVAR reuiqres a matrix/se of ncol > 1 and with a log10(values) transform removing peaks with 0 reads
   #to disable this we create a column of 1's forcing chromVAR to perform log10(values + 1)
 
   se <- SummarizedExperiment::SummarizedExperiment(
-    assays = SimpleList(counts = as.matrix(data.frame(values, 1))),
-    rowData = DataFrame(bias = bias)
+    assays = SimpleList(counts = as.matrix(data.frame(rS$value, 1))),
+    rowData = DataFrame(bias = rS$GC)
   )
 
   bdgPeaks <- chromVAR::getBackgroundPeaks(
@@ -491,17 +529,134 @@ addBackgroundPeaks <- function(
     bs = binSize
   )
 
+  #Save Background Peaks
+  if(!is.null(outFile)){
+    saveRDS(bdgPeaks, outFile, compress = FALSE)
+  }
+
   return(bdgPeaks)
 
 }
 
+#' @export
+annotationEnrichment <- function(
+  seMarker = NULL,
+  ArchRProj = NULL,
+  annotations = NULL,
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.1",
+  background = "bdgPeaks",
+  return = "SE",
+  ...){
+
+  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+    stop("Only markers identified from PeakMatrix can be used!")
+  }
+
+  matches <- getMatches(ArchRProj, annotations)
+  
+  r1 <- SummarizedExperiment::rowRanges(matches)
+  mcols(r1) <- NULL
+
+  r2 <- getPeakSet(ArchRProj)
+  mcols(r2) <- NULL
+
+  if(!all.equal(paste0(r1), paste0(r2))){
+    stop("Peaks from seMarker do not match peakSet in ArchRProj!")
+  }
+
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+
+  if(tolower(background) %in% c("backgroundpeaks", "bdgpeaks", "background", "bdg")){
+    method <- "bdg"
+    bdgPeaks <- getBdgPeaks(ArchRProj)
+  }else{
+    method <- "all"
+  }
+
+  enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
+
+    idx <- which(passMat[, x])
+
+    if(method == "bdg"){
+      .computeEnrichment(matches, idx, c(idx, as.vector(bdgPeaks[idx,])))
+    }else{
+      .computeEnrichment(matches, idx, seq_len(nrow(bdgPeaks)))
+    }
+
+  }) %>% SimpleList
+  names(enrichList) <- colnames(seMarker)
 
 
+  if(tolower(return)=="se"){
 
+    assays <- lapply(seq_len(ncol(enrichList[[1]])), function(x){
+      d <- lapply(seq_along(enrichList), function(y){
+        enrichList[[y]][colnames(matches),x,drop=FALSE]
+      }) %>% Reduce("cbind",.)
+      colnames(d) <- names(enrichList)
+      d
+    }) %>% SimpleList
+    names(assays) <- colnames(enrichList[[1]])
+    assays <- rev(assays)
+    se <- SummarizedExperiment::SummarizedExperiment(assays=assays)
 
+  }else{
 
+    enrichList
+    
+  }
 
+}
 
+.computeEnrichment <- function(matches, compare, background){
+
+  matches <- .getAssay(matches, "matches")
+  
+  #Compute Totals
+  matchCompare <- matches[compare, ,drop=FALSE]
+  matchBackground <- matches[background, ,drop=FALSE]
+  matchCompareTotal <- Matrix::colSums(matchCompare)
+  matchBackgroundTotal <- Matrix::colSums(matchBackground)
+
+  #Create Summary DF
+  pOut <- data.frame(
+    feature = colnames(matches),
+    CompareFrequency = matchCompareTotal,
+    nCompare = nrow(matchCompare),
+    CompareProportion = matchCompareTotal/nrow(matchCompare),
+    BackgroundFrequency = matchBackgroundTotal,
+    nBackground = nrow(matchBackground),
+    BackgroundProporition = matchBackgroundTotal/nrow(matchBackground)
+  )
+  
+  #Enrichment
+  pOut$Enrichment <- pOut$CompareProportion / pOut$BackgroundProporition
+  
+  #Get P-Values with Hyper Geometric Test
+  pOut$mlog10p <- lapply(seq_len(nrow(pOut)), function(x){
+    p <- -phyper(pOut$CompareFrequency[x] - 1, # Number of Successes the -1 is due to cdf integration
+     pOut$BackgroundFrequency[x], # Number of all successes in background
+     pOut$nBackground[x] - pOut$BackgroundFrequency[x], # Number of non successes in background
+     pOut$nCompare[x], # Number that were drawn
+     lower.tail = FALSE, log.p = TRUE)# P[X > x] Returns LN must convert to log10
+    return(p/log(10))
+  }) %>% unlist %>% round(4)
+
+  #Minus Log10 FDR
+  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
+  pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
+
+  pOut
+
+}
 
 
 

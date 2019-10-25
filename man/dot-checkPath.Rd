@@ -4,7 +4,7 @@
 \alias{.checkPath}
 \title{Check path for utility}
 \usage{
-.checkPath(u = NULL, path = NULL, error = TRUE)
+.checkPath(u = NULL, path = NULL, throwError = TRUE)
 }
 \arguments{
 \item{u}{utility that you want to check is in path}
