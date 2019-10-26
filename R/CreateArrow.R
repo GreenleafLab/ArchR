@@ -73,9 +73,24 @@ createArrowFiles <- function(
   args$registryDir <- file.path(outDir, "CreateArrowsRegistry")
 
   #Run With Parallel or lapply
-  outList <- .batchlapply(args)
+  outArrows <- tryCatch({
+    unlist(.batchlapply(args))
+  },error = function(x){
+    message("createArrowFiles has encountered an error, checking if any ArrowFiles completed...")
+    for(i in seq_along(args$outputNames)){
+      out <- paste0(args$outputNames[i],".arrow")
+      if(file.exists(out)){
+        o <- tryCatch({
+          o <- h5read(out, "Metadata/Completed") #Check if completed
+        },error = function(y){
+          file.remove(out) #If not completed delete
+        })
+      }
+    }
+    paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
+  })
 
-  return(unlist(outList))
+  return(outArrows)
 
 }
 
@@ -125,12 +140,22 @@ createArrowFiles <- function(
   .requirePackage("Rsamtools")
 
   ArrowFile <- paste0(outputName, ".arrow")
+
+  #Check if a completed file exists!
   if(file.exists(ArrowFile)){
-    if(force){
-      rmf <- file.remove(ArrowFile)
-    }else{
-      stop("Error file already exists!")
-    }
+    o <- tryCatch({
+      o <- h5read(ArrowFile, "Metadata/Completed") #Check if completed
+      if(force){
+        .messageDiffTime(sprintf("%s Arrow Exists! Overriding since force = TRUE!", prefix), tstart, verbose = TRUE, addHeader = FALSE)
+        file.remove(ArrowFile)
+      }else{
+        .messageDiffTime(sprintf("%s Arrow Exists! Marking as completed since force = FALSE!", prefix), tstart, verbose = TRUE, addHeader = FALSE)
+        return(ArrowFile)
+      }
+    },error = function(y){
+      .messageDiffTime(sprintf("%s Arrow Exists! Overriding since not completed!", prefix), tstart, verbose = TRUE, addHeader = FALSE)
+      file.remove(ArrowFile) #If not completed delete
+    })
   }
 
   #############################################################
@@ -207,10 +232,10 @@ createArrowFiles <- function(
           xlab("Size of Fragments (bp) \n") + 
           ylab("Fragments (%)") + 
           ggtitle("Fragment Size Distribution")
-    print(gg)
+    print(.fixPlotSize(gg, plotWidth = 3, plotHeight = 2, height = 2/3))
     dev.off()
 
-  }, error = function(x) {
+  }, error = function(x){
 
       .messageDiffTime("Continuing through after error ggplot for Fragment Size Distribution", tstart)
       print(x)
@@ -256,7 +281,7 @@ createArrowFiles <- function(
       rastr = TRUE) + 
       geom_hline(yintercept=filterTSS, lty = "dashed", size = 0.5) +
       geom_vline(xintercept=log10(filterFrags), lty = "dashed", size = 0.5)
-    print(gg)
+    print(.fixPlotSize(gg))
     dev.off()
 
   }, error = function(x) {
@@ -268,7 +293,6 @@ createArrowFiles <- function(
   })
 
   #Add To Metadata
-  .messageDiffTime("Adding Metadata!", tstart, addHeader = TRUE)
   #Sanity Check Here to Make Sure!
   stopifnot(
     identical(
@@ -309,7 +333,7 @@ createArrowFiles <- function(
   # Create Tile Matrix
   #############################################################
   if(addTileMat){
-  .messageDiffTime(sprintf("%s Adding TileMatrix", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
+    .messageDiffTime(sprintf("%s Adding TileMatrix", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
     TileMatParams$ArrowFile <- ArrowFile
     TileMatParams$cellNames <- Metadata$cellNames[idx]
     chromLengths <- end(genomeAnno$chromSizes)
@@ -318,7 +342,7 @@ createArrowFiles <- function(
     TileMatParams$blacklist <- genomeAnno$blacklist
     TileMatParams$force <- TRUE
     TileMatParams$excludeChr <- excludeChr
-    tileMat <- do.call(.addTileMat, TileMatParams)
+    tileMat <- suppressMessages(do.call(.addTileMat, TileMatParams))
     gc()
   }
 
@@ -326,21 +350,21 @@ createArrowFiles <- function(
   # Add Gene Score Matrix
   #############################################################
   if(addGeneScoreMat){
-  .messageDiffTime(sprintf("%s Adding GeneScoreMatrix", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
+    .messageDiffTime(sprintf("%s Adding GeneScoreMatrix", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
     GeneScoreMatParams$ArrowFile <- ArrowFile
     GeneScoreMatParams$genes <- geneAnno$genes
     GeneScoreMatParams$cellNames <- Metadata$cellNames[which(Metadata$Keep==1)]
     GeneScoreMatParams$blacklist <- genomeAnno$blacklist
     GeneScoreMatParams$force <- TRUE
     GeneScoreMatParams$excludeChr <- excludeChr
-    geneScoreMat <- do.call(.addGeneScoreMat, GeneScoreMatParams)
+    geneScoreMat <- suppressMessages(do.call(.addGeneScoreMat, GeneScoreMatParams))
     gc()
   }
 
   o <- h5closeAll()
 
   .messageDiffTime(sprintf("%s Finished Creating ArrowFile", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
-
+  o <- h5write(obj = "Finished", file = ArrowFile, name = "Metadata/Completed")
 
   ArrowFile <- paste0(outputName, ".arrow")  
 
