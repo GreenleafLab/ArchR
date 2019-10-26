@@ -137,7 +137,7 @@ addDeviationsMatrix <- function(
     ) %>% {.customDeviations(
       countsMatrix = .,
       annotationsMatrix = annotationsMatrix,
-      backgroudPeaks = bdgPeaks,
+      backgroudPeaks = SummarizedExperiment::assay(bdgPeaks),
       expectation = featureDF$value/sum(featureDF$value),
       out = out
     )}
@@ -529,6 +529,9 @@ getBdgPeaks <- function(
     bs = binSize
   )
 
+  bdgPeaks <- SummarizedExperiment(assays = SimpleList(bdgPeaks = bdgPeaks), 
+    rowRanges = GRanges(rS$seqnames,IRanges(rS$start,rS$end),value=rS$value,GC=rS$GC))
+
   #Save Background Peaks
   if(!is.null(outFile)){
     saveRDS(bdgPeaks, outFile, compress = FALSE)
@@ -543,11 +546,11 @@ annotationEnrichment <- function(
   seMarker = NULL,
   ArchRProj = NULL,
   annotations = NULL,
-  cutOff = "FDR <= 0.1 & Log2FC >= 0.1",
+  cutOff = "FDR <= 0.01 & Log2FC >= 0",
   background = "bdgPeaks",
-  return = "SE",
   ...){
 
+  tstart <- Sys.time()
   if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
     stop("Only markers identified from PeakMatrix can be used!")
   }
@@ -576,12 +579,13 @@ annotationEnrichment <- function(
 
   if(tolower(background) %in% c("backgroundpeaks", "bdgpeaks", "background", "bdg")){
     method <- "bdg"
-    bdgPeaks <- getBdgPeaks(ArchRProj)
+    bdgPeaks <- SummarizedExperiment::assay(getBdgPeaks(ArchRProj))
   }else{
     method <- "all"
   }
 
   enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
+    .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
 
     idx <- which(passMat[, x])
 
@@ -594,25 +598,18 @@ annotationEnrichment <- function(
   }) %>% SimpleList
   names(enrichList) <- colnames(seMarker)
 
+  assays <- lapply(seq_len(ncol(enrichList[[1]])), function(x){
+    d <- lapply(seq_along(enrichList), function(y){
+      enrichList[[y]][colnames(matches),x,drop=FALSE]
+    }) %>% Reduce("cbind",.)
+    colnames(d) <- names(enrichList)
+    d
+  }) %>% SimpleList
+  names(assays) <- colnames(enrichList[[1]])
+  assays <- rev(assays)
+  out <- SummarizedExperiment::SummarizedExperiment(assays=assays)
 
-  if(tolower(return)=="se"){
-
-    assays <- lapply(seq_len(ncol(enrichList[[1]])), function(x){
-      d <- lapply(seq_along(enrichList), function(y){
-        enrichList[[y]][colnames(matches),x,drop=FALSE]
-      }) %>% Reduce("cbind",.)
-      colnames(d) <- names(enrichList)
-      d
-    }) %>% SimpleList
-    names(assays) <- colnames(enrichList[[1]])
-    assays <- rev(assays)
-    se <- SummarizedExperiment::SummarizedExperiment(assays=assays)
-
-  }else{
-
-    enrichList
-    
-  }
+  out
 
 }
 
