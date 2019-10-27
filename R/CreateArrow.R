@@ -87,6 +87,7 @@ createArrowFiles <- function(
         })
       }
     }
+    print(paste0("Error Received : ", x))
     paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
   })
 
@@ -221,7 +222,7 @@ createArrowFiles <- function(
   plot <- tryCatch({
     
     dir.create(outDir, showWarnings = FALSE)
-    pdf(file.path(outDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=3,height=2,onefile=FALSE)
+    pdf(file.path(outDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=4,height=3,onefile=FALSE)
     plotDF <- data.frame(
       x = seq_along(fragSummary[[2]]), 
       percent = 100 * fragSummary[[2]]/sum(fragSummary[[2]])
@@ -232,7 +233,7 @@ createArrowFiles <- function(
           xlab("Size of Fragments (bp) \n") + 
           ylab("Fragments (%)") + 
           ggtitle("Fragment Size Distribution")
-    print(.fixPlotSize(gg, plotWidth = 3, plotHeight = 2, height = 2/3))
+    print(.fixPlotSize(gg, plotWidth = 4.5, plotHeight = 3.5, height = 4/3))
     dev.off()
 
   }, error = function(x){
@@ -269,7 +270,7 @@ createArrowFiles <- function(
         paste0("Median TSS Enrichment = ", median(Metadata$TSSEnrichment[Metadata$Keep==1]))
       )
 
-    pdf(file.path(outDir,paste0(sampleName,"-TSS_by_Unique_Frags.pdf")),width=6,height=6,onefile=FALSE)
+    pdf(file.path(outDir,paste0(sampleName,"-TSS_by_Unique_Frags.pdf")),width=4,height=4,onefile=FALSE)
     gg <- ggPoint(
       x = log10(Metadata$nFrags),
       y = Metadata$TSSEnrichment, 
@@ -281,7 +282,7 @@ createArrowFiles <- function(
       rastr = TRUE) + 
       geom_hline(yintercept=filterTSS, lty = "dashed", size = 0.5) +
       geom_vline(xintercept=log10(filterFrags), lty = "dashed", size = 0.5)
-    print(.fixPlotSize(gg))
+    print(.fixPlotSize(gg, plotWidth = 4, plotHeight = 4))
     dev.off()
 
   }, error = function(x) {
@@ -317,7 +318,7 @@ createArrowFiles <- function(
   if(removeFilteredCells){
     .messageDiffTime(sprintf("%s Removing Fragments from Filtered Cells", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
     idx <- which(Metadata$Keep == 1)
-    o <- .filterCellsFromArrow(inArrow = ArrowFile, cellNames = Metadata$cellNames[idx])
+    o <- .suppressAll(.filterCellsFromArrow(inArrow = ArrowFile, cellNames = Metadata$cellNames[idx]))
     o <- h5write(obj = Metadata$Keep[idx], file = ArrowFile, name = "Metadata/PassQC")
     o <- h5write(obj = Metadata$nFrags[idx], file = ArrowFile, name = "Metadata/nFrags")
     o <- h5write(obj = Metadata$nMonoFrags[idx], file = ArrowFile, name = "Metadata/nMonoFrags")
@@ -1036,7 +1037,6 @@ createArrowFiles <- function(
 
   tstart <- Sys.time()
   outArrow <- paste0(tempfile(tmpdir="."), ".arrow")
-  print(outArrow)
   
   o <- h5closeAll()
   o <- h5createFile(outArrow)
