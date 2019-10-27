@@ -221,6 +221,9 @@ createArrowFiles <- function(
   Metadata <- fragSummary[[1]]
   plot <- tryCatch({
     
+    tmpFile <- tempfile(tmpdir="./")
+    sink(tmpFile)
+
     dir.create(outDir, showWarnings = FALSE)
     pdf(file.path(outDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=4,height=3,onefile=FALSE)
     plotDF <- data.frame(
@@ -236,6 +239,9 @@ createArrowFiles <- function(
     print(.fixPlotSize(gg, plotWidth = 4.5, plotHeight = 3.5, height = 4/3))
     dev.off()
 
+    sink()
+    file.remove(tmpFile)
+
   }, error = function(x){
 
       .messageDiffTime("Continuing through after error ggplot for Fragment Size Distribution", tstart)
@@ -248,7 +254,7 @@ createArrowFiles <- function(
   #############################################################
   #Compute TSS Enrichment Scores Information!
   #############################################################
-  .messageDiffTime(sprintf("%s Adding TSS Enrichment Scores", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
+  .messageDiffTime(sprintf("%s Computing TSS Enrichment Scores", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
   TSSParams$TSS <- geneAnno$TSS
   TSSParams$ArrowFile <- ArrowFile
   TSSParams$cellNames <- Metadata$cellNames
@@ -264,6 +270,9 @@ createArrowFiles <- function(
   
   plot <- tryCatch({
     
+    tmpFile <- tempfile(tmpdir="./")
+    sink(tmpFile)
+
     ggtitle <- sprintf("%s\n%s\n%s",
         paste0(sampleName, " : Number of Cells Pass Filter = ", sum(Metadata$Keep)),
         paste0("Median Frags = ", median(Metadata$nFrags[Metadata$Keep==1])),
@@ -284,6 +293,9 @@ createArrowFiles <- function(
       geom_vline(xintercept=log10(filterFrags), lty = "dashed", size = 0.5)
     print(.fixPlotSize(gg, plotWidth = 4, plotHeight = 4))
     dev.off()
+
+    sink()
+    file.remove(tmpFile)
 
   }, error = function(x) {
 
@@ -318,7 +330,7 @@ createArrowFiles <- function(
   if(removeFilteredCells){
     .messageDiffTime(sprintf("%s Removing Fragments from Filtered Cells", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
     idx <- which(Metadata$Keep == 1)
-    o <- .suppressAll(.filterCellsFromArrow(inArrow = ArrowFile, cellNames = Metadata$cellNames[idx]))
+    o <- .filterCellsFromArrow(inArrow = ArrowFile, cellNames = Metadata$cellNames[idx])
     o <- h5write(obj = Metadata$Keep[idx], file = ArrowFile, name = "Metadata/PassQC")
     o <- h5write(obj = Metadata$nFrags[idx], file = ArrowFile, name = "Metadata/nFrags")
     o <- h5write(obj = Metadata$nMonoFrags[idx], file = ArrowFile, name = "Metadata/nMonoFrags")
@@ -456,7 +468,7 @@ createArrowFiles <- function(
   tssFeatures <- c(tssWindow, tssFlank)
 
   #Count
-  .messageDiffTime("Counting Around TSS!", tstart)
+  #.messageDiffTime("Counting Around TSS!", tstart)
   
   countList <- .fastFeatureCounts(feature = tssFeatures, ArrowFile = ArrowFile, cellNames = cellNames)
 
@@ -469,7 +481,7 @@ createArrowFiles <- function(
   names(tssScores) <- cellNames
   tssScores <- round(tssScores, 3)
 
-  .messageDiffTime("Computed TSS Scores!", tstart)
+  #.messageDiffTime("Computed TSS Scores!", tstart)
 
   return(list(tssScores=tssScores, tssReads=cWn))
 
@@ -545,8 +557,8 @@ createArrowFiles <- function(
 
   }
 
-  message("\n")
-  .messageDiffTime("Finished Counting Insertions", tstart1)
+  #message("\n")
+  #.messageDiffTime("Finished Counting Insertions", tstart1)
 
   out <- list(nWindow = nWindow, nFlank = nFlank)
 
@@ -595,6 +607,7 @@ createArrowFiles <- function(
   if(is.null(tstart)){
     tstart <- Sys.time()
   }
+  tstart2 <- Sys.time()
   
   if(verboseAll){
     printEvery <- 0.25
@@ -614,7 +627,7 @@ createArrowFiles <- function(
   mcols(tileChromSizes)$chunkName <- paste0(seqnames(tileChromSizes),"#chunk",seq_along(tileChromSizes))
   for(x in seq_along(tileChromSizes)){
 
-    if(as.numeric(difftime(Sys.time(),tstart,units="mins")) > nextPrint){
+    if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
       .messageDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
         verbose = verboseHeader, addHeader = verboseAll)
       nextPrint <- nextPrint + printEvery
@@ -695,7 +708,8 @@ createArrowFiles <- function(
   if(is.null(tstart)){
     tstart <- Sys.time()
   }
-  
+  tstart2 <- Sys.time()
+ 
   if(verboseAll){
     printEvery <- 0.25
   }else{
@@ -715,7 +729,7 @@ createArrowFiles <- function(
   mcols(tileChromSizes)$chunkName <- paste0(seqnames(tileChromSizes),"#chunk",seq_along(tileChromSizes))
   for(x in seq_along(tileChromSizes)){
 
-    if(as.numeric(difftime(Sys.time(),tstart,units="mins")) > nextPrint){
+    if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
       .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
         verbose = verboseHeader, addHeader = verboseAll)
       nextPrint <- nextPrint + printEvery
