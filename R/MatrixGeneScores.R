@@ -99,8 +99,6 @@ addGeneScoreMatrix <- function(
   if(is.null(tmpFile)){
     tmpFile <- .tempfile(pattern = paste0("tmp-", .sampleName(ArrowFile)))
   }
-  print(i)
-  print(tmpFile)
 
   #Check
   if(!suppressMessages(h5createGroup(file = ArrowFile, "GeneScoreMatrix"))){

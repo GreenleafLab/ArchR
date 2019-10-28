@@ -137,7 +137,7 @@ createArrowFiles <- function(
   inputFile <- inputFiles[i]
   sampleName <- sampleNames[i] 
   outputName <- outputNames[i]
-  ArrowFile <- ArrowFile[i]
+  ArrowFile <- ArrowFiles[i]
 
   prefix <- sprintf("(%s : %s of %s)", sampleName, i, length(inputFiles))
 
