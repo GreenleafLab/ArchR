@@ -132,15 +132,18 @@ createArrowFiles <- function(
     tstart <- Sys.time()
   }
 
+  ArrowFiles <- paste0(outputNames, ".arrow")
+  
   inputFile <- inputFiles[i]
   sampleName <- sampleNames[i] 
   outputName <- outputNames[i]
+  ArrowFile <- ArrowFile[i]
+
   prefix <- sprintf("(%s : %s of %s)", sampleName, i, length(inputFiles))
 
   .requirePackage("rhdf5")
   .requirePackage("Rsamtools")
 
-  ArrowFile <- paste0(outputName, ".arrow")
 
   #Check if a completed file exists!
   if(file.exists(ArrowFile)){
