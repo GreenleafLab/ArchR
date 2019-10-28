@@ -348,7 +348,8 @@ createArrowFiles <- function(
   #############################################################
   if(addTileMat){
     .messageDiffTime(sprintf("%s Adding TileMatrix", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
-    TileMatParams$ArrowFile <- ArrowFile
+    TileMatParams$i <- i
+    TileMatParams$ArrowFiles <- ArrowFiles
     TileMatParams$cellNames <- Metadata$cellNames[idx]
     chromLengths <- end(genomeAnno$chromSizes)
     names(chromLengths) <- paste0(seqnames(genomeAnno$chromSizes))
@@ -365,7 +366,8 @@ createArrowFiles <- function(
   #############################################################
   if(addGeneScoreMat){
     .messageDiffTime(sprintf("%s Adding GeneScoreMatrix", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
-    GeneScoreMatParams$ArrowFile <- ArrowFile
+    GeneScoreMatParams$i <- i
+    GeneScoreMatParams$ArrowFiles <- ArrowFiles
     GeneScoreMatParams$genes <- geneAnno$genes
     GeneScoreMatParams$cellNames <- Metadata$cellNames[which(Metadata$Keep==1)]
     GeneScoreMatParams$blacklist <- genomeAnno$blacklist
