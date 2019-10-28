@@ -57,7 +57,7 @@ addGeneScoreMatrix <- function(
   args$ArrowFiles <- ArrowFiles
   args$allCells <- allCells
   args$X <- seq_along(ArrowFiles)
-  args$FUN <- batchFUN
+  args$FUN <- .addGeneScoreMat
   args$registryDir <- file.path(outDir, "GeneScoresRegistry")
 
   #Run With Parallel or lapply
