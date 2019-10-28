@@ -222,6 +222,9 @@ addDoubletScores <- function(
   dfDoub <- dfDoub[order(dfDoub$density), , drop = FALSE]
   dfDoub$color <- dfDoub$density
   
+  tmpFile <- .tempfile()
+  sink(tmpFile)
+
   #Plot Doublet Summary
   pdf(file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.pdf")), width = 6, height = 6)
 
@@ -311,6 +314,8 @@ addDoubletScores <- function(
   print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
 
   dev.off()
+  sink()
+  file.remove(tmpFile)
 
   summaryList <- SimpleList(
     originalDataUMAP = df,
