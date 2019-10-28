@@ -588,7 +588,7 @@ createArrowFiles <- function(
 .tabixToTmp <- function(
   tabixFile, 
   sampleName,
-  tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow", fileext=".h5")), 
+  tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow"), fileext=".arrow"),
   chromSizes, 
   nChunk = 3,
   gsubExpression = NULL, 
@@ -679,7 +679,7 @@ createArrowFiles <- function(
 .bamToTmp <- function(
   bamFile, 
   sampleName,
-  tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow", fileext=".h5")), 
+  tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow"), fileext=".arrow"), 
   chromSizes, 
   bamFlag = NULL,
   nChunk = 3,
@@ -1053,7 +1053,7 @@ createArrowFiles <- function(
 .filterCellsFromArrow <- function(inArrow, cellNames){
 
   tstart <- Sys.time()
-  outArrow <- paste0(tempfile(tmpdir="."), ".arrow")
+  outArrow <- .tempfile(fileext = ".arrow")
   
   o <- h5closeAll()
   o <- h5createFile(outArrow)
