@@ -7,8 +7,8 @@
 plotFootprints(input = NULL, positions = NULL,
   plotName = "Plot-Footprints", groupBy = "Clusters",
   useGroups = NULL, pal = NULL, flank = 250, flankNorm = 50,
-  smoothWindow = 10, nTop = NULL, normMethod = "none",
-  addDOC = TRUE, useSink = TRUE, threads = 16,
+  smoothWindow = 10, nTop = NULL, normMethod = "none", height = 6,
+  width = 4, addDOC = TRUE, useSink = TRUE, threads = 16,
   verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
