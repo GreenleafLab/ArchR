@@ -412,7 +412,7 @@ getMatrixFromArrow <- function(
   useMatrix = "TileMatrix",
   doSampleCells = FALSE, 
   sampledCellNames = NULL, 
-  tmpPath = tempfile(), 
+  tmpPath = .tempfile(pattern = paste0("tmp-partial-mat")), 
   useIndex = FALSE,
   tstart = NULL,
   verbose = TRUE,
@@ -446,7 +446,7 @@ getMatrixFromArrow <- function(
     if(doSampleCells){
 
       #Save Temporary Matrix
-      outx <- paste0(tmpPath, "-", ArrowFiles[x], "-temp-mat.rds")
+      outx <- paste0(tmpPath, "-", ArrowFiles[x], ".rds")
       saveRDS(matx, outx, compress = FALSE)     
 
       #Sample Matrix 

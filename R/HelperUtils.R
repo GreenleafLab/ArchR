@@ -497,6 +497,25 @@
   return(out)
 }
 
+#' Check path for utility
+#' @param u utility that you want to check is in path
+#' @param path check on top of path a custom path
+#' @param error cause error if not in path
+#' @export
+.tempfile <- function(pattern = "tmp", tmpdir = "tmp", fileext = "", addDOC = TRUE){
+
+  dir.create(tmpdir, showWarnings = FALSE)
+
+  if(addDOC){
+    doc <- paste0("Date-", Sys.Date(), "_Time-", gsub(":","-", stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2]))
+  }else{
+    doc <- ""
+  }
+
+  tempfile(pattern = paste0(pattern, "-"), tmpdir = tmpdir, fileext = paste0(doc, fileext))
+
+}
+
 #' This function returns ascii archr LOGO or arrow etc.
 #' @param ascii logo, arrow, target
 #' @export

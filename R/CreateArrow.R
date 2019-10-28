@@ -186,7 +186,7 @@ createArrowFiles <- function(
 
   }else if(tolower(readMethod)=="tabix"){
    
-    tmp <- .tabixToTmp(tabixFile = inputFile, chromSizes = genomeAnno$chromSizes, nChunk = nChunk,
+    tmp <- .tabixToTmp(tabixFile = inputFile, sampleName = sampleName, chromSizes = genomeAnno$chromSizes, nChunk = nChunk,
             gsubExpression = gsubExpression, prefix = prefix, verboseHeader = verboseHeader, 
             verboseAll = verboseAll, tstart = tstart, ...)
 
@@ -196,7 +196,8 @@ createArrowFiles <- function(
   
   }else if(tolower(readMethod)=="bam"){
 
-    tmp <- .bamToTmp(prefix = prefix, bamFile = inputFile, chromSizes = genomeAnno$chromSizes, bamFlag = bamFlag, 
+    tmp <- .bamToTmp(prefix = prefix, bamFile = inputFile, sampleName = sampleName, 
+            chromSizes = genomeAnno$chromSizes, bamFlag = bamFlag, 
             bcTag = bcTag, gsubExpression = gsubExpression, nChunk = nChunk, 
             offsetPlus = offsetPlus, offsetMinus = offsetMinus, prefix = prefix, 
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
@@ -221,7 +222,7 @@ createArrowFiles <- function(
   Metadata <- fragSummary[[1]]
   plot <- tryCatch({
     
-    tmpFile <- tempfile(tmpdir="./")
+    tmpFile <- .tempfile()
     sink(tmpFile)
 
     dir.create(outDir, showWarnings = FALSE)
@@ -270,7 +271,7 @@ createArrowFiles <- function(
   
   plot <- tryCatch({
     
-    tmpFile <- tempfile(tmpdir="./")
+    tmpFile <- .tempfile()
     sink(tmpFile)
 
     ggtitle <- sprintf("%s\n%s\n%s",
@@ -586,7 +587,8 @@ createArrowFiles <- function(
 
 .tabixToTmp <- function(
   tabixFile, 
-  tmpFile = paste0(tempfile(),".h5"), 
+  sampleName,
+  tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow", fileext=".h5")), 
   chromSizes, 
   nChunk = 3,
   gsubExpression = NULL, 
@@ -676,7 +678,8 @@ createArrowFiles <- function(
 
 .bamToTmp <- function(
   bamFile, 
-  tmpFile = paste0(tempfile(),".h5"), 
+  sampleName,
+  tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow", fileext=".h5")), 
   chromSizes, 
   bamFlag = NULL,
   nChunk = 3,

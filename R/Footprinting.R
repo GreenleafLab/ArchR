@@ -30,6 +30,8 @@ plotFootprints <- function(
   smoothWindow = 10,
   nTop = NULL,
   normMethod = "none",
+  height = 6,
+  width = 4,
   addDOC = TRUE,
   useSink = TRUE,
   threads = 16,
@@ -93,7 +95,7 @@ plotFootprints <- function(
   # Plot Helper
   ############################################################################################
   if(useSink){
-    tmpFile <- tempfile(tmpdir="./")
+    tmpFile <- .tempfile()
     sink(tmpFile)
   }
 

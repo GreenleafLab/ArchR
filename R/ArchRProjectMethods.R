@@ -823,7 +823,7 @@ plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL,
   useDingbats = FALSE, plotList = NULL, useSink = TRUE){
 
   if(useSink){
-    tmpFile <- tempfile(tmpdir="./")
+    tmpFile <- .tempfile()
     sink(tmpFile)
   }
 

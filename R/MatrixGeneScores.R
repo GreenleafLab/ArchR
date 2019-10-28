@@ -90,11 +90,15 @@ addGeneScoreMatrix <- function(
   geneModel = "exp(-abs(x)/10000)",
   excludeChr = c("chrY","chrM"),
   force = FALSE,
-  tmpFile = tempfile(),
+  tmpFile = NULL,
   ...
   ){
 
   ArrowFile <- ArrowFiles[i]
+
+  if(is.null(tmpFile)){
+    tmpPath <- .tempfile(pattern = paste0("tmp-",.sampleName(ArrowFile),"-",i))
+  }
 
   #Check
   if(!suppressMessages(h5createGroup(file = ArrowFile, "GeneScoreMatrix"))){
