@@ -446,7 +446,7 @@ getMatrixFromArrow <- function(
     if(doSampleCells){
 
       #Save Temporary Matrix
-      outx <- paste0(tmpPath, "-", ArrowFiles[x], ".rds")
+      outx <- paste0(tmpPath, "-", .sampleName(ArrowFiles[x]), ".rds")
       saveRDS(matx, outx, compress = FALSE)     
 
       #Sample Matrix 

@@ -115,15 +115,21 @@ addDoubletScores <- function(
 
   tstart <- Sys.time()
   ArrowFile <- ArrowFiles[i]
-  .messageDiffTime(sprintf("Computing Doublet Scores %s of %s!", i, length(ArrowFiles)), tstart, addHeader = TRUE)
+  sampleName <- .sampleName(ArrowFile)
+  outDir <- file.path(outDir, sampleName)
+  dir.create(outDir, showWarnings = FALSE)
+
+  .messageDiffTime(sprintf("Computing Doublet Scores %s (%s of %s)!", sampleName, i, length(ArrowFiles)), tstart, addHeader = TRUE)
 
   #################################################
   # 1. Create ArchRProject For Iterative LSI
   #################################################
+  tmpDir <- .tempfile()
+  dir.create(tmpDir)
   proj <- suppressMessages(ArchRProject(
     ArrowFiles = ArrowFile,
     sampleNames = .sampleName(ArrowFile),
-    outputDirectory = tempdir(),
+    outputDirectory = tmpDir,
     copyArrows = FALSE,
     showLogo = FALSE,
     geneAnnotation = .nullGeneAnnotation(), #this doesnt matter just needs to be valid
@@ -238,7 +244,7 @@ addDoubletScores <- function(
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
         ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
-        legend.box.background = element_rect(color = NA)) + labs(color = "Simulated Doublet Density")
+        legend.box.background = element_rect(color = NA))
 
   }else{
 
@@ -280,6 +286,7 @@ addDoubletScores <- function(
     ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
           axis.text.y = element_blank(), axis.ticks.y = element_blank())
   
+  grid::grid.newpage()
   print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
   
   #Plot Enrichment Summary
@@ -300,6 +307,7 @@ addDoubletScores <- function(
     ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
           axis.text.y = element_blank(), axis.ticks.y = element_blank())
   
+  grid::grid.newpage()
   print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
 
   dev.off()
