@@ -938,6 +938,8 @@ createArrowFiles <- function(
 
   }
 
+  #Remove Tmp
+  rmf <- file.remove(tmpFile)
   .messageDiffTime(sprintf("%s Finished Constructing ArrowFile", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
 
   return(outArrow)
