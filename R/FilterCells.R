@@ -83,7 +83,7 @@ FilterCells <- function(ArchRProj, filterList){
 #' @param scorePerMillion normalized Score-per-million minimum to keep
 #' @param selectionRules string with a formula containing n (majority = (n+1)/2, multiple samples = 2)
 #' @export
-FilterPlot <- function(ArchRProj, filterList, sampleNames = NULL){
+FilterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
 
   ccd <- getCellColData(ArchRProj, unique(c("Sample", names(filterList))))
   if(!is.null(sampleNames)){
