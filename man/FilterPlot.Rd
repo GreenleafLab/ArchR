@@ -4,7 +4,7 @@
 \alias{FilterPlot}
 \title{Extend Filter then Normalize Scores for Summits}
 \usage{
-FilterPlot(ArchRProj, filterList, sampleNames = NULL)
+FilterPlot(ArchRProj, filterList, sampleNames = NULL, ...)
 }
 \arguments{
 \item{df}{dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files}
