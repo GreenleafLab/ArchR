@@ -201,7 +201,7 @@ createArrowFiles <- function(
   
   }else if(tolower(readMethod)=="bam"){
 
-    tmp <- .bamToTmp(prefix = prefix, bamFile = inputFile, sampleName = sampleName, 
+    tmp <- .bamToTmp(bamFile = inputFile, sampleName = sampleName, 
             chromSizes = genomeAnno$chromSizes, bamFlag = bamFlag, 
             bcTag = bcTag, gsubExpression = gsubExpression, nChunk = nChunk, 
             offsetPlus = offsetPlus, offsetMinus = offsetMinus, prefix = prefix, 
@@ -908,7 +908,7 @@ createArrowFiles <- function(
     .messageDiffTime(sprintf("%s Adding Chromosome %s of %s", prefix, x, length(uniqueChr)), tstart, verbose = verboseAll)
     
     #Determine Ranges and RG Pre-Allocation
-    ix <- BiocGenerics::which(chunkChr==uniqueChr[x])
+    ix <- BiocGenerics::which(chunkChr == uniqueChr[x])
     chunkNamex <- chunkNames[ix]
     dtListx <- dtList[ix] 
 
@@ -922,7 +922,7 @@ createArrowFiles <- function(
     mcols(fragments)$RG@values <- stringr::str_split(mcols(fragments)$RG@values, pattern = "#", simplify=TRUE)[,2]
 
     #Order RG RLE based on bcPass
-    fragments <- fragments[mcols(fragments)$RG %bcin% bcPass]
+    fragments <- fragments[BiocGenerics::which(mcols(fragments)$RG %bcin% bcPass)]
     fragments <- fragments[order(S4Vectors::match(mcols(fragments)$RG, bcPass))]
     lengthRG <- length(mcols(fragments)$RG@lengths)
 
