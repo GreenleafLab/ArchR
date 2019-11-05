@@ -278,6 +278,7 @@ ggOneToOne <- function (
   densityMax = 0.95, 
   extend = 0.05, 
   baseSize = 6, 
+  rastr = TRUE,
   pal = paletteContinuous(set = "viridis"),
   ...){
   
@@ -320,7 +321,8 @@ ggOneToOne <- function (
       size = size, 
       alpha = alpha, 
       title = title, 
-      baseSize = baseSize
+      baseSize = baseSize,
+      rastr = rastr
     ) + geom_abline(slope = 1, intercept = 0, lty = "dashed")
   return(gg)
 }

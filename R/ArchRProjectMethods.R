@@ -459,6 +459,54 @@ getEmbedding <- function(ArchRProj, embedding = "IterativeLSI", return = "df", .
 }
 
 ##########################################################################################
+# Project Summary
+##########################################################################################
+
+#' Get projectSummary from ArchRProject
+#' 
+#' This function prints the projectSummary from an ArchRProject
+#' 
+#' @param ArchRProj ArchRProject
+#' @param returnSummary return summary or just print
+#' @param ... additional args
+#' @export
+getProjectSummary <- function(ArchRProj, returnSummary = FALSE, ...){
+  ArchRProj <- .validArchRProject(ArchRProj)
+  pS <- ArchRProj@projectSummary
+  o <- lapply(seq_along(pS), function(x){
+    message(names(pS)[x], " :")
+    p <- lapply(seq_along(pS[[x]]), function(y){
+      message("\t", names(pS[[x]])[y], " : ", pS[[x]][y])
+    })
+    message("\n")
+  })
+  if(returnSummary){
+    pS
+  }else{
+    0
+  }
+}
+
+#' Add projectSummary tp ArchRProject
+#' 
+#' This function adds info to the projectSummary from an ArchRProject
+#' 
+#' @param ArchRProj ArchRProject
+#' @param name name of summary input
+#' @param summary summary vector
+#' @param ... additional args
+#' @export
+addProjectSummary <- function(ArchRProj, name, summary, ...){
+  ArchRProj <- .validArchRProject(ArchRProj)
+  pS <- ArchRProj@projectSummary
+  name <- paste0(length(pS) + 1, "_", name)
+  pS <- append(pS, SimpleList(summary))
+  names(pS)[length(pS)] <- name
+  ArchRProj@projectSummary <- pS
+  ArchRProj
+}
+
+##########################################################################################
 # Annotation Methods
 ##########################################################################################
 

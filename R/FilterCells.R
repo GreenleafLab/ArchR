@@ -70,7 +70,6 @@ FilterCells <- function(ArchRProj, filterList){
   }
 
   ArchRProj@cellColData <- ccd[cellsPF,]
-
   ArchRProj
   
 }

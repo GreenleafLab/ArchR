@@ -7,8 +7,8 @@
 ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
   ylabel = "y", title = "Correlation", min = 0.05, max = 0.9999,
   nPlot = 100 * 10^3, nKernel = 100, densityMax = 0.95,
-  extend = 0.05, baseSize = 6, pal = paletteContinuous(set =
-  "viridis"), ...)
+  extend = 0.05, baseSize = 6, rastr = TRUE,
+  pal = paletteContinuous(set = "viridis"), ...)
 }
 \arguments{
 \item{x}{x vector of data to be plot}

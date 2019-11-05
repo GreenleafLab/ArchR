@@ -526,17 +526,30 @@ getMatrixFromArrow <- function(
 
 
 #' @export 
-.getColSums <- function(ArrowFile, chrToRun, useMatrix, verbose = TRUE, tstart = NULL, threads = 1){
+.getColSums <- function(ArrowFiles, seqnames, useMatrix, verbose = TRUE, tstart = NULL, threads = 1){
+  
   if(is.null(tstart)){
     tstart <- Sys.time()
   }
+
   #Compute ColSums
-  cS <- .safelapply(seq_along(chrToRun), function(x){
-    o <- h5closeAll()
-    h5read(ArrowFile, paste0(useMatrix, "/", chrToRun[x], "/colSums"))
-  }, threads = threads) %>% Reduce("rbind", .) %>% colSums
+  cS <- .safelapply(seq_along(seqnames), function(x){
+    
+    lapply(seq_along(ArrowFiles), function(y){
+      
+      o <- h5closeAll()
+      cSy <- h5read(ArrowFile, paste0(useMatrix, "/", seqnames[x], "/colSums"))
+      rownames(cSy) <- .availableCells(ArrowFile, useMatrix)
+      cSy
+      
+    }) %>% Reduce("rbind", .)
+    
+  }, threads = threads) %>% Reduce("cbind", .) %>% rowSums
+
   .messageDiffTime("Successfully Computed colSums", tstart, verbose = verbose)
+
   return(cS)
+
 }
 
 # h5read implementation for optimal reading

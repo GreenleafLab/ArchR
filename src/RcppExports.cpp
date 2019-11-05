@@ -5,6 +5,20 @@
 
 using namespace Rcpp;
 
+// rowCorCpp
+Rcpp::NumericVector rowCorCpp(IntegerVector idxX, IntegerVector idxY, Rcpp::NumericMatrix X, Rcpp::NumericMatrix Y);
+RcppExport SEXP _ArchR_rowCorCpp(SEXP idxXSEXP, SEXP idxYSEXP, SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type idxX(idxXSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type idxY(idxYSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type Y(YSEXP);
+    rcpp_result_gen = Rcpp::wrap(rowCorCpp(idxX, idxY, X, Y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rleSumsStrandedChr
 IntegerVector rleSumsStrandedChr(S4 rle, IntegerVector x, IntegerVector strand, int width);
 RcppExport SEXP _ArchR_rleSumsStrandedChr(SEXP rleSEXP, SEXP xSEXP, SEXP strandSEXP, SEXP widthSEXP) {
@@ -122,6 +136,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_ArchR_rowCorCpp", (DL_FUNC) &_ArchR_rowCorCpp, 4},
     {"_ArchR_rleSumsStrandedChr", (DL_FUNC) &_ArchR_rleSumsStrandedChr, 4},
     {"_ArchR_rleSumsStranded", (DL_FUNC) &_ArchR_rleSumsStranded, 4},
     {"_ArchR_tabulate2dCpp", (DL_FUNC) &_ArchR_tabulate2dCpp, 6},
