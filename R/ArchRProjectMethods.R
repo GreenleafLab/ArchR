@@ -161,11 +161,11 @@ getCellNames <- function(ArchRProj, ...){
 #' @export
 getCellColData <- function(ArchRProj, select = NULL, drop = FALSE, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
-  ccd <- data.frame(ArchRProj@cellColData,stringsAsFactors=FALSE)
+  ccd <- data.frame(ArchRProj@cellColData, stringsAsFactors=FALSE)
   if(!is.null(select)){
     ccd2 <- lapply(seq_along(select), function(x){
       tryCatch({
-        data.frame(dplyr::mutate(ccd, tmpNewCol123=eval(parse(text=select[x])))[,"tmpNewCol123"])
+        data.frame(dplyr::mutate(ccd, tmpNewCol123=eval(parse(text=select[x])))[,"tmpNewCol123"], stringsAsFactors=FALSE)
       }, error = function(x){
         stop("select Not Found in Colnames of cellColData:\n",x)
       })

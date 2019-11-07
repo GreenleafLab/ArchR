@@ -49,7 +49,7 @@ VisualizeEmbedding <- function(
   # Plot Helpers
   ##############################
   .quantileCut <- function (x, lo = 0, hi = 0.975, rm0 = TRUE){
-    q <- quantile(x, probs = c(lo, hi))
+    q <- quantile(x, probs = c(lo, hi), na.rm = TRUE)
     x[x < q[1]] <- q[1]
     x[x > q[2]] <- q[2]
     return(x)
