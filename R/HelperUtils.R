@@ -440,6 +440,15 @@
 
 }
 
+#' @export
+.splitEvery <- function(x, n){
+  #https://stackoverflow.com/questions/3318333/split-a-vector-into-chunks-in-r
+  if(is.atomic(x)){
+    split(x, ceiling(seq_along(x) / n))
+  }else{
+    split(x, ceiling(seq_len(nrow(x)) / n))
+  }
+}
 
 #' @export
 .suppressAll <- function(expr){

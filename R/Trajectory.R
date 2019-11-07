@@ -243,6 +243,188 @@ getTrajectory <- function(
 }
 
 
+#' Visualize Embedding from ArchR Project
+#' 
+#' This function will plot an embedding that was created from
+#' computeEmbedding
+#'
+#' @param ArchRProj ArchRProject
+#' @param embedding embedding to visualize (see computeEmbedding)
+#' @param colorBy colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
+#' @param name name of column in cellColData or Feature in Array in Arrows
+#' @param log2Norm log2 Normalize features if they are continuous
+#' @param pal custom palette to use for plotting
+#' @param size size of points in plot
+#' @param rastr rastr points in plot
+#' @param quantCut quantile cut of continuous features
+#' @param quantHex quantile evaluation for each hex in geom_hex
+#' @param discreteSet discrete palette for visualizing embedding
+#' @param continuousSet continuous palette for visualizing embedding
+#' @param randomize randomize points prior to plotting
+#' @param keepAxis keep x and y axis for plot
+#' @param baseSize base size for text in plot
+#' @param plotAs how to plot (points vs hex)
+#' @param plotParams additional params to pass to ggPoint/ggHex
+#' @param ... additional args
+#' @export
+VisualizeTrajectory <- function(
+  ArchRProj = NULL,
+  embedding = "UMAP",
+  trajectory = "Trajectory",
+  colorBy = "colData",
+  name = "Trajectory",
+  log2Norm = NULL,
+  pal = NULL,
+  size = 0.5,
+  rastr = TRUE,
+  quantCut = c(0.05, 0.95),
+  quantHex = 0.5,
+  discreteSet = NULL,
+  continuousSet = NULL,
+  randomize = TRUE,
+  keepAxis = FALSE,
+  baseSize = 6,
+  addArrow = TRUE,
+  plotAs = NULL,
+  plotParams = list(),
+  ...
+  ){
+
+  .requirePackage("ggplot2")
+
+  ##############################
+  # Plot Helpers
+  ##############################
+  .quantileCut <- function (x, lo = 0, hi = 0.975, rm0 = TRUE){
+    q <- quantile(x, probs = c(lo, hi), na.rm = TRUE)
+    x[x < q[1]] <- q[1]
+    x[x > q[2]] <- q[2]
+    return(x)
+  }
+
+  .summarizeHex <- function(x){
+    quantile(x, quantHex)
+  }
+
+  ##############################
+  # Get Trajectory
+  ##############################
+  dfT <- getCellColData(ArchRProj, select = trajectory)
+  idxRemove <- which(is.na(dfT[,1]))
+
+  ##############################
+  # Get Embedding
+  ##############################
+  df <- getEmbedding(ArchRProj, embedding = embedding, return = "df")
+  dfT <- cbind(df, dfT[rownames(df),])
+  colnames(dfT) <- c("x", "y", "PseudoTime")
+
+  #Parameters
+  plotParams$x <- df[,1]
+  plotParams$y <- df[,2]
+  plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,1])
+  plotParams$baseSize <- baseSize
+
+  if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
+    
+    plotParams$color <- as.vector(getCellColData(ArchRProj)[,name])
+    plotParams$discrete <- .isDiscrete(plotParams$color)
+    plotParams$continuousSet <- "solar_extra"
+    plotParams$discreteSet <- "stallion"
+    plotParams$title <- paste(plotParams$title, " colored by\ncolData : ", name)
+    if(is.null(plotAs)){
+      plotAs <- "hexplot"
+    }
+
+  }else{
+    if (tolower(colorBy) == "genescorematrix"){
+      if(is.null(log2Norm)){
+        log2Norm <- TRUE
+      }
+      plotParams$continuousSet <- "white_blue_purple"
+    }else{
+      plotParams$continuousSet <- "solar_extra"
+    }
+    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)
+    plotParams$discrete <- FALSE
+    plotParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name)
+    if(is.null(plotAs)){
+      plotAs <- "hexplot"
+    }
+    if(plotAs=="hexplot"){
+      plotParams$fun <- .summarizeHex
+    }
+
+  }
+
+  #Additional Params!
+  plotParams$xlabel <- gsub("_", " ",stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,2])
+  plotParams$ylabel <- gsub("_", " ",stringr::str_split(colnames(df)[2],pattern="#",simplify=TRUE)[,2])
+
+  if(!is.null(continuousSet)){
+    plotParams$continuousSet <- continuousSet
+  }
+  if(!is.null(continuousSet)){
+    plotParams$discreteSet <- discreteSet
+  }
+  plotParams$rastr <- rastr
+  plotParams$size <- size
+  plotParams$randomize <- randomize
+  
+  if(plotParams$discrete){
+    plotParams$color <- paste0(plotParams$color)
+  }
+
+  plotParams$color[idxRemove] <- NA
+
+  if(!plotParams$discrete){
+    plotParams$color <- .quantileCut(plotParams$color, min(quantCut), max(quantCut))
+    plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
+    if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
+      plotParams$addPoints <- TRUE
+      out <- do.call(ggHex, plotParams)
+    }else{
+      out <- do.call(ggPoint, plotParams)
+    }
+  }else{
+    out <- do.call(ggPoint, plotParams)
+  }
+
+  if(!keepAxis){
+    out <- out + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+  }
+
+  #Prep Trajectory Vector
+  dfT$value <- plotParams$color
+  dfT <- dfT[order(dfT$PseudoTime), ]
+  dfT <- dfT[!is.na(dfT$PseudoTime), ]
+
+  #Plot Pseudo-Time
+  out2 <- ggPoint(dfT$PseudoTime, dfT$value, dfT$PseudoTime, 
+    discrete = FALSE, xlabel = "PseudoTime", ylabel = name, ratioYX = 0.5, rastr = TRUE) +
+    geom_smooth(color = "black")
+
+  if(addArrow){
+    dfArrow <- .splitEvery(dfT, floor(nrow(dfT) / 10)) %>% 
+      lapply(colMeans) %>% Reduce("rbind",.) %>% data.frame
+    out <- out + geom_path(
+            data = data.frame(dfArrow), aes(x, y, color=NULL), size= 1, 
+            arrow = arrow(type = "open", angle = 30, length = unit(0.1, "inches"))
+          )
+  }
+
+  list(out, out2)
+
+}
+
+.splitEvery <- function(x, n){
+  #https://stackoverflow.com/questions/3318333/split-a-vector-into-chunks-in-r
+  if(is.atomic(x)){
+    split(x, ceiling(seq_along(x) / n))
+  }else{
+    split(x, ceiling(seq_len(nrow(x)) / n))
+  }
+}
 
 
 

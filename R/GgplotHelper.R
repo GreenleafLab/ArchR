@@ -120,7 +120,8 @@ ggPoint <- function(
           p <- p + geom_point(size = size, alpha = alpha, color = defaultColor)
         }else{
           .requirePackage("ggrastr")
-          p <- p + geom_point_rast(size = size, raster.dpi = dpi, alpha = alpha, color = defaultColor)
+          p <- p + geom_point_rast(
+              size = size, raster.dpi = dpi, alpha = alpha, color = defaultColor)
         }
       }else{
         p <- p + geom_point(size = size, alpha = alpha, color = defaultColor)
@@ -175,8 +176,9 @@ ggPoint <- function(
           p <- p + geom_point(size = size, alpha = alpha)
         }else{
           .requirePackage("ggrastr")
-          p <- p + geom_point_rast(size = size, raster.dpi = dpi, alpha = alpha)
-        }          
+          p <- p + geom_point_rast(size = size, raster.dpi = dpi, alpha = alpha, 
+            raster.width=par('fin')[1], raster.height = (ratioYX * par('fin')[2]))
+        }
       
       }else{
 
@@ -241,6 +243,8 @@ ggPoint <- function(
         p <- p + geom_smooth(data = df, aes(color = NULL), method = addFit, color = "black") + 
           ggtitle(paste0(title, "\nPearson = ", round(cor(df$x, df$y), 3), "\nSpearman = ", round(cor(df$x, df$y, method = "spearman"), 3)))
     }
+
+    p <- p + theme(legend.position = "bottom")
 
     return(p)
 
@@ -422,6 +426,8 @@ ggViolin <- function(
   if (!is.null(ylabel)) {
     p <- p + ylab(ylabel)
   }
+  
+  p <- p + theme(legend.position = "bottom")
 
   return(p)
 
@@ -465,6 +471,7 @@ ggHex <- function(
   baseSize = 6,
   ratioYX = 1, 
   FUN = "median", 
+  addPoints = FALSE,
   ...){
 
     df <- data.frame(x = x, y = y)
@@ -487,8 +494,18 @@ ggHex <- function(
     }
     ratioXY <- ratioYX * diff(xlim)/diff(ylim)
 
-    p <- ggplot() +
-        stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA) +
+    p <- ggplot()
+
+    if(addPoints){
+      if(requireNamespace("ggrastr", quietly = TRUE)){
+        .requirePackage("ggrastr")
+        p <- p + geom_point_rast(data = df, aes(x=x,y=y), color = "lightgrey")
+      }else{
+        message("ggrastr is not available for rastr of points, continuing without points!")
+      }
+    }
+
+    p <- p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA) +
         scale_fill_gradientn(colors = pal) +
         xlab(xlabel) + 
         ylab(ylabel) + 
@@ -497,6 +514,8 @@ ggHex <- function(
         coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = FALSE) +
         theme(legend.direction="horizontal", legend.box.background = element_rect(color = NA)) +
         labs(color = colorTitle)
+
+    p <- p + theme(legend.position = "bottom")
     
     p
 

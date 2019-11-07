@@ -18,7 +18,7 @@
 #' @param randomize randomize points prior to plotting
 #' @param keepAxis keep x and y axis for plot
 #' @param baseSize base size for text in plot
-#' @param plotContinuous how to plot continuous features (points and hex)
+#' @param plotAs how to plot (points vs hex)
 #' @param plotParams additional params to pass to ggPoint/ggHex
 #' @param ... additional args
 #' @export
@@ -38,7 +38,7 @@ VisualizeEmbedding <- function(
   randomize = TRUE,
   keepAxis = FALSE,
   baseSize = 6,
-  plotContinuous = NULL,
+  plotAs = NULL,
   plotParams = list(),
   ...
   ){
@@ -77,8 +77,8 @@ VisualizeEmbedding <- function(
     plotParams$continuousSet <- "solar_extra"
     plotParams$discreteSet <- "stallion"
     plotParams$title <- paste(plotParams$title, " colored by\ncolData : ", name)
-    if(is.null(plotContinuous)){
-      plotContinuous <- "hexplot"
+    if(is.null(plotAs)){
+      plotAs <- "hexplot"
     }
 
   }else{
@@ -93,10 +93,10 @@ VisualizeEmbedding <- function(
     plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)
     plotParams$discrete <- FALSE
     plotParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name)
-    if(is.null(plotContinuous)){
-      plotContinuous <- "hexplot"
+    if(is.null(plotAs)){
+      plotAs <- "hexplot"
     }
-    if(plotContinuous=="hexplot"){
+    if(plotAs=="hexplot"){
       plotParams$fun <- .summarizeHex
     }
 
@@ -123,7 +123,7 @@ VisualizeEmbedding <- function(
   if(!plotParams$discrete){
     plotParams$color <- .quantileCut(plotParams$color, min(quantCut), max(quantCut))
     plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
-    if(tolower(plotContinuous) == "hex" | tolower(plotContinuous) == "hexplot"){
+    if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
       out <- do.call(ggHex, plotParams)
     }else{
       out <- do.call(ggPoint, plotParams)
