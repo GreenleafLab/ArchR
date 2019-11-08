@@ -403,6 +403,9 @@ plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 
 #' @export
 findMacs2 <- function(){
+  
+  message("Searching For MACS2...")
+
   #Check if in path
   if(.suppressAll(.checkPath("macs2", throwError = FALSE))){
     return("macs2")
@@ -411,7 +414,7 @@ findMacs2 <- function(){
   search2 <- tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
   search3 <- tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
   
-  out <- c("Not Found in Path")
+  message("Not Found in $Path")
 
   if(search2[1] != "ERROR"){
 	  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
@@ -419,7 +422,7 @@ findMacs2 <- function(){
 	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
 	    return(path2Bin)
 	  }else{
-	    out <- c(out, "Not Found with pip")
+  		message("Not Found with pip")
 	  }
   }
 
@@ -429,7 +432,7 @@ findMacs2 <- function(){
 	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
 	    return(path2Bin)
 	  }else{
-	    out <- c(out, "Not Found with pip3")
+  		message("Not Found with pip3")
 	  }
   }
   
