@@ -408,14 +408,33 @@ findMacs2 <- function(){
     return("macs2")
   }
   #Try seeing if its pip installed
-  search <- system2("pip", "show macs2", stdout = TRUE, stderr = NULL)
-  path2Install <- gsub("Location: ","",search[grep("Location", search, ignore.case=TRUE)])
-  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
-    path2Bin
-  }else{
-    stop("Could not find macs2 locally or with pip!")
+  search2 <- tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
+  search3 <- tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
+  
+  out <- c("Not Found in Path")
+
+  if(search2[1] != "ERROR"){
+	  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
+	  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+	    return(path2Bin)
+	  }else{
+	    out <- c(out, "Not Found with pip")
+	  }
   }
+
+  if(search3[1] != "ERROR"){
+	  path2Install <- gsub("Location: ","",search3[grep("Location", search3, ignore.case=TRUE)])
+	  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+	    return(path2Bin)
+	  }else{
+	    out <- c(out, "Not Found with pip3")
+	  }
+  }
+  
+  cat(out)
+
 }
 
 
