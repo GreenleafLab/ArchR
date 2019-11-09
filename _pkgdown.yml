@@ -1,0 +1,23 @@
+templates:
+  params:
+    bootswatch: cerulean
+
+navbar:
+  left:
+  - text: Vignettes
+    menu:
+      - text: Introduction
+        href: articles/Introduction.html
+      - text: Counts
+        href: articles/Articles/Counts.html
+      - text: Annotations
+        href: articles/Articles/Annotations.html
+      - text: Deviations
+        href: articles/Articles/Deviations.html
+      - text: Applications
+        href: articles/Articles/Applications.html
+  - text: Reference
+    href: reference/index.html
+  - text: GitHub
+    icon: fa-github
+    href: https://github.com/GreenleafLab/chromVAR
