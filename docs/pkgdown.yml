@@ -1,5 +1,6 @@
 pandoc: 1.17.2
 pkgdown: 1.4.1
 pkgdown_sha: ~
-articles: {}
+articles:
+  ArchR: ArchR.html
 

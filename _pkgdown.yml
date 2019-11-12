@@ -1,9 +1,15 @@
-templates:
+template:
   params:
-    bootswatch: cerulean
+    bootswatch: yeti
+
+authors:
+  Jeffrey Granja:
+    href: https://twitter.com/JeffreyGranja
 
 navbar:
   left:
+  - text: Get Started
+    href: articles/ArchR.html
   - text: Vignettes
     menu:
       - text: Introduction
@@ -18,6 +24,7 @@ navbar:
         href: articles/Articles/Applications.html
   - text: Reference
     href: reference/index.html
-  - text: GitHub
+  right:
+  - text: ArchR on GitHub
     icon: fa-github
-    href: https://github.com/GreenleafLab/chromVAR
+    href: https://github.com/GreenleafLab/ArchR

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analyzing regulatory chromatin in R • ArchR</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
@@ -37,6 +37,9 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+<li>
+  <a href="articles/ArchR.html">Get Started</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Vignettes
@@ -64,15 +67,16 @@
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
+      </ul>
+<ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/GreenleafLab/chromVAR">
+  <a href="https://github.com/GreenleafLab/ArchR">
     <span class="fa fa-github"></span>
      
-    GitHub
+    ArchR on GitHub
   </a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -85,163 +89,48 @@
       </header><div class="row">
   <div class="contents col-md-9">
 
-<div id="installation-of-archr" class="section level1">
+<div id="archr" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#installation-of-archr" class="anchor"></a>Installation of ArchR</h1></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-if (!<span class="kw"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(<span class="st">"devtools"</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) <span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)
-if (!<span class="kw"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(<span class="st">"BiocManager"</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) <span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"BiocManager"</span>)
-
-devtools::<span class="kw">install_github</span>(<span class="st">"GreenleafLab/ArchR"</span>,
-    <span class="dt">auth_token =</span> token, <span class="co">#Need a token to download (see personalized access tokens)</span>
-    <span class="dt">repos =</span> BiocManager::<span class="kw">repositories</span>()
-)</code></pre></div>
+<a href="#archr" class="anchor"></a>ArchR <img src="reference/figures/ArchR_dartLogo_small.jpg">
+</h1></div>
+<p>ArchR is a full-featured R package for processing and analyzing single-cell ATAC-seq data. Its strength is speed and resource usage, making it possible to analyze 1 million cells in QQQ hours on a macbook pro laptop. It provides facile tools to do just about anything you would want to do with single-cell ATAC-seq data. For a more detailed description of the software, please see the <a href="https://greenleaf.stanford.edu/assets/pdf/">publication</a> (<a href="http://greenleaf.stanford.edu/assets/pdf/">pdf</a>, <a href="http://greenleaf.stanford.edu/assets/pdf/">supplement</a>) or the vignettes on this page.</p>
 </div>
-<div id="additional-packages-that-are-used-from-github" class="section level1">
+<div id="installation-of-archr" class="section level1">
 <h1 class="hasAnchor">
-<a href="#additional-packages-that-are-used-from-github" class="anchor"></a>Additional Packages that are used from github</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-<span class="co"># ggrastr is a package for plotting ggplots with rastr'd points which</span>
-<span class="co"># is super helpful for large UMAPs etc</span>
-<span class="co"># </span>
-<span class="co"># You need to have Cairo for ggrastr</span>
-<span class="co">#</span>
-<span class="co"># On Mac OSx you need to have XQuartz (https://www.xquartz.org/)</span>
-<span class="co">#</span>
-devtools::<span class="kw">install_github</span>(<span class="st">'VPetukhov/ggrastr'</span>)
+<a href="#installation-of-archr" class="anchor"></a>Installation of ArchR</h1>
+<p>ArchR installation currently requires devtools. The following commands will use the Bioconductor BiocManager to install required dependences:</p>
+<pre class="{r}"><code>if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 
-<span class="co"># harmony is a package that can correct batch effects</span>
-devtools::<span class="kw">install_github</span>(<span class="st">"immunogenomics/harmony"</span>)
+devtools::install_github("GreenleafLab/ArchR",
+    auth_token = token, #Need a token to download (see personalized access tokens)
+    repos = BiocManager::repositories()
+)</code></pre>
+<div id="additional-packages-that-are-used-from-github" class="section level3">
+<h3 class="hasAnchor">
+<a href="#additional-packages-that-are-used-from-github" class="anchor"></a>Additional Packages that are used from github</h3>
+<p>To complete installation, you also must maually install the following packages using these devtools commands:</p>
+<pre class="{r}"><code># ggrastr is a package for plotting ggplots with rastr'd points which is super helpful for large UMAPs etc
+# # You need to have Cairo installed for ggrastr to work
+# # On Mac OSx you need to have XQuartz (https://www.xquartz.org/)
+devtools::install_github('VPetukhov/ggrastr')
 
-<span class="co"># presto is a package that has efficient tools for wilcoxon tests on sparseMatrices</span>
-devtools::<span class="kw">install_github</span>(<span class="st">'immunogenomics/presto'</span>)
-</code></pre></div>
+# harmony is a package that can correct batch effects
+devtools::install_github("immunogenomics/harmony")
+
+# presto is a package that has efficient tools for wilcoxon tests on sparseMatrices
+devtools::install_github('immunogenomics/presto')</code></pre>
 </div>
-<div id="archr-pbmc-tutorial" class="section level1">
+</div>
+<div id="archr-workflow" class="section level1">
 <h1 class="hasAnchor">
-<a href="#archr-pbmc-tutorial" class="anchor"></a>ArchR PBMC Tutorial</h1>
+<a href="#archr-workflow" class="anchor"></a>ArchR Workflow</h1>
 <p><img src="https://web.stanford.edu/~mcorces/ArchR_Workflow_v1.PNG" alt="ArchR Workflow"></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-<span class="co">#Input Libraries</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ArchR)
-
-<span class="co">#Set/Create Working Directory to Folder</span>
-<span class="co">#setwd("~/Documents/ArchR_Tutorial/")</span>
-
-<span class="co">#Download PBMC Tutorial Fragments</span>
-if(!<span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(<span class="st">"PBMC_Tutorial_fragments.tsv.gz"</span>)){
-  <span class="kw"><a href="https://rdrr.io/r/utils/download.file.html">download.file</a></span>(
-    <span class="dt">url =</span> <span class="st">"https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/PBMC/PBMC_Tutorial_fragments.tsv.gz"</span>, 
-    <span class="dt">destfile =</span> <span class="st">"PBMC_Tutorial_fragments.tsv.gz"</span>
-  )
-}
-
-<span class="co">#Load Genome Annotations</span>
-<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"geneAnnoHg19"</span>)
-<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"genomeAnnoHg19"</span>)
-
-<span class="co">#Set Threads to be used</span>
-threads &lt;-<span class="st"> </span><span class="dv">4</span>
-
-<span class="co">#Input Files</span>
-inputFiles &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
-    <span class="st">"PBMC"</span> =<span class="st"> "PBMC_Tutorial_fragments.tsv.gz"</span>
-)
-
-<span class="co">#Create Arrow Files</span>
-ArrowFiles &lt;-<span class="st"> </span><span class="kw"><a href="reference/createArrowFiles.html">createArrowFiles</a></span>(
-  <span class="dt">inputFiles =</span> inputFiles,
-  <span class="dt">sampleNames =</span> <span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(inputFiles),
-  <span class="dt">outputNames =</span> <span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(inputFiles),
-  <span class="dt">geneAnno =</span> geneAnnoHg19,
-  <span class="dt">genomeAnno =</span> genomeAnnoHg19,
-  <span class="dt">threads =</span> threads
-)
-
-<span class="co">#Add Infered Doublet Scores to each Arrow File</span>
-doubScores &lt;-<span class="st"> </span><span class="kw"><a href="reference/addDoubletScores.html">addDoubletScores</a></span>(ArrowFiles, <span class="dt">threads =</span> threads)
-
-<span class="co">#Create ArchRProject</span>
-proj &lt;-<span class="st"> </span><span class="kw">ArchRProject</span>(
-  <span class="dt">ArrowFiles =</span> ArrowFiles, 
-  <span class="dt">genomeAnnotation =</span> genomeAnnoHg19,
-  <span class="dt">geneAnnotation =</span> geneAnnoHg19,
-  <span class="dt">outputDirectory =</span> <span class="st">"PBMC_Tutorial"</span>
-)
-
-<span class="co">#Filter Cells by TSS, Number of Fragments and Doublet Score</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/FilterCells.html">FilterCells</a></span>(proj, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"TSSEnrichment"</span> =<span class="st"> </span><span class="dv">6</span>, <span class="st">"nFrags"</span> =<span class="st"> </span><span class="dv">1000</span>, <span class="st">"DoubletEnrichment"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(-<span class="ot">Inf</span>, <span class="dv">3</span>)))
-
-<span class="co">#Reduce Dimensions with Iterative LSI</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/IterativeLSI.html">IterativeLSI</a></span>(
-  <span class="dt">ArchRProj =</span> proj, 
-  <span class="dt">useMatrix =</span> <span class="st">"TileMatrix"</span>, 
-  <span class="dt">reducedDimsOut =</span> <span class="st">"IterativeLSI"</span>,
-  <span class="dt">threads =</span> threads
-)
-
-<span class="co">#Identify Clusters from Iterative LSI</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/IdentifyClusters.html">IdentifyClusters</a></span>(<span class="dt">input =</span> proj, <span class="dt">reducedDims =</span> <span class="st">"IterativeLSI"</span>, <span class="dt">resolution =</span> <span class="fl">0.4</span>)
-
-<span class="co">#Compute a UMAP embedding to visualize our tiled matrix</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/ComputeEmbedding.html">ComputeEmbedding</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">reducedDims =</span> <span class="st">"IterativeLSI"</span>, <span class="dt">embedding =</span> <span class="st">"UMAP"</span>)
-
-<span class="co">#Plot the UMAP Embedding with Metadata/GeneScores Overlayed</span>
-<span class="kw"><a href="reference/plotPDF.html">plotPDF</a></span>(<span class="st">"Plot-UMAP-TileLSI"</span>, <span class="dt">width =</span> <span class="dv">6</span>, <span class="dt">height =</span> <span class="dv">6</span>, <span class="dt">ArchRProj =</span> proj)
-<span class="kw"><a href="reference/VisualizeEmbedding.html">VisualizeEmbedding</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">colorBy =</span> <span class="st">"colData"</span>, <span class="dt">name =</span> <span class="st">"Sample"</span>)
-<span class="kw"><a href="reference/VisualizeEmbedding.html">VisualizeEmbedding</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">colorBy =</span> <span class="st">"colData"</span>, <span class="dt">name =</span> <span class="st">"Clusters"</span>)
-<span class="kw"><a href="reference/VisualizeEmbedding.html">VisualizeEmbedding</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">colorBy =</span> <span class="st">"colData"</span>, <span class="dt">name =</span> <span class="st">"TSSEnrichment"</span>)
-<span class="kw"><a href="reference/VisualizeEmbedding.html">VisualizeEmbedding</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">colorBy =</span> <span class="st">"GeneScoreMatrix"</span>, <span class="dt">name =</span> <span class="st">"CD8A"</span>)
-<span class="kw"><a href="reference/VisualizeEmbedding.html">VisualizeEmbedding</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">colorBy =</span> <span class="st">"GeneScoreMatrix"</span>, <span class="dt">name =</span> <span class="st">"CD4"</span>)
-<span class="kw"><a href="reference/VisualizeEmbedding.html">VisualizeEmbedding</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">colorBy =</span> <span class="st">"GeneScoreMatrix"</span>, <span class="dt">name =</span> <span class="st">"MS4A1"</span>)
-<span class="kw"><a href="https://rdrr.io/r/grDevices/dev.html">dev.off</a></span>()
-
-<span class="co">#Plot Tracks at gene loci</span>
-<span class="kw"><a href="reference/plotPDF.html">plotPDF</a></span>(<span class="st">"Plot-Tracks"</span>, <span class="dt">width =</span> <span class="dv">6</span>, <span class="dt">height =</span> <span class="dv">8</span>, <span class="dt">ArchRProj =</span> proj)
-<span class="kw"><a href="reference/ArchRRegionTrack.html">ArchRRegionTrack</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">threads =</span> threads, <span class="dt">geneSymbol=</span><span class="st">"CD4"</span>)
-<span class="kw"><a href="reference/ArchRRegionTrack.html">ArchRRegionTrack</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">threads =</span> threads, <span class="dt">geneSymbol=</span><span class="st">"MS4A1"</span>)
-<span class="kw"><a href="reference/ArchRRegionTrack.html">ArchRRegionTrack</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">threads =</span> threads, <span class="dt">geneSymbol=</span><span class="st">"CD8A"</span>)
-<span class="kw"><a href="https://rdrr.io/r/grDevices/dev.html">dev.off</a></span>()
-
-<span class="co">#Create Group Coverage Files that can be used for downstream analysis</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/addGroupCoverages.html">addGroupCoverages</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">groupBy =</span> <span class="st">"Clusters"</span>, <span class="dt">threads =</span> threads)
-
-<span class="co">#Call Peaks w/ Macs2</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/addReproduciblePeakSet.html">addReproduciblePeakSet</a></span>(
-  proj, 
-  <span class="dt">groupBy =</span> <span class="st">"Clusters"</span>, 
-  <span class="dt">pathToMacs2 =</span> <span class="st">"macs2"</span>,
-  <span class="dt">threads =</span> threads
-)
-
-<span class="co">#Add Peak Matrix</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/addPeakMatrix.html">addPeakMatrix</a></span>(proj, <span class="dt">threads =</span> threads, <span class="dt">force =</span> <span class="ot">TRUE</span>)
-
-<span class="co">#Motif Search in PeakSet</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/addMotifAnnotations.html">addMotifAnnotations</a></span>(proj)
-
-<span class="co">#Compute ChromVAR-Based Motif Deviations</span>
-proj &lt;-<span class="st"> </span><span class="kw"><a href="reference/addDeviationsMatrix.html">addDeviationsMatrix</a></span>(proj, <span class="dt">threads =</span> threads)
-
-##################################
-<span class="co"># Identifying Marker Features Across The Clusters</span>
-##################################
-
-<span class="co">#Identify Marker Gene Scores</span>
-markersGS &lt;-<span class="st"> </span><span class="kw"><a href="reference/markerFeatures.html">markerFeatures</a></span>(proj, <span class="dt">threads =</span> threads, <span class="dt">useMatrix =</span> <span class="st">"GeneScoreMatrix"</span>)
-
-<span class="kw"><a href="reference/plotPDF.html">plotPDF</a></span>(<span class="st">"GS-Marker-Heatmap"</span>, <span class="dt">width =</span> <span class="dv">8</span>, <span class="dt">height =</span> <span class="dv">12</span>, <span class="dt">ArchRProj =</span> proj)
-<span class="kw"><a href="reference/markerHeatmap.html">markerHeatmap</a></span>(markersGS, <span class="dt">labelMarkers =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"CD4"</span>, <span class="st">"CD8A"</span>, <span class="st">"MS4A1"</span>, <span class="st">"CD3D"</span>, <span class="st">"CD56"</span>, <span class="st">"NKG7"</span>))
-<span class="kw"><a href="https://rdrr.io/r/grDevices/dev.html">dev.off</a></span>()
-
-<span class="co">#Identify Marker Peaks</span>
-markersPeaks &lt;-<span class="st"> </span><span class="kw"><a href="reference/markerFeatures.html">markerFeatures</a></span>(proj, <span class="dt">threads =</span> threads, <span class="dt">useMatrix =</span> <span class="st">"PeakMatrix"</span>)
-
-<span class="kw"><a href="reference/plotPDF.html">plotPDF</a></span>(<span class="st">"Peak-Marker-Heatmap"</span>, <span class="dt">width =</span> <span class="dv">8</span>, <span class="dt">height =</span> <span class="dv">12</span>, <span class="dt">ArchRProj =</span> proj)
-<span class="kw"><a href="reference/markerHeatmap.html">markerHeatmap</a></span>(markersPeaks)
-<span class="kw"><a href="https://rdrr.io/r/grDevices/dev.html">dev.off</a></span>()
-
-<span class="kw"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span>(proj, <span class="st">"PBMC-Tutorial-ArchR-Project.rds"</span>)</code></pre></div>
+</div>
+<div id="documentation" class="section level1">
+<h1 class="hasAnchor">
+<a href="#documentation" class="anchor"></a>Documentation</h1>
+<p>Please see the navigation bar at the top of this page for links to background information about ArchR as well as detailed vignettes for each of the major ArchR analytical components.</p>
 </div>
 
   </div>
@@ -256,7 +145,8 @@ markersPeaks &lt;-<span class="st"> </span><span class="kw"><a href="reference/m
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Jeffrey Granja <br><small class="roles"> Maintainer </small>  </li>
+<li>
+<a href="https://twitter.com/JeffreyGranja">Jeffrey Granja</a> <br><small class="roles"> Maintainer </small>  </li>
 </ul>
 </div>
 
@@ -265,7 +155,7 @@ markersPeaks &lt;-<span class="st"> </span><span class="kw"><a href="reference/m
 
 
       <footer><div class="copyright">
-  <p>Developed by Jeffrey Granja.</p>
+  <p>Developed by <a href="https://twitter.com/JeffreyGranja">Jeffrey Granja</a>.</p>
 </div>
 
 <div class="pkgdown">
