@@ -6,7 +6,8 @@
 \usage{
 getTrajectory(ArchRProj, name = "Trajectory",
   useMatrix = "GeneScoreMatrix", groupEvery = 2, threads = 1,
-  scaleTo = 10000, log2Norm = TRUE, ...)
+  scaleTo = 10000, log2Norm = TRUE, smooth = TRUE,
+  smoothFormula = "y ~ s(x, bs = 'cs')", ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}
@@ -22,6 +23,10 @@ getTrajectory(ArchRProj, name = "Trajectory",
 \item{scaleTo}{scale summarized matrix to}
 
 \item{log2Norm}{log2 normalize the scaled summarized matrix}
+
+\item{smooth}{smooth matrix row-wise?}
+
+\item{smoothFormula}{smoothing formula for mgcv::gam}
 
 \item{...}{additional args}
 }

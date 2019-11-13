@@ -189,6 +189,8 @@ addTrajectory <- function(
 #' @param scaleTo scale summarized matrix to
 #' @param log2Norm log2 normalize the scaled summarized matrix
 #' @param threads number of threads to use
+#' @param smooth smooth matrix row-wise?
+#' @param smoothFormula smoothing formula for mgcv::gam
 #' @param ... additional args
 #' @export
 getTrajectory <- function(
@@ -199,6 +201,8 @@ getTrajectory <- function(
   threads = 1,
   scaleTo = 10000,
   log2Norm = TRUE,
+  smooth = TRUE,
+  smoothFormula = "y ~ s(x, bs = 'cs')",
   ...
   ){
 
@@ -216,6 +220,8 @@ getTrajectory <- function(
     names(groupList) <- paste0("T.", breaks[-length(breaks)], "_", breaks[-1])
 
     featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
+
+    message("Creating Trajectory Group Matrix...")
     groupMat <- .getGroupMatrix(
         ArrowFiles = getArrowFiles(ArchRProj), 
         featureDF = featureDF,
@@ -232,16 +238,142 @@ getTrajectory <- function(
       groupMat <- log2(groupMat + 1)
     }
 
+    if(smooth){
+      
+      message("Smoothing with mgcv::gam formula : ", smoothFormula)
+
+      t <- breaks[-length(breaks)] + 0.5 * groupEvery
+      groupMat2 <- matrix(NA, nrow=nrow(groupMat),ncol=ncol(groupMat))
+      colnames(groupMat2) <- colnames(groupMat)
+      rownames(groupMat2) <- rownames(groupMat)
+      n <- ncol(groupMat2)
+
+      pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
+      for(x in seq_len(nrow(groupMat))){
+        setTxtProgressBar(pb,round(x*100/nrow(groupMat),0))
+        groupMat2[x, ] <- stats::predict(
+            mgcv::gam(formula = eval(parse(text=smoothFormula)), data = data.frame(x = t, y = groupMat[x, ])), 
+            newdata = data.frame(x = t), 
+            se.fit = FALSE,
+            level = 0.95, 
+            interval = "confidence"
+          )
+      }
+
+      #Rename and remove
+      groupMat <- groupMat2
+      rm(groupMat2)
+      gc()
+
+    }
+
     #Create SE
     seTrajectory <- SummarizedExperiment(
         assays = SimpleList(mat = groupMat), 
         rowData = featureDF
     )
+    metadata(seTrajectory)$Params <- list(useMatrix = useMatrix, 
+      scaleTo = scaleTo, log2Norm = log2Norm, smooth = smooth, smoothFormula = smoothFormula, date = Sys.Date())
 
     seTrajectory
 
 }
 
+#' Plot a Heatmap of Features across a Trajectory
+#' 
+#' This function will plot a heatmap of the results from getTrajectory
+#' 
+#' @param seTrajectory Summarized Experiment result from markerFeatures
+#' @param varCutOff variance cut off for selecting features varying across trajectory
+#' @param scaleRows compute row z-scores on matrix
+#' @param limits heatmap color limits 
+#' @param pal palette for heatmap, default will use solar_extra
+#' @param labelMarkers label specific markers by name on heatmap (matches rownames of seTrajectory)
+#' @param labelTop label the top features for each column in seTrajectory
+#' @param labelRows label all rows
+#' @param returnMat return final matrix that is used for plotting heatmap
+#' @param ... additional args
+#' @export
+trajectoryHeatmap <- function(
+  seTrajectory = NULL,
+  varCutOff = 0.1,
+  scaleRows = TRUE,
+  limits = c(-2,2),
+  grepExclude = NULL,
+  pal = NULL,
+  labelMarkers = NULL,
+  labelTop = 50,
+  labelRows = FALSE,
+  returnMat = FALSE,
+  ...
+  ){
+
+  mat <- assay(seTrajectory)
+  rownames(mat) <- rowData(seTrajectory)$name
+
+  if(!is.null(varCutOff)){
+    mat <- mat[head(order(matrixStats::rowVars(mat), decreasing = TRUE), nrow(mat) * varCutOff),]
+  }
+  
+  if(!is.null(labelTop)){
+    idxLabel <- rownames(mat)[seq_len(labelTop)]
+  }else{
+    idxLabel <- NULL
+  }
+
+  if(!is.null(labelMarkers)){
+    idxLabel2 <- match(tolower(labelMarkers), tolower(rownames(mat)), nomatch = 0)
+    idxLabel2 <- idxLabel2[idxLabel2 > 0]
+  }else{
+    idxLabel2 <- NULL
+  }
+
+  idxLabel <- c(idxLabel, idxLabel2)
+
+  if(scaleRows){
+    mat <- sweep(mat - rowMeans(mat), 1, matrixStats::rowSds(mat), `/`)
+    mat[mat > max(limits)] <- max(limits)
+    mat[mat < min(limits)] <- min(limits)
+  }
+
+  if(nrow(mat) == 0){
+    stop("No Features Remaining!")
+  }
+
+  if(is.null(pal)){
+    if(is.null(metadata(seTrajectory)$Params$useMatrix)){
+      pal <- paletteContinuous(set = "solar_extra", n = 100)
+    }else if(tolower(metadata(seTrajectory)$Params$useMatrix)=="genescorematrix"){
+      pal <- paletteContinuous(set = "viridis", n = 100)
+    }else{
+      pal <- paletteContinuous(set = "solar_extra", n = 100)
+    }
+  }
+
+  idx <- order(apply(mat, 1, which.max))
+
+  ht <- ArchR:::.ArchRHeatmap(
+    mat = mat[idx, ],
+    scale = FALSE,
+    limits = c(min(mat), max(mat)),
+    color = pal, 
+    clusterCols = FALSE, 
+    clusterRows = FALSE,
+    labelRows = labelRows,
+    labelCols = FALSE,
+    customRowLabel = match(idxLabel, rownames(mat[idx,])),
+    showColDendrogram = TRUE,
+    draw = FALSE,
+    ...
+  )
+
+  if(returnMat){
+    return(mat)
+  }else{
+    return(ht)
+  }
+
+}
 
 #' Visualize Embedding from ArchR Project
 #' 
@@ -416,17 +548,4 @@ VisualizeTrajectory <- function(
   list(out, out2)
 
 }
-
-.splitEvery <- function(x, n){
-  #https://stackoverflow.com/questions/3318333/split-a-vector-into-chunks-in-r
-  if(is.atomic(x)){
-    split(x, ceiling(seq_along(x) / n))
-  }else{
-    split(x, ceiling(seq_len(nrow(x)) / n))
-  }
-}
-
-
-
-
 

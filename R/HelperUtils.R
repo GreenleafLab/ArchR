@@ -441,6 +441,18 @@
 }
 
 #' @export
+.cleanParams <- function(params, maxSize = 0.05){
+  lapply(params, function(x){
+    os <- object.size(x)
+    if(os > 10^6 * maxSize){
+      NULL
+    }else{
+      x
+    }
+  })
+}
+
+#' @export
 .splitEvery <- function(x, n){
   #https://stackoverflow.com/questions/3318333/split-a-vector-into-chunks-in-r
   if(is.atomic(x)){

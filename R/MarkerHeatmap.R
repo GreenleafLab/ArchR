@@ -409,7 +409,7 @@ markerHeatmap <- function(
 
 }
 
-.binarySort <- function(m, scale = FALSE, cutOff = 1, lmat = NULL){
+.binarySort <- function(m, scale = FALSE, cutOff = 1, lmat = NULL, clusterCols = TRUE){
 
   if(is.null(lmat)){
     #Compute Row-Zscores
@@ -426,10 +426,16 @@ markerHeatmap <- function(
   lmat <- t(lmat)
 
   #Identify Column Ordering
-  hc <- hclust(dist(m))
-  colIdx <- hc$order
-  m <- t(m[colIdx,])
-  lmat <- t(lmat[colIdx,])
+  if(clusterCols){
+    hc <- hclust(dist(m))
+    colIdx <- hc$order
+    m <- t(m[colIdx,])
+    lmat <- t(lmat[colIdx,])
+  }else{
+    m <- t(m)
+    lmat <- t(lmat)
+    hc <- NULL
+  }
 
   #Identify Row Ordering
   rowIdx <- do.call("order", c(as.data.frame(lmat)[seq_len(ncol(lmat))], list(decreasing = TRUE)))
