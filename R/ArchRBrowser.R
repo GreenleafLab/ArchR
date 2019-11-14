@@ -32,7 +32,7 @@ ArchRRegionTrack <- function(
   useCoverages = FALSE,
   plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
   sizes = c(10, 0.5, 4),
-  features = NULL,
+  features = getPeakSet(ArchRProj),
   geneSymbol = NULL,
   upstream = 50000,
   downstream = 50000,

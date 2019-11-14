@@ -1,4 +1,3 @@
-#' Identify Clusters for Single Cell Data
 #' 
 #' This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject
 #' 
@@ -13,13 +12,13 @@
 #' @param ... arguments to provide Seurat::FindClusters or ArchR:::.clustLouvain (knn = 50, jaccard = TRUE)
 #' @export
 #'
-IdentifyClusters <- function(
+addClusters <- function(
     input, 
     reducedDims = "IterativeLSI",
     name = "Clusters",
     sampleCells = NULL,
     seed = 1, 
-    method = "seurat", 
+    method = "Seurat", 
     dimsToUse = NULL, 
     knnAssign = 10, 
     nOutlier = 20, 

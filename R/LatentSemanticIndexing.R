@@ -17,7 +17,7 @@
 #' @param filterQuantile filter features for initial LSI that are above this quantile
 #' @param saveIterations save LSI iterations as rds in the outDir
 #' @param outDir output directory for saving LSI iterations
-#' @param clusterParams additional params to pass to IdentifyClusters
+#' @param clusterParams additional params to pass to addClusters
 #' @param runHarmony run harmony batch correction through the iterations
 #' @param harmonyParams additional params to pass to harmony
 #' @param threads number of threads for parallel execution
@@ -27,7 +27,7 @@
 #' @param force verbose sections and subsections
 #' @param ... additional args
 #' @export
-IterativeLSI <- function(
+addIterativeLSI <- function(
   ArchRProj = NULL, 
   useMatrix = "TileMatrix",
   reducedDimsOut = "IterativeLSI",
@@ -146,7 +146,7 @@ IterativeLSI <- function(
   parClust$input <- outLSI$matSVD
   parClust$sampleCells <- sampleCells
   parClust$verbose <- verboseAll
-  clusters <- do.call(IdentifyClusters, parClust)
+  clusters <- do.call(addClusters, parClust)
   
   #Save Output
   if(saveIterations){
@@ -244,7 +244,7 @@ IterativeLSI <- function(
       parClust$input <- outLSI$matSVD
       parClust$sampleCells <- sampleCells
       parClust$verbose <- verboseAll
-      clusters <- do.call(IdentifyClusters, parClust)
+      clusters <- do.call(addClusters, parClust)
 
       #Save Output
       if(saveIterations){

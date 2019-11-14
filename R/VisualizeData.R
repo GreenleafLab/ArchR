@@ -22,7 +22,7 @@
 #' @param plotParams additional params to pass to ggPoint/ggHex
 #' @param ... additional args
 #' @export
-VisualizeEmbedding <- function(
+visualizeEmbedding <- function(
   ArchRProj = NULL,
   embedding = "UMAP",
   colorBy = "colData",
@@ -158,7 +158,7 @@ VisualizeEmbedding <- function(
 #' @param points add points to plot using quasirandom
 #' @param ... additional args
 #' @export
-VisualizeGroups <- function(
+visualizeGroups <- function(
   ArchRProj, 
   groupBy = "Sample", 
   colorBy = "colData", 

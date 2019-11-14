@@ -6,8 +6,8 @@
 #' @param y y vector of data to be plot
 #' @param color color vector of data to be plot (must be same length as x,y)
 #' @param discrete discrete is color discrete?
-#' @param discreteSet default color ArchR_palette for discrete colors
-#' @param continuousSet default color ArchR_palette for continuous colors
+#' @param discreteSet default color ArchRPalettes for discrete colors
+#' @param continuousSet default color ArchRPalettes for continuous colors
 #' @param pal custom palette option
 #' @param defaultColor default color 
 #' @param colorDensity color x,y coordinates by relative density

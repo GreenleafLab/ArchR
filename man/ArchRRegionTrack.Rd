@@ -7,10 +7,10 @@
 ArchRRegionTrack(ArchRProj, region = NULL, groupBy = "Clusters",
   useGroups = NULL, useCoverages = FALSE,
   plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
-  sizes = c(10, 0.5, 4), features = NULL, geneSymbol = NULL,
-  upstream = 50000, downstream = 50000, tileSize = 100,
-  normMethod = "ReadsInTSS", threads = 1, ylim = NULL,
-  baseSize = 7, borderWidth = 0.4, tickWidth = 0.4,
+  sizes = c(10, 0.5, 4), features = getPeakSet(ArchRProj),
+  geneSymbol = NULL, upstream = 50000, downstream = 50000,
+  tileSize = 100, normMethod = "ReadsInTSS", threads = 1,
+  ylim = NULL, baseSize = 7, borderWidth = 0.4, tickWidth = 0.4,
   facetbaseSize = 7, geneAnno = getGeneAnnotation(ArchRProj),
   title = "", ...)
 }

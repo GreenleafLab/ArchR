@@ -6,7 +6,8 @@
 #' 
 #' @param ArchRProj ArchR Project
 #' @param groupBy group cells by this column in cellColData
-#' @param useGroups use subset of groups in group column in cellColData
+#' @param useGroups use subset of groups in group column in cellColData for comparisons
+#' @param bdgGroups use subset of groups in group column in cellColData for background
 #' @param useMatrix matrix name in Arrow Files that will be used for identifying features
 #' @param bias biases to account for in selecting null group using info from cellColData
 #' @param normBy normalize by column in cellColData prior to test
@@ -26,6 +27,7 @@ markerFeatures <- function(
     ArchRProj = NULL,
     groupBy = "Clusters",
     useGroups = NULL,
+    bdgGroups = NULL,
     useMatrix = "GeneScoreMatrix",
     bias = c("TSSEnrichment", "log10(nFrags)"),
     normBy = NULL,
@@ -73,6 +75,7 @@ markerFeatures <- function(
     ArchRProj = NULL,
     groupBy = "Clusters",
     useGroups = NULL,
+    bdgGroups = NULL,
     normBy = NULL,
     minCells = 50,
     maxCells = 500,
@@ -110,11 +113,19 @@ markerFeatures <- function(
     #####################################################
     .messageDiffTime("Matching Known Biases", tstart, addHeader = verboseAll)
     groups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+    
     if(!is.null(useGroups)){
       if(any(useGroups %ni% groups)){
         stop("Not all useGroups in Group names!")
       }
       groups <- groups[groups %in% useGroups]
+    }
+
+    if(!is.null(bdgGroups)){
+      if(any(bdgGroups %ni% groups)){
+        stop("Not all bdgGroups in Group names!")
+      }
+      groups <- groups[groups %in% bdgGroups]
     }
 
     matchObj <- .matchBiasCellGroups(

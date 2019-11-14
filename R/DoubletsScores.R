@@ -150,9 +150,9 @@ addDoubletScores <- function(
   LSIParams$threads <- subThreads
   LSIParams$verboseHeader <- verboseHeader
   LSIParams$verboseAll <- verboseAll
-  proj <- do.call(IterativeLSI, LSIParams)
+  proj <- do.call(addIterativeLSI, LSIParams)
   if(useClusters){
-    proj <- IdentifyClusters(proj)
+    proj <- addClusters(proj)
   }
 
   #################################################

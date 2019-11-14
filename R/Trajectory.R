@@ -399,7 +399,7 @@ trajectoryHeatmap <- function(
 #' @param plotParams additional params to pass to ggPoint/ggHex
 #' @param ... additional args
 #' @export
-VisualizeTrajectory <- function(
+visualizeTrajectory <- function(
   ArchRProj = NULL,
   embedding = "UMAP",
   trajectory = "Trajectory",

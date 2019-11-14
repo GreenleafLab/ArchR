@@ -833,7 +833,7 @@ addMotifAnnotations <- function(
 #' @param ignore.case ignore case when searching with select
 #' @param ... additional args
 #' @export
-availableFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL, ignore.case = TRUE, ...){
+getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL, ignore.case = TRUE, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
   fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
   if(is.null(select)){

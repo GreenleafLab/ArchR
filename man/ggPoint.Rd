@@ -23,9 +23,9 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{discrete}{discrete is color discrete?}
 
-\item{discreteSet}{default color ArchR_palette for discrete colors}
+\item{discreteSet}{default color ArchRPalettes for discrete colors}
 
-\item{continuousSet}{default color ArchR_palette for continuous colors}
+\item{continuousSet}{default color ArchRPalettes for continuous colors}
 
 \item{labelMeans}{label group means by color}
 

@@ -5,7 +5,7 @@
 \title{Identify Marker Features for each Group}
 \usage{
 markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
-  useGroups = NULL, useMatrix = "GeneScoreMatrix",
+  useGroups = NULL, bdgGroups = NULL, useMatrix = "GeneScoreMatrix",
   bias = c("TSSEnrichment", "log10(nFrags)"), normBy = NULL,
   testMethod = "wilcoxon", minCells = 50, maxCells = 500,
   threads = 1, k = 100, bufferRatio = 0.8, binarize = FALSE,
@@ -17,7 +17,9 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{groupBy}{group cells by this column in cellColData}
 
-\item{useGroups}{use subset of groups in group column in cellColData}
+\item{useGroups}{use subset of groups in group column in cellColData for comparisons}
+
+\item{bdgGroups}{use subset of groups in group column in cellColData for background}
 
 \item{useMatrix}{matrix name in Arrow Files that will be used for identifying features}
 
