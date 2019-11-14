@@ -1,0 +1,7 @@
+---
+title: "Doublet Removal"
+---
+
+Under construction...
+
+![](doubletRemoval.png){width=350px}

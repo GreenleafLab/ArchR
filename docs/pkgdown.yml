@@ -3,4 +3,12 @@ pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
   ArchR: ArchR.html
+  dimReduction: Articles/dimReduction.html
+  doubletRemoval: Articles/doubletRemoval.html
+  footprinting: Articles/footprinting.html
+  geneScores: Articles/geneScores.html
+  peakCalling: Articles/peakCalling.html
+  qcFilters: Articles/qcFilters.html
+  signalTracks: Articles/signalTracks.html
+  faq: faq.html
 

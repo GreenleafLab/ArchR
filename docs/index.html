@@ -48,21 +48,30 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/Introduction.html">Introduction</a>
+      <a href="articles/Articles/doubletRemoval.html">Doublet Removal</a>
     </li>
     <li>
-      <a href="articles/Articles/Counts.html">Counts</a>
+      <a href="articles/Articles/qcFilters.html">QC Filters</a>
     </li>
     <li>
-      <a href="articles/Articles/Annotations.html">Annotations</a>
+      <a href="articles/Articles/peakCalling.html">Peak Calling</a>
     </li>
     <li>
-      <a href="articles/Articles/Deviations.html">Deviations</a>
+      <a href="articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="articles/Articles/Applications.html">Applications</a>
+      <a href="articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+    </li>
+    <li>
+      <a href="articles/Articles/signalTracks.html">Signal Track Ploting</a>
+    </li>
+    <li>
+      <a href="articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="reference/index.html">Reference</a>
@@ -93,7 +102,8 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#archr" class="anchor"></a>ArchR <img src="reference/figures/ArchR_dartLogo_small.jpg">
 </h1></div>
-<p>ArchR is a full-featured R package for processing and analyzing single-cell ATAC-seq data. Its strength is speed and resource usage, making it possible to analyze 1 million cells in QQQ hours on a macbook pro laptop. It provides facile tools to do just about anything you would want to do with single-cell ATAC-seq data. For a more detailed description of the software, please see the <a href="https://greenleaf.stanford.edu/assets/pdf/">publication</a> (<a href="http://greenleaf.stanford.edu/assets/pdf/">pdf</a>, <a href="http://greenleaf.stanford.edu/assets/pdf/">supplement</a>) or the vignettes on this page.</p>
+
+<p>ArchR is a full-featured R package for processing and analyzing single-cell ATAC-seq data. Its strength is speed and resource usage, making it possible to analyze 1 million cells in QQQ hours on a macbook pro laptop. It provides facile tools to do just about anything you would want to do with single-cell ATAC-seq data. For a more detailed description of the software, please see the <a href="https://greenleaf.stanford.edu/assets/pdf/">publication</a> (<a href="http://greenleaf.stanford.edu/assets/pdf/">pdf</a>, <a href="http://greenleaf.stanford.edu/assets/pdf/">supplement</a>) or the <a href="articles/index.html">vignettes</a>.</p>
 </div>
 <div id="installation-of-archr" class="section level1">
 <h1 class="hasAnchor">
@@ -108,7 +118,7 @@ devtools::install_github("GreenleafLab/ArchR",
 )</code></pre>
 <div id="additional-packages-that-are-used-from-github" class="section level3">
 <h3 class="hasAnchor">
-<a href="#additional-packages-that-are-used-from-github" class="anchor"></a>Additional Packages that are used from github</h3>
+<a href="#additional-packages-that-are-used-from-github" class="anchor"></a>Additional packages that are used from github</h3>
 <p>To complete installation, you also must maually install the following packages using these devtools commands:</p>
 <pre class="{r}"><code># ggrastr is a package for plotting ggplots with rastr'd points which is super helpful for large UMAPs etc
 # # You need to have Cairo installed for ggrastr to work
@@ -132,6 +142,11 @@ devtools::install_github('immunogenomics/presto')</code></pre>
 <a href="#documentation" class="anchor"></a>Documentation</h1>
 <p>Please see the navigation bar at the top of this page for links to background information about ArchR as well as detailed vignettes for each of the major ArchR analytical components.</p>
 </div>
+<div id="issues-using-archr" class="section level1">
+<h1 class="hasAnchor">
+<a href="#issues-using-archr" class="anchor"></a>Issues using ArchR?</h1>
+<p>If you find a bug, please report it on <a href="https://github.com/GreenleafLab/ArchR/issues">Github</a>. If you have questions about ArchR usage, please refer to the <a href="https://greenleaf.stanford.edu/assets/pdf/">publication</a>, the <a href="articles/index.html">vignettes</a>, or the <a href="articles/faq.html">FAQ section</a>.</p>
+</div>
 
   </div>
 
@@ -150,7 +165,13 @@ devtools::install_github('immunogenomics/presto')</code></pre>
 </ul>
 </div>
 
-  </div>
+  <div class="dev-status">
+<h2>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://www.tidyverse.org/lifecycle/#experimental"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+</ul>
+</div>
+</div>
 </div>
 
 

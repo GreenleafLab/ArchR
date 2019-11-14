@@ -1,0 +1,20 @@
+---
+title: "Peak Calling"
+---
+
+We first introduced a strategy for iterative peak merging in 2018 [(Corces* & Granja* et al. Science 2018 - See Supplementary Methods)](https://science.sciencemag.org/content/362/6413/eaav1898). Other peak merging strategies suffer from a few key issues that we outline below.
+
+#### Fixed-width vs Variable-width Peaks
+We use 501-bp fixed-width peaks because they make downstream computation easier as peak length does not need to be normalized. Moreover, the vast majority of peaks in ATAC-seq are less than 501-bp wide. Using variable-width peaks also makes it difficult to merge peak calls from multiple samples. In general, we do not feel that any benefit derived from using variable-width peaks outweighs the costs.
+
+#### Raw Peak Overlap Using _bedtools merge_
+
+
+
+#### Clustered Overlap Using _bedtools cluster_
+
+#### Iterative Overlap In ArchR
+
+![](iterativePeakCalling.png){width=350px}
+
+### Comparison of Peak Calling Methods

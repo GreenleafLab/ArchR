@@ -12,16 +12,22 @@ navbar:
     href: articles/ArchR.html
   - text: Vignettes
     menu:
-      - text: Introduction
-        href: articles/Introduction.html
-      - text: Counts
-        href: articles/Articles/Counts.html
-      - text: Annotations
-        href: articles/Articles/Annotations.html
-      - text: Deviations
-        href: articles/Articles/Deviations.html
-      - text: Applications
-        href: articles/Articles/Applications.html
+      - text: Doublet Removal
+        href: articles/Articles/doubletRemoval.html
+      - text: QC Filters
+        href: articles/Articles/qcFilters.html
+      - text: Peak Calling
+        href: articles/Articles/peakCalling.html
+      - text: Dimensionality Reduction
+        href: articles/Articles/dimReduction.html
+      - text: Gene Scores and Marker Genes
+        href: articles/Articles/geneScores.html
+      - text: Signal Track Ploting
+        href: articles/Articles/signalTracks.html
+      - text: TF Footprinting
+        href: articles/Articles/footprinting.html
+  - text: FAQ
+    href: articles/faq.html
   - text: Reference
     href: reference/index.html
   right:

@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> • ArchR</title>
+<title>A Brief ArchR Tutorial • ArchR</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="">
+<script src="../pkgdown.js"></script><meta property="og:title" content="A Brief ArchR Tutorial">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -48,21 +48,30 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/Introduction.html">Introduction</a>
+      <a href="../articles/Articles/doubletRemoval.html">Doublet Removal</a>
     </li>
     <li>
-      <a href="../articles/Articles/Counts.html">Counts</a>
+      <a href="../articles/Articles/qcFilters.html">QC Filters</a>
     </li>
     <li>
-      <a href="../articles/Articles/Annotations.html">Annotations</a>
+      <a href="../articles/Articles/peakCalling.html">Peak Calling</a>
     </li>
     <li>
-      <a href="../articles/Articles/Deviations.html">Deviations</a>
+      <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/Applications.html">Applications</a>
+      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -89,7 +98,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1></h1>
+      <h1>A Brief ArchR Tutorial</h1>
             
       
       
@@ -99,14 +108,10 @@
 
     
     
-<div id="a-brief-archr-tutorial" class="section level1">
-<h1 class="hasAnchor">
-<a href="#a-brief-archr-tutorial" class="anchor"></a>A Brief ArchR Tutorial</h1>
-<p>The following tutorial shows the basics of ArchR using a gold-standard dataset of hematopoietic cells ( CITATION ). This will walk through the basic steps without providing much detail. Please see the Vignettes for additional details on each major step:</p>
-</div>
-<div id="setting-up-your-archr-project" class="section level1">
-<h1 class="hasAnchor">
-<a href="#setting-up-your-archr-project" class="anchor"></a>Setting up your ArchR Project</h1>
+<p>The following tutorial shows the basics of ArchR using a gold-standard dataset of hematopoietic cells ( CITATION ). This will walk through the basic steps without providing much detail. Please see the Vignettes section for additional details on each major step:</p>
+<div id="setting-up-your-archr-project" class="section level3">
+<h3 class="hasAnchor">
+<a href="#setting-up-your-archr-project" class="anchor"></a>Setting up your ArchR Project</h3>
 <p>The first decision you must make is where you will run ArchR - will you run it locally (for example on your laptop or a basic unix server) or will you run it on a cluster using a job submission engine such as SLURM?</p>
 <p>In either case, ArchR must be installed appropriately.</p>
 <p>If you plan on running ArchR locally…</p>
@@ -235,14 +240,6 @@ markersPeaks &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-        <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-<li><a href="#a-brief-archr-tutorial">A Brief ArchR Tutorial</a></li>
-      <li><a href="#setting-up-your-archr-project">Setting up your ArchR Project</a></li>
-      </ul>
-</div>
       </div>
 
 </div>

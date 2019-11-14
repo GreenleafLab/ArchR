@@ -1,8 +1,10 @@
-# A Brief ArchR Tutorial
+---
+title: "A Brief ArchR Tutorial"
+---
 
-The following tutorial shows the basics of ArchR using a gold-standard dataset of hematopoietic cells ( CITATION ). This will walk through the basic steps without providing much detail. Please see the Vignettes for additional details on each major step:
+The following tutorial shows the basics of ArchR using a gold-standard dataset of hematopoietic cells ( CITATION ). This will walk through the basic steps without providing much detail. Please see the Vignettes section for additional details on each major step:
 
-# Setting up your ArchR Project
+### Setting up your ArchR Project
 
 The first decision you must make is where you will run ArchR - will you run it locally (for example on your laptop or a basic unix server) or will you run it on a cluster using a job submission engine such as SLURM?
 
