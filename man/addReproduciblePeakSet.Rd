@@ -6,7 +6,7 @@
 \usage{
 addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
   reproducibility = "2", peaksPerCell = 500, maxPeaks = 150000,
-  excludeChr = c("chrM", "chrY"), pathToMacs2 = "macs2",
+  excludeChr = c("chrM", "chrY"), pathToMacs2 = findMacs2(),
   genomeSize = NULL, shift = -75, extsize = 150, method = "q",
   cutOff = 0.05, extendSummits = 250, promoterDist = 500,
   genomeAnno = getGenomeAnnotation(ArchRProj),

@@ -8,6 +8,7 @@ setClassUnion("GRangesOrNull", c("GRanges", "NULL"))
 setClass("ArchRProject", 
   representation(
     projectMetadata = "SimpleList",
+    projectSummary = "SimpleList",
     sampleColData = "DataFrame",
     sampleMetadata = "SimpleList",
     cellColData = "DataFrame", 
@@ -92,6 +93,7 @@ ArchRProject <- function(
 
   proj <- new("ArchRProject", 
     projectMetadata = SimpleList(outputDirectory = normalizePath(outputDirectory)),
+    projectSummary = SimpleList(),
     sampleColData = sampleColData,
     sampleMetadata = sampleMetadata,
     cellColData = cellColData,
@@ -104,6 +106,9 @@ ArchRProject <- function(
   if(showLogo){
     .ArchRLogo(ascii = "Logo") 
   }
+
+  proj <- addProjectSummary(proj, name = "DateOfCreation", summary = c("Date" = Sys.time()))
+
   proj
 
 }

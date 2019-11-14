@@ -129,7 +129,7 @@ ArchRRegionTrack <- function(
   }
 
   .messageDiffTime("Plotting", tstart)
-  .suppressAll(ggAlignPlots(plotList = plotList, sizes=sizes))
+  ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE)
 
 }
 

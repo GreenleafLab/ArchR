@@ -33,7 +33,7 @@ addReproduciblePeakSet <- function(
 	peaksPerCell = 500,
 	maxPeaks = 150000,
 	excludeChr = c("chrM","chrY"),
-	pathToMacs2 = "macs2",
+	pathToMacs2 = findMacs2(),
 	genomeSize = NULL, 
 	shift = -75, 
 	extsize = 150, 
@@ -400,4 +400,45 @@ plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 	return(out)
 
 }
+
+#' @export
+findMacs2 <- function(){
+  
+  message("Searching For MACS2...")
+
+  #Check if in path
+  if(.suppressAll(.checkPath("macs2", throwError = FALSE))){
+    return("macs2")
+  }
+  #Try seeing if its pip installed
+  search2 <- tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
+  search3 <- tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
+  
+  message("Not Found in $Path")
+
+  if(search2[1] != "ERROR"){
+	  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
+	  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+	    return(path2Bin)
+	  }else{
+  		message("Not Found with pip")
+	  }
+  }
+
+  if(search3[1] != "ERROR"){
+	  path2Install <- gsub("Location: ","",search3[grep("Location", search3, ignore.case=TRUE)])
+	  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+	    return(path2Bin)
+	  }else{
+  		message("Not Found with pip3")
+	  }
+  }
+  
+  cat(out)
+
+}
+
+
 

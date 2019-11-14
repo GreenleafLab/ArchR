@@ -57,7 +57,7 @@ addGeneScoreMatrix <- function(
   args$ArrowFiles <- ArrowFiles
   args$allCells <- allCells
   args$X <- seq_along(ArrowFiles)
-  args$FUN <- batchFUN
+  args$FUN <- .addGeneScoreMat
   args$registryDir <- file.path(outDir, "GeneScoresRegistry")
 
   #Run With Parallel or lapply
@@ -90,11 +90,15 @@ addGeneScoreMatrix <- function(
   geneModel = "exp(-abs(x)/10000)",
   excludeChr = c("chrY","chrM"),
   force = FALSE,
-  tmpFile = tempfile(),
+  tmpFile = NULL,
   ...
   ){
 
   ArrowFile <- ArrowFiles[i]
+
+  if(is.null(tmpFile)){
+    tmpFile <- .tempfile(pattern = paste0("tmp-", .sampleName(ArrowFile)))
+  }
 
   #Check
   if(!suppressMessages(h5createGroup(file = ArrowFile, "GeneScoreMatrix"))){

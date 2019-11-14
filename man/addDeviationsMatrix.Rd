@@ -4,9 +4,10 @@
 \alias{addDeviationsMatrix}
 \title{Add DeviationsMatrix to Arrow Files in ArchRProject}
 \usage{
-addDeviationsMatrix(ArchRProj, annotations = NULL, matrixName = NULL,
-  out = c("z", "deviations"), binarize = FALSE, threads = 1,
-  parallelParam = NULL, force = FALSE, ...)
+addDeviationsMatrix(ArchRProj, annotations = NULL,
+  bdgPeaks = getBdgPeaks(ArchRProj), matrixName = NULL, out = c("z",
+  "deviations"), binarize = FALSE, threads = 1, parallelParam = NULL,
+  force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}

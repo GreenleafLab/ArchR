@@ -6,8 +6,7 @@
 \usage{
 VisualizeGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
   name = "TSSEnrichment", log2Norm = NULL, pal = NULL, ylim = NULL,
-  size = 0.5, baseSize = 6, ratioYX = NULL, points = FALSE,
-  plotWidth = 6, plotHeight = 4, ...)
+  size = 0.5, baseSize = 6, ratioYX = NULL, points = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}
@@ -29,10 +28,6 @@ VisualizeGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
 \item{ratioYX}{ratio of Y axis to X axis}
 
 \item{points}{add points to plot using quasirandom}
-
-\item{plotWidth}{plot width used for creating a consistent plot independent of legend size}
-
-\item{plotHeight}{plot height used for creating a consistent plot independent of legend size}
 
 \item{...}{additional args}
 }

@@ -315,7 +315,7 @@ IterativeLSI <- function(
 
     #Construct Sampled Matrix
     .messageDiffTime("Creating Sampled Partial Matrix of Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    tmpPath <- tempfile()
+    tmpPath <- .tempfile(pattern = "tmp-LSI-PM")
     o <- h5closeAll()
     out <- .getPartialMatrix(
         ArrowFiles = ArrowFiles,

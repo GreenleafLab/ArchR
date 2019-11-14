@@ -161,20 +161,20 @@ getCellNames <- function(ArchRProj, ...){
 #' @export
 getCellColData <- function(ArchRProj, select = NULL, drop = FALSE, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
-  ccd <- data.frame(ArchRProj@cellColData)
+  ccd <- data.frame(ArchRProj@cellColData, stringsAsFactors=FALSE)
   if(!is.null(select)){
     ccd2 <- lapply(seq_along(select), function(x){
       tryCatch({
-        dplyr::mutate(ccd, tmpNewCol123=eval(parse(text=select[x])))[,"tmpNewCol123"]
+        data.frame(dplyr::mutate(ccd, tmpNewCol123=eval(parse(text=select[x])))[,"tmpNewCol123"], stringsAsFactors=FALSE)
       }, error = function(x){
         stop("select Not Found in Colnames of cellColData:\n",x)
       })
-    }) %>% Reduce("cbind", .) %>% DataFrame
+    }) %>% Reduce("cbind", .) %>% {data.frame(.,stringsAsFactors=FALSE)}
     colnames(ccd2) <- select
     rownames(ccd2) <- rownames(ccd)
     ccd <- ccd2
   }
-  ccd <- DataFrame(ccd)
+  ccd <- as(ccd, "DataFrame")
   if(drop){
     ccd <- ccd[,,drop=drop]
   }
@@ -456,6 +456,54 @@ getEmbedding <- function(ArchRProj, embedding = "IterativeLSI", return = "df", .
     stop("embedding not in computed embeddings!")
   }
   return(out)
+}
+
+##########################################################################################
+# Project Summary
+##########################################################################################
+
+#' Get projectSummary from ArchRProject
+#' 
+#' This function prints the projectSummary from an ArchRProject
+#' 
+#' @param ArchRProj ArchRProject
+#' @param returnSummary return summary or just print
+#' @param ... additional args
+#' @export
+getProjectSummary <- function(ArchRProj, returnSummary = FALSE, ...){
+  ArchRProj <- .validArchRProject(ArchRProj)
+  pS <- ArchRProj@projectSummary
+  o <- lapply(seq_along(pS), function(x){
+    message(names(pS)[x], " :")
+    p <- lapply(seq_along(pS[[x]]), function(y){
+      message("\t", names(pS[[x]])[y], " : ", pS[[x]][y])
+    })
+    message("\n")
+  })
+  if(returnSummary){
+    pS
+  }else{
+    0
+  }
+}
+
+#' Add projectSummary tp ArchRProject
+#' 
+#' This function adds info to the projectSummary from an ArchRProject
+#' 
+#' @param ArchRProj ArchRProject
+#' @param name name of summary input
+#' @param summary summary vector
+#' @param ... additional args
+#' @export
+addProjectSummary <- function(ArchRProj, name, summary, ...){
+  ArchRProj <- .validArchRProject(ArchRProj)
+  pS <- ArchRProj@projectSummary
+  name <- paste0(length(pS) + 1, "_", name)
+  pS <- append(pS, SimpleList(summary))
+  names(pS)[length(pS)] <- name
+  ArchRProj@projectSummary <- pS
+  ArchRProj
 }
 
 ##########################################################################################
@@ -805,7 +853,6 @@ availableFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select =
     }
     grepNames
   }
-
 }
 
 #' Plot PDF in outputDirectory of ArchRProject
@@ -820,7 +867,18 @@ availableFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select =
 #' @param useDingbats use dingbats characters for plotting
 #' @param ... additional args to pdf
 #' @export
-plotPDF <- function(name, width = 8, height = 8, ArchRProj = NULL, addDOC = TRUE, useDingbats = FALSE, ...){
+plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL, addDOC = TRUE, 
+  useDingbats = FALSE, plotList = NULL, useSink = TRUE){
+
+  if(useSink){
+    tmpFile <- .tempfile()
+    sink(tmpFile)
+  }
+
+  if(is.null(plotList)){
+      plotList <- list(...)
+  }
+  
   name <- gsub("\\.pdf", "", name)
   if(is.null(ArchRProj)){
     outDir <- "Plots"
@@ -828,6 +886,7 @@ plotPDF <- function(name, width = 8, height = 8, ArchRProj = NULL, addDOC = TRUE
     ArchRProj <- .validArchRProject(ArchRProj)
     outDir <- file.path(getOutputDirectory(ArchRProj), "Plots")
   }
+  
   dir.create(outDir, showWarnings = FALSE)
   if(addDOC){
     doc <- gsub(":","-",stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2])
@@ -835,9 +894,56 @@ plotPDF <- function(name, width = 8, height = 8, ArchRProj = NULL, addDOC = TRUE
   }else{
     filename <- file.path(outDir, paste0(name, ".pdf"))
   }
-  pdf(filename, width = width, height = height, useDingbats = useDingbats, ...)
-}
 
+  pdf(filename, width = width, height = height, useDingbats = useDingbats)
+  for(i in seq_along(plotList)){
+    
+    if(inherits(plotList[[i]], "gg")){
+      
+      print("plotting ggplot!")
+
+      print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
+      if(i != length(plotList)){
+        grid::grid.newpage()
+      }
+    
+    }else if(inherits(plotList[[i]], "gtable")){
+
+      print("plotting gtable!")
+      
+      print(grid::grid.draw(plotList[[i]]))
+      if(i != length(plotList)){
+        grid::grid.newpage()
+      }
+
+    }else if(attr(class(plotList[[i]]),"package") == "ComplexHeatmap"){
+      
+      print("plotting copmleheatmap!")
+
+      padding <- 45
+      draw(plotList[[i]], 
+        padding = unit(c(padding, padding, padding, padding), "mm"), 
+        heatmap_legend_side = "bot", 
+        annotation_legend_side = "bot"
+      )
+
+    }else{
+
+      print("plotting with print")
+     
+      print(plotList[[i]])
+
+    }
+
+  }
+  dev.off()
+
+  if(useSink){
+    sink()
+    file.remove(tmpFile)
+  }
+
+}
 
 
 

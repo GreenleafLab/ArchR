@@ -15,6 +15,7 @@
 addTileMatrix <- function(
   input,
   chromSizes = getChromSizes(input),
+  blacklist = getBlacklist(input),
   tileSize = 500, 
   binarize = TRUE, 
   excludeChr = c("chrM","chrY"),

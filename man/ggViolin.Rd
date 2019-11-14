@@ -4,23 +4,27 @@
 \alias{ggViolin}
 \title{GG Violin Plot}
 \usage{
-ggViolin(x, y, base_size = 12, xlabel = NULL, ylabel = NULL,
-  points = FALSE, baseSize = 6, ratioYX = 1, sampleRatio = 0.1,
-  size = 1, title = "", pal = paletteDiscrete(values = x, set =
-  "stallion"))
+ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
+  xOrder = NULL, points = FALSE, size = 1, baseSize = 6,
+  ratioYX = NULL, sampleRatio = 0.1, title = "",
+  pal = paletteDiscrete(values = x, set = "stallion"), ...)
 }
 \arguments{
 \item{x}{categorical values to each y value}
 
 \item{y}{numeric values}
 
-\item{base_size}{base_size of theme}
-
 \item{xlabel}{xlabel}
 
 \item{ylabel}{ylabel}
 
+\item{xOrder}{custom order of x for plotting}
+
+\item{points}{add points using ggrastr geom_quasirandom?}
+
 \item{size}{size of barplot lines}
+
+\item{baseSize}{base size of fonts in plot}
 
 \item{pal}{color palette see paletteDiscrete for examples}
 }

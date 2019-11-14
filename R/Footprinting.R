@@ -18,9 +18,10 @@
 #' @param verboseAll verbose sections and subsections
 #' @param ... additional args
 #' @export
-plotFootprint <- function(
+plotFootprints <- function(
   input = NULL,
   positions = NULL,
+  plotName = "Plot-Footprints",
   groupBy = "Clusters",
   useGroups = NULL,
   pal = NULL,
@@ -29,6 +30,10 @@ plotFootprint <- function(
   smoothWindow = 10,
   nTop = NULL,
   normMethod = "none",
+  height = 6,
+  width = 4,
+  addDOC = TRUE,
+  useSink = TRUE,
   threads = 16,
   verboseHeader = TRUE,
   verboseAll = FALSE,
@@ -86,8 +91,53 @@ plotFootprint <- function(
 
   }
 
+  ############################################################################################
+  # Plot Helper
+  ############################################################################################
+  if(useSink){
+    tmpFile <- .tempfile()
+    sink(tmpFile)
+  }
+
+  name <- gsub("\\.pdf", "", plotName)
+  if(is.null(ArchRProj)){
+    outDir <- "Plots"
+  }else{
+    ArchRProj <- .validArchRProject(ArchRProj)
+    outDir <- file.path(getOutputDirectory(ArchRProj), "Plots")
+  }
+
+  dir.create(outDir, showWarnings = FALSE)
+  if(addDOC){
+    doc <- gsub(":","-",stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2])
+    filename <- file.path(outDir, paste0(name, "_Date-", Sys.Date(), "_Time-", doc, ".pdf"))
+  }else{
+    filename <- file.path(outDir, paste0(name, ".pdf"))
+  }
+
+  pdf(filename, width = width, height = height, useDingbats = FALSE)
+
   for(i in seq_along(seFoot@assays)){
-    print(.ggFootprint(seFoot, names(seFoot@assays)[i], pal = pal, smoothWindow = smoothWindow, flank = flank, flankNorm = flankNorm))
+    print(
+      grid::grid.draw(.ggFootprint(
+        seFoot = seFoot, 
+        name = names(seFoot@assays)[i], 
+        pal = pal, 
+        smoothWindow = smoothWindow, 
+        flank = flank, 
+        flankNorm = flankNorm, 
+        normMethod=normMethod
+      )
+    ))
+    if(i != length(seFoot@assays)){
+      grid::grid.newpage()
+    }
+  }
+  dev.off()
+
+  if(useSink){
+    sink()
+    file.remove(tmpFile)
   }
 
   seFoot
@@ -188,7 +238,7 @@ plotFootprint <- function(
     ) + theme_ArchR(baseSize = baseSize) + ylab("Bias Normalized Mean") + 
     theme(legend.position = "bottom", legend.box.background = element_rect(color = NA)) 
        
-  ggAlignPlots(ggFoot, .ggSmallLegend(ggBias), sizes=c(2,1))
+  ggAlignPlots(ggFoot, .ggSmallLegend(ggBias), sizes=c(2,1), draw = FALSE)
 
 }
 

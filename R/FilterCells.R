@@ -12,11 +12,7 @@ FilterCells <- function(ArchRProj, filterList){
 
   cellsPF <- lapply(seq_along(filterList), function(x){
 
-    if(names(filterList[x]) %ni% colnames(ccd)){
-      stop(names(filterList[x]), " is not in colnames of cellColData")
-    }
-
-    vx <- ccd[,names(filterList[x])]
+    vx <- getCellColData(ArchRProj, names(filterList[x]), drop = TRUE)
 
     if(inherits(filterList[[x]], "numeric")){
 
@@ -37,7 +33,7 @@ FilterCells <- function(ArchRProj, filterList){
         }
 
         ccdy <- ccd[BiocGenerics::which(ccd$Sample == names(filterList[[x]][y])),]
-        vy <- ccdy[,names(filterList[x])]
+        vy <- getCellColData(ArchRProj, names(filterList[x]), drop = TRUE)
 
         if(inherits(filterList[[x]][[y]], "numeric")){
 
@@ -74,10 +70,71 @@ FilterCells <- function(ArchRProj, filterList){
   }
 
   ArchRProj@cellColData <- ccd[cellsPF,]
-
   ArchRProj
   
 }
+
+#' Extend Filter then Normalize Scores for Summits
+#' @param df dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files
+#' @param genome mm9, hg19 character or BSgenome object
+#' @param blacklist regions to blacklist
+#' @param extend how to extend summits (summit +- extend)
+#' @param scorePerMillion normalized Score-per-million minimum to keep
+#' @param selectionRules string with a formula containing n (majority = (n+1)/2, multiple samples = 2)
+#' @export
+FilterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
+
+  ccd <- getCellColData(ArchRProj, unique(c("Sample", names(filterList))))
+  if(!is.null(sampleNames)){
+    ccd <- ccd[ccd$Sample %in% sampleNames,,drop=TRUE]
+  }
+  stopifnot(nrow(ccd)!=0)
+
+  cutoffs <- lapply(seq_along(filterList), function(x){
+      if(inherits(filterList[[x]], "numeric")){
+        cutLow <- filterList[[x]][1]
+        cutHigh <- if(is.na(filterList[[x]][2])) Inf else filterList[[x]][2]
+      }else{
+        stop(names(filterList[x]), " is not a numeric or list!")
+      }
+      data.frame(row.names=names(filterList)[x], cutLow = cutLow, cutHigh = cutHigh)
+  }) %>% Reduce("rbind",.)
+
+  if(nrow(cutoffs) == 1){
+
+    ggViolin(
+      x = ccd$Sample, 
+      y = as.numeric(ccd[,rownames(cutoffs)[1]]), 
+      points = TRUE, 
+      ylabel = rownames(cutoffs)[1], 
+      ...) + geom_hline(yintercept = c(cutoffs[1,1],cutoffs[1,2]), lty = "dashed")
+
+  }else if(nrow(cutoffs) > 1){
+
+    if(nrow(cutoffs) > 2){
+      message("Only plotting first 2 cutoffs from filterList!")
+    }
+
+    ggPoint(
+      x = as.numeric(ccd[,rownames(cutoffs)[1]]),
+      y = as.numeric(ccd[,rownames(cutoffs)[2]]),
+      xlabel = rownames(cutoffs)[1],
+      ylabel = rownames(cutoffs)[2],
+      colorDensity = TRUE,
+      ...) + geom_vline(xintercept = c(cutoffs[1,1],cutoffs[1,2]), lty = "dashed") + 
+      geom_hline(yintercept = c(cutoffs[2,1],cutoffs[2,2]), lty = "dashed")
+
+  }else{
+
+    stop("No Cutoffs Found!")
+
+  }
+
+}
+
+
+
+
 
 
 

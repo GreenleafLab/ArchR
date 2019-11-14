@@ -4,10 +4,13 @@
 \alias{plotPDF}
 \title{Plot PDF in outputDirectory of ArchRProject}
 \usage{
-plotPDF(name, width = 8, height = 8, ArchRProj = NULL,
-  addDOC = TRUE, useDingbats = FALSE, ...)
+plotPDF(..., name = "Plot", width = 6, height = 6,
+  ArchRProj = NULL, addDOC = TRUE, useDingbats = FALSE,
+  plotList = NULL, useSink = TRUE)
 }
 \arguments{
+\item{...}{additional args to pdf}
+
 \item{name}{name of PDF file}
 
 \item{width}{width of PDF in inches}
@@ -19,8 +22,6 @@ plotPDF(name, width = 8, height = 8, ArchRProj = NULL,
 \item{addDOC}{add date of creation to end of plot file name}
 
 \item{useDingbats}{use dingbats characters for plotting}
-
-\item{...}{additional args to pdf}
 }
 \description{
 This function will plot PDF in output directory of an ArchRProject

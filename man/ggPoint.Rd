@@ -2,47 +2,83 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggPoint}
 \alias{ggPoint}
-\title{GG Plot One to One Heatscatter}
+\title{Ggplot Points in a standardized manner}
 \usage{
-ggPoint(x, y, color = NULL, discrete = TRUE,
-  discreteSet = "stallion", labelMeans = FALSE,
-  continuousSet = "solar_extra", pal = NULL, colorDensity = FALSE,
-  size = 1, xlim = NULL, ylim = NULL, extend = 0.05,
-  xlabel = "x", randomize = FALSE, seed = 1, ylabel = "y",
-  title = "", alpha = 1, baseSize = 6, ratioYX = 1,
-  labelType = "ggrepel", bgColor = "white", fgColor = NULL,
-  labelSize = 1.5, addFit = NULL, nullColor = "lightGrey",
-  rastr = FALSE, dpi = 300)
+ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
+  discreteSet = "stallion", continuousSet = "solar_extra",
+  labelMeans = FALSE, pal = NULL, defaultColor = "lightGrey",
+  colorDensity = FALSE, size = 1, xlim = NULL, ylim = NULL,
+  extend = 0.05, xlabel = "x", ylabel = "y", title = "",
+  randomize = FALSE, seed = 1, colorTitle = NULL,
+  colorOrder = NULL, alpha = 1, baseSize = 6, ratioYX = 1,
+  labelType = "ggrepel", fgColor = NULL, bgColor = "white",
+  labelSize = 1.5, addFit = NULL, rastr = FALSE, dpi = 300, ...)
 }
 \arguments{
-\item{x}{x}
+\item{x}{x vector of data to be plot}
 
-\item{y}{y}
+\item{y}{y vector of data to be plot}
 
-\item{pal}{continuous color palette to use}
+\item{color}{color vector of data to be plot (must be same length as x,y)}
 
-\item{size}{geom_point size}
+\item{discrete}{discrete is color discrete?}
 
-\item{xlabel}{xlabel}
+\item{discreteSet}{default color ArchR_palette for discrete colors}
 
-\item{ylabel}{ylabel}
+\item{continuousSet}{default color ArchR_palette for continuous colors}
 
-\item{title}{ggtitle}
+\item{labelMeans}{label group means by color}
 
-\item{alpha}{geom_point alpha}
+\item{pal}{custom palette option}
 
-\item{baseSize}{base_font size}
+\item{defaultColor}{default color}
 
-\item{min}{xmin quantile [0,1]}
+\item{colorDensity}{color x,y coordinates by relative density}
 
-\item{max}{xmax quantile [0,1]}
+\item{size}{size of points}
 
-\item{plot_n}{number of points to plot}
+\item{xlim}{xlimits for plot}
 
-\item{kernel_n}{n for MASS::kde2d default = 100}
+\item{ylim}{ylimits for plot}
 
-\item{plot_n}{number of points to plot}
+\item{extend}{extend limits by this proportion if not set by xlim or ylim}
+
+\item{xlabel}{label for x-axis}
+
+\item{ylabel}{label for y-axis}
+
+\item{title}{title of plot}
+
+\item{randomize}{randomize x,y plotting order}
+
+\item{seed}{seed for randomizing points}
+
+\item{colorTitle}{title for legend corresponding to color}
+
+\item{colorOrder}{order of colors for plotting/palettes}
+
+\item{alpha}{alpha transperancy for points}
+
+\item{baseSize}{baseSize for fonts}
+
+\item{ratioYX}{ratio of y to x in plot}
+
+\item{labelType}{label type to add (ggrepel or shadowtext)}
+
+\item{fgColor}{foreground color of labels}
+
+\item{bgColor}{background color of labels}
+
+\item{labelSize}{label size to be created}
+
+\item{addFit}{add an x,y fit line using geom_smooth}
+
+\item{rastr}{rastr points}
+
+\item{dpi}{rastr resolution}
+
+\item{...}{additional params to pass}
 }
 \description{
-GG Plot One to One Heatscatter
+This function will plot x,y coordinates in a standardized manner
 }

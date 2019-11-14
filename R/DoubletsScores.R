@@ -115,15 +115,21 @@ addDoubletScores <- function(
 
   tstart <- Sys.time()
   ArrowFile <- ArrowFiles[i]
-  .messageDiffTime(sprintf("Computing Doublet Scores %s of %s!", i, length(ArrowFiles)), tstart, addHeader = TRUE)
+  sampleName <- .sampleName(ArrowFile)
+  outDir <- file.path(outDir, sampleName)
+  dir.create(outDir, showWarnings = FALSE)
+
+  .messageDiffTime(sprintf("Computing Doublet Scores %s (%s of %s)!", sampleName, i, length(ArrowFiles)), tstart, addHeader = TRUE)
 
   #################################################
   # 1. Create ArchRProject For Iterative LSI
   #################################################
+  tmpDir <- .tempfile()
+  dir.create(tmpDir)
   proj <- suppressMessages(ArchRProject(
     ArrowFiles = ArrowFile,
     sampleNames = .sampleName(ArrowFile),
-    outputDirectory = tempdir(),
+    outputDirectory = tmpDir,
     copyArrows = FALSE,
     showLogo = FALSE,
     geneAnnotation = .nullGeneAnnotation(), #this doesnt matter just needs to be valid
@@ -210,12 +216,15 @@ addDoubletScores <- function(
   doubUMAP <- simDoublets$doubletUMAP
   dfDoub <- data.frame(
     row.names = paste0("doublet_", seq_len(nrow(doubUMAP))), 
-    ArchR:::getDensity(doubUMAP[,1], doubUMAP[,2]), 
+    .getDensity(doubUMAP[,1], doubUMAP[,2]), 
     type = "simulated_doublet"
   )
   dfDoub <- dfDoub[order(dfDoub$density), , drop = FALSE]
   dfDoub$color <- dfDoub$density
   
+  tmpFile <- .tempfile()
+  sink(tmpFile)
+
   #Plot Doublet Summary
   pdf(file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.pdf")), width = 6, height = 6)
 
@@ -223,8 +232,6 @@ addDoubletScores <- function(
   xlim <- range(df$X1) %>% extendrange(f = 0.05)
   ylim <- range(df$X2) %>% extendrange(f = 0.05)
   
-  
-
   if(!requireNamespace("ggrastr", quietly = TRUE)){
     
     message("ggrastr is not available for rastr of points, continuing without rastr!")
@@ -234,7 +241,8 @@ addDoubletScores <- function(
       geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
         scale_colour_gradientn(colors = paletteContinuous(set = "white_blue_purple")) + 
         xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-        guides(fill = FALSE) + theme_ArchR(base_size = 6) +
+        guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
+        labs(color = "Simulated Doublet Density") +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
@@ -250,7 +258,8 @@ addDoubletScores <- function(
       geom_point_rast(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
         scale_colour_gradientn(colors = paletteContinuous(set = "white_blue_purple")) + 
         xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-        guides(fill = FALSE) + theme_ArchR(base_size = 6) +
+        labs(color = "Simulated Doublet Density") +
+        guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
@@ -259,7 +268,7 @@ addDoubletScores <- function(
 
   }
   
-  print(.fixPlotSize(pdensity, plotWidth = unit(6, "in"), plotHeight = unit(6, "in")))
+  print(.fixPlotSize(pdensity, plotWidth = 6, plotHeight = 6))
 
   #Plot Doublet Score
   pscore <- ggPoint(
@@ -274,12 +283,14 @@ addDoubletScores <- function(
     ylab = "UMAP Dimension 2",
     continuousSet = "white_blue_purple",
     title = "Doublet Scores -log10(FDR)",
+    colorTitle = "Doublet Scores -log10(FDR)",
     rastr = TRUE,
     baseSize = 6
     ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
           axis.text.y = element_blank(), axis.ticks.y = element_blank())
   
-  print(.fixPlotSize(pscore, plotWidth = unit(6, "in"), plotHeight = unit(6, "in")))
+  grid::grid.newpage()
+  print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
   
   #Plot Enrichment Summary
   penrich <- ggPoint(
@@ -294,13 +305,17 @@ addDoubletScores <- function(
     ylab = "UMAP Dimension 2",
     continuousSet = "white_blue_purple",
     title = "Doublet Enrichment",
+    colorTitle = "Doublet Enrichment",
     rastr = TRUE
     ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
           axis.text.y = element_blank(), axis.ticks.y = element_blank())
   
-  print(.fixPlotSize(penrich, plotWidth = unit(6, "in"), plotHeight = unit(6, "in")))
+  grid::grid.newpage()
+  print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
 
   dev.off()
+  sink()
+  file.remove(tmpFile)
 
   summaryList <- SimpleList(
     originalDataUMAP = df,
@@ -321,7 +336,17 @@ addDoubletScores <- function(
   names(allDoubletEnrichment) <- allCells
   allDoubletEnrichment[names(simDoublets$doubletEnrich)] <- simDoublets$doubletEnrich
 
+  allDoubUMAP1 <- rep(NA, length(allCells))
+  names(allDoubUMAP1) <- allCells
+  allDoubUMAP1[rownames(df)] <- df[,1]
+
+  allDoubUMAP2 <- rep(NA, length(allCells))
+  names(allDoubUMAP2) <- allCells
+  allDoubUMAP2[rownames(df)] <- df[,2]
+
   o <- h5closeAll()
+  h5write(allDoubUMAP1, file = ArrowFile, "Metadata/Doublet_UMAP1")
+  h5write(allDoubUMAP2, file = ArrowFile, "Metadata/Doublet_UMAP2")
   h5write(allDoubletScores, file = ArrowFile, "Metadata/DoubletScore")
   h5write(allDoubletEnrichment, file = ArrowFile, "Metadata/DoubletEnrichment")
   o <- h5closeAll()

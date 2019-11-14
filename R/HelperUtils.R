@@ -412,6 +412,57 @@
 ##########################################################################################
 
 #' @export
+.loadAllHiddenFN <- function(package = "ArchR"){
+
+  #https://stackoverflow.com/questions/37832869/export-all-hidden-functions-from-a-package
+
+  # get all the function names of the given package "mypack"
+  r <- unclass(lsf.str(envir = asNamespace(package), all = T))
+
+  # filter weird names
+  if(length(which(grepl("\\[", r))) > 0){
+    r <- r[-which(grepl("\\[", r))]
+  }
+  if(length(which(grepl("<-", r))) > 0){
+    r <- r[-which(grepl("<-", r))]
+  }
+
+  # create functions in the Global Env. with the same name
+  for(name in r){
+    tryCatch({
+      eval(parse(text=paste0(name, "<-", package,":::", name)))
+    },error =function(x){
+
+    })
+  }
+
+  return(0)
+
+}
+
+#' @export
+.cleanParams <- function(params, maxSize = 0.05){
+  lapply(params, function(x){
+    os <- object.size(x)
+    if(os > 10^6 * maxSize){
+      NULL
+    }else{
+      x
+    }
+  })
+}
+
+#' @export
+.splitEvery <- function(x, n){
+  #https://stackoverflow.com/questions/3318333/split-a-vector-into-chunks-in-r
+  if(is.atomic(x)){
+    split(x, ceiling(seq_along(x) / n))
+  }else{
+    split(x, ceiling(seq_len(nrow(x)) / n))
+  }
+}
+
+#' @export
 .suppressAll <- function(expr){
   suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
 }
@@ -444,16 +495,16 @@
 #' @param path check on top of path a custom path
 #' @param error cause error if not in path
 #' @export
-.checkPath <- function(u=NULL, path=NULL, error = TRUE){
+.checkPath <- function(u = NULL, path = NULL, throwError = TRUE){
   if(is.null(u)){
     out <- TRUE
   }
   out <- lapply(u, function(x, error = TRUE){
     if (Sys.which(x) == "") {
-      if(!is.null(path) && file.exists(file.path(path,x))){
+      if(!is.null(path) && file.exists(file.path(path, x))){
         o <- TRUE
       }else{
-        if(error){
+        if(throwError){
           stop(x, " not found in path, please add ", x, " to path!")
         }else{
           o <- FALSE
@@ -465,6 +516,25 @@
     return(o)
   }) %>% unlist %>% all
   return(out)
+}
+
+#' Check path for utility
+#' @param u utility that you want to check is in path
+#' @param path check on top of path a custom path
+#' @param error cause error if not in path
+#' @export
+.tempfile <- function(pattern = "tmp", tmpdir = "tmp", fileext = "", addDOC = TRUE){
+
+  dir.create(tmpdir, showWarnings = FALSE)
+
+  if(addDOC){
+    doc <- paste0("Date-", Sys.Date(), "_Time-", gsub(":","-", stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2]))
+  }else{
+    doc <- ""
+  }
+
+  tempfile(pattern = paste0(pattern, "-"), tmpdir = tmpdir, fileext = paste0(doc, fileext))
+
 }
 
 #' This function returns ascii archr LOGO or arrow etc.
