@@ -26,6 +26,8 @@ navbar:
         href: articles/Articles/signalTracks.html
       - text: TF Footprinting
         href: articles/Articles/footprinting.html
+      - text: Gene and Genome Annotation
+        href: articles/Articles/annotations.html
   - text: FAQ
     href: articles/faq.html
   - text: Reference
