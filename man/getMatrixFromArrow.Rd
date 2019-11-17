@@ -5,7 +5,8 @@
 \title{Read Fragments from Arrow}
 \usage{
 getMatrixFromArrow(ArrowFile, useMatrix = "GeneScoreMatrix",
-  useSeqnames = NULL, cellNames = NULL, verbose = TRUE, ...)
+  useSeqnames = NULL, cellNames = NULL, verbose = TRUE,
+  binarize = FALSE, ...)
 }
 \arguments{
 \item{ArrowFile}{ArchRProject or ArrowFiles}

@@ -31,7 +31,7 @@ ArchRRegionTrack <- function(
   useGroups = NULL,
   useCoverages = FALSE,
   plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
-  sizes = c(10, 0.5, 4),
+  sizes = c(10, 2, 4),
   features = getPeakSet(ArchRProj),
   geneSymbol = NULL,
   upstream = 50000,
@@ -612,7 +612,7 @@ ArchRRegionTrack <- function(
   featureWidth = 2, 
   borderWidth = 0.4, 
   hideX = FALSE, 
-  hideY = TRUE,
+  hideY = FALSE,
   ...
   ){
 
@@ -626,9 +626,12 @@ ArchRRegionTrack <- function(
     features <- ArchR::.validGRanges(features)
     featureList <- GenomicRanges::GenomicRangesList(features)
     names(featureList) <- "FeatureTrack"
+    hideY <- TRUE
   }else{
-    features <- featureList
+    featureList <- features
+    hideY <- FALSE
   }
+  featureList <- featureList[rev(seq_along(featureList))]
 
   featureO <- lapply(seq_along(featureList), function(x){
     featurex <- featureList[[x]]
@@ -638,7 +641,7 @@ ArchRRegionTrack <- function(
     if(length(sub) > 0){
       data.frame(sub, name = namex)
     }else{
-      empty <- regionanges(as.character(seqnames(region[1])), regions = Iregions(0,0))
+      empty <- GRanges(as.character(seqnames(region[1])), ranges = IRanges(0,0))
       data.frame(empty, name = namex)
     }
 
@@ -648,7 +651,7 @@ ArchRRegionTrack <- function(
   featureO$facet <- title
 
   if(is.null(pal)){
-    pal <- paletteDiscrete(set = "stallion", featureO$name)
+    pal <- paletteDiscrete(set = "stallion", rev(unique(paste0(featureO$name))))
   }
 
   p <- ggplot(data = featureO, aes(color = name)) +

@@ -159,6 +159,7 @@ getMatrixFromArrow <- function(
   useSeqnames = NULL,
   cellNames = NULL, 
   verbose = TRUE,
+  binarize = FALSE,
   ...){
 
   ArrowFile <- .validArrow(ArrowFile)
@@ -198,7 +199,7 @@ getMatrixFromArrow <- function(
   if(useMatrix == "PeakMatrix"){
     se <- SummarizedExperiment(
       assays = mat,
-      rowRanges = getPeakSet(ArchRProj),
+      rowRanges = GRanges(featureDF$seqnames, IRanges(featureDF$start, featureDF$end)),
       colData = colData[colnames(mat[[1]]),,drop=FALSE]
     )
   }else{

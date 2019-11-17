@@ -38,7 +38,7 @@ addReproduciblePeakSet <- function(
 	shift = -75, 
 	extsize = 150, 
 	method = "q",
-	cutOff = 0.05, 
+	cutOff = 0.1, 
 	extendSummits = 250,
 	promoterDist = 500,
 	genomeAnno = getGenomeAnnotation(ArchRProj),
@@ -55,8 +55,8 @@ addReproduciblePeakSet <- function(
 	tstart <- Sys.time()
 	utility <- ArchR:::.checkPath(pathToMacs2)
 
-	coverageMetadata <- .getCoverageMetadata(ArchRProj = ArchRProj, groupBy = groupBy)
-	coverageParams <- .getCoverageParams(ArchRProj = ArchRProj, groupBy = groupBy)
+	coverageMetadata <- ArchR:::.getCoverageMetadata(ArchRProj = ArchRProj, groupBy = groupBy)
+	coverageParams <- ArchR:::.getCoverageParams(ArchRProj = ArchRProj, groupBy = groupBy)
 
 	#####################################################
 	# Peak Calling Summary
@@ -70,19 +70,19 @@ addReproduciblePeakSet <- function(
 		nmax <- lapply(x, length) %>% unlist %>% max
 		data.frame(
 		  Group=names(coverageParams$cellGroups)[y], 
-		  nCells=tableGroups[y], 
+		  nCells=tableGroups[names(coverageParams$cellGroups)[y]], 
 		  nCellsUsed=length(uniq), 
 		  nReplicates=length(x), 
 		  nMin=nmin, 
 		  nMax=nmax, 
-		  maxPeaks = min(maxPeaks, nmin * peaksPerCell)
+		  maxPeaks = min(maxPeaks, length(uniq) * peaksPerCell)
 		)
 	}) %>% Reduce("rbind",.)
 
 	.messageDiffTime("Peak Calling Parameters!", tstart)
-	printSummary <- groupSummary
-	rownames(printSummary) <- NULL
-	print(printSummary)
+	#printSummary <- groupSummary
+	#rownames(printSummary) <- NULL
+	print(groupSummary)
 
 	#####################################################
 	# Create Output Directory
@@ -197,6 +197,8 @@ addReproduciblePeakSet <- function(
 	dev.off()
 
 	.messageDiffTime("Finished Creating Union Peak Set!", tstart)
+
+	closeAllConnections()
 
 	return(ArchRProj)
 
@@ -332,7 +334,7 @@ plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 	# Create Bed File from Coverage File
 	################
 	bedFile <- file.path(bedDir, paste0(names(coverageFiles)[i], ".insertions.bed"))
-	o <- .writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr)
+	o <- ArchR:::.writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr)
 	peakParams$bedFile <- bedFile
 	
 	################

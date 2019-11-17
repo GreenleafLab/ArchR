@@ -109,8 +109,8 @@ addPeakMatrix <- function(
 
   readsInPeaks <- lapply(outList, function(x) x$RIP) %>% unlist
   FRIP <- lapply(outList, function(x) x$FRIP) %>% unlist
-  ArchRProj <- addCellColData(ArchRProj, data = readsInPeaks, name = "ReadsInPeaks", names(readsInPeaks))
-  ArchRProj <- addCellColData(ArchRProj, data = FRIP, name = "FRIP", names(readsInPeaks))
+  ArchRProj <- addCellColData(ArchRProj, data = readsInPeaks, name = "ReadsInPeaks", names(readsInPeaks), force = force)
+  ArchRProj <- addCellColData(ArchRProj, data = FRIP, name = "FRIP", names(readsInPeaks), force = force)
   return(ArchRProj)
 
 }

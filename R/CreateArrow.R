@@ -168,7 +168,7 @@ createArrowFiles <- function(
   #Determine Arrow Construction Method
   #############################################################  
   fe <- .fileExtension(inputFile)
-  if(fe == "gz" | fe == "tsv" | fe == "txt"){
+  if(fe == "gz" | fe == "bgz" | fe == "tsv" | fe == "txt"){
     if(.isTabix(inputFile)){
       readMethod <- "tabix"
     }else{
@@ -242,7 +242,7 @@ createArrowFiles <- function(
           xlab("Size of Fragments (bp) \n") + 
           ylab("Fragments (%)") + 
           ggtitle("Fragment Size Distribution")
-    print(.fixPlotSize(gg, plotWidth = 4.5, plotHeight = 3.5, height = 4/3))
+    print(.fixPlotSize(gg, plotWidth = 4.5, plotHeight = 3.5, height = 3/4))
     dev.off()
 
     sink()
