@@ -34,6 +34,7 @@ markerFeatures <- function(
     testMethod = "wilcoxon",
     minCells = 50,
     maxCells = 500,
+    scaleTo = 10^4,
     threads = 1,
     k = 100,
     bufferRatio = 0.8,
@@ -79,6 +80,7 @@ markerFeatures <- function(
     normBy = NULL,
     minCells = 50,
     maxCells = 500,
+    scaleTo = 10^4,
     bufferRatio = 0.8,
     useSeqnames = NULL,
     bias = NULL,
@@ -113,24 +115,13 @@ markerFeatures <- function(
     #####################################################
     .messageDiffTime("Matching Known Biases", tstart, addHeader = verboseAll)
     groups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
-    
-    if(!is.null(useGroups)){
-      if(any(useGroups %ni% groups)){
-        stop("Not all useGroups in Group names!")
-      }
-      groups <- groups[groups %in% useGroups]
-    }
-
-    if(!is.null(bdgGroups)){
-      if(any(bdgGroups %ni% groups)){
-        stop("Not all bdgGroups in Group names!")
-      }
-      groups <- groups[groups %in% bdgGroups]
-    }
+    colDat <- getCellColData(ArchRProj)
 
     matchObj <- .matchBiasCellGroups(
-      input = getCellColData(ArchRProj), 
+      input = colDat, 
       groups = groups,
+      useGroups = useGroups,
+      bdgGroups = bdgGroups,
       bias = bias,
       k = k,
       n = maxCells
@@ -139,20 +130,32 @@ markerFeatures <- function(
     #####################################################
     # Pairwise Test Per Seqnames
     #####################################################
-    .messageDiffTime("Computing Pairwise Tests", tstart, addHeader = verboseAll)
+    mColSums <- suppressMessages(.getColSums(ArrowFiles, seqnames = featureDF$seqnames@values, useMatrix = useMatrix, threads = threads))
+    
     if(is.null(normBy)){
-      if(tolower(useMatrix) %in% c("tilematrix","peakmatrix")){
+      if(tolower(useMatrix) %in% c("tilematrix", "peakmatrix")){
         normBy <- "ReadsInTSS"
         normFactors <- getCellColData(ArchRProj, normBy, drop=FALSE)
         normFactors[,1] <- median(normFactors[,1]) / normFactors[,1]
       }else{
-        normFactors <- NULL
+        normFactors <- scaleTo / mColSums
+        normFactors <- DataFrame(normFactors)
       }
     }else{
-      normFactors <- NULL
+      if(tolower(normBy) == "none"){
+        normFactors <- NULL
+      }else{
+        normFactors <- scaleTo / mColSums
+        normFactors <- DataFrame(normFactors)
+      }
     }
 
+    if(!is.null(normFactors)){
+      normFactors[,1] <- normFactors[,1] * (scaleTo / median(normFactors[names(mColSums), 1] * mColSums))
+    }
+    
     diffList <- .safelapply(seq_along(matchObj[[1]]), function(x){
+      .messageDiffTime(sprintf("Computing Pairwise Tests (%s of %s)", x, length(matchObj[[1]])), tstart, addHeader = verboseAll)
       .testMarkerSC(
           ArrowFiles = ArrowFiles,
           matchObj = matchObj, 
@@ -165,6 +168,8 @@ markerFeatures <- function(
           binarize = binarize
       )
     }, threads = threads)
+
+    .messageDiffTime("Completed Pairwise Tests", tstart, addHeader = TRUE)
 
     #####################################################
     # Summarize Output
@@ -189,7 +194,6 @@ markerFeatures <- function(
               Mean = lapply(seq_along(diffList), function(x) diffList[[x]]$mean1) %>% Reduce("cbind",.),
               Variance = lapply(seq_along(diffList), function(x) diffList[[x]]$var1) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) diffList[[x]]$fdr) %>% Reduce("cbind",.),
-              AUC = lapply(seq_along(diffList), function(x) diffList[[x]]$auc) %>% Reduce("cbind",.),
               MeanBDG = lapply(seq_along(diffList), function(x) diffList[[x]]$mean2) %>% Reduce("cbind",.),
               VarianceBDG = lapply(seq_along(diffList), function(x) diffList[[x]]$var2) %>% Reduce("cbind",.)
             ),
@@ -200,13 +204,190 @@ markerFeatures <- function(
     }
     colnames(pse) <- names(matchObj[[1]])
 
-    .messageDiffTime("Completed Pairwise Tests", tstart, addHeader = TRUE)
+    metadata(pse)$MatchInfo <- matchObj
 
     return(pse)
 
 }
 
-.matchBiasCellGroups <- function(input, groups, bias, k = 100, n = 500, bufferRatio = 0.8){
+.testMarkerSC <- function(ArrowFiles, matchObj, group = NULL, testMethod = "ttest", useMatrix,
+  threads = 1, featureDF, binarize = FALSE, normFactors = NULL){
+
+  matchx <- matchObj[[1]][[group]]
+  cellsx <- matchObj[[2]]$cells[matchx$cells]
+  bdgx <- matchObj[[2]]$cells[matchx$bdg]
+  
+  if(!is.null(normFactors)){
+    cellNF <- normFactors[cellsx,1]
+    bdgNF <- normFactors[bdgx,1]
+  }
+
+  #Add RowNames for Check at the end
+  rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
+  seqnames <- unique(featureDF$seqnames)
+
+  pairwiseDF <- lapply(seq_along(seqnames), function(y){
+
+    featureDFy <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames[y]), ]
+
+    scMaty <- suppressMessages(.getPartialMatrix(
+      ArrowFiles, 
+      featureDF = featureDFy, 
+      threads = threads, 
+      useMatrix = useMatrix,
+      cellNames = c(cellsx, bdgx),
+      progress = FALSE
+    ))
+    rownames(scMaty) <- rownames(featureDFy)
+
+    if(binarize){
+      scMaty@x[scMaty@x > 0] <- 1
+    }
+
+    args <- list()
+    if(!is.null(normFactors)){
+      args$mat1 <- t(t(scMaty[, cellsx, drop = FALSE]) * cellNF)
+      args$mat2 <- t(t(scMaty[, bdgx, drop = FALSE]) * bdgNF)
+    }else{
+      args$mat1 <- scMaty[, cellsx, drop = FALSE]
+      args$mat2 <- scMaty[, bdgx, drop = FALSE]
+    }
+
+    if(tolower(testMethod) == "wilcoxon"){
+
+      .suppressAll(do.call(.sparseMatWilcoxon, args))
+    
+    }else if(tolower(testMethod) == "ttest"){
+    
+      .suppressAll(do.call(.sparseMatTTest, args))
+    
+    }else{
+    
+      stop("Error Unrecognized Method!")
+    
+    }
+
+  }) %>% Reduce("rbind", .)
+
+  idxFilter <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
+  pairwiseDF$fdr <- NA
+  pairwiseDF$fdr[idxFilter] <- p.adjust(pairwiseDF$pval[idxFilter], method = "fdr")
+  pairwiseDF <- pairwiseDF[rownames(featureDF), , drop = FALSE]
+  pairwiseDF
+  
+}
+
+#Wilcoxon Row-wise two matrices
+.sparseMatWilcoxon <- function(mat1, mat2){
+  
+  .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
+  df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
+  df <- df[which(df$group=="Top"),]
+
+  #Sparse Row Sums
+  m1 <- Matrix::rowSums(mat1, na.rm=TRUE)
+  m2 <- Matrix::rowSums(mat2, na.rm=TRUE)
+  offset <- 1 #quantile(c(mat1@x,mat2@x), 0.99) * 10^-4
+  log2FC <- log2((m1 + offset)/(m2 + offset))
+  log2Mean <- log2(((m1+offset) + (m2+offset)) / 2)
+
+  out <- data.frame(
+    log2Mean = log2Mean,
+    log2FC = log2FC,
+    fdr = df$padj, 
+    pval = df$pval, 
+    mean1 = Matrix::rowMeans(mat1, na.rm=TRUE), 
+    mean2 = Matrix::rowMeans(mat2, na.rm=TRUE), 
+    n = ncol(mat1),
+    auc = df$auc
+  )
+
+  return(out)
+
+}
+
+#T-Test Row-wise two matrices
+.sparseMatTTest <- function(mat1, mat2, m0 = 0){
+    
+    #Get Population Values
+    n1 <- ncol(mat1)
+    n2 <- ncol(mat2)
+    n <- n1 + n2
+    
+    #Sparse Row Means
+    m1 <- Matrix::rowMeans(mat1, na.rm=TRUE)
+    m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
+    
+    #Sparse Row Variances
+    v1 <- ArchR:::computeSparseRowVariances(mat1@i + 1, mat1@x, m1, n1)
+    v2 <- ArchR:::computeSparseRowVariances(mat2@i + 1, mat2@x, m2, n2)
+    
+    #Calculate T Statistic
+    se <- sqrt( (1/n1 + 1/n2) * ((n1-1)*v1 + (n2-1)*v2)/(n1+n2-2) )
+    tstat <- (m1-m2-m0)/se
+    pvalue <- 2*pt(-abs(tstat), n - 2)
+    fdr <- p.adjust(pvalue, method = "fdr")
+    
+    #Sparse Row Sums
+    m1 <- Matrix::rowSums(mat1, na.rm=TRUE)
+    m2 <- Matrix::rowSums(mat2, na.rm=TRUE)
+    offset <- 1 #quantile(c(mat1@x,mat2@x), 0.99) * 10^-4
+    log2FC <- log2((m1 + offset)/(m2 + offset))
+    log2Mean <- log2(((m1+offset) + (m2+offset)) / 2)
+
+    out <- data.frame(
+      log2Mean = log2Mean,
+      log2FC = log2FC,
+      fdr = fdr, 
+      pval = pvalue, 
+      mean1 = m1, 
+      mean2 = m2, 
+      var1 = v2,
+      var2 = v2,
+      n = n1
+    )
+    return(out)
+}
+
+#Binomial Test Row-wise two matrices
+.sparseMatBinomTest <- function(mat1, mat2){
+  #Get Population Values
+  n1 <- ncol(mat1)
+  n2 <- ncol(mat2)
+  n <- n1 + n2
+  #Sparse Row Stats
+  s1 <- Matrix::rowSums(mat1, na.rm=TRUE)
+  m1 <- s1 / n1
+  m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
+  #Combute Binom.test
+  pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
+  pval <- sapply(seq_along(s1), function(x){
+    setTxtProgressBar(pb,round(x*100/length(s1),0))
+    binom.test(s1[x], n1, m2[x], alternative="two.sided")$p.value
+  })
+  fdr <- p.adjust(pval, method = "fdr", length(pval))
+  
+  #Sparse Row Sums
+  m1 <- Matrix::rowSums(mat1, na.rm=TRUE)
+  m2 <- Matrix::rowSums(mat2, na.rm=TRUE)
+  offset <- 1 #quantile(c(mat1@x,mat2@x), 0.99) * 10^-4
+  log2FC <- log2((m1 + offset)/(m2 + offset))
+  log2Mean <- log2(((m1+offset) + (m2+offset)) / 2)
+
+  out <- data.frame(
+    log2Mean = log2Mean,
+    log2FC = log2FC,
+    fdr = fdr, 
+    pval = pval, 
+    mean1 = m1, 
+    mean2 = m2, 
+    n = n1
+  )
+  return(out)
+}
+
+
+.matchBiasCellGroups <- function(input, groups, useGroups, bdgGroups, bias, k = 100, n = 500, bufferRatio = 0.8){
 
   #Summary Function
   .summarizeColStats <- function(m, name = NULL){
@@ -238,34 +419,58 @@ markerFeatures <- function(
   #Norm using input string ie log10(nfrags)
   inputNorm <- lapply(seq_along(bias), function(x){
     plyr::mutate(input, o=eval(parse(text=bias[x])))$o
-  }) %>% Reduce("cbind", .)
+  }) %>% Reduce("cbind", .) %>% data.frame
+  rownames(inputNorm) <- rownames(input)
 
   #Quantile Normalization
   inputNormQ <- lapply(seq_len(ncol(inputNorm)), function(x){
     .getQuantiles(inputNorm[,x])
-  }) %>% Reduce("cbind", .)
-  
+  }) %>% Reduce("cbind", .) %>% data.frame
+  rownames(inputNormQ) <- rownames(input)
+
   #Add Colnames
   colnames(inputNorm) <- bias
   colnames(inputNormQ) <- bias
 
+  if(is.null(useGroups)){
+    useGroups <- gtools::mixedsort(unique(paste0(groups)))
+  }
+
+  if(is.null(bdgGroups)){
+    bdgGroups <- gtools::mixedsort(unique(paste0(groups)))
+  }
+
+  stopifnot(all(useGroups %in% unique(paste0(groups))))
+  stopifnot(all(bdgGroups %in% unique(paste0(groups))))
+
   #Get proportion of each group
   prob <- table(groups) / length(groups)
+  bdgProb <- prob[which(names(prob) %in% bdgGroups)] / sum(prob[which(names(prob) %in% bdgGroups)])
 
   pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-  matchList <- lapply(seq_along(prob), function(x){
+  matchList <- lapply(seq_along(useGroups), function(x){
     
-    setTxtProgressBar(pb,round(x*100/length(prob),0))
+    setTxtProgressBar(pb,round(x*100/length(useGroups),0))
 
     #############
     # Organize
     #############
-    probx <- prob[-x]/sum(prob[-x])
-    id <- which(groups==names(prob)[x])
-    knnx <- computeKNN(inputNormQ[-id,],inputNormQ[id,], k = k)
+    groupx <- useGroups[x]
+    idx <- which(names(bdgProb) == groupx)
+    if(length(idx) > 0 & length(idx) != length(bdgProb)){
+      bdgProbx <- bdgProb[-idx]/sum(bdgProb[-idx])
+    }else{
+      bdgProbx <- bdgProb
+    }
+
+    idF <- which(groups == groupx)
+    idB <- which(groups %in% names(bdgProbx))
+
+    knnx <- computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k)
     sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
+
     minTotal <- min(n, length(sx) * bufferRatio)
-    nx <- sort(floor(minTotal * probx))
+    nx <- sort(floor(minTotal * bdgProbx))
     
     ###############
     # ID Matching
@@ -283,7 +488,7 @@ markerFeatures <- function(
       
       it <- it + 1
       knnit <- knnx[sx[it],]
-      groupit <- match(groups[-id][knnit],names(nx))
+      groupit <- match(groups[idB][knnit],names(nx))
       selectUnique <- FALSE
       selectit <- 0
       oit <- order(groupit)
@@ -330,13 +535,13 @@ markerFeatures <- function(
     #####################
     # Convert Back to Normal Indexing
     #####################
-    idX <- seq_len(nrow(inputNormQ))[id][idX]
-    idY <- seq_len(nrow(inputNormQ))[-id][idY]
+    idX <- seq_len(nrow(inputNormQ))[idF][idX]
+    idY <- seq_len(nrow(inputNormQ))[idB][idY]
 
     #####################
     # Matching Stats Groups
     #####################
-    estBdg <- sort(floor(minTotal * probx))
+    estBdg <- sort(floor(minTotal * bdgProbx))
     obsBdg <- rep(0, length(estBdg))
     names(obsBdg) <- names(estBdg)
     tabGroups <- table(groups[idY])
@@ -360,13 +565,13 @@ markerFeatures <- function(
         corBdgGroups = cor(estBdgP, obsBdgP),
         n = length(sx), 
         p = it / length(sx),
-        group = names(prob)[x]
+        group = groupx
       )
 
     return(out)
 
   }) %>% SimpleList
-  names(matchList) <- names(prob)
+  names(matchList) <- useGroups
   
   message("\n")
 
@@ -382,154 +587,6 @@ markerFeatures <- function(
   
   return(outList)
 
-}
-
-.testMarkerSC <- function(ArrowFiles, matchObj, group = NULL, testMethod = "ttest", useMatrix,
-  threads = 1, featureDF, binarize = FALSE, normFactors = NULL){
-
-  matchx <- matchObj[[1]][[group]]
-  cellsx <- matchObj[[2]]$cells[matchx$cells]
-  bdgx <- matchObj[[2]]$cells[matchx$bdg]
-  
-  if(!is.null(normFactors)){
-    cellNF <- normFactors[cellsx,1]
-    bdgNF <- normFactors[bdgx,1]
-  }
-
-  #Add RowNames for Check at the end
-  rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
-  seqnames <- unique(featureDF$seqnames)
-
-  pairwiseDF <- lapply(seq_along(seqnames), function(y){
-
-    featureDFy <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames[y]), ]
-
-    scMaty <- suppressMessages(.getPartialMatrix(
-      ArrowFiles, 
-      featureDF = featureDFy, 
-      threads = threads, 
-      useMatrix = useMatrix,
-      cellNames = c(cellsx, bdgx),
-      progress = FALSE
-    ))
-    rownames(scMaty) <- rownames(featureDFy)
-
-    if(binarize){
-      scMaty@x[scMaty@x > 0] <- 1
-    }
-
-    args <- list()
-    args$mat1 <- scMaty[, cellsx, drop=FALSE]
-    args$mat2 <- scMaty[, bdgx, drop=FALSE]
-
-    if(!is.null(normFactors)){
-      cellNF <- normFactors[cellsx,1]
-      bdgNF <- normFactors[bdgx,1]
-    }
-
-    if(tolower(testMethod) == "wilcoxon"){
-
-      .suppressAll(do.call(.sparseMatWilcoxon, args))
-    
-    }else if(tolower(testMethod) == "ttest"){
-    
-      .suppressAll(do.call(.sparseMatTTest, args))
-    
-    }else{
-    
-      stop("Error Unrecognized Method!")
-    
-    }
-
-  }) %>% Reduce("rbind", .)
-
-  idxFilter <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
-  pairwiseDF$fdr <- NA
-  pairwiseDF$fdr[idxFilter] <- p.adjust(pairwiseDF$pval[idxFilter], method = "fdr")
-  pairwiseDF <- pairwiseDF[rownames(featureDF), , drop = FALSE]
-  pairwiseDF
-  
-}
-
-#Wilcoxon Row-wise two matrices
-.sparseMatWilcoxon <- function(mat1, mat2){
-  offset <- quantile(c(mat1@x,mat2@x), 0.99) * 10^-3
-  .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
-  df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
-  df <- df[which(df$group=="Top"),]
-  out <- data.frame(
-    log2Mean = log2(df$avgExpr + offset),
-    log2FC = df$logFC,
-    fdr = df$padj, 
-    pval = df$pval, 
-    mean1 = Matrix::rowMeans(mat1, na.rm=TRUE), 
-    mean2 = Matrix::rowMeans(mat2, na.rm=TRUE), 
-    n = ncol(mat1),
-    auc = df$auc
-  )
-  return(out)
-}
-
-#T-Test Row-wise two matrices
-.sparseMatTTest <- function(mat1, mat2, m0 = 0){
-    offset <- quantile(c(mat1@x,mat2@x), 0.99) * 10^-3
-    #Get Population Values
-    n1 <- ncol(mat1)
-    n2 <- ncol(mat2)
-    n <- n1 + n2
-    #Sparse Row Means
-    m1 <- Matrix::rowMeans(mat1, na.rm=TRUE)
-    m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
-    #Sparse Row Variances
-    v1 <- ArchR:::computeSparseRowVariances(mat1@i + 1, mat1@x, m1, n1)
-    v2 <- ArchR:::computeSparseRowVariances(mat2@i + 1, mat2@x, m2, n2)
-    #Calculate T Statistic
-    se <- sqrt( (1/n1 + 1/n2) * ((n1-1)*v1 + (n2-1)*v2)/(n1+n2-2) )
-    tstat <- (m1-m2-m0)/se
-    pvalue <- 2*pt(-abs(tstat), n - 2)
-    fdr <- p.adjust(pvalue, method = "fdr")
-    out <- data.frame(
-      log2Mean = log2(((m1+offset) + (m2+offset)) / 2),
-      log2FC = log2((m1+offset)/(m2+offset)),
-      fdr = fdr, 
-      pval = pvalue, 
-      mean1 = m1, 
-      mean2 = m2, 
-      var1 = v2,
-      var2 = v2,
-      n = n1
-    )
-    return(out)
-}
-
-#Binomial Test Row-wise two matrices
-.sparseMatBinomTest <- function(mat1, mat2){
-  offset <- quantile(c(mat1@x,mat2@x), 0.99) * 10^-3
-  #Get Population Values
-  n1 <- ncol(mat1)
-  n2 <- ncol(mat2)
-  n <- n1 + n2
-  #Sparse Row Stats
-  s1 <- Matrix::rowSums(mat1, na.rm=TRUE)
-  m1 <- s1 / n1
-  m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
-  #Combute Binom.test
-  pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-  pval <- sapply(seq_along(s1), function(x){
-    setTxtProgressBar(pb,round(x*100/length(s1),0))
-    binom.test(s1[x], n1, m2[x], alternative="two.sided")$p.value
-  })
-  fdr <- p.adjust(pval, method = "fdr", length(pval))
-  out <- data.frame(
-    log2Mean = log2(((m1+offset) + (m2+offset)) / 2),
-    log2FC = log2((m1+offset) / (m2+offset)),
-    fdr = fdr, 
-    pval = pval, 
-    mean1 = m1, 
-    mean2 = m2, 
-    n = n1
-  )
-  return(out)
 }
 
 
@@ -560,10 +617,11 @@ markerFeatures <- function(
 #' @export
 markerHeatmap <- function(
   seMarker,
-  cutOff = "FDR <= 0.001 & Log2FC >= 0.1",
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   log2Norm = TRUE,
   scaleTo = 10^4,
   scaleRows = TRUE,
+  plotLog2FC = FALSE,
   limits = c(-2,2),
   grepExclude = NULL,
   pal = NULL,
@@ -584,21 +642,25 @@ markerHeatmap <- function(
   for(an in assayNames){
     eval(parse(text=paste0("rm(",an,")")))
   }
+  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
 
   #Now Get Values
-  mat <- SummarizedExperiment::assays(seMarker)[["Mean"]]
-  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
-  if(log2Norm){
-    mat <- log2(t(t(mat)/colSums(mat)) * scaleTo + 1)
+  if(plotLog2FC){
+    mat <- SummarizedExperiment::assays(seMarker)[["Log2FC"]]
+  }else{
+    mat <- SummarizedExperiment::assays(seMarker)[["Mean"]]
+    if(log2Norm){
+      mat <- log2(t(t(mat)/colSums(mat)) * scaleTo + 1)
+    }
+    if(scaleRows){
+      mat <- sweep(mat - rowMeans(mat), 1, matrixStats::rowSds(mat), `/`)
+    }
   }
+  mat[mat > max(limits)] <- max(limits)
+  mat[mat < min(limits)] <- min(limits)
+  
   mat <- mat[idx,]
   passMat <- passMat[idx,]
-
-  if(scaleRows){
-    mat <- sweep(mat - rowMeans(mat), 1, matrixStats::rowSds(mat), `/`)
-    mat[mat > max(limits)] <- max(limits)
-    mat[mat < min(limits)] <- min(limits)
-  }
 
   if(nrow(mat) == 0){
     stop("No Makers Found!")
@@ -999,7 +1061,7 @@ markerAnnoEnrich <- function(
   ArchRProj = NULL,
   annotations = NULL,
   matches = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0",
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   background = "bdgPeaks",
   ...){
 
@@ -1115,7 +1177,7 @@ markerAnnoEnrich <- function(
 #' @export
 markerRanges <- function(
   seMarker,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.1",
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   ...
   ){
   
@@ -1152,5 +1214,71 @@ markerRanges <- function(
 
 }
 
+#' @export
+markerPlot <- function(
+  seMarker,
+  name = NULL,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  plotAs = "MA",
+  log2Norm = TRUE,
+  scaleTo = 10^4,
+  ...){
+
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+  passMat[is.na(passMat)] <- FALSE
+
+  if(is.null(name)){
+    name <- colnames(seMarker)[1]
+  }
+  
+  LFC <- assays(seMarker[,name])$Log2FC
+  LFC <- as.vector(LFC)
+
+  FDR <- assays(seMarker[,name])$FDR
+  FDR <- as.vector(FDR)
+  FDR[is.na(FDR)] <- 1
+
+  LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBDG)/2 + 1)
+  LM <- as.vector(LM)
+
+  color <- ifelse(passMat[, name], "Differential", "Not-Differential")
+  color[color == "Differential"] <- ifelse(LFC[color == "Differential"] > 0, "Up-Regulated", "Down-Regulated")
+  pal <- c("Up-Regulated" = "firebrick3", "Not-Differential" = "lightgrey", "Down-Regulated" = "dodgerblue3")
+
+  idx <- c(which(!passMat[, name]), which(passMat[, name]))
+
+  if(tolower(plotAs) == "ma"){
+    ggPoint(
+      x = LM[idx],
+      y = LFC[idx], 
+      color = color[idx], 
+      rastr = TRUE, 
+      pal = pal,
+      xlabel = "Log2 Mean",
+      ylabel = "Log2 Fold Change"
+    ) + geom_hline(yintercept = 0, lty = "dashed")
+  }else if(tolower(plotAs) == "volcano"){
+    ggPoint(
+      x = LFC[idx],
+      y = -log10(FDR[idx]), 
+      color = color[idx], 
+      rastr = TRUE, 
+      pal = pal,
+      xlabel = "Log2 Fold Change",
+      ylabel = "-Log10 FDR"
+    ) + geom_vline(xintercept = 0, lty = "dashed")
+  }else{
+    stop("plotAs not recognized")
+  }
+
+}
 
 

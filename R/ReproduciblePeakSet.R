@@ -219,7 +219,7 @@ plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 
   p <- ggplot(peakDF, aes(x=Group, y=Freq, fill=Var1)) + 
     geom_bar(stat = "identity") + 
-    theme_ArchR(rotate_x_axis_text_90 = TRUE) +
+    theme_ArchR(xtext90 = TRUE) +
     ylab("Number of Peaks (x10^3)") +
     xlab("") +
     scale_fill_manual(values=pal) +

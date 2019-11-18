@@ -539,8 +539,8 @@ getMatrixFromArrow <- function(
     lapply(seq_along(ArrowFiles), function(y){
       
       o <- h5closeAll()
-      cSy <- h5read(ArrowFile, paste0(useMatrix, "/", seqnames[x], "/colSums"))
-      rownames(cSy) <- .availableCells(ArrowFile, useMatrix)
+      cSy <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqnames[x], "/colSums"))
+      rownames(cSy) <- .availableCells(ArrowFiles[y], useMatrix)
       cSy
       
     }) %>% Reduce("rbind", .)

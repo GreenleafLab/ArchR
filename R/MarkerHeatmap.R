@@ -450,8 +450,6 @@ markerHeatmap <- function(
 
 }
 
-
-
 #' @export
 markerAnnoEnrich <- function(
   seMarker = NULL,
