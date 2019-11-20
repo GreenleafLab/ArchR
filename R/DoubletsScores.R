@@ -22,7 +22,7 @@
 addDoubletScores <- function(
   input,
   useMatrix = "TileMatrix",
-  k = 200,
+  k = 10,
   nTrials = 100,
   knnMethod = "UMAP",
   UMAPParams = list(),
@@ -102,7 +102,7 @@ addDoubletScores <- function(
   UMAPParams = list(),
   LSIParams = list(sampleCells = NULL),
   nTrials = 100,
-  k = 200,
+  k = 10,
   nSample = 1000,
   knnMethod = "UMAP",
   outDir = "QualityControl",
@@ -216,7 +216,7 @@ addDoubletScores <- function(
   doubUMAP <- simDoublets$doubletUMAP
   dfDoub <- data.frame(
     row.names = paste0("doublet_", seq_len(nrow(doubUMAP))), 
-    .getDensity(doubUMAP[,1], doubUMAP[,2]), 
+    ArchR:::.getDensity(doubUMAP[,1], doubUMAP[,2]), 
     type = "simulated_doublet"
   )
   dfDoub <- dfDoub[order(dfDoub$density), , drop = FALSE]
@@ -467,17 +467,25 @@ addDoubletScores <- function(
   tabDoub <- table(as.vector(knnDoub))
   countKnn[as.integer(names(tabDoub))] <-  countKnn[as.integer(names(tabDoub))] + tabDoub
 
+  nSim <- nrow(LSI$matSVD)
+  scaleTo <- 10000
+  scaleBy <- scaleTo / nSim
+
   #P-Values
   pvalBinomDoub <- lapply(seq_along(countKnn), function(x){
-    pbinom(countKnn[x] - 1, sum(countKnn), 1 / nrow(LSI$matSVD), lower.tail = FALSE)
+    #Round Prediction
+    countKnnx <- round(countKnn[x] * scaleBy)
+    sumKnnx <- round(sum(countKnn) * scaleBy)
+    pbinom(countKnnx - 1, sumKnnx, 1 / scaleTo, lower.tail = FALSE)
   }) %>% unlist
 
   #Adjust
-  padjBinomDoub <- p.adjust(pvalBinomDoub, method = "fdr")
+  padjBinomDoub <- p.adjust(pvalBinomDoub, method = "bonferroni")
 
   #Convert To Scores
-  doubletScore <- -log10(pmax(padjBinomDoub, 4.940656e-324))
+  doubletScore <- -log10(pmax(pvalBinomDoub, 4.940656e-324))
   doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
+  doubletEnrich <- 1000 * doubletEnrich / length(countKnn) #Enrichment Per 1000 Cells in Data Set
 
   out <- SimpleList(doubletUMAP = umapProject, doubletScore = doubletScore, doubletEnrich = doubletEnrich)
 
@@ -518,5 +526,3 @@ addDemuxletResults <- function(ArchRProj, bestFiles, sampleNames){
   ArchRProj
   
 }
-
-
