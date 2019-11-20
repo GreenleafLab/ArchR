@@ -485,7 +485,7 @@ addDoubletScores <- function(
   #Convert To Scores
   doubletScore <- -log10(pmax(pvalBinomDoub, 4.940656e-324))
   doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
-  doubletEnrich <- 1000 * doubletEnrich / length(countKnn) #Enrichment Per 1000 Cells in Data Set
+  doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set
 
   out <- SimpleList(doubletUMAP = umapProject, doubletScore = doubletScore, doubletEnrich = doubletEnrich)
 
