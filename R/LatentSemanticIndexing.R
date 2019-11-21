@@ -108,7 +108,7 @@ addIterativeLSI <- function(
   .messageDiffTime("Computing Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
   nFeature <- varFeatures[1]
   rmTop <- floor((1-filterQuantile) * totalFeatures)
-  topIdx <- head(order(totalAcc$value, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
+  topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
   topFeatures <- totalAcc[sort(topIdx),]
 
   #Compute Partial Matrix LSI
@@ -166,7 +166,7 @@ addIterativeLSI <- function(
     #Create Group Matrix
     .messageDiffTime("Creating Cluster Matrix on the total Group Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
     groupList <- SimpleList(split(rownames(outLSI$matSVD), clusters))
-    groupFeatures <- totalAcc[sort(head(order(totalAcc$value, decreasing = TRUE), totalFeatures)),]
+    groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
     groupMat <- .getGroupMatrix(
       ArrowFiles = ArrowFiles, 
       featureDF = groupFeatures, 

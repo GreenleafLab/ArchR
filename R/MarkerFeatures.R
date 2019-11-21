@@ -246,8 +246,8 @@ markerFeatures <- function(
 
     args <- list()
     if(!is.null(normFactors)){
-      args$mat1 <- t(t(scMaty[, cellsx, drop = FALSE]) * cellNF)
-      args$mat2 <- t(t(scMaty[, bdgx, drop = FALSE]) * bdgNF)
+      args$mat1 <- Matrix::t(Matrix::t(scMaty[, cellsx, drop = FALSE]) * cellNF)
+      args$mat2 <- Matrix::t(Matrix::t(scMaty[, bdgx, drop = FALSE]) * bdgNF)
     }else{
       args$mat1 <- scMaty[, cellsx, drop = FALSE]
       args$mat2 <- scMaty[, bdgx, drop = FALSE]
@@ -642,8 +642,6 @@ markerHeatmap <- function(
   for(an in assayNames){
     eval(parse(text=paste0("rm(",an,")")))
   }
-  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
-
   #Now Get Values
   if(plotLog2FC){
     mat <- SummarizedExperiment::assays(seMarker)[["Log2FC"]]
@@ -659,6 +657,7 @@ markerHeatmap <- function(
   mat[mat > max(limits)] <- max(limits)
   mat[mat < min(limits)] <- min(limits)
   
+  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
   mat <- mat[idx,]
   passMat <- passMat[idx,]
 

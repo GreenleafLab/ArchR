@@ -156,7 +156,7 @@ addDeviationsMatrix <- function(
       annotationsMatrix = annotationsMatrix,
       prefix = prefix,
       backgroudPeaks = SummarizedExperiment::assay(bdgPeaks),
-      expectation = featureDF$value/sum(featureDF$value),
+      expectation = featureDF$rowSums/sum(featureDF$rowSums),
       out = out
     )}
   gc()
@@ -410,6 +410,30 @@ addDeviationsMatrix <- function(
 }
 
 #' @export
+getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 25){
+
+  rowV <- .getRowVars(getArrowFiles(ArchRProj), useMatrix = name, seqnames = "z")
+  rowV <- rowV[order(rowV$combinedVars, decreasing=TRUE), ]
+  rowV$rank <- seq_len(nrow(rowV))
+
+  if(plot){
+    rowV <- data.frame(rowV)
+    ggplot(rowV, aes(rank, combinedVars)) +
+      geom_point(size = 1) + 
+      ggrepel::geom_label_repel(
+        data = rowV[rev(seq_len(n)), ], aes(x = rank, y = combinedVars, label = name), 
+        size = 1.5,
+        nudge_x = 2
+      ) + theme_ArchR() + ylab("Variability") + xlab("Rank Sorted Annotations")
+  }else{
+
+    rowV
+
+  }
+
+}
+
+#' @export
 addBdgPeaks <- function(
   ArchRProj, 
   niterations = 50, 
@@ -536,7 +560,7 @@ getBdgPeaks <- function(
   #to disable this we create a column of 1's forcing chromVAR to perform log10(values + 1)
 
   se <- SummarizedExperiment::SummarizedExperiment(
-    assays = SimpleList(counts = as.matrix(data.frame(rS$value, 1))),
+    assays = SimpleList(counts = as.matrix(data.frame(rS$rowSums, 1))),
     rowData = DataFrame(bias = rS$GC)
   )
 
@@ -549,7 +573,7 @@ getBdgPeaks <- function(
   )
 
   bdgPeaks <- SummarizedExperiment(assays = SimpleList(bdgPeaks = bdgPeaks), 
-    rowRanges = GRanges(rS$seqnames,IRanges(rS$start,rS$end),value=rS$value,GC=rS$GC))
+    rowRanges = GRanges(rS$seqnames,IRanges(rS$start,rS$end),value=rS$rowSums,GC=rS$GC))
 
   #Save Background Peaks
   if(!is.null(outFile)){

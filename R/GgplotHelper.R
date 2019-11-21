@@ -244,7 +244,7 @@ ggPoint <- function(
           ggtitle(paste0(title, "\nPearson = ", round(cor(df$x, df$y), 3), "\nSpearman = ", round(cor(df$x, df$y, method = "spearman"), 3)))
     }
 
-    p <- p + theme(legend.position = "bottom")
+    p <- p + theme(legend.position = "bottom", legend.key = element_rect(size = 2))#, legend.spacing.x = unit(0.1, 'cm'), legend.spacing.y = unit(0.1, 'cm'))
 
     return(p)
 

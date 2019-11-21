@@ -513,16 +513,28 @@ addDemuxletResults <- function(ArchRProj, bestFiles, sampleNames){
 
   ccd <- getCellColData(ArchRProj)
   ccd[ , "DemuxletClassify"] <- "NotClassified"
+  ccd[ , "DemuxletBest"] <- "NotClassified"
 
   for(x in seq_along(bestFiles)){
     best <- .suppressAll(data.frame(readr::read_tsv(bestFiles[x])))
     classification <- stringr::str_split(best$BEST, pattern = "-", simplify=TRUE)[,1]
     cellNames <- paste0(sampleNames[x], "#", best$BARCODE)
     idx <- which(cellNames %in% rownames(ccd))
-    ccd[ cellNames[idx], "DemuxletClassify"] <- classification[idx]
+    ccd[ cellNames[idx], "DemuxletClassify"] <- ifelse(
+      stringr::str_split(best$BEST, pattern = "-", simplify=TRUE)[idx,1] %in% c("AMB","DBL"),
+      stringr::str_split(best$BEST, pattern = "-", simplify=TRUE)[idx,1],
+      stringr::str_split(best$BEST, pattern = "-", simplify=TRUE)[idx,2]
+    )
+    ccd[ cellNames[idx], "DemuxletBest"] <- gsub("AMB-","",gsub("DBL-","",gsub("SNG-","",best$BEST)))[idx]
   }
 
   ArchRProj@cellColData <- ccd
   ArchRProj
   
 }
+
+
+
+
+
+

@@ -74,6 +74,17 @@ getSampleNames <- function(ArchRProj, ...){
   return(snames)
 }
 
+#' Get number of cells in ArchRProject
+#' 
+#' This function gets number of cells in ArchRProject
+#' 
+#' @param ArchRProj ArchRProject
+#' @param ... additional args
+#' @export
+nCells <- function(ArchRProj, ...){
+  nrow(getCellColData(ArchRProj))
+}
+
 #' Get sampleColData in ArchRProject
 #' 
 #' This function gets sampleColData in ArchRProject

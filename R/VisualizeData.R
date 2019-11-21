@@ -38,7 +38,7 @@ visualizeEmbedding <- function(
   randomize = TRUE,
   keepAxis = FALSE,
   baseSize = 6,
-  plotAs = NULL,
+  plotAs = "point",
   plotParams = list(),
   ...
   ){
@@ -90,7 +90,7 @@ visualizeEmbedding <- function(
     }else{
       plotParams$continuousSet <- "solar_extra"
     }
-    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)
+    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[rownames(df)]
     plotParams$discrete <- FALSE
     plotParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name)
     if(is.null(plotAs)){
@@ -288,6 +288,7 @@ visualizeGroups <- function(
     gl <- g$grobs[[legend]]
     g <- ggplotGrob(p + theme(legend.position = "none"))
   }else{
+    gl <- NULL
     g <- ggplotGrob(p)
   }
 
@@ -300,6 +301,9 @@ visualizeGroups <- function(
   
   pw <- convertWidth(plotWidth, unitTo = "in", valueOnly = TRUE)
   ph <- convertWidth(plotHeight, unitTo = "in", valueOnly = TRUE)
+
+  pw <- pw * 0.95
+  ph <- ph * 0.95
 
   x <- 0
   width <- 1
@@ -340,13 +344,95 @@ visualizeGroups <- function(
       valueOnly = TRUE
     )
 
+    sgw <- convertWidth(
+      x = sum(g$widths), 
+      unitTo = "in", 
+      valueOnly = TRUE
+    )
+
     slh <- convertHeight(
       x = sum(gl$heights), 
       unitTo = "in", 
       valueOnly = TRUE
     )
 
-    p <- grid.arrange(g, gl, ncol=1, nrow=2, heights = unit.c(unit(sgh,"in"), unit(slh, "in")), newpage = newPage)
+    slw <- convertWidth(
+      x = sum(gl$widths), 
+      unitTo = "in", 
+      valueOnly = TRUE
+    )
+
+    size <- 6
+    wh <- 0.1
+    it <- 0
+
+    while(slh > 0.2 * ph | slw > pw){
+
+      it <- it + 1
+
+      if(it > 3){
+        break
+      }
+
+      size <- size * 0.8
+      wh <- wh * 0.8
+
+      gl <- ggplotGrob(
+        p + theme(
+              legend.key.width = unit(wh, "cm"),
+              legend.key.height = unit(wh, "cm"),
+              legend.spacing.x = unit(0, 'cm'),
+              legend.spacing.y = unit(0, 'cm'),
+              legend.text = element_text(size = max(size, 2))
+              ) + guides(fill = guide_legend(ncol = 4), color =  guide_legend(ncol = 4))
+        )$grobs[[legend]]
+
+      slh <- convertHeight(
+        x = sum(gl$heights), 
+        unitTo = "in", 
+        valueOnly = TRUE
+      )
+
+      slw <- convertWidth(
+        x = sum(gl$widths), 
+        unitTo = "in", 
+        valueOnly = TRUE
+      )
+
+      # message(pw, " ", slw)
+      # message(ph* 0.1, " ", slh)
+      # message("\n")
+
+    }
+
+    # scaleBy <- 1 / max(c(slw/pw, 4 * slh/ph))
+
+    # gl$heights <- lapply(seq_along(gl$heights), function(x){
+    #   if(convertHeight(gl$heights[x], unitTo="in", valueOnly = TRUE) != 0){
+    #     unit(convertHeight(gl$heights[x], unitTo="in", valueOnly = TRUE) * scaleBy, "in")
+    #   }else{
+    #     if(grepl("null", gl$heights[x])){
+    #       unit(as.numeric(gsub("null","",gl$heights[x])) * scaleBy, "null")
+    #     }
+    #     gl$heights[x]
+    #   }
+    # }) %>% Reduce("unit.c", .)
+
+    # gl$widths <- lapply(seq_along(gl$widths), function(x){
+    #   if(convertHeight(gl$widths[x], unitTo="in", valueOnly = TRUE) != 0){
+    #     unit(convertHeight(gl$widths[x], unitTo="in", valueOnly = TRUE) * scaleBy, "in")
+    #   }else{
+    #     if(grepl("null", gl$widths[x])){
+    #       unit(as.numeric(gsub("null","",gl$widths[x])) * scaleBy, "null")
+    #     }
+    #     gl$widths[x]
+    #   }
+    # }) %>% Reduce("unit.c", .)
+
+    p <- grid.arrange(g, gl, ncol=1, nrow=2, 
+      heights = unit.c(unit(sgh,"in"), unit(min(slh, 0.2 * pw), "in")),
+      newpage = newPage
+    )
 
   }else{
 

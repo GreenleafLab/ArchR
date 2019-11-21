@@ -15,7 +15,6 @@ Imports:
     Rcpp (>= 0.12.16),
     matrixStats,
     plyr,
-    SummarizedExperiment,
     Matrix,
     nabor,
     motifmatchr,
@@ -30,6 +29,7 @@ Imports:
     ComplexHeatmap,
 Depends:
     ggplot2,
+    SummarizedExperiment,
     data.table,
     rhdf5,
     magrittr,

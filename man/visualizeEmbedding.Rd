@@ -8,8 +8,8 @@ visualizeEmbedding(ArchRProj = NULL, embedding = "UMAP",
   colorBy = "colData", name = "Sample", log2Norm = NULL,
   pal = NULL, size = 0.5, rastr = TRUE, quantCut = c(0.05, 0.95),
   quantHex = 0.5, discreteSet = NULL, continuousSet = NULL,
-  randomize = TRUE, keepAxis = FALSE, baseSize = 6, plotAs = NULL,
-  plotParams = list(), ...)
+  randomize = TRUE, keepAxis = FALSE, baseSize = 6,
+  plotAs = "point", plotParams = list(), ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}
