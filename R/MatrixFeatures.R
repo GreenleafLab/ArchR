@@ -133,7 +133,7 @@ addPeakMatrix <- function(
   o <- h5closeAll()
   
   #Check
-  if(!suppressMessages(h5createGroup(file = ArrowFile, matrixName))){
+  if(!suppressMessages(h5createGroup(ArrowFile, matrixName))){
     if(force){
       o <- h5delete(file = ArrowFile, name = matrixName)
       o <- h5createGroup(ArrowFile, matrixName)

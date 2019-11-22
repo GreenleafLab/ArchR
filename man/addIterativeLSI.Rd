@@ -6,12 +6,12 @@
 \usage{
 addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
   reducedDimsOut = "IterativeLSI", iterations = 3, dimsToUse = 1:25,
-  binarize = TRUE, sampleCells = 5000, varFeatures = 50000,
-  selectionMethod = "var", scaleTo = 10000, totalFeatures = 5e+05,
-  filterQuantile = 0.99, saveIterations = TRUE,
-  outDir = getOutputDirectory(ArchRProj), clusterParams = list(),
-  runHarmony = FALSE, harmonyParams = list(), threads = 1,
-  seed = 1, verboseHeader = TRUE, verboseAll = FALSE,
+  binarize = TRUE, sampleCells = max(c(floor(nCells(ArchRProj)/4),
+  5000)), varFeatures = 50000, selectionMethod = "var",
+  scaleTo = 10000, totalFeatures = 5e+05, filterQuantile = 0.99,
+  saveIterations = TRUE, outDir = getOutputDirectory(ArchRProj),
+  clusterParams = list(), runHarmony = FALSE, harmonyParams = list(),
+  threads = 1, seed = 1, verboseHeader = TRUE, verboseAll = FALSE,
   force = FALSE, ...)
 }
 \arguments{

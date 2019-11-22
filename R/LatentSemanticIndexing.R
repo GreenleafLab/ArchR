@@ -34,7 +34,7 @@ addIterativeLSI <- function(
   iterations = 3,
   dimsToUse = 1:25,
   binarize = TRUE,
-  sampleCells = 5000,
+  sampleCells = max(c(floor(nCells(ArchRProj) / 4), 5000)),
   varFeatures = 50000,
   selectionMethod = "var",
   scaleTo = 10000,

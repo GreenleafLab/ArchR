@@ -575,7 +575,7 @@ getMatrixFromArrow <- function(
   featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
 
   if(!is.null(seqnames)){
-    featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %in% seqnames),]
+    featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames),]
   }
 
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))

@@ -887,7 +887,9 @@ plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL,
   }
 
   if(is.null(plotList)){
-      plotList <- list(...)
+    plotList <- list(...)
+  }else{
+    plotList <- do.call(list, unlist(plotList, recursive=FALSE))
   }
   
   name <- gsub("\\.pdf", "", name)

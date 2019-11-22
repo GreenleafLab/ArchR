@@ -133,6 +133,54 @@ filterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
 }
 
 
+#' Extend Filter then Normalize Scores for Summits
+#' @param df dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files
+#' @param genome mm9, hg19 character or BSgenome object
+#' @param blacklist regions to blacklist
+#' @param extend how to extend summits (summit +- extend)
+#' @param scorePerMillion normalized Score-per-million minimum to keep
+#' @param selectionRules string with a formula containing n (majority = (n+1)/2, multiple samples = 2)
+#' @export
+filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = 25, fs = 1){
+
+
+  df <- getCellColData(ArchRProj, c("Sample", "DoubletEnrichment", "DoubletScore"))
+  
+  cellsFilter <- lapply(split(df, df$Sample), function(x){
+
+    n <- nrow(x)
+
+    x <- x[order(x$DoubletEnrichment, decreasing = TRUE), ]
+    
+    if(!is.null(cutEnrich)){
+      x <- x[x$DoubletEnrichment >= cutEnrich, ]
+    } 
+    
+    if(!is.null(cutScore)){
+      x <- x[x$DoubletScore >= cutScore, ]
+    } 
+
+    if(nrow(x) > 0){
+
+      head(rownames(x), fs * n * (n / 100000))
+
+    }else{
+      NULL
+    }
+
+  }) %>% unlist(use.names=FALSE)
+
+  if(length(cellsFilter) > 0){
+    
+    ArchRProj@cellColData <- ArchRProj@cellColData[rownames(ArchRProj@cellColData) %ni% cellsFilter,,drop=FALSE]
+
+  }
+  
+  ArchRProj
+
+}
+
+
 
 
 
