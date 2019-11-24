@@ -13,7 +13,7 @@
 #' @export
 #'
 addClusters <- function(
-    input, 
+    input = NULL, 
     reducedDims = "IterativeLSI",
     name = "Clusters",
     sampleCells = NULL,
@@ -24,6 +24,7 @@ addClusters <- function(
     nOutlier = 20, 
     verbose = TRUE,
     tstart = NULL,
+    force = FALSE,
     ...
     ){
 
@@ -32,6 +33,8 @@ addClusters <- function(
     }
 
     if(inherits(input, "ArchRProject")){
+        #Check
+        input <- addCellColData(ArchRProj = input, data = rep(NA, nCells(input)), name = name, force = force)
         if(reducedDims %ni% names(input@reducedDims)){
             stop("Error reducedDims not available!")
         }
@@ -39,7 +42,7 @@ addClusters <- function(
     }else if(inherits(input, "matrix")){
         matDR <- input
     }else{
-        stop("Requires an ArchRProject or Cell by Reduced Dims Matrix!")
+        stop("Input an ArchRProject or Cell by Reduced Dims Matrix!")
     }
     if(is.null(dimsToUse)){
         dimsToUse <- seq_len(ncol(matDR))
@@ -90,7 +93,7 @@ addClusters <- function(
     #################################################################################
     if(estimatingClusters == 1){
         .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
-        knnAssigni <- FNN::get.knnx(matDR, matDRAll[-idx,], knnAssign)[[1]]
+        knnAssigni <- computeKNN(matDR, matDRAll[-idx,], knnAssign)[[1]]
         clustUnique <- unique(clust)
         clustMatch <- match(clust, clustUnique)
         knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
@@ -119,7 +122,7 @@ addClusters <- function(
         for(i in seq_along(clustAssign)){
             clusti <- names(clustAssign[i])
             idxi <- which(clust==clusti)
-            knni <- FNN::get.knnx(matDR[-idxi,], matDR[idxi,], knnAssign)[[1]]
+            knni <- computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
             clustf <- unlist(lapply(seq_len(nrow(knni)), function(x) names(sort(table(clust[-idxi][knni[x,]]),decreasing=TRUE)[1])))
             clust[idxi] <- clustf
         }
@@ -140,7 +143,7 @@ addClusters <- function(
     }
     .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
     meanSVD <- t(.groupMeans(t(matDR), clust))
-    meanKNN <- FNN::get.knnx(meanSVD, meanSVD, nrow(meanSVD))[[1]]
+    meanKNN <- computeKNN(meanSVD, meanSVD, nrow(meanSVD))
     idx <- sample(seq_len(nrow(meanSVD)), 1)
     clustOld <- c()
     clustNew <- c()
@@ -158,7 +161,7 @@ addClusters <- function(
                 input, 
                 data = out, 
                 name = name, 
-                cells = rownames(matDR), 
+                cells = rownames(matDR),
                 force = TRUE
             )
     }else if(!inherits(input, "ArchRProject")){
@@ -180,17 +183,58 @@ addClusters <- function(
     rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
 
     obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
-    obj[['pca']] = Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
+    obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
     clustParams$object <- obj
     clustParams$reduction <- "pca"
 
     obj <- suppressWarnings(do.call(Seurat::FindNeighbors, clustParams))
     clustParams$object <- obj
-    obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
 
-    #Get Output
-    clust <- obj@meta.data[,ncol(obj@meta.data)]
-    clust <- paste0("Cluster",match(clust, unique(clust)))
+    cS <- Matrix::colSums(obj@graphs$RNA_snn)
+
+    if(cS[length(cS)] == 1){
+
+        #Error Handling with Singletons
+        idxSingles <- which(cS == 1)
+        idxNonSingles <- which(cS != 1)
+
+        rn <- rownames(mat) #original order
+        mat <- mat[c(idxSingles, idxNonSingles), ,drop = FALSE]
+
+        set.seed(1)
+
+        tmp <- matrix(rnorm(nrow(mat) * 3, 10), ncol = nrow(mat), nrow = 3)
+        colnames(tmp) <- rownames(mat)
+        rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
+
+        obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
+        obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
+        clustParams$object <- obj
+        clustParams$reduction <- "pca"
+
+        obj <- .suppressAll(do.call(Seurat::FindNeighbors, clustParams))
+        clustParams$object <- obj
+
+        obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
+
+        #Get Output
+        clust <- obj@meta.data[,ncol(obj@meta.data)]
+        clust <- paste0("Cluster",match(clust, unique(clust)))
+        names(clust) <- rownames(mat)
+        clust <- clust[rn]
+
+    }else{
+
+        obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
+
+        #Get Output
+        clust <- obj@meta.data[,ncol(obj@meta.data)]
+        clust <- paste0("Cluster",match(clust, unique(clust)))
+        names(clust) <- rownames(mat)
+
+    }
+
+    clust
 
 }
 
