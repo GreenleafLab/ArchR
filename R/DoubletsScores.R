@@ -76,12 +76,12 @@ addDoubletScores <- function(
   #Return Output
   if(inherits(input, "ArchRProject")){
 
-    input@cellColData[,"doubletScore"] <- -1
-    input@cellColData[,"doubletEnrichment"] <- -1
+    input@cellColData[,"DoubletScore"] <- NA
+    input@cellColData[,"DoubletEnrichment"] <- NA
 
     for(i in seq_along(outList)){
-      input@cellColData[names(outList[[i]]$doubletScore), "doubletScore"] <- outList[[i]]$doubletScore
-      input@cellColData[names(outList[[i]]$doubletEnrich), "doubletEnrichment"] <- outList[[i]]$doubletEnrich
+      input@cellColData[names(outList[[i]]$doubletScore), "DoubletScore"] <- outList[[i]]$doubletScore
+      input@cellColData[names(outList[[i]]$doubletEnrich), "DoubletEnrichment"] <- outList[[i]]$doubletEnrich
     }
 
     return(input)
