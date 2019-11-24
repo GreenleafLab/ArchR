@@ -145,8 +145,11 @@ filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = 25, fs = 1){
 
 
   df <- getCellColData(ArchRProj, c("Sample", "DoubletEnrichment", "DoubletScore"))
-  
-  cellsFilter <- lapply(split(df, paste0(df$Sample)), function(x){
+  splitDF <- split(seq_len(nrow(df)), as.character(df$Sample))
+
+  cellsFilter <- lapply(splitDF, function(y){
+
+    x <- df[y, ,drop = FALSE]
 
     n <- nrow(x)
 

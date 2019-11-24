@@ -93,7 +93,7 @@ addClusters <- function(
     #################################################################################
     if(estimatingClusters == 1){
         .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
-        knnAssigni <- computeKNN(matDR, matDRAll[-idx,], knnAssign)[[1]]
+        knnAssigni <- computeKNN(matDR, matDRAll[-idx,], knnAssign)
         clustUnique <- unique(clust)
         clustMatch <- match(clust, clustUnique)
         knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
