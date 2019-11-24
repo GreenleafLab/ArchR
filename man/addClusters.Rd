@@ -4,10 +4,10 @@
 \alias{addClusters}
 \title{This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject}
 \usage{
-addClusters(input, reducedDims = "IterativeLSI", name = "Clusters",
-  sampleCells = NULL, seed = 1, method = "Seurat",
-  dimsToUse = NULL, knnAssign = 10, nOutlier = 20, verbose = TRUE,
-  tstart = NULL, ...)
+addClusters(input = NULL, reducedDims = "IterativeLSI",
+  name = "Clusters", sampleCells = NULL, seed = 1,
+  method = "Seurat", dimsToUse = NULL, knnAssign = 10,
+  nOutlier = 20, verbose = TRUE, tstart = NULL, force = FALSE, ...)
 }
 \arguments{
 \item{input}{ArchRProject or matrix for cluster identification}
