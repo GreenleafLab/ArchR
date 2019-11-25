@@ -5,7 +5,7 @@
 \title{Add Doublet Scores to Arrows/ArchRProject}
 \usage{
 addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
-  nTrials = 100, knnMethod = "UMAP", UMAPParams = list(),
+  nTrials = 3, knnMethod = "UMAP", UMAPParams = list(),
   LSIParams = list(), useClusters = FALSE, outDir = "QualityControl",
   threads = 1, parallelParam = NULL, verboseHeader = TRUE,
   verboseAll = FALSE, ...)
@@ -17,7 +17,7 @@ addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
 
 \item{k}{number of cells nearby a simulated doublet to consider}
 
-\item{nTrials}{number of trials to simulate doublets in thousands}
+\item{nTrials}{number of trials to simulate doublets in terms of number of cells}
 
 \item{knnMethod}{dimension reduction to use for KNN (UMAP or SVD)}
 

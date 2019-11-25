@@ -4,10 +4,10 @@
 \alias{nCells}
 \title{Get number of cells in ArchRProject}
 \usage{
-nCells(ArchRProj, ...)
+nCells(input, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{input}{ArchRProject or ArrowFiles}
 
 \item{...}{additional args}
 }

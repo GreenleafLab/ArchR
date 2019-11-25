@@ -78,11 +78,21 @@ getSampleNames <- function(ArchRProj, ...){
 #' 
 #' This function gets number of cells in ArchRProject
 #' 
-#' @param ArchRProj ArchRProject
+#' @param input ArchRProject or ArrowFiles
 #' @param ... additional args
 #' @export
-nCells <- function(ArchRProj, ...){
-  nrow(getCellColData(ArchRProj))
+nCells <- function(input, ...){
+  if(inherits(input, "ArchRProject")){
+    nrow(getCellColData(ArchRProj))
+  }else if(inherits(input, "character")){
+    if(file.exists(input)){
+      length(.availableCells(input))
+    }else{
+      stop("File does not exist!")
+    }
+  }else{
+    stop("Provide ArchRProj or ArrowFiles")
+  }
 }
 
 #' Get sampleColData in ArchRProject

@@ -6,7 +6,7 @@
 #' @param input ArchRProject or ArrowFiles
 #' @param useMatrix matrix name for performing analyses
 #' @param k number of cells nearby a simulated doublet to consider
-#' @param nTrials number of trials to simulate doublets in thousands
+#' @param nTrials number of trials to simulate doublets in terms of number of cells
 #' @param knnMethod dimension reduction to use for KNN (UMAP or SVD)
 #' @param UMAPParams list of parameters to pass to uwot::umap
 #' @param LSIParams list of parameters to pass to IterativeLSI
@@ -23,7 +23,7 @@ addDoubletScores <- function(
   input,
   useMatrix = "TileMatrix",
   k = 10,
-  nTrials = 100,
+  nTrials = 3,
   knnMethod = "UMAP",
   UMAPParams = list(),
   LSIParams = list(),
@@ -101,7 +101,7 @@ addDoubletScores <- function(
   allCells = NULL,
   UMAPParams = list(),
   LSIParams = list(sampleCells = NULL),
-  nTrials = 100,
+  nTrials = 3,
   k = 10,
   nSample = 1000,
   knnMethod = "UMAP",
@@ -193,7 +193,7 @@ addDoubletScores <- function(
     clusters = if(useClusters) getCellColData(proj, "Clusters", drop = TRUE) else NULL,
     sampleRatio1 = c(1/2), 
     sampleRatio2 = c(1/2), 
-    nTrials = nTrials, 
+    nTrials = nTrials * nCells(proj), 
     nSample = nSample, 
     k = k, 
     uwotUmap = uwotUmap,
@@ -274,7 +274,7 @@ addDoubletScores <- function(
   pscore <- ggPoint(
     x = df[,1],
     y = df[,2],
-    color = df$score,
+    color = .quantileCut(df$score, 0, 0.95),
     xlim = xlim,
     ylim = ylim,
     discrete = FALSE,
@@ -296,7 +296,7 @@ addDoubletScores <- function(
   penrich <- ggPoint(
     x = df[,1],
     y = df[,2],
-    color = df$enrichment,
+    color = .quantileCut(df$enrichment, 0, 0.95),
     xlim = xlim,
     ylim = ylim,
     discrete = FALSE,
