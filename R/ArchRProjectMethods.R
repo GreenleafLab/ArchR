@@ -83,7 +83,7 @@ getSampleNames <- function(ArchRProj, ...){
 #' @export
 nCells <- function(input, ...){
   if(inherits(input, "ArchRProject")){
-    nrow(getCellColData(ArchRProj))
+    nrow(getCellColData(input))
   }else if(inherits(input, "character")){
     if(file.exists(input)){
       length(.availableCells(input))
