@@ -141,7 +141,7 @@ filterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
 #' @param scorePerMillion normalized Score-per-million minimum to keep
 #' @param selectionRules string with a formula containing n (majority = (n+1)/2, multiple samples = 2)
 #' @export
-filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = 25, fs = 1){
+filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, fs = 1){
 
 
   df <- getCellColData(ArchRProj, c("Sample", "DoubletEnrichment", "DoubletScore"))

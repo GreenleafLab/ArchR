@@ -123,12 +123,20 @@ plotEmbedding <- function(
   if(!plotParams$discrete){
     plotParams$color <- .quantileCut(plotParams$color, min(quantCut), max(quantCut))
     plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
+
+    if(!is.null(pal)){
+      plotParams$pal <- pal
+    }
+
     if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
       out <- do.call(ggHex, plotParams)
     }else{
       out <- do.call(ggPoint, plotParams)
     }
   }else{
+    if(!is.null(pal)){
+      plotParams$pal <- pal
+    }
     out <- do.call(ggPoint, plotParams)
   }
 
