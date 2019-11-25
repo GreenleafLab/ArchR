@@ -193,7 +193,7 @@ addDoubletScores <- function(
     clusters = if(useClusters) getCellColData(proj, "Clusters", drop = TRUE) else NULL,
     sampleRatio1 = c(1/2), 
     sampleRatio2 = c(1/2), 
-    nTrials = nTrials * nCells(proj), 
+    nTrials = floor(nTrials * nCells(proj) / 1000), 
     nSample = nSample, 
     k = k, 
     uwotUmap = uwotUmap,
