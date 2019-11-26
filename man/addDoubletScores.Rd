@@ -5,7 +5,7 @@
 \title{Add Doublet Scores to Arrows/ArchRProject}
 \usage{
 addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
-  nTrials = 3, knnMethod = "UMAP", UMAPParams = list(),
+  nTrials = 5, knnMethod = "UMAP", UMAPParams = list(),
   LSIParams = list(), useClusters = FALSE, outDir = "QualityControl",
   threads = 1, parallelParam = NULL, verboseHeader = TRUE,
   verboseAll = FALSE, ...)

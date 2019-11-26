@@ -23,7 +23,7 @@ addDoubletScores <- function(
   input,
   useMatrix = "TileMatrix",
   k = 10,
-  nTrials = 3,
+  nTrials = 5,
   knnMethod = "UMAP",
   UMAPParams = list(),
   LSIParams = list(),
