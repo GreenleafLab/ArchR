@@ -77,7 +77,11 @@ plotFootprints <- function(
       verboseAll = verboseAll
     )
 
+    ArchRProj <- input
+
   }else{
+    
+    ArchRProj <- NULL
 
     if(inherits(input, "SummarizedExperiment")){
       seFoot <- input

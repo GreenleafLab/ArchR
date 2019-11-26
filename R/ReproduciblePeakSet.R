@@ -218,7 +218,7 @@ addReproduciblePeakSet <- function(
 
   p <- ggplot(peakDF, aes(x=Group, y=Freq, fill=Var1)) + 
     geom_bar(stat = "identity") + 
-    theme_ArchR(xtext90 = TRUE) +
+    theme_ArchR(xText90 = TRUE) +
     ylab("Number of Peaks (x10^3)") +
     xlab("") +
     scale_fill_manual(values=pal) +

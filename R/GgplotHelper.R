@@ -470,7 +470,7 @@ ggHex <- function(
   colorTitle = "values", 
   baseSize = 6,
   ratioYX = 1, 
-  FUN = "median", 
+  FUN = "mean", 
   addPoints = FALSE,
   ...){
 
