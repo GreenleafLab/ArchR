@@ -986,7 +986,69 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
 }
 
+#' @export
+getTutorialData <- function(tutorial = "hematopoiesis"){
+  
+  if(tolower(tutorial) %in% c("heme","hematopoiesis")){
+    
+    if(!dir.exists("Heme_Fragments")){
+      download.file(
+        url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/Heme_Fragments.zip", 
+        destfile = "Heme_Fragments.zip"
+      )
+      unzip("Heme_Fragments.zip")
+      if(dir.exists("Heme_Fragments")){
+        file.remove("Heme_Fragments.zip")
+      }else{
+        stop("Download May Not Have Worked!")
+      }
+    }
+    pathFragments <- "Heme_Fragments"
 
+  }else if(tolower(tutorial) %in% c("pbmc")){
+
+    if(!dir.exists("Pbmc_Fragments")){
+      download.file(
+        url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/Pbmc_Fragments.zip", 
+        destfile = "Pbmc_Fragments.zip"
+      )
+      unzip("Pbmc_Fragments")
+      if(dir.exists("Pbmc_Fragments")){
+        file.remove("Pbmc_Fragments")
+      }else{
+        stop("Download May Not Have Worked!")
+      }
+    }
+    pathFragments <- "Pbmc_Fragments"
+
+  }else if(tolower(tutorial) %in% c("fresh_vs_frozen", "freshfrozen", "batch")){
+
+    if(!dir.exists("Fresh_Frozen_Fragments")){
+      download.file(
+        url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/Fresh_Frozen_Fragments.zip", 
+        destfile = "Fresh_Frozen_Fragments.zip"
+      )
+      unzip("Fresh_Frozen_Fragments")
+      if(dir.exists("Fresh_Frozen_Fragments")){
+        file.remove("Fresh_Frozen_Fragments")
+      }else{
+        stop("Download May Not Have Worked!")
+      }
+    }
+    pathFragments <- "Fresh_Frozen_Fragments"
+
+  }else{
+  
+    stop("There is no tutorial data for : ", tutorial)
+  
+  }
+
+  inputFiles <- list.files(pathFragments, pattern = ".gz", full.names = TRUE)
+  names(inputFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathFragments, pattern = ".gz"))
+  inputFiles <- inputFiles[!grepl(".tbi", inputFiles)]
+  inputFiles
+
+}
 
 
 
