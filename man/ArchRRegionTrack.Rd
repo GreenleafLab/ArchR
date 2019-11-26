@@ -9,10 +9,10 @@ ArchRRegionTrack(ArchRProj, region = NULL, groupBy = "Clusters",
   plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
   sizes = c(10, 2, 4), features = getPeakSet(ArchRProj),
   geneSymbol = NULL, upstream = 50000, downstream = 50000,
-  tileSize = 100, normMethod = "ReadsInTSS", threads = 1,
-  ylim = NULL, baseSize = 7, borderWidth = 0.4, tickWidth = 0.4,
-  facetbaseSize = 7, geneAnno = getGeneAnnotation(ArchRProj),
-  title = "", ...)
+  tileSize = 100, minCells = 25, normMethod = "ReadsInTSS",
+  threads = 1, ylim = NULL, baseSize = 7, borderWidth = 0.4,
+  tickWidth = 0.4, facetbaseSize = 7,
+  geneAnno = getGeneAnnotation(ArchRProj), title = "", ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}

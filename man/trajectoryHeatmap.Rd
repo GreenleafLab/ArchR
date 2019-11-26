@@ -4,15 +4,13 @@
 \alias{trajectoryHeatmap}
 \title{Plot a Heatmap of Features across a Trajectory}
 \usage{
-trajectoryHeatmap(seTrajectory = NULL, varCutOff = 0.1,
-  scaleRows = TRUE, limits = c(-2, 2), grepExclude = NULL,
-  pal = NULL, labelMarkers = NULL, labelTop = 50,
-  labelRows = FALSE, returnMat = FALSE, ...)
+trajectoryHeatmap(seTrajectory = NULL, scaleRows = TRUE,
+  limits = c(-2, 2), grepExclude = NULL, pal = NULL,
+  labelMarkers = NULL, labelTop = 50, labelRows = FALSE,
+  returnMat = FALSE, ...)
 }
 \arguments{
 \item{seTrajectory}{Summarized Experiment result from markerFeatures}
-
-\item{varCutOff}{variance cut off for selecting features varying across trajectory}
 
 \item{scaleRows}{compute row z-scores on matrix}
 
@@ -29,6 +27,8 @@ trajectoryHeatmap(seTrajectory = NULL, varCutOff = 0.1,
 \item{returnMat}{return final matrix that is used for plotting heatmap}
 
 \item{...}{additional args}
+
+\item{varCutOff}{variance cut off for selecting features varying across trajectory}
 }
 \description{
 This function will plot a heatmap of the results from getTrajectory

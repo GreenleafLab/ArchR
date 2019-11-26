@@ -32,6 +32,7 @@ addReproduciblePeakSet <- function(
 	reproducibility = "2",
 	peaksPerCell = 500,
 	maxPeaks = 150000,
+	minCells = 25,
 	excludeChr = c("chrM","chrY"),
 	pathToMacs2 = findMacs2(),
 	genomeSize = NULL, 
@@ -53,10 +54,10 @@ addReproduciblePeakSet <- function(
 	){
 
 	tstart <- Sys.time()
-	utility <- ArchR:::.checkPath(pathToMacs2)
+	utility <- .checkPath(pathToMacs2)
 
-	coverageMetadata <- ArchR:::.getCoverageMetadata(ArchRProj = ArchRProj, groupBy = groupBy)
-	coverageParams <- ArchR:::.getCoverageParams(ArchRProj = ArchRProj, groupBy = groupBy)
+	coverageMetadata <- .getCoverageMetadata(ArchRProj = ArchRProj, groupBy = groupBy, minCells = minCells)
+	coverageParams <- .getCoverageParams(ArchRProj = ArchRProj, groupBy = groupBy)
 
 	#####################################################
 	# Peak Calling Summary
@@ -192,9 +193,7 @@ addReproduciblePeakSet <- function(
 	#Add Peak Set
 	ArchRProj <- addPeakSet(ArchRProj, unionPeaks, force = TRUE)
 
-	pdf(file.path(outDir, "PeakCallSummary.pdf"), width = 6, height = 4, onefile=FALSE)
-	print(plotPeakCallSummary(ArchRProj))
-	dev.off()
+	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 6, height = 4)
 
 	.messageDiffTime("Finished Creating Union Peak Set!", tstart)
 
@@ -205,7 +204,7 @@ addReproduciblePeakSet <- function(
 }
 
 #' @export
-plotPeakCallSummary <- function(ArchRProj, pal = NULL){
+.plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 
   peakDF <- metadata(ArchRProj@peakSet)$PeakCallSummary
   if(is.null(peakDF)){

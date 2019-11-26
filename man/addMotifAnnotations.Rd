@@ -4,7 +4,7 @@
 \alias{addMotifAnnotations}
 \title{Add Motif Annotations to ArchRProject}
 \usage{
-addMotifAnnotations(ArchRProj = NULL, motifSet = "JASPAR2018",
+addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
   name = "Motif", species = NULL, collection = "CORE",
   cutOff = 5e-05, w = 7, ...)
 }

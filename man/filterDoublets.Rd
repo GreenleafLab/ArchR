@@ -4,7 +4,7 @@
 \alias{filterDoublets}
 \title{Extend Filter then Normalize Scores for Summits}
 \usage{
-filterDoublets(ArchRProj, cutEnrich = 1, cutScore = 25, fs = 1)
+filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf, fs = 1)
 }
 \arguments{
 \item{df}{dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files}

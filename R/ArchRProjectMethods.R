@@ -11,19 +11,9 @@
 }
 
 .validGeneAnnotation <- function(geneAnnotation, ...){
-  if(!inherits(ArchRProj, "ArchRProject")){
-    stop("Not a valid ArchRProject as input!")
-  }else{
-    ArchRProj
-  }
 }
 
 .validGenomeAnnotation <- function(genomeAnnotation, ...){
-  if(!inherits(ArchRProj, "ArchRProject")){
-    stop("Not a valid ArchRProject as input!")
-  }else{
-    ArchRProj
-  }
 }
 
 ##########################################################################################
@@ -634,7 +624,7 @@ getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
 #' @export
 addMotifAnnotations <- function(
   ArchRProj = NULL,
-  motifSet = "JASPAR2018",
+  motifSet = "cisbp",
   name = "Motif",
   species = NULL,
   collection = "CORE",
@@ -646,7 +636,7 @@ addMotifAnnotations <- function(
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
   ArchRProj <- .validArchRProject(ArchRProj)
 
-  if(grepl("JASPAR",motifSet) & is.null(species)){
+  if(grepl("JASPAR|CISBP", motifSet, ignore.case = TRUE) & is.null(species)){
     if(grepl("hg19",getGenomeAnnotation(ArchRProj)$genome, ignore.case = TRUE)){
       species <- "Homo sapiens"
     }
@@ -667,10 +657,10 @@ addMotifAnnotations <- function(
   tstart <- Sys.time()
   .messageDiffTime(paste0("Gettting Motif Set, Species : ", species), tstart)
 
-  if(tolower(motifSet)=="jaspar2018"){
-    .requirePackage("JASPAR2018",installInfo='BiocManager::install("JASPAR2018")')
+  if(tolower(motifSet)=="jaspar2020"){
+    .requirePackage("JASPAR2020",installInfo='BiocManager::install("JASPAR2020")')
     args <- list(species = species, collection = collection, ...)
-    motifs <- TFBSTools::getMatrixSet(JASPAR2018::JASPAR2018, args)
+    motifs <- TFBSTools::getMatrixSet(JASPAR2020::JASPAR2020, args)
     obj <- .summarizeJASPARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
@@ -681,20 +671,30 @@ addMotifAnnotations <- function(
     obj <- .summarizeJASPARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
-  }else if(tolower(motifSet)=="human"){
-    .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
-    data("human_pwms_v2")
-    motifs <- human_pwms_v2
-    obj <- .summarizeChromVARMotifs(motifs)
+  }else if(tolower(motifSet)=="jaspar2016"){
+    .requirePackage("JASPAR2016",installInfo='BiocManager::install("JASPAR2018")')
+    args <- list(species = species, collection = collection, ...)
+    motifs <- TFBSTools::getMatrixSet(JASPAR2016::JASPAR2016, args)
+    obj <- .summarizeJASPARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
-  }else if(tolower(motifSet)=="mouse"){
+  }else if(tolower(motifSet)=="cisbp"){
     .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
-    data("mouse_pwms_v2")
-    motifs <- mouse_pwms_v2
-    obj <- .summarizeChromVARMotifs(motifs)
-    motifs <- obj$motifs
-    motifSummary <- obj$motifSummary
+    if(tolower(species) == "mus musculus"){
+      data("mouse_pwms_v2")
+      motifs <- mouse_pwms_v2
+      obj <- .summarizeChromVARMotifs(motifs)
+      motifs <- obj$motifs
+      motifSummary <- obj$motifSummary
+    }else if(tolower(species) == "homo sapiens"){
+      data("human_pwms_v2")
+      motifs <- human_pwms_v2
+      obj <- .summarizeChromVARMotifs(motifs)
+      motifs <- obj$motifs
+      motifSummary <- obj$motifSummary
+    }else{
+      stop("Species not recognized homo sapiens, mus musculus supported by CisBP!")
+    }
   }else if(tolower(motifSet)=="encode"){
     .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
     data("encode_pwms")
@@ -888,18 +888,26 @@ getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
 #' @param useDingbats use dingbats characters for plotting
 #' @param ... additional args to pdf
 #' @export
-plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL, addDOC = TRUE, 
+plotPDF <- function(..., name = "Plot", width = 6, 
+  height = 6, ArchRProj = NULL, addDOC = TRUE, 
   useDingbats = FALSE, plotList = NULL, useSink = TRUE){
-
-  if(useSink){
-    tmpFile <- .tempfile()
-    sink(tmpFile)
-  }
 
   if(is.null(plotList)){
     plotList <- list(...)
   }else{
-    #plotList <- do.call(list, unlist(plotList, recursive=FALSE))
+    plotList2 <- list()
+    for(i in seq_along(plotList)){
+      if(inherits(plotList[[i]], "list")){
+        for(j in seq_along(plotList[[i]])){
+          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
+        }
+      }else{
+        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
+      }
+    }
+    plotList <- plotList2
+    rm(plotList2)
+    gc()
   }
   
   name <- gsub("\\.pdf", "", name)
@@ -918,6 +926,11 @@ plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL,
     filename <- file.path(outDir, paste0(name, ".pdf"))
   }
 
+  if(useSink){
+    tmpFile <- .tempfile()
+    sink(tmpFile)
+  }
+
   pdf(filename, width = width, height = height, useDingbats = useDingbats)
   for(i in seq_along(plotList)){
     
@@ -925,7 +938,12 @@ plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL,
       
       print("plotting ggplot!")
 
-      print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
+      if(!is.null(attr(plotList[[i]], "ratioYX"))){
+    print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE))
+      }else{
+        print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
+      }
+
       if(i != length(plotList)){
         grid::grid.newpage()
       }
@@ -939,7 +957,7 @@ plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL,
         grid::grid.newpage()
       }
 
-    }else if(attr(class(plotList[[i]]),"package") == "ComplexHeatmap"){
+    }else if(inherits(plotList[[i]], "HeatmapList")){
       
       print("plotting copmleheatmap!")
 
@@ -967,6 +985,8 @@ plotPDF <- function(..., name = "Plot", width = 6, height = 6, ArchRProj = NULL,
   }
 
 }
+
+
 
 
 

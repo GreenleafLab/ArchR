@@ -37,6 +37,7 @@ ArchRRegionTrack <- function(
   upstream = 50000,
   downstream = 50000,
   tileSize = 100, 
+  minCells = 25,
   normMethod = "ReadsInTSS",
   threads = 1, 
   ylim = NULL,
@@ -78,6 +79,7 @@ ArchRRegionTrack <- function(
       tileSize = tileSize, 
       groupBy = groupBy,
       threads = threads, 
+      minCells = minCells,
       ylim = ylim,
       baseSize = baseSize,
       borderWidth = borderWidth,
@@ -141,6 +143,7 @@ ArchRRegionTrack <- function(
   ArchRProj, 
   region = NULL, 
   tileSize = 100, 
+  minCells = 25,
   groupBy = "Clusters",
   useGroups = NULL,
   normMethod = "ReadsInTSS",
@@ -169,6 +172,7 @@ ArchRRegionTrack <- function(
         groupBy = groupBy, 
         normMethod = normMethod,
         region = region, 
+        minCells = minCells,
         tileSize = tileSize, 
         verbose = verbose
       )
@@ -177,6 +181,7 @@ ArchRRegionTrack <- function(
       ArchRProj = ArchRProj, 
       groupBy = groupBy, 
       normMethod = normMethod,
+      minCells = minCells,
       region = region, 
       tileSize = tileSize, 
       verbose = verbose
@@ -233,12 +238,13 @@ ArchRRegionTrack <- function(
 ##############################################################################
 # Create Average Tracks from Coverages
 ##############################################################################
-.groupRegionSumCoverages <- function(ArchRProj, groupBy, useGroups = NULL, region, tileSize, normMethod, verbose){
+.groupRegionSumCoverages <- function(ArchRProj, groupBy, useGroups = NULL, minCells = 25, region, tileSize, normMethod, verbose){
 
   coverageMetadata <- .getCoverageMetadata(
     ArchRProj = ArchRProj, 
     groupBy = groupBy, 
-    useGroups = useGroups
+    useGroups = useGroups,
+    minCells = minCells
   )
 
   cellGroups <- .getCoverageParams(
@@ -332,10 +338,14 @@ ArchRRegionTrack <- function(
 ##############################################################################
 # Create Average Tracks from Arrows
 ##############################################################################
-.groupRegionSumArrows <- function(ArchRProj, groupBy, region, tileSize, normMethod, verbose){
+.groupRegionSumArrows <- function(ArchRProj, groupBy, region, tileSize, normMethod, verbose, minCells = 25){
 
   #Group Info
   cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  if(!is.null(minCells)){
+    ArchRProj@cellColData <- ArchRProj@cellColData[cellGroups %bcin% names(table(cellGroups)[table(cellGroups) >= minCells]),,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  }
   tabGroups <- table(cellGroups)
   cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, "Sample", drop = TRUE))
   groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
