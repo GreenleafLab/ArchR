@@ -75,11 +75,13 @@ getFragmentsFromArrow <- function(
     {gsub(" x 2","",.)} %>% as.integer
 
   if(nFrags==0){
-    output <- IRanges(start = 1, end = 1)
-    mcols(output)$RG <- c("tmp")
-    output <- output[-1,]
     if(tolower(out)=="granges"){
-      output <- GRanges(seqnames = chr, ranges(output), RG = mcols(output)$RG)
+      output <- GRanges(seqnames = chr, IRanges(start = 1, end = 1), RG = "tmp")
+      output <- output[-1,]
+    }else{
+      output <- IRanges(start = 1, end = 1)
+      mcols(output)$RG <- c("tmp")
+      output <- output[-1,]
     }
     return(output)
   }

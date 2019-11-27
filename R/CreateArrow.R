@@ -172,6 +172,7 @@ createArrowFiles <- function(
     if(.isTabix(inputFile)){
       readMethod <- "tabix"
     }else{
+      stop("Error only supported inputs are tabix and bam!")
       readMethod <- "tsv"
     }
   }else if(fe == "bam"){
@@ -415,19 +416,24 @@ createArrowFiles <- function(
 
     #Read in frags
     fragx <- .getFragsFromArrow(ArrowFile = ArrowFile, chr = chrArrow[x], out = "IRanges", cellNames = cellNames)
-    mcols(fragx)$RG@values <- S4Vectors::match(mcols(fragx)$RG@values, cellNames)
-    nFrags <- nFrags + S4Vectors:::tabulate(mcols(fragx)$RG, nbins = length(cellNames))
 
-    #Get Distributions
-    fragDist <- fragDist + tabulate(width(fragx), nbins = 1000)
-    w <- trunc(width(fragx)/nucLength) + 1
-    w[w > 3] <- 3
+    if(length(fragx) > 0){
 
-    #Get Nuc Info
-    matNuc <- matNuc + ArchR:::tabulate2dCpp(
-      w, xmin = 1, xmax = 3, 
-      as.integer(mcols(fragx)$RG), ymin = 1, ymax = length(cellNames)
-    )   
+      mcols(fragx)$RG@values <- S4Vectors::match(mcols(fragx)$RG@values, cellNames)
+      nFrags <- nFrags + S4Vectors:::tabulate(mcols(fragx)$RG, nbins = length(cellNames))
+
+      #Get Distributions
+      fragDist <- fragDist + tabulate(width(fragx), nbins = 1000)
+      w <- trunc(width(fragx)/nucLength) + 1
+      w[w > 3] <- 3
+
+      #Get Nuc Info
+      matNuc <- matNuc + ArchR:::tabulate2dCpp(
+        w, xmin = 1, xmax = 3, 
+        as.integer(mcols(fragx)$RG), ymin = 1, ymax = length(cellNames)
+      )   
+
+    }
 
   }
 
@@ -527,43 +533,48 @@ createArrowFiles <- function(
     ###############################################################################
     featurex <- featureList[[x]]
     fragments <- .getFragsFromArrow(ArrowFile = ArrowFile, chr = names(featureList)[x], out = "IRanges", cellNames = cellNames)
-    mcols(fragments)$RG@values <- match(mcols(fragments)$RG@values, cellNames)
-    mcols(featurex)$typeIdx <- match(mcols(featurex)$type, c("window", "flank"))
-    
-    ###############################################################################
-    # Count Each Insertion
-    ###############################################################################
-    for(y in seq_len(2)){
-        
-      if(y==1){
-        temp <- IRanges(start(fragments), width=1)
-      }else if(y==2){
-        temp <- IRanges(end(fragments), width=1)
-      }
-      stopifnot(length(temp) == length(fragments))
 
-      o <- findOverlaps(ranges(featurex), temp)
-      remove(temp)
-      gc()
+    if(length(fragments) > 0){
+
+      mcols(fragments)$RG@values <- match(mcols(fragments)$RG@values, cellNames)
+      mcols(featurex)$typeIdx <- match(mcols(featurex)$type, c("window", "flank"))
       
-      mat <- ArchR:::tabulate2dCpp(
-            x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
-            xmin = 1,
-            xmax = length(cellNames),
-            y = mcols(featurex)$typeIdx[queryHits(o)],
-            ymin = 1,
-            ymax = 2
-        )
+      ###############################################################################
+      # Count Each Insertion
+      ###############################################################################
+      for(y in seq_len(2)){
+          
+        if(y==1){
+          temp <- IRanges(start(fragments), width=1)
+        }else if(y==2){
+          temp <- IRanges(end(fragments), width=1)
+        }
+        stopifnot(length(temp) == length(fragments))
 
-      #Add To
-      nWindow <- nWindow + mat[1, ]
-      nFlank <- nFlank + mat[2, ]
-      rm(o, mat)
+        o <- findOverlaps(ranges(featurex), temp)
+        remove(temp)
+        gc()
+        
+        mat <- ArchR:::tabulate2dCpp(
+              x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
+              xmin = 1,
+              xmax = length(cellNames),
+              y = mcols(featurex)$typeIdx[queryHits(o)],
+              ymin = 1,
+              ymax = 2
+          )
+
+        #Add To
+        nWindow <- nWindow + mat[1, ]
+        nFlank <- nFlank + mat[2, ]
+        rm(o, mat)
+
+      }
+      
+      rm(fragments)
+      gc()
 
     }
-    
-    rm(fragments)
-    gc()
 
   }
 
@@ -1119,21 +1130,37 @@ createArrowFiles <- function(
     chr <- allChr[i]
     fragments <- .getFragsFromArrow(inArrow, chr = chr)
     fragments <- fragments[BiocGenerics::which(mcols(fragments)$RG %bcin% cellNames)]
-    mcols(fragments)$RG@values <- stringr::str_split(mcols(fragments)$RG@values, pattern = "#", simplify= TRUE)[,2]
-    lengthRG <- length(mcols(fragments)$RG@lengths)
-    
-    #HDF5 Write
-    chrPos <- paste0("Fragments/",chr,"/Ranges")
-    chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
-    chrRGValues <- paste0("Fragments/",chr,"/RGValues")
-    o <- h5createGroup(outArrow, paste0("Fragments/",chr))
-    o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
-    o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-    o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
-            size = max(nchar(mcols(fragments)$RG@values)) + 1))
-    o <- h5write(obj = cbind(start(fragments),width(fragments)), file = outArrow, name = chrPos)
-    o <- h5write(obj = mcols(fragments)$RG@lengths, file = outArrow, name = chrRGLengths)
-    o <- h5write(obj = mcols(fragments)$RG@values, file = outArrow, name = chrRGValues)
+
+    if(length(fragments) == 0){
+
+      #HDF5 Write length 0
+      chrPos <- paste0("Fragments/",chr,"/Ranges")
+      chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
+      chrRGValues <- paste0("Fragments/",chr,"/RGValues")
+      o <- h5createGroup(outArrow, paste0("Fragments/",chr))
+      o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
+      o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
+      o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, size = 4))
+
+    }else{
+
+      mcols(fragments)$RG@values <- stringr::str_split(mcols(fragments)$RG@values, pattern = "#", simplify= TRUE)[,2]
+      lengthRG <- length(mcols(fragments)$RG@lengths)
+      
+      #HDF5 Write
+      chrPos <- paste0("Fragments/",chr,"/Ranges")
+      chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
+      chrRGValues <- paste0("Fragments/",chr,"/RGValues")
+      o <- h5createGroup(outArrow, paste0("Fragments/",chr))
+      o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
+      o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+      o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
+              size = max(nchar(mcols(fragments)$RG@values)) + 1))
+      o <- h5write(obj = cbind(start(fragments),width(fragments)), file = outArrow, name = chrPos)
+      o <- h5write(obj = mcols(fragments)$RG@lengths, file = outArrow, name = chrRGLengths)
+      o <- h5write(obj = mcols(fragments)$RG@values, file = outArrow, name = chrRGValues)
+
+    }
 
     #Free Some Memory!
     rm(fragments)
