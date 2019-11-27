@@ -193,11 +193,12 @@ createArrowFiles <- function(
    
     tmp <- .tabixToTmp(tabixFile = inputFile, sampleName = sampleName, chromSizes = genomeAnno$chromSizes, nChunk = nChunk,
             gsubExpression = gsubExpression, prefix = prefix, verboseHeader = verboseHeader, 
-            verboseAll = verboseAll, tstart = tstart, ...)
+            verboseAll = verboseAll, tstart = tstart,  ...)
 
     out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnno$genome, 
             minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
-            verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
+            verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, 
+            chromSizes = genomeAnno$chromSizes, ...)
   
   }else if(tolower(readMethod)=="bam"){
 
@@ -209,7 +210,8 @@ createArrowFiles <- function(
 
     out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnno$genome, 
             minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
-            verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
+            verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, 
+            chromSizes = genomeAnno$chromSizes, ...)
 
   }else{
     
@@ -642,15 +644,19 @@ createArrowFiles <- function(
       nextPrint <- nextPrint + printEvery
     }
 
-    dt <- Rsamtools::scanTabix(tabixFile, param = tileChromSizes[x])[[1]] %>%
-      textConnection %>% 
-      {tryCatch(read.table(.), error = function(e) NULL)} %>% 
-      {data.table(V2=.$V2 + 1, V3=.$V3, V4=.$V4)}
+    dt <- tryCatch({
+      Rsamtools::scanTabix(tabixFile, param = tileChromSizes[x])[[1]] %>%
+        textConnection %>% 
+        {tryCatch(read.table(.), error = function(e) NULL)} %>% 
+        {data.table(V2=.$V2 + 1, V3=.$V3, V4=.$V4)}
+    }, error = function(f){
+      NULL
+    })
 
     #Care for Break Points
     dt <- dt[dt$V2 >= start(tileChromSizes[x]),]
 
-    if(nrow(dt) > 0){
+    if(all(!is.null(dt), nrow(dt) > 0)){
       if(!is.null(gsubExpression)){
         scanChunk$V4 <- gsub(gsubExpression, "", scanChunk$V4)
       }
@@ -749,11 +755,13 @@ createArrowFiles <- function(
     #Else look for barcode tag such as RG
     if(tolower(bcTag)=="qname"){
       
-      scanChunk <- scanBam(bamFile,
-                 param = ScanBamParam(
+      dt <- tryCatch({
+
+        scanChunk <- scanBam(bamFile,
+                param = ScanBamParam(
                   flag = bamFlag,
-                 what = c("qname", "pos", "isize"),
-                 which = tileChromSizes[x]
+                  what = c("qname", "pos", "isize"),
+                  which = tileChromSizes[x]
                ))[[1]]
 
       if(!is.null(gsubExpression)){
@@ -761,32 +769,48 @@ createArrowFiles <- function(
       }
 
       #Create Data Table for faster indexing
-      dt <- data.table(
+      data.table(
           start = scanChunk$pos + offsetPlus,
           end = scanChunk$pos + abs(scanChunk$isize) - 1 + offsetMinus,
           RG = scanChunk$qname
         )
 
+      }, error = function(e){
+
+        NULL
+
+      })
+
+
     }else{
       
-      scanChunk <- scanBam(bamFile,
-               param = ScanBamParam(
-                flag = bamFlag,
-               what = c("pos", "isize"),
-               tag = bcTag,
-               which = tileChromSizes[x]
-             ))[[1]]
+      dt <- tryCatch({
 
-      if(!is.null(gsubExpression)){
-        scanChunk$tag[[bcTag]] <- gsub(gsubExpression, "", scanChunk$tag[[bcTag]])
-      }
+        scanChunk <- scanBam(bamFile,
+                param = ScanBamParam(
+                  flag = bamFlag,
+                  what = c("pos", "isize"),
+                  tag = bcTag,
+                  which = tileChromSizes[x]
+               ))[[1]]
 
-      #Create Data Table for faster indexing
-      dt <- data.table(
-          start = scanChunk$pos + offsetPlus,
-          end = scanChunk$pos + abs(scanChunk$isize) - 1 + offsetMinus,
-          RG = scanChunk$tag[[bcTag]]
-        )
+        if(!is.null(gsubExpression)){
+          scanChunk$tag[[bcTag]] <- gsub(gsubExpression, "", scanChunk$tag[[bcTag]])
+        }
+
+        #Create Data Table for faster indexing
+        dt <- data.table(
+            start = scanChunk$pos + offsetPlus,
+            end = scanChunk$pos + abs(scanChunk$isize) - 1 + offsetMinus,
+            RG = scanChunk$tag[[bcTag]]
+          )
+
+      }, error = function(e){
+        
+        NULL
+
+      })
+
     }
     
     #Clean Up Memory
@@ -795,7 +819,7 @@ createArrowFiles <- function(
     #Care for Break Points
     dt <- dt[dt$start >= start(tileChromSizes[x]),]    
 
-    if(nrow(dt) > 0){
+    if(all(!is.null(dt), nrow(dt) > 0)){
 
       #Order by bc
       setkey(dt, RG)
@@ -836,6 +860,7 @@ createArrowFiles <- function(
   tmpFile, 
   outArrow, 
   genome, 
+  chromSizes,
   minFrags = 500, 
   sampleName, 
   verboseHeader = TRUE,
@@ -901,47 +926,61 @@ createArrowFiles <- function(
   #######################################################################################################
   chunkChr <- stringr::str_split(chunkNames, pattern = "#", simplify=TRUE)[,1]
   currentChunk <- 0
-  uniqueChr <- sort(unique(chunkChr))
+  uniqueChr <- unique(as.character(seqnames(chromSizes))) #sort(unique(chunkChr))
 
   for(x in seq_along(uniqueChr)){
 
     .messageDiffTime(sprintf("%s Adding Chromosome %s of %s", prefix, x, length(uniqueChr)), tstart, verbose = verboseAll)
     
     #Determine Ranges and RG Pre-Allocation
-    ix <- BiocGenerics::which(chunkChr == uniqueChr[x])
-    chunkNamex <- chunkNames[ix]
-    dtListx <- dtList[ix] 
-
-    #Chr
     chr <- uniqueChr[x]
+    ix <- BiocGenerics::which(chunkChr == chr)
 
-    #Read in Fragments!
-    fragments <- lapply(seq_along(chunkNamex), function(x){
-      .getFragsFromArrow(tmpFile, chr = chunkNamex[x], out = "IRanges")
-    }) %>% Reduce("c", .)
-    mcols(fragments)$RG@values <- stringr::str_split(mcols(fragments)$RG@values, pattern = "#", simplify=TRUE)[,2]
+    if(length(ix) == 0){
 
-    #Order RG RLE based on bcPass
-    fragments <- fragments[BiocGenerics::which(mcols(fragments)$RG %bcin% bcPass)]
-    fragments <- fragments[order(S4Vectors::match(mcols(fragments)$RG, bcPass))]
-    lengthRG <- length(mcols(fragments)$RG@lengths)
+      #HDF5 Write length 0
+      chrPos <- paste0("Fragments/",chr,"/Ranges")
+      chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
+      chrRGValues <- paste0("Fragments/",chr,"/RGValues")
+      o <- h5createGroup(outArrow, paste0("Fragments/",chr))
+      o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
+      o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
+      o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, size = 4))
 
-    #HDF5 Write
-    chrPos <- paste0("Fragments/",chr,"/Ranges")
-    chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
-    chrRGValues <- paste0("Fragments/",chr,"/RGValues")
-    o <- h5createGroup(outArrow, paste0("Fragments/",chr))
-    o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
-    o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-    o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
-            size = max(nchar(mcols(fragments)$RG@values)) + 1))
-    o <- h5write(obj = cbind(start(fragments),width(fragments)), file = outArrow, name = chrPos)
-    o <- h5write(obj = mcols(fragments)$RG@lengths, file = outArrow, name = chrRGLengths)
-    o <- h5write(obj = mcols(fragments)$RG@values, file = outArrow, name = chrRGValues)
+    }else{
 
-    #Free Some Memory!
-    rm(fragments)
-    gc()
+      chunkNamex <- chunkNames[ix]
+      dtListx <- dtList[ix] 
+
+      #Read in Fragments!
+      fragments <- lapply(seq_along(chunkNamex), function(x){
+        .getFragsFromArrow(tmpFile, chr = chunkNamex[x], out = "IRanges")
+      }) %>% Reduce("c", .)
+      mcols(fragments)$RG@values <- stringr::str_split(mcols(fragments)$RG@values, pattern = "#", simplify=TRUE)[,2]
+
+      #Order RG RLE based on bcPass
+      fragments <- fragments[BiocGenerics::which(mcols(fragments)$RG %bcin% bcPass)]
+      fragments <- fragments[order(S4Vectors::match(mcols(fragments)$RG, bcPass))]
+      lengthRG <- length(mcols(fragments)$RG@lengths)
+
+      #HDF5 Write
+      chrPos <- paste0("Fragments/",chr,"/Ranges")
+      chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
+      chrRGValues <- paste0("Fragments/",chr,"/RGValues")
+      o <- h5createGroup(outArrow, paste0("Fragments/",chr))
+      o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
+      o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+      o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
+              size = max(nchar(mcols(fragments)$RG@values)) + 1))
+      o <- h5write(obj = cbind(start(fragments),width(fragments)), file = outArrow, name = chrPos)
+      o <- h5write(obj = mcols(fragments)$RG@lengths, file = outArrow, name = chrRGLengths)
+      o <- h5write(obj = mcols(fragments)$RG@values, file = outArrow, name = chrRGValues)
+
+      #Free Some Memory!
+      rm(fragments)
+      gc()
+
+    }
 
   }
 

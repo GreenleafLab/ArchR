@@ -7,7 +7,7 @@
 ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
   = "solar_extra"), bins = 150, xlim = NULL, ylim = NULL,
   extend = 0.05, xlabel = "x", ylabel = "y", title = "",
-  colorTitle = "values", baseSize = 6, ratioYX = 1, FUN = "median",
+  colorTitle = "values", baseSize = 6, ratioYX = 1, FUN = "mean",
   addPoints = FALSE, ...)
 }
 \arguments{
