@@ -280,6 +280,8 @@ getTrajectory <- function(
       rm(groupMat2)
       gc()
 
+      message("\n")
+
     }
 
     #Create SE

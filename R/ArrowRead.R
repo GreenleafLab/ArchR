@@ -583,7 +583,7 @@ getMatrixFromArrow <- function(
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   fnames <- rownames(featureDF)
 
-  featureDF <- split(featureDF, featureDF$seqnames)
+  featureDF <- split(featureDF, as.character(featureDF$seqnames))
 
   ns <- lapply(seq_along(ArrowFiles), function(y){
     length(.availableCells(ArrowFiles[y], useMatrix))
