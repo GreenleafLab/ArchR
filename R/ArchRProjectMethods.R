@@ -392,7 +392,9 @@ getTSS <- function(ArchRProj, ...){
 getGenes <- function(ArchRProj, symbols = NULL, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
   genes <- ArchRProj@geneAnnotation$genes
-  genes <- genes[which(tolower(genes$symbol) %in% tolower(symbols))]
+  if(!is.null(symbols)){
+    genes <- genes[which(tolower(genes$symbol) %in% tolower(symbols))]
+  }
   return(genes)
 }
 

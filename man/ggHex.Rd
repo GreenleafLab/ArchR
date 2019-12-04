@@ -5,10 +5,10 @@
 \title{Ggplot Hexplot summary of points in a standardized manner}
 \usage{
 ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
-  = "solar_extra"), bins = 150, xlim = NULL, ylim = NULL,
+  = "solar_extra"), bins = 200, xlim = NULL, ylim = NULL,
   extend = 0.05, xlabel = "x", ylabel = "y", title = "",
   colorTitle = "values", baseSize = 6, ratioYX = 1, FUN = "mean",
-  addPoints = FALSE, ...)
+  quantCut = c(0.01, 0.99), addPoints = FALSE, ...)
 }
 \arguments{
 \item{x}{x vector of data to be plot}

@@ -13,8 +13,11 @@
 }
 
 #' @export
-.isProtectedArray <- function(matrixName){
+.isProtectedArray <- function(matrixName, exclude = NULL){
   protectedArrays <- tolower(c("peakmatrix", "tilematrix", "genescorematrix"))
+  if(!is.null(exclude)){
+    protectedArrays <- protectedArrays[protectedArrays %ni% tolower(exclude)]
+  }
   if(tolower(matrixName) %in% protectedArrays){
     stop(sprintf("Error %s cannot be used as this conflicts with another predefined matrix function!", matrixName))
   }

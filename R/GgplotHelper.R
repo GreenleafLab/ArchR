@@ -460,7 +460,7 @@ ggHex <- function(
   y = NULL, 
   color = NULL, 
   pal = paletteContinuous(set = "solar_extra"), 
-  bins = 150,
+  bins = 200,
   xlim = NULL, 
   ylim = NULL, 
   extend = 0.05, 
@@ -471,6 +471,7 @@ ggHex <- function(
   baseSize = 6,
   ratioYX = 1, 
   FUN = "mean", 
+  quantCut = c(0.01,0.99),
   addPoints = FALSE,
   ...){
 
@@ -505,8 +506,16 @@ ggHex <- function(
       }
     }
 
+    values <- ggplot_build(p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA))$data[[1]]$value
+
+    limits <- quantile(values, c(min(quantCut), max(quantCut)), na.rm=TRUE)
+
     p <- p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA) +
-        scale_fill_gradientn(colors = pal) +
+        scale_fill_gradientn(
+          colors = pal,
+          limits = limits, 
+          oob = scales::squish
+        ) +
         xlab(xlabel) + 
         ylab(ylabel) + 
         ggtitle(title) +

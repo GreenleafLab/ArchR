@@ -645,7 +645,7 @@ createArrowFiles <- function(
   o <- h5write(obj = "Arrow", file = tmpFile, name = "Class")
   o <- h5write(obj = "tmp", file = tmpFile, name = "Metadata/Sample")
 
-  tileChromSizes <- unlist(tile(chromSizes, nChunk))
+  tileChromSizes <- unlist(GenomicRanges::tile(chromSizes, nChunk))
   mcols(tileChromSizes)$chunkName <- paste0(seqnames(tileChromSizes),"#chunk",seq_along(tileChromSizes))
   for(x in seq_along(tileChromSizes)){
 
