@@ -1052,6 +1052,33 @@ getTutorialData <- function(tutorial = "hematopoiesis"){
 
 }
 
+#' @export
+getInputFiles <- function(paths){
+  
+  v <- lapply(paths, function(x){
+    
+    #Fragments
+    inputFrags <- list.files(x, pattern = ".fragments.tsv.gz", full.names = TRUE)
+    names(inputFrags) <- gsub(".fragments.tsv.gz", "", list.files(x, pattern = ".fragments.tsv.gz"))
+    inputFrags <- inputFrags[!grepl(".tbi", inputFrags)]
+    
+    #Bams
+    inputBams <- list.files(x, pattern = ".bam", full.names = TRUE)
+    names(inputBams) <- gsub(".bam", "", list.files(x, pattern = ".bam"))
+    inputBams <- inputBams[!grepl(".bai", inputBams)]
+    
+    c(inputFrags, inputBams)
+
+  }) %>% unlist
+
+  if(any(duplicated(names(v)))){
+    names(v) <- paste0(names(v), "_", seq_along(v))
+  }
+
+  v
+
+}
+
 
 
 

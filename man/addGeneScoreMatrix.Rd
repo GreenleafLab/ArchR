@@ -8,8 +8,9 @@ addGeneScoreMatrix(input = NULL, genes = NULL,
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
   matrixName = "GeneScoreMatrix", upstream = c(5000, 1e+05),
   downstream = c(5000, 1e+05), tileSize = 500, ceiling = 4,
-  scaleTo = 10000, excludeChr = c("chrY", "chrM"), blacklist = NULL,
-  threads = 1, parallelParam = NULL, force = FALSE, ...)
+  useGeneBoundaries = TRUE, scaleTo = 10000, excludeChr = c("chrY",
+  "chrM"), blacklist = NULL, threads = 1, parallelParam = NULL,
+  force = FALSE, ...)
 }
 \arguments{
 \item{input}{ArchRProject or ArrowFiles}

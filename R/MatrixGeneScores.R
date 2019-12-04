@@ -26,6 +26,7 @@ addGeneScoreMatrix <- function(
   downstream = c(5000, 100000),
   tileSize = 500,
   ceiling = 4,
+  useGeneBoundaries = TRUE,
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
   blacklist = NULL,
@@ -88,6 +89,7 @@ addGeneScoreMatrix <- function(
   downstream = c(5000, 100000),
   tileSize = 500,
   ceiling = 4,
+  useGeneBoundaries = TRUE,
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
   blacklist = NULL,
@@ -189,19 +191,27 @@ addGeneScoreMatrix <- function(
     gc() 
 
     #Time to Overlap Gene Windows
-    #extenedGeneStart <- ranges(suppressWarnings(extendGRanges(geneStarti, upstream = upstream, downstream = downstream))) #Warning if beyond chromosome this doesnt matter for this analysis
-    extenedGeneStart <- IRanges(
-      start = pmax(
-        c(1, start(geneStarti)[-length(geneStarti)]), 
-        start(geneStarti) - max(downstream)
-      ),
-      end = pmin(
-        c(start(geneStarti)[-1], max(upstream) + start(geneStarti)[length(geneStarti)]), 
-        max(upstream) + start(geneStarti)
+    if(useGeneBoundaries){
+
+      extenedGeneStart <- IRanges(
+        start = pmax(
+          c(1, start(geneStarti)[-length(geneStarti)] + tileSize), 
+          start(geneStarti) - max(downstream)
+        ),
+        end = pmin(
+          c(start(geneStarti)[-1] - tileSize, start(geneStarti)[length(geneStarti)] + max(upstream)), 
+          start(geneStarti) + max(upstream)
+        )
       )
-    )
-    idx <- which(width(extenedGeneStart) < (min(upstream) + min(downstream)))
-    extenedGeneStart[idx] <- ranges(suppressWarnings(extendGRanges(geneStarti[idx], upstream = min(upstream), downstream = min(downstream))))
+      idx <- which(width(extenedGeneStart) < (min(upstream) + min(downstream)))
+      extenedGeneStart[idx] <- ranges(suppressWarnings(extendGRanges(geneStarti[idx], upstream = min(upstream), downstream = min(downstream))))
+      
+    }else{
+
+      extenedGeneStart <- ranges(suppressWarnings(extendGRanges(geneStarti, upstream = max(upstream), downstream = max(downstream))))
+
+    }
+
     tmp <- suppressWarnings(findOverlaps(extenedGeneStart, uniqueTiles))
     x <- distance(ranges(geneStarti)[queryHits(tmp)], uniqueTiles[subjectHits(tmp)])
 

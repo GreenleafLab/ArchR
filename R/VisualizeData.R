@@ -28,10 +28,11 @@ plotEmbedding <- function(
   colorBy = "colData",
   name = "Sample",
   log2Norm = NULL,
+  imputeWeights = getImputeWeights(ArchRProj),
   pal = NULL,
   size = 0.5,
   rastr = TRUE,
-  quantCut = c(0.05, 0.95),
+  quantCut = c(0.025, 0.975),
   quantHex = 0.5,
   discreteSet = NULL,
   continuousSet = NULL,
@@ -86,13 +87,15 @@ plotEmbedding <- function(
       if(is.null(log2Norm)){
         log2Norm <- TRUE
       }
-      plotParams$continuousSet <- "white_blue_purple"
+      plotParams$continuousSet <- "horizon_extra"
     }else{
       plotParams$continuousSet <- "solar_extra"
     }
+
     plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[rownames(df)]
     plotParams$discrete <- FALSE
     plotParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name)
+
     if(is.null(plotAs)){
       plotAs <- "hexplot"
     }
@@ -121,7 +124,14 @@ plotEmbedding <- function(
   }
 
   if(!plotParams$discrete){
+
     plotParams$color <- .quantileCut(plotParams$color, min(quantCut), max(quantCut))
+
+    if(!is.null(imputeWeights)){
+      imputeWeights <- imputeWeights[rownames(df), rownames(df)]
+      plotParams$color <- (imputeWeights %*% as(as.matrix(plotParams$color), "dgCMatrix"))[,1] 
+    }
+
     plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
 
     if(!is.null(pal)){
@@ -170,20 +180,23 @@ plotGroups <- function(
   ArchRProj, 
   groupBy = "Sample", 
   colorBy = "colData", 
-  name = "TSSEnrichment", 
+  name = "TSSEnrichment",
+  imputeWeights = getImputeWeights(ArchRProj), 
   log2Norm = NULL,
   pal = NULL,
   ylim = NULL, 
   size = 0.5, 
   baseSize = 6, 
-  ratioYX = NULL, 
+  ratioYX = 0.75, 
   points = FALSE, 
   ...
   ){
   
   .requirePackage("ggplot2")
 
-  groupNames <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  groups <- getCellColData(ArchRProj, groupBy, drop = FALSE)
+  groupNames <- groups[,1]
+  names(groupNames) <- rownames(groups)
   
   if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
     values <- getCellColData(ArchRProj, name, drop = TRUE)
@@ -196,12 +209,13 @@ plotGroups <- function(
     values <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)
   }
 
-  if(is.null(ylim)){
-    ylim <- range(values) %>% extendrange(f = 0.05)
+  if(!is.null(imputeWeights)){
+    imputeWeights <- imputeWeights[names(groupNames), names(groupNames)]
+    values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
   }
 
-  if(is.null(ratioYX)){
-    ratioYX <-  sqrt(length(unique(groupNames)) / 2)
+  if(is.null(ylim)){
+    ylim <- range(values) %>% extendrange(f = 0.05)
   }
 
   p <- ggViolin(
@@ -210,7 +224,7 @@ plotGroups <- function(
     xlabel = groupBy, 
     ylabel = name, 
     baseSize = baseSize, 
-    ratioYX = ratioYX * length(unique(groupNames)) / diff(ylim),
+    ratioYX = ratioYX,
     size = size,
     points = points
     )

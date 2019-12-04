@@ -6,7 +6,8 @@
 \usage{
 plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
   colorBy = "colData", name = "Sample", log2Norm = NULL,
-  pal = NULL, size = 0.5, rastr = TRUE, quantCut = c(0.05, 0.95),
+  imputeWeights = getImputeWeights(ArchRProj), pal = NULL,
+  size = 0.5, rastr = TRUE, quantCut = c(0.025, 0.975),
   quantHex = 0.5, discreteSet = NULL, continuousSet = NULL,
   randomize = TRUE, keepAxis = FALSE, baseSize = 6,
   plotAs = "point", plotParams = list(), ...)

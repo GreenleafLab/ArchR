@@ -5,8 +5,9 @@
 \title{Visualize Groups from ArchR Project}
 \usage{
 plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
-  name = "TSSEnrichment", log2Norm = NULL, pal = NULL, ylim = NULL,
-  size = 0.5, baseSize = 6, ratioYX = NULL, points = FALSE, ...)
+  name = "TSSEnrichment", imputeWeights = getImputeWeights(ArchRProj),
+  log2Norm = NULL, pal = NULL, ylim = NULL, size = 0.5,
+  baseSize = 6, ratioYX = 0.75, points = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}
