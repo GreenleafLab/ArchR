@@ -39,7 +39,7 @@ plotEmbedding <- function(
   randomize = TRUE,
   keepAxis = FALSE,
   baseSize = 6,
-  plotAs = "point",
+  plotAs = NULL,
   plotParams = list(),
   ...
   ){
@@ -78,9 +78,6 @@ plotEmbedding <- function(
     plotParams$continuousSet <- "solar_extra"
     plotParams$discreteSet <- "stallion"
     plotParams$title <- paste(plotParams$title, " colored by\ncolData : ", name)
-    if(is.null(plotAs)){
-      plotAs <- "hexplot"
-    }
 
   }else{
     if (tolower(colorBy) == "genescorematrix"){
@@ -135,19 +132,33 @@ plotEmbedding <- function(
     plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
 
     if(!is.null(pal)){
+
       plotParams$pal <- pal
+      
+    }
+
+    if(is.null(plotAs)){
+      plotAs <- "hexplot"
     }
 
     if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
+
       out <- do.call(ggHex, plotParams)
+
     }else{
+
       out <- do.call(ggPoint, plotParams)
+
     }
+
   }else{
+    
     if(!is.null(pal)){
       plotParams$pal <- pal
     }
+
     out <- do.call(ggPoint, plotParams)
+
   }
 
   if(!keepAxis){
@@ -187,7 +198,7 @@ plotGroups <- function(
   ylim = NULL, 
   size = 0.5, 
   baseSize = 6, 
-  ratioYX = 0.75, 
+  ratioYX = 2, 
   points = FALSE, 
   ...
   ){
