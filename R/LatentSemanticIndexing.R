@@ -17,7 +17,7 @@
 #' @param filterQuantile filter features for initial LSI that are above this quantile
 #' @param saveIterations save LSI iterations as rds in the outDir
 #' @param outDir output directory for saving LSI iterations
-#' @param clusterParams additional params to pass to IdentifyClusters
+#' @param clusterParams additional params to pass to addClusters
 #' @param runHarmony run harmony batch correction through the iterations
 #' @param harmonyParams additional params to pass to harmony
 #' @param threads number of threads for parallel execution
@@ -27,14 +27,14 @@
 #' @param force verbose sections and subsections
 #' @param ... additional args
 #' @export
-IterativeLSI <- function(
+addIterativeLSI <- function(
   ArchRProj = NULL, 
   useMatrix = "TileMatrix",
   reducedDimsOut = "IterativeLSI",
   iterations = 3,
   dimsToUse = 1:25,
   binarize = TRUE,
-  sampleCells = 5000,
+  sampleCells = max(c(floor(nCells(ArchRProj) / 4), 5000)),
   varFeatures = 50000,
   selectionMethod = "var",
   scaleTo = 10000,
@@ -108,7 +108,7 @@ IterativeLSI <- function(
   .messageDiffTime("Computing Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
   nFeature <- varFeatures[1]
   rmTop <- floor((1-filterQuantile) * totalFeatures)
-  topIdx <- head(order(totalAcc$value, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
+  topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
   topFeatures <- totalAcc[sort(topIdx),]
 
   #Compute Partial Matrix LSI
@@ -146,7 +146,7 @@ IterativeLSI <- function(
   parClust$input <- outLSI$matSVD
   parClust$sampleCells <- sampleCells
   parClust$verbose <- verboseAll
-  clusters <- do.call(IdentifyClusters, parClust)
+  clusters <- do.call(addClusters, parClust)
   
   #Save Output
   if(saveIterations){
@@ -166,7 +166,7 @@ IterativeLSI <- function(
     #Create Group Matrix
     .messageDiffTime("Creating Cluster Matrix on the total Group Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
     groupList <- SimpleList(split(rownames(outLSI$matSVD), clusters))
-    groupFeatures <- totalAcc[sort(head(order(totalAcc$value, decreasing = TRUE), totalFeatures)),]
+    groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
     groupMat <- .getGroupMatrix(
       ArrowFiles = ArrowFiles, 
       featureDF = groupFeatures, 
@@ -244,7 +244,7 @@ IterativeLSI <- function(
       parClust$input <- outLSI$matSVD
       parClust$sampleCells <- sampleCells
       parClust$verbose <- verboseAll
-      clusters <- do.call(IdentifyClusters, parClust)
+      clusters <- do.call(addClusters, parClust)
 
       #Save Output
       if(saveIterations){

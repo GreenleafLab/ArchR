@@ -15,6 +15,7 @@
 addDeviationsMatrix <- function(
   ArchRProj,
   annotations = NULL,
+  matches = NULL,
   bdgPeaks = getBdgPeaks(ArchRProj),
   matrixName = NULL,
   out = c("z", "deviations"),
@@ -43,13 +44,22 @@ addDeviationsMatrix <- function(
   ##############################################################
   #Annotations Matrix!
   ##############################################################
-  anno <- getAnnotation(ArchRProj, annotations)
-  annotationsMatrix <- SummarizedExperiment::assay(readRDS(anno$Matches))
-  if(is.null(matrixName)){
-    matrixName <- paste0(anno$Name, "Matrix")
+  print(matches)
+  if(is.null(matches)){
+    anno <- getAnnotation(ArchRProj, annotations)
+    matches <- readRDS(anno$Matches)
+    if(is.null(matrixName)){
+      matrixName <- paste0(anno$Name, "Matrix")
+    }
+  }else{
+    if(is.null(matrixName)){
+      matrixName <- paste0("MotifMatrix")
+    }    
   }
+  annotationsMatrix <- SummarizedExperiment::assay(matches)
+  rownames(annotationsMatrix) <- paste0(seqnames(matches), "_", start(matches), "_", end(matches))
   annotationsMatrix <- as(annotationsMatrix, "dgCMatrix")
-  rownames(annotationsMatrix) <- NULL
+  #rm(matches)
   gc()
 
   ##############################################################
@@ -65,9 +75,14 @@ addDeviationsMatrix <- function(
       useMatrix = useMatrix,
       filter0 = FALSE
     ))
+  rownames(rS) <- paste0(rS$seqnames,"_",rS$idx)
+  rS <- rS[paste0(seqnames(ArchRProj@peakSet), "_", mcols(ArchRProj@peakSet)$idx),]
   rS$start <- start(ArchRProj@peakSet)
   rS$end <- end(ArchRProj@peakSet)
   rS$GC <- ArchRProj@peakSet$GC
+  rownames(rS) <- paste0(rS$seqnames, "_", rS$start, "_", rS$end)
+
+  annotationsMatrix <- annotationsMatrix[rownames(rS), ]
 
   #Create args list
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
@@ -120,6 +135,8 @@ addDeviationsMatrix <- function(
   }
   
   ArrowFile <- ArrowFiles[i]
+  sampleName <- .sampleName(ArrowFile)
+  prefix <- sprintf("%s (%s of %s)", sampleName, i, length(ArrowFiles))
   cellNames <- .availableCells(ArrowFile, subGroup=useMatrix)
 
   if(!is.null(allCells)){
@@ -127,7 +144,7 @@ addDeviationsMatrix <- function(
   }
 
   #Get Matrix and Run ChromVAR!
-  .messageDiffTime(sprintf("Computing chromVAR-based deviations %s of %s (see Schep et. al (2017)!", i, length(ArrowFiles)), tstart, addHeader = TRUE)
+  .messageDiffTime(sprintf("chromVAR deviations %s Schep (2017)", prefix), tstart, addHeader = TRUE)
   dev <- .getMatFromArrow(
     ArrowFile, 
     featureDF = featureDF, 
@@ -137,8 +154,9 @@ addDeviationsMatrix <- function(
     ) %>% {.customDeviations(
       countsMatrix = .,
       annotationsMatrix = annotationsMatrix,
+      prefix = prefix,
       backgroudPeaks = SummarizedExperiment::assay(bdgPeaks),
-      expectation = featureDF$value/sum(featureDF$value),
+      expectation = featureDF$rowSums/sum(featureDF$rowSums),
       out = out
     )}
   gc()
@@ -210,6 +228,7 @@ addDeviationsMatrix <- function(
   annotationsMatrix,
   backgroudPeaks,
   expectation,
+  prefix = "",
   out = c("deviations", "z")
   ){
 
@@ -225,7 +244,7 @@ addDeviationsMatrix <- function(
 
   results <- lapply(seq_len(ncol(annotationsMatrix)), function(x){
     if(x %% floor(ncol(annotationsMatrix)/20) == 0){
-      .messageDiffTime(sprintf("Computing Deviations for Annotation %s of %s", x, ncol(annotationsMatrix)), tstart)
+      .messageDiffTime(sprintf("%s : Deviations for Annotation %s of %s", prefix, x, ncol(annotationsMatrix)), tstart)
     }
     if(x %% max(floor(ncol(annotationsMatrix)/20), 10) == 0){
       gc()
@@ -391,6 +410,30 @@ addDeviationsMatrix <- function(
 }
 
 #' @export
+getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 25){
+
+  rowV <- .getRowVars(getArrowFiles(ArchRProj), useMatrix = name, seqnames = "z")
+  rowV <- rowV[order(rowV$combinedVars, decreasing=TRUE), ]
+  rowV$rank <- seq_len(nrow(rowV))
+
+  if(plot){
+    rowV <- data.frame(rowV)
+    ggplot(rowV, aes(rank, combinedVars)) +
+      geom_point(size = 1) + 
+      ggrepel::geom_label_repel(
+        data = rowV[rev(seq_len(n)), ], aes(x = rank, y = combinedVars, label = name), 
+        size = 1.5,
+        nudge_x = 2
+      ) + theme_ArchR() + ylab("Variability") + xlab("Rank Sorted Annotations")
+  }else{
+
+    rowV
+
+  }
+
+}
+
+#' @export
 addBdgPeaks <- function(
   ArchRProj, 
   niterations = 50, 
@@ -517,7 +560,7 @@ getBdgPeaks <- function(
   #to disable this we create a column of 1's forcing chromVAR to perform log10(values + 1)
 
   se <- SummarizedExperiment::SummarizedExperiment(
-    assays = SimpleList(counts = as.matrix(data.frame(rS$value, 1))),
+    assays = SimpleList(counts = as.matrix(data.frame(rS$rowSums, 1))),
     rowData = DataFrame(bias = rS$GC)
   )
 
@@ -530,7 +573,7 @@ getBdgPeaks <- function(
   )
 
   bdgPeaks <- SummarizedExperiment(assays = SimpleList(bdgPeaks = bdgPeaks), 
-    rowRanges = GRanges(rS$seqnames,IRanges(rS$start,rS$end),value=rS$value,GC=rS$GC))
+    rowRanges = GRanges(rS$seqnames,IRanges(rS$start,rS$end),value=rS$rowSums,GC=rS$GC))
 
   #Save Background Peaks
   if(!is.null(outFile)){
@@ -540,121 +583,6 @@ getBdgPeaks <- function(
   return(bdgPeaks)
 
 }
-
-#' @export
-annotationEnrichment <- function(
-  seMarker = NULL,
-  ArchRProj = NULL,
-  annotations = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0",
-  background = "bdgPeaks",
-  ...){
-
-  tstart <- Sys.time()
-  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
-    stop("Only markers identified from PeakMatrix can be used!")
-  }
-
-  matches <- getMatches(ArchRProj, annotations)
-  
-  r1 <- SummarizedExperiment::rowRanges(matches)
-  mcols(r1) <- NULL
-
-  r2 <- getPeakSet(ArchRProj)
-  mcols(r2) <- NULL
-
-  if(!all.equal(paste0(r1), paste0(r2))){
-    stop("Peaks from seMarker do not match peakSet in ArchRProj!")
-  }
-
-  #Evaluate AssayNames
-  assayNames <- names(SummarizedExperiment::assays(seMarker))
-  for(an in assayNames){
-    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
-  }
-  passMat <- eval(parse(text=cutOff))
-  for(an in assayNames){
-    eval(parse(text=paste0("rm(",an,")")))
-  }
-
-  if(tolower(background) %in% c("backgroundpeaks", "bdgpeaks", "background", "bdg")){
-    method <- "bdg"
-    bdgPeaks <- SummarizedExperiment::assay(getBdgPeaks(ArchRProj))
-  }else{
-    method <- "all"
-  }
-
-  enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
-    .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
-
-    idx <- which(passMat[, x])
-
-    if(method == "bdg"){
-      .computeEnrichment(matches, idx, c(idx, as.vector(bdgPeaks[idx,])))
-    }else{
-      .computeEnrichment(matches, idx, seq_len(nrow(bdgPeaks)))
-    }
-
-  }) %>% SimpleList
-  names(enrichList) <- colnames(seMarker)
-
-  assays <- lapply(seq_len(ncol(enrichList[[1]])), function(x){
-    d <- lapply(seq_along(enrichList), function(y){
-      enrichList[[y]][colnames(matches),x,drop=FALSE]
-    }) %>% Reduce("cbind",.)
-    colnames(d) <- names(enrichList)
-    d
-  }) %>% SimpleList
-  names(assays) <- colnames(enrichList[[1]])
-  assays <- rev(assays)
-  out <- SummarizedExperiment::SummarizedExperiment(assays=assays)
-
-  out
-
-}
-
-.computeEnrichment <- function(matches, compare, background){
-
-  matches <- .getAssay(matches, "matches")
-  
-  #Compute Totals
-  matchCompare <- matches[compare, ,drop=FALSE]
-  matchBackground <- matches[background, ,drop=FALSE]
-  matchCompareTotal <- Matrix::colSums(matchCompare)
-  matchBackgroundTotal <- Matrix::colSums(matchBackground)
-
-  #Create Summary DF
-  pOut <- data.frame(
-    feature = colnames(matches),
-    CompareFrequency = matchCompareTotal,
-    nCompare = nrow(matchCompare),
-    CompareProportion = matchCompareTotal/nrow(matchCompare),
-    BackgroundFrequency = matchBackgroundTotal,
-    nBackground = nrow(matchBackground),
-    BackgroundProporition = matchBackgroundTotal/nrow(matchBackground)
-  )
-  
-  #Enrichment
-  pOut$Enrichment <- pOut$CompareProportion / pOut$BackgroundProporition
-  
-  #Get P-Values with Hyper Geometric Test
-  pOut$mlog10p <- lapply(seq_len(nrow(pOut)), function(x){
-    p <- -phyper(pOut$CompareFrequency[x] - 1, # Number of Successes the -1 is due to cdf integration
-     pOut$BackgroundFrequency[x], # Number of all successes in background
-     pOut$nBackground[x] - pOut$BackgroundFrequency[x], # Number of non successes in background
-     pOut$nCompare[x], # Number that were drawn
-     lower.tail = FALSE, log.p = TRUE)# P[X > x] Returns LN must convert to log10
-    return(p/log(10))
-  }) %>% unlist %>% round(4)
-
-  #Minus Log10 FDR
-  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
-  pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
-
-  pOut
-
-}
-
 
 
 

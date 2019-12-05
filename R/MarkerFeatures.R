@@ -6,7 +6,8 @@
 #' 
 #' @param ArchRProj ArchR Project
 #' @param groupBy group cells by this column in cellColData
-#' @param useGroups use subset of groups in group column in cellColData
+#' @param useGroups use subset of groups in group column in cellColData for comparisons
+#' @param bdgGroups use subset of groups in group column in cellColData for background
 #' @param useMatrix matrix name in Arrow Files that will be used for identifying features
 #' @param bias biases to account for in selecting null group using info from cellColData
 #' @param normBy normalize by column in cellColData prior to test
@@ -26,12 +27,14 @@ markerFeatures <- function(
     ArchRProj = NULL,
     groupBy = "Clusters",
     useGroups = NULL,
+    bdgGroups = NULL,
     useMatrix = "GeneScoreMatrix",
     bias = c("TSSEnrichment", "log10(nFrags)"),
     normBy = NULL,
     testMethod = "wilcoxon",
     minCells = 50,
     maxCells = 500,
+    scaleTo = 10^4,
     threads = 1,
     k = 100,
     bufferRatio = 0.8,
@@ -73,9 +76,11 @@ markerFeatures <- function(
     ArchRProj = NULL,
     groupBy = "Clusters",
     useGroups = NULL,
+    bdgGroups = NULL,
     normBy = NULL,
     minCells = 50,
     maxCells = 500,
+    scaleTo = 10^4,
     bufferRatio = 0.8,
     useSeqnames = NULL,
     bias = NULL,
@@ -110,16 +115,13 @@ markerFeatures <- function(
     #####################################################
     .messageDiffTime("Matching Known Biases", tstart, addHeader = verboseAll)
     groups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
-    if(!is.null(useGroups)){
-      if(any(useGroups %ni% groups)){
-        stop("Not all useGroups in Group names!")
-      }
-      groups <- groups[groups %in% useGroups]
-    }
+    colDat <- getCellColData(ArchRProj)
 
     matchObj <- .matchBiasCellGroups(
-      input = getCellColData(ArchRProj), 
+      input = colDat, 
       groups = groups,
+      useGroups = useGroups,
+      bdgGroups = bdgGroups,
       bias = bias,
       k = k,
       n = maxCells
@@ -128,20 +130,32 @@ markerFeatures <- function(
     #####################################################
     # Pairwise Test Per Seqnames
     #####################################################
-    .messageDiffTime("Computing Pairwise Tests", tstart, addHeader = verboseAll)
+    mColSums <- suppressMessages(.getColSums(ArrowFiles, seqnames = featureDF$seqnames@values, useMatrix = useMatrix, threads = threads))
+    
     if(is.null(normBy)){
-      if(tolower(useMatrix) %in% c("tilematrix","peakmatrix")){
+      if(tolower(useMatrix) %in% c("tilematrix", "peakmatrix")){
         normBy <- "ReadsInTSS"
         normFactors <- getCellColData(ArchRProj, normBy, drop=FALSE)
         normFactors[,1] <- median(normFactors[,1]) / normFactors[,1]
       }else{
-        normFactors <- NULL
+        normFactors <- scaleTo / mColSums
+        normFactors <- DataFrame(normFactors)
       }
     }else{
-      normFactors <- NULL
+      if(tolower(normBy) == "none"){
+        normFactors <- NULL
+      }else{
+        normFactors <- scaleTo / mColSums
+        normFactors <- DataFrame(normFactors)
+      }
     }
 
+    if(!is.null(normFactors)){
+      normFactors[,1] <- normFactors[,1] * (scaleTo / median(normFactors[names(mColSums), 1] * mColSums))
+    }
+    
     diffList <- .safelapply(seq_along(matchObj[[1]]), function(x){
+      .messageDiffTime(sprintf("Computing Pairwise Tests (%s of %s)", x, length(matchObj[[1]])), tstart, addHeader = verboseAll)
       .testMarkerSC(
           ArrowFiles = ArrowFiles,
           matchObj = matchObj, 
@@ -154,6 +168,8 @@ markerFeatures <- function(
           binarize = binarize
       )
     }, threads = threads)
+
+    .messageDiffTime("Completed Pairwise Tests", tstart, addHeader = TRUE)
 
     #####################################################
     # Summarize Output
@@ -178,7 +194,6 @@ markerFeatures <- function(
               Mean = lapply(seq_along(diffList), function(x) diffList[[x]]$mean1) %>% Reduce("cbind",.),
               Variance = lapply(seq_along(diffList), function(x) diffList[[x]]$var1) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) diffList[[x]]$fdr) %>% Reduce("cbind",.),
-              AUC = lapply(seq_along(diffList), function(x) diffList[[x]]$auc) %>% Reduce("cbind",.),
               MeanBDG = lapply(seq_along(diffList), function(x) diffList[[x]]$mean2) %>% Reduce("cbind",.),
               VarianceBDG = lapply(seq_along(diffList), function(x) diffList[[x]]$var2) %>% Reduce("cbind",.)
             ),
@@ -189,13 +204,190 @@ markerFeatures <- function(
     }
     colnames(pse) <- names(matchObj[[1]])
 
-    .messageDiffTime("Completed Pairwise Tests", tstart, addHeader = TRUE)
+    metadata(pse)$MatchInfo <- matchObj
 
     return(pse)
 
 }
 
-.matchBiasCellGroups <- function(input, groups, bias, k = 100, n = 500, bufferRatio = 0.8){
+.testMarkerSC <- function(ArrowFiles, matchObj, group = NULL, testMethod = "ttest", useMatrix,
+  threads = 1, featureDF, binarize = FALSE, normFactors = NULL){
+
+  matchx <- matchObj[[1]][[group]]
+  cellsx <- matchObj[[2]]$cells[matchx$cells]
+  bdgx <- matchObj[[2]]$cells[matchx$bdg]
+  
+  if(!is.null(normFactors)){
+    cellNF <- normFactors[cellsx,1]
+    bdgNF <- normFactors[bdgx,1]
+  }
+
+  #Add RowNames for Check at the end
+  rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
+  seqnames <- unique(featureDF$seqnames)
+
+  pairwiseDF <- lapply(seq_along(seqnames), function(y){
+
+    featureDFy <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames[y]), ]
+
+    scMaty <- suppressMessages(.getPartialMatrix(
+      ArrowFiles, 
+      featureDF = featureDFy, 
+      threads = threads, 
+      useMatrix = useMatrix,
+      cellNames = c(cellsx, bdgx),
+      progress = FALSE
+    ))
+    rownames(scMaty) <- rownames(featureDFy)
+
+    if(binarize){
+      scMaty@x[scMaty@x > 0] <- 1
+    }
+
+    args <- list()
+    if(!is.null(normFactors)){
+      args$mat1 <- Matrix::t(Matrix::t(scMaty[, cellsx, drop = FALSE]) * cellNF)
+      args$mat2 <- Matrix::t(Matrix::t(scMaty[, bdgx, drop = FALSE]) * bdgNF)
+    }else{
+      args$mat1 <- scMaty[, cellsx, drop = FALSE]
+      args$mat2 <- scMaty[, bdgx, drop = FALSE]
+    }
+
+    if(tolower(testMethod) == "wilcoxon"){
+
+      .suppressAll(do.call(.sparseMatWilcoxon, args))
+    
+    }else if(tolower(testMethod) == "ttest"){
+    
+      .suppressAll(do.call(.sparseMatTTest, args))
+    
+    }else{
+    
+      stop("Error Unrecognized Method!")
+    
+    }
+
+  }) %>% Reduce("rbind", .)
+
+  idxFilter <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
+  pairwiseDF$fdr <- NA
+  pairwiseDF$fdr[idxFilter] <- p.adjust(pairwiseDF$pval[idxFilter], method = "fdr")
+  pairwiseDF <- pairwiseDF[rownames(featureDF), , drop = FALSE]
+  pairwiseDF
+  
+}
+
+#Wilcoxon Row-wise two matrices
+.sparseMatWilcoxon <- function(mat1, mat2){
+  
+  .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
+  df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
+  df <- df[which(df$group=="Top"),]
+
+  #Sparse Row Sums
+  m1 <- Matrix::rowSums(mat1, na.rm=TRUE)
+  m2 <- Matrix::rowSums(mat2, na.rm=TRUE)
+  offset <- 1 #quantile(c(mat1@x,mat2@x), 0.99) * 10^-4
+  log2FC <- log2((m1 + offset)/(m2 + offset))
+  log2Mean <- log2(((m1+offset) + (m2+offset)) / 2)
+
+  out <- data.frame(
+    log2Mean = log2Mean,
+    log2FC = log2FC,
+    fdr = df$padj, 
+    pval = df$pval, 
+    mean1 = Matrix::rowMeans(mat1, na.rm=TRUE), 
+    mean2 = Matrix::rowMeans(mat2, na.rm=TRUE), 
+    n = ncol(mat1),
+    auc = df$auc
+  )
+
+  return(out)
+
+}
+
+#T-Test Row-wise two matrices
+.sparseMatTTest <- function(mat1, mat2, m0 = 0){
+    
+    #Get Population Values
+    n1 <- ncol(mat1)
+    n2 <- ncol(mat2)
+    n <- n1 + n2
+    
+    #Sparse Row Means
+    m1 <- Matrix::rowMeans(mat1, na.rm=TRUE)
+    m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
+    
+    #Sparse Row Variances
+    v1 <- ArchR:::computeSparseRowVariances(mat1@i + 1, mat1@x, m1, n1)
+    v2 <- ArchR:::computeSparseRowVariances(mat2@i + 1, mat2@x, m2, n2)
+    
+    #Calculate T Statistic
+    se <- sqrt( (1/n1 + 1/n2) * ((n1-1)*v1 + (n2-1)*v2)/(n1+n2-2) )
+    tstat <- (m1-m2-m0)/se
+    pvalue <- 2*pt(-abs(tstat), n - 2)
+    fdr <- p.adjust(pvalue, method = "fdr")
+    
+    #Sparse Row Sums
+    m1 <- Matrix::rowSums(mat1, na.rm=TRUE)
+    m2 <- Matrix::rowSums(mat2, na.rm=TRUE)
+    offset <- 1 #quantile(c(mat1@x,mat2@x), 0.99) * 10^-4
+    log2FC <- log2((m1 + offset)/(m2 + offset))
+    log2Mean <- log2(((m1+offset) + (m2+offset)) / 2)
+
+    out <- data.frame(
+      log2Mean = log2Mean,
+      log2FC = log2FC,
+      fdr = fdr, 
+      pval = pvalue, 
+      mean1 = m1, 
+      mean2 = m2, 
+      var1 = v2,
+      var2 = v2,
+      n = n1
+    )
+    return(out)
+}
+
+#Binomial Test Row-wise two matrices
+.sparseMatBinomTest <- function(mat1, mat2){
+  #Get Population Values
+  n1 <- ncol(mat1)
+  n2 <- ncol(mat2)
+  n <- n1 + n2
+  #Sparse Row Stats
+  s1 <- Matrix::rowSums(mat1, na.rm=TRUE)
+  m1 <- s1 / n1
+  m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
+  #Combute Binom.test
+  pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
+  pval <- sapply(seq_along(s1), function(x){
+    setTxtProgressBar(pb,round(x*100/length(s1),0))
+    binom.test(s1[x], n1, m2[x], alternative="two.sided")$p.value
+  })
+  fdr <- p.adjust(pval, method = "fdr", length(pval))
+  
+  #Sparse Row Sums
+  m1 <- Matrix::rowSums(mat1, na.rm=TRUE)
+  m2 <- Matrix::rowSums(mat2, na.rm=TRUE)
+  offset <- 1 #quantile(c(mat1@x,mat2@x), 0.99) * 10^-4
+  log2FC <- log2((m1 + offset)/(m2 + offset))
+  log2Mean <- log2(((m1+offset) + (m2+offset)) / 2)
+
+  out <- data.frame(
+    log2Mean = log2Mean,
+    log2FC = log2FC,
+    fdr = fdr, 
+    pval = pval, 
+    mean1 = m1, 
+    mean2 = m2, 
+    n = n1
+  )
+  return(out)
+}
+
+
+.matchBiasCellGroups <- function(input, groups, useGroups, bdgGroups, bias, k = 100, n = 500, bufferRatio = 0.8){
 
   #Summary Function
   .summarizeColStats <- function(m, name = NULL){
@@ -227,34 +419,58 @@ markerFeatures <- function(
   #Norm using input string ie log10(nfrags)
   inputNorm <- lapply(seq_along(bias), function(x){
     plyr::mutate(input, o=eval(parse(text=bias[x])))$o
-  }) %>% Reduce("cbind", .)
+  }) %>% Reduce("cbind", .) %>% data.frame
+  rownames(inputNorm) <- rownames(input)
 
   #Quantile Normalization
   inputNormQ <- lapply(seq_len(ncol(inputNorm)), function(x){
     .getQuantiles(inputNorm[,x])
-  }) %>% Reduce("cbind", .)
-  
+  }) %>% Reduce("cbind", .) %>% data.frame
+  rownames(inputNormQ) <- rownames(input)
+
   #Add Colnames
   colnames(inputNorm) <- bias
   colnames(inputNormQ) <- bias
 
+  if(is.null(useGroups)){
+    useGroups <- gtools::mixedsort(unique(paste0(groups)))
+  }
+
+  if(is.null(bdgGroups)){
+    bdgGroups <- gtools::mixedsort(unique(paste0(groups)))
+  }
+
+  stopifnot(all(useGroups %in% unique(paste0(groups))))
+  stopifnot(all(bdgGroups %in% unique(paste0(groups))))
+
   #Get proportion of each group
   prob <- table(groups) / length(groups)
+  bdgProb <- prob[which(names(prob) %in% bdgGroups)] / sum(prob[which(names(prob) %in% bdgGroups)])
 
   pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-  matchList <- lapply(seq_along(prob), function(x){
+  matchList <- lapply(seq_along(useGroups), function(x){
     
-    setTxtProgressBar(pb,round(x*100/length(prob),0))
+    setTxtProgressBar(pb,round(x*100/length(useGroups),0))
 
     #############
     # Organize
     #############
-    probx <- prob[-x]/sum(prob[-x])
-    id <- which(groups==names(prob)[x])
-    knnx <- computeKNN(inputNormQ[-id,],inputNormQ[id,], k = k)
+    groupx <- useGroups[x]
+    idx <- which(names(bdgProb) == groupx)
+    if(length(idx) > 0 & length(idx) != length(bdgProb)){
+      bdgProbx <- bdgProb[-idx]/sum(bdgProb[-idx])
+    }else{
+      bdgProbx <- bdgProb
+    }
+
+    idF <- which(groups == groupx)
+    idB <- which(groups %in% names(bdgProbx))
+
+    knnx <- computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k)
     sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
+
     minTotal <- min(n, length(sx) * bufferRatio)
-    nx <- sort(floor(minTotal * probx))
+    nx <- sort(floor(minTotal * bdgProbx))
     
     ###############
     # ID Matching
@@ -272,7 +488,7 @@ markerFeatures <- function(
       
       it <- it + 1
       knnit <- knnx[sx[it],]
-      groupit <- match(groups[-id][knnit],names(nx))
+      groupit <- match(groups[idB][knnit],names(nx))
       selectUnique <- FALSE
       selectit <- 0
       oit <- order(groupit)
@@ -319,13 +535,13 @@ markerFeatures <- function(
     #####################
     # Convert Back to Normal Indexing
     #####################
-    idX <- seq_len(nrow(inputNormQ))[id][idX]
-    idY <- seq_len(nrow(inputNormQ))[-id][idY]
+    idX <- seq_len(nrow(inputNormQ))[idF][idX]
+    idY <- seq_len(nrow(inputNormQ))[idB][idY]
 
     #####################
     # Matching Stats Groups
     #####################
-    estBdg <- sort(floor(minTotal * probx))
+    estBdg <- sort(floor(minTotal * bdgProbx))
     obsBdg <- rep(0, length(estBdg))
     names(obsBdg) <- names(estBdg)
     tabGroups <- table(groups[idY])
@@ -349,13 +565,13 @@ markerFeatures <- function(
         corBdgGroups = cor(estBdgP, obsBdgP),
         n = length(sx), 
         p = it / length(sx),
-        group = names(prob)[x]
+        group = groupx
       )
 
     return(out)
 
   }) %>% SimpleList
-  names(matchList) <- names(prob)
+  names(matchList) <- useGroups
   
   message("\n")
 
@@ -373,155 +589,695 @@ markerFeatures <- function(
 
 }
 
-.testMarkerSC <- function(ArrowFiles, matchObj, group = NULL, testMethod = "ttest", useMatrix,
-  threads = 1, featureDF, binarize = FALSE, normFactors = NULL){
 
-  matchx <- matchObj[[1]][[group]]
-  cellsx <- matchObj[[2]]$cells[matchx$cells]
-  bdgx <- matchObj[[2]]$cells[matchx$bdg]
+####################################################################################################
+#
+# Applications of Markers!
+#
+####################################################################################################
+
+#' Plot a Heatmap of Identified Marker Features
+#' 
+#' This function will plot a heatmap of the results from markerFeatures
+#' 
+#' @param seMarker Summarized Experiment result from markerFeatures
+#' @param cutoff Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker
+#' @param log2Norm log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)
+#' @param scaleTo scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing
+#' @param scaleRows compute row z-scores on matrix
+#' @param limits heatmap color limits 
+#' @param grepExclude remove features by grep
+#' @param pal palette for heatmap, default will use solar_extra
+#' @param binaryClusterRows fast clustering implementation for row clustering by binary sorting
+#' @param labelMarkers label specific markers by name on heatmap (matches rownames of seMarker)
+#' @param labelTop label the top features for each column in seMarker
+#' @param labelRows label all rows
+#' @param returnMat return final matrix that is used for plotting heatmap
+#' @param ... additional args
+#' @export
+markerHeatmap <- function(
+  seMarker,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  log2Norm = TRUE,
+  scaleTo = 10^4,
+  scaleRows = TRUE,
+  plotLog2FC = FALSE,
+  limits = c(-2,2),
+  grepExclude = NULL,
+  pal = NULL,
+  binaryClusterRows = TRUE,
+  labelMarkers = NULL,
+  labelTop = NULL,
+  labelRows = FALSE,
+  returnMat = FALSE,
+  ...
+  ){
+
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+  #Now Get Values
+  if(plotLog2FC){
+    mat <- SummarizedExperiment::assays(seMarker)[["Log2FC"]]
+  }else{
+    mat <- SummarizedExperiment::assays(seMarker)[["Mean"]]
+    if(log2Norm){
+      mat <- log2(t(t(mat)/colSums(mat)) * scaleTo + 1)
+    }
+    if(scaleRows){
+      mat <- sweep(mat - rowMeans(mat), 1, matrixStats::rowSds(mat), `/`)
+    }
+  }
+  mat[mat > max(limits)] <- max(limits)
+  mat[mat < min(limits)] <- min(limits)
   
-  if(!is.null(normFactors)){
-    cellNF <- normFactors[cellsx,1]
-    bdgNF <- normFactors[bdgx,1]
+  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
+  mat <- mat[idx,]
+  passMat <- passMat[idx,]
+
+  if(nrow(mat) == 0){
+    stop("No Makers Found!")
   }
 
-  #Add RowNames for Check at the end
-  rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
-  seqnames <- unique(featureDF$seqnames)
-
-  pairwiseDF <- lapply(seq_along(seqnames), function(y){
-
-    featureDFy <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames[y]), ]
-
-    scMaty <- suppressMessages(.getPartialMatrix(
-      ArrowFiles, 
-      featureDF = featureDFy, 
-      threads = threads, 
-      useMatrix = useMatrix,
-      cellNames = c(cellsx, bdgx),
-      progress = FALSE
-    ))
-    rownames(scMaty) <- rownames(featureDFy)
-
-    if(binarize){
-      scMaty@x[scMaty@x > 0] <- 1
-    }
-
-    args <- list()
-    args$mat1 <- scMaty[, cellsx, drop=FALSE]
-    args$mat2 <- scMaty[, bdgx, drop=FALSE]
-
-    if(!is.null(normFactors)){
-      cellNF <- normFactors[cellsx,1]
-      bdgNF <- normFactors[bdgx,1]
-    }
-
-    if(tolower(testMethod) == "wilcoxon"){
-
-      .suppressAll(do.call(.sparseMatWilcoxon, args))
-    
-    }else if(tolower(testMethod) == "ttest"){
-    
-      .suppressAll(do.call(.sparseMatTTest, args))
-    
+  #add rownames
+  rd <- SummarizedExperiment::rowData(seMarker)[idx,]
+  if(is.null(rd$name)){
+    rn <- paste0(rd$seqnames,":",rd$start,"-",rd$end)
+  }else{
+    if(sum(duplicated(rd$name)) > 0){
+      rn <- paste0(rd$seqnames,":",rd$name)
     }else{
-    
-      stop("Error Unrecognized Method!")
-    
+      rn <- rd$name
     }
+  }
+  rownames(mat) <- rn
+  rownames(passMat) <- rn
 
-  }) %>% Reduce("rbind", .)
+  #identify to remove
+  if(!is.null(grepExclude) & !is.null(rownames(mat))){
+    idx2 <- which(!grepl(grepExclude, rownames(mat)))
+    mat <- mat[idx2,]
+  }
 
-  idxFilter <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
-  pairwiseDF$fdr <- NA
-  pairwiseDF$fdr[idxFilter] <- p.adjust(pairwiseDF$pval[idxFilter], method = "fdr")
-  pairwiseDF <- pairwiseDF[rownames(featureDF), , drop = FALSE]
-  pairwiseDF
+  if(nrow(mat)==0){
+    stop("No Makers Found!")
+  }
+
+  if(!is.null(labelTop)){
+    spmat <- passMat / rowSums(passMat)
+    idx2 <- lapply(seq_len(ncol(spmat)), function(x){
+      head(order(spmat[,x], decreasing = TRUE), labelTop)
+    }) %>% unlist %>% unique %>% sort
+    mat <- mat[idx2,]
+    labelRows <- TRUE
+  }
+
+  if(binaryClusterRows){
+    bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
+    mat <- bS[[1]][,colnames(mat)]
+    clusterRows <- FALSE
+    clusterCols <- bS[[2]]
+  }else{
+    clusterRows <- TRUE
+    clusterCols <- TRUE
+  }
+
+  if(!is.null(labelMarkers)){
+    mn <- match(tolower(labelMarkers), tolower(rownames(mat)), nomatch = 0)
+    mn <- mn[mn > 0]
+  }else{
+    mn <- NULL
+  }
+
+  if(nrow(mat) == 0){
+    stop("No Makers Found!")
+  }
+
+  message(sprintf("Identified %s markers!", nrow(mat)))
+
+  if(is.null(pal)){
+    if(is.null(metadata(seMarker)$Params$useMatrix)){
+      pal <- paletteContinuous(set = "solar_extra", n = 100)
+    }else if(tolower(metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
+      pal <- paletteContinuous(set = "viridis", n = 100)
+    }else{
+      pal <- paletteContinuous(set = "solar_extra", n = 100)
+    }
+  }
+
+  ht <- .ArchRHeatmap(
+    mat = mat,
+    scale = FALSE,
+    limits = c(min(mat), max(mat)),
+    color = pal, 
+    clusterCols = clusterCols, 
+    clusterRows = clusterRows,
+    labelRows = labelRows,
+    labelCols = TRUE,
+    customRowLabel = mn,
+    showColDendrogram = TRUE,
+    draw = FALSE,
+    ...
+  )
+
+  if(returnMat){
+    return(mat)
+  }else{
+    return(ht)
+  }
+
+}
+
+########################################################################################################
+# Helpers for Nice Heatmap with Bioconductors ComplexHeamtap
+########################################################################################################
+
+.ArchRHeatmap <- function(
+  mat, 
+  scale = FALSE,
+  limits = c(min(mat), max(mat)),
+  colData = NULL, 
+  color = paletteContinuous(set = "solar_extra", n = 100),
+  clusterCols = TRUE,
+  clusterRows = FALSE,
+  labelCols = FALSE,
+  labelRows = FALSE,
+  colorMap = NULL,
+  useRaster = TRUE,
+  rasterQuality = 5,
+  split = NULL,
+  fontsize = 6,
+  colAnnoPerRow = 4,
+  showRowDendrogram = FALSE,
+  showColDendrogram = FALSE,
+  customRowLabel = NULL,
+  customRowLabelIDs = NULL,
+  customColLabel = NULL,
+  customColLabelIDs = NULL,
+  customLabelWidth = 0.75,
+  rasterDevice = "png",
+  padding = 45,
+  borderColor = NA,
+  draw = TRUE,
+  name = ""){
   
-}
+  #Packages
+  .requirePackage("ComplexHeatmap")
+  .requirePackage("circlize")
+  
+  #Z-score
+  if (scale) {
+    message("Scaling Matrix...")
+    mat <- .rowZscores(mat, limit = FALSE)
+    name <- paste0(name," Z-Scores")
+  }
+  
+  #Get A Color map if null
+  if (is.null(colorMap)) {
+    colorMap <- .colorMapAnno(colData)
+  }
+  
+  #Prepare ColorMap format for Complex Heatmap
+  if (!is.null(colData)){
+    colData = data.frame(colData)
+    colorMap <- .colorMapForCH(colorMap, colData) #change
+    showLegend <- .checkShowLegend(colorMap[match(names(colorMap), colnames(colData))]) #change
+  }else {
+    colorMap <- NULL
+    showLegend <- NULL
+  }
+  
+  #Prepare Limits if needed
+  breaks <- NULL
+  if (!is.null(limits)) {
+    mat[mat > max(limits)] <- max(limits)
+    mat[mat < min(limits)] <- min(limits)
+    breaks <- seq(min(limits), max(limits), length.out = length(color))
+    color <- circlize::colorRamp2(breaks, color)
+  }
+  
+  if(exists('anno_mark', where='package:ComplexHeatmap', mode='function')){
+    anno_check_version_rows <- ComplexHeatmap::anno_mark
+    anno_check_version_cols <- ComplexHeatmap::anno_mark
+  }else{
+    anno_check_version_rows <- ComplexHeatmap::row_anno_link
+    anno_check_version_cols <- ComplexHeatmap::column_anno_link
+  }
 
-#Wilcoxon Row-wise two matrices
-.sparseMatWilcoxon <- function(mat1, mat2){
-  offset <- quantile(c(mat1@x,mat2@x), 0.99) * 10^-3
-  .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
-  df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
-  df <- df[which(df$group=="Top"),]
-  out <- data.frame(
-    log2Mean = log2(df$avgExpr + offset),
-    log2FC = df$logFC,
-    fdr = df$padj, 
-    pval = df$pval, 
-    mean1 = Matrix::rowMeans(mat1, na.rm=TRUE), 
-    mean2 = Matrix::rowMeans(mat2, na.rm=TRUE), 
-    n = ncol(mat1),
-    auc = df$auc
-  )
-  return(out)
-}
+  #Annotation Heatmap
+  if(!is.null(colData) & !is.null(customColLabel)){
+    message("Adding Annotations...")
+    if(is.null(customColLabelIDs)){
+      customColLabelIDs <- colnames(mat)[customRowLabel]
+    }
+    ht1Anno <- HeatmapAnnotation(
+      df = colData,
+      col = colorMap, 
+      show_legend = showLegend,
+      show_annotation_name = TRUE,
+      gp = gpar(col = "NA"),
+      annotation_legend_param =
+        list(
+          nrow = min(colAnnoPerRow, max(round(nrow(colData)/colAnnoPerRow), 1))
+        ),
+      link = anno_check_version_cols(
+        at = customColLabel, labels = customColLabelIDs),
+        width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs)
 
-#T-Test Row-wise two matrices
-.sparseMatTTest <- function(mat1, mat2, m0 = 0){
-    offset <- quantile(c(mat1@x,mat2@x), 0.99) * 10^-3
-    #Get Population Values
-    n1 <- ncol(mat1)
-    n2 <- ncol(mat2)
-    n <- n1 + n2
-    #Sparse Row Means
-    m1 <- Matrix::rowMeans(mat1, na.rm=TRUE)
-    m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
-    #Sparse Row Variances
-    v1 <- ArchR:::computeSparseRowVariances(mat1@i + 1, mat1@x, m1, n1)
-    v2 <- ArchR:::computeSparseRowVariances(mat2@i + 1, mat2@x, m2, n2)
-    #Calculate T Statistic
-    se <- sqrt( (1/n1 + 1/n2) * ((n1-1)*v1 + (n2-1)*v2)/(n1+n2-2) )
-    tstat <- (m1-m2-m0)/se
-    pvalue <- 2*pt(-abs(tstat), n - 2)
-    fdr <- p.adjust(pvalue, method = "fdr")
-    out <- data.frame(
-      log2Mean = log2(((m1+offset) + (m2+offset)) / 2),
-      log2FC = log2((m1+offset)/(m2+offset)),
-      fdr = fdr, 
-      pval = pvalue, 
-      mean1 = m1, 
-      mean2 = m2, 
-      var1 = v2,
-      var2 = v2,
-      n = n1
     )
-    return(out)
-}
+  }else if(!is.null(colData)){
+    message("Adding Annotations...")
+    ht1Anno <- HeatmapAnnotation(
+      df = colData,
+      col = colorMap, 
+      show_legend = showLegend,
+      show_annotation_name = TRUE,
+      gp = gpar(col = "NA"),
+      annotation_legend_param =
+        list(
+          nrow = min(colAnnoPerRow, max(round(nrow(colData)/colAnnoPerRow), 1))
+        )
+    )
+  }else if(is.null(colData) & !is.null(customColLabel)){
+    if(is.null(customColLabelIDs)){
+      customColLabelIDs <- colnames(mat)[customRowLabel]
+    }
+    message("Adding Annotations...")
+    ht1Anno <- HeatmapAnnotation(
+      link = anno_check_version_cols(
+        at = customColLabel, labels = customColLabelIDs),
+        width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs)
+    )
+  }else{
+    ht1Anno <- NULL
+  }
 
-#Binomial Test Row-wise two matrices
-.sparseMatBinomTest <- function(mat1, mat2){
-  offset <- quantile(c(mat1@x,mat2@x), 0.99) * 10^-3
-  #Get Population Values
-  n1 <- ncol(mat1)
-  n2 <- ncol(mat2)
-  n <- n1 + n2
-  #Sparse Row Stats
-  s1 <- Matrix::rowSums(mat1, na.rm=TRUE)
-  m1 <- s1 / n1
-  m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
-  #Combute Binom.test
-  pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-  pval <- sapply(seq_along(s1), function(x){
-    setTxtProgressBar(pb,round(x*100/length(s1),0))
-    binom.test(s1[x], n1, m2[x], alternative="two.sided")$p.value
-  })
-  fdr <- p.adjust(pval, method = "fdr", length(pval))
-  out <- data.frame(
-    log2Mean = log2(((m1+offset) + (m2+offset)) / 2),
-    log2FC = log2((m1+offset) / (m2+offset)),
-    fdr = fdr, 
-    pval = pval, 
-    mean1 = m1, 
-    mean2 = m2, 
-    n = n1
+  message("Preparing Main Heatmap...")
+  ht1 <- Heatmap(
+    
+    #Main Stuff
+    matrix = mat,
+    name = name,
+    col = color, 
+    
+    #Heatmap Legend
+    heatmap_legend_param = 
+      list(color_bar = "continuous", 
+           legend_direction = "horizontal",
+           legend_width = unit(5, "cm")
+      ), 
+    rect_gp = gpar(col = borderColor), 
+    
+    #Column Options
+    show_column_names = labelCols,
+    cluster_columns = clusterCols, 
+    show_column_dend = showColDendrogram,
+    clustering_method_columns = "ward.D2",
+    column_names_gp = gpar(fontsize = fontsize), 
+    column_names_max_height = unit(100, "mm"),
+    
+    #Row Options
+    show_row_names = labelRows,
+    row_names_gp = gpar(fontsize = fontsize), 
+    cluster_rows = clusterRows, 
+    show_row_dend = showRowDendrogram, 
+    clustering_method_rows = "ward.D2",
+    split = split, 
+    
+    #Annotation
+    top_annotation = ht1Anno, 
+
+    #Raster Info
+    use_raster = useRaster, 
+    raster_device = rasterDevice, 
+    raster_quality = rasterQuality
   )
-  return(out)
+
+  if(!is.null(customRowLabel)){
+    if(is.null(customRowLabelIDs)){
+      customRowLabelIDs <- rownames(mat)[customRowLabel]
+    }
+    ht1 <- ht1 + rowAnnotation(link = 
+        anno_check_version_rows(at = customRowLabel, labels = customRowLabelIDs),
+        width = unit(customLabelWidth, "cm") + max_text_width(customRowLabelIDs))
+  }
+
+  if(draw){
+    draw(ht1, 
+      padding = unit(c(padding, padding, padding, padding), "mm"), 
+      heatmap_legend_side = "bot", 
+      annotation_legend_side = "bot")
+  }else{
+    ht1
+  }
+
+}
+
+.colorMapForCH <- function(colorMap, colData){
+  colorMap <- colorMap[which(names(colorMap) %in% colnames(colData))]
+  colorMapCH <- lapply(seq_along(colorMap), function(x){
+    if(attr(colorMap[[x]],"discrete")){
+      colorx <- colorMap[[x]]
+    }else{
+      vals <- colData[[names(colorMap)[x]]][!is.na(colData[[names(colorMap)[x]]])]
+      s <-  seq(min(vals), max(vals), length.out = length(colorMap[[x]]))
+      colorx <- circlize::colorRamp2(s, colorMap[[x]])
+    }
+    if(any(is.na(names(colorx)))){
+      names(colorx)[is.na(names(colorx))] <- paste0("NA",seq_along(names(colorx)[is.na(names(colorx))]))
+    }
+    return(colorx)
+  })
+  names(colorMapCH) <- names(colorMap)
+  return(colorMapCH)
+}
+
+.checkShowLegend <- function(colorMap, max_discrete = 30){
+  show <- lapply(seq_along(colorMap), function(x){
+      if(attr(colorMap[[x]],"discrete") && length(unique(colorMap[[x]])) > max_discrete){
+        sl <- FALSE
+      }else{
+        sl <- TRUE
+      }
+      return(sl)
+    }) %>% unlist
+  names(show) <- names(colorMap)
+  return(show)
+}
+
+.colorMapAnno <- function(colData, customAnno = NULL, discreteSet = "stallion", continuousSet = "solar_extra"){
+  discreteCols <- sapply(colData,function(x) !is.numeric(x))
+  if(!is.null(customAnno)){
+    colorMap <- lapply(seq_along(discreteCols),function(x){
+      if(discreteCols[x]){
+        colors <- paletteDiscrete(values = colData[[names(discreteCols[x])]], set = discreteSet)
+        names(colors) <- unique(colData[[names(discreteCols[x])]])
+        attr(colors, "discrete") <- TRUE
+      }else{
+        colors <- paletteContinuous(set = continuousSet)
+        attr(colors, "discrete") <- FALSE
+      }
+      if(length(which(customAnno[,1] %in% names(discreteCols[x]))) > 0){
+        if(length(which(customAnno[,2] %in% names(colors))) > 0){
+          customAnnox <- customAnno[which(customAnno[,2] %in% names(colors)),]
+          colors[which(names(colors) %in% customAnnox[,2])] <- paste0(customAnnox[match(names(colors),customAnnox[,2]),3])
+        }
+      }
+      return(colors)
+    })
+    names(colorMap) <- colnames(colData)
+    return(colorMap)
+  }else{
+    colorMap <- lapply(seq_along(discreteCols), function(x){
+      if(discreteCols[x]){
+       colors <- paletteDiscrete(values = colData[[names(discreteCols[x])]], set = discreteSet)
+       names(colors) <- unique(colData[[names(discreteCols[x])]])
+       attr(colors, "discrete") <- TRUE
+      }else{
+       colors <- paletteContinuous(set = continuousSet)
+       attr(colors, "discrete") <- FALSE
+      }
+      return(colors)
+    })
+    names(colorMap) <- colnames(colData)
+    return(colorMap)
+  }
+
+}
+
+.binarySort <- function(m, scale = FALSE, cutOff = 1, lmat = NULL, clusterCols = TRUE){
+
+  if(is.null(lmat)){
+    #Compute Row-Zscores
+    if(scale){
+      lmat <- sweep(m - rowMeans(m), 1, matrixStats::rowSds(m), `/`)
+    }else{
+      lmat <- m
+    }
+    lmat <- lmat >= cutOff
+  }
+
+  #Transpose
+  m <- t(m)
+  lmat <- t(lmat)
+
+  #Identify Column Ordering
+  if(clusterCols){
+    hc <- hclust(dist(m))
+    colIdx <- hc$order
+    m <- t(m[colIdx,])
+    lmat <- t(lmat[colIdx,])
+  }else{
+    m <- t(m)
+    lmat <- t(lmat)
+    hc <- NULL
+  }
+
+  #Identify Row Ordering
+  rowIdx <- do.call("order", c(as.data.frame(lmat)[seq_len(ncol(lmat))], list(decreasing = TRUE)))
+  m <- t(m[rowIdx,])
+  lmat <- t(lmat[rowIdx,])
+
+  #Transpose
+  m <- t(m)
+  lmat <- t(lmat)
+
+  return(list(mat = m, hclust = hc))
+
 }
 
 
 
+#' @export
+markerAnnoEnrich <- function(
+  seMarker = NULL,
+  ArchRProj = NULL,
+  annotations = NULL,
+  matches = NULL,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  background = "bdgPeaks",
+  ...){
+
+  tstart <- Sys.time()
+  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+    stop("Only markers identified from PeakMatrix can be used!")
+  }
+
+  if(is.null(matches)){
+    matches <- getMatches(ArchRProj, annotations)
+  }
+  
+  r1 <- SummarizedExperiment::rowRanges(matches)
+  mcols(r1) <- NULL
+
+  r2 <- getPeakSet(ArchRProj)
+  mcols(r2) <- NULL
+
+  if(length(which(paste0(seqnames(r1),start(r1),end(r1), sep = "_") %ni% paste0(seqnames(r2),start(r2),end(r2),sep="_"))) != 0){
+    stop("Peaks from matches do not match peakSet in ArchRProj!")
+  }
+
+  r3 <- GRanges(rowData(seMarker)$seqnames,IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
+  mcols(r3) <- NULL
+  rownames(matches) <- paste0(seqnames(matches),start(matches),end(matches),sep="_")
+  matches <- matches[paste0(seqnames(r3),start(r3),end(r3), sep = "_"), ]
+
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+
+  if(tolower(background) %in% c("backgroundpeaks", "bdgpeaks", "background", "bdg")){
+    method <- "bdg"
+    bdgPeaks <- SummarizedExperiment::assay(getBdgPeaks(ArchRProj))
+  }else{
+    method <- "all"
+  }
+
+  enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
+    .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
+    idx <- which(passMat[, x])
+    if(method == "bdg"){
+      .computeEnrichment(matches, idx, c(idx, as.vector(bdgPeaks[idx,])))
+    }else{
+      .computeEnrichment(matches, idx, seq_len(nrow(matches)))
+    }
+  }) %>% SimpleList
+  names(enrichList) <- colnames(seMarker)
+
+  assays <- lapply(seq_len(ncol(enrichList[[1]])), function(x){
+    d <- lapply(seq_along(enrichList), function(y){
+      enrichList[[y]][colnames(matches),x,drop=FALSE]
+    }) %>% Reduce("cbind",.)
+    colnames(d) <- names(enrichList)
+    d
+  }) %>% SimpleList
+  names(assays) <- colnames(enrichList[[1]])
+  assays <- rev(assays)
+  out <- SummarizedExperiment::SummarizedExperiment(assays=assays)
+
+  out
+
+}
+
+.computeEnrichment <- function(matches, compare, background){
+
+  matches <- .getAssay(matches,  grep("matches", names(assays(matches)), value = TRUE, ignore.case = TRUE))
+  
+  #Compute Totals
+  matchCompare <- matches[compare, ,drop=FALSE]
+  matchBackground <- matches[background, ,drop=FALSE]
+  matchCompareTotal <- Matrix::colSums(matchCompare)
+  matchBackgroundTotal <- Matrix::colSums(matchBackground)
+
+  #Create Summary DF
+  pOut <- data.frame(
+    feature = colnames(matches),
+    CompareFrequency = matchCompareTotal,
+    nCompare = nrow(matchCompare),
+    CompareProportion = matchCompareTotal/nrow(matchCompare),
+    BackgroundFrequency = matchBackgroundTotal,
+    nBackground = nrow(matchBackground),
+    BackgroundProporition = matchBackgroundTotal/nrow(matchBackground)
+  )
+  
+  #Enrichment
+  pOut$Enrichment <- pOut$CompareProportion / pOut$BackgroundProporition
+  
+  #Get P-Values with Hyper Geometric Test
+  pOut$mlog10p <- lapply(seq_len(nrow(pOut)), function(x){
+    p <- -phyper(pOut$CompareFrequency[x] - 1, # Number of Successes the -1 is due to cdf integration
+     pOut$BackgroundFrequency[x], # Number of all successes in background
+     pOut$nBackground[x] - pOut$BackgroundFrequency[x], # Number of non successes in background
+     pOut$nCompare[x], # Number that were drawn
+     lower.tail = FALSE, log.p = TRUE)# P[X > x] Returns LN must convert to log10
+    return(p/log(10))
+  }) %>% unlist %>% round(4)
+
+  #Minus Log10 FDR
+  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
+  pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
+
+  pOut
+
+}
+
+#' @export
+markerRanges <- function(
+  seMarker,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  ...
+  ){
+  
+  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+    stop("Only markers identified from PeakMatrix can be used!")
+  }
+
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+
+  FDR <- assays(seMarker)[["FDR"]]
+
+  rr <- GRanges(rowData(seMarker)$seqnames, IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
+
+  grL <- lapply(seq_len(ncol(passMat)), function(x){
+    idx <- which(passMat[, x])
+    rrx <- rr[idx]
+    rrx$FDR <- FDR[idx, x]
+    rrx
+  }) %>% GenomicRangesList
+
+  names(grL) <- colnames(seMarker)
+
+  grL <- grL[gtools::mixedsort(names(grL))]
+
+  grL
+
+}
+
+#' @export
+markerPlot <- function(
+  seMarker,
+  name = NULL,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  plotAs = "MA",
+  log2Norm = TRUE,
+  scaleTo = 10^4,
+  ...){
+
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+  passMat[is.na(passMat)] <- FALSE
+
+  if(is.null(name)){
+    name <- colnames(seMarker)[1]
+  }
+  
+  LFC <- assays(seMarker[,name])$Log2FC
+  LFC <- as.vector(LFC)
+
+  FDR <- assays(seMarker[,name])$FDR
+  FDR <- as.vector(FDR)
+  FDR[is.na(FDR)] <- 1
+
+  LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBDG)/2 + 1)
+  LM <- as.vector(LM)
+
+  color <- ifelse(passMat[, name], "Differential", "Not-Differential")
+  color[color == "Differential"] <- ifelse(LFC[color == "Differential"] > 0, "Up-Regulated", "Down-Regulated")
+  pal <- c("Up-Regulated" = "firebrick3", "Not-Differential" = "lightgrey", "Down-Regulated" = "dodgerblue3")
+
+  idx <- c(which(!passMat[, name]), which(passMat[, name]))
+
+  if(tolower(plotAs) == "ma"){
+    ggPoint(
+      x = LM[idx],
+      y = LFC[idx], 
+      color = color[idx], 
+      rastr = TRUE, 
+      pal = pal,
+      xlabel = "Log2 Mean",
+      ylabel = "Log2 Fold Change"
+    ) + geom_hline(yintercept = 0, lty = "dashed")
+  }else if(tolower(plotAs) == "volcano"){
+    ggPoint(
+      x = LFC[idx],
+      y = -log10(FDR[idx]), 
+      color = color[idx], 
+      rastr = TRUE, 
+      pal = pal,
+      xlabel = "Log2 Fold Change",
+      ylabel = "-Log10 FDR"
+    ) + geom_vline(xintercept = 0, lty = "dashed")
+  }else{
+    stop("plotAs not recognized")
+  }
+
+}
 
 

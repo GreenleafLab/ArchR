@@ -6,7 +6,7 @@
 #' @param input ArchRProject or ArrowFiles
 #' @param useMatrix matrix name for performing analyses
 #' @param k number of cells nearby a simulated doublet to consider
-#' @param nTrials number of trials to simulate doublets in thousands
+#' @param nTrials number of trials to simulate doublets in terms of number of cells
 #' @param knnMethod dimension reduction to use for KNN (UMAP or SVD)
 #' @param UMAPParams list of parameters to pass to uwot::umap
 #' @param LSIParams list of parameters to pass to IterativeLSI
@@ -22,8 +22,8 @@
 addDoubletScores <- function(
   input,
   useMatrix = "TileMatrix",
-  k = 200,
-  nTrials = 100,
+  k = 10,
+  nTrials = 5,
   knnMethod = "UMAP",
   UMAPParams = list(),
   LSIParams = list(),
@@ -76,12 +76,12 @@ addDoubletScores <- function(
   #Return Output
   if(inherits(input, "ArchRProject")){
 
-    input@cellColData[,"doubletScore"] <- -1
-    input@cellColData[,"doubletEnrichment"] <- -1
+    input@cellColData[,"DoubletScore"] <- NA
+    input@cellColData[,"DoubletEnrichment"] <- NA
 
     for(i in seq_along(outList)){
-      input@cellColData[names(outList[[i]]$doubletScore), "doubletScore"] <- outList[[i]]$doubletScore
-      input@cellColData[names(outList[[i]]$doubletEnrich), "doubletEnrichment"] <- outList[[i]]$doubletEnrich
+      input@cellColData[names(outList[[i]]$doubletScore), "DoubletScore"] <- outList[[i]]$doubletScore
+      input@cellColData[names(outList[[i]]$doubletEnrich), "DoubletEnrichment"] <- outList[[i]]$doubletEnrich
     }
 
     return(input)
@@ -101,8 +101,8 @@ addDoubletScores <- function(
   allCells = NULL,
   UMAPParams = list(),
   LSIParams = list(sampleCells = NULL),
-  nTrials = 100,
-  k = 200,
+  nTrials = 3,
+  k = 10,
   nSample = 1000,
   knnMethod = "UMAP",
   outDir = "QualityControl",
@@ -150,9 +150,9 @@ addDoubletScores <- function(
   LSIParams$threads <- subThreads
   LSIParams$verboseHeader <- verboseHeader
   LSIParams$verboseAll <- verboseAll
-  proj <- do.call(IterativeLSI, LSIParams)
+  proj <- do.call(addIterativeLSI, LSIParams)
   if(useClusters){
-    proj <- IdentifyClusters(proj)
+    proj <- addClusters(proj)
   }
 
   #################################################
@@ -193,7 +193,7 @@ addDoubletScores <- function(
     clusters = if(useClusters) getCellColData(proj, "Clusters", drop = TRUE) else NULL,
     sampleRatio1 = c(1/2), 
     sampleRatio2 = c(1/2), 
-    nTrials = nTrials, 
+    nTrials = floor(nTrials * nCells(proj) / 1000), 
     nSample = nSample, 
     k = k, 
     uwotUmap = uwotUmap,
@@ -216,7 +216,7 @@ addDoubletScores <- function(
   doubUMAP <- simDoublets$doubletUMAP
   dfDoub <- data.frame(
     row.names = paste0("doublet_", seq_len(nrow(doubUMAP))), 
-    .getDensity(doubUMAP[,1], doubUMAP[,2]), 
+    ArchR:::.getDensity(doubUMAP[,1], doubUMAP[,2]), 
     type = "simulated_doublet"
   )
   dfDoub <- dfDoub[order(dfDoub$density), , drop = FALSE]
@@ -274,7 +274,7 @@ addDoubletScores <- function(
   pscore <- ggPoint(
     x = df[,1],
     y = df[,2],
-    color = df$score,
+    color = .quantileCut(df$score, 0, 0.95),
     xlim = xlim,
     ylim = ylim,
     discrete = FALSE,
@@ -296,7 +296,7 @@ addDoubletScores <- function(
   penrich <- ggPoint(
     x = df[,1],
     y = df[,2],
-    color = df$enrichment,
+    color = .quantileCut(df$enrichment, 0, 0.95),
     xlim = xlim,
     ylim = ylim,
     discrete = FALSE,
@@ -467,17 +467,25 @@ addDoubletScores <- function(
   tabDoub <- table(as.vector(knnDoub))
   countKnn[as.integer(names(tabDoub))] <-  countKnn[as.integer(names(tabDoub))] + tabDoub
 
+  nSim <- nrow(LSI$matSVD)
+  scaleTo <- 10000
+  scaleBy <- scaleTo / nSim
+
   #P-Values
   pvalBinomDoub <- lapply(seq_along(countKnn), function(x){
-    pbinom(countKnn[x] - 1, sum(countKnn), 1 / nrow(LSI$matSVD), lower.tail = FALSE)
+    #Round Prediction
+    countKnnx <- round(countKnn[x] * scaleBy)
+    sumKnnx <- round(sum(countKnn) * scaleBy)
+    pbinom(countKnnx - 1, sumKnnx, 1 / scaleTo, lower.tail = FALSE)
   }) %>% unlist
 
   #Adjust
-  padjBinomDoub <- p.adjust(pvalBinomDoub, method = "fdr")
+  padjBinomDoub <- p.adjust(pvalBinomDoub, method = "bonferroni")
 
   #Convert To Scores
-  doubletScore <- -log10(pmax(padjBinomDoub, 4.940656e-324))
+  doubletScore <- -log10(pmax(pvalBinomDoub, 4.940656e-324))
   doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
+  doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set
 
   out <- SimpleList(doubletUMAP = umapProject, doubletScore = doubletScore, doubletEnrich = doubletEnrich)
 
@@ -505,18 +513,28 @@ addDemuxletResults <- function(ArchRProj, bestFiles, sampleNames){
 
   ccd <- getCellColData(ArchRProj)
   ccd[ , "DemuxletClassify"] <- "NotClassified"
+  ccd[ , "DemuxletBest"] <- "NotClassified"
 
   for(x in seq_along(bestFiles)){
     best <- .suppressAll(data.frame(readr::read_tsv(bestFiles[x])))
     classification <- stringr::str_split(best$BEST, pattern = "-", simplify=TRUE)[,1]
     cellNames <- paste0(sampleNames[x], "#", best$BARCODE)
     idx <- which(cellNames %in% rownames(ccd))
-    ccd[ cellNames[idx], "DemuxletClassify"] <- classification[idx]
+    ccd[ cellNames[idx], "DemuxletClassify"] <- ifelse(
+      stringr::str_split(best$BEST, pattern = "-", simplify=TRUE)[idx,1] %in% c("AMB","DBL"),
+      stringr::str_split(best$BEST, pattern = "-", simplify=TRUE)[idx,1],
+      stringr::str_split(best$BEST, pattern = "-", simplify=TRUE)[idx,2]
+    )
+    ccd[ cellNames[idx], "DemuxletBest"] <- gsub("AMB-","",gsub("DBL-","",gsub("SNG-","",best$BEST)))[idx]
   }
 
   ArchRProj@cellColData <- ccd
   ArchRProj
   
 }
+
+
+
+
 
 

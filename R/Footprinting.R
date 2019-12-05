@@ -28,13 +28,14 @@ plotFootprints <- function(
   flank = 250,
   flankNorm = 50,
   smoothWindow = 10,
+  minCells = 25,
   nTop = NULL,
   normMethod = "none",
   height = 6,
   width = 4,
   addDOC = TRUE,
   useSink = TRUE,
-  threads = 16,
+  threads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
   ...
@@ -64,18 +65,23 @@ plotFootprints <- function(
 
     #Get Footprints
     .messageDiffTime("Summarizing Footprints", tstart, addHeader = verboseAll)
-    seFoot <- summarizeFootprints(
+    seFoot <- .summarizeFootprints(
       ArchRProj = input, 
       positions = positions,
       groupBy = groupBy,
       useGroups = useGroups,
+      minCells = minCells,
       flank = flank,
       threads = threads,
       verboseHeader = verboseHeader,
       verboseAll = verboseAll
     )
 
+    ArchRProj <- input
+
   }else{
+    
+    ArchRProj <- NULL
 
     if(inherits(input, "SummarizedExperiment")){
       seFoot <- input
@@ -257,11 +263,12 @@ plotFootprints <- function(
 #####################################################################################################
 
 #' @export
-summarizeFootprints <- function(
+.summarizeFootprints <- function(
   ArchRProj = NULL,
   positions,
   groupBy = "Clusters",
   useGroups = NULL,
+  minCells = 25,
   flank = 250,
   threads = 16,
   force = FALSE,
@@ -279,7 +286,7 @@ summarizeFootprints <- function(
   #####################################################
   # Compute Kmer Frequency Table 
   #####################################################
-  coverageMetadata <- .getCoverageMetadata(ArchRProj = ArchRProj, groupBy = groupBy)
+  coverageMetadata <- .getCoverageMetadata(ArchRProj = ArchRProj, groupBy = groupBy, minCells = minCells)
   coverageParams <- .getCoverageParams(ArchRProj = ArchRProj, groupBy = groupBy)
   kmerLength <- coverageParams$kmerLength
 

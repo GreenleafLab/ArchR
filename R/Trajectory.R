@@ -197,6 +197,8 @@ getTrajectory <- function(
   ArchRProj,
   name = "Trajectory",
   useMatrix = "GeneScoreMatrix",
+  varCutOff = 0.1,
+  maxFeatures = 25000,
   groupEvery = 2,
   threads = 1,
   scaleTo = 10000,
@@ -238,6 +240,19 @@ getTrajectory <- function(
       groupMat <- log2(groupMat + 1)
     }
 
+    if(!is.null(varCutOff)){
+      rV <- matrixStats::rowVars(groupMat)
+      idx <- head(order(rV, decreasing = TRUE), nrow(groupMat) * varCutOff)
+      groupMat <- groupMat[idx, ,drop=FALSE]
+    }
+
+    if(nrow(groupMat) > maxFeatures){
+      rV <- matrixStats::rowVars(groupMat)
+      idx2 <- head(order(rV, decreasing = TRUE), nrow(groupMat) * varCutOff)
+      idx <- idx[idx2]
+      groupMat <- groupMat[idx2, ,drop=FALSE]
+    }
+
     if(smooth){
       
       message("Smoothing with mgcv::gam formula : ", smoothFormula)
@@ -265,12 +280,14 @@ getTrajectory <- function(
       rm(groupMat2)
       gc()
 
+      message("\n")
+
     }
 
     #Create SE
     seTrajectory <- SummarizedExperiment(
         assays = SimpleList(mat = groupMat), 
-        rowData = featureDF
+        rowData = featureDF[idx, ,drop = FALSE]
     )
     metadata(seTrajectory)$Params <- list(useMatrix = useMatrix, 
       scaleTo = scaleTo, log2Norm = log2Norm, smooth = smooth, smoothFormula = smoothFormula, date = Sys.Date())
@@ -296,7 +313,6 @@ getTrajectory <- function(
 #' @export
 trajectoryHeatmap <- function(
   seTrajectory = NULL,
-  varCutOff = 0.1,
   scaleRows = TRUE,
   limits = c(-2,2),
   grepExclude = NULL,
@@ -310,10 +326,6 @@ trajectoryHeatmap <- function(
 
   mat <- assay(seTrajectory)
   rownames(mat) <- rowData(seTrajectory)$name
-
-  if(!is.null(varCutOff)){
-    mat <- mat[head(order(matrixStats::rowVars(mat), decreasing = TRUE), nrow(mat) * varCutOff),]
-  }
   
   if(!is.null(labelTop)){
     idxLabel <- rownames(mat)[seq_len(labelTop)]
@@ -399,7 +411,7 @@ trajectoryHeatmap <- function(
 #' @param plotParams additional params to pass to ggPoint/ggHex
 #' @param ... additional args
 #' @export
-VisualizeTrajectory <- function(
+plotTrajectory <- function(
   ArchRProj = NULL,
   embedding = "UMAP",
   trajectory = "Trajectory",
@@ -535,6 +547,8 @@ VisualizeTrajectory <- function(
   out2 <- ggPoint(dfT$PseudoTime, dfT$value, dfT$PseudoTime, 
     discrete = FALSE, xlabel = "PseudoTime", ylabel = name, ratioYX = 0.5, rastr = TRUE) +
     geom_smooth(color = "black")
+
+  attr(out2, "ratioYX") <- 0.5
 
   if(addArrow){
     dfArrow <- .splitEvery(dfT, floor(nrow(dfT) / 10)) %>% 

@@ -450,6 +450,124 @@ markerHeatmap <- function(
 
 }
 
+#' @export
+markerAnnoEnrich <- function(
+  seMarker = NULL,
+  ArchRProj = NULL,
+  annotations = NULL,
+  matches = NULL,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0",
+  background = "bdgPeaks",
+  ...){
+
+  tstart <- Sys.time()
+  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+    stop("Only markers identified from PeakMatrix can be used!")
+  }
+
+  if(is.null(matches)){
+    matches <- getMatches(ArchRProj, annotations)
+  }
+  
+  r1 <- SummarizedExperiment::rowRanges(matches)
+  mcols(r1) <- NULL
+
+  r2 <- getPeakSet(ArchRProj)
+  mcols(r2) <- NULL
+
+  if(length(which(paste0(seqnames(r1),start(r1),end(r1), sep = "_") %ni% paste0(seqnames(r2),start(r2),end(r2),sep="_"))) != 0){
+    stop("Peaks from matches do not match peakSet in ArchRProj!")
+  }
+
+  r3 <- GRanges(rowData(seMarker)$seqnames,IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
+  mcols(r3) <- NULL
+  rownames(matches) <- paste0(seqnames(matches),start(matches),end(matches),sep="_")
+  matches <- matches[paste0(seqnames(r3),start(r3),end(r3), sep = "_"), ]
+
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+
+  if(tolower(background) %in% c("backgroundpeaks", "bdgpeaks", "background", "bdg")){
+    method <- "bdg"
+    bdgPeaks <- SummarizedExperiment::assay(getBdgPeaks(ArchRProj))
+  }else{
+    method <- "all"
+  }
+
+  enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
+    .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
+    idx <- which(passMat[, x])
+    if(method == "bdg"){
+      .computeEnrichment(matches, idx, c(idx, as.vector(bdgPeaks[idx,])))
+    }else{
+      .computeEnrichment(matches, idx, seq_len(nrow(matches)))
+    }
+  }) %>% SimpleList
+  names(enrichList) <- colnames(seMarker)
+
+  assays <- lapply(seq_len(ncol(enrichList[[1]])), function(x){
+    d <- lapply(seq_along(enrichList), function(y){
+      enrichList[[y]][colnames(matches),x,drop=FALSE]
+    }) %>% Reduce("cbind",.)
+    colnames(d) <- names(enrichList)
+    d
+  }) %>% SimpleList
+  names(assays) <- colnames(enrichList[[1]])
+  assays <- rev(assays)
+  out <- SummarizedExperiment::SummarizedExperiment(assays=assays)
+
+  out
+
+}
+
+.computeEnrichment <- function(matches, compare, background){
+
+  matches <- .getAssay(matches,  grep("matches", names(assays(matches)), value = TRUE, ignore.case = TRUE))
+  
+  #Compute Totals
+  matchCompare <- matches[compare, ,drop=FALSE]
+  matchBackground <- matches[background, ,drop=FALSE]
+  matchCompareTotal <- Matrix::colSums(matchCompare)
+  matchBackgroundTotal <- Matrix::colSums(matchBackground)
+
+  #Create Summary DF
+  pOut <- data.frame(
+    feature = colnames(matches),
+    CompareFrequency = matchCompareTotal,
+    nCompare = nrow(matchCompare),
+    CompareProportion = matchCompareTotal/nrow(matchCompare),
+    BackgroundFrequency = matchBackgroundTotal,
+    nBackground = nrow(matchBackground),
+    BackgroundProporition = matchBackgroundTotal/nrow(matchBackground)
+  )
+  
+  #Enrichment
+  pOut$Enrichment <- pOut$CompareProportion / pOut$BackgroundProporition
+  
+  #Get P-Values with Hyper Geometric Test
+  pOut$mlog10p <- lapply(seq_len(nrow(pOut)), function(x){
+    p <- -phyper(pOut$CompareFrequency[x] - 1, # Number of Successes the -1 is due to cdf integration
+     pOut$BackgroundFrequency[x], # Number of all successes in background
+     pOut$nBackground[x] - pOut$BackgroundFrequency[x], # Number of non successes in background
+     pOut$nCompare[x], # Number that were drawn
+     lower.tail = FALSE, log.p = TRUE)# P[X > x] Returns LN must convert to log10
+    return(p/log(10))
+  }) %>% unlist %>% round(4)
+
+  #Minus Log10 FDR
+  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
+  pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
+
+  pOut
+
+}
 
 
 

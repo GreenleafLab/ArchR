@@ -499,7 +499,7 @@ addGroupCoverages <- function(
 # Get Coverage Metadata and Params from ArchR Project
 #####################################################################################################
 
-.getCoverageMetadata <- function(ArchRProj, groupBy, useGroups = NULL){
+.getCoverageMetadata <- function(ArchRProj, groupBy, useGroups = NULL, minCells = NULL){
   coverageMetadata <- ArchRProj@projectMetadata$GroupCoverages[[groupBy]]$coverageMetadata
   if(is.null(coverageMetadata)){
     stop("No Coverage Metadata found for : ", groupBy)
@@ -508,7 +508,13 @@ addGroupCoverages <- function(
     if(sum(coverageMetadata[,1] %in% useGroups) == 0){
       stop("No Groups found matching useGroups!")
     }
-    coverageMetadata <- coverageMetadata[coverageMetadata[,1] %in% useGroups,]
+    coverageMetadata <- coverageMetadata[coverageMetadata[,1] %in% useGroups, , drop = FALSE]
+  }
+  if(!is.null(minCells)){
+    coverageMetadata <- coverageMetadata[coverageMetadata$nCells >= minCells, , drop = FALSE]
+  }
+  if(nrow(coverageMetadata)==0){
+    stop("No coverages remain!")
   }
   coverageMetadata
 }

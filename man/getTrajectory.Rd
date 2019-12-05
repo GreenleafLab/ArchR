@@ -5,7 +5,8 @@
 \title{Get Supervised Trajectory from an ArchR Project}
 \usage{
 getTrajectory(ArchRProj, name = "Trajectory",
-  useMatrix = "GeneScoreMatrix", groupEvery = 2, threads = 1,
+  useMatrix = "GeneScoreMatrix", varCutOff = 0.1,
+  maxFeatures = 25000, groupEvery = 2, threads = 1,
   scaleTo = 10000, log2Norm = TRUE, smooth = TRUE,
   smoothFormula = "y ~ s(x, bs = 'cs')", ...)
 }

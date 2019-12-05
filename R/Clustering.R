@@ -1,4 +1,3 @@
-#' Identify Clusters for Single Cell Data
 #' 
 #' This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject
 #' 
@@ -13,18 +12,19 @@
 #' @param ... arguments to provide Seurat::FindClusters or ArchR:::.clustLouvain (knn = 50, jaccard = TRUE)
 #' @export
 #'
-IdentifyClusters <- function(
-    input, 
+addClusters <- function(
+    input = NULL, 
     reducedDims = "IterativeLSI",
     name = "Clusters",
     sampleCells = NULL,
     seed = 1, 
-    method = "seurat", 
+    method = "Seurat", 
     dimsToUse = NULL, 
     knnAssign = 10, 
     nOutlier = 20, 
     verbose = TRUE,
     tstart = NULL,
+    force = FALSE,
     ...
     ){
 
@@ -33,6 +33,8 @@ IdentifyClusters <- function(
     }
 
     if(inherits(input, "ArchRProject")){
+        #Check
+        input <- addCellColData(ArchRProj = input, data = rep(NA, nCells(input)), name = name, force = force)
         if(reducedDims %ni% names(input@reducedDims)){
             stop("Error reducedDims not available!")
         }
@@ -40,7 +42,7 @@ IdentifyClusters <- function(
     }else if(inherits(input, "matrix")){
         matDR <- input
     }else{
-        stop("Requires an ArchRProject or Cell by Reduced Dims Matrix!")
+        stop("Input an ArchRProject or Cell by Reduced Dims Matrix!")
     }
     if(is.null(dimsToUse)){
         dimsToUse <- seq_len(ncol(matDR))
@@ -76,6 +78,14 @@ IdentifyClusters <- function(
         clustParams$tstart <- tstart
         clust <- .clustSeurat(mat = matDR, clustParams = clustParams)
 
+    }else if(grepl("scran",tolower(method))){
+
+        clustParams <- list(...)
+        clustParams$x <- matDR[, dimsToUse]
+        clustParams$d <- length(dimsToUse)
+        clustParams$k <- ifelse(!is.null(...$k), ...$k, 25)
+        clust <- .clustScran(clustParams)
+
     }else if(grepl("louvainjaccard",tolower(method))){
 
         clust <- .clustLouvain(matDR, ...)
@@ -91,7 +101,7 @@ IdentifyClusters <- function(
     #################################################################################
     if(estimatingClusters == 1){
         .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
-        knnAssigni <- FNN::get.knnx(matDR, matDRAll[-idx,], knnAssign)[[1]]
+        knnAssigni <- computeKNN(matDR, matDRAll[-idx,], knnAssign)
         clustUnique <- unique(clust)
         clustMatch <- match(clust, clustUnique)
         knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
@@ -120,7 +130,7 @@ IdentifyClusters <- function(
         for(i in seq_along(clustAssign)){
             clusti <- names(clustAssign[i])
             idxi <- which(clust==clusti)
-            knni <- FNN::get.knnx(matDR[-idxi,], matDR[idxi,], knnAssign)[[1]]
+            knni <- computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
             clustf <- unlist(lapply(seq_len(nrow(knni)), function(x) names(sort(table(clust[-idxi][knni[x,]]),decreasing=TRUE)[1])))
             clust[idxi] <- clustf
         }
@@ -141,7 +151,7 @@ IdentifyClusters <- function(
     }
     .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
     meanSVD <- t(.groupMeans(t(matDR), clust))
-    meanKNN <- FNN::get.knnx(meanSVD, meanSVD, nrow(meanSVD))[[1]]
+    meanKNN <- computeKNN(meanSVD, meanSVD, nrow(meanSVD))
     idx <- sample(seq_len(nrow(meanSVD)), 1)
     clustOld <- c()
     clustNew <- c()
@@ -159,7 +169,7 @@ IdentifyClusters <- function(
                 input, 
                 data = out, 
                 name = name, 
-                cells = rownames(matDR), 
+                cells = rownames(matDR),
                 force = TRUE
             )
     }else if(!inherits(input, "ArchRProject")){
@@ -171,7 +181,7 @@ IdentifyClusters <- function(
 #Simply a wrapper on Seurats FindClusters
 .clustSeurat <- function(mat, clustParams){
 
-    suppressPackageStartupMessages(require(Seurat))
+    .requirePackage("Seurat")
     .messageDiffTime("Running Seurats FindClusters (Stuart et al. Cell 2019)", clustParams$tstart, verbose=clustParams$verbose)
     set.seed(1)
 
@@ -181,89 +191,141 @@ IdentifyClusters <- function(
     rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
 
     obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
-    obj[['pca']] = Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
+    obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
     clustParams$object <- obj
     clustParams$reduction <- "pca"
 
     obj <- suppressWarnings(do.call(Seurat::FindNeighbors, clustParams))
     clustParams$object <- obj
-    obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
 
-    #Get Output
-    clust <- obj@meta.data[,ncol(obj@meta.data)]
-    clust <- paste0("Cluster",match(clust, unique(clust)))
+    cS <- Matrix::colSums(obj@graphs$RNA_snn)
+
+    if(cS[length(cS)] == 1){
+
+        #Error Handling with Singletons
+        idxSingles <- which(cS == 1)
+        idxNonSingles <- which(cS != 1)
+
+        rn <- rownames(mat) #original order
+        mat <- mat[c(idxSingles, idxNonSingles), ,drop = FALSE]
+
+        set.seed(1)
+
+        tmp <- matrix(rnorm(nrow(mat) * 3, 10), ncol = nrow(mat), nrow = 3)
+        colnames(tmp) <- rownames(mat)
+        rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
+
+        obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
+        obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
+        clustParams$object <- obj
+        clustParams$reduction <- "pca"
+
+        obj <- .suppressAll(do.call(Seurat::FindNeighbors, clustParams))
+        clustParams$object <- obj
+
+        obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
+
+        #Get Output
+        clust <- obj@meta.data[,ncol(obj@meta.data)]
+        clust <- paste0("Cluster",match(clust, unique(clust)))
+        names(clust) <- rownames(mat)
+        clust <- clust[rn]
+
+    }else{
+
+        obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
+
+        #Get Output
+        clust <- obj@meta.data[,ncol(obj@meta.data)]
+        clust <- paste0("Cluster",match(clust, unique(clust)))
+        names(clust) <- rownames(mat)
+
+    }
+
+    clust
 
 }
 
-#Need to work on making this work
-.clustLouvain <- function(matDR, knn = 50, jaccard = TRUE){
-
-    getEdges <- function(X, knn, jaccard) {
-        nearest <- RANN::nn2(X, X, k = knn + 1, treetype = "bd", searchtype = "priority")
-        nearest$nn.idx <- nearest$nn.idx[, -1]
-        nearest$nn.dists <- nearest$nn.dists[, -1]
-        nearest$nn.sim <- 1 * (nearest$nn.dists >= 0)
-        edges <- reshape2::melt(t(nearest$nn.idx))
-        colnames(edges) = c("B", "A", "C")
-        edges = edges[, c("A", "B", "C")]
-        edges$B <- edges$C
-        edges$C <- 1
-        edges <- unique(transform(edges, A = pmin(A, B), B = pmax(A, B)))
-        if (jaccard) {
-          message("Calculating Jaccard Distance...")
-            a <- Matrix::tcrossprod(nearest$nn.idx[edges[,1],], nearest$nn.idx[edges[,2],])
-            bi <- Matrix::rowSums(nearest$nn.idx[edges[,1],])
-            bj <- Matrix::rowSums(nearest$nn.idx[edges[,2],])
-            jaccardDist <- a / (rep(ncol(a), bi) + t(rep(nrow(a), bj)) - a)
-            pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-            #RCPPP?
-            # jaccardDist <- unlist(lapply(seq_len(nrow(edges)), function(x){
-            #     setTxtProgressBar(pb,round(x*100/nrow(edges),0))
-            #     jInt   <- intersect(nearest$nn.idx[edges[x,1],], nearest$nn.idx[edges[x,2],])
-            #     jUnion <- union(nearest$nn.idx[edges[x,1],], nearest$nn.idx[edges[x,2],])
-            #     length(jInt) / length(jUnion)
-            # }))
-            edges$C <- jaccardDist
-            edges <- subset(edges, C != 0)
-            edges$C <- edges$C/max(edges$C)
-        }
-        edges <- Matrix::sparseMatrix(i = edges$A, j = edges$B, x = edges$C, dims = c(nrow(X),nrow(X)), symmetric = TRUE)
-        return(edges)
-    }
-
-    assignClusters <- function(edges, jaccard) {
-        if (jaccard) {
-            weights <- TRUE
-        }else {
-            weights <- NULL
-        }
-        g <- igraph::graph.adjacency(edges, mode = "undirected", weighted = weights)
-        graphOut <- igraph::cluster_louvain(g)
-        clustAssign <- factor(graphOut$membership, levels = sort(unique(graphOut$membership)))
-        names(clustAssign) <- graphOut$names
-        k = order(table(clustAssign), decreasing = TRUE)
-        newLevels <- rep(1, length(unique(graphOut$membership)))
-        newLevels[k] <- seq_len(length(unique(graphOut$membership)))
-        levels(clustAssign) <- newLevels
-        clustAssign <- factor(clustAssign, levels = seq_len(length(unique(graphOut$membership))))
-        return(paste0("Cluster", clustAssign))
-    }
-
-    require(RANN)
-    require(cluster)
-    require(igraph)
-    require(Matrix)
-    message("Running Louvian Jaccard Graph Clustering...")
-    message("Adapted from Comprehensive Classification of Retinal Bipolar Neurons by Single-Cell Transcriptomics. Cell 2016.")
-    
-    message("Calculating Edges...")
-    edges <- getEdges(X = matDR, knn = knn, jaccard = jaccard)
-    message("\nAssigning Clusters...")
-    clustAssign <- assignClusters(edges = edges, jaccard = jaccard)
-    
-    return(clustAssign)
-
+.clustScran <- function(clustParams){
+    .requirePackage("scran")
+    .requirePackage("igraph")
+    #See Scran Vignette!
+    set.seed(1)
+    #clustParams$x <- matDR
+    snn <- do.call(scran::buildSNNGraph, clustParams)
+    cluster <- igraph::cluster_walktrap(snn)$membership
+    paste0("Cluster", cluster)
 }
+
+# #Need to work on making this work
+# .clustLouvain <- function(matDR, knn = 50, jaccard = TRUE){
+
+#     getEdges <- function(X, knn, jaccard) {
+#         nearest <- RANN::nn2(X, X, k = knn + 1, treetype = "bd", searchtype = "priority")
+#         nearest$nn.idx <- nearest$nn.idx[, -1]
+#         nearest$nn.dists <- nearest$nn.dists[, -1]
+#         nearest$nn.sim <- 1 * (nearest$nn.dists >= 0)
+#         edges <- reshape2::melt(t(nearest$nn.idx))
+#         colnames(edges) = c("B", "A", "C")
+#         edges = edges[, c("A", "B", "C")]
+#         edges$B <- edges$C
+#         edges$C <- 1
+#         edges <- unique(transform(edges, A = pmin(A, B), B = pmax(A, B)))
+#         if (jaccard) {
+#           message("Calculating Jaccard Distance...")
+#             a <- Matrix::tcrossprod(nearest$nn.idx[edges[,1],], nearest$nn.idx[edges[,2],])
+#             bi <- Matrix::rowSums(nearest$nn.idx[edges[,1],])
+#             bj <- Matrix::rowSums(nearest$nn.idx[edges[,2],])
+#             jaccardDist <- a / (rep(ncol(a), bi) + t(rep(nrow(a), bj)) - a)
+#             pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
+#             #RCPPP?
+#             # jaccardDist <- unlist(lapply(seq_len(nrow(edges)), function(x){
+#             #     setTxtProgressBar(pb,round(x*100/nrow(edges),0))
+#             #     jInt   <- intersect(nearest$nn.idx[edges[x,1],], nearest$nn.idx[edges[x,2],])
+#             #     jUnion <- union(nearest$nn.idx[edges[x,1],], nearest$nn.idx[edges[x,2],])
+#             #     length(jInt) / length(jUnion)
+#             # }))
+#             edges$C <- jaccardDist
+#             edges <- subset(edges, C != 0)
+#             edges$C <- edges$C/max(edges$C)
+#         }
+#         edges <- Matrix::sparseMatrix(i = edges$A, j = edges$B, x = edges$C, dims = c(nrow(X),nrow(X)), symmetric = TRUE)
+#         return(edges)
+#     }
+
+#     assignClusters <- function(edges, jaccard) {
+#         if (jaccard) {
+#             weights <- TRUE
+#         }else {
+#             weights <- NULL
+#         }
+#         g <- igraph::graph.adjacency(edges, mode = "undirected", weighted = weights)
+#         graphOut <- igraph::cluster_louvain(g)
+#         clustAssign <- factor(graphOut$membership, levels = sort(unique(graphOut$membership)))
+#         names(clustAssign) <- graphOut$names
+#         k = order(table(clustAssign), decreasing = TRUE)
+#         newLevels <- rep(1, length(unique(graphOut$membership)))
+#         newLevels[k] <- seq_len(length(unique(graphOut$membership)))
+#         levels(clustAssign) <- newLevels
+#         clustAssign <- factor(clustAssign, levels = seq_len(length(unique(graphOut$membership))))
+#         return(paste0("Cluster", clustAssign))
+#     }
+
+#     require(RANN)
+#     require(cluster)
+#     require(igraph)
+#     require(Matrix)
+#     message("Running Louvian Jaccard Graph Clustering...")
+#     message("Adapted from Comprehensive Classification of Retinal Bipolar Neurons by Single-Cell Transcriptomics. Cell 2016.")
+    
+#     message("Calculating Edges...")
+#     edges <- getEdges(X = matDR, knn = knn, jaccard = jaccard)
+#     message("\nAssigning Clusters...")
+#     clustAssign <- assignClusters(edges = edges, jaccard = jaccard)
+    
+#     return(clustAssign)
+
+# }
 
 #' Group Means
 #' @export

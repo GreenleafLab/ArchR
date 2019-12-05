@@ -4,8 +4,9 @@
 \alias{getMatrixFromArrow}
 \title{Read Fragments from Arrow}
 \usage{
-getMatrixFromArrow(ArrowFile, useMatrix = "GeneScoreMatrix",
-  useSeqnames = NULL, cellNames = NULL, verbose = TRUE, ...)
+getMatrixFromArrow(ArrowFile = NULL, useMatrix = "GeneScoreMatrix",
+  useSeqnames = NULL, cellNames = NULL, ArchRProj = NULL,
+  verbose = TRUE, binarize = FALSE, ...)
 }
 \arguments{
 \item{ArrowFile}{ArchRProject or ArrowFiles}

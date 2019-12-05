@@ -25,7 +25,7 @@
 #' @param plotHeight plot height used for creating a consistent plot independent of legend size
 #' @param ... additional args
 #' @export
-ComputeEmbedding <- function(
+addEmbedding <- function(
   ArchRProj = NULL,
   reducedDims = "IterativeLSI", 
   embedding = "UMAP",

@@ -75,11 +75,13 @@ getFragmentsFromArrow <- function(
     {gsub(" x 2","",.)} %>% as.integer
 
   if(nFrags==0){
-    output <- IRanges(start = 1, end = 1)
-    mcols(output)$RG <- c("tmp")
-    output <- output[-1,]
     if(tolower(out)=="granges"){
-      output <- GRanges(seqnames = chr, ranges(output), RG = mcols(output)$RG)
+      output <- GRanges(seqnames = chr, IRanges(start = 1, end = 1), RG = "tmp")
+      output <- output[-1,]
+    }else{
+      output <- IRanges(start = 1, end = 1)
+      mcols(output)$RG <- c("tmp")
+      output <- output[-1,]
     }
     return(output)
   }
@@ -154,11 +156,13 @@ getFragmentsFromArrow <- function(
 #' @param ... additional params
 #' @export
 getMatrixFromArrow <- function(
-  ArrowFile, 
+  ArrowFile = NULL, 
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
   cellNames = NULL, 
+  ArchRProj = NULL,
   verbose = TRUE,
+  binarize = FALSE,
   ...){
 
   ArrowFile <- .validArrow(ArrowFile)
@@ -194,19 +198,29 @@ getMatrixFromArrow <- function(
   }
 
   colData <- .getMetadata(ArrowFile)
+  colData <- colData[colnames(mat[[1]]),,drop=FALSE]
+
+  if(!is.null(ArchRProj)){
+    projColData <- getCellColData(ArchRProj)[rownames(colData), ]
+    colData <- cbind(colData, projColData[ ,colnames(projColData) %ni% colnames(colData)])
+  }
 
   if(useMatrix == "PeakMatrix"){
     se <- SummarizedExperiment(
       assays = mat,
-      rowRanges = getPeakSet(ArchRProj),
-      colData = colData[colnames(mat[[1]]),,drop=FALSE]
+      rowRanges = GRanges(featureDF$seqnames, IRanges(featureDF$start, featureDF$end)),
+      colData = colData
     )
   }else{
     se <- SummarizedExperiment(
       assays = mat,
       rowData = featureDF,
-      colData = colData[colnames(mat[[1]]),,drop=FALSE]
+      colData = colData
     )
+  }
+
+  if("name" %in% colnames(rowData(se))){
+    rownames(se) <- rowData(se)$name
   }
 
   se
@@ -492,38 +506,111 @@ getMatrixFromArrow <- function(
 ########################################################################
 
 #' @export 
-.getRowSums <- function(ArrowFiles, seqnames, useMatrix, verbose = TRUE, tstart = NULL, filter0 = FALSE, threads = 1){
+.getRowSums <- function(ArrowFiles, useMatrix, seqnames = NULL,
+  verbose = TRUE, tstart = NULL, filter0 = FALSE, threads = 1, addInfo = FALSE){
+  
   if(is.null(tstart)){
     tstart <- Sys.time()
   }
+    
+  if(is.null(seqnames)){
+    seqnames <- .availableSeqnames(ArrowFiles, useMatrix)
+  }
+
   #Compute RowSums
-  rowSumsDF <- .safelapply(seq_along(seqnames), function(x){
+  summaryDF <- .safelapply(seq_along(seqnames), function(x){
     o <- h5closeAll()
-    chr <- seqnames[x]
     for(y in seq_along(ArrowFiles)){
       if(y == 1){
-        sumy <- h5read(ArrowFiles[y], paste0(useMatrix, "/", chr, "/rowSums"))
+        sumy <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqnames[x], "/rowSums"))
       }else{
-        sumy1 <- h5read(ArrowFiles[y], paste0(useMatrix, "/", chr, "/rowSums"))
-        #The way we designed sparse matrix holds true that the rows are in order every tile even in rS = 0!
-        if(length(sumy1) > length(sumy)){
-          sumy1[seq_along(sumy)] <- sumy1[seq_along(sumy)] + sumy
-          sumy <- sumy1
+        sumy1 <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqnames[x], "/rowSums"))
+        if(length(sumy1) != length(sumy)){
+          stop("rowSums lengths do not match in ArrowFiles for a seqname!")
         }else{
-          sumy[seq_along(sumy1)] <- sumy[seq_along(sumy1)] + sumy1 
+          sumy <- sumy + sumy1
         }
       }
     }
     #Return Setup In Feature DF Format (seqnames, idx columns)
-    DataFrame(seqnames = Rle(chr, lengths = length(sumy)), idx = seq_along(sumy), value = as.vector(sumy))
+    DataFrame(seqnames = Rle(seqnames[x], lengths = length(sumy)), idx = seq_along(sumy), rowSums = as.vector(sumy))
   }, threads = threads) %>% Reduce("rbind", .)
-  if(filter0){
-    rowSumsDF <- rowSumsDF[rowSumsDF$value > 0, ]
+  
+  if(addInfo){
+    featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
+    rownames(featureDF) <- paste0(featureDF$seqnames, "_", featureDF$idx)
+    rownames(summaryDF) <- paste0(summaryDF$seqnames, "_", summaryDF$idx)
+    featureDF <- featureDF[rownames(summaryDF), , drop = FALSE]
+    featureDF$rowSums <- summaryDF[rownames(featureDF), "rowSums"]
+    summaryDF <- featureDF
+    rownames(summaryDF) <- NULL
+    remove(featureDF)
   }
-  .messageDiffTime("Successfully Created RowSums DataFrame", tstart, verbose = verbose)
-  return(rowSumsDF)
+
+  if(filter0){
+    summaryDF <- summaryDF[which(summaryDF$rowSums > 0), ,drop = FALSE]
+  }
+
+  return(summaryDF)
+
 }
 
+#' @export 
+.getRowVars <- function(ArrowFiles, seqnames = NULL, useMatrix, threads = 1){
+  
+  .combineVariances <- function(dfMeans, dfVars, ns){
+
+  #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
+
+  if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
+    stop("Means Variances and Ns lengths not identical")
+  }
+
+  combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
+  summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
+  combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
+
+  data.frame(combinedVars = combinedVars, combinedMeans = combinedMeans)
+
+  }
+
+  featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
+
+  if(!is.null(seqnames)){
+    featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames),]
+  }
+
+  rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
+  fnames <- rownames(featureDF)
+
+  featureDF <- split(featureDF, as.character(featureDF$seqnames))
+
+  ns <- lapply(seq_along(ArrowFiles), function(y){
+    length(.availableCells(ArrowFiles[y], useMatrix))
+  }) %>% unlist
+
+  #Compute RowVars
+  summaryDF <- .safelapply(seq_along(featureDF), function(x){
+    
+    o <- h5closeAll()
+    seqx <- names(featureDF)[x]
+    meanx <- matrix(NA, ncol = length(ArrowFiles), nrow = nrow(featureDF[[x]]))
+    varx <- matrix(NA, ncol = length(ArrowFiles), nrow = nrow(featureDF[[x]]))
+
+    for(y in seq_along(ArrowFiles)){
+      meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeans"))
+      varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVars"))
+    }
+
+  cbind(featureDF[[x]], DataFrame(.combineVariances(meanx, varx, ns)))
+
+  }, threads = threads) %>% Reduce("rbind", .)
+
+  summaryDF <- summaryDF[fnames, , drop = FALSE]
+  
+  return(summaryDF)
+
+}
 
 #' @export 
 .getColSums <- function(ArrowFiles, seqnames, useMatrix, verbose = TRUE, tstart = NULL, threads = 1){
@@ -538,8 +625,8 @@ getMatrixFromArrow <- function(
     lapply(seq_along(ArrowFiles), function(y){
       
       o <- h5closeAll()
-      cSy <- h5read(ArrowFile, paste0(useMatrix, "/", seqnames[x], "/colSums"))
-      rownames(cSy) <- .availableCells(ArrowFile, useMatrix)
+      cSy <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqnames[x], "/colSums"))
+      rownames(cSy) <- .availableCells(ArrowFiles[y], useMatrix)
       cSy
       
     }) %>% Reduce("rbind", .)

@@ -6,8 +6,8 @@
 #' @param y y vector of data to be plot
 #' @param color color vector of data to be plot (must be same length as x,y)
 #' @param discrete discrete is color discrete?
-#' @param discreteSet default color ArchR_palette for discrete colors
-#' @param continuousSet default color ArchR_palette for continuous colors
+#' @param discreteSet default color ArchRPalettes for discrete colors
+#' @param continuousSet default color ArchRPalettes for continuous colors
 #' @param pal custom palette option
 #' @param defaultColor default color 
 #' @param colorDensity color x,y coordinates by relative density
@@ -244,7 +244,7 @@ ggPoint <- function(
           ggtitle(paste0(title, "\nPearson = ", round(cor(df$x, df$y), 3), "\nSpearman = ", round(cor(df$x, df$y, method = "spearman"), 3)))
     }
 
-    p <- p + theme(legend.position = "bottom")
+    p <- p + theme(legend.position = "bottom", legend.key = element_rect(size = 2))#, legend.spacing.x = unit(0.1, 'cm'), legend.spacing.y = unit(0.1, 'cm'))
 
     return(p)
 
@@ -460,7 +460,7 @@ ggHex <- function(
   y = NULL, 
   color = NULL, 
   pal = paletteContinuous(set = "solar_extra"), 
-  bins = 150,
+  bins = 200,
   xlim = NULL, 
   ylim = NULL, 
   extend = 0.05, 
@@ -470,7 +470,8 @@ ggHex <- function(
   colorTitle = "values", 
   baseSize = 6,
   ratioYX = 1, 
-  FUN = "median", 
+  FUN = "mean", 
+  quantCut = c(0.01,0.99),
   addPoints = FALSE,
   ...){
 
@@ -505,8 +506,16 @@ ggHex <- function(
       }
     }
 
+    values <- ggplot_build(p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA))$data[[1]]$value
+
+    limits <- quantile(values, c(min(quantCut), max(quantCut)), na.rm=TRUE)
+
     p <- p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA) +
-        scale_fill_gradientn(colors = pal) +
+        scale_fill_gradientn(
+          colors = pal,
+          limits = limits, 
+          oob = scales::squish
+        ) +
         xlab(xlabel) + 
         ylab(ylabel) + 
         ggtitle(title) +

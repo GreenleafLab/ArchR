@@ -1,6 +1,6 @@
 #' List of palettes to be used in plots
 #' @export
-ArchR_palettes <- list(
+ArchRPalettes <- list(
 
   #Disclosure I have put here palettes that have been implemented in others
   #I do not claim to have made these rather they look good
@@ -87,15 +87,15 @@ paletteDiscrete <- function(set = "stallion", values, reverse = FALSE, returnStr
   
   #check
   if(is.numeric(set)){
-    stopifnot(set > 0 & set <= length(ArchR_palettes))
-    name <- names(ArchR_palettes)[set]
+    stopifnot(set > 0 & set <= length(ArchRPalettes))
+    name <- names(ArchRPalettes)[set]
   }else{
-    stopifnot(set %in% names(ArchR_palettes))
+    stopifnot(set %in% names(ArchRPalettes))
     name <- set
   }
   
   n <- length(unique(values))
-  pal <- ArchR_palettes[[set]]
+  pal <- ArchRPalettes[[set]]
   palOrdered <- pal[gtools::mixedsort(names(pal))] #mixed sort gets 1,2,3,4...10,11,12
 
   if(n > length(palOrdered)){
@@ -133,12 +133,12 @@ paletteContinuous <- function(set = "solar_extra", n = 256, reverse = FALSE, ret
   
   #check
   if(is.numeric(set)){
-    stopifnot(set > 0 & set <= length(ArchR_palettes))
+    stopifnot(set > 0 & set <= length(ArchRPalettes))
   }else{
-    stopifnot(set %in% names(ArchR_palettes))
+    stopifnot(set %in% names(ArchRPalettes))
   }
   
-  pal <- ArchR_palettes[[set]]
+  pal <- ArchRPalettes[[set]]
   palOut <- colorRampPalette(pal)(n)
   
   if(reverse){

@@ -32,13 +32,14 @@ addReproduciblePeakSet <- function(
 	reproducibility = "2",
 	peaksPerCell = 500,
 	maxPeaks = 150000,
+	minCells = 25,
 	excludeChr = c("chrM","chrY"),
 	pathToMacs2 = findMacs2(),
 	genomeSize = NULL, 
 	shift = -75, 
 	extsize = 150, 
 	method = "q",
-	cutOff = 0.05, 
+	cutOff = 0.1, 
 	extendSummits = 250,
 	promoterDist = 500,
 	genomeAnno = getGenomeAnnotation(ArchRProj),
@@ -53,9 +54,9 @@ addReproduciblePeakSet <- function(
 	){
 
 	tstart <- Sys.time()
-	utility <- ArchR:::.checkPath(pathToMacs2)
+	utility <- .checkPath(pathToMacs2)
 
-	coverageMetadata <- .getCoverageMetadata(ArchRProj = ArchRProj, groupBy = groupBy)
+	coverageMetadata <- .getCoverageMetadata(ArchRProj = ArchRProj, groupBy = groupBy, minCells = minCells)
 	coverageParams <- .getCoverageParams(ArchRProj = ArchRProj, groupBy = groupBy)
 
 	#####################################################
@@ -70,19 +71,19 @@ addReproduciblePeakSet <- function(
 		nmax <- lapply(x, length) %>% unlist %>% max
 		data.frame(
 		  Group=names(coverageParams$cellGroups)[y], 
-		  nCells=tableGroups[y], 
+		  nCells=tableGroups[names(coverageParams$cellGroups)[y]], 
 		  nCellsUsed=length(uniq), 
 		  nReplicates=length(x), 
 		  nMin=nmin, 
 		  nMax=nmax, 
-		  maxPeaks = min(maxPeaks, nmin * peaksPerCell)
+		  maxPeaks = min(maxPeaks, length(uniq) * peaksPerCell)
 		)
 	}) %>% Reduce("rbind",.)
 
 	.messageDiffTime("Peak Calling Parameters!", tstart)
-	printSummary <- groupSummary
-	rownames(printSummary) <- NULL
-	print(printSummary)
+	#printSummary <- groupSummary
+	#rownames(printSummary) <- NULL
+	print(groupSummary)
 
 	#####################################################
 	# Create Output Directory
@@ -192,18 +193,18 @@ addReproduciblePeakSet <- function(
 	#Add Peak Set
 	ArchRProj <- addPeakSet(ArchRProj, unionPeaks, force = TRUE)
 
-	pdf(file.path(outDir, "PeakCallSummary.pdf"), width = 6, height = 4, onefile=FALSE)
-	print(plotPeakCallSummary(ArchRProj))
-	dev.off()
+	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 6, height = 4)
 
 	.messageDiffTime("Finished Creating Union Peak Set!", tstart)
+
+	closeAllConnections()
 
 	return(ArchRProj)
 
 }
 
 #' @export
-plotPeakCallSummary <- function(ArchRProj, pal = NULL){
+.plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 
   peakDF <- metadata(ArchRProj@peakSet)$PeakCallSummary
   if(is.null(peakDF)){
@@ -217,7 +218,7 @@ plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 
   p <- ggplot(peakDF, aes(x=Group, y=Freq, fill=Var1)) + 
     geom_bar(stat = "identity") + 
-    theme_ArchR(rotate_x_axis_text_90 = TRUE) +
+    theme_ArchR(xText90 = TRUE) +
     ylab("Number of Peaks (x10^3)") +
     xlab("") +
     scale_fill_manual(values=pal) +
@@ -332,7 +333,7 @@ plotPeakCallSummary <- function(ArchRProj, pal = NULL){
 	# Create Bed File from Coverage File
 	################
 	bedFile <- file.path(bedDir, paste0(names(coverageFiles)[i], ".insertions.bed"))
-	o <- .writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr)
+	o <- ArchR:::.writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr)
 	peakParams$bedFile <- bedFile
 	
 	################
