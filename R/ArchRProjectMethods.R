@@ -941,7 +941,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
       print("plotting ggplot!")
 
       if(!is.null(attr(plotList[[i]], "ratioYX"))){
-    print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE))
+        print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE))
       }else{
         print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
       }
@@ -951,18 +951,14 @@ plotPDF <- function(..., name = "Plot", width = 6,
       }
     
     }else if(inherits(plotList[[i]], "gtable")){
-
-      print("plotting gtable!")
       
       print(grid::grid.draw(plotList[[i]]))
       if(i != length(plotList)){
         grid::grid.newpage()
       }
 
-    }else if(inherits(plotList[[i]], "HeatmapList")){
+    }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){
       
-      print("plotting copmleheatmap!")
-
       padding <- 45
       draw(plotList[[i]], 
         padding = unit(c(padding, padding, padding, padding), "mm"), 

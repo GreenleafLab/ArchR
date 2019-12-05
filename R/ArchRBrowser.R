@@ -25,7 +25,7 @@
 #' @param ... additional args
 #' @export
 ArchRRegionTrack <- function(
-  ArchRProj, 
+  ArchRProj = NULL, 
   region = NULL, 
   groupBy = "Clusters",
   useGroups = NULL,
@@ -59,79 +59,90 @@ ArchRRegionTrack <- function(
   if(is.null(region)){
     if(!is.null(geneSymbol)){
       region <- geneAnno$genes
-      region <- region[which(tolower(mcols(region)$symbol) == tolower(geneSymbol))]
+      region <- region[which(tolower(mcols(region)$symbol) %in% tolower(geneSymbol))]
       region <- resize(region, 1, "start")
       strand(region) <- "*"
       region <- extendGRanges(region, upstream = upstream, downstream = downstream)
     }
   }
-  region <- .validGRanges(region)[1]
-  plotList <- list()
+  region <- .validGRanges(region)
 
-  ##########################################################
-  # Bulk Tracks
-  ##########################################################
-  if("bulktrack" %in% tolower(plotSummary)){
-    .messageDiffTime("Adding Bulk Tracks", tstart)
-    plotList$bulktrack <- .bulkTracks(
-      ArchRProj = ArchRProj, 
-      region = region, 
-      tileSize = tileSize, 
-      groupBy = groupBy,
-      threads = threads, 
-      minCells = minCells,
-      ylim = ylim,
-      baseSize = baseSize,
-      borderWidth = borderWidth,
-      tickWidth = tickWidth,
-      facetbaseSize = facetbaseSize,
-      normMethod = normMethod,
-      geneAnno = geneAnno,
-      title = title,
-      useGroups = useGroups,
-      useCoverages = useCoverages,
-      tstart = tstart) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
-  }
-  
-  ##########################################################
-  # Feature Tracks
-  ##########################################################
-  if("featuretrack" %in% tolower(plotSummary)){
-    .messageDiffTime("Adding Feature Tracks", tstart)
-    if(!is.null(features)){
-      plotList$featuretrack <- .featureTracks(
-          features = features, 
-          region = region, 
-          hideX = TRUE, 
-          title = "Peaks") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+  ggList <- lapply(seq_along(region), function(x){
+
+    plotList <- list()
+
+    ##########################################################
+    # Bulk Tracks
+    ##########################################################
+    if("bulktrack" %in% tolower(plotSummary)){
+      .messageDiffTime("Adding Bulk Tracks", tstart)
+      plotList$bulktrack <- .bulkTracks(
+        ArchRProj = ArchRProj, 
+        region = region[x], 
+        tileSize = tileSize, 
+        groupBy = groupBy,
+        threads = threads, 
+        minCells = minCells,
+        ylim = ylim,
+        baseSize = baseSize,
+        borderWidth = borderWidth,
+        tickWidth = tickWidth,
+        facetbaseSize = facetbaseSize,
+        normMethod = normMethod,
+        geneAnno = geneAnno,
+        title = title,
+        useGroups = useGroups,
+        useCoverages = useCoverages,
+        tstart = tstart) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
     }
+    
+    ##########################################################
+    # Feature Tracks
+    ##########################################################
+    if("featuretrack" %in% tolower(plotSummary)){
+      .messageDiffTime("Adding Feature Tracks", tstart)
+      if(!is.null(features)){
+        plotList$featuretrack <- .featureTracks(
+            features = features, 
+            region = region[x], 
+            hideX = TRUE, 
+            title = "Peaks") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+      }
+    }
+
+    ##########################################################
+    # Gene Tracks
+    ##########################################################
+    if("genetrack" %in% tolower(plotSummary)){
+      .messageDiffTime("Adding Gene Tracks", tstart)
+      plotList$genetrack <- .geneTracks(
+        geneAnnotation = geneAnno, 
+        region = region[x], 
+        title = "Genes") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+    }
+
+    ##########################################################
+    # Time to plot
+    ##########################################################
+    plotSummary <- tolower(plotSummary)
+    sizes <- sizes[order(plotSummary)]
+    plotSummary <- plotSummary[order(plotSummary)]
+
+    nullSummary <- unlist(lapply(seq_along(plotSummary), function(x) is.null(eval(parse(text=paste0("plotList$", plotSummary[x]))))))
+    if(any(nullSummary)){
+      sizes <- sizes[-which(nullSummary)]
+    }
+
+    .messageDiffTime("Plotting", tstart)
+    ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE)
+
+  })
+
+  if(length(ggList) == 1){
+    ggList <- ggList[[1]]
   }
 
-  ##########################################################
-  # Gene Tracks
-  ##########################################################
-  if("genetrack" %in% tolower(plotSummary)){
-    .messageDiffTime("Adding Gene Tracks", tstart)
-    plotList$genetrack <- .geneTracks(
-      geneAnnotation = geneAnno, 
-      region = region, 
-      title = "Genes") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
-  }
-
-  ##########################################################
-  # Time to plot
-  ##########################################################
-  plotSummary <- tolower(plotSummary)
-  sizes <- sizes[order(plotSummary)]
-  plotSummary <- plotSummary[order(plotSummary)]
-
-  nullSummary <- unlist(lapply(seq_along(plotSummary), function(x) is.null(eval(parse(text=paste0("plotList$", plotSummary[x]))))))
-  if(any(nullSummary)){
-    sizes <- sizes[-which(nullSummary)]
-  }
-
-  .messageDiffTime("Plotting", tstart)
-  ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE)
+  ggList
 
 }
 
@@ -685,5 +696,4 @@ ArchRRegionTrack <- function(
   return(p)
 
 }
-
 

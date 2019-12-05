@@ -6,7 +6,7 @@
 \usage{
 addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
   dimsToUse = NULL, td = 3, ka = 4, sampleCells = max(5000,
-  floor(nCells(ArchRProj)/10)), k = 15, weighted = TRUE)
+  floor(nCells(ArchRProj)/10)), k = 15, epsilon = 1, weighted = TRUE)
 }
 \arguments{
 \item{input}{ArchRProject or ArrowFiles}

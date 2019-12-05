@@ -4,8 +4,8 @@
 \alias{ArchRRegionTrack}
 \title{Plot ArchR Region Track}
 \usage{
-ArchRRegionTrack(ArchRProj, region = NULL, groupBy = "Clusters",
-  useGroups = NULL, useCoverages = FALSE,
+ArchRRegionTrack(ArchRProj = NULL, region = NULL,
+  groupBy = "Clusters", useGroups = NULL, useCoverages = FALSE,
   plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
   sizes = c(10, 2, 4), features = getPeakSet(ArchRProj),
   geneSymbol = NULL, upstream = 50000, downstream = 50000,

@@ -69,9 +69,9 @@ plotEmbedding <- function(
     colorList <- lapply(seq_along(name), function(x){
       colorParams <- list()
       colorParams$color <- as.vector(getCellColData(ArchRProj)[,name[x]])
-      colorParams$discrete <- .isDiscrete(plotParams$color)
+      colorParams$discrete <- .isDiscrete(colorParams$color)
       colorParams$continuousSet <- "solar_extra"
-      colorParams$discreteSet <- "discreteSet"
+      colorParams$discreteSet <- "stallion"
       colorParams$title <- paste(plotParams$title, " colored by\ncolData : ", name[x])
       if(!is.null(continuousSet)){
         colorParams$continuousSet <- continuousSet

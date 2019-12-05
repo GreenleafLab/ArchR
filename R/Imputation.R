@@ -20,6 +20,7 @@ addImputeWeights <- function(
   ka = 4,
   sampleCells = max(5000, floor(nCells(ArchRProj) / 10)),
   k = 15,
+  epsilon = 1,
   weighted = TRUE
   ){
 
@@ -79,7 +80,7 @@ addImputeWeights <- function(
     rm(knnObj)
 
     if(ka > 0){
-      knnObj$dist <- knnObj$dist / knnObj$dist[,ka]
+      knnDist <- knnDist / knnDist[,ka]
     }
 
     if (weighted) {
@@ -112,7 +113,8 @@ addImputeWeights <- function(
     Wt[,1] <- ix[Wt[,1]]
     Wt[,2] <- ix[Wt[,2]]
 
-    rm(knnObj)
+    rm(knnIdx)
+    rm(knnDist)
     rm(W)
     gc()
 
