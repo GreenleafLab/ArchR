@@ -8,8 +8,8 @@ plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
   colorBy = "colData", name = "Sample", log2Norm = NULL,
   imputeWeights = getImputeWeights(ArchRProj), pal = NULL,
   size = 0.5, rastr = TRUE, quantCut = c(0.025, 0.975),
-  quantHex = 0.5, discreteSet = NULL, continuousSet = NULL,
-  randomize = TRUE, keepAxis = FALSE, baseSize = 6, plotAs = NULL,
+  discreteSet = NULL, continuousSet = NULL, randomize = TRUE,
+  keepAxis = FALSE, baseSize = 6, plotAs = NULL,
   plotParams = list(), ...)
 }
 \arguments{
@@ -31,8 +31,6 @@ plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
 
 \item{quantCut}{quantile cut of continuous features}
 
-\item{quantHex}{quantile evaluation for each hex in geom_hex}
-
 \item{discreteSet}{discrete palette for visualizing embedding}
 
 \item{continuousSet}{continuous palette for visualizing embedding}
@@ -48,6 +46,8 @@ plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
 \item{plotParams}{additional params to pass to ggPoint/ggHex}
 
 \item{...}{additional args}
+
+\item{quantHex}{quantile evaluation for each hex in geom_hex}
 }
 \description{
 This function will plot an embedding that was created from

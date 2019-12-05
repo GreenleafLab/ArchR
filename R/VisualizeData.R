@@ -33,7 +33,6 @@ plotEmbedding <- function(
   size = 0.5,
   rastr = TRUE,
   quantCut = c(0.025, 0.975),
-  quantHex = 0.5,
   discreteSet = NULL,
   continuousSet = NULL,
   randomize = TRUE,
@@ -47,20 +46,6 @@ plotEmbedding <- function(
   .requirePackage("ggplot2")
 
   ##############################
-  # Plot Helpers
-  ##############################
-  .quantileCut <- function (x, lo = 0, hi = 0.975, rm0 = TRUE){
-    q <- quantile(x, probs = c(lo, hi), na.rm = TRUE)
-    x[x < q[1]] <- q[1]
-    x[x > q[2]] <- q[2]
-    return(x)
-  }
-
-  .summarizeHex <- function(x){
-    quantile(x, quantHex)
-  }
-
-  ##############################
   # Get Embedding
   ##############################
   df <- getEmbedding(ArchRProj, embedding = embedding, return = "df")
@@ -70,102 +55,124 @@ plotEmbedding <- function(
   plotParams$y <- df[,2]
   plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,1])
   plotParams$baseSize <- baseSize
-
-  if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
-    
-    plotParams$color <- as.vector(getCellColData(ArchRProj)[,name])
-    plotParams$discrete <- .isDiscrete(plotParams$color)
-    plotParams$continuousSet <- "solar_extra"
-    plotParams$discreteSet <- "stallion"
-    plotParams$title <- paste(plotParams$title, " colored by\ncolData : ", name)
-
-  }else{
-    if (tolower(colorBy) == "genescorematrix"){
-      if(is.null(log2Norm)){
-        log2Norm <- TRUE
-      }
-      plotParams$continuousSet <- "horizon_extra"
-    }else{
-      plotParams$continuousSet <- "solar_extra"
-    }
-
-    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[rownames(df)]
-    plotParams$discrete <- FALSE
-    plotParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name)
-
-    if(is.null(plotAs)){
-      plotAs <- "hexplot"
-    }
-    if(plotAs=="hexplot"){
-      plotParams$fun <- .summarizeHex
-    }
-
-  }
-
+  
   #Additional Params!
   plotParams$xlabel <- gsub("_", " ",stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,2])
   plotParams$ylabel <- gsub("_", " ",stringr::str_split(colnames(df)[2],pattern="#",simplify=TRUE)[,2])
-
-  if(!is.null(continuousSet)){
-    plotParams$continuousSet <- continuousSet
-  }
-  if(!is.null(continuousSet)){
-    plotParams$discreteSet <- discreteSet
-  }
   plotParams$rastr <- rastr
   plotParams$size <- size
   plotParams$randomize <- randomize
-  
-  if(plotParams$discrete){
-    plotParams$color <- paste0(plotParams$color)
-  }
 
-  if(!plotParams$discrete){
 
-    plotParams$color <- .quantileCut(plotParams$color, min(quantCut), max(quantCut))
-
-    if(!is.null(imputeWeights)){
-      imputeWeights <- imputeWeights[rownames(df), rownames(df)]
-      plotParams$color <- (imputeWeights %*% as(as.matrix(plotParams$color), "dgCMatrix"))[,1] 
-    }
-
-    plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
-
-    if(!is.null(pal)){
-
-      plotParams$pal <- pal
+  if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
       
-    }
-
-    if(is.null(plotAs)){
-      plotAs <- "hexplot"
-    }
-
-    if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
-
-      out <- do.call(ggHex, plotParams)
-
-    }else{
-
-      out <- do.call(ggPoint, plotParams)
-
-    }
+    colorList <- lapply(seq_along(name), function(x){
+      colorParams <- list()
+      colorParams$color <- as.vector(getCellColData(ArchRProj)[,name[x]])
+      colorParams$discrete <- .isDiscrete(plotParams$color)
+      colorParams$continuousSet <- "solar_extra"
+      colorParams$discreteSet <- "discreteSet"
+      colorParams$title <- paste(plotParams$title, " colored by\ncolData : ", name[x])
+      if(!is.null(continuousSet)){
+        colorParams$continuousSet <- continuousSet
+      }
+      if(!is.null(continuousSet)){
+        colorParams$discreteSet <- discreteSet
+      }
+      colorParams
+    })
 
   }else{
     
-    if(!is.null(pal)){
-      plotParams$pal <- pal
+    if(is.null(log2Norm)){
+      log2Norm <- TRUE
     }
 
-    out <- do.call(ggPoint, plotParams)
+    colorMat <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[,rownames(df), drop=FALSE]
+
+    colorList <- lapply(seq_len(nrow(colorMat)), function(x){
+      colorParams <- list()
+      colorParams$color <- colorMat[x, ]
+      colorParams$discrete <- FALSE
+      colorParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name[x])
+      if(tolower(colorBy) == "genescorematrix"){
+        colorParams$continuousSet <- "horizon_extra"
+      }else{
+        colorParams$continuousSet <- "solar_extra"
+      }
+      if(!is.null(continuousSet)){
+        colorParams$continuousSet <- continuousSet
+      }
+      if(!is.null(continuousSet)){
+        colorParams$discreteSet <- discreteSet
+      }
+      colorParams
+    })
 
   }
 
-  if(!keepAxis){
-    out <- out + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+  ggList <- lapply(seq_along(colorList), function(x){
+
+    plotParamsx <- .mergeParams(colorList[[x]], plotParams)
+
+    if(plotParamsx$discrete){
+      plotParamsx$color <- paste0(plotParamsx$color)
+    }
+
+    if(!plotParamsx$discrete){
+
+      plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
+
+      if(!is.null(imputeWeights)){
+        imputeWeights <- imputeWeights[rownames(df), rownames(df)]
+        plotParamsx$color <- (imputeWeights %*% as(as.matrix(plotParamsx$color), "dgCMatrix"))[,1] 
+      }
+
+      plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
+
+      if(!is.null(pal)){
+
+        plotParamsx$pal <- pal
+        
+      }
+
+      if(is.null(plotAs)){
+        plotAs <- "hexplot"
+      }
+
+      if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
+
+        gg <- do.call(ggHex, plotParamsx)
+
+      }else{
+
+        gg <- do.call(ggPoint, plotParamsx)
+
+      }
+
+    }else{
+      
+      if(!is.null(pal)){
+        plotParamsx$pal <- pal
+      }
+
+      gg <- do.call(ggPoint, plotParamsx)
+
+    }
+
+    if(!keepAxis){
+      gg <- gg + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+    }
+
+    gg
+
+  })
+
+  if(length(ggList) == 1){
+    ggList <- ggList[[1]]
   }
 
-  out
+  ggList
 
 }
 
@@ -217,7 +224,7 @@ plotGroups <- function(
         log2Norm <- TRUE
       }
     }
-    values <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)
+    values <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
   }
 
   if(!is.null(imputeWeights)){
@@ -248,21 +255,39 @@ plotGroups <- function(
 .getMatrixValues <- function(ArchRProj, name, matrixName, log2Norm = TRUE){
   
   o <- h5closeAll()
+
   featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), matrixName)
-  if(grepl(":",name)){
+
+  if(grepl(":",name[1])){
+
     sname <- stringr::str_split(name,pattern=":",simplify=TRUE)[1,1]
     name <- stringr::str_split(name,pattern=":",simplify=TRUE)[1,2]
-    idx <- intersect(which(tolower(name) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname) == tolower(featureDF$seqnames)))
+
+    idx <- lapply(seq_along(name), function(x){
+      ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))
+      if(length(ix)==0){
+        stop(sprintf("FeatureName does not exist for %s! See availableFeatures", name))
+      }
+      ix
+    }) %>% unlist
+
   }else{
-    idx <- which(tolower(name) == tolower(featureDF$name))[1]
+    
+    idx <- lapply(seq_along(name), function(x){
+      ix <- which(tolower(name[x]) == tolower(featureDF$name))[1]
+      if(length(ix)==0){
+        stop(sprintf("FeatureName does not exist for %s! See availableFeatures", name))
+      }
+      ix
+    }) %>% unlist
+
   }
-  if(length(idx)==0){
-    stop(sprintf("FeatureName does not exist for %s! See availableFeatures", name))
-  }
+
   featureDF <- featureDF[idx, ,drop=FALSE]
 
   #Get Values for FeatureName
   cellNamesList <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
+  
   values <- lapply(seq_along(cellNamesList), function(x){
     o <- h5closeAll()
     ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
@@ -279,16 +304,18 @@ plotGroups <- function(
   gc()
 
   #Values Summary
-  values <- values[1,]
   if(!is.null(log2Norm)){
     if(log2Norm){
       values <- log2(values + 1)
     }
   }
 
+  rownames(values) <- name
+
   return(values)
 
 }
+
 
 #' @export
 .fixPlotSize <- function(
