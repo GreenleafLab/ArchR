@@ -7,7 +7,7 @@
 plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
   name = "TSSEnrichment", imputeWeights = getImputeWeights(ArchRProj),
   log2Norm = NULL, pal = NULL, ylim = NULL, size = 0.5,
-  baseSize = 6, ratioYX = 0.75, points = FALSE, ...)
+  baseSize = 6, ratioYX = 2, points = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}
