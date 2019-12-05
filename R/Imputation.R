@@ -12,7 +12,7 @@
 #' @param parallelParam parallel parameters for batch style execution
 #' @param force force overwriting previous TileMatrix in ArrowFile
 #' @export
-addMagicWeights <- function(
+addImputeWeights <- function(
   ArchRProj = NULL,
   reducedDims = "IterativeLSI", 
   dimsToUse = NULL, 
@@ -29,6 +29,7 @@ addMagicWeights <- function(
   set.seed(1)
 
   tstart <- Sys.time()
+  .messageDiffTime("Computing Impute Weights Using Magic (Cell 2018)", tstart)
 
   #Get Reduced Dims
   if(!is.null(dimsToUse)){
@@ -124,11 +125,9 @@ addMagicWeights <- function(
   rownames(Wt) <- rownames(matDR)
   colnames(Wt) <- rownames(matDR)
 
-  #ArchRProj@imputeWeights <- Wt
+  ArchRProj@imputeWeights <- Wt
   
-  #ArchRProj
-
-  Wt
+  ArchRProj
 
 }
 

@@ -193,17 +193,20 @@ addGeneScoreMatrix <- function(
     #Time to Overlap Gene Windows
     if(useGeneBoundaries){
 
-      extenedGeneStart <- IRanges(
-        start = pmax(
+      s <- pmax(
           c(1, start(geneStarti)[-length(geneStarti)] + tileSize), 
           start(geneStarti) - max(downstream)
-        ),
-        end = pmin(
+        )
+
+      e <- pmin(
           c(start(geneStarti)[-1] - tileSize, start(geneStarti)[length(geneStarti)] + max(upstream)), 
           start(geneStarti) + max(upstream)
         )
-      )
+
+      extenedGeneStart <- IRanges(start = s, end = pmax(s,e)) #handle negative widths!
+
       idx <- which(width(extenedGeneStart) < (min(upstream) + min(downstream)))
+      
       extenedGeneStart[idx] <- ranges(suppressWarnings(extendGRanges(geneStarti[idx], upstream = min(upstream), downstream = min(downstream))))
       
     }else{
