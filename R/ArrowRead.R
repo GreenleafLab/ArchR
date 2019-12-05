@@ -2,16 +2,15 @@
 # Reading fragments from Arrow Files
 ####################################################################
 
-#' Read Fragments from Arrow
+#' Get the fragments from an ArrowFile 
 #' 
-#' This function for each sample will independently compute counts for each feature
-#' per cell in the Arrow File
+#' This function retrieves the fragments from a given ArrowFile as a GRanges object.
 #'
-#' @param ArrowFile ArchRProject or ArrowFiles
-#' @param chr GRanges to count for each cell
-#' @param cellNames matrix output name in ArrowFiles cannot be a protected matrix name
-#' @param method ceiling for the number of counts per feature
-#' @param verbose binarize matrix
+#' @param ArrowFile The ArrowFile object from which fragments should be obtained.
+#' @param chr A name of a chromosome to be used to subset the fragments GRanges object to a specific chromsome if desired.
+#' @param cellNames QQQ matrix output name in ArrowFiles cannot be a protected matrix name
+#' @param method QQQ ceiling for the number of counts per feature
+#' @param verbose A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param ... additional params
 #' @export
 getFragmentsFromArrow <- function(
@@ -141,16 +140,15 @@ getFragmentsFromArrow <- function(
 # Reading Matrices/Arrays from Arrow Files
 ####################################################################
 
-#' Read Fragments from Arrow
+#' Get a data matrix stored in an ArrowFile
 #' 
-#' This function for each sample will independently compute counts for each feature
-#' per cell in the Arrow File
+#' This function gets a given data matrix from an individual ArrowFile.
 #'
-#' @param ArrowFile ArchRProject or ArrowFiles
-#' @param useMatrix matrix name to get from Arrow
-#' @param useSeqnames use a subset of seqnames for matrix
-#' @param cellNames ceiling for the number of counts per feature
-#' @param verbose binarize matrix
+#' @param ArrowFile The ArrowFile object from which the selected data matrix should be obtained.
+#' @param useMatrix QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.
+#' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param cellNames QQQ ceiling for the number of counts per feature
+#' @param verbose A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param ... additional params
 #' @export
 getMatrixFromArrow <- function(

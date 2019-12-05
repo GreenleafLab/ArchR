@@ -1,11 +1,10 @@
-#' Compute Embedding from Reduced Dimensions in ArchR Project
+#' Compute the embedding from a reduced dimensions object in an ArchRProject
 #' 
-#' This function will plot an embedding that was created from
-#' computeEmbedding
+#' This function will compute an embedding for a given ArchRProject.
 #'
-#' @param ArchRProj ArchRProject
-#' @param reducedDims reduced dimensions to use
-#' @param embedding embedding type (umap, tumap, rtsne, fftrtsne)
+#' @param ArchRProj An ArchRProject object.
+#' @param reducedDims QQQ The name of the reducedDims object to use. Possible options include "IterativeLSI", QQQ.
+#' @param embedding QQQ The name of the embedding to create. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".
 #' @param colorBy colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
 #' @param name name of column in cellColData or Feature in Array in Arrows
 #' @param log2Norm log2 Normalize features if they are continuous
@@ -358,21 +357,4 @@ ComputeEmbedding <- function(
   return(Yout)
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

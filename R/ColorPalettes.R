@@ -2,10 +2,12 @@
 #' @export
 ArchR_palettes <- list(
 
-  #Disclosure I have put here palettes that have been implemented in others
-  #I do not claim to have made these rather they look good
-  #Note all palettes in continous should contain discrete but not vice versa
-  #Ordered to be a discrete palette ie colors are ordered to be optimal if selected 2,3,4,5,6 not just left to right...
+  #DISCLOSURE: This is a collection of palettes that includes some original palettes and some palettes originally
+  #implemented by others in other packages.
+  #They are included here for convenience because they help improve plot aesthetics.
+
+  #NOTE: all palettes included in the "Primarily Continuous Palettes" section should also work for discrete usage but not vice versa.
+  #Each continuous palette has been ordered colorimetrically to generate a visually appealing discrete palette.
   
   #---------------------------------------------------------------
   # Primarily Discrete Palettes
@@ -75,13 +77,14 @@ ArchR_palettes <- list(
   
 )
 
-#' Optimized discrete color palette
+#' Optimized discrete color palette generation
 #'
-#' This function assesses the number of inputs and returns a tailored color palette for aesthetics
-#' @param set continuous palette name or number
-#' @param values is a vector containing the sample names used in the plot which will be given a color
-#' @param reverse return reversed values
-#' @param returnStructure return structure palette
+#' This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most posible color contrast from the designated set.
+#'
+#' @param set The name or numeric index of a color palette provided in ArchR_palettes.
+#' @param values A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated pallete set.
+#' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
+#' @param returnStructure QQQ return structure palette
 #' @export
 paletteDiscrete <- function(set = "stallion", values, reverse = FALSE, returnStructure = FALSE, ...){
   
@@ -124,10 +127,10 @@ paletteDiscrete <- function(set = "stallion", values, reverse = FALSE, returnStr
 
 #' Continuous Color Palette
 #'
-#' @param set continuous palette name or number
-#' @param n number for gradient
-#' @param reverse return reversed values
-#' @param returnStructure return structure palette
+#' @param set The name or numeric index of a color palette provided in ArchR_palettes.
+#' @param n The number of unique colors to generate as part of this continuous color palette.
+#' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
+#' @param returnStructure QQQ return structure palette
 #' @export
 paletteContinuous <- function(set = "solar_extra", n = 256, reverse = FALSE, returnStructure = FALSE){
   
