@@ -15,48 +15,48 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
   geneAnno = getGeneAnnotation(ArchRProj), title = "", ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{region}{GRanges region that will be plotted in (if more that one first will be selected)}
+\item{region}{A GRanges region that indicates the region to be plotted. If more than one region exists in the GRanges object, all will be plotted. If no region is supplied, then the "geneSymbol" argument can be used to center the plot window at the transcription start site of the gene passed to "geneSymbol".}
 
-\item{groupBy}{use groupings for bulk/scTrack}
+\item{groupBy}{A string that indicates how samples should be grouped. This string corresponds to one of the standard or user-supplied metadata columns (for example, "Clusters"). Samples with the same value annotated in this metadata column will be grouped together and the average signal will be used.}
 
-\item{useGroups}{select a subset of groups for plotting}
+\item{useGroups}{A boolean value that indicates whether samples should be grouped together to produce average tracks. Only TRUE/FALSE are accepted.}
 
-\item{useCoverages}{use group coverages for track plotting}
+\item{useCoverages}{QQQ use group coverages for track plotting}
 
-\item{plotSummary}{summary of region track to be plotted}
+\item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak bed regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).}
 
-\item{sizes}{sizes corresponding to plotSummary}
+\item{sizes}{A numeric vector containing 3 values that indicate the sizes of the individual components passed in plotSummary. The order must be the same as plotSummary.}
 
-\item{features}{GRanges features to be plotted (ie getPeakSet(ArchRProj))}
+\item{features}{A GRanges object containing the "features" to be plotted (This should be thought of as a bed track. i.e. the set of peaks obtained using getPeakSet(ArchRProj)).}
 
-\item{geneSymbol}{if region is null plotting can be centered at gene start site corresponding to the gene symbol}
+\item{geneSymbol}{If "region" is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
 
-\item{upstream}{bp upstream of geneStart to extend}
+\item{upstream}{The number of basepairs upstream of the transcription start site of "geneSymbol" to extend the plotting window. If "region" is supplied, this argument is ignored.}
 
-\item{downstream}{bp downstream of geneStart to extend}
+\item{downstream}{The number of basepairs downstream of the transcription start site of "geneSymbol" to extend the plotting window. If "region" is supplied, this argument is ignored.}
 
-\item{tileSize}{with of tiles to plot bulk/scTrack}
+\item{tileSize}{The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.}
 
-\item{normMethod}{normMethod normalization column in cellColData to normalize bulkTrack}
+\item{normMethod}{The name of the column in cellColData object by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
 
-\item{threads}{number of threads for parallel execution}
+\item{threads}{The number of threads to use for parallel execution.}
 
-\item{ylim}{y-limits for bulkTrack}
+\item{ylim}{QQQ The numeric y-axis limit to be used for for bulkTrack plotting. If not provided, the y-axis limit will be QQQ.}
 
-\item{baseSize}{size of font in plot}
+\item{baseSize}{QQQ The numeric font size to be used in the plot. This applies to all plot labels.}
 
-\item{borderWidth}{border width in plot}
+\item{borderWidth}{The numeric line width to be used for plot borders.}
 
-\item{tickWidth}{axis tick width in plot}
+\item{tickWidth}{The numeric line width to be used for axis tick marks.}
 
-\item{geneAnno}{geneAnnotation for geneTrack}
+\item{geneAnno}{QQQ The geneAnnotation objection to be used for plotting the "geneTrack" object. This must be a TxDB object.}
 
 \item{title}{verbose sections}
 
 \item{...}{additional args}
 }
 \description{
-This function will plot the coverage at an input region
+This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.
 }

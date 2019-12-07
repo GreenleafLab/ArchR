@@ -34,6 +34,7 @@ createArrowFiles <- function(
   inputFiles = NULL, 
   sampleNames = NULL, 
   outputNames = paste0("./", sampleNames),
+  validBaroces = NULL,
   geneAnno = NULL,
   genomeAnno = NULL,
   filterFrags = 1000,

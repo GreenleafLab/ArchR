@@ -6,7 +6,8 @@
 \usage{
 addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
   embedding = "UMAP", embeddingOut = NULL, saveModel = TRUE,
-  seed = 1, force = FALSE, embeddingParams = list(), ...)
+  seed = 1, force = FALSE, threads = floor(detectCores()/2),
+  embeddingParams = list(), ...)
 }
 \arguments{
 \item{ArchRProj}{ArchRProject}

@@ -136,7 +136,7 @@ addSampleColData <- function(ArchRProj, data = NULL, name = NULL, samples = rown
     if(force){
       message("Overriding previous entry for ", name)
     }else{
-      message(paste0("Error previous entry for ", name, ", Set force = TRUE to override!"))
+      stop(paste0("Error previous entry for ", name, ", Set force = TRUE to override!"))
     }
   }
   ArchRProj@sampleColData[,name] <- NA
@@ -227,7 +227,7 @@ addCellColData <- function(ArchRProj, data = NULL, name = NULL, cells = getCellN
     if(force){
       message("Overriding previous entry for ", name)
     }else{
-      message(paste0("Error previous entry for ", name, ", Set force = TRUE to override!"))
+      stop(paste0("Error previous entry for ", name, ", Set force = TRUE to override!"))
     }
   }
 
@@ -1074,6 +1074,27 @@ getInputFiles <- function(paths){
   v
 
 }
+
+#' @export
+getValidBarcodes <- function(csvFiles, sampleNames){
+
+  if(!all(file.exists(csvFiles))){
+    stop("Not All csvFiles exists!")
+  }
+
+  barcodeList <- lapply(seq_along(csvFiles), function(x){
+    df <- .suppressAll(data.frame(readr::read_csv(csvFiles[x])))
+    if("cell_id" %ni% colnames(df)){
+      stop("cell_id not in colnames of 10x singlecell.csv file! Are you sure inut is correct?")
+    }
+    as.character(df[which(paste0(df$cell_id) != "None"),]$barcode)
+  }) %>% SimpleList
+  names(barcodeList) <- sampleNames
+
+  barcodeList
+
+}
+
 
 
 

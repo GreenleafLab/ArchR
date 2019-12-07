@@ -4,7 +4,6 @@ NULL
 
 setClassUnion("characterOrNull", c("character", "NULL"))
 setClassUnion("GRangesOrNull", c("GRanges", "NULL"))
-setClassUnion("matrixOrNull",members = c("dgCMatrix","NULL"))
 
 setClass("ArchRProject", 
   representation(
@@ -20,7 +19,7 @@ setClass("ArchRProject",
     annotations = "SimpleList", #MotifMatches ETC go here
     geneAnnotation = "SimpleList", #genes exons TSS
     genomeAnnotation = "SimpleList", #genome chromSizes BSgenome blacklist
-    imputeWeights = "matrixOrNull"
+    imputeWeights = "SimpleList"
   )
 )
 

@@ -52,13 +52,13 @@ addImputeWeights <- function(
   }) %>% unlist
   binSize <- min(cutoffs[order(abs(cutoffs - sampleCells))[1]] + 1, N)
 
-  groups <- split(idx, ceiling(seq_along(idx)/binSize))
+  blocks <- split(idx, ceiling(seq_along(idx)/binSize))
 
-  Wt <- lapply(seq_along(groups), function(x){
+  Wt <- lapply(seq_along(blocks), function(x){
 
-    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", x, length(groups)), tstart)
+    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", x, length(blocks)), tstart)
 
-    ix <- groups[[x]]
+    ix <- blocks[[x]]
     Nx <- length(ix)
 
     #Compute KNN
@@ -127,9 +127,11 @@ addImputeWeights <- function(
   rownames(Wt) <- rownames(matDR)
   colnames(Wt) <- rownames(matDR)
 
-  ArchRProj@imputeWeights <- Wt
+  ArchRProj@imputeWeights <- SimpleList(Weights = Wt, Blocks = Blocks, Params = list(td = td, k = k, weighted = weighted))
   
   ArchRProj
+
+
 
 }
 

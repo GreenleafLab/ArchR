@@ -5,9 +5,9 @@
 \title{Create Arrow Files}
 \usage{
 createArrowFiles(inputFiles = NULL, sampleNames = NULL,
-  outputNames = paste0("./", sampleNames), geneAnno = NULL,
-  genomeAnno = NULL, filterFrags = 1000, filterTSS = 4,
-  removeFilteredCells = TRUE, minFrags = 500,
+  outputNames = paste0("./", sampleNames), validBaroces = NULL,
+  geneAnno = NULL, genomeAnno = NULL, filterFrags = 1000,
+  filterTSS = 4, removeFilteredCells = TRUE, minFrags = 500,
   outDir = "QualityControl", nucLength = 147, TSSParams = list(),
   excludeChr = c("chrM", "chrY"), nChunk = 5, bcTag = "qname",
   gsubExpression = NULL, bamFlag = NULL, offsetPlus = 4,

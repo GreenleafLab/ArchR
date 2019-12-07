@@ -169,7 +169,8 @@ addIterativeLSI <- function(
     groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
     groupMat <- .getGroupMatrix(
       ArrowFiles = ArrowFiles, 
-      featureDF = groupFeatures, 
+      featureDF = groupFeatures,
+      useMatrix = useMatrix, 
       threads = threads,
       groupList = SimpleList(split(rownames(outLSI$matSVD), clusters)),
       useIndex = FALSE,
@@ -207,6 +208,7 @@ addIterativeLSI <- function(
     outLSI <- .LSIPartialMatrix(
       ArrowFiles = ArrowFiles, 
       featureDF = variableFeatures,
+      useMatrix = useMatrix,
       cellNames = cellNames, 
       sampleNames = getCellColData(ArchRProj)$Sample,  
       dimsToUse = dimsToUse, 
@@ -268,6 +270,7 @@ addIterativeLSI <- function(
 .LSIPartialMatrix <- function(
   ArrowFiles, 
   featureDF, 
+  useMatrix,
   cellNames, 
   sampleNames, 
   dimsToUse, 
@@ -293,6 +296,7 @@ addIterativeLSI <- function(
     mat <- .getPartialMatrix(
       ArrowFiles = ArrowFiles,
       featureDF = featureDF,
+      useMatrix = useMatrix,
       cellNames = cellNames,
       doSampleCells = FALSE,
       threads = threads,
@@ -320,6 +324,7 @@ addIterativeLSI <- function(
     out <- .getPartialMatrix(
         ArrowFiles = ArrowFiles,
         featureDF = featureDF,
+        useMatrix = useMatrix,
         cellNames = cellNames,
         doSampleCells = TRUE,
         sampledCellNames = sampledCellNames,
