@@ -1,4 +1,7 @@
 #' Extend Filter then Normalize Scores for Summits
+#'
+#'
+#'
 #' @param df dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files
 #' @param genome mm9, hg19 character or BSgenome object
 #' @param blacklist regions to blacklist

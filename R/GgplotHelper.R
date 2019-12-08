@@ -1,19 +1,36 @@
-#' GG Plot One to One Heatscatter
+#' A ggPlot-based dot plot
 #'
-#' @param x x
-#' @param y y
-#' @param size geom_point size
-#' @param alpha geom_point alpha
-#' @param xlabel xlabel
-#' @param ylabel ylabel
-#' @param title ggtitle
-#' @param min xmin quantile [0,1]
-#' @param max xmax quantile [0,1]
-#' @param plot_n number of points to plot
-#' @param kernel_n n for MASS::kde2d default = 100
-#' @param plot_n number of points to plot
-#' @param baseSize base_font size
-#' @param pal continuous color palette to use
+#' This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.
+#'
+#' @param x A numeric vector containing the x-axis values for each point.
+#' @param y A numeric vector containing the y-axis values for each point.
+#' @param color QQQ
+#' @param discrete QQQ A boolean value indicating QQQ
+#' @param discreteSet QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.
+#' @param labelMeans QQQ A boolean value indicating QQQ
+#' @param continuousSet QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.
+#' @param pal QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.
+#' @param colorDensity QQQ A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, QQQ is used as the color palette.
+#' @param size The numeric size of the points to be plotted.
+#' @param xlim A set of numeric values indicating the lower and upper bounds of the x-axis on the plot.
+#' @param ylim A set of numeric values indicating the lower and upper bounds of the y-axis on the plot.
+#' @param extend QQQ
+#' @param xlabel The label to plot for the x-axis.
+#' @param randomize A boolean value indicating whether to randomize the order of the points when plotting.
+#' @param seed A numeric seed number for use in randomization.
+#' @param ylabel The label to plot for the y-axis.
+#' @param title The title of the plot.
+#' @param alpha A number indicating the transparency to use for each point. See ggplot2 for more details.
+#' @param baseSize QQQ The size in inches of the plot.
+#' @param ratioYX The aspect ratio of the x and y axes on the plot.
+#' @param labelType QQQ A string indicating how to label the points on the plot. Options include "ggrepel", QQQ
+#' @param bgColor The background color of the plot.
+#' @param fgColor The foreground color of the plot.
+#' @param labelSize The numeric font size of labels.
+#' @param addFit QQQ A string indicating if a fit/regression line should be included in the plot and what method to use for this fit. Options include QQQ.
+#' @param nullColor The color to be used for points that correspond to null values in either the x or y vectors.
+#' @param rastr A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param dpi The resolution to use for the plot.
 #' @export
 ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion", 
     labelMeans = FALSE, continuousSet = "solar_extra", pal = NULL, colorDensity = FALSE,
@@ -163,19 +180,21 @@ ggPoint <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion
     return(p)
 }
 
-#' GG Plot One to One Heatscatter
+#' A ggplot-based one-to-one dot plot
 #'
-#' @param x x
-#' @param y y
-#' @param size geom_point size
-#' @param alpha geom_point alpha
-#' @param xlabel xlabel
-#' @param ylabel ylabel
-#' @param title ggtitle
+#' This function is a wrapper around ggplot geom_point to allow for plotting one-to-one sample comparisons in ArchR.
+#'
+#' @param x A numeric vector containing the x-axis values for each point.
+#' @param y A numeric vector containing the y-axis values for each point.
+#' @param nPlot The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.
+#' @param nKernel The value of n to use the kde2d from the MASS package.
+#' @param size The numeric size of the points to plot.
+#' @param xlabel The label to plot for the x-axis.
+#' @param ylabel The label to plot for the y-axis.
+#' @param title The title of the plot.
 #' @param min xmin quantile [0,1]
 #' @param max xmax quantile [0,1]
-#' @param nPlot number of points to plot
-#' @param nKernel n for MASS::kde2d default = 100
+#' @param alpha geom_point alpha
 #' @param baseSize base_font size default is 12
 #' @param pal continuous color palette to use
 #' @export

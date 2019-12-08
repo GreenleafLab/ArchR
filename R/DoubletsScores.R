@@ -1,22 +1,22 @@
-#' Add Doublet Scores to Arrows/ArchRProject
+#' Add Doublet Scores to a collection of Arrow files or an ArchRProject
 #' 
-#' This function for each sample will independently assign inferred doublet information
-#' to each cell for removing strong heterotropic doublet based clusters downstream.
+#' For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
+#' to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
+#' contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell. 
 #'
-#' @param input ArchRProject or ArrowFiles
-#' @param useMatrix matrix name for performing analyses
-#' @param k number of cells nearby a simulated doublet to consider
-#' @param nTrials number of trials to simulate doublets in thousands
-#' @param knnMethod dimension reduction to use for KNN (UMAP or SVD)
-#' @param UMAPParams list of parameters to pass to uwot::umap
-#' @param LSIParams list of parameters to pass to IterativeLSI
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param outDir directory to plot and store results from analyses
-#' @param threads number of therads for parallel execution
-#' @param parallelParam parallel parameters for batch style execution
-#' @param verboseHeader verbose sections
-#' @param verboseAll verbose sections and subsections
+#' @param input An ArchRProject object or a set of ArrowFiles.
+#' @param useMatrix The name of the matrix to be used for performing doublet identification analyses.
+#' @param k The number of cells neighboring a simulated doublet to be considered as putative doublets.
+#' @param nTrials The number of trials (in the thousands) to simulate doublets when calculating doublet scores. A value of 100 would utilize 100,000 trials.
+#' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".
+#' @param UMAPParams The list of parameters to pass to the UMAP function. See the function umap in the uwot package.
+#' @param LSIParams The list of parameters to pass to the IterativeLSI. See IterativeLSI.
+#' @param useClusters QQQ A boolean value that determins QQQ
+#' @param outDir The name or path for the output directory for writing information on doublet identification,
+#' @param threads The number threads to be used for parallel computing.
+#' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
 #' @export
 addDoubletScores <- function(
@@ -462,12 +462,12 @@ addDoubletScores <- function(
 
 #' Add Demuxlet Results to ArchR Project
 #' 
-#' This function will read in .best file output from demuxlet and add the
+#' This function will read in the .best file output from demuxlet and add the doublet
 #' classifications into the cellColData for the ArchR Project
 #' 
-#' @param ArchRProj ArchR Project
-#' @param bestFiles paths to best files
-#' @param sampleNames sampleNames corresponding to best files (match those in ArchRProj)
+#' @param ArchRProj An ArchRProject object.
+#' @param bestFiles The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the ArchRProject.
+#' @param sampleNames The sample names corresponding to the .best files. These must match the sample names present in the ArchRProject.
 #' @export
 addDemuxletResults <- function(ArchRProj, bestFiles, sampleNames){
   
