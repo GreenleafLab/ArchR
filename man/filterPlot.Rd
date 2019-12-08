@@ -2,23 +2,19 @@
 % Please edit documentation in R/FilterCells.R
 \name{filterPlot}
 \alias{filterPlot}
-\title{Extend Filter then Normalize Scores for Summits}
+\title{Filter Plot for cells in an ArchRProject}
 \usage{
 filterPlot(ArchRProj, filterList, sampleNames = NULL, ...)
 }
 \arguments{
-\item{df}{dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files}
+\item{ArchRProj}{an ArchR Project object}
 
-\item{genome}{mm9, hg19 character or BSgenome object}
+\item{filterList}{list of filters for filtering cells from cellColData (up to 2 will be plotted)}
 
-\item{blacklist}{regions to blacklist}
+\item{sampleNames}{specific samples to include}
 
-\item{extend}{how to extend summits (summit +- extend)}
-
-\item{scorePerMillion}{normalized Score-per-million minimum to keep}
-
-\item{selectionRules}{string with a formula containing n (majority = (n+1)/2, multiple samples = 2)}
+\item{...}{additional params}
 }
 \description{
-Extend Filter then Normalize Scores for Summits
+This function plots a list of filters to see which cells would pass filter.
 }

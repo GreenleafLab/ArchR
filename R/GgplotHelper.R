@@ -1,39 +1,36 @@
-#' Ggplot Points in a standardized manner
+#' A ggplot-based dot plot
 #'
-#' This function will plot x,y coordinates in a standardized manner
+#' This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.
 #'
-#' @param x x vector of data to be plot
-#' @param y y vector of data to be plot
-#' @param color color vector of data to be plot (must be same length as x,y)
-#' @param discrete discrete is color discrete?
-#' @param discreteSet default color ArchRPalettes for discrete colors
-#' @param continuousSet default color ArchRPalettes for continuous colors
-#' @param pal custom palette option
-#' @param defaultColor default color 
-#' @param colorDensity color x,y coordinates by relative density
-#' @param size size of points
-#' @param xlim xlimits for plot
-#' @param ylim ylimits for plot
-#' @param extend extend limits by this proportion if not set by xlim or ylim
-#' @param xlabel label for x-axis
-#' @param ylabel label for y-axis
-#' @param title title of plot
-#' @param randomize randomize x,y plotting order
-#' @param seed seed for randomizing points
-#' @param colorTitle title for legend corresponding to color
-#' @param colorOrder order of colors for plotting/palettes
-#' @param alpha alpha transperancy for points
-#' @param baseSize baseSize for fonts
-#' @param labelMeans label group means by color
-#' @param labelType label type to add (ggrepel or shadowtext)
-#' @param fgColor foreground color of labels
-#' @param bgColor background color of labels
-#' @param labelSize label size to be created
-#' @param addFit add an x,y fit line using geom_smooth
-#' @param ratioYX ratio of y to x in plot
-#' @param rastr rastr points
-#' @param dpi rastr resolution
-#' @param ... additional params to pass
+#' @param x A numeric vector containing the x-axis values for each point.
+#' @param y A numeric vector containing the y-axis values for each point.
+#' @param color QQQ
+#' @param discrete QQQ A boolean value indicating QQQ
+#' @param discreteSet QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.
+#' @param labelMeans QQQ A boolean value indicating QQQ
+#' @param continuousSet QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.
+#' @param pal QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.
+#' @param colorDensity QQQ A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, QQQ is used as the color palette.
+#' @param size The numeric size of the points to be plotted.
+#' @param xlim A set of numeric values indicating the lower and upper bounds of the x-axis on the plot.
+#' @param ylim A set of numeric values indicating the lower and upper bounds of the y-axis on the plot.
+#' @param extend QQQ
+#' @param xlabel The label to plot for the x-axis.
+#' @param randomize A boolean value indicating whether to randomize the order of the points when plotting.
+#' @param seed A numeric seed number for use in randomization.
+#' @param ylabel The label to plot for the y-axis.
+#' @param title The title of the plot.
+#' @param alpha A number indicating the transparency to use for each point. See ggplot2 for more details.
+#' @param baseSize QQQ The size in inches of the plot.
+#' @param ratioYX The aspect ratio of the x and y axes on the plot.
+#' @param labelType QQQ A string indicating how to label the points on the plot. Options include "ggrepel", QQQ
+#' @param bgColor The background color of the plot.
+#' @param fgColor The foreground color of the plot.
+#' @param labelSize The numeric font size of labels.
+#' @param addFit QQQ A string indicating if a fit/regression line should be included in the plot and what method to use for this fit. Options include QQQ.
+#' @param nullColor The color to be used for points that correspond to null values in either the x or y vectors.
+#' @param rastr A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param dpi The resolution to use for the plot.
 #' @export
 ggPoint <- function(
     x = NULL, 
@@ -250,21 +247,23 @@ ggPoint <- function(
 
 }
 
-#' GG Plot One to One Heatscatter
+#' A ggplot-based one-to-one dot plot
 #'
-#' @param x x vector of data to be plot
-#' @param y y vector of data to be plot
-#' @param size plot point size
-#' @param alpha alpha transperancy of points
-#' @param xlabel xlabel
-#' @param ylabel ylabel
-#' @param title ggtitle
-#' @param min x/y min quantile [0,1]
-#' @param max x/y max quantile [0,1]
-#' @param nPlot number of points to plot (correlations computed prior)
-#' @param nKernel n for MASS::kde2d default = 100
-#' @param baseSize base size of fonts in plot
-#' @param pal color palette to use for density
+#' This function is a wrapper around ggplot geom_point to allow for plotting one-to-one sample comparisons in ArchR.
+#'
+#' @param x A numeric vector containing the x-axis values for each point.
+#' @param y A numeric vector containing the y-axis values for each point.
+#' @param nPlot The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.
+#' @param nKernel The value of n to use the kde2d from the MASS package.
+#' @param size The numeric size of the points to plot.
+#' @param xlabel The label to plot for the x-axis.
+#' @param ylabel The label to plot for the y-axis.
+#' @param title The title of the plot.
+#' @param min xmin quantile [0,1]
+#' @param max xmax quantile [0,1]
+#' @param alpha geom_point alpha
+#' @param baseSize base_font size default is 12
+#' @param pal continuous color palette to use
 #' @export
 #'
 ggOneToOne <- function (
@@ -682,104 +681,5 @@ theme_ArchR <- function(
   return(theme)
 
 }
-
-
-
-
-
-# #' GG Plot One to One Heatscatter
-# #'
-# #' @param x x
-# #' @param y y
-# #' @param size geom_point size
-# #' @param alpha geom_point alpha
-# #' @param xlabel xlabel
-# #' @param ylabel ylabel
-# #' @param title ggtitle
-# #' @param min xmin quantile [0,1]
-# #' @param max xmax quantile [0,1]
-# #' @param plot_n number of points to plot
-# #' @param kernel_n n for MASS::kde2d default = 100
-# #' @param plot_n number of points to plot
-# #' @param baseSize base_font size
-# #' @param pal continuous color palette to use
-# #' @export
-# ggLine <- function(x, y, color = NULL, discrete = TRUE, discreteSet = "stallion", 
-#     continuousSet = "solar_extra", pal = NULL, size = 1, xlim = NULL, ylim = NULL, 
-#     extend = 0.05, xlabel = "x", ylabel = "y", title = "", 
-#     alpha = 1, baseSize = 6, ratioYX = 1, 
-#     nullColor = "lightGrey"){
-    
-#     stopifnot(is.numeric(x))
-#     stopifnot(is.numeric(y))
-#     stopifnot(length(y)==length(x))
-
-#     df <- data.frame(x = x, y = y)
-#     include <- which(is.finite(x) & is.finite(y))
-#     if(length(include) != length(x)){
-#       message("Some values are not finite! Excluding these points!")
-#       df <- df[include,]
-#       x <- x[include]
-#       y <- y[include]
-#       if(!is.null(color)){
-#         color <- color[include]
-#       }
-#     }
-#     if (is.null(xlim)) {
-#         xlim <- range(df$x) %>% extendrange(f = extend)
-#     }
-#     if (is.null(ylim)) {
-#         ylim <- range(df$y) %>% extendrange(f = extend)
-#     }
-#     ratioXY <- ratioYX * diff(xlim)/diff(ylim)
-
-#     #Plot
-#     library(ggplot2)
-
-#     if (is.null(color)) {
-
-#       p <- ggplot(df, aes(x = x, y = y)) + coord_equal(ratio = ratioXY, xlim = xlim, 
-#               ylim = ylim, expand = F) + xlab(xlabel) + ylab(ylabel) + 
-#               ggtitle(title) + theme_ArchR(baseSize = baseSize)
-
-#       p <- p + geom_line(size = size, alpha = alpha, color = nullColor)
-        
-#     }else {
-
-#         if(discrete){
-#           stopifnot(length(color) == nrow(df))
-#             df$color <- factor(color, levels = sort(unique(color)))
-#         }else {
-#           stopifnot(length(color) == nrow(df))
-#             df$color <- color
-#         }
-#         p <- ggplot(df, aes(x = x, y = y, color = color)) +  
-#             coord_equal(ratio = ratioXY, xlim = xlim, 
-#             ylim = ylim, expand = F) + xlab(xlabel) + ylab(ylabel) + 
-#             ggtitle(title) + theme_ArchR(baseSize = baseSize) +
-#             theme(legend.direction="horizontal" , legend.box.background = element_rect(color = NA))
-
-#         p <- p + geom_line(size = size, alpha = alpha)
-
-#         if (discrete) {
-#             if (!is.null(pal)) {
-#                 p <- p + scale_color_manual(values = pal)
-#             }else {
-#                 p <- p + scale_color_manual(values = paletteDiscrete(set = discreteSet, 
-#                   values = sort(unique(color))))
-#             }
-
-#         }else {
-#             if (!is.null(pal)) {
-#                 p <- p + scale_colour_gradientn(colors = pal)
-#             }else {
-#                 p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet))
-#             }
-#         }
-#     }
-
-#     return(p)
-# }
-
 
 

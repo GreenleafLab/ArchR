@@ -1,0 +1,38 @@
+template:
+  params:
+    bootswatch: yeti
+
+authors:
+  Jeffrey Granja:
+    href: https://twitter.com/JeffreyGranja
+
+navbar:
+  left:
+  - text: Get Started
+    href: articles/ArchR.html
+  - text: Vignettes
+    menu:
+      - text: Doublet Removal
+        href: articles/Articles/doubletRemoval.html
+      - text: QC Filters
+        href: articles/Articles/qcFilters.html
+      - text: Peak Calling
+        href: articles/Articles/peakCalling.html
+      - text: Dimensionality Reduction
+        href: articles/Articles/dimReduction.html
+      - text: Gene Scores and Marker Genes
+        href: articles/Articles/geneScores.html
+      - text: Signal Track Ploting
+        href: articles/Articles/signalTracks.html
+      - text: TF Footprinting
+        href: articles/Articles/footprinting.html
+      - text: Gene and Genome Annotation
+        href: articles/Articles/annotations.html
+  - text: FAQ
+    href: articles/faq.html
+  - text: Reference
+    href: reference/index.html
+  right:
+  - text: ArchR on GitHub
+    icon: fa-github
+    href: https://github.com/GreenleafLab/ArchR

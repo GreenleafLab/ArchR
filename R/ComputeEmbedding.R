@@ -1,28 +1,27 @@
-#' Compute Embedding from Reduced Dimensions in ArchR Project
+#' Add embedding of a reduced dimensions object in an ArchRProject
 #' 
-#' This function will plot an embedding that was created from
-#' computeEmbedding
+#' This function will compute an embedding and add to an ArchRProject.
 #'
-#' @param ArchRProj ArchRProject
-#' @param reducedDims reduced dimensions to use
-#' @param embedding embedding type (umap, tumap, rtsne, fftrtsne)
-#' @param colorBy colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
-#' @param name name of column in cellColData or Feature in Array in Arrows
-#' @param log2Norm log2 Normalize features if they are continuous
-#' @param pal custom palette to use for plotting
-#' @param size size of points in plot
-#' @param rastr rastr points in plot
-#' @param quantCut quantile cut of continuous features
-#' @param quantHex quantile evaluation for each hex in geom_hex
-#' @param discreteSet discrete palette for visualizing embedding
-#' @param continuousSet continuous palette for visualizing embedding
-#' @param randomize randomize points prior to plotting
-#' @param keepAxis keep x and y axis for plot
-#' @param baseSize base size for text in plot
-#' @param plotContinuous how to plot continuous features (points and hex)
-#' @param plotParams additional params to pass to ggPoint/ggHex
-#' @param plotWidth plot width used for creating a consistent plot independent of legend size
-#' @param plotHeight plot height used for creating a consistent plot independent of legend size
+#' @param ArchRProj An ArchRProject object.
+#' @param reducedDims QQQ The name of the reducedDims object to use. Possible options include "IterativeLSI", QQQ.
+#' @param embedding QQQ The name of the embedding to create. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".
+#' @param colorBy QQQ colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
+#' @param name QQQ name of column in cellColData or Feature in Array in Arrows
+#' @param log2Norm A boolean value that indicates whether log2 Normalization should be performed on the features if they are continuous.
+#' @param pal The name or numeric index of a custom palette from ArchR_palettes to use for plotting the individual points of the embedding visualization.
+#' @param size The numeric size of points to plot.
+#' @param rastr A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
+#' @param quantHex QQQ quantile evaluation for each hex in geom_hex
+#' @param discreteSet QQQ The name or numeric index of a discrete palette from ArchR_palettesdiscrete to use for plotting QQQ.
+#' @param continuousSet QQQcontinuous palette for visualizing embedding
+#' @param randomize A boolean value that determines whether to randomly order the plotting of points to avoid (for ex.) all points from a single cluster being plotted as the top-most layer of the plot.
+#' @param keepAxis QQQ keep x and y axis for plot
+#' @param baseSize QQQ The numeric font size to be used in the plot. This applies to all plot labels.
+#' @param plotContinuous QQQ how to plot continuous features (points and hex)
+#' @param plotParams QQQ additional params to pass to ggPoint/ggHex
+#' @param plotWidth QQQ plot width used for creating a consistent plot independent of legend size
+#' @param plotHeight QQQ plot height used for creating a consistent plot independent of legend size
 #' @param ... additional args
 #' @export
 addEmbedding <- function(

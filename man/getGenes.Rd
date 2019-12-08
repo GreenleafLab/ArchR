@@ -2,17 +2,17 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getGenes}
 \alias{getGenes}
-\title{Get Genes from ArchRProject}
+\title{Get the genes from an ArchRProject}
 \usage{
 getGenes(ArchRProj, symbols = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{symbols}{gene symbols to subset}
 
 \item{...}{additional args}
 }
 \description{
-This function gets genes from geneAnnotation in ArchRProject
+This function gets the genes (in format QQQ) from the geneAnnotation of a given ArchRProject.
 }

@@ -2,15 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getTSS}
 \alias{getTSS}
-\title{Get TSS from ArchRProject}
+\title{Get the transcription start sites of all genes in an ArchRProject}
 \usage{
 getTSS(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets TSS from geneAnnotation in ArchRProject
+This function gets the transcription start sites (TSSs) as a GRanges object of all genes from the geneAnnotation of a given ArchRProject.
 }

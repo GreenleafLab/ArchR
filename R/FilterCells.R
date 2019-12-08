@@ -1,12 +1,12 @@
-#' Extend Filter then Normalize Scores for Summits
-#' @param df dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files
-#' @param genome mm9, hg19 character or BSgenome object
-#' @param blacklist regions to blacklist
-#' @param extend how to extend summits (summit +- extend)
-#' @param scorePerMillion normalized Score-per-million minimum to keep
-#' @param selectionRules string with a formula containing n (majority = (n+1)/2, multiple samples = 2)
+#' Filter cells in an ArchRProject
+#' 
+#' This function plots a list of filters to see which cells would pass filter.
+#' 
+#' @param ArchRProj an ArchR Project object
+#' @param filterList list of filters for filtering cells from cellColData
+#' @param ... additional params
 #' @export
-filterCells <- function(ArchRProj, filterList){
+filterCells <- function(ArchRProj, filterList, ...){
   
   ccd <- getCellColData(ArchRProj)
 
@@ -74,13 +74,14 @@ filterCells <- function(ArchRProj, filterList){
   
 }
 
-#' Extend Filter then Normalize Scores for Summits
-#' @param df dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files
-#' @param genome mm9, hg19 character or BSgenome object
-#' @param blacklist regions to blacklist
-#' @param extend how to extend summits (summit +- extend)
-#' @param scorePerMillion normalized Score-per-million minimum to keep
-#' @param selectionRules string with a formula containing n (majority = (n+1)/2, multiple samples = 2)
+#' Filter Plot for cells in an ArchRProject
+#' 
+#' This function plots a list of filters to see which cells would pass filter.
+#' 
+#' @param ArchRProj an ArchR Project object
+#' @param filterList list of filters for filtering cells from cellColData (up to 2 will be plotted)
+#' @param sampleNames specific samples to include
+#' @param ... additional params
 #' @export
 filterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
 
@@ -133,15 +134,17 @@ filterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
 }
 
 
-#' Extend Filter then Normalize Scores for Summits
-#' @param df dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files
-#' @param genome mm9, hg19 character or BSgenome object
-#' @param blacklist regions to blacklist
-#' @param extend how to extend summits (summit +- extend)
-#' @param scorePerMillion normalized Score-per-million minimum to keep
-#' @param selectionRules string with a formula containing n (majority = (n+1)/2, multiple samples = 2)
+#' Filter Doublets From an ArchR Project
+#'
+#' This function wil filter doublets from an ArchRProject after addDoubletScores has been ran
+#'
+#' @param ArchRProj an ArchR Project object
+#' @param cutEnrich minimum cutoff for doubletEnrichment which represents number of simulated doublets nearest a cell over the expected if uniform.
+#' @param cutScore minimum cutoff for doubletScore which represents -log10 binomial adjusted p-value.
+#' @param filterRatio filter ratio for max number of inferred doublets to remove based on the number of cells PF. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (1000 * 100).
+#' @param ... additional params
 #' @export
-filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, fs = 1){
+filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1, ...){
 
 
   df <- getCellColData(ArchRProj, c("Sample", "DoubletEnrichment", "DoubletScore"))
@@ -165,7 +168,7 @@ filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, fs = 1){
 
     if(nrow(x) > 0){
 
-      head(rownames(x), fs * n * (n / 100000))
+      head(rownames(x), filterRatio * n * (n / 100000))
 
     }else{
       NULL

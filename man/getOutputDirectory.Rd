@@ -2,15 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getOutputDirectory}
 \alias{getOutputDirectory}
-\title{Get outputDirectory in ArchRProject}
+\title{Get outputDirectory from an ArchRProject}
 \usage{
 getOutputDirectory(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets outputDirectory from ArchRProject
+This function gets the outputDirectory from a given ArchRProject.
 }

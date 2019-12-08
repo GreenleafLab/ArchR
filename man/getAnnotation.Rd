@@ -2,17 +2,17 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getAnnotation}
 \alias{getAnnotation}
-\title{Get Embedding from ArchRProject}
+\title{Get annotation from an ArchRProject}
 \usage{
 getAnnotation(ArchRProj, name = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{name}{name of annotations}
+\item{name}{QQQ The name of the annotation object to retrieve from the designated ArchRProject. Options include QQQ.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets an embedding from an ArchRProject
+This function gets an annotation from a given ArchRProject.
 }

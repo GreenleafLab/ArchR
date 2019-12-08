@@ -2,15 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getPeakSet}
 \alias{getPeakSet}
-\title{Get PeakSet from ArchRProject}
+\title{Get the peak set from an ArchRProject}
 \usage{
 getPeakSet(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets peakSet from an ArchRProject
+This function gets the peakSet as a GRanges object from an ArchRProject.
 }

@@ -2,24 +2,24 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{addSampleColData}
 \alias{addSampleColData}
-\title{Add information to sampleColData in ArchRProject}
+\title{Add information to sampleColData to an ArchRProject}
 \usage{
-addSampleColData(ArchRProj, data = NULL, name = NULL,
-  samples = rownames(sampleColData(ArchRProj)), force = FALSE)
+addSampleColData(ArchRProj, data = NULL, name = NULL, samples = NULL,
+  force = FALSE)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{data}{data to add to sampleColData}
+\item{data}{The data to add to sampleColData.}
 
-\item{name}{new column name in sampleColData if already exists set force = TRUE to override}
+\item{name}{The column header name to be used for this new data in sampleColData. If a column with this name already exists, you may set "force" equal to TRUE to overwrite the data in this column.}
 
-\item{force}{if name already exists in sampleColData set force = TRUE to override}
+\item{samples}{The names of the samples corresponding to data. Typically new data is added to all samples but you may use this argument to only add data to a subset of samples. Samples here data is not added are set to NA.}
 
-\item{cells}{names of samples corresponding to data}
+\item{force}{A boolean (TRUE/FALSE) argument that indicates whether or not to overwrite data in a given column when the value passed to "name" already exists as a column name in sampleColData.}
 
 \item{...}{additional args}
 }
 \description{
-This function adds new data to sampleColData in ArchRProject
+This function adds new data to sampleColData in ArchRProject.
 }

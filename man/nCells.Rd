@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{nCells}
 \alias{nCells}
-\title{Get number of cells in ArchRProject}
+\title{Get number of cells from ArchRProject/ArrowFile}
 \usage{
 nCells(input, ...)
 }
@@ -12,5 +12,5 @@ nCells(input, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets number of cells in ArchRProject
+This function gets number of cells in ArchRProject/ArrowFile
 }

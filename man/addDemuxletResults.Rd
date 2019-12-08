@@ -4,16 +4,16 @@
 \alias{addDemuxletResults}
 \title{Add Demuxlet Results to ArchR Project}
 \usage{
-addDemuxletResults(ArchRProj, bestFiles, sampleNames)
+addDemuxletResults(ArchRProj, bestFiles, sampleNames, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchR Project}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{bestFiles}{paths to best files}
+\item{bestFiles}{The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the ArchRProject.}
 
-\item{sampleNames}{sampleNames corresponding to best files (match those in ArchRProj)}
+\item{sampleNames}{The sample names corresponding to the .best files. These must match the sample names present in the ArchRProject.}
 }
 \description{
-This function will read in .best file output from demuxlet and add the
+This function will read in the .best file output from demuxlet and add the doublet
 classifications into the cellColData for the ArchR Project
 }

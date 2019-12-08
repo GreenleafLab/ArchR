@@ -2,15 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getExons}
 \alias{getExons}
-\title{Get Exons from ArchRProject}
+\title{Get the exons from an ArchRProject}
 \usage{
 getExons(ArchRProj, symbols = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets exons from geneAnnotation in ArchRProject
+This function gets the exons (in format QQQ) from the geneAnnotation of a given ArchRProject.
 }

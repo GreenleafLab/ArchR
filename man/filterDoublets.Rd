@@ -2,23 +2,22 @@
 % Please edit documentation in R/FilterCells.R
 \name{filterDoublets}
 \alias{filterDoublets}
-\title{Extend Filter then Normalize Scores for Summits}
+\title{Filter Doublets From an ArchR Project}
 \usage{
-filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf, fs = 1)
+filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf,
+  filterRatio = 1, ...)
 }
 \arguments{
-\item{df}{dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files}
+\item{ArchRProj}{an ArchR Project object}
 
-\item{genome}{mm9, hg19 character or BSgenome object}
+\item{cutEnrich}{minimum cutoff for doubletEnrichment which represents number of simulated doublets nearest a cell over the expected if uniform.}
 
-\item{blacklist}{regions to blacklist}
+\item{cutScore}{minimum cutoff for doubletScore which represents -log10 binomial adjusted p-value.}
 
-\item{extend}{how to extend summits (summit +- extend)}
+\item{filterRatio}{filter ratio for max number of inferred doublets to remove based on the number of cells PF. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (1000 * 100).}
 
-\item{scorePerMillion}{normalized Score-per-million minimum to keep}
-
-\item{selectionRules}{string with a formula containing n (majority = (n+1)/2, multiple samples = 2)}
+\item{...}{additional params}
 }
 \description{
-Extend Filter then Normalize Scores for Summits
+This function wil filter doublets from an ArchRProject after addDoubletScores has been ran
 }

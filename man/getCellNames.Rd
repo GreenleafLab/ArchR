@@ -2,15 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getCellNames}
 \alias{getCellNames}
-\title{Get cellNames in ArchRProject}
+\title{Get cellNames from an ArchRProject}
 \usage{
 getCellNames(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets cellNames in ArchRProject
+This function gets the cellNames from a given ArchRProject object.
 }

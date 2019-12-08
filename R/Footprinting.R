@@ -1,21 +1,20 @@
-#' Plot Group Footprints
+#' Plot footprints for an ArchRProject
 #' 
-#' This function will create an Arrow Files from input files
-#' for downstream analysis
+#' This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 #'
-#' @param input ArchRProject or previous Footprint Summarized Experiment
-#' @param positions sample names corresponding to input files
-#' @param groupBy output names prefix (ie PBMC -> PBMC.arrow)
-#' @param useGroups geneAnnotation input for TSS Scores etc.
-#' @param pal genomeAnnotation input for ChromSizes Nucleotide Information etc.
-#' @param flank min fragments per cell to be filtered for analyses such as tileMat etc.
-#' @param flankNorm min TSS Score per cell to be filtered for analyses such as tileMat etc.
-#' @param smoothWindow remove fragments corresponding to cells pass filterFrags and filterTSS
-#' @param nTop min fragments per cell to be immediately filtered
-#' @param normMethod normalization method for footprint plot relative to bias
-#' @param threads number of therads for parallel execution
-#' @param verboseHeader verbose sections
-#' @param verboseAll verbose sections and subsections
+#' @param input An ArchRProject object or Footprint Summarized Experiment
+#' @param positions QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.
+#' @param groupBy QQQ The column name in sampleColData to use for grouping multiple samples together prior to footprinting.
+#' @param useGroups QQQ
+#' @param pal The name or numeric index of a custom palette from ArchR_palettes to use for plotting the lines corresponding to the footprints.
+#' @param flank QQQ The number of basepairs from the position center to consider as the flank.
+#' @param flankNorm QQQ The number of basepairs to consider at the edge of the flank region to be used for footprint normalization.
+#' @param smoothWindow QQQ The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
+#' @param nTop QQQ The number of positions to consider. Only the top nTop positions based on QQQ will be considered for the footprint.
+#' @param normMethod QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.
+#' @param threads The number threads to be used for parallel computing.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
 #' @export
 plotFootprints <- function(

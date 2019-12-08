@@ -2,7 +2,7 @@
 % Please edit documentation in R/ComputeEmbedding.R
 \name{addEmbedding}
 \alias{addEmbedding}
-\title{Compute Embedding from Reduced Dimensions in ArchR Project}
+\title{Add embedding of a reduced dimensions object in an ArchRProject}
 \usage{
 addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
   embedding = "UMAP", embeddingOut = NULL, saveModel = TRUE,
@@ -10,49 +10,48 @@ addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
   embeddingParams = list(), ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{reducedDims}{reduced dimensions to use}
+\item{reducedDims}{QQQ The name of the reducedDims object to use. Possible options include "IterativeLSI", QQQ.}
 
-\item{embedding}{embedding type (umap, tumap, rtsne, fftrtsne)}
+\item{embedding}{QQQ The name of the embedding to create. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".}
 
 \item{...}{additional args}
 
-\item{colorBy}{colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)}
+\item{colorBy}{QQQ colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)}
 
-\item{name}{name of column in cellColData or Feature in Array in Arrows}
+\item{name}{QQQ name of column in cellColData or Feature in Array in Arrows}
 
-\item{log2Norm}{log2 Normalize features if they are continuous}
+\item{log2Norm}{A boolean value that indicates whether log2 Normalization should be performed on the features if they are continuous.}
 
-\item{pal}{custom palette to use for plotting}
+\item{pal}{The name or numeric index of a custom palette from ArchR_palettes to use for plotting the individual points of the embedding visualization.}
 
-\item{size}{size of points in plot}
+\item{size}{The numeric size of points to plot.}
 
-\item{rastr}{rastr points in plot}
+\item{rastr}{A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
-\item{quantCut}{quantile cut of continuous features}
+\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
 
-\item{quantHex}{quantile evaluation for each hex in geom_hex}
+\item{quantHex}{QQQ quantile evaluation for each hex in geom_hex}
 
-\item{discreteSet}{discrete palette for visualizing embedding}
+\item{discreteSet}{QQQ The name or numeric index of a discrete palette from ArchR_palettesdiscrete to use for plotting QQQ.}
 
-\item{continuousSet}{continuous palette for visualizing embedding}
+\item{continuousSet}{QQQcontinuous palette for visualizing embedding}
 
-\item{randomize}{randomize points prior to plotting}
+\item{randomize}{A boolean value that determines whether to randomly order the plotting of points to avoid (for ex.) all points from a single cluster being plotted as the top-most layer of the plot.}
 
-\item{keepAxis}{keep x and y axis for plot}
+\item{keepAxis}{QQQ keep x and y axis for plot}
 
-\item{baseSize}{base size for text in plot}
+\item{baseSize}{QQQ The numeric font size to be used in the plot. This applies to all plot labels.}
 
-\item{plotContinuous}{how to plot continuous features (points and hex)}
+\item{plotContinuous}{QQQ how to plot continuous features (points and hex)}
 
-\item{plotParams}{additional params to pass to ggPoint/ggHex}
+\item{plotParams}{QQQ additional params to pass to ggPoint/ggHex}
 
-\item{plotWidth}{plot width used for creating a consistent plot independent of legend size}
+\item{plotWidth}{QQQ plot width used for creating a consistent plot independent of legend size}
 
-\item{plotHeight}{plot height used for creating a consistent plot independent of legend size}
+\item{plotHeight}{QQQ plot height used for creating a consistent plot independent of legend size}
 }
 \description{
-This function will plot an embedding that was created from
-computeEmbedding
+This function will compute an embedding and add to an ArchRProject.
 }

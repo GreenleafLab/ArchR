@@ -2,26 +2,25 @@
 % Please edit documentation in R/ArrowRead.R
 \name{getMatrixFromArrow}
 \alias{getMatrixFromArrow}
-\title{Read Fragments from Arrow}
+\title{Get a data matrix stored in an ArrowFile}
 \usage{
 getMatrixFromArrow(ArrowFile = NULL, useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL, cellNames = NULL, ArchRProj = NULL,
   verbose = TRUE, binarize = FALSE, ...)
 }
 \arguments{
-\item{ArrowFile}{ArchRProject or ArrowFiles}
+\item{ArrowFile}{The ArrowFile object from which the selected data matrix should be obtained.}
 
-\item{useMatrix}{matrix name to get from Arrow}
+\item{useMatrix}{QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.}
 
-\item{useSeqnames}{use a subset of seqnames for matrix}
+\item{useSeqnames}{A character vector of chromosome names to be used to subset the data matrix being obtained.}
 
-\item{cellNames}{ceiling for the number of counts per feature}
+\item{cellNames}{QQQ ceiling for the number of counts per feature}
 
-\item{verbose}{binarize matrix}
+\item{verbose}{A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 
 \item{...}{additional params}
 }
 \description{
-This function for each sample will independently compute counts for each feature
-per cell in the Arrow File
+This function gets a given data matrix from an individual ArrowFile.
 }

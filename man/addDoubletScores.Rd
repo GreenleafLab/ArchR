@@ -2,7 +2,7 @@
 % Please edit documentation in R/DoubletsScores.R
 \name{addDoubletScores}
 \alias{addDoubletScores}
-\title{Add Doublet Scores to Arrows/ArchRProject}
+\title{Add Doublet Scores to a collection of Arrow files or an ArchRProject}
 \usage{
 addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
   nTrials = 5, knnMethod = "UMAP", UMAPParams = list(),
@@ -11,37 +11,36 @@ addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
   verboseAll = FALSE, ...)
 }
 \arguments{
-\item{input}{ArchRProject or ArrowFiles}
+\item{input}{An ArchRProject object or a set of ArrowFiles.}
 
-\item{useMatrix}{matrix name for performing analyses}
+\item{useMatrix}{The name of the matrix to be used for performing doublet identification analyses.}
 
-\item{k}{number of cells nearby a simulated doublet to consider}
+\item{k}{The number of cells neighboring a simulated doublet to be considered as putative doublets.}
 
-\item{nTrials}{number of trials to simulate doublets in terms of number of cells}
+\item{nTrials}{The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5N trials.}
 
-\item{knnMethod}{dimension reduction to use for KNN (UMAP or SVD)}
+\item{knnMethod}{The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".}
 
-\item{UMAPParams}{list of parameters to pass to uwot::umap}
+\item{UMAPParams}{The list of parameters to pass to the UMAP function. See the function umap in the uwot package.}
 
-\item{LSIParams}{list of parameters to pass to IterativeLSI}
+\item{LSIParams}{The list of parameters to pass to the IterativeLSI. See IterativeLSI.}
 
-\item{outDir}{directory to plot and store results from analyses}
+\item{useClusters}{QQQ A boolean value that determins QQQ}
 
-\item{threads}{number of threads}
+\item{outDir}{The name or path for the output directory for writing information on doublet identification,}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{threads}{The number threads to be used for parallel computing.}
 
-\item{verboseHeader}{verbose sections}
+\item{parallelParam}{QQQ A list of parameters to be used for batch-style parallel computing.}
 
-\item{verboseAll}{verbose sections and subsections}
+\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
+
+\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{...}{additional args}
-
-\item{threads}{number of therads for parallel execution}
-
-\item{parallelParam}{parallel parameters for batch style execution}
 }
 \description{
-This function for each sample will independently assign inferred doublet information
-to each cell for removing strong heterotropic doublet based clusters downstream.
+For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
+to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
+contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell.
 }

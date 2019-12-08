@@ -2,12 +2,12 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getSampleColData}
 \alias{getSampleColData}
-\title{Get sampleColData in ArchRProject}
+\title{Get sampleColData from an ArchRProject}
 \usage{
 getSampleColData(ArchRProj, select = NULL, drop = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{select}{select a subset of column names from sampleColData}
 
@@ -16,5 +16,5 @@ getSampleColData(ArchRProj, select = NULL, drop = FALSE, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets sampleColData in ArchRProject
+This function gets the sampleColData from a given ArchRProject.
 }

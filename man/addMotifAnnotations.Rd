@@ -2,29 +2,29 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{addMotifAnnotations}
 \alias{addMotifAnnotations}
-\title{Add Motif Annotations to ArchRProject}
+\title{Add motif annotations to an ArchRProject}
 \usage{
 addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
   name = "Motif", species = NULL, collection = "CORE",
   cutOff = 5e-05, w = 7, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{motifSet}{motifSet JASPAR : JASPAR2016, JASPAR2018; chromVARmotifs : human, mouse, encode, homer}
+\item{motifSet}{The motif set to be used for annotation. Options include: (i) "JASPAR2016", which gives the 2016 version of JASPAR motifs, (ii) "JASPAR2018", which gives the 2018 version of JASPAR motifs, or (iii) one of "human", "mouse", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.}
 
-\item{name}{of annotations to store as in ArchRProject}
+\item{name}{QQQ of annotations to store as in ArchRProject}
 
-\item{species}{species relevant to dataset (default will guess based on getGenome)}
+\item{species}{QQQ The name of the species relevant to the supplied ArchRProject. This is used for QQQ. By default, this function will attempt to guess the species based on the value from getGenome.}
 
-\item{collection}{JASPAR collection (default = CORE)}
+\item{collection}{QQQ If one of the JASPAR motif sets is used via "motifSet", this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.}
 
-\item{cutOff}{pvalue cutoff for motif search (see motimatchr)}
+\item{cutOff}{The p-value cutoff to be used for motif search (see the motimatchr package for more information).}
 
-\item{w}{width to consider for motif (see motimatchr)}
+\item{w}{The width in basepairs to consider for motif matches (see the motimatchr package for more information).}
 
 \item{...}{additional args}
 }
 \description{
-This function adds motif postions and matches to an ArchRProject
+This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.
 }

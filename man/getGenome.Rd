@@ -2,15 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getGenome}
 \alias{getGenome}
-\title{Get genome from ArchRProject}
+\title{Get the genome used by an ArchRProject}
 \usage{
 getGenome(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets the genome from genomeAnnotation in ArchRProject
+This function gets the name of the genome from the genomeAnnotation used by a given ArchRProject.
 }
