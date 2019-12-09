@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggOneToOne}
 \alias{ggOneToOne}
-\title{GG Plot One to One Heatscatter}
+\title{A ggplot-based one-to-one dot plot}
 \usage{
 ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
   ylabel = "y", title = "Correlation", min = 0.05, max = 0.9999,
@@ -11,32 +11,32 @@ ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
   pal = paletteContinuous(set = "viridis"), ...)
 }
 \arguments{
-\item{x}{x vector of data to be plot}
+\item{x}{A numeric vector containing the x-axis values for each point.}
 
-\item{y}{y vector of data to be plot}
+\item{y}{A numeric vector containing the y-axis values for each point.}
 
-\item{size}{plot point size}
+\item{size}{The numeric size of the points to plot.}
 
-\item{alpha}{alpha transperancy of points}
+\item{alpha}{geom_point alpha}
 
-\item{xlabel}{xlabel}
+\item{xlabel}{The label to plot for the x-axis.}
 
-\item{ylabel}{ylabel}
+\item{ylabel}{The label to plot for the y-axis.}
 
-\item{title}{ggtitle}
+\item{title}{The title of the plot.}
 
-\item{min}{x/y min quantile [0,1]}
+\item{min}{xmin quantile [0,1]}
 
-\item{max}{x/y max quantile [0,1]}
+\item{max}{xmax quantile [0,1]}
 
-\item{nPlot}{number of points to plot (correlations computed prior)}
+\item{nPlot}{The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.}
 
-\item{nKernel}{n for MASS::kde2d default = 100}
+\item{nKernel}{The value of n to use the kde2d from the MASS package.}
 
-\item{baseSize}{base size of fonts in plot}
+\item{baseSize}{base_font size default is 12}
 
-\item{pal}{color palette to use for density}
+\item{pal}{continuous color palette to use}
 }
 \description{
-GG Plot One to One Heatscatter
+This function is a wrapper around ggplot geom_point to allow for plotting one-to-one sample comparisons in ArchR.
 }

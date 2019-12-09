@@ -2,24 +2,24 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{addCellColData}
 \alias{addCellColData}
-\title{Add information to cellColData in ArchRProject}
+\title{Add information to cellColData in an ArchRProject}
 \usage{
 addCellColData(ArchRProj, data = NULL, name = NULL,
   cells = getCellNames(ArchRProj), force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{data}{data to add to cellColData}
+\item{data}{The data to add to cellColData.}
 
-\item{name}{new column name in cellColData if already exists set force = TRUE to override}
+\item{name}{The column header name to be used for this new data in cellColData. If a column with this name already exists, you may set "force" equal to TRUE to overwrite the data in this column.}
 
-\item{cells}{names of cells corresponding to data}
+\item{cells}{The names of the cells corresponding to "data". Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where data is not added are set to NA.}
 
-\item{force}{if name already exists in cellColData set force = TRUE to override}
+\item{force}{A boolean (TRUE/FALSE) argument that indicates whether or not to overwrite data in a given column when the value passed to "name" already exists as a column name in cellColData.}
 
 \item{...}{additional args}
 }
 \description{
-This function adds new data to cellColData in ArchRProject
+This function adds new data to cellColData in a given ArchRProject.
 }

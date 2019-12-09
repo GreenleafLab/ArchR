@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggPoint}
 \alias{ggPoint}
-\title{Ggplot Points in a standardized manner}
+\title{A ggplot-based dot plot}
 \usage{
 ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
   discreteSet = "stallion", continuousSet = "solar_extra",
@@ -15,70 +15,64 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
   labelSize = 1.5, addFit = NULL, rastr = FALSE, dpi = 300, ...)
 }
 \arguments{
-\item{x}{x vector of data to be plot}
+\item{x}{A numeric vector containing the x-axis values for each point.}
 
-\item{y}{y vector of data to be plot}
+\item{y}{A numeric vector containing the y-axis values for each point.}
 
-\item{color}{color vector of data to be plot (must be same length as x,y)}
+\item{color}{QQQ}
 
-\item{discrete}{discrete is color discrete?}
+\item{discrete}{QQQ A boolean value indicating QQQ}
 
-\item{discreteSet}{default color ArchRPalettes for discrete colors}
+\item{discreteSet}{QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.}
 
-\item{continuousSet}{default color ArchRPalettes for continuous colors}
+\item{continuousSet}{QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.}
 
-\item{labelMeans}{label group means by color}
+\item{labelMeans}{QQQ A boolean value indicating QQQ}
 
-\item{pal}{custom palette option}
+\item{pal}{QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.}
 
-\item{defaultColor}{default color}
+\item{colorDensity}{QQQ A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, QQQ is used as the color palette.}
 
-\item{colorDensity}{color x,y coordinates by relative density}
+\item{size}{The numeric size of the points to be plotted.}
 
-\item{size}{size of points}
+\item{xlim}{A set of numeric values indicating the lower and upper bounds of the x-axis on the plot.}
 
-\item{xlim}{xlimits for plot}
+\item{ylim}{A set of numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{ylim}{ylimits for plot}
+\item{extend}{QQQ}
 
-\item{extend}{extend limits by this proportion if not set by xlim or ylim}
+\item{xlabel}{The label to plot for the x-axis.}
 
-\item{xlabel}{label for x-axis}
+\item{ylabel}{The label to plot for the y-axis.}
 
-\item{ylabel}{label for y-axis}
+\item{title}{The title of the plot.}
 
-\item{title}{title of plot}
+\item{randomize}{A boolean value indicating whether to randomize the order of the points when plotting.}
 
-\item{randomize}{randomize x,y plotting order}
+\item{seed}{A numeric seed number for use in randomization.}
 
-\item{seed}{seed for randomizing points}
+\item{alpha}{A number indicating the transparency to use for each point. See ggplot2 for more details.}
 
-\item{colorTitle}{title for legend corresponding to color}
+\item{baseSize}{QQQ The size in inches of the plot.}
 
-\item{colorOrder}{order of colors for plotting/palettes}
+\item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{alpha}{alpha transperancy for points}
+\item{labelType}{QQQ A string indicating how to label the points on the plot. Options include "ggrepel", QQQ}
 
-\item{baseSize}{baseSize for fonts}
+\item{fgColor}{The foreground color of the plot.}
 
-\item{ratioYX}{ratio of y to x in plot}
+\item{bgColor}{The background color of the plot.}
 
-\item{labelType}{label type to add (ggrepel or shadowtext)}
+\item{labelSize}{The numeric font size of labels.}
 
-\item{fgColor}{foreground color of labels}
+\item{addFit}{QQQ A string indicating if a fit/regression line should be included in the plot and what method to use for this fit. Options include QQQ.}
 
-\item{bgColor}{background color of labels}
+\item{rastr}{A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
-\item{labelSize}{label size to be created}
+\item{dpi}{The resolution to use for the plot.}
 
-\item{addFit}{add an x,y fit line using geom_smooth}
-
-\item{rastr}{rastr points}
-
-\item{dpi}{rastr resolution}
-
-\item{...}{additional params to pass}
+\item{nullColor}{The color to be used for points that correspond to null values in either the x or y vectors.}
 }
 \description{
-This function will plot x,y coordinates in a standardized manner
+This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.
 }

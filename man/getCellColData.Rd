@@ -2,19 +2,19 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getCellColData}
 \alias{getCellColData}
-\title{Get cellColData in ArchRProject}
+\title{Get cellColData from an ArchRProject}
 \usage{
 getCellColData(ArchRProj, select = NULL, drop = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{select}{select a subset of column names from cellColData can put in a string function}
+\item{select}{A character vector of column names to select from cellColData if you would like to subset the returned data.}
 
-\item{drop}{drop if selecting only one column name}
+\item{drop}{A boolean argument to indicate whether additional data.frame information should be dropped if selecting only a single column name.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets sampleColData in ArchRProject
+This function gets the cellColData from a given ArchRProject.
 }

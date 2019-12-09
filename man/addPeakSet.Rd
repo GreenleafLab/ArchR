@@ -2,19 +2,19 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{addPeakSet}
 \alias{addPeakSet}
-\title{Add PeakSet to ArchRProject}
+\title{Add a peak set to an ArchRProject}
 \usage{
 addPeakSet(ArchRProj, peakSet, force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{peakSet}{peakSet as a GRanges}
+\item{peakSet}{A GRanges object containing the set of regions that define all peaks in the desired peak set.}
 
-\item{force}{force overriding peakSet in ArchRProject}
+\item{force}{If a peakSet object has already been added to the given ArchRProject, the value of "force" determines whether or not to overwrite this peakSet.}
 
 \item{...}{additional args}
 }
 \description{
-This function adds a peakSet to an ArchRProject
+This function adds a peak set as a GRanges object to a given ArchRProject.
 }

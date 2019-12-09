@@ -20,7 +20,7 @@ setClass("ArchRProject",
     annotations = "SimpleList", #MotifMatches ETC go here
     geneAnnotation = "SimpleList", #genes exons TSS
     genomeAnnotation = "SimpleList", #genome chromSizes BSgenome blacklist
-    imputeWeights = "matrixOrNull"
+    imputeWeights = "SimpleList"
   )
 )
 

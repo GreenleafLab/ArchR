@@ -2,19 +2,19 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getEmbedding}
 \alias{getEmbedding}
-\title{Get Embedding from ArchRProject}
+\title{Get embedding information stored in an ArchRProject}
 \usage{
-getEmbedding(ArchRProj, embedding = "IterativeLSI", return = "df", ...)
+getEmbedding(ArchRProj, embedding = "UMAP", return = "df", ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{embedding}{embedding name in ArchRProject}
+\item{embedding}{QQQ The name of the embedding object to retrieve from the designated ArchRProject. Options include QQQ.}
 
-\item{return}{return embedding as df or all info}
+\item{return}{If set to "df", the function will return the embedding object as a data.frame. Otherwise, it will return the full embedding object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets an embedding from an ArchRProject
+QQQ This function gets an embedding (i.e. QQQ) from a given ArchRProject.
 }

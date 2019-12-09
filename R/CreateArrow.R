@@ -1,39 +1,39 @@
 #' Create Arrow Files 
 #' 
-#' This function will create an Arrow Files from input files
-#' for downstream analysis
+#' This function will create Arrow Files from input files. These Arrow Files are the main constituent for downstream analysis in ArchR.
 #'
-#' @param inputFiles input files (tabixFile, bamFile or textFile)
-#' @param sampleNames sample names corresponding to input files
-#' @param outputNames output names prefix (ie PBMC -> PBMC.arrow)
-#' @param geneAnno geneAnnotation input for TSS Scores etc.
-#' @param genomeAnno genomeAnnotation input for ChromSizes Nucleotide Information etc.
-#' @param filterFrags min fragments per cell to be filtered for analyses such as tileMat etc.
-#' @param filterTSS min TSS Score per cell to be filtered for analyses such as tileMat etc.
-#' @param removeFilteredCells remove fragments corresponding to cells pass filterFrags and filterTSS
-#' @param minFrags min fragments per cell to be immediately filtered
-#' @param outDir out directory for QC information from sample to be plotted / saved
-#' @param nucLength nucleosome length for id'ing fragments as sub-, mono-, or multi-nucleosome spanning
-#' @param TSSParams TSS parameters for computing TSS scores
-#' @param excludeChr exclude these chromosomes from analysis downstream (does not apply to fragments)
-#' @param nChunk number of chunks per chromosome when reading in input files
-#' @param bcTag barcode tag location in bam file (see ScanBam in Rsamtools)
-#' @param bamFlag list of bam flags for reading in fragments from input files (see ScanBam in Rsamtools)
-#' @param offsetPlus Tn5 offset of "+" stranded insertion (see Buenrostro 2013)
-#' @param offsetMinus Tn5 offset of "-" stranded insertion (see Buenrostro 2013)
-#' @param addTileMat addTileMatrix to ArrowFiles
-#' @param TileMatParams additional parameters to pass to addTileMatrix (see addTileMatrix)
-#' @param addGeneScoreMat addGeneScoreMatrix to ArrowFiles
-#' @param GeneScoreMatParams additional parameters to pass to addGeneScoreMatrix (see addGeneScoreMatrix)
-#' @param force force creation of arrow files if already exist
-#' @param threads number threads for parallel execution
-#' @param parallelParam parallel parameters for batch style execution
+#' @param inputFiles The names of the input files to use to generate the arrow files. These files can be in any of the following formats: tabix QQQ, QQQ BAM,  or a fragments file). The precise format of each file type QQQ...
+#' @param sampleNames The names to assign to the samples that correspond to the "inputFiles". Each input file should receive a unique sample name. This list should be in the same order as "inputFiles".
+#' @param outputNames The prefix to use for output files. Each input file should receive a unique output file name. This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"
+#' @param geneAnno QQQ The geneAnnotation in QQQ format to associate with these arrow files. This is used downstream to calculate TSS Scores etc.
+#' @param genomeAnno QQQ The genomeAnnotation in QQQ format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.
+#' @param filterFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
+#' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use in downstream analyses. TSS enrichment score is a measurement of signal-to-background in ATAC-seq.
+#' @param removeFilteredCells A boolean value that determines whether to remove fragments corresponding to cells that do not pass filterFrags and filterTSS.
+#' @param minFrags QQQ min fragments per cell to be immediately filtered
+#' @param outDir The name or path for the output directory for QC-level information and plots for each sample/arrow.
+#' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as sub-nucleosome, mono-nucleosome, or multi-nucleosome spanning
+#' @param TSSParams QQQ TSS parameters for computing TSS scores
+#' @param excludeChr The names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the .arrow file.
+#' @param nChunk The number of chunks to divide each chromosome into reading in input files. Higher numbers reduce memory usage but increase compute time.
+#' @param bcTag The name of the field in the input bam file containing the barcode tag information. See ScanBam in Rsamtools.
+#' @param bamFlag QQQ A list of bam flags to be used for reading in fragments from input bam files. Fromat should be QQQ. See ScanBam in Rsamtools.
+#' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
+#' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. Ssee Buenrostro et al. Nature Methods 2013.
+#' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each Arrow file. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome.
+#' @param TileMatParams A list of parameters to pass to the addTileMatrix function. See addTileMatrix for options.
+#' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each Arrow file. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.
+#' @param GeneScoreMatParams A list of parameters to pass to the addGeneScoreMatrix function. See addGeneScoreMatrix for options.
+#' @param force A bollean value indicating whether to force arrow files to be overwritten if already exist in outDir.
+#' @param threads The number threads to be used for parallel computing.
+#' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
 #' @param ... additional args
 #' @export
 createArrowFiles <- function(
   inputFiles = NULL, 
   sampleNames = NULL, 
   outputNames = paste0("./", sampleNames),
+  validBaroces = NULL,
   geneAnno = NULL,
   genomeAnno = NULL,
   filterFrags = 1000,
@@ -283,7 +283,7 @@ createArrowFiles <- function(
     sink(tmpFile)
 
     ggtitle <- sprintf("%s\n%s\n%s",
-        paste0(sampleName, " : Number of Cells Pass Filter = ", sum(Metadata$Keep)),
+        paste0(sampleName, "\nnCells Pass Filter = ", sum(Metadata$Keep)),
         paste0("Median Frags = ", median(Metadata$nFrags[Metadata$Keep==1])),
         paste0("Median TSS Enrichment = ", median(Metadata$TSSEnrichment[Metadata$Keep==1]))
       )

@@ -2,25 +2,24 @@
 % Please edit documentation in R/ArrowRead.R
 \name{getFragmentsFromArrow}
 \alias{getFragmentsFromArrow}
-\title{Read Fragments from Arrow}
+\title{Get the fragments from an ArrowFile}
 \usage{
 getFragmentsFromArrow(ArrowFile, chr = NULL, cellNames = NULL,
   method = "fast", verbose = TRUE, ...)
 }
 \arguments{
-\item{ArrowFile}{ArchRProject or ArrowFiles}
+\item{ArrowFile}{The ArrowFile object from which fragments should be obtained.}
 
-\item{chr}{GRanges to count for each cell}
+\item{chr}{A name of a chromosome to be used to subset the fragments GRanges object to a specific chromsome if desired.}
 
-\item{cellNames}{matrix output name in ArrowFiles cannot be a protected matrix name}
+\item{cellNames}{QQQ matrix output name in ArrowFiles cannot be a protected matrix name}
 
-\item{method}{ceiling for the number of counts per feature}
+\item{method}{QQQ ceiling for the number of counts per feature}
 
-\item{verbose}{binarize matrix}
+\item{verbose}{A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 
 \item{...}{additional params}
 }
 \description{
-This function for each sample will independently compute counts for each feature
-per cell in the Arrow File
+This function retrieves the fragments from a given ArrowFile as a GRanges object.
 }

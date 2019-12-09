@@ -14,6 +14,10 @@ If you plan on running ArchR locally...
 
 If you plan on running ArchR using a cluster...
 
+### What is an _arrow_ file?
+
+SCHEMATIC OF AN ARROW FILE HERE
+
 ```{r eval=FALSE}
 #Input Libraries
 library(ArchR)

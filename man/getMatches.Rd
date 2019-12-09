@@ -2,12 +2,12 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getMatches}
 \alias{getMatches}
-\title{Get Annotation Matches from ArchRProject}
+\title{Get annotation matches from an ArchRProject}
 \usage{
 getMatches(ArchRProj, name = NULL, annoName = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{name}{name of annotations}
 
@@ -16,5 +16,5 @@ getMatches(ArchRProj, name = NULL, annoName = NULL, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets annotation matches from an ArchRProject
+This function gets annotation matches from a given ArchRProject.
 }

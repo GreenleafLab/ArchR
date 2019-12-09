@@ -2,15 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getArrowFiles}
 \alias{getArrowFiles}
-\title{Get ArrowFiles in ArchRProject}
+\title{Get ArrowFiles from an ArchRProject}
 \usage{
 getArrowFiles(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets ArrowFiles in ArchRProject
+This function gets the names of all ArrowFiles associated with a given ArchRProject.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Footprinting.R
 \name{plotFootprints}
 \alias{plotFootprints}
-\title{Plot Group Footprints}
+\title{Plot footprints for an ArchRProject}
 \usage{
 plotFootprints(input = NULL, positions = NULL,
   plotName = "Plot-Footprints", groupBy = "Clusters",
@@ -13,35 +13,34 @@ plotFootprints(input = NULL, positions = NULL,
   verboseAll = FALSE, ...)
 }
 \arguments{
-\item{input}{ArchRProject or previous Footprint Summarized Experiment}
+\item{input}{An ArchRProject object or Footprint Summarized Experiment}
 
-\item{positions}{sample names corresponding to input files}
+\item{positions}{QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.}
 
-\item{groupBy}{output names prefix (ie PBMC -> PBMC.arrow)}
+\item{groupBy}{QQQ The column name in sampleColData to use for grouping multiple samples together prior to footprinting.}
 
-\item{useGroups}{geneAnnotation input for TSS Scores etc.}
+\item{useGroups}{QQQ}
 
-\item{pal}{genomeAnnotation input for ChromSizes Nucleotide Information etc.}
+\item{pal}{The name or numeric index of a custom palette from ArchR_palettes to use for plotting the lines corresponding to the footprints.}
 
-\item{flank}{min fragments per cell to be filtered for analyses such as tileMat etc.}
+\item{flank}{QQQ The number of basepairs from the position center to consider as the flank.}
 
-\item{flankNorm}{min TSS Score per cell to be filtered for analyses such as tileMat etc.}
+\item{flankNorm}{QQQ The number of basepairs to consider at the edge of the flank region to be used for footprint normalization.}
 
-\item{smoothWindow}{remove fragments corresponding to cells pass filterFrags and filterTSS}
+\item{smoothWindow}{QQQ The size in basepairs of the sliding window to be used for smoothing of the footprint signal.}
 
-\item{nTop}{min fragments per cell to be immediately filtered}
+\item{nTop}{QQQ The number of positions to consider. Only the top nTop positions based on QQQ will be considered for the footprint.}
 
-\item{normMethod}{normalization method for footprint plot relative to bias}
+\item{normMethod}{QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.}
 
-\item{threads}{number of therads for parallel execution}
+\item{threads}{The number threads to be used for parallel computing.}
 
-\item{verboseHeader}{verbose sections}
+\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
-\item{verboseAll}{verbose sections and subsections}
+\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{...}{additional args}
 }
 \description{
-This function will create an Arrow Files from input files
-for downstream analysis
+This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 }

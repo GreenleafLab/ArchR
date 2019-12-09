@@ -7,10 +7,10 @@
 getChromSizes(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets chromosome lengths as GRanges from genomeAnnotation in ArchRProject
+This function gets the chromosome lengths as a GRanges onject from the genomeAnnotation of a given ArchRProject.
 }

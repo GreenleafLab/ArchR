@@ -2,20 +2,20 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getReducedDims}
 \alias{getReducedDims}
-\title{Get Reduced Dimensions from ArchRProject}
+\title{Get dimensionality reduction information stored in an ArchRProject}
 \usage{
-getReducedDims(ArchRProj, reducedDims = "TileLSI", return = "matrix",
-  ...)
+getReducedDims(ArchRProj, reducedDims = "IterativeLSI",
+  return = "matrix", ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{reducedDims}{reduced dimensions name in ArchRProject}
+\item{reducedDims}{QQQ The name of the reducedDims object to retrieve from the designated ArchRProject. Options include QQQ.}
 
-\item{return}{return reduced dimensions as matrix or all info}
+\item{return}{If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets an embedding from an ArchRProject
+This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.
 }

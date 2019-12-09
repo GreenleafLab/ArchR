@@ -2,20 +2,20 @@
 % Please edit documentation in R/ColorPalettes.R
 \name{paletteDiscrete}
 \alias{paletteDiscrete}
-\title{Optimized discrete color palette}
+\title{Optimized discrete color palette generation}
 \usage{
 paletteDiscrete(set = "stallion", values, reverse = FALSE,
   returnStructure = FALSE, ...)
 }
 \arguments{
-\item{set}{continuous palette name or number}
+\item{set}{The name or numeric index of a color palette provided in ArchR_palettes.}
 
-\item{values}{is a vector containing the sample names used in the plot which will be given a color}
+\item{values}{A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated pallete set.}
 
-\item{reverse}{return reversed values}
+\item{reverse}{A boolean variable that indicates whether to return the palette colors in reverse order.}
 
-\item{returnStructure}{return structure palette}
+\item{returnStructure}{QQQ return structure palette}
 }
 \description{
-This function assesses the number of inputs and returns a tailored color palette for aesthetics
+This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most posible color contrast from the designated set.
 }

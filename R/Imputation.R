@@ -20,6 +20,7 @@ addImputeWeights <- function(
   ka = 4,
   sampleCells = max(5000, floor(nCells(ArchRProj) / 10)),
   k = 15,
+  epsilon = 1,
   weighted = TRUE
   ){
 
@@ -51,13 +52,13 @@ addImputeWeights <- function(
   }) %>% unlist
   binSize <- min(cutoffs[order(abs(cutoffs - sampleCells))[1]] + 1, N)
 
-  groups <- split(idx, ceiling(seq_along(idx)/binSize))
+  blocks <- split(idx, ceiling(seq_along(idx)/binSize))
 
-  Wt <- lapply(seq_along(groups), function(x){
+  Wt <- lapply(seq_along(blocks), function(x){
 
-    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", x, length(groups)), tstart)
+    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", x, length(blocks)), tstart)
 
-    ix <- groups[[x]]
+    ix <- blocks[[x]]
     Nx <- length(ix)
 
     #Compute KNN
@@ -79,7 +80,7 @@ addImputeWeights <- function(
     rm(knnObj)
 
     if(ka > 0){
-      knnObj$dist <- knnObj$dist / knnObj$dist[,ka]
+      knnDist <- knnDist / knnDist[,ka]
     }
 
     if (weighted) {
@@ -87,8 +88,7 @@ addImputeWeights <- function(
     } else {
       W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=1, dims = c(Nx, Nx)) # unweighted kNN graph
     }
-
-    W <- W + t(W)
+    W <- W + Matrix::t(W)
 
     #Compute Kernel
     if(epsilon > 0){
@@ -112,7 +112,8 @@ addImputeWeights <- function(
     Wt[,1] <- ix[Wt[,1]]
     Wt[,2] <- ix[Wt[,2]]
 
-    rm(knnObj)
+    rm(knnIdx)
+    rm(knnDist)
     rm(W)
     gc()
 
@@ -125,7 +126,19 @@ addImputeWeights <- function(
   rownames(Wt) <- rownames(matDR)
   colnames(Wt) <- rownames(matDR)
 
-  ArchRProj@imputeWeights <- Wt
+  ArchRProj@imputeWeights <- SimpleList(
+    Weights = Wt, 
+    Blocks = blocks, 
+    Params = 
+      list(
+        reducedDims = reducedDims, 
+        td = td, 
+        k = k, 
+        ka = ka,
+        epsilon = epsilon,
+        weighted = weighted
+        )
+      )
   
   ArchRProj
 
@@ -138,20 +151,9 @@ addImputeWeights <- function(
 #' @param ArchRProj ArchRProject
 #' @param ... additional args
 #' @export
-getImputeWeights <- function(ArchRProj, ...){
-  
+getImputeWeights <- function(ArchRProj, ...){  
   ArchRProj <- .validArchRProject(ArchRProj)
-  iW <- ArchRProj@imputeWeights
-  
-  if(!is.null(iW)){
-    iW <- iW[rownames(getCellColData(ArchRProj)),rownames(getCellColData(ArchRProj))]
-  }else{
-    iW <- NULL
-  
-  }
-  
-  iW
-
+  ArchRProj@imputeWeights
 }
 
 

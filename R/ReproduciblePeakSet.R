@@ -193,7 +193,7 @@ addReproduciblePeakSet <- function(
 	#Add Peak Set
 	ArchRProj <- addPeakSet(ArchRProj, unionPeaks, force = TRUE)
 
-	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 6, height = 4)
+	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 8, height = 4, ArchRProj = ArchRProj)
 
 	.messageDiffTime("Finished Creating Union Peak Set!", tstart)
 

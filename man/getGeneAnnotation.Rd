@@ -2,15 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getGeneAnnotation}
 \alias{getGeneAnnotation}
-\title{Get geneAnnotation from ArchRProject}
+\title{Get geneAnnotation from an ArchRProject}
 \usage{
 getGeneAnnotation(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets geneAnnotation in ArchRProject
+This function gets the geneAnnotation (in format QQQ) from a given ArchRProject
 }

@@ -69,9 +69,9 @@ plotEmbedding <- function(
     colorList <- lapply(seq_along(name), function(x){
       colorParams <- list()
       colorParams$color <- as.vector(getCellColData(ArchRProj)[,name[x]])
-      colorParams$discrete <- .isDiscrete(plotParams$color)
+      colorParams$discrete <- .isDiscrete(colorParams$color)
       colorParams$continuousSet <- "solar_extra"
-      colorParams$discreteSet <- "discreteSet"
+      colorParams$discreteSet <- "stallion"
       colorParams$title <- paste(plotParams$title, " colored by\ncolData : ", name[x])
       if(!is.null(continuousSet)){
         colorParams$continuousSet <- continuousSet
@@ -124,7 +124,7 @@ plotEmbedding <- function(
       plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
 
       if(!is.null(imputeWeights)){
-        imputeWeights <- imputeWeights[rownames(df), rownames(df)]
+        imputeWeights <- imputeWeights$Weights[rownames(df), rownames(df)]
         plotParamsx$color <- (imputeWeights %*% as(as.matrix(plotParamsx$color), "dgCMatrix"))[,1] 
       }
 
@@ -228,7 +228,7 @@ plotGroups <- function(
   }
 
   if(!is.null(imputeWeights)){
-    imputeWeights <- imputeWeights[names(groupNames), names(groupNames)]
+    imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
     values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
   }
 

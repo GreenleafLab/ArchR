@@ -1,31 +1,31 @@
 #' Plot ArchR Region Track
 #' 
-#' This function will plot the coverage at an input region
+#' This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.
 #'
-#' @param ArchRProj ArchRProject
-#' @param region GRanges region that will be plotted in (if more that one first will be selected)
-#' @param groupBy use groupings for bulk/scTrack
-#' @param useGroups select a subset of groups for plotting
-#' @param useCoverages use group coverages for track plotting
-#' @param plotSummary summary of region track to be plotted
-#' @param sizes sizes corresponding to plotSummary
-#' @param features GRanges features to be plotted (ie getPeakSet(ArchRProj))
-#' @param geneSymbol if region is null plotting can be centered at gene start site corresponding to the gene symbol
-#' @param upstream bp upstream of geneStart to extend
-#' @param downstream bp downstream of geneStart to extend
-#' @param tileSize with of tiles to plot bulk/scTrack
-#' @param normMethod normMethod normalization column in cellColData to normalize bulkTrack
-#' @param threads number of threads for parallel execution
-#' @param ylim y-limits for bulkTrack
-#' @param baseSize size of font in plot
-#' @param borderWidth border width in plot
-#' @param tickWidth axis tick width in plot
-#' @param geneAnno geneAnnotation for geneTrack
+#' @param ArchRProj An ArchRProject object.
+#' @param region A GRanges region that indicates the region to be plotted. If more than one region exists in the GRanges object, all will be plotted. If no region is supplied, then the "geneSymbol" argument can be used to center the plot window at the transcription start site of the gene passed to "geneSymbol".
+#' @param useGroups A boolean value that indicates whether samples should be grouped together to produce average tracks. Only TRUE/FALSE are accepted.
+#' @param groupBy A string that indicates how samples should be grouped. This string corresponds to one of the standard or user-supplied metadata columns (for example, "Clusters"). Samples with the same value annotated in this metadata column will be grouped together and the average signal will be used.
+#' @param useCoverages QQQ use group coverages for track plotting
+#' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak bed regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).
+#' @param sizes A numeric vector containing 3 values that indicate the sizes of the individual components passed in plotSummary. The order must be the same as plotSummary.
+#' @param features A GRanges object containing the "features" to be plotted (This should be thought of as a bed track. i.e. the set of peaks obtained using getPeakSet(ArchRProj)). 
+#' @param geneSymbol If "region" is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.
+#' @param upstream The number of basepairs upstream of the transcription start site of "geneSymbol" to extend the plotting window. If "region" is supplied, this argument is ignored.
+#' @param downstream The number of basepairs downstream of the transcription start site of "geneSymbol" to extend the plotting window. If "region" is supplied, this argument is ignored.
+#' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.
+#' @param normMethod The name of the column in cellColData object by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
+#' @param threads The number of threads to use for parallel execution.
+#' @param ylim QQQ The numeric y-axis limit to be used for for bulkTrack plotting. If not provided, the y-axis limit will be QQQ.
+#' @param baseSize QQQ The numeric font size to be used in the plot. This applies to all plot labels.
+#' @param borderWidth The numeric line width to be used for plot borders.
+#' @param tickWidth The numeric line width to be used for axis tick marks.
+#' @param geneAnno QQQ The geneAnnotation objection to be used for plotting the "geneTrack" object. This must be a TxDB object.
 #' @param title verbose sections
 #' @param ... additional args
 #' @export
 ArchRRegionTrack <- function(
-  ArchRProj, 
+  ArchRProj = NULL, 
   region = NULL, 
   groupBy = "Clusters",
   useGroups = NULL,
@@ -59,79 +59,90 @@ ArchRRegionTrack <- function(
   if(is.null(region)){
     if(!is.null(geneSymbol)){
       region <- geneAnno$genes
-      region <- region[which(tolower(mcols(region)$symbol) == tolower(geneSymbol))]
+      region <- region[which(tolower(mcols(region)$symbol) %in% tolower(geneSymbol))]
       region <- resize(region, 1, "start")
       strand(region) <- "*"
       region <- extendGRanges(region, upstream = upstream, downstream = downstream)
     }
   }
-  region <- .validGRanges(region)[1]
-  plotList <- list()
+  region <- .validGRanges(region)
 
-  ##########################################################
-  # Bulk Tracks
-  ##########################################################
-  if("bulktrack" %in% tolower(plotSummary)){
-    .messageDiffTime("Adding Bulk Tracks", tstart)
-    plotList$bulktrack <- .bulkTracks(
-      ArchRProj = ArchRProj, 
-      region = region, 
-      tileSize = tileSize, 
-      groupBy = groupBy,
-      threads = threads, 
-      minCells = minCells,
-      ylim = ylim,
-      baseSize = baseSize,
-      borderWidth = borderWidth,
-      tickWidth = tickWidth,
-      facetbaseSize = facetbaseSize,
-      normMethod = normMethod,
-      geneAnno = geneAnno,
-      title = title,
-      useGroups = useGroups,
-      useCoverages = useCoverages,
-      tstart = tstart) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
-  }
-  
-  ##########################################################
-  # Feature Tracks
-  ##########################################################
-  if("featuretrack" %in% tolower(plotSummary)){
-    .messageDiffTime("Adding Feature Tracks", tstart)
-    if(!is.null(features)){
-      plotList$featuretrack <- .featureTracks(
-          features = features, 
-          region = region, 
-          hideX = TRUE, 
-          title = "Peaks") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+  ggList <- lapply(seq_along(region), function(x){
+
+    plotList <- list()
+
+    ##########################################################
+    # Bulk Tracks
+    ##########################################################
+    if("bulktrack" %in% tolower(plotSummary)){
+      .messageDiffTime("Adding Bulk Tracks", tstart)
+      plotList$bulktrack <- .bulkTracks(
+        ArchRProj = ArchRProj, 
+        region = region[x], 
+        tileSize = tileSize, 
+        groupBy = groupBy,
+        threads = threads, 
+        minCells = minCells,
+        ylim = ylim,
+        baseSize = baseSize,
+        borderWidth = borderWidth,
+        tickWidth = tickWidth,
+        facetbaseSize = facetbaseSize,
+        normMethod = normMethod,
+        geneAnno = geneAnno,
+        title = title,
+        useGroups = useGroups,
+        useCoverages = useCoverages,
+        tstart = tstart) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
     }
+    
+    ##########################################################
+    # Feature Tracks
+    ##########################################################
+    if("featuretrack" %in% tolower(plotSummary)){
+      .messageDiffTime("Adding Feature Tracks", tstart)
+      if(!is.null(features)){
+        plotList$featuretrack <- .featureTracks(
+            features = features, 
+            region = region[x], 
+            hideX = TRUE, 
+            title = "Peaks") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+      }
+    }
+
+    ##########################################################
+    # Gene Tracks
+    ##########################################################
+    if("genetrack" %in% tolower(plotSummary)){
+      .messageDiffTime("Adding Gene Tracks", tstart)
+      plotList$genetrack <- .geneTracks(
+        geneAnnotation = geneAnno, 
+        region = region[x], 
+        title = "Genes") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+    }
+
+    ##########################################################
+    # Time to plot
+    ##########################################################
+    plotSummary <- tolower(plotSummary)
+    sizes <- sizes[order(plotSummary)]
+    plotSummary <- plotSummary[order(plotSummary)]
+
+    nullSummary <- unlist(lapply(seq_along(plotSummary), function(x) is.null(eval(parse(text=paste0("plotList$", plotSummary[x]))))))
+    if(any(nullSummary)){
+      sizes <- sizes[-which(nullSummary)]
+    }
+
+    .messageDiffTime("Plotting", tstart)
+    ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE)
+
+  })
+
+  if(length(ggList) == 1){
+    ggList <- ggList[[1]]
   }
 
-  ##########################################################
-  # Gene Tracks
-  ##########################################################
-  if("genetrack" %in% tolower(plotSummary)){
-    .messageDiffTime("Adding Gene Tracks", tstart)
-    plotList$genetrack <- .geneTracks(
-      geneAnnotation = geneAnno, 
-      region = region, 
-      title = "Genes") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
-  }
-
-  ##########################################################
-  # Time to plot
-  ##########################################################
-  plotSummary <- tolower(plotSummary)
-  sizes <- sizes[order(plotSummary)]
-  plotSummary <- plotSummary[order(plotSummary)]
-
-  nullSummary <- unlist(lapply(seq_along(plotSummary), function(x) is.null(eval(parse(text=paste0("plotList$", plotSummary[x]))))))
-  if(any(nullSummary)){
-    sizes <- sizes[-which(nullSummary)]
-  }
-
-  .messageDiffTime("Plotting", tstart)
-  ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE)
+  ggList
 
 }
 
@@ -685,5 +696,4 @@ ArchRRegionTrack <- function(
   return(p)
 
 }
-
 

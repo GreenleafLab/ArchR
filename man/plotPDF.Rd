@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{plotPDF}
 \alias{plotPDF}
-\title{Plot PDF in outputDirectory of ArchRProject}
+\title{Plot PDF in outputDirectory of an ArchRProject}
 \usage{
 plotPDF(..., name = "Plot", width = 6, height = 6,
   ArchRProj = NULL, addDOC = TRUE, useDingbats = FALSE,
@@ -11,18 +11,18 @@ plotPDF(..., name = "Plot", width = 6, height = 6,
 \arguments{
 \item{...}{additional args to pdf}
 
-\item{name}{name of PDF file}
+\item{name}{The file name to be used for the output PDF file.}
 
-\item{width}{width of PDF in inches}
+\item{width}{The width in inches to be used for the output PDF file.}
 
-\item{height}{height of PDF in inches}
+\item{height}{The height in inches to be used for the output PDF.}
 
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{addDOC}{add date of creation to end of plot file name}
+\item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.}
 
-\item{useDingbats}{use dingbats characters for plotting}
+\item{useDingbats}{A boolean variable that determines wheter to use dingbats characters for plotting points.}
 }
 \description{
-This function will plot PDF in output directory of an ArchRProject
+This function will save a plot or set of plots as a PDF file in the output directory of a given ArchRProject.
 }
