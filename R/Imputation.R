@@ -89,7 +89,7 @@ addImputeWeights <- function(
       W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=1, dims = c(Nx, Nx)) # unweighted kNN graph
     }
 
-    W <- W + t(W)
+    W <- W + Matrix::t(W)
 
     #Compute Kernel
     if(epsilon > 0){
@@ -127,7 +127,19 @@ addImputeWeights <- function(
   rownames(Wt) <- rownames(matDR)
   colnames(Wt) <- rownames(matDR)
 
-  ArchRProj@imputeWeights <- SimpleList(Weights = Wt, Blocks = Blocks, Params = list(td = td, k = k, weighted = weighted))
+  ArchRProj@imputeWeights <- SimpleList(
+    Weights = Wt, 
+    Blocks = Blocks, 
+    Params = 
+      list(
+        reducedDims = reducedDims, 
+        td = td, 
+        k = k, 
+        ka = ka,
+        epsilon = epsilon,
+        weighted = weighted
+        )
+      )
   
   ArchRProj
 
@@ -140,20 +152,9 @@ addImputeWeights <- function(
 #' @param ArchRProj ArchRProject
 #' @param ... additional args
 #' @export
-getImputeWeights <- function(ArchRProj, ...){
-  
+getImputeWeights <- function(ArchRProj, ...){  
   ArchRProj <- .validArchRProject(ArchRProj)
-  iW <- ArchRProj@imputeWeights
-  
-  if(!is.null(iW)){
-    iW <- iW[rownames(getCellColData(ArchRProj)),rownames(getCellColData(ArchRProj))]
-  }else{
-    iW <- NULL
-  
-  }
-  
-  iW
-
+  ArchRProj@imputeWeights
 }
 
 

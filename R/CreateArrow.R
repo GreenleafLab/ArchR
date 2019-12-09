@@ -283,7 +283,7 @@ createArrowFiles <- function(
     sink(tmpFile)
 
     ggtitle <- sprintf("%s\n%s\n%s",
-        paste0(sampleName, " : Number of Cells Pass Filter = ", sum(Metadata$Keep)),
+        paste0(sampleName, "\nnCells Pass Filter = ", sum(Metadata$Keep)),
         paste0("Median Frags = ", median(Metadata$nFrags[Metadata$Keep==1])),
         paste0("Median TSS Enrichment = ", median(Metadata$TSSEnrichment[Metadata$Keep==1]))
       )
