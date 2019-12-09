@@ -124,7 +124,7 @@ plotEmbedding <- function(
       plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
 
       if(!is.null(imputeWeights)){
-        imputeWeights <- imputeWeights[rownames(df), rownames(df)]
+        imputeWeights <- imputeWeights$Weights[rownames(df), rownames(df)]
         plotParamsx$color <- (imputeWeights %*% as(as.matrix(plotParamsx$color), "dgCMatrix"))[,1] 
       }
 
@@ -228,7 +228,7 @@ plotGroups <- function(
   }
 
   if(!is.null(imputeWeights)){
-    imputeWeights <- imputeWeights[names(groupNames), names(groupNames)]
+    imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
     values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
   }
 
