@@ -116,6 +116,7 @@ addIterativeLSI <- function(
     ArrowFiles = ArrowFiles, 
     featureDF = topFeatures,
     cellNames = cellNames, 
+    useMatrix = useMatrix,
     sampleNames = getCellColData(ArchRProj)$Sample, 
     dimsToUse = dimsToUse, 
     binarize = binarize, 
