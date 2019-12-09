@@ -129,7 +129,7 @@ addImputeWeights <- function(
 
   ArchRProj@imputeWeights <- SimpleList(
     Weights = Wt, 
-    Blocks = Blocks, 
+    Blocks = blocks, 
     Params = 
       list(
         reducedDims = reducedDims, 
