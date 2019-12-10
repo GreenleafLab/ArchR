@@ -188,12 +188,17 @@ getMatrixFromArrow <- function(
     useIndex = FALSE
   )
 
-  if(all(c("z", "deviations") %in% seqnames)){
+  matrixClass <- h5read(ArrowFile, paste0(useMatrix, "/Info/Class"))
+
+  if(matrixClass == "Sparse.Assays.Matrix"){
+    rownames(mat) <- paste0(featureDF$name)
     mat <- as(split(mat, featureDF$seqnames), "SimpleList")
-    featureDF <- featureDF[featureDF$seqnames=="deviations", "name", drop = FALSE]
+    featureDF <- featureDF[!duplicated(paste0(featureDF$name)), ,drop = FALSE]
+    featureDF <- featureDF[,which(colnames(featureDF) %ni% "seqnames"), drop=FALSE]
+    rownames(featureDF) <- paste0(featureDF$name)
   }else{
     mat <- SimpleList(mat)
-    names(mat) <- useMatrix
+    names(mat) <- useMatrix    
   }
 
   colData <- .getMetadata(ArrowFile)
@@ -204,23 +209,17 @@ getMatrixFromArrow <- function(
     colData <- cbind(colData, projColData[ ,colnames(projColData) %ni% colnames(colData)])
   }
 
-  if(useMatrix == "PeakMatrix"){
-    se <- SummarizedExperiment(
-      assays = mat,
-      rowRanges = GRanges(featureDF$seqnames, IRanges(featureDF$start, featureDF$end)),
-      colData = colData
-    )
-  }else{
-    se <- SummarizedExperiment(
-      assays = mat,
-      rowData = featureDF,
-      colData = colData
-    )
-  }
+  rowData <- tryCatch({
+    makeGRangesFromDataFrame(featureDF, keep.extra.columns = TRUE)
+  }, error = function(x){
+    featureDF
+  })
 
-  if("name" %in% colnames(rowData(se))){
-    rownames(se) <- rowData(se)$name
-  }
+  se <- SummarizedExperiment(
+    assays = mat,
+    rowData = rowData,
+    colData = colData
+  )
 
   se
 

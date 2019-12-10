@@ -4,8 +4,7 @@
 \alias{paletteContinuous}
 \title{Continuous Color Palette}
 \usage{
-paletteContinuous(set = "solar_extra", n = 256, reverse = FALSE,
-  returnStructure = FALSE)
+paletteContinuous(set = "solar_extra", n = 256, reverse = FALSE, ...)
 }
 \arguments{
 \item{set}{The name or numeric index of a color palette provided in ArchR_palettes.}

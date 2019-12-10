@@ -102,12 +102,24 @@ markerFeatures <- function(
     #####################################################
     ArrowFiles <- getArrowFiles(ArchRProj)
     featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
+    marixClass <- h5read(ArrowFile, paste0(useMatrix, "/Info/Class"))
+
     if(!is.null(useSeqnames)){
-      featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
+      if(length(useSeqnames) == 1){
+        featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
+      }else{
+        if(matrixClass == "Sparse.Assays.Matrix"){
+          stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames!\nPlease specify 1 seqname in useSeqnames to continue!\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available seqnames for input!")
+        }
+        featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
+      }
+    }else{
+      if(matrixClass == "Sparse.Assays.Matrix"){
+        stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames!\nPlease specify 1 seqname in useSeqnames to continue!\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available seqnames for input!")
+      }
     }
-    if(all(c("deviations","z") %in% unique(paste0(featureDF$seqnames)))){
-      message("Detected using deviations matrix without using deviations or z!\nDefaulting to using z values!\nTo use deviations set useSeqnames='deviations'")
-      featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% "z"),]
+    if(!(nrow(featureDF) > 1)){
+      stop("Less than 1 feature is remaining in featureDF please check input!")
     }
 
     #####################################################

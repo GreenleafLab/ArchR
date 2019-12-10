@@ -2,23 +2,22 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getFeatures}
 \alias{getFeatures}
-\title{Return Available Features for a given Matrix in ArrowFiles within an ArchRProject}
+\title{Return the available features that could be selected from a given data matrix within an ArchRProject}
 \usage{
 getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
   ignore.case = TRUE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An ArchRProject object.}
 
-\item{useMatrix}{Matrix Name as in Arrow Files (ie TileMatrix, GeneScoreMatrix, ...)}
+\item{useMatrix}{QQQ The name of the data matrix as stored in the ArrowFiles of the ArchRProject. Options include "TileMatrix", "GeneScoreMatrix", QQQ.}
 
-\item{select}{select a specific name with grep}
+\item{select}{QQQ select a specific name with grep}
 
-\item{ignore.case}{ignore case when searching with select}
+\item{ignore.case}{A boolean value indicating whether or not to ignore the case (upper-case / lower-case) when searching via grep for the string passed to "select".}
 
 \item{...}{additional args}
 }
 \description{
-This function will identify available features for a matrix and return them for downstream
-plotting utils.
+This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return them for downstream plotting utilities.
 }

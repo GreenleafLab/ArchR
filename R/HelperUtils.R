@@ -285,8 +285,13 @@
 }
 
 #' @export
-.quantileCut <- function(x, lo = 0.025, hi = 0.975){
+.quantileCut <- function(x, lo = 0.025, hi = 0.975, maxIf0 = TRUE){
   q <- quantile(x, probs = c(lo,hi))
+  if(q[2] == 0){
+    if(maxIf0){
+      q[2] <- max(x)
+    }
+  }
   x[x < q[1]] <- q[1]
   x[x > q[2]] <- q[2]
   return(x)

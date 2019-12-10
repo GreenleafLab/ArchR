@@ -7,7 +7,7 @@
 plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
   colorBy = "colData", name = "Sample", log2Norm = NULL,
   imputeWeights = getImputeWeights(ArchRProj), pal = NULL,
-  size = 0.5, rastr = TRUE, quantCut = c(0.025, 0.975),
+  size = 0.5, rastr = TRUE, quantCut = c(0.01, 0.99),
   discreteSet = NULL, continuousSet = NULL, randomize = TRUE,
   keepAxis = FALSE, baseSize = 6, plotAs = NULL,
   plotParams = list(), ...)

@@ -4,16 +4,16 @@
 \alias{getEmbedding}
 \title{Get embedding information stored in an ArchRProject}
 \usage{
-getEmbedding(ArchRProj, embedding = "UMAP", return = "df", ...)
+getEmbedding(ArchRProj, embedding = "UMAP", returnDF = TRUE, ...)
 }
 \arguments{
 \item{ArchRProj}{An ArchRProject object.}
 
 \item{embedding}{QQQ The name of the embedding object to retrieve from the designated ArchRProject. Options include QQQ.}
 
-\item{return}{If set to "df", the function will return the embedding object as a data.frame. Otherwise, it will return the full embedding object.}
-
 \item{...}{additional args}
+
+\item{return}{If set to "df", the function will return the embedding object as a data.frame. Otherwise, it will return the full embedding object.}
 }
 \description{
 QQQ This function gets an embedding (i.e. QQQ) from a given ArchRProject.
