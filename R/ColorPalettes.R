@@ -32,6 +32,9 @@ ArchRPalettes <- list(
   iron_man = c("9"='#371377',"3"='#7700FF',"2"='#9E0142',"10"='#FF0080', "14"='#DC494C',"12"="#F88D51","1"="#FAD510","8"="#FFFF5F","4"='#88CFA4',
            "13"='#238B45',"5"="#02401B", "7"="#0AD7D3","11"="#046C9A", "6"="#A2A475", "15"='grey35'),
   
+  circus = c("1"="#D52126", "2"="#88CCEE", "3"="#FEE52C", "4"="#117733", "5"="#CC61B0", "6"="#99C945", "7"="#2F8AC4", "8"="#332288",
+             "9"="#E68316", "10"="#661101", "11"="#F97B72", "12"="#DDCC77", "13"="#11A579", "14"="#89288F", "15"="#E73F74"),
+
   #12-colors
   paired = c("9"="#A6CDE2","1"="#1E78B4","3"="#74C476","12"="#34A047","11"="#F59899","2"="#E11E26",
                "10"="#FCBF6E","4"="#F47E1F","5"="#CAB2D6","8"="#6A3E98","6"="#FAF39B","7"="#B15928"),
@@ -86,7 +89,12 @@ ArchRPalettes <- list(
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
 #' @param returnStructure QQQ return structure palette
 #' @export
-paletteDiscrete <- function(set = "stallion", values, reverse = FALSE, returnStructure = FALSE, ...){
+paletteDiscrete <- function(
+  set = "stallion", 
+  values = NULL, 
+  reverse = FALSE, 
+  ...
+  ){
   
   #check
   if(is.numeric(set)){
@@ -97,13 +105,17 @@ paletteDiscrete <- function(set = "stallion", values, reverse = FALSE, returnStr
     name <- set
   }
   
+  if(is.null(values)){
+    stop("Please provide values for discrete palette!")
+  }
+
+  values <- gtools::mixedsort(values)
   n <- length(unique(values))
   pal <- ArchRPalettes[[set]]
   palOrdered <- pal[gtools::mixedsort(names(pal))] #mixed sort gets 1,2,3,4...10,11,12
 
   if(n > length(palOrdered)){
     message("Length of unique values greater than palette, interpolating...")
-    #since there are more than we supplied the goal is to interpolate and its important to interpolate in the order of the continous?
     palOut <- colorRampPalette(pal)(n)
   }else{
     palOut <- palOrdered[seq_len(n)]
@@ -114,14 +126,8 @@ paletteDiscrete <- function(set = "stallion", values, reverse = FALSE, returnStr
   }
 
   names(palOut) <- unique(values)
-  
-  if(returnStructure){
-    out <- base::structure(palOut, class = "palette", name = name)
-  }else{
-    out <- palOut
-  }
 
-  return(out)
+  return(palOut)
   
 }
 
@@ -132,7 +138,12 @@ paletteDiscrete <- function(set = "stallion", values, reverse = FALSE, returnStr
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
 #' @param returnStructure QQQ return structure palette
 #' @export
-paletteContinuous <- function(set = "solar_extra", n = 256, reverse = FALSE, returnStructure = FALSE){
+paletteContinuous <- function(
+  set = "solar_extra", 
+  n = 256, 
+  reverse = FALSE,
+  ...
+  ){
   
   #check
   if(is.numeric(set)){
@@ -148,13 +159,7 @@ paletteContinuous <- function(set = "solar_extra", n = 256, reverse = FALSE, ret
     palOut <- rev(palOut)
   }
 
-  if(returnStructure){
-    out <- base::structure(palOut, class = "palette", name = name)
-  }else{
-    out <- palOut
-  }
-
-  return(out)
+  return(palOut)
   
 }
 

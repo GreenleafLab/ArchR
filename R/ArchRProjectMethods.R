@@ -436,10 +436,10 @@ getExons <- function(ArchRProj, symbols = NULL, ...){
 #' @param return If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.
 #' @param ... additional args
 #' @export
-getReducedDims <- function(ArchRProj, reducedDims = "IterativeLSI", return = "matrix", ...){
+getReducedDims <- function(ArchRProj, reducedDims = "IterativeLSI", returnMatrix = TRUE, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
   if(reducedDims %in% names(ArchRProj@reducedDims)){
-    if(tolower(return)=="mat" | tolower(return)=="matrix"){
+    if(returnMatrix){
       out <- ArchRProj@reducedDims[[reducedDims]][[1]]
     }else{
       out <- ArchRProj@reducedDims[[reducedDims]]
@@ -459,10 +459,10 @@ getReducedDims <- function(ArchRProj, reducedDims = "IterativeLSI", return = "ma
 #' @param return If set to "df", the function will return the embedding object as a data.frame. Otherwise, it will return the full embedding object.
 #' @param ... additional args
 #' @export
-getEmbedding <- function(ArchRProj, embedding = "UMAP", return = "df", ...){
+getEmbedding <- function(ArchRProj, embedding = "UMAP", returnDF = TRUE, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
   if(embedding %in% names(ArchRProj@embeddings)){
-    if(tolower(return)=="df"){
+    if(returnDF){
       out <- ArchRProj@embeddings[[embedding]][[1]]
     }else{
       out <- ArchRProj@embeddings[[embedding]]
