@@ -102,7 +102,7 @@ markerFeatures <- function(
     #####################################################
     ArrowFiles <- getArrowFiles(ArchRProj)
     featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
-    marixClass <- h5read(ArrowFile, paste0(useMatrix, "/Info/Class"))
+    marixClass <- h5read(ArrowFiles[1], paste0(useMatrix, "/Info/Class"))
 
     if(!is.null(useSeqnames)){
       if(length(useSeqnames) == 1){
