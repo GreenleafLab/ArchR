@@ -860,7 +860,7 @@ addMotifAnnotations <- function(
 getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL, ignore.case = TRUE, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
   fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
-  marixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class"))
+  matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class"))
   if(is.null(select)){
     if(any(duplicated(paste0(fdf$name))) | matrixClass == "Sparse.Assays.Matrix"){
       paste0(fdf$seqnames,":",fdf$name)
