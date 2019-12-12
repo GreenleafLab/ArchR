@@ -205,7 +205,7 @@ plotGroups <- function(
   ylim = NULL, 
   size = 0.5, 
   baseSize = 6, 
-  ratioYX = 2, 
+  ratioYX = 0.5, 
   points = FALSE, 
   ...
   ){
@@ -258,7 +258,7 @@ plotGroups <- function(
 
   featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), matrixName)
 
-  marixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class"))
+  marixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(matrixName, "/Info/Class"))
 
   if(matrixClass == "Sparse.Assays.Matrix"){
     if(!all(unlist(lapply(name, function(x) grepl(":",x))))){

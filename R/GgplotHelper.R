@@ -428,6 +428,10 @@ ggViolin <- function(
   
   p <- p + theme(legend.position = "bottom")
 
+  if(!is.null(ratioYX)){
+    attr(p, "ratioYX") <- ratioYX
+  }
+  
   return(p)
 
 }

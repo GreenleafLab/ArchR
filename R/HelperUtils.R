@@ -103,7 +103,7 @@
 }
 
 #' @export
-.messageDiffTime <- function(main = "", t1 = NULL, verbose = TRUE, addHeader = FALSE, t2 = Sys.time(), units = "mins", header = "###########", tail = "elapsed since start...", precision = 3){
+.messageDiffTime <- function(main = "", t1 = NULL, verbose = TRUE, addHeader = FALSE, t2 = Sys.time(), units = "mins", header = "###########", tail = "elapsed...", precision = 3){
   if(verbose){
     timeStamp <- tryCatch({
       dt <- abs(round(difftime(t2, t1, units = units),precision))
