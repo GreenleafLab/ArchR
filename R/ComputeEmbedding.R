@@ -29,6 +29,8 @@ addEmbedding <- function(
   reducedDims = "IterativeLSI", 
   embedding = "UMAP",
   embeddingOut = NULL,
+  dimsToUse = NULL,
+  corCutOff = 0.75,
   saveModel = TRUE,
   seed = 1,
   force = FALSE,
@@ -69,12 +71,14 @@ addEmbedding <- function(
   }else if(tolower(embedding)=="rtsne"){
     defaultEmbeddingParams <- list(
       perplexity = 50,
+      pca = FALSE,
       num_threads = threads, 
       verbose = TRUE
     )
   }else if(tolower(embedding)=="fit-tsne" | toupper(embedding)=="fftrtsne"){
     defaultEmbeddingParams <- list(
       perplexity = 50,
+      pca = FALSE,
       num_threads = threads, 
       verbose = TRUE
     )
@@ -94,7 +98,7 @@ addEmbedding <- function(
   if(tolower(embedding)=="umap"){
 
     .requirePackage("uwot")
-    embeddingParams$X <- ArchRProj@reducedDims[[reducedDims]][[1]]
+    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
     if(saveModel){
       embeddingParams$ret_nn <- TRUE
       embeddingParams$ret_model <- TRUE
@@ -114,7 +118,7 @@ addEmbedding <- function(
   }else if(tolower(embedding)=="tumap"){
     
     .requirePackage("uwot")
-    embeddingParams$X <- ArchRProj@reducedDims[[reducedDims]][[1]]
+    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
     if(saveModel){
       embeddingParams$ret_nn <- TRUE
       embeddingParams$ret_model <- TRUE
@@ -134,7 +138,7 @@ addEmbedding <- function(
   }else if(tolower(embedding)=="rtsne"){
 
     .requirePackage("Rtsne")
-    embeddingParams$X <- ArchRProj@reducedDims[[reducedDims]][[1]]
+    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
     embeddingParams$pca <- FALSE
     Rtsne_tsne <- do.call(Rtsne::Rtsne, embeddingParams)
     dfEmbedding <- data.frame(Rtsne_tsne$Y)   
@@ -144,7 +148,7 @@ addEmbedding <- function(
   }else if(tolower(embedding)=="fftrtsne" | tolower(embedding)=="fit-tsne"){
 
     #Seurat::RunTSNE(dims = , tsne.method = "FIt-SNE", nthreads = 4, max_iter = 2000)
-    embeddingParams$X <- ArchRProj@reducedDims[[reducedDims]][[1]]
+    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
     embeddingParams$pca <- FALSE
     fftrtsne_tsne <- do.call(.fftRtsne, embeddingParams)
     dfEmbedding <- data.frame(fftrtsne_tsne)   

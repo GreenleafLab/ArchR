@@ -20,6 +20,7 @@ addClusters <- function(
     seed = 1, 
     method = "Seurat", 
     dimsToUse = NULL, 
+    corCutOff = 0.75,
     knnAssign = 10, 
     nOutlier = 20, 
     verbose = TRUE,
@@ -38,19 +39,16 @@ addClusters <- function(
         if(reducedDims %ni% names(input@reducedDims)){
             stop("Error reducedDims not available!")
         }
-        matDR <- input@reducedDims[[reducedDims]][[1]]
+        matDR <- getReducedDims(ArchRProj = input, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
+        print(dim(matDR))
     }else if(inherits(input, "matrix")){
         matDR <- input
     }else{
         stop("Input an ArchRProject or Cell by Reduced Dims Matrix!")
     }
-    if(is.null(dimsToUse)){
-        dimsToUse <- seq_len(ncol(matDR))
-    }
-    
+
     #Subset Matrix
     set.seed(seed)
-    matDR <- matDR[,dimsToUse]
     nr <- nrow(matDR)
 
     if(!is.null(sampleCells)){
@@ -73,7 +71,7 @@ addClusters <- function(
     #################################################################################
     if(grepl("seurat",tolower(method))){
 
-        clustParams <- list(dims = dimsToUse, ...)
+        clustParams <- list(...)
         clustParams$verbose <- verbose
         clustParams$tstart <- tstart
         clust <- .clustSeurat(mat = matDR, clustParams = clustParams)
@@ -81,8 +79,8 @@ addClusters <- function(
     }else if(grepl("scran",tolower(method))){
 
         clustParams <- list(...)
-        clustParams$x <- matDR[, dimsToUse]
-        clustParams$d <- length(dimsToUse)
+        clustParams$x <- matDR
+        clustParams$d <- ncol(matDR)
         clustParams$k <- ifelse(!is.null(...$k), ...$k, 25)
         clust <- .clustScran(clustParams)
 
@@ -165,13 +163,13 @@ addClusters <- function(
     out <- .reLabel(clust, oldLabels = clustOld, newLabels = clustNew)
 
     if(inherits(input, "ArchRProject")){
-        input <- addCellColData(
+        input <- .suppressAll(addCellColData(
                 input, 
                 data = out, 
                 name = name, 
                 cells = rownames(matDR),
                 force = TRUE
-            )
+            ))
     }else if(!inherits(input, "ArchRProject")){
         return(out)
     }

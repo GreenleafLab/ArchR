@@ -436,13 +436,31 @@ getExons <- function(ArchRProj, symbols = NULL, ...){
 #' @param return If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.
 #' @param ... additional args
 #' @export
-getReducedDims <- function(ArchRProj, reducedDims = "IterativeLSI", returnMatrix = TRUE, ...){
+getReducedDims <- function(
+  ArchRProj, 
+  reducedDims = "IterativeLSI", 
+  returnMatrix = TRUE, 
+  dimsToUse = NULL,
+  corCutOff = 0.75,
+  ...
+  ){
   ArchRProj <- .validArchRProject(ArchRProj)
   if(reducedDims %in% names(ArchRProj@reducedDims)){
+    corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth
+    if(!is.null(dimsToUse)){
+      corToUse <- dimsToUse
+    }else{
+      corToUse <- seq_along(corToDepth)
+    }
+    idx <- which(abs(corToDepth[corToUse]) <= corCutOff)
+    if(length(idx) != length(corToUse)){
+      message("Filtering ", length(corToUse) - length(idx), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+    }
     if(returnMatrix){
-      out <- ArchRProj@reducedDims[[reducedDims]][[1]]
+      out <- ArchRProj@reducedDims[[reducedDims]][[1]][,corToUse[idx],drop=FALSE]
     }else{
       out <- ArchRProj@reducedDims[[reducedDims]]
+      out[[1]] <- out[[1]][,corToUse[idx],drop=FALSE]
     }
   }else{
     stop("reducedDims not in computed reduced dims!")
