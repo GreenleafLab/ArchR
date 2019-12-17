@@ -5,9 +5,9 @@
 \title{Add embedding of a reduced dimensions object in an ArchRProject}
 \usage{
 addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  embedding = "UMAP", embeddingOut = NULL, saveModel = TRUE,
-  seed = 1, force = FALSE, threads = floor(detectCores()/2),
-  embeddingParams = list(), ...)
+  embedding = "UMAP", embeddingOut = NULL, dimsToUse = NULL,
+  corCutOff = 0.75, saveModel = TRUE, seed = 1, force = FALSE,
+  threads = floor(detectCores()/2), embeddingParams = list(), ...)
 }
 \arguments{
 \item{ArchRProj}{An ArchRProject object.}

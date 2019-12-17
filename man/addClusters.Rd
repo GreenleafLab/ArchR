@@ -6,8 +6,9 @@
 \usage{
 addClusters(input = NULL, reducedDims = "IterativeLSI",
   name = "Clusters", sampleCells = NULL, seed = 1,
-  method = "Seurat", dimsToUse = NULL, knnAssign = 10,
-  nOutlier = 20, verbose = TRUE, tstart = NULL, force = FALSE, ...)
+  method = "Seurat", dimsToUse = NULL, corCutOff = 0.75,
+  knnAssign = 10, nOutlier = 20, verbose = TRUE, tstart = NULL,
+  force = FALSE, ...)
 }
 \arguments{
 \item{input}{ArchRProject or matrix for cluster identification}
