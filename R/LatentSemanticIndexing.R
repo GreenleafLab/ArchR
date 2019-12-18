@@ -464,7 +464,19 @@ addIterativeLSI <- function(
     }
     mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
 
-    if(LSIMethod == 1 | tolower(LSIMethod) == "log(tf-idf)"){
+    if(LSIMethod == 1 | tolower(LSIMethod) == "tf-logidf"){
+
+      #Adapted from Casanovich et al.
+
+      #LogIDF
+      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      idf   <- as(log(1 + ncol(mat) / rowSm), "sparseVector")
+
+      #TF-LogIDF
+      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+
+    }else if(LSIMethod == 2 | tolower(LSIMethod) == "log(tf-idf)"){
 
       #Adapted from Stuart et al.
 
@@ -478,18 +490,6 @@ addIterativeLSI <- function(
 
       #Log transform TF-IDF
       mat@x <- log(mat@x * scaleTo + 1)  
-
-    }else if(LSIMethod == 2 | tolower(LSIMethod) == "tf-logidf"){
-
-      #Adapted from Casanovich et al.
-
-      #LogIDF
-      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
-      idf   <- as(log(1 + ncol(mat) / rowSm), "sparseVector")
-
-      #TF-LogIDF
-      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
-      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
 
     }else if(LSIMethod == 3 | tolower(LSIMethod) == "logtf-logidf"){
 
@@ -532,9 +532,9 @@ addIterativeLSI <- function(
         idx = idx, 
         svd = svd, 
         binarize = binarize, 
+        scaleTo = scaleTo,
         nDimensions = nDimensions,
         LSIMethod = LSIMethod,
-        normT = normT,
         date = Sys.Date(),
         seed = seed
       )
@@ -583,8 +583,19 @@ addIterativeLSI <- function(
     }
     mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
 
+    if(LSI$LSIMethod == 1 | tolower(LSI$LSIMethod) == "tf-logidf"){
 
-    if(LSI$LSIMethod == 1 | tolower(LSI$LSIMethod) == "log(tf-idf)"){
+      #Adapted from Casanovich et al.
+
+      #LogIDF
+      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      idf   <- as(log(1 + length(LSI$colSm) / LSI$rowSm), "sparseVector")
+
+      #TF-LogIDF
+      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+
+    }else if(LSI$LSIMethod == 2 | tolower(LSI$LSIMethod) == "log(tf-idf)"){
 
       #Adapted from Stuart et al.
 
@@ -597,19 +608,7 @@ addIterativeLSI <- function(
       mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
 
       #Log transform TF-IDF
-      mat@x <- log(mat@x * scaleTo + 1)  
-
-    }else if(LSI$LSIMethod == 2 | tolower(LSI$LSIMethod) == "tf-logidf"){
-
-      #Adapted from Casanovich et al.
-
-      #LogIDF
-      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
-      idf   <- as(log(1 + length(LSI$colSm) / LSI$rowSm), "sparseVector")
-
-      #TF-LogIDF
-      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
-      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+      mat@x <- log(mat@x * LSI$scaleTo + 1)  
 
     }else if(LSI$LSIMethod == 3 | tolower(LSI$LSIMethod) == "logtf-logidf"){
 
@@ -630,7 +629,7 @@ addIterativeLSI <- function(
       stop("LSIMethod unrecognized please select valid method!")
 
     }
-    
+
     gc()
 
     #Clean Up Matrix
