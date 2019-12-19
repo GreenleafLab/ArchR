@@ -145,13 +145,17 @@ markerFeatures <- function(
     mColSums <- suppressMessages(.getColSums(ArrowFiles, seqnames = featureDF$seqnames@values, useMatrix = useMatrix, threads = threads))
     
     if(is.null(normBy)){
-      if(tolower(useMatrix) %in% c("tilematrix", "peakmatrix")){
-        normBy <- "ReadsInTSS"
-        normFactors <- getCellColData(ArchRProj, normBy, drop=FALSE)
-        normFactors[,1] <- median(normFactors[,1]) / normFactors[,1]
+      if(tolower(testMethod) == "binomial"){
+        normFactors <- NULL
       }else{
-        normFactors <- scaleTo / mColSums
-        normFactors <- DataFrame(normFactors)
+        if(tolower(useMatrix) %in% c("tilematrix", "peakmatrix")){
+          normBy <- "ReadsInTSS"
+          normFactors <- getCellColData(ArchRProj, normBy, drop=FALSE)
+          normFactors[,1] <- median(normFactors[,1]) / normFactors[,1]
+        }else{
+          normFactors <- scaleTo / mColSums
+          normFactors <- DataFrame(normFactors)
+        }
       }
     }else{
       if(tolower(normBy) == "none"){
@@ -190,11 +194,11 @@ markerFeatures <- function(
       pse <- SummarizedExperiment::SummarizedExperiment(
           assays = 
             SimpleList(
-              Log2FC = lapply(seq_along(diffList), function(x) diffList[[x]]$log2FC) %>% Reduce("cbind",.),
-              Mean = lapply(seq_along(diffList), function(x) diffList[[x]]$mean1) %>% Reduce("cbind",.),
-              FDR = lapply(seq_along(diffList), function(x) diffList[[x]]$fdr) %>% Reduce("cbind",.),
-              AUC = lapply(seq_along(diffList), function(x) diffList[[x]]$auc) %>% Reduce("cbind",.),
-              MeanBDG = lapply(seq_along(diffList), function(x) diffList[[x]]$mean2) %>% Reduce("cbind",.)
+              Log2FC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$log2FC)) %>% Reduce("cbind",.),
+              Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
+              FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
+              AUC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$auc)) %>% Reduce("cbind",.),
+              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
         )
@@ -202,12 +206,23 @@ markerFeatures <- function(
       pse <- SummarizedExperiment::SummarizedExperiment(
           assays = 
             SimpleList(
-              Log2FC = lapply(seq_along(diffList), function(x) diffList[[x]]$log2FC) %>% Reduce("cbind",.),
-              Mean = lapply(seq_along(diffList), function(x) diffList[[x]]$mean1) %>% Reduce("cbind",.),
-              Variance = lapply(seq_along(diffList), function(x) diffList[[x]]$var1) %>% Reduce("cbind",.),
-              FDR = lapply(seq_along(diffList), function(x) diffList[[x]]$fdr) %>% Reduce("cbind",.),
-              MeanBDG = lapply(seq_along(diffList), function(x) diffList[[x]]$mean2) %>% Reduce("cbind",.),
-              VarianceBDG = lapply(seq_along(diffList), function(x) diffList[[x]]$var2) %>% Reduce("cbind",.)
+              Log2FC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$log2FC)) %>% Reduce("cbind",.),
+              Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
+              Variance = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var1)) %>% Reduce("cbind",.),
+              FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
+              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.),
+              VarianceBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var2)) %>% Reduce("cbind",.)
+            ),
+          rowData = featureDF
+        )
+    }else if(tolower(testMethod) == "binomial"){
+      pse <- SummarizedExperiment::SummarizedExperiment(
+          assays = 
+            SimpleList(
+              Log2FC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$log2FC)) %>% Reduce("cbind",.),
+              Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
+              FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
+              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
         )
@@ -273,6 +288,18 @@ markerFeatures <- function(
     
       .suppressAll(do.call(.sparseMatTTest, args))
     
+    }else if(tolower(testMethod) == "binomial"){
+
+      if(!is.null(normFactors)){
+        stop("Normfactors cannot be used with a binomial test!")
+      }
+
+      if(!binarize){
+        stop("Binomial test requires binarization!")
+      }
+    
+      .suppressAll(do.call(.sparseMatBinomTest, args))
+
     }else{
     
       stop("Error Unrecognized Method!")
@@ -363,20 +390,28 @@ markerFeatures <- function(
 
 #Binomial Test Row-wise two matrices
 .sparseMatBinomTest <- function(mat1, mat2){
+  
   #Get Population Values
   n1 <- ncol(mat1)
   n2 <- ncol(mat2)
   n <- n1 + n2
+  
   #Sparse Row Stats
   s1 <- Matrix::rowSums(mat1, na.rm=TRUE)
   m1 <- s1 / n1
-  m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
-  #Combute Binom.test
-  pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-  pval <- sapply(seq_along(s1), function(x){
-    setTxtProgressBar(pb,round(x*100/length(s1),0))
-    binom.test(s1[x], n1, m2[x], alternative="two.sided")$p.value
-  })
+  s2 <- Matrix::rowSums(mat2, na.rm=TRUE)
+  m2 <- s2 / n2
+  
+  #Combute Binom.test 2-sided
+  pval <- unlist(lapply(seq_along(s1), function(x){
+    if(m1[x] >= m2[x]){
+      p <- pbinom(q = s1[x]-1, size = n1, prob = (max(c(s2[x],1))) / n2, lower.tail=FALSE, log.p = TRUE)
+    }else{
+      p <- pbinom(q = s2[x]-1, size = n2, prob = (max(c(s1[x],1))) / n1, lower.tail=FALSE, log.p = TRUE)
+    }
+    p <- min(c(2 * exp(p), 1)) #handle 2-sided test
+    p
+  }))
   fdr <- p.adjust(pval, method = "fdr", length(pval))
   
   #Sparse Row Sums
@@ -395,7 +430,9 @@ markerFeatures <- function(
     mean2 = m2, 
     n = n1
   )
+
   return(out)
+
 }
 
 
@@ -642,6 +679,7 @@ markerHeatmap <- function(
   labelTop = NULL,
   labelRows = FALSE,
   returnMat = FALSE,
+  invert = FALSE,
   ...
   ){
 
@@ -711,8 +749,12 @@ markerHeatmap <- function(
   }
 
   if(binaryClusterRows){
-    bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
-    mat <- bS[[1]][,colnames(mat)]
+    if(invert){
+      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)])
+    }else{
+      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
+    }
+    mat <- -bS[[1]][,colnames(mat)]
     clusterRows <- FALSE
     clusterCols <- bS[[2]]
   }else{
@@ -741,6 +783,10 @@ markerHeatmap <- function(
     }else{
       pal <- paletteContinuous(set = "solar_extra", n = 100)
     }
+  }
+
+  if(invert){
+    pal <- rev(pal)
   }
 
   ht <- .ArchRHeatmap(
@@ -1064,8 +1110,6 @@ markerHeatmap <- function(
 
 }
 
-
-
 #' @export
 markerAnnoEnrich <- function(
   seMarker = NULL,
@@ -1229,8 +1273,8 @@ markerRanges <- function(
 markerPlot <- function(
   seMarker,
   name = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
-  plotAs = "MA",
+  cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
+  plotAs = "Volcano",
   log2Norm = TRUE,
   scaleTo = 10^4,
   ...){
@@ -1251,20 +1295,27 @@ markerPlot <- function(
   }
   
   LFC <- assays(seMarker[,name])$Log2FC
-  LFC <- as.vector(LFC)
+  LFC <- as.vector(as.matrix(LFC))
 
   FDR <- assays(seMarker[,name])$FDR
-  FDR <- as.vector(FDR)
+  FDR <- as.vector(as.matrix(FDR))
   FDR[is.na(FDR)] <- 1
 
   LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBDG)/2 + 1)
-  LM <- as.vector(LM)
+  LM <- as.vector(as.matrix(LM))
 
   color <- ifelse(passMat[, name], "Differential", "Not-Differential")
   color[color == "Differential"] <- ifelse(LFC[color == "Differential"] > 0, "Up-Regulated", "Down-Regulated")
   pal <- c("Up-Regulated" = "firebrick3", "Not-Differential" = "lightgrey", "Down-Regulated" = "dodgerblue3")
 
   idx <- c(which(!passMat[, name]), which(passMat[, name]))
+
+  title <- sprintf("Number of features = %s\nNumber Up-Regulated = %s (%s Percent)\nNumber Down-Regulated = %s (%s Percent)",
+    nrow(seMarker), sum(color=="Up-Regulated"), 
+    round(100 * sum(color=="Up-Regulated") / nrow(seMarker), 2),
+    sum(color=="Down-Regulated"), 
+    round(100 * sum(color=="Down-Regulated") / nrow(seMarker), 2)
+    )
 
   if(tolower(plotAs) == "ma"){
     ggPoint(
@@ -1274,7 +1325,8 @@ markerPlot <- function(
       rastr = TRUE, 
       pal = pal,
       xlabel = "Log2 Mean",
-      ylabel = "Log2 Fold Change"
+      ylabel = "Log2 Fold Change",
+      title = title
     ) + geom_hline(yintercept = 0, lty = "dashed")
   }else if(tolower(plotAs) == "volcano"){
     ggPoint(
@@ -1284,7 +1336,8 @@ markerPlot <- function(
       rastr = TRUE, 
       pal = pal,
       xlabel = "Log2 Fold Change",
-      ylabel = "-Log10 FDR"
+      ylabel = "-Log10 FDR",
+      title = title
     ) + geom_vline(xintercept = 0, lty = "dashed")
   }else{
     stop("plotAs not recognized")

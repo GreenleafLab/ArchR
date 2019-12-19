@@ -342,7 +342,7 @@ addGroupCoverages <- function(
     samplesPassFilter <- sum(nCellsPerSample >= minCells)   
     samplesThatCouldBeMergedToPass <- floor(sum(nCellsPerSample[nCellsPerSample < minCells]) / minCells)
     if(nCells >= minCells * minReplicates & useLabels){
-      ############################################################
+        ############################################################
         # Identifying High-Quality peaks when Cells and Fragments are abundant
         ############################################################
         #Samples Passing Min Filter
@@ -393,7 +393,7 @@ addGroupCoverages <- function(
         }
     }else{
         ############################################################
-        # Identifying High-Quality peaks when Cells and Fragments are not abundant
+        # Identifying High-Quality peaks when Cells are not abundant
         ############################################################
         if(nCells >= minCells / sampleRatio){
             ############################################################

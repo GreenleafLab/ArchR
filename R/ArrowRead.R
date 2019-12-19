@@ -251,7 +251,7 @@ getMatrixFromArrow <- function(
   o <- h5closeAll()
 
   matClass <- h5read(ArrowFile, paste0(useMatrix,"/Info/Class"))
-  if(matClass %ni% c("Sparse.Binary.Matrix", "Sparse.Integer.Matrix", "Sparse.Double.Matrix")){
+  if(matClass %ni% c("Sparse.Binary.Matrix", "Sparse.Integer.Matrix", "Sparse.Double.Matrix", "Sparse.Assays.Matrix")){
     stop("Arrow Mat is not a valid Sparse Matrix!")
   }
   if(is.null(binarize)){
