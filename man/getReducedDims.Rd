@@ -5,16 +5,16 @@
 \title{Get dimensionality reduction information stored in an ArchRProject}
 \usage{
 getReducedDims(ArchRProj, reducedDims = "IterativeLSI",
-  return = "matrix", ...)
+  returnMatrix = TRUE, dimsToUse = NULL, corCutOff = 0.75, ...)
 }
 \arguments{
 \item{ArchRProj}{An ArchRProject object.}
 
 \item{reducedDims}{QQQ The name of the reducedDims object to retrieve from the designated ArchRProject. Options include QQQ.}
 
-\item{return}{If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.}
-
 \item{...}{additional args}
+
+\item{return}{If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.}
 }
 \description{
 This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.

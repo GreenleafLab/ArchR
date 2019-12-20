@@ -179,7 +179,7 @@ addDeviationsMatrix <- function(
   o <- .initializeMat(
     ArrowFile = ArrowFile,
     Group = matrixName,
-    Class = "Double",
+    Class = "Assays",
     cellNames = colnames(dev),
     params = "chromVAR",
     featureDF = featureDF,

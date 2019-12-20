@@ -436,13 +436,31 @@ getExons <- function(ArchRProj, symbols = NULL, ...){
 #' @param return If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.
 #' @param ... additional args
 #' @export
-getReducedDims <- function(ArchRProj, reducedDims = "IterativeLSI", return = "matrix", ...){
+getReducedDims <- function(
+  ArchRProj, 
+  reducedDims = "IterativeLSI", 
+  returnMatrix = TRUE, 
+  dimsToUse = NULL,
+  corCutOff = 0.75,
+  ...
+  ){
   ArchRProj <- .validArchRProject(ArchRProj)
   if(reducedDims %in% names(ArchRProj@reducedDims)){
-    if(tolower(return)=="mat" | tolower(return)=="matrix"){
-      out <- ArchRProj@reducedDims[[reducedDims]][[1]]
+    corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth
+    if(!is.null(dimsToUse)){
+      corToUse <- dimsToUse
+    }else{
+      corToUse <- seq_along(corToDepth)
+    }
+    idx <- which(abs(corToDepth[corToUse]) <= corCutOff)
+    if(length(idx) != length(corToUse)){
+      message("Filtering ", length(corToUse) - length(idx), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+    }
+    if(returnMatrix){
+      out <- ArchRProj@reducedDims[[reducedDims]][[1]][,corToUse[idx],drop=FALSE]
     }else{
       out <- ArchRProj@reducedDims[[reducedDims]]
+      out[[1]] <- out[[1]][,corToUse[idx],drop=FALSE]
     }
   }else{
     stop("reducedDims not in computed reduced dims!")
@@ -459,10 +477,10 @@ getReducedDims <- function(ArchRProj, reducedDims = "IterativeLSI", return = "ma
 #' @param return If set to "df", the function will return the embedding object as a data.frame. Otherwise, it will return the full embedding object.
 #' @param ... additional args
 #' @export
-getEmbedding <- function(ArchRProj, embedding = "UMAP", return = "df", ...){
+getEmbedding <- function(ArchRProj, embedding = "UMAP", returnDF = TRUE, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
   if(embedding %in% names(ArchRProj@embeddings)){
-    if(tolower(return)=="df"){
+    if(returnDF){
       out <- ArchRProj@embeddings[[embedding]][[1]]
     }else{
       out <- ArchRProj@embeddings[[embedding]]
@@ -860,8 +878,9 @@ addMotifAnnotations <- function(
 getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL, ignore.case = TRUE, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
   fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
+  matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class"))
   if(is.null(select)){
-    if(any(duplicated(paste0(fdf$name)))){
+    if(any(duplicated(paste0(fdf$name))) | matrixClass == "Sparse.Assays.Matrix"){
       paste0(fdf$seqnames,":",fdf$name)
     }else{
       fdf$name

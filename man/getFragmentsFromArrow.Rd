@@ -5,7 +5,7 @@
 \title{Get the fragments from an ArrowFile}
 \usage{
 getFragmentsFromArrow(ArrowFile, chr = NULL, cellNames = NULL,
-  method = "fast", verbose = TRUE, ...)
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{ArrowFile}{The ArrowFile object from which fragments should be obtained.}
@@ -13,8 +13,6 @@ getFragmentsFromArrow(ArrowFile, chr = NULL, cellNames = NULL,
 \item{chr}{A name of a chromosome to be used to subset the fragments GRanges object to a specific chromsome if desired.}
 
 \item{cellNames}{QQQ matrix output name in ArrowFiles cannot be a protected matrix name}
-
-\item{method}{QQQ ceiling for the number of counts per feature}
 
 \item{verbose}{A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 

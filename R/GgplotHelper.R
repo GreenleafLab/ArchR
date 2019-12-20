@@ -243,6 +243,10 @@ ggPoint <- function(
 
     p <- p + theme(legend.position = "bottom", legend.key = element_rect(size = 2))#, legend.spacing.x = unit(0.1, 'cm'), legend.spacing.y = unit(0.1, 'cm'))
 
+    if(!is.null(ratioYX)){
+      attr(p, "ratioYX") <- ratioYX
+    }
+
     return(p)
 
 }
@@ -282,7 +286,7 @@ ggOneToOne <- function (
   extend = 0.05, 
   baseSize = 6, 
   rastr = TRUE,
-  pal = paletteContinuous(set = "viridis"),
+  pal = paletteContinuous(set = "blue_yellow"),
   ...){
   
   #Check is Numeric
@@ -327,7 +331,9 @@ ggOneToOne <- function (
       baseSize = baseSize,
       rastr = rastr
     ) + geom_abline(slope = 1, intercept = 0, lty = "dashed")
+
   return(gg)
+
 }
 
 .getDensity <- function(x, y, n = 100, sample = NULL, densityMax = 0.95){
@@ -428,6 +434,10 @@ ggViolin <- function(
   
   p <- p + theme(legend.position = "bottom")
 
+  if(!is.null(ratioYX)){
+    attr(p, "ratioYX") <- ratioYX
+  }
+  
   return(p)
 
 }
@@ -525,6 +535,10 @@ ggHex <- function(
 
     p <- p + theme(legend.position = "bottom")
     
+    if(!is.null(ratioYX)){
+      attr(p, "ratioYX") <- ratioYX
+    }
+
     p
 
 }

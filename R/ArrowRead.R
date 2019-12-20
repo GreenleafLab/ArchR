@@ -9,7 +9,6 @@
 #' @param ArrowFile The ArrowFile object from which fragments should be obtained.
 #' @param chr A name of a chromosome to be used to subset the fragments GRanges object to a specific chromsome if desired.
 #' @param cellNames QQQ matrix output name in ArrowFiles cannot be a protected matrix name
-#' @param method QQQ ceiling for the number of counts per feature
 #' @param verbose A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param ... additional params
 #' @export
@@ -17,9 +16,9 @@ getFragmentsFromArrow <- function(
   ArrowFile, 
   chr = NULL, 
   cellNames = NULL, 
-  method = "fast",
   verbose = TRUE,
-  ...){
+  ...
+  ){
 
   ArrowFile <- .validArrow(ArrowFile)
 
@@ -34,7 +33,7 @@ getFragmentsFromArrow <- function(
   tstart <- Sys.time()
   out <- lapply(seq_along(chr), function(x){
     .messageDiffTime(sprintf("Reading Chr %s of %s", x, length(chr)), tstart, verbose = verbose)
-    .getFragsFromArrow(ArrowFile = ArrowFile, chr = chr[x], out = "GRanges", method = method)
+    .getFragsFromArrow(ArrowFile = ArrowFile, chr = chr[x], out = "GRanges", cellNames = cellNames, method = "fast")
   }) %>% GenomicRangesList
 
   .messageDiffTime("Merging", tstart, verbose = verbose)
@@ -52,7 +51,8 @@ getFragmentsFromArrow <- function(
   out = "GRanges", 
   cellNames = NULL, 
   method = "fast",
-  ...){
+  ...
+  ){
 
   if(is.null(chr)){
     stop("Need to provide chromosome to read!")
@@ -161,7 +161,8 @@ getMatrixFromArrow <- function(
   ArchRProj = NULL,
   verbose = TRUE,
   binarize = FALSE,
-  ...){
+  ...
+  ){
 
   ArrowFile <- .validArrow(ArrowFile)
 
@@ -187,12 +188,17 @@ getMatrixFromArrow <- function(
     useIndex = FALSE
   )
 
-  if(all(c("z", "deviations") %in% seqnames)){
+  matrixClass <- h5read(ArrowFile, paste0(useMatrix, "/Info/Class"))
+
+  if(matrixClass == "Sparse.Assays.Matrix"){
+    rownames(mat) <- paste0(featureDF$name)
     mat <- as(split(mat, featureDF$seqnames), "SimpleList")
-    featureDF <- featureDF[featureDF$seqnames=="deviations", "name", drop = FALSE]
+    featureDF <- featureDF[!duplicated(paste0(featureDF$name)), ,drop = FALSE]
+    featureDF <- featureDF[,which(colnames(featureDF) %ni% "seqnames"), drop=FALSE]
+    rownames(featureDF) <- paste0(featureDF$name)
   }else{
     mat <- SimpleList(mat)
-    names(mat) <- useMatrix
+    names(mat) <- useMatrix    
   }
 
   colData <- .getMetadata(ArrowFile)
@@ -203,23 +209,17 @@ getMatrixFromArrow <- function(
     colData <- cbind(colData, projColData[ ,colnames(projColData) %ni% colnames(colData)])
   }
 
-  if(useMatrix == "PeakMatrix"){
-    se <- SummarizedExperiment(
-      assays = mat,
-      rowRanges = GRanges(featureDF$seqnames, IRanges(featureDF$start, featureDF$end)),
-      colData = colData
-    )
-  }else{
-    se <- SummarizedExperiment(
-      assays = mat,
-      rowData = featureDF,
-      colData = colData
-    )
-  }
+  rowData <- tryCatch({
+    makeGRangesFromDataFrame(featureDF, keep.extra.columns = TRUE)
+  }, error = function(x){
+    featureDF
+  })
 
-  if("name" %in% colnames(rowData(se))){
-    rownames(se) <- rowData(se)$name
-  }
+  se <- SummarizedExperiment(
+    assays = mat,
+    rowData = rowData,
+    colData = colData
+  )
 
   se
 
@@ -251,7 +251,7 @@ getMatrixFromArrow <- function(
   o <- h5closeAll()
 
   matClass <- h5read(ArrowFile, paste0(useMatrix,"/Info/Class"))
-  if(matClass %ni% c("Sparse.Binary.Matrix", "Sparse.Integer.Matrix", "Sparse.Double.Matrix")){
+  if(matClass %ni% c("Sparse.Binary.Matrix", "Sparse.Integer.Matrix", "Sparse.Double.Matrix", "Sparse.Assays.Matrix")){
     stop("Arrow Mat is not a valid Sparse Matrix!")
   }
   if(is.null(binarize)){

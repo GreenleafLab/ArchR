@@ -3,7 +3,6 @@
 \name{nCells}
 \alias{nCells}
 \title{Get number of cells from ArchRProject/ArrowFile}
-
 \usage{
 nCells(input, ...)
 }
@@ -14,5 +13,4 @@ nCells(input, ...)
 }
 \description{
 This function gets number of cells in ArchRProject/ArrowFile
-
 }

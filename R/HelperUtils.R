@@ -103,7 +103,7 @@
 }
 
 #' @export
-.messageDiffTime <- function(main = "", t1 = NULL, verbose = TRUE, addHeader = FALSE, t2 = Sys.time(), units = "mins", header = "###########", tail = "elapsed since start...", precision = 3){
+.messageDiffTime <- function(main = "", t1 = NULL, verbose = TRUE, addHeader = FALSE, t2 = Sys.time(), units = "mins", header = "###########", tail = "elapsed...", precision = 3){
   if(verbose){
     timeStamp <- tryCatch({
       dt <- abs(round(difftime(t2, t1, units = units),precision))
@@ -285,8 +285,13 @@
 }
 
 #' @export
-.quantileCut <- function(x, lo = 0.025, hi = 0.975){
+.quantileCut <- function(x, lo = 0.025, hi = 0.975, maxIf0 = TRUE){
   q <- quantile(x, probs = c(lo,hi))
+  if(q[2] == 0){
+    if(maxIf0){
+      q[2] <- max(x)
+    }
+  }
   x[x < q[1]] <- q[1]
   x[x > q[2]] <- q[2]
   return(x)

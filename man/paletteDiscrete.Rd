@@ -4,8 +4,8 @@
 \alias{paletteDiscrete}
 \title{Optimized discrete color palette generation}
 \usage{
-paletteDiscrete(set = "stallion", values, reverse = FALSE,
-  returnStructure = FALSE, ...)
+paletteDiscrete(set = "stallion", values = NULL, reverse = FALSE,
+  ...)
 }
 \arguments{
 \item{set}{The name or numeric index of a color palette provided in ArchR_palettes.}

@@ -17,6 +17,8 @@
   #   - Class - Sparse.Integer.Matrix = Sparse Matrix with Integer Entries
   #           - Sparse.Binary.Matrix = Sparse Matrix with Binary ie no x values
   #           - Sparse.Double.Matrix = Sparse Matrix with Double/Numeric Entries
+  #           - Sparse.Assays.Matrix = Sparse Matrices with same feature names (same cell x feature)
+  #                                    separated by different seqnames (ie assayNames)
   #   - CellNames ie Colnames
   #   - FeatureDF dataframe that describes the rows of each seqname
   #   - Params Params that are used for construction to be checked when comparing Arrows
@@ -49,6 +51,10 @@
   }else if(tolower(Class)=="double"){
 
     o <- h5write(obj = "Sparse.Double.Matrix", file = ArrowFile, name = paste0(Group, "/Info/Class"))
+
+  }else if(tolower(Class)=="assays"){
+
+    o <- h5write(obj = "Sparse.Assays.Matrix", file = ArrowFile, name = paste0(Group, "/Info/Class"))
 
   }else{
 

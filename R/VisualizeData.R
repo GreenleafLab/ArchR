@@ -32,7 +32,7 @@ plotEmbedding <- function(
   pal = NULL,
   size = 0.5,
   rastr = TRUE,
-  quantCut = c(0.025, 0.975),
+  quantCut = c(0.01, 0.99),
   discreteSet = NULL,
   continuousSet = NULL,
   randomize = TRUE,
@@ -48,7 +48,7 @@ plotEmbedding <- function(
   ##############################
   # Get Embedding
   ##############################
-  df <- getEmbedding(ArchRProj, embedding = embedding, return = "df")
+  df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
 
   #Parameters
   plotParams$x <- df[,1]
@@ -84,7 +84,7 @@ plotEmbedding <- function(
 
   }else{
     
-    if(is.null(log2Norm)){
+    if(is.null(log2Norm) & tolower(colorBy) == "genescorematrix"){
       log2Norm <- TRUE
     }
 
@@ -205,7 +205,7 @@ plotGroups <- function(
   ylim = NULL, 
   size = 0.5, 
   baseSize = 6, 
-  ratioYX = 2, 
+  ratioYX = 0.5, 
   points = FALSE, 
   ...
   ){
@@ -258,10 +258,18 @@ plotGroups <- function(
 
   featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), matrixName)
 
+  matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(matrixName, "/Info/Class"))
+
+  if(matrixClass == "Sparse.Assays.Matrix"){
+    if(!all(unlist(lapply(name, function(x) grepl(":",x))))){
+      stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!")
+    }
+  }
+
   if(grepl(":",name[1])){
 
-    sname <- stringr::str_split(name,pattern=":",simplify=TRUE)[1,1]
-    name <- stringr::str_split(name,pattern=":",simplify=TRUE)[1,2]
+    sname <- stringr::str_split(name,pattern=":",simplify=TRUE)[,1]
+    name <- stringr::str_split(name,pattern=":",simplify=TRUE)[,2]
 
     idx <- lapply(seq_along(name), function(x){
       ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))

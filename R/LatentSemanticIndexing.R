@@ -33,6 +33,8 @@ addIterativeLSI <- function(
   reducedDimsOut = "IterativeLSI",
   iterations = 3,
   dimsToUse = 1:25,
+  corCutOff = 0.75,
+  LSIMethod = 1,
   binarize = TRUE,
   sampleCells = max(c(floor(nCells(ArchRProj) / 4), 5000)),
   varFeatures = 50000,
@@ -104,6 +106,21 @@ addIterativeLSI <- function(
   totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
   gc()
 
+  cellDepth <- tryCatch({
+      df <- getCellColData(ArchRProj = ArchRProj, select = "nFrags")
+      v <- df[,1]
+      names(v) <- rownames(df)
+      v
+    }, error = function(x){
+      tryCatch({
+        .getColSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
+      }, error = function(y){
+        stop("Could not determine depth from nFrags or colSums!")
+      })
+    }
+  )
+  cellDepth <- log10(cellDepth + 1)
+
   #Identify the top features to be used here
   .messageDiffTime("Computing Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
   nFeature <- varFeatures[1]
@@ -116,8 +133,11 @@ addIterativeLSI <- function(
     ArrowFiles = ArrowFiles, 
     featureDF = topFeatures,
     cellNames = cellNames, 
+    cellDepth = cellDepth,
     useMatrix = useMatrix,
     sampleNames = getCellColData(ArchRProj)$Sample, 
+    LSIMethod = LSIMethod, 
+    scaleTo = scaleTo,
     dimsToUse = dimsToUse, 
     binarize = binarize, 
     sampleCells = sampleCells,
@@ -125,7 +145,6 @@ addIterativeLSI <- function(
     useIndex = FALSE,
     tstart = tstart
     )
-  outLSI$LSIFeatures <- topFeatures
   gc()
 
   if(runHarmony){
@@ -143,8 +162,15 @@ addIterativeLSI <- function(
 
   #Time to compute clusters
   .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
+  dimsPF <- dimsToUse[which(outLSI$corToDepth[dimsToUse] <= corCutOff)]
+  if(length(dimsPF)!=length(dimsToUse)){
+    message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+  }
+  if(length(dimsPF) < 2){
+    stop("Dimensions to use after filtering for correlation to depth lower than 2!")
+  }
   parClust <- lapply(clusterParams, function(x) x[[1]])
-  parClust$input <- outLSI$matSVD
+  parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
   parClust$sampleCells <- sampleCells
   parClust$verbose <- verboseAll
   clusters <- do.call(addClusters, parClust)
@@ -173,7 +199,7 @@ addIterativeLSI <- function(
       featureDF = groupFeatures,
       useMatrix = useMatrix, 
       threads = threads,
-      groupList = SimpleList(split(rownames(outLSI$matSVD), clusters)),
+      groupList = groupList,
       useIndex = FALSE,
       verbose = verboseAll
     )
@@ -211,15 +237,17 @@ addIterativeLSI <- function(
       featureDF = variableFeatures,
       useMatrix = useMatrix,
       cellNames = cellNames, 
-      sampleNames = getCellColData(ArchRProj)$Sample,  
-      dimsToUse = dimsToUse, 
+      cellDepth = cellDepth,
+      sampleNames = getCellColData(ArchRProj)$Sample, 
+      LSIMethod = LSIMethod, 
+      scaleTo = scaleTo, 
+      dimsToUse = dimsToUse,
       binarize = binarize, 
       sampleCells = sampleCells,
       threads = threads,
       useIndex = FALSE,
       tstart = tstart
       )
-    outLSI$LSIFeatures <- variableFeatures
 
     if(runHarmony){
       .messageDiffTime("Harmonizing LSI output on the Variable Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
@@ -237,6 +265,13 @@ addIterativeLSI <- function(
 
       #Time to compute clusters
       .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
+      dimsPF <- dimsToUse[which(outLSI$corToDepth[dimsToUse] <= corCutOff)]
+      if(length(dimsPF)!=length(dimsToUse)){
+        message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+      }
+      if(length(dimsPF) < 2){
+        stop("Dimensions to use after filtering for correlation to depth lower than 2!")
+      }
       parClust <- lapply(clusterParams, function(x){
         if(length(x) > 1){
           return(x[[j]])
@@ -244,7 +279,7 @@ addIterativeLSI <- function(
           return(x[[1]])
         }
       })
-      parClust$input <- outLSI$matSVD
+      parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
       parClust$sampleCells <- sampleCells
       parClust$verbose <- verboseAll
       clusters <- do.call(addClusters, parClust)
@@ -273,9 +308,12 @@ addIterativeLSI <- function(
   featureDF, 
   useMatrix,
   cellNames, 
+  cellDepth,
   sampleNames, 
   dimsToUse, 
   binarize = TRUE, 
+  LSIMethod = FALSE,
+  scaleTo = 10^4,
   sampleCells = 5000, 
   threads = 1, 
   useIndex = FALSE, 
@@ -306,7 +344,15 @@ addIterativeLSI <- function(
 
     #Compute LSI
     .messageDiffTime("Running LSI on the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    outLSI <- computeLSI(mat, nDimensions = max(dimsToUse), binarize = binarize, verbose = verboseAll, tstart = tstart)
+    outLSI <- .computeLSI(
+     mat = mat, 
+     LSIMethod = LSIMethod, 
+     scaleTo = scaleTo,
+     nDimensions = max(dimsToUse),
+     binarize = binarize, 
+     verbose = verboseAll, 
+     tstart = tstart
+     )
   
   }else{
    
@@ -338,7 +384,15 @@ addIterativeLSI <- function(
 
     #Perform LSI on Partial Sampled Matrix
     .messageDiffTime("Running Sampled LSI on the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    outLSI <- computeLSI(out$mat, nDimensions = max(dimsToUse), binarize = binarize, verbose = verboseAll, tstart = tstart)
+    outLSI <- .computeLSI(
+       mat = out$mat, 
+       LSIMethod = LSIMethod, 
+       scaleTo = scaleTo,
+       nDimensions = max(dimsToUse),
+       binarize = binarize, 
+       verbose = verboseAll, 
+       tstart = tstart
+      )
     tmpMatFiles <- out[[2]]
     rm(out)
     gc()
@@ -346,7 +400,7 @@ addIterativeLSI <- function(
     #Read In Matrices and Project into Manifold
     .messageDiffTime("Projecting Matrices with the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
     pLSI <- lapply(seq_along(tmpMatFiles), function(x){
-      projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart)
+      .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart)
     }) %>% Reduce("rbind", .)
 
     #Remove Temporary Matrices
@@ -358,23 +412,24 @@ addIterativeLSI <- function(
 
   }
 
+  outLSI$LSIFeatures <- featureDF
+  outLSI$corToDepth <- abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
+
   return(outLSI)
 
 }
 
-#' Compute LSI
-#' 
-#' This function will compute a LSI transform (TF-IDF followed by SVD)
-#'
-#' @param mat sparseMatrix (dgcMatrix) for LSI
-#' @param nDimensions number of LSI dimensions to compute
-#' @param binarize binarize matrix prior to LSI
-#' @param seed seed for analysis
-#' @param verbose verbose
-#' @param tstart time stamp to pass
-#' @param ... additional args
-#' @export
-computeLSI <- function(mat, nDimensions = 50, binarize = TRUE, seed = 1, verbose = TRUE, tstart = NULL, ...){
+.computeLSI <- function(
+  mat, 
+  LSIMethod = 1,
+  scaleTo = 10^4,
+  nDimensions = 50, 
+  binarize = TRUE, 
+  seed = 1, 
+  verbose = TRUE, 
+  tstart = NULL, 
+  ...
+  ){
 
     set.seed(seed)
 
@@ -409,13 +464,53 @@ computeLSI <- function(mat, nDimensions = 50, binarize = TRUE, seed = 1, verbose
     }
     mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
 
-    #IDF
-    .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
-    idf   <- as(log(1 + ncol(mat) / rowSm), "sparseVector")
+    if(LSIMethod == 1 | tolower(LSIMethod) == "tf-logidf"){
 
-    #TF-IDF
-    .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
-    mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+      #Adapted from Casanovich et al.
+
+      #LogIDF
+      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      idf   <- as(log(1 + ncol(mat) / rowSm), "sparseVector")
+
+      #TF-LogIDF
+      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+
+    }else if(LSIMethod == 2 | tolower(LSIMethod) == "log(tf-idf)"){
+
+      #Adapted from Stuart et al.
+
+      #IDF
+      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      idf   <- as(ncol(mat) / rowSm, "sparseVector")
+
+      #TF-IDF
+      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+
+      #Log transform TF-IDF
+      mat@x <- log(mat@x * scaleTo + 1)  
+
+    }else if(LSIMethod == 3 | tolower(LSIMethod) == "logtf-logidf"){
+
+      #LogTF
+      mat@x <- log(mat@x + 1)
+
+      #LogIDF
+      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      idf   <- as(log(1 + ncol(mat) / rowSm), "sparseVector")
+
+      #TF-IDF
+      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+
+
+    }else{
+
+      stop("LSIMethod unrecognized please select valid method!")
+
+    }
+
     gc()
 
     #Calc SVD then LSI
@@ -437,10 +532,12 @@ computeLSI <- function(mat, nDimensions = 50, binarize = TRUE, seed = 1, verbose
         idx = idx, 
         svd = svd, 
         binarize = binarize, 
+        scaleTo = scaleTo,
         nDimensions = nDimensions,
+        LSIMethod = LSIMethod,
         date = Sys.Date(),
         seed = seed
-        )
+      )
 
     rm(mat)
     gc()
@@ -448,18 +545,14 @@ computeLSI <- function(mat, nDimensions = 50, binarize = TRUE, seed = 1, verbose
     out
 }
 
-#' Project LSI
-#' 
-#' This function will compute a LSI Projection (TF-IDF followed by SVD projection)
-#'
-#' @param mat sparseMatrix (dgcMatrix) for LSI
-#' @param LSI previous LSI transform to project into
-#' @param returnModel return projection information
-#' @param verbose verbose
-#' @param tstart time stamp to pass
-#' @param ... additional args
-#' @export
-projectLSI <- function(mat, LSI, returnModel = FALSE, verbose = TRUE, tstart = NULL, ...){   
+.projectLSI <- function(
+  mat, 
+  LSI, 
+  returnModel = FALSE, 
+  verbose = TRUE, 
+  tstart = NULL, 
+  ...
+  ){   
     
     require(Matrix)
     set.seed(LSI$seed)
@@ -490,13 +583,54 @@ projectLSI <- function(mat, LSI, returnModel = FALSE, verbose = TRUE, tstart = N
     }
     mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
 
-    #IDF
-    .messageDiffTime("Computing Inverse Document Frequency of initial Matrix", tstart, addHeader = FALSE, verbose = verbose)
-    idf   <- as(log(1 + length(LSI$colSm) / LSI$rowSm), "sparseVector")
+    if(LSI$LSIMethod == 1 | tolower(LSI$LSIMethod) == "tf-logidf"){
 
-    #TF-IDF
-    .messageDiffTime("Computing TF-IDF Transform", tstart, addHeader = FALSE, verbose = verbose)
-    mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+      #Adapted from Casanovich et al.
+
+      #LogIDF
+      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      idf   <- as(log(1 + length(LSI$colSm) / LSI$rowSm), "sparseVector")
+
+      #TF-LogIDF
+      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+
+    }else if(LSI$LSIMethod == 2 | tolower(LSI$LSIMethod) == "log(tf-idf)"){
+
+      #Adapted from Stuart et al.
+
+      #IDF
+      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      idf   <- as(length(LSI$colSm) / LSI$rowSm, "sparseVector")
+
+      #TF-IDF
+      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+
+      #Log transform TF-IDF
+      mat@x <- log(mat@x * LSI$scaleTo + 1)  
+
+    }else if(LSI$LSIMethod == 3 | tolower(LSI$LSIMethod) == "logtf-logidf"){
+
+      #LogTF
+      mat@x <- log(mat@x + 1)
+
+      #LogIDF
+      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      idf   <- as(log(1 + length(LSI$colSm) / LSI$rowSm), "sparseVector")
+
+      #TF-IDF
+      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
+
+
+    }else{
+
+      stop("LSIMethod unrecognized please select valid method!")
+
+    }
+
+    gc()
 
     #Clean Up Matrix
     idxNA <- Matrix::which(is.na(mat),arr.ind=TRUE)
@@ -528,6 +662,5 @@ projectLSI <- function(mat, LSI, returnModel = FALSE, verbose = TRUE, tstart = N
 
     return(out)
 }
-
 
 
