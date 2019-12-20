@@ -779,7 +779,7 @@ markerHeatmap <- function(
     if(is.null(metadata(seMarker)$Params$useMatrix)){
       pal <- paletteContinuous(set = "solar_extra", n = 100)
     }else if(tolower(metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
-      pal <- paletteContinuous(set = "viridis", n = 100)
+      pal <- paletteContinuous(set = "blue_yellow", n = 100)
     }else{
       pal <- paletteContinuous(set = "solar_extra", n = 100)
     }

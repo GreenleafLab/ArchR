@@ -356,7 +356,7 @@ trajectoryHeatmap <- function(
     if(is.null(metadata(seTrajectory)$Params$useMatrix)){
       pal <- paletteContinuous(set = "solar_extra", n = 100)
     }else if(tolower(metadata(seTrajectory)$Params$useMatrix)=="genescorematrix"){
-      pal <- paletteContinuous(set = "viridis", n = 100)
+      pal <- paletteContinuous(set = "blue_yellow", n = 100)
     }else{
       pal <- paletteContinuous(set = "solar_extra", n = 100)
     }

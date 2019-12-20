@@ -286,7 +286,7 @@ ggOneToOne <- function (
   extend = 0.05, 
   baseSize = 6, 
   rastr = TRUE,
-  pal = paletteContinuous(set = "viridis"),
+  pal = paletteContinuous(set = "blue_yellow"),
   ...){
   
   #Check is Numeric
