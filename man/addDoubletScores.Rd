@@ -5,8 +5,9 @@
 \title{Add Doublet Scores to a collection of Arrow files or an ArchRProject}
 \usage{
 addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
-  nTrials = 5, knnMethod = "UMAP", UMAPParams = list(),
-  LSIParams = list(), useClusters = FALSE, outDir = "QualityControl",
+  nTrials = 5, dimsToUse = 1:25, corCutOff = 0.75,
+  knnMethod = "UMAP", UMAPParams = list(),
+  LSIParams = list(sampleCells = NULL), outDir = "QualityControl",
   threads = 1, parallelParam = NULL, verboseHeader = TRUE,
   verboseAll = FALSE, ...)
 }
@@ -25,8 +26,6 @@ addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
 
 \item{LSIParams}{The list of parameters to pass to the IterativeLSI. See IterativeLSI.}
 
-\item{useClusters}{QQQ A boolean value that determins QQQ}
-
 \item{outDir}{The name or path for the output directory for writing information on doublet identification,}
 
 \item{threads}{The number threads to be used for parallel computing.}
@@ -38,6 +37,8 @@ addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{...}{additional args}
+
+\item{useClusters}{QQQ A boolean value that determins QQQ}
 }
 \description{
 For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information

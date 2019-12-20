@@ -24,10 +24,11 @@ addDoubletScores <- function(
   useMatrix = "TileMatrix",
   k = 10,
   nTrials = 5,
+  dimsToUse = 1:25,
+  corCutOff = 0.75,
   knnMethod = "UMAP",
   UMAPParams = list(),
-  LSIParams = list(),
-  useClusters = FALSE,
+  LSIParams = list(sampleCells = NULL),
   outDir = "QualityControl",  
   threads = 1,
   parallelParam = NULL,
@@ -100,13 +101,15 @@ addDoubletScores <- function(
   useMatrix = "TileMatrix",
   allCells = NULL,
   UMAPParams = list(),
-  LSIParams = list(sampleCells = NULL),
-  nTrials = 3,
+  LSIParams = list(),
+  nTrials = 5,
+  dimsToUse = 1:25,
+  corCutOff = 0.75,
   k = 10,
   nSample = 1000,
   knnMethod = "UMAP",
   outDir = "QualityControl",
-  useClusters = FALSE,
+  #useClusters = FALSE,
   subThreads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
@@ -114,6 +117,7 @@ addDoubletScores <- function(
   ){
 
   tstart <- Sys.time()
+  useClusters <- FALSE
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)
   outDir <- file.path(outDir, sampleName)
@@ -147,6 +151,8 @@ addDoubletScores <- function(
   LSIParams$ArchRProj <- proj
   LSIParams$saveIterations <- FALSE
   LSIParams$useMatrix <- useMatrix
+  LSIParams$dimsToUse <- dimsToUse
+  LSIParams$corCutOff <- corCutOff
   LSIParams$threads <- subThreads
   LSIParams$verboseHeader <- verboseHeader
   LSIParams$verboseAll <- verboseAll
@@ -159,7 +165,17 @@ addDoubletScores <- function(
   # 3. Get LSI Partial Matrix For Simulation
   #################################################
   .messageDiffTime("Constructing Partial Matrix for Projection", tstart, addHeader = verboseHeader)
-  LSI <- proj@reducedDims[["IterativeLSI"]]
+  LSI <- getReducedDims(
+    ArchRProj = proj, 
+    reducedDims = "IterativeLSI", 
+    corCutOff = 999, 
+    dimsToUse = dimsToUse,
+    returnMatrix = FALSE
+  )
+  LSIDims <- intersect(seq_len(ncol(LSI[[1]])), which(LSI$corToDepth < corCutOff))
+  if(length(LSIDims) < 2){
+    stop("Reduced LSI Dims below 2 dimensions, please increase dimsToUse or increase corCutOff!")
+  }
   featureDF <- LSI$LSIFeatures
   mat <- .getPartialMatrix(
       ArrowFiles = getArrowFiles(proj),
@@ -177,7 +193,7 @@ addDoubletScores <- function(
   .messageDiffTime("Running LSI UMAP", tstart, addHeader = verboseHeader)
   set.seed(1) # Always do this prior to UMAP
   UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors=40, min_dist=0.4, metric="euclidean", verbose=FALSE))
-  UMAPParams$X <- LSI$matSVD
+  UMAPParams$X <- LSI$matSVD[, LSIDims, drop = FALSE]
   UMAPParams$ret_nn <- TRUE
   UMAPParams$ret_model <- TRUE
   UMAPParams$n_threads <- subThreads
@@ -190,6 +206,7 @@ addDoubletScores <- function(
   simDoublets <- .simulateProjectDoublets(
     mat = mat, 
     LSI = LSI, 
+    LSIDims = LSIDims,
     clusters = if(useClusters) getCellColData(proj, "Clusters", drop = TRUE) else NULL,
     sampleRatio1 = c(1/2), 
     sampleRatio2 = c(1/2), 
@@ -205,6 +222,8 @@ addDoubletScores <- function(
   #################################################
   # 5. Plot / Save Results
   #################################################
+
+  pal <- c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF") #grey magma
 
   #Create Plot DF
   df <- data.frame(row.names = rownames(LSI$matSVD), uwotUmap[[1]], type = "experiment")
@@ -239,7 +258,7 @@ addDoubletScores <- function(
     pdensity <- ggplot() + 
       geom_point(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
       geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
-        scale_colour_gradientn(colors = paletteContinuous(set = "white_blue_purple")) + 
+        scale_colour_gradientn(colors = pal) + 
         xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
         guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
         labs(color = "Simulated Doublet Density") +
@@ -256,7 +275,7 @@ addDoubletScores <- function(
     pdensity <- ggplot() + 
       geom_point_rast(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
       geom_point_rast(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
-        scale_colour_gradientn(colors = paletteContinuous(set = "white_blue_purple")) + 
+        scale_colour_gradientn(colors = pal) + 
         xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
         labs(color = "Simulated Doublet Density") +
         guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
@@ -281,7 +300,7 @@ addDoubletScores <- function(
     size = 0.5,
     xlab = "UMAP Dimension 1",
     ylab = "UMAP Dimension 2",
-    continuousSet = "white_blue_purple",
+    pal = pal,
     title = "Doublet Scores -log10(FDR)",
     colorTitle = "Doublet Scores -log10(FDR)",
     rastr = TRUE,
@@ -303,7 +322,7 @@ addDoubletScores <- function(
     size = 0.5,
     xlab = "UMAP Dimension 1",
     ylab = "UMAP Dimension 2",
-    continuousSet = "white_blue_purple",
+    pal = pal,
     title = "Doublet Enrichment",
     colorTitle = "Doublet Enrichment",
     rastr = TRUE
@@ -359,7 +378,8 @@ addDoubletScores <- function(
 
 .simulateProjectDoublets <- function(
   mat, 
-  LSI, 
+  LSI,
+  LSIDims,
   uwotUmap,
   clusters = NULL,
   sampleRatio1 = c(0.5), 
@@ -400,7 +420,7 @@ addDoubletScores <- function(
                         .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
 
         #Project LSI
-        lsiProject <- suppressMessages(projectLSI(simulatedMat, LSI))
+        lsiProject <- suppressMessages(ArchR:::.projectLSI(simulatedMat, LSI))
 
         lsiProject
 
@@ -429,7 +449,7 @@ addDoubletScores <- function(
                         .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
 
         #Project LSI
-        lsiProject <- suppressMessages(projectLSI(simulatedMat, LSI))
+        lsiProject <- suppressMessages(ArchR:::.projectLSI(simulatedMat, LSI))
 
         lsiProject
 
@@ -443,7 +463,7 @@ addDoubletScores <- function(
 
   #Project UMAP
   set.seed(1) # Always do this prior to UMAP
-  umapProject <- data.frame(uwot::umap_transform(as.matrix(simLSI), uwotUmap, verbose = FALSE, n_threads = threads))
+  umapProject <- data.frame(uwot::umap_transform(as.matrix(simLSI[, LSIDims, drop = FALSE]), uwotUmap, verbose = FALSE, n_threads = threads))
 
   #Compute KNN 
   if(toupper(knnMethod) == "SVD"){
@@ -532,8 +552,6 @@ addDemuxletResults <- function(ArchRProj, bestFiles, sampleNames, ...){
   ArchRProj
   
 }
-
-
 
 
 
