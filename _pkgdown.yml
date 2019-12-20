@@ -8,7 +8,7 @@ authors:
 
 navbar:
   left:
-  - text: Get Started
+  - text: Tutorial
     href: articles/ArchR.html
   - text: Vignettes
     menu:
@@ -26,6 +26,8 @@ navbar:
         href: articles/Articles/signalTracks.html
       - text: TF Footprinting
         href: articles/Articles/footprinting.html
+      - text: Pseudobulk Generation
+        href: articles/Articles/pseudobulkGeneration.html
       - text: Gene and Genome Annotation
         href: articles/Articles/annotations.html
   - text: FAQ
