@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Reduced Dimensions from ArchRProject — getReducedDims • ArchR</title>
+<title>Get dimensionality reduction information stored in an ArchRProject — getReducedDims • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Get Reduced Dimensions from ArchRProject — getReducedDims" />
+<meta property="og:title" content="Get dimensionality reduction information stored in an ArchRProject — getReducedDims" />
 
-<meta property="og:description" content="This function gets an embedding from an ArchRProject" />
+<meta property="og:description" content="This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,38 +140,38 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Reduced Dimensions from ArchRProject</h1>
+    <h1>Get dimensionality reduction information stored in an ArchRProject</h1>
     
     <div class="hidden name"><code>getReducedDims.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function gets an embedding from an ArchRProject</p>
+    <p>This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>getReducedDims</span>(<span class='no'>ArchRProj</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"TileLSI"</span>, <span class='kw'>return</span> <span class='kw'>=</span> <span class='st'>"matrix"</span>,
-  <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>getReducedDims</span>(<span class='no'>ArchRProj</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>,
+  <span class='kw'>returnMatrix</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dimsToUse</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>corCutOff</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An ArchRProject object.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>reduced dimensions name in ArchRProject</p></td>
-    </tr>
-    <tr>
-      <th>return</th>
-      <td><p>return reduced dimensions as matrix or all info</p></td>
+      <td><p>QQQ The name of the reducedDims object to retrieve from the designated ArchRProject. Options include QQQ.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional args</p></td>
+    </tr>
+    <tr>
+      <th>return</th>
+      <td><p>If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.</p></td>
     </tr>
     </table>
     

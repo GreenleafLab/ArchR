@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot PDF in outputDirectory of ArchRProject — plotPDF • ArchR</title>
+<title>Plot PDF in outputDirectory of an ArchRProject — plotPDF • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Plot PDF in outputDirectory of ArchRProject — plotPDF" />
+<meta property="og:title" content="Plot PDF in outputDirectory of an ArchRProject — plotPDF" />
 
-<meta property="og:description" content="This function will plot PDF in output directory of an ArchRProject" />
+<meta property="og:description" content="This function will save a plot or set of plots as a PDF file in the output directory of a given ArchRProject." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,50 +140,51 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot PDF in outputDirectory of ArchRProject</h1>
+    <h1>Plot PDF in outputDirectory of an ArchRProject</h1>
     
     <div class="hidden name"><code>plotPDF.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function will plot PDF in output directory of an ArchRProject</p>
+    <p>This function will save a plot or set of plots as a PDF file in the output directory of a given ArchRProject.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>plotPDF</span>(<span class='no'>name</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>8</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>8</span>, <span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useDingbats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>plotPDF</span>(<span class='no'>...</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Plot"</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useDingbats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>plotList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>...</th>
+      <td><p>additional args to pdf</p></td>
+    </tr>
+    <tr>
       <th>name</th>
-      <td><p>name of PDF file</p></td>
+      <td><p>The file name to be used for the output PDF file.</p></td>
     </tr>
     <tr>
       <th>width</th>
-      <td><p>width of PDF in inches</p></td>
+      <td><p>The width in inches to be used for the output PDF file.</p></td>
     </tr>
     <tr>
       <th>height</th>
-      <td><p>height of PDF in inches</p></td>
+      <td><p>The height in inches to be used for the output PDF.</p></td>
     </tr>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An ArchRProject object.</p></td>
     </tr>
     <tr>
       <th>addDOC</th>
-      <td><p>add date of creation to end of plot file name</p></td>
+      <td><p>A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.</p></td>
     </tr>
     <tr>
       <th>useDingbats</th>
-      <td><p>use dingbats characters for plotting</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>additional args to pdf</p></td>
+      <td><p>A boolean variable that determines wheter to use dingbats characters for plotting points.</p></td>
     </tr>
     </table>
     

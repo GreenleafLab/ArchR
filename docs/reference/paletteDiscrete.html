@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Optimized discrete color palette — paletteDiscrete • ArchR</title>
+<title>Optimized discrete color palette generation — paletteDiscrete • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Optimized discrete color palette — paletteDiscrete" />
+<meta property="og:title" content="Optimized discrete color palette generation — paletteDiscrete" />
 
-<meta property="og:description" content="This function assesses the number of inputs and returns a tailored color palette for aesthetics" />
+<meta property="og:description" content="This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most posible color contrast from the designated set." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,38 +140,38 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Optimized discrete color palette</h1>
+    <h1>Optimized discrete color palette generation</h1>
     
     <div class="hidden name"><code>paletteDiscrete.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function assesses the number of inputs and returns a tailored color palette for aesthetics</p>
+    <p>This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most posible color contrast from the designated set.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>paletteDiscrete</span>(<span class='kw'>set</span> <span class='kw'>=</span> <span class='st'>"stallion"</span>, <span class='no'>values</span>, <span class='kw'>reverse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>returnStructure</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>paletteDiscrete</span>(<span class='kw'>set</span> <span class='kw'>=</span> <span class='st'>"stallion"</span>, <span class='kw'>values</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>reverse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>set</th>
-      <td><p>continuous palette name or number</p></td>
+      <td><p>The name or numeric index of a color palette provided in ArchR_palettes.</p></td>
     </tr>
     <tr>
       <th>values</th>
-      <td><p>is a vector containing the sample names used in the plot which will be given a color</p></td>
+      <td><p>A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated pallete set.</p></td>
     </tr>
     <tr>
       <th>reverse</th>
-      <td><p>return reversed values</p></td>
+      <td><p>A boolean variable that indicates whether to return the palette colors in reverse order.</p></td>
     </tr>
     <tr>
       <th>returnStructure</th>
-      <td><p>return structure palette</p></td>
+      <td><p>QQQ return structure palette</p></td>
     </tr>
     </table>
     

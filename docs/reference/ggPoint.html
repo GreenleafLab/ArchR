@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>GG Plot One to One Heatscatter — ggPoint • ArchR</title>
+<title>A ggplot-based dot plot — ggPoint • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="GG Plot One to One Heatscatter — ggPoint" />
+<meta property="og:title" content="A ggplot-based dot plot — ggPoint" />
 
-<meta property="og:description" content="GG Plot One to One Heatscatter" />
+<meta property="og:description" content="This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,85 +140,145 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>GG Plot One to One Heatscatter</h1>
+    <h1>A ggplot-based dot plot</h1>
     
     <div class="hidden name"><code>ggPoint.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>GG Plot One to One Heatscatter</p>
+    <p>This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>ggPoint</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>discrete</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>discreteSet</span> <span class='kw'>=</span> <span class='st'>"stallion"</span>, <span class='kw'>labelMeans</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>continuousSet</span> <span class='kw'>=</span> <span class='st'>"solar_extra"</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>colorDensity</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>xlim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-  <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>, <span class='kw'>randomize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>,
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>labelType</span> <span class='kw'>=</span> <span class='st'>"ggrepel"</span>, <span class='kw'>bgColor</span> <span class='kw'>=</span> <span class='st'>"white"</span>, <span class='kw'>fgColor</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>labelSize</span> <span class='kw'>=</span> <span class='fl'>1.5</span>, <span class='kw'>addFit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nullColor</span> <span class='kw'>=</span> <span class='st'>"lightGrey"</span>,
-  <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>dpi</span> <span class='kw'>=</span> <span class='fl'>300</span>)</pre>
+    <pre class="usage"><span class='fu'>ggPoint</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>discrete</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>discreteSet</span> <span class='kw'>=</span> <span class='st'>"stallion"</span>, <span class='kw'>continuousSet</span> <span class='kw'>=</span> <span class='st'>"solar_extra"</span>,
+  <span class='kw'>labelMeans</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>defaultColor</span> <span class='kw'>=</span> <span class='st'>"lightGrey"</span>,
+  <span class='kw'>colorDensity</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>xlim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='kw'>randomize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>colorTitle</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>colorOrder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>labelType</span> <span class='kw'>=</span> <span class='st'>"ggrepel"</span>, <span class='kw'>fgColor</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bgColor</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>labelSize</span> <span class='kw'>=</span> <span class='fl'>1.5</span>, <span class='kw'>addFit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>dpi</span> <span class='kw'>=</span> <span class='fl'>300</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>x</p></td>
+      <td><p>A numeric vector containing the x-axis values for each point.</p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p>y</p></td>
+      <td><p>A numeric vector containing the y-axis values for each point.</p></td>
+    </tr>
+    <tr>
+      <th>color</th>
+      <td><p>QQQ</p></td>
+    </tr>
+    <tr>
+      <th>discrete</th>
+      <td><p>QQQ A boolean value indicating QQQ</p></td>
+    </tr>
+    <tr>
+      <th>discreteSet</th>
+      <td><p>QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>continuousSet</th>
+      <td><p>QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>labelMeans</th>
+      <td><p>QQQ A boolean value indicating QQQ</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>continuous color palette to use</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>colorDensity</th>
+      <td><p>QQQ A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, QQQ is used as the color palette.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p>geom_point size</p></td>
+      <td><p>The numeric size of the points to be plotted.</p></td>
+    </tr>
+    <tr>
+      <th>xlim</th>
+      <td><p>A set of numeric values indicating the lower and upper bounds of the x-axis on the plot.</p></td>
+    </tr>
+    <tr>
+      <th>ylim</th>
+      <td><p>A set of numeric values indicating the lower and upper bounds of the y-axis on the plot.</p></td>
+    </tr>
+    <tr>
+      <th>extend</th>
+      <td><p>QQQ</p></td>
     </tr>
     <tr>
       <th>xlabel</th>
-      <td><p>xlabel</p></td>
+      <td><p>The label to plot for the x-axis.</p></td>
     </tr>
     <tr>
       <th>ylabel</th>
-      <td><p>ylabel</p></td>
+      <td><p>The label to plot for the y-axis.</p></td>
     </tr>
     <tr>
       <th>title</th>
-      <td><p>ggtitle</p></td>
+      <td><p>The title of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>randomize</th>
+      <td><p>A boolean value indicating whether to randomize the order of the points when plotting.</p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p>A numeric seed number for use in randomization.</p></td>
     </tr>
     <tr>
       <th>alpha</th>
-      <td><p>geom_point alpha</p></td>
+      <td><p>A number indicating the transparency to use for each point. See ggplot2 for more details.</p></td>
     </tr>
     <tr>
       <th>baseSize</th>
-      <td><p>base_font size</p></td>
+      <td><p>QQQ The size in inches of the plot.</p></td>
     </tr>
     <tr>
-      <th>min</th>
-      <td><p>xmin quantile [0,1]</p></td>
+      <th>ratioYX</th>
+      <td><p>The aspect ratio of the x and y axes on the plot.</p></td>
     </tr>
     <tr>
-      <th>max</th>
-      <td><p>xmax quantile [0,1]</p></td>
+      <th>labelType</th>
+      <td><p>QQQ A string indicating how to label the points on the plot. Options include "ggrepel", QQQ</p></td>
     </tr>
     <tr>
-      <th>plot_n</th>
-      <td><p>number of points to plot</p></td>
+      <th>fgColor</th>
+      <td><p>The foreground color of the plot.</p></td>
     </tr>
     <tr>
-      <th>kernel_n</th>
-      <td><p>n for MASS::kde2d default = 100</p></td>
+      <th>bgColor</th>
+      <td><p>The background color of the plot.</p></td>
     </tr>
     <tr>
-      <th>plot_n</th>
-      <td><p>number of points to plot</p></td>
+      <th>labelSize</th>
+      <td><p>The numeric font size of labels.</p></td>
+    </tr>
+    <tr>
+      <th>addFit</th>
+      <td><p>QQQ A string indicating if a fit/regression line should be included in the plot and what method to use for this fit. Options include QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>rastr</th>
+      <td><p>A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>dpi</th>
+      <td><p>The resolution to use for the plot.</p></td>
+    </tr>
+    <tr>
+      <th>nullColor</th>
+      <td><p>The color to be used for points that correspond to null values in either the x or y vectors.</p></td>
     </tr>
     </table>
     

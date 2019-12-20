@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>GG Violin Plot — ggHex • ArchR</title>
+<title>Ggplot Hexplot summary of points in a standardized manner — ggHex • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="GG Violin Plot — ggHex" />
+<meta property="og:title" content="Ggplot Hexplot summary of points in a standardized manner — ggHex" />
 
-<meta property="og:description" content="GG Violin Plot" />
+<meta property="og:description" content="This function will plot x,y coordinates values summarized in hexagons in a standardized manner" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,52 +140,89 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>GG Violin Plot</h1>
+    <h1>Ggplot Hexplot summary of points in a standardized manner</h1>
     
     <div class="hidden name"><code>ggHex.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>GG Violin Plot</p>
+    <p>This function will plot x,y coordinates values summarized in hexagons in a standardized manner</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>ggHex</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='no'>color</span>, <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>xlim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bins</span> <span class='kw'>=</span> <span class='fl'>150</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteContinuous.html'>paletteContinuous</a></span>(<span class='kw'>set</span> <span class='kw'>=</span>
-  <span class='st'>"solar_extra"</span>), <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>12</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>,
-  <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>, <span class='kw'>fun</span> <span class='kw'>=</span> <span class='st'>"median"</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>ggHex</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteContinuous.html'>paletteContinuous</a></span>(<span class='kw'>set</span>
+  <span class='kw'>=</span> <span class='st'>"solar_extra"</span>), <span class='kw'>bins</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='kw'>xlim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='kw'>colorTitle</span> <span class='kw'>=</span> <span class='st'>"values"</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>FUN</span> <span class='kw'>=</span> <span class='st'>"mean"</span>,
+  <span class='kw'>quantCut</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.01</span>, <span class='fl'>0.99</span>), <span class='kw'>addPoints</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>categorical values to each y value</p></td>
+      <td><p>x vector of data to be plot</p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p>numeric values</p></td>
+      <td><p>y vector of data to be plot</p></td>
+    </tr>
+    <tr>
+      <th>color</th>
+      <td><p>color vector of values to be plot (must be same length as x,y)</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>color palette see paletteDiscrete for examples</p></td>
+      <td><p>custom palette option</p></td>
+    </tr>
+    <tr>
+      <th>bins</th>
+      <td><p>number of bins for hexplot</p></td>
+    </tr>
+    <tr>
+      <th>xlim</th>
+      <td><p>xlimits for plot</p></td>
+    </tr>
+    <tr>
+      <th>ylim</th>
+      <td><p>ylimits for plot</p></td>
+    </tr>
+    <tr>
+      <th>extend</th>
+      <td><p>extend limits by this proportion if not set by xlim or ylim</p></td>
     </tr>
     <tr>
       <th>xlabel</th>
-      <td><p>xlabel</p></td>
+      <td><p>label for x-axis</p></td>
     </tr>
     <tr>
       <th>ylabel</th>
-      <td><p>ylabel</p></td>
+      <td><p>label for y-axis</p></td>
     </tr>
     <tr>
-      <th>base_size</th>
-      <td><p>base_size of theme</p></td>
+      <th>title</th>
+      <td><p>title of plot</p></td>
     </tr>
     <tr>
-      <th>size</th>
-      <td><p>size of barplot lines</p></td>
+      <th>colorTitle</th>
+      <td><p>title for legend corresponding to color</p></td>
+    </tr>
+    <tr>
+      <th>baseSize</th>
+      <td><p>baseSize for fonts</p></td>
+    </tr>
+    <tr>
+      <th>ratioYX</th>
+      <td><p>ratio of y to x in plot</p></td>
+    </tr>
+    <tr>
+      <th>FUN</th>
+      <td><p>function for summarizing hexagons</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional params to pass</p></td>
     </tr>
     </table>
     

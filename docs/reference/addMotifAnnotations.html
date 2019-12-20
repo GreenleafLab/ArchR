@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add Motif Annotations to ArchRProject — addMotifAnnotations • ArchR</title>
+<title>Add motif annotations to an ArchRProject — addMotifAnnotations • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Add Motif Annotations to ArchRProject — addMotifAnnotations" />
+<meta property="og:title" content="Add motif annotations to an ArchRProject — addMotifAnnotations" />
 
-<meta property="og:description" content="This function adds motif postions and matches to an ArchRProject" />
+<meta property="og:description" content="This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,18 +140,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add Motif Annotations to ArchRProject</h1>
+    <h1>Add motif annotations to an ArchRProject</h1>
     
     <div class="hidden name"><code>addMotifAnnotations.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function adds motif postions and matches to an ArchRProject</p>
+    <p>This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addMotifAnnotations</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>motifSet</span> <span class='kw'>=</span> <span class='st'>"JASPAR2018"</span>,
+    <pre class="usage"><span class='fu'>addMotifAnnotations</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>motifSet</span> <span class='kw'>=</span> <span class='st'>"cisbp"</span>,
   <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Motif"</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>collection</span> <span class='kw'>=</span> <span class='st'>"CORE"</span>,
   <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='fl'>5e-05</span>, <span class='kw'>w</span> <span class='kw'>=</span> <span class='fl'>7</span>, <span class='no'>...</span>)</pre>
     
@@ -154,31 +160,31 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An ArchRProject object.</p></td>
     </tr>
     <tr>
       <th>motifSet</th>
-      <td><p>motifSet JASPAR : JASPAR2016, JASPAR2018; chromVARmotifs : human, mouse, encode, homer</p></td>
+      <td><p>The motif set to be used for annotation. Options include: (i) "JASPAR2016", which gives the 2016 version of JASPAR motifs, (ii) "JASPAR2018", which gives the 2018 version of JASPAR motifs, or (iii) one of "human", "mouse", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>of annotations to store as in ArchRProject</p></td>
+      <td><p>QQQ of annotations to store as in ArchRProject</p></td>
     </tr>
     <tr>
       <th>species</th>
-      <td><p>species relevant to dataset (default will guess based on getGenome)</p></td>
+      <td><p>QQQ The name of the species relevant to the supplied ArchRProject. This is used for QQQ. By default, this function will attempt to guess the species based on the value from getGenome.</p></td>
     </tr>
     <tr>
       <th>collection</th>
-      <td><p>JASPAR collection (default = CORE)</p></td>
+      <td><p>QQQ If one of the JASPAR motif sets is used via "motifSet", this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
-      <td><p>pvalue cutoff for motif search (see motimatchr)</p></td>
+      <td><p>The p-value cutoff to be used for motif search (see the motimatchr package for more information).</p></td>
     </tr>
     <tr>
       <th>w</th>
-      <td><p>width to consider for motif (see motimatchr)</p></td>
+      <td><p>The width in basepairs to consider for motif matches (see the motimatchr package for more information).</p></td>
     </tr>
     <tr>
       <th>...</th>

@@ -74,7 +74,7 @@ and merge to get a Union Reproducible Peak Set" />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -103,6 +103,12 @@ and merge to get a Union Reproducible Peak Set" />
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -149,10 +155,10 @@ and merge to get a Union Reproducible Peak Set</p>
 
     <pre class="usage"><span class='fu'>addReproduciblePeakSet</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
   <span class='kw'>reproducibility</span> <span class='kw'>=</span> <span class='st'>"2"</span>, <span class='kw'>peaksPerCell</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>maxPeaks</span> <span class='kw'>=</span> <span class='fl'>150000</span>,
-  <span class='kw'>excludeChr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrM"</span>, <span class='st'>"chrY"</span>), <span class='kw'>pathToMacs2</span> <span class='kw'>=</span> <span class='st'>"macs2"</span>,
-  <span class='kw'>genomeSize</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>shift</span> <span class='kw'>=</span> -<span class='fl'>75</span>, <span class='kw'>extsize</span> <span class='kw'>=</span> <span class='fl'>150</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"q"</span>,
-  <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>extendSummits</span> <span class='kw'>=</span> <span class='fl'>250</span>, <span class='kw'>promoterDist</span> <span class='kw'>=</span> <span class='fl'>500</span>,
-  <span class='kw'>genomeAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGenomeAnnotation.html'>getGenomeAnnotation</a></span>(<span class='no'>ArchRProj</span>),
+  <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>excludeChr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrM"</span>, <span class='st'>"chrY"</span>),
+  <span class='kw'>pathToMacs2</span> <span class='kw'>=</span> <span class='fu'>findMacs2</span>(), <span class='kw'>genomeSize</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>shift</span> <span class='kw'>=</span> -<span class='fl'>75</span>,
+  <span class='kw'>extsize</span> <span class='kw'>=</span> <span class='fl'>150</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"q"</span>, <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>extendSummits</span> <span class='kw'>=</span> <span class='fl'>250</span>,
+  <span class='kw'>promoterDist</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>genomeAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGenomeAnnotation.html'>getGenomeAnnotation</a></span>(<span class='no'>ArchRProj</span>),
   <span class='kw'>geneAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGeneAnnotation.html'>getGeneAnnotation</a></span>(<span class='no'>ArchRProj</span>),
   <span class='kw'>additionalParams</span> <span class='kw'>=</span> <span class='st'>"--nomodel --nolambda"</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='st'>"mclapply"</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,

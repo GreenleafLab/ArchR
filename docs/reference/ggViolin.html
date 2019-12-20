@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -145,10 +151,10 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>ggViolin</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>base_size</span> <span class='kw'>=</span> <span class='fl'>12</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>points</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>sampleRatio</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteDiscrete.html'>paletteDiscrete</a></span>(<span class='kw'>values</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>set</span> <span class='kw'>=</span>
-  <span class='st'>"stallion"</span>))</pre>
+    <pre class="usage"><span class='fu'>ggViolin</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>xOrder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>points</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sampleRatio</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteDiscrete.html'>paletteDiscrete</a></span>(<span class='kw'>values</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>set</span> <span class='kw'>=</span> <span class='st'>"stallion"</span>), <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,10 +168,6 @@
       <td><p>numeric values</p></td>
     </tr>
     <tr>
-      <th>base_size</th>
-      <td><p>base_size of theme</p></td>
-    </tr>
-    <tr>
       <th>xlabel</th>
       <td><p>xlabel</p></td>
     </tr>
@@ -174,8 +176,20 @@
       <td><p>ylabel</p></td>
     </tr>
     <tr>
+      <th>xOrder</th>
+      <td><p>custom order of x for plotting</p></td>
+    </tr>
+    <tr>
+      <th>points</th>
+      <td><p>add points using ggrastr geom_quasirandom?</p></td>
+    </tr>
+    <tr>
       <th>size</th>
       <td><p>size of barplot lines</p></td>
+    </tr>
+    <tr>
+      <th>baseSize</th>
+      <td><p>base size of fonts in plot</p></td>
     </tr>
     <tr>
       <th>pal</th>

@@ -38,7 +38,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Get Started</a>
+  <a href="../../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -67,6 +67,12 @@
     </li>
     <li>
       <a href="../../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -108,10 +114,17 @@
 
     
     
-<p>Under construction…</p>
+<p>Single-cell data generated on essentially any platform is susceptible to the presence of doublets. A doublet refers to a single droplet that received a single barcoded bead and more than one nucleus. This causes the reads from more than one cell to appear as a single cell. For 10x, the percentage of total “cells” that are actually doublets is proportional to the number of cells loaded into the reaction. Even at the lower levels of doublets that result from standard kit use, more than 5% of the data may come from doublets and this exerts substantial effects on clustering. This issue becomes particularly problematic in the context of developmental/trajectory data because doublets look like a mixture between two cell types and this can be confounded with intermediate cell types or cell states.</p>
+<p>To illustrate this problem, we will use 10x scATAC-seq data from QQQ cells. These cells should be very discrete yet we see many “strands” of cells that connect two distinct clusters.</p>
+<p>INSERT PRE-DOUBLET REMOVAL UMAP HERE</p>
+<p>To predict which “cells” are actually doublets, we synthesize in silico doublets from the data by mixing the reads from thousands of combinations of individual cells. We then project these synthetic doublets into the UMAP embedding and identify their nearest neighbor. By iterating this procedure thousands of times, we can identify “cells” in our data whose signal looks very similar to synthetic doublets.</p>
 <div class="figure">
-<img src="../../../../../../My%20Drive/Work/GitHub/ArchR/vignettes/Articles/doubletRemoval.png" width="350">
+<img src="doubletRemoval.png" width="350">
 </div>
+<p>In real world data, this allows us to color each of our “cells” by a doublet likelihood score, identifying “cells” that are statistically likely to be doublets.</p>
+<p>INSERT DOUBLET COLORED UMAP HERE</p>
+<p>In the ArchR framework, doublet scores are added on a per-cell basis to the relevant <code>ArrowFile</code>. Then, after creation of an <code>ArchRProject</code>, the predicted doublets can be removed using <code><a href="../../reference/filterDoublets.html">filterDoublets(ArchRProject)</a></code>. After doublet removal in the above dataset, the UMAP picture is markedly different:</p>
+<p>INSERT POST-DOUBLET REMOVAL UMAP HERE</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

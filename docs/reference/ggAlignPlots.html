@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Align GG Plots — ggAlignPlots • ArchR</title>
+<title>Align Ggplots vertically or horizontally — ggAlignPlots • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Align GG Plots — ggAlignPlots" />
+<meta property="og:title" content="Align Ggplots vertically or horizontally — ggAlignPlots" />
 
-<meta property="og:description" content="Align GG Plots" />
+<meta property="og:description" content="This function aligns ggplots vertically or horizontally" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,19 +140,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Align GG Plots</h1>
+    <h1>Align Ggplots vertically or horizontally</h1>
     
     <div class="hidden name"><code>ggAlignPlots.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Align GG Plots</p>
+    <p>This function aligns ggplots vertically or horizontally</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>ggAlignPlots</span>(<span class='no'>...</span>, <span class='no'>sizes</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"v"</span>, <span class='kw'>plotList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>grobList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='kw'>grobList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>draw</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,6 +168,14 @@
     <tr>
       <th>type</th>
       <td><p>v,vertical or h,horizontal</p></td>
+    </tr>
+    <tr>
+      <th>plotList</th>
+      <td><p>add a list of plots to be aligned</p></td>
+    </tr>
+    <tr>
+      <th>grobList</th>
+      <td><p>add a list of grobs to be aligned</p></td>
     </tr>
     </table>
     

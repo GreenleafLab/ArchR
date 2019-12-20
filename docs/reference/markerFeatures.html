@@ -75,7 +75,7 @@ test of the group vs the null set." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,6 +104,12 @@ test of the group vs the null set." />
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -150,12 +156,12 @@ test of the group vs the null set.</p>
     </div>
 
     <pre class="usage"><span class='fu'>markerFeatures</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
-  <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"GeneScoreMatrix"</span>,
+  <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bdgGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"GeneScoreMatrix"</span>,
   <span class='kw'>bias</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"TSSEnrichment"</span>, <span class='st'>"log10(nFrags)"</span>), <span class='kw'>normBy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>testMethod</span> <span class='kw'>=</span> <span class='st'>"wilcoxon"</span>, <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>maxCells</span> <span class='kw'>=</span> <span class='fl'>500</span>,
-  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>bufferRatio</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>useSeqnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"ArchR"</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>bufferRatio</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
+  <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>useSeqnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"ArchR"</span>,
+  <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -170,7 +176,11 @@ test of the group vs the null set.</p>
     </tr>
     <tr>
       <th>useGroups</th>
-      <td><p>use subset of groups in group column in cellColData</p></td>
+      <td><p>use subset of groups in group column in cellColData for comparisons</p></td>
+    </tr>
+    <tr>
+      <th>bdgGroups</th>
+      <td><p>use subset of groups in group column in cellColData for background</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>

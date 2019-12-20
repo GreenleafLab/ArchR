@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add information to sampleColData in ArchRProject — addSampleColData • ArchR</title>
+<title>Add information to sampleColData to an ArchRProject — addSampleColData • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Add information to sampleColData in ArchRProject — addSampleColData" />
+<meta property="og:title" content="Add information to sampleColData to an ArchRProject — addSampleColData" />
 
-<meta property="og:description" content="This function adds new data to sampleColData in ArchRProject" />
+<meta property="og:description" content="This function adds new data to sampleColData in ArchRProject." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,42 +140,42 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add information to sampleColData in ArchRProject</h1>
+    <h1>Add information to sampleColData to an ArchRProject</h1>
     
     <div class="hidden name"><code>addSampleColData.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function adds new data to sampleColData in ArchRProject</p>
+    <p>This function adds new data to sampleColData in ArchRProject.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addSampleColData</span>(<span class='no'>ArchRProj</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span>(<span class='fu'>sampleColData</span>(<span class='no'>ArchRProj</span>)), <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>addSampleColData</span>(<span class='no'>ArchRProj</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An ArchRProject object.</p></td>
     </tr>
     <tr>
       <th>data</th>
-      <td><p>data to add to sampleColData</p></td>
+      <td><p>The data to add to sampleColData.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>new column name in sampleColData if already exists set force = TRUE to override</p></td>
+      <td><p>The column header name to be used for this new data in sampleColData. If a column with this name already exists, you may set "force" equal to TRUE to overwrite the data in this column.</p></td>
+    </tr>
+    <tr>
+      <th>samples</th>
+      <td><p>The names of the samples corresponding to data. Typically new data is added to all samples but you may use this argument to only add data to a subset of samples. Samples here data is not added are set to NA.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>if name already exists in sampleColData set force = TRUE to override</p></td>
-    </tr>
-    <tr>
-      <th>cells</th>
-      <td><p>names of samples corresponding to data</p></td>
+      <td><p>A boolean (TRUE/FALSE) argument that indicates whether or not to overwrite data in a given column when the value passed to "name" already exists as a column name in sampleColData.</p></td>
     </tr>
     <tr>
       <th>...</th>

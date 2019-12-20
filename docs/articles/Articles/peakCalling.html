@@ -38,7 +38,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Get Started</a>
+  <a href="../../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -67,6 +67,12 @@
     </li>
     <li>
       <a href="../../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -112,28 +118,42 @@
 <div id="fixed-width-vs-variable-width-peaks" class="section level4">
 <h4 class="hasAnchor">
 <a href="#fixed-width-vs-variable-width-peaks" class="anchor"></a>Fixed-width vs Variable-width Peaks</h4>
-<p>We use 501-bp fixed-width peaks because they make downstream computation easier as peak length does not need to be normalized. Moreover, the vast majority of peaks in ATAC-seq are less than 501-bp wide. Using variable-width peaks also makes it difficult to merge peak calls from multiple samples. In general, we do not feel that any benefit derived from using variable-width peaks outweighs the costs.</p>
+<p>We use 501-bp fixed-width peaks because they make downstream computation easier as peak length does not need to be normalized. Moreover, the vast majority of peaks in ATAC-seq are less than 501-bp wide. Using variable-width peaks also makes it difficult to merge peak calls from multiple samples. In general, we do not feel that the potential benefit derived from using variable-width peaks outweighs the costs. More broadly, most analyses are stable with respect to the peak set or peak style used.</p>
+<p>Below, we use the same toy example of a few cell types with a few different peaks to illustrate the differences between these often used peak merging methods.</p>
 </div>
 <div id="raw-peak-overlap-using-bedtools-merge" class="section level4">
 <h4 class="hasAnchor">
 <a href="#raw-peak-overlap-using-bedtools-merge" class="anchor"></a>Raw Peak Overlap Using <em>bedtools merge</em>
 </h4>
+<p>Raw peak overlap involves taking any peaks that overlap each other and merging these into a single larger peak. In this scheme, daisy-chaining becomes a large problem because peaks that dont directly overlap each other get included in the same larger peak because they are bridged by a shared internal peak. Another problem with this type of approach is that, if you want to keep track of peak summits, you are forced to pick a single summit for this each new merged peak.</p>
+<div class="figure">
+<img src="peakCalling_RawOverlap.png" width="350">
+</div>
 </div>
 <div id="clustered-overlap-using-bedtools-cluster" class="section level4">
 <h4 class="hasAnchor">
 <a href="#clustered-overlap-using-bedtools-cluster" class="anchor"></a>Clustered Overlap Using <em>bedtools cluster</em>
 </h4>
+<p>Clustered overlap takes peaks that cluster together and picks a single winner. This is often done by using <em>bedtools cluster</em> and then keeping the most significant peak in each cluster. In our experience, this ends up under-calling and misses smaller peaks located nearby.</p>
+<div class="figure">
+<img src="peakCalling_ClusteredOverlap.png" width="350">
+</div>
 </div>
 <div id="iterative-overlap-in-archr" class="section level4">
 <h4 class="hasAnchor">
 <a href="#iterative-overlap-in-archr" class="anchor"></a>Iterative Overlap In ArchR</h4>
+<p>Iterative overlap removal avoids the issues mentioned above. Peaks are first ranked by their significance. The most significant peak is retained and any peak that directly overlaps with the most significant peak is removed from further analysis. Then, of the remaining peaks, this process is repeated until no more peaks exist. This avoids daisy-chaining and still allows for use of fixed-width peaks. It is important to note that we use a normalized metric of significance for peaks because the reported MACS2 significance is proportional to the sequencing depth.</p>
 <div class="figure">
-<img src="../../../../../../My%20Drive/Work/GitHub/ArchR/vignettes/Articles/iterativePeakCalling.png" width="350">
+<img src="peakCalling_IterativeOverlap.png" width="350">
 </div>
 </div>
 <div id="comparison-of-peak-calling-methods" class="section level3">
 <h3 class="hasAnchor">
 <a href="#comparison-of-peak-calling-methods" class="anchor"></a>Comparison of Peak Calling Methods</h3>
+<p>Comparing the peak calls resulting from all of these methods directly shows clear differences in the final peak sets.</p>
+<div class="figure">
+<img src="peakCalling_Comparison.png" width="350">
+</div>
 </div>
   </div>
 

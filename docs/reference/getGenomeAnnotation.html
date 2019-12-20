@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get genomeAnnotation from ArchRProject — getGenomeAnnotation • ArchR</title>
+<title>Get genomeAnnotation from an ArchRProject — getGenomeAnnotation • ArchR</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Get genomeAnnotation from ArchRProject — getGenomeAnnotation" />
+<meta property="og:title" content="Get genomeAnnotation from an ArchRProject — getGenomeAnnotation" />
 
-<meta property="og:description" content="This function gets genomeAnnotation in ArchRProject" />
+<meta property="og:description" content="This function gets the genomeAnnotation (in format QQQ) from a given ArchRProject." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +73,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/ArchR.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,6 +102,12 @@
     </li>
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
   </ul>
 </li>
@@ -134,14 +140,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get genomeAnnotation from ArchRProject</h1>
+    <h1>Get genomeAnnotation from an ArchRProject</h1>
     
     <div class="hidden name"><code>getGenomeAnnotation.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function gets genomeAnnotation in ArchRProject</p>
+    <p>This function gets the genomeAnnotation (in format QQQ) from a given ArchRProject.</p>
     
     </div>
 
@@ -152,7 +158,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An ArchRProject object.</p></td>
     </tr>
     <tr>
       <th>...</th>
