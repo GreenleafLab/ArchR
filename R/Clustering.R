@@ -40,7 +40,6 @@ addClusters <- function(
             stop("Error reducedDims not available!")
         }
         matDR <- getReducedDims(ArchRProj = input, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
-        print(dim(matDR))
     }else if(inherits(input, "matrix")){
         matDR <- input
     }else{
