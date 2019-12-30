@@ -6,7 +6,7 @@ resource_files:
 
 The following tutorial shows the basics of setting up and interacting with an ArchR Project using a gold-standard dataset of hematopoietic cells ( CITATION ). This tutorial and all of the accompanying vignettes assume that you are running ArchR __locally__. Once all of these steps work for you, feel free to set up ArchR to work in a cluster environment. This tutorial does not explain every detail of every step. Please see the [Vignettes section](articles/index.html) for more details on each major analytical step and all of the major features of ArchR.
 
-### What is an ArrowFile / ArchRProject?
+### What is an `ArrowFile` / `ArchRProject`?
 
 The base unit of an analytical project in ArchR is called an `ArrowFile`. Each `ArrowFile`, stores all of the data associated with an individual sample. Here, a sample would be the most detailed unit of analysis desired (for ex. a single replicate of a particular condition). During creation and as additional analyses are performed, ArchR updates and edits each `ArrowFile` to contain additional layers of information.
 Then, an `ArchRProject` allows you to associate these `ArrowFiles` together into a single analytical framework.
