@@ -30,6 +30,8 @@ navbar:
         href: articles/Articles/pseudobulkGeneration.html
       - text: Gene and Genome Annotation
         href: articles/Articles/annotations.html
+      - text: Cluster Computing with ArchR
+        href: articles/Articles/clusterComputing.html
   - text: FAQ
     href: articles/faq.html
   - text: Reference

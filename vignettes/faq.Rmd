@@ -4,3 +4,6 @@ title: "Frequently Asked Questions"
 
 Under construction...
 
+How do I know if my data is good quality?
+
+How do I know if I should sequence my data deeper?
