@@ -2,7 +2,7 @@
 title: "Cluster Computing with ArchR"
 ---
 
-ArchR is designed to handle millions of single cells. The software was made to minimize memory requirements and enable parallel processing wherever possible. In this way, ArchR is perfectly capable to managing small project use cases when run locally on a standard laptop or large project use cases when run on a cluster.
+ArchR is designed to handle millions of single cells. The software was made to minimize memory requirements and enable parallel processing wherever possible. In this way, ArchR is perfectly capable of managing small project use cases when run locally on a standard laptop or large project use cases when run on a cluster.
 
 Running locally is the default and does not require additional modifications. To run on a cluster, however, requires some custom setup that is detailed here. 
 
