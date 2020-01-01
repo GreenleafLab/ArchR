@@ -9,3 +9,5 @@ Gene and genome annotations are stored as part of each `ArrowFile` and each `Arc
 Gene annotations are in the format __QQQ__.
 
 Genome annotations are in the format __QQQ__.
+
+These formats provide the flexibility for users to use whatever genome or annotation they want. To retreive annotations for your genome of interest, __QQQ__.

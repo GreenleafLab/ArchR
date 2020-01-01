@@ -14,7 +14,6 @@ chr1			1895645		1895646		AGTCGGACCTGTCAGC
 
 To create a fragment file from a BAM file, __JEFF INSERT__.
 
-
 ### BAM Files
 
 Aligned BAM files can be used as input directly to the `createArrowFile()`. ArchR then takes these BAM files and __QQQ__.
@@ -22,4 +21,7 @@ Aligned BAM files can be used as input directly to the `createArrowFile()`. Arch
 ### Tabix files
 
 __JEFF - I have no idea what to write for these__
+
+
+__What about dealing with barcode multiplets? should that be in here?__
 
