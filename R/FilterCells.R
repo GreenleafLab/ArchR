@@ -1,9 +1,9 @@
 #' Filter cells in an ArchRProject
 #' 
-#' This function plots a list of filters to see which cells would pass filter.
+#' This function returns an ArchRProject object that has been filtered to remove cells that do not pass the filter critera suppplied in filterList.
 #' 
-#' @param ArchRProj an ArchR Project object
-#' @param filterList list of filters for filtering cells from cellColData
+#' @param ArchRProj An ArchRProject object
+#' @param filterList QQQ A list of filters based on cellColData to apply when filtering cells. Format should be a named list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria. If numeric, a lower threshold is expected, below which cells are filtered (a higher threshold is optional). If a chatacter vector, rows in cellColData corresponding to the supplied character values are QQQkept. If a list or simpleList, QQQ.
 #' @param ... additional params
 #' @export
 filterCells <- function(ArchRProj, filterList, ...){  
@@ -75,11 +75,11 @@ filterCells <- function(ArchRProj, filterList, ...){
 
 #' Filter Plot for cells in an ArchRProject
 #' 
-#' This function plots a list of filters to see which cells would pass filter.
+#' This function plots a list of attributes with filter criteria to visualize which cells would pass filter.
 #' 
-#' @param ArchRProj an ArchR Project object
+#' @param ArchRProj An ArchRProject object
 #' @param filterList list of filters for filtering cells from cellColData (up to 2 will be plotted)
-#' @param sampleNames specific samples to include
+#' @param sampleNames The sample names corresponding to the subset of samples to plot. If NULL, all samples are included.
 #' @param ... additional params
 #' @export
 filterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
