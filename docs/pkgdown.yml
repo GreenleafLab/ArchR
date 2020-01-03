@@ -13,4 +13,6 @@ articles:
   pseudobulkGeneration: Articles/pseudobulkGeneration.html
   qcFilters: Articles/qcFilters.html
   signalTracks: Articles/signalTracks.html
+  clusterComputing: Articles/clusterComputing.html
+  inputFiles: Articles/inputFiles.html
 

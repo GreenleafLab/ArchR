@@ -74,6 +74,9 @@
     <li>
       <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
+    <li>
+      <a href="../../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -114,7 +117,10 @@
 
     
     
-<p>Under construction…</p>
+<p>Dimensionality reduction often takes a complex multidimensional data (like an M x N matrix of insertion counts per sample) and reduces this object to a 2 dimensional plot for visualization purposes. However, in scATAC-seq, the multidimensional insertion counts matrix is extremely <em>sparse</em> because each cell (generally) has two alleles and transposition is a relatively rare event. So even if a region is accessible, it may not be transposed. The resultant insertion counts matrix is trinary (0s, 1s, and 2s) and we convert this to a binary matrix (0 = not accessible, 1 = accessible which ends up being mostly 0s because it is <em>sparse</em>. However, a 0 in scATAC-seq could mean “non-accessible” or “not sampled” and these two inferences are very different from a biological standpoint. Essentially, the 1s have information and the 0s do not.</p>
+<p>If you were to perform a standard dimensionality reduction, like Principal Component Analysis, on this sparse insertion counts matrix and plot the top two principal components, you would not obtain the desired result because the sparsity causes high inter-cell similarity at all of the 0 positions. To get around this issue, we use a layered dimensionality reduction approach. First, we use Latent Semantic Indexing (LSI), an approach from natural language processing that was originally designed to assess document similarity based on word counts. This solution was created for natural language processing because the data is sparse and noisy (many different words and many low frequency words). In the case of scATAC-seq, different samples are the <em>documents</em> and different regions/peaks are the <em>words</em>. First, we calculate the term frequency-inverse document frequency (TF-IDF) which reflects how important a <em>word</em> (aka region/peak) is to a <em>document</em> (aka sample). Then, through a technique called singular value decomposition (SVD), the most <em>valuable</em> information across samples is identified and represented in a lower dimensional space. LSI allows you to reduce the dimensionality of the sparse insertion counts matrix from many thousands to tens. Then, a more conventional dimensionality reduction technique, such as Uniform Manifold Approximation and Projection (UMAP) can be used to visualize the data.</p>
+<p>ArchR implements an iterative LSI approach and we recommend using a tiled genome-wide matrix as input. This allows for the identification of clusters prior to calling peaks which provides many advantages both in terms of speed and bias. The iterative approach is important because <strong>QQQ</strong>. All of this happens under the hood using the <code><a href="../../reference/addIterativeLSI.html">addIterativeLSI()</a></code> function. You can tweak all of the parameters including the matrix used (<code>useMatrix</code>), the number of <code>iterations</code>, the top N <code>dimsToUse</code>, and many others.</p>
+<p>The last piece of the dimensionality reduction puzzle in scATAC-seq is the removal of batch effects which is a complex problem to address. The <code><a href="../../reference/addIterativeLSI.html">addIterativeLSI()</a></code> function allows for the use of [Harmony])(<a href="https://github.com/immunogenomics/harmony" class="uri">https://github.com/immunogenomics/harmony</a>) to remove batch effects via the <code>runHarmony</code> and <code>harmonyParams</code> parameters. This approach performs well in our hands but is not set to run by default.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

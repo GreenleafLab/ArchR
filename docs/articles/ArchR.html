@@ -74,6 +74,9 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
+    <li>
+      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -114,10 +117,10 @@
 
     
     
-<p>The following tutorial shows the basics of setting up and interacting with an ArchR Project using a gold-standard dataset of hematopoietic cells ( CITATION ). This tutorial and all of the accompanying vignettes assume that you are running ArchR <strong>locally</strong>. Once all of these steps work for you, feel free to set up ArchR to work in a cluster environment. This tutorial does not explain every detail of every step. Please see the <a href="articles/index.html">Vignettes section</a> for more details on each major analytical step and all of the major features of ArchR.</p>
+<p>The following tutorial shows the basics of setting up and interacting with an ArchR Project using a gold-standard dataset of hematopoietic cells ( CITATION ). This tutorial and all of the accompanying vignettes assume that you are running ArchR <strong>locally</strong>. Once all of these steps work for you, feel free to <a href="articles/Articles/clusterComputing.html">set up ArchR to work in a cluster environment</a>. This tutorial does not explain every detail of every step. Please see the <a href="articles/index.html">Vignettes section</a> for more details on each major analytical step and all of the major features of ArchR.</p>
 <div id="what-is-an-arrowfile-archrproject" class="section level3">
 <h3 class="hasAnchor">
-<a href="#what-is-an-arrowfile-archrproject" class="anchor"></a>What is an ArrowFile / ArchRProject?</h3>
+<a href="#what-is-an-arrowfile-archrproject" class="anchor"></a>What is an <code>ArrowFile</code> / <code>ArchRProject</code>?</h3>
 <p>The base unit of an analytical project in ArchR is called an <code>ArrowFile</code>. Each <code>ArrowFile</code>, stores all of the data associated with an individual sample. Here, a sample would be the most detailed unit of analysis desired (for ex. a single replicate of a particular condition). During creation and as additional analyses are performed, ArchR updates and edits each <code>ArrowFile</code> to contain additional layers of information. Then, an <code>ArchRProject</code> allows you to associate these <code>ArrowFiles</code> together into a single analytical framework.</p>
 <div class="figure">
 <img src="ArchRProject_Schematic.png" width="700">
@@ -148,7 +151,7 @@ threads &lt;-<span class="st"> </span><span class="dv">8</span></code></pre></di
 <div id="creating-arrow-files" class="section level3">
 <h3 class="hasAnchor">
 <a href="#creating-arrow-files" class="anchor"></a>Creating Arrow Files</h3>
-<p>For this tutorial, we will download a collection of fragment files. Fragment files are one of the base file types of the 10x Genomics analytical platform and can be easily created from any bam file. See QQQ for information on making your own fragment files. Once we have our fragment files, we provide their names as a vector to <code>createArrowFiles</code>. During creation, some basic matrices and data is added to each <code>ArrowFile</code> including a <code>TileMatrix</code> containing insertion counts across genome-wide 500-bp bins.</p>
+<p>For this tutorial, we will download a collection of fragment files. Fragment files are one of the base file types of the 10x Genomics analytical platform and can be easily created from any bam file. See <a href="articles/Articles/inputFiles.html">the ArchR input types vignette</a> for information on making your own fragment files. Once we have our fragment files, we provide their names as a vector to <code>createArrowFiles</code>. During creation, some basic matrices and data is added to each <code>ArrowFile</code> including a <code>TileMatrix</code> containing insertion counts across genome-wide 500-bp bins.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Get Tutorial Data ~2.2GB To Download</span>
 inputFiles &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getTutorialData.html">getTutorialData</a></span>(<span class="st">"Hematopoiesis"</span>)
 
@@ -250,7 +253,7 @@ heatmapGS &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m
 <h3 class="hasAnchor">
 <a href="#creating-a-reproducible-peak-set" class="anchor"></a>Creating a Reproducible Peak Set</h3>
 <p>One of the most complicated aspects about ATAC-seq and scATAC-seq analysis is the generation of a reproducible and robust peak set. In ArchR, we use an iterative overlap removal process that we first described in <a href="https://www.ncbi.nlm.nih.gov/pubmed/30361341">Corces* &amp; Granja* et al. Science 2018</a>. This process is described in detail in the <a href="articles/Articles/peakCalling.html">peak calling vignette</a>.</p>
-<p>To robustly call peaks, we first merge the sparse single-cell data into pseudobulks by aggregating the insertions from many individual cells into a single group. We make multiple pseudobulks for each cluster to enable an assessment of peak reproducibility. This process of pseudobulk generation is described in detail in the <a href="articles/Articles/pseudobulkGeneration.html">pseudobulk generation vignette</a>. We than call peaks using <a href="https://github.com/taoliu/MACS">MACS2 v???</a> and perform our iterative overlap removal. Once we obtain a finalized peak set, we obtain insertion counts in each peak for each single cell and associate this with the corresponding <code>ArrowFile</code> via the <code>ArchRProject</code>.</p>
+<p>To robustly call peaks, we first merge the sparse single-cell data into pseudo-bulk replicates by aggregating the insertions from many individual cells into a single group. We make multiple pseudo-bulk replicates for each cluster to enable an assessment of peak reproducibility. This process of pseudo-bulk generation is described in detail in the <a href="articles/Articles/pseudobulkGeneration.html">pseudo-bulk generation vignette</a>. We than call peaks using <a href="https://github.com/taoliu/MACS">MACS2 v???</a> and perform our iterative overlap removal. Once we obtain a finalized peak set, we collect insertion counts in each peak for each single cell and associate this with the corresponding <code>ArrowFile</code> via the <code>ArchRProject</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Create Group Coverage Files that can be used for downstream analysis (~5-10 minutes)</span>
 proj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addGroupCoverages.html">addGroupCoverages</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">groupBy =</span> <span class="st">"Clusters"</span>, <span class="dt">threads =</span> threads)
 
@@ -276,6 +279,7 @@ heatmapPeaks &lt;-<span class="st"> </span><span class="kw"><a href="../referenc
 <div id="performing-motif-enrichments" class="section level3">
 <h3 class="hasAnchor">
 <a href="#performing-motif-enrichments" class="anchor"></a>Performing Motif Enrichments</h3>
+<p>QQQQQQQ - I think the concept of TF deviations is still abstract to most people. Does ArchR do motif enrichment with hypergeometric test as well??</p>
 <p>Using the reproducible peak set that we defined above, we can use ArchR to calculate TF deviations on a single-cell basis for transcription factors in the peaks identified in each cluster. We can then overlay these deviations on on UMAP embedding. This effectively infers differences in TF activity across all single cells and is very useful in identifying regulatory factors governing cell fate.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Motif Search in PeakSet</span>
 proj &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addMotifAnnotations.html">addMotifAnnotations</a></span>(<span class="dt">ArchRProj =</span> proj, <span class="dt">name =</span> <span class="st">"Motif"</span>)

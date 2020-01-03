@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gene and Genome Annotations TEST • ArchR</title>
+<title>Gene and Genome Annotations • ArchR</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
-<script src="../../pkgdown.js"></script><meta property="og:title" content="Gene and Genome Annotations TEST">
+<script src="../../pkgdown.js"></script><meta property="og:title" content="Gene and Genome Annotations">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -74,6 +74,9 @@
     <li>
       <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
+    <li>
+      <a href="../../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -104,7 +107,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Gene and Genome Annotations TEST</h1>
+      <h1>Gene and Genome Annotations</h1>
             
       
       
@@ -114,7 +117,11 @@
 
     
     
-
+<p>ArchR makes frequent use of genome and gene annotations to perform various analytical tasks. These include calculating <a href="articles/Articles/qcFilters.html">TSS enrichment scores</a>, annotating peak regions, and <a href="articles/Articles/signalTracks.html">plotting signal tracks</a>.</p>
+<p>Gene and genome annotations are stored as part of each <code>ArrowFile</code> and each <code>ArchRProject</code>. It may seem counterintuitive to store the information in both places but this is done for ease of access because an <code>ArrowFile</code> is a large-format file in hdf5 format while and <code>ArchRProject</code> is a small compressed file that can be easily stored in memory and readily accessed.</p>
+<p>Gene annotations are in the format <strong>QQQ</strong>.</p>
+<p>Genome annotations are in the format <strong>QQQ</strong>.</p>
+<p>These formats provide the flexibility for users to use whatever genome or annotation they want. To retreive annotations for your genome of interest, <strong>QQQ</strong>.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

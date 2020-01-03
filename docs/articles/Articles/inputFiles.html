@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Doublet Removal • ArchR</title>
+<title>ArchR Input Files • ArchR</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
-<script src="../../pkgdown.js"></script><meta property="og:title" content="Doublet Removal">
+<script src="../../pkgdown.js"></script><meta property="og:title" content="ArchR Input Files">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -107,27 +107,36 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Doublet Removal</h1>
+      <h1>ArchR Input Files</h1>
             
       
       
-      <div class="hidden name"><code>doubletRemoval.Rmd</code></div>
+      <div class="hidden name"><code>inputFiles.Rmd</code></div>
 
     </div>
 
     
     
-<p>Single-cell data generated on essentially any platform is susceptible to the presence of doublets. A doublet refers to a single droplet that received a single barcoded bead and more than one nucleus. This causes the reads from more than one cell to appear as a single cell. For 10x, the percentage of total “cells” that are actually doublets is proportional to the number of cells loaded into the reaction. Even at the lower levels of doublets that result from standard kit use, more than 5% of the data may come from doublets and this exerts substantial effects on clustering. This issue becomes particularly problematic in the context of developmental/trajectory data because doublets look like a mixture between two cell types and this can be confounded with intermediate cell types or cell states.</p>
-<p>To illustrate this problem, we will use 10x scATAC-seq data from QQQ cells. These cells should be very discrete yet we see many “strands” of cells that connect two distinct clusters.</p>
-<p>INSERT PRE-DOUBLET REMOVAL UMAP HERE</p>
-<p>To predict which “cells” are actually doublets, we synthesize in silico doublets from the data by mixing the reads from thousands of combinations of individual cells. We then project these synthetic doublets into the UMAP embedding and identify their nearest neighbor. By iterating this procedure thousands of times, we can identify “cells” in our data whose signal looks very similar to synthetic doublets.</p>
-<div class="figure">
-<img src="doubletRemoval.png" width="350">
+<p>ArchR accepts the following file types as input for <code>ArrowFile</code> creation: (i) fragment files, (ii) BAM files, and (iii) tabix <strong>QQQ</strong> files. The prefered file format for the fastest processing is the fragment file which is also one of the standard 10x Genomics output files.</p>
+<div id="fragment-files" class="section level3">
+<h3 class="hasAnchor">
+<a href="#fragment-files" class="anchor"></a>Fragment Files</h3>
+<p>A fragment file is generated from aligned reads and no longer contains any primary sequence information. It is a tab-delimited text file formatted as:</p>
+<pre><code>chromosome      start       end         single-cell_barcode
+chr1            1895645     1895646     AGTCGGACCTGTCAGC</code></pre>
+<p>To create a fragment file from a BAM file, <strong>JEFF INSERT</strong>.</p>
 </div>
-<p>In real world data, this allows us to color each of our “cells” by a doublet likelihood score, identifying “cells” that are statistically likely to be doublets.</p>
-<p>INSERT DOUBLET COLORED UMAP HERE</p>
-<p>In the ArchR framework, doublet scores are added on a per-cell basis to the relevant <code>ArrowFile</code>. Then, after creation of an <code>ArchRProject</code>, the predicted doublets can be removed using <code><a href="../../reference/filterDoublets.html">filterDoublets(ArchRProject)</a></code>. After doublet removal in the above dataset, the UMAP picture is markedly different:</p>
-<p>INSERT POST-DOUBLET REMOVAL UMAP HERE</p>
+<div id="bam-files" class="section level3">
+<h3 class="hasAnchor">
+<a href="#bam-files" class="anchor"></a>BAM Files</h3>
+<p>Aligned BAM files can be used as input directly to the <code>createArrowFile()</code>. ArchR then takes these BAM files and <strong>QQQ</strong>.</p>
+</div>
+<div id="tabix-files" class="section level3">
+<h3 class="hasAnchor">
+<a href="#tabix-files" class="anchor"></a>Tabix files</h3>
+<p><strong>JEFF - I have no idea what to write for these</strong></p>
+<p><strong>What about dealing with barcode multiplets? should that be in here?</strong></p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

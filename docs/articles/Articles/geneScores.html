@@ -74,6 +74,9 @@
     <li>
       <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
+    <li>
+      <a href="../../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -114,7 +117,24 @@
 
     
     
-<p>Under construction…</p>
+<div id="gene-activity-scores" class="section level3">
+<h3 class="hasAnchor">
+<a href="#gene-activity-scores" class="anchor"></a>Gene Activity Scores</h3>
+<p>While ArchR is able to robustly call clusters, it is not possible to know <em>a priori</em> which cell type is represented by each cluster. This task is often left to manual annotation because every application is different.</p>
+<p>To do this cell type annotation, we use prior knowledge of cell type-specific marker genes and we estimate <em>gene activity scores</em> for these genes. A gene activity score is essentially a prediction of how highly expressed a gene will be based on the accessibility of regulatory elements in the vicinity of the gene promoter.</p>
+<p>Specifically, the 200-kb region centered on the given TSS is tiled into 1000-bp bins and the insertions per bin are counted. Each of these bins is then weighted proportional to the distance from the TSS because regulatory elements closer to the promoter are more likely to affect the promoter.</p>
+<p>[INSERT DRAWING OF GENE ACTIVITY SCORE GENERATION]</p>
+<p>These gene activity scores are calculated for each <code>ArrowFile</code> at the time of creation if the parameter <code>addGeneScoreMat</code> is set to <code>TRUE</code> (the default) or at any time by using the <code><a href="../../reference/addGeneScoreMatrix.html">addGeneScoreMatrix()</a></code> function. Once caluclated, individual cells of a UMAP projection can be colored by their gene activity scores to help with the identification of various cell types. For example, in the plot below from the tutorial, <strong>QQQ</strong> cells are highlighted based on their gene activity scores for <strong>QQQ</strong>.</p>
+<p>[INSERT UMAP GENE SCORE PLOT FROM PBMCs]</p>
+<p>It is important to note that not all genes behave well with gene activity scores. In particular, genes that reside in very gene-dense areas can be problematic because the promoter accessibility of nearby genes contribute to their score and it is also not necessarily true that nearby regulatory elements will affect their expression. Thus, it is always best to sanity check all gene activity score analyses.</p>
+</div>
+<div id="marker-genes" class="section level3">
+<h3 class="hasAnchor">
+<a href="#marker-genes" class="anchor"></a>Marker Genes</h3>
+<p>An alternative less-supervised method for identification of cell types is the identification of features that are highly specific to the given cluster (or a small group of clusters). Here, a feature could be a single regulatory element or it could be a gene. ArchR does this using the <code><a href="../../reference/markerFeatures.html">markerFeatures()</a></code> function which can take as input any matrix via the <code>useMatrix</code> parameter and it identifies features unique to the groups indicated by the <code>groupBy</code> parameter (default is “Clusters”). If the <code>useMatrix</code> parameter is set to “GeneScoreMatrix”, then the function will identify the genes that appear to be uniquely active in each cell type. This provides an unbiased way of seeing which genes are predicted to be active in each cluster and can aid in cluster annotation.</p>
+<p><strong>Can you not set the max number of clusters that can have the activity??</strong></p>
+<p>It is worth noting that the same function can be used with the <code>useMatrix</code> parameter set to “TileMatrix” or <strong>QQQ</strong> in order to identify genomic regions or regulatory elements that are highly specific to a certain cluster.</p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
