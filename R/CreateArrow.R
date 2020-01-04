@@ -18,6 +18,7 @@
 #' @param excludeChr The names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the .arrow file.
 #' @param nChunk The number of chunks to divide each chromosome into reading in input files. Higher numbers reduce memory usage but increase compute time.
 #' @param bcTag The name of the field in the input bam file containing the barcode tag information. See ScanBam in Rsamtools.
+#' @param gsubExpression QQQ
 #' @param bamFlag QQQ A list of bam flags to be used for reading in fragments from input bam files. Fromat should be QQQ. See ScanBam in Rsamtools.
 #' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
 #' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. Ssee Buenrostro et al. Nature Methods 2013.
@@ -28,6 +29,9 @@
 #' @param force A bollean value indicating whether to force arrow files to be overwritten if already exist in outDir.
 #' @param threads The number threads to be used for parallel computing.
 #' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+
 #' @param ... additional args
 #' @export
 createArrowFiles <- function(
@@ -47,6 +51,7 @@ createArrowFiles <- function(
   excludeChr = c("chrM", "chrY"),
   nChunk = 5,
   bcTag = "qname",
+  gsubExpression = NULL,
   bamFlag = NULL,
   offsetPlus = 4,
   offsetMinus = -5,
@@ -57,6 +62,8 @@ createArrowFiles <- function(
   force = FALSE,
   threads = 1,
   parallelParam = NULL,
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
   ...
   ){
 

@@ -4,14 +4,15 @@
 #' to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 #' contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell. 
 #'
-#' @param input An ArchRProject object or a set of ArrowFiles.
-#' @param useMatrix The name of the matrix to be used for performing doublet identification analyses.
+#' @param input An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.
+#' @param useMatrix QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.
 #' @param k The number of cells neighboring a simulated doublet to be considered as putative doublets.
-#' @param nTrials The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5N trials.
+#' @param nTrials QQQ The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.
+#' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.
 #' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".
-#' @param UMAPParams The list of parameters to pass to the UMAP function. See the function umap in the uwot package.
-#' @param LSIParams The list of parameters to pass to the IterativeLSI. See IterativeLSI.
-#' @param useClusters QQQ A boolean value that determins QQQ
+#' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function umap in the uwot package.
+#' @param LSIParams QQQ The list of parameters to pass to the IterativeLSI function if QQQ. See IterativeLSI.
 #' @param outDir The name or path for the output directory for writing information on doublet identification,
 #' @param threads The number threads to be used for parallel computing.
 #' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
@@ -518,9 +519,10 @@ addDoubletScores <- function(
 #' This function will read in the .best file output from demuxlet and add the doublet
 #' classifications into the cellColData for the ArchR Project
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param bestFiles The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the ArchRProject.
-#' @param sampleNames The sample names corresponding to the .best files. These must match the sample names present in the ArchRProject.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param bestFiles The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the `ArchRProject`.
+#' @param sampleNames The sample names corresponding to the .best files. These must match the sample names present in the `ArchRProject`.
+#' @param ... additional args
 #' @export
 addDemuxletResults <- function(ArchRProj, bestFiles, sampleNames, ...){
   

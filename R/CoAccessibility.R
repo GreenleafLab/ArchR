@@ -30,7 +30,7 @@ addCoAccessibility <- function(
   log2Norm = TRUE,
   seed = 1, 
   knnMethod = "nabor",
-  threads = floor(detectCores()/2),
+  threads = floor(detectCores()/2),#QQQ
   ...
   ){
 
