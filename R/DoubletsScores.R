@@ -1,3 +1,7 @@
+##########################################################################################
+# Doublet Identification Methods
+##########################################################################################
+
 #' Add Doublet Scores to a collection of Arrow files or an ArchRProject
 #' 
 #' For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
