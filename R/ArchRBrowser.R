@@ -4,7 +4,7 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object, all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the transcription start site of the supplied gene.
-#' @param useGroups A boolean value that indicates whether samples should be grouped together to produce average tracks. Only TRUE/FALSE are accepted.
+#' @param useGroups QQQ A boolean value that indicates whether samples should be grouped together to produce average tracks. Only TRUE/FALSE are accepted.
 #' @param groupBy A string that indicates how samples should be grouped. This string corresponds to one of the standard or user-supplied metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be used.
 #' @param useCoverages QQQ use group coverages for track plotting
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak bed regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).
@@ -28,7 +28,7 @@ ArchRRegionTrack <- function(
   ArchRProj = NULL, 
   region = NULL, 
   groupBy = "Clusters",
-  useGroups = NULL,
+  useGroups = NULL, #QQQ should this default really be NULL and not FALSE??
   useCoverages = FALSE,
   plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
   sizes = c(10, 2, 4),
