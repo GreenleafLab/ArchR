@@ -1,15 +1,25 @@
+##########################################################################################
+# Clustering Methods
+##########################################################################################
+
+#' Add cluster information to
 #' 
 #' This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject
 #' 
-#' @param input ArchRProject or matrix for cluster identification
-#' @param reducedDims reducedDims of ArchRProject if provided
-#' @param name name of cluster column if input is ArchRProject
-#' @param method supported methods are Seurat and LouvainJaccard
-#' @param dimsToUse reduced dims to use
-#' @param knnAssign number of nearest neighbors for assignment of outliers and estimation
-#' @param nOutlier number of cells required for a cluster to be called if not then these will be considered an outlier
-#' @param seed seed
-#' @param ... arguments to provide Seurat::FindClusters or ArchR:::.clustLouvain (knn = 50, jaccard = TRUE)
+#' @param input Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.
+#' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.
+#' @param name The column name of the column to be added to `cellColData` if `input` is an `ArchRProject` object.
+#' @param sampleCells A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.
+#' @param seed QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param method A string indicated the clustering method to be used. Supported methods are "Seurat" and "LouvainJaccard".
+#' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth.
+#' @param knnAssign QQQ The number of nearest neighbors to be used during clustering for assignment of outliers and estimation of QQQ.
+#' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
+#' @param tstart QQQ The time at which the function run was started.
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
+#' @param ... Additional arguments to be provided to Seurat::FindClusters or ArchR:::.clustLouvain (for example, knn = 50, jaccard = TRUE)
 #' @export
 #'
 addClusters <- function(
@@ -324,7 +334,7 @@ addClusters <- function(
 
 # }
 
-#' Group Means
+#' QQQ Should this be exported?
 #' @export
 computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
 
@@ -386,9 +396,4 @@ computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = 
   knnIdx
 
 }
-
-
-
-
-
 

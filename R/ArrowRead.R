@@ -7,9 +7,9 @@
 #' This function retrieves the fragments from a given ArrowFile as a GRanges object.
 #'
 #' @param ArrowFile The ArrowFile object from which fragments should be obtained.
-#' @param chr A name of a chromosome to be used to subset the fragments GRanges object to a specific chromsome if desired.
+#' @param chr A name of a chromosome to be used to subset the fragments `GRanges` object to a specific chromsome if desired.
 #' @param cellNames QQQ matrix output name in ArrowFiles cannot be a protected matrix name
-#' @param verbose A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param ... additional params
 #' @export
 getFragmentsFromArrow <- function(
@@ -149,8 +149,10 @@ getFragmentsFromArrow <- function(
 #' @param ArrowFile The ArrowFile object from which the selected data matrix should be obtained.
 #' @param useMatrix QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
-#' @param cellNames QQQ ceiling for the number of counts per feature
-#' @param verbose A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param cellNames QQQ
+#' @param ArchRProj QQQ An ArchRProject object to be QQQ.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @param ... additional params
 #' @export
 getMatrixFromArrow <- function(
