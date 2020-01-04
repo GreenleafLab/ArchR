@@ -33,6 +33,8 @@
 
 
 <meta property="og:title" content="Add embedding of a reduced dimensions object in an ArchRProject — addEmbedding" />
+
+<meta property="og:description" content="This function will compute an embedding and add to an ArchRProject." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -147,7 +149,9 @@
     </div>
 
     <div class="ref-description">
-
+    
+    <p>This function will compute an embedding and add to an ArchRProject.</p>
+    
     </div>
 
     <pre class="usage"><span class='fu'>addEmbedding</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>,
@@ -200,17 +204,47 @@
     </tr>
     <tr>
       <th>quantCut</th>
-      <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of the 97.5th and 2.5th percentile values respectively.} --></p>
-<p>quantHexQQQ quantile evaluation for each hex in geom_hex</p>
-<p>discreteSetQQQ The name or numeric index of a discrete palette from ArchR_palettesdiscrete to use for plotting QQQ.</p>
-<p>continuousSetQQQcontinuous palette for visualizing embedding</p>
-<p>randomizeA boolean value that determines whether to randomly order the plotting of points to avoid (for ex.) all points from a single cluster being plotted as the top-most layer of the plot.</p>
-<p>keepAxisQQQ keep x and y axis for plot</p>
-<p>baseSizeQQQ The numeric font size to be used in the plot. This applies to all plot labels.</p>
-<p>plotContinuousQQQ how to plot continuous features (points and hex)</p>
-<p>plotParamsQQQ additional params to pass to ggPoint/ggHex</p>
-<p>plotWidthQQQ plot width used for creating a consistent plot independent of legend size</p>
-<p>plotHeightQQQ plot height used for creating a consistent plot independent of legend size</p></td>
+      <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.</p></td>
+    </tr>
+    <tr>
+      <th>quantHex</th>
+      <td><p>QQQ quantile evaluation for each hex in geom_hex</p></td>
+    </tr>
+    <tr>
+      <th>discreteSet</th>
+      <td><p>QQQ The name or numeric index of a discrete palette from ArchR_palettesdiscrete to use for plotting QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>continuousSet</th>
+      <td><p>QQQcontinuous palette for visualizing embedding</p></td>
+    </tr>
+    <tr>
+      <th>randomize</th>
+      <td><p>A boolean value that determines whether to randomly order the plotting of points to avoid (for ex.) all points from a single cluster being plotted as the top-most layer of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>keepAxis</th>
+      <td><p>QQQ keep x and y axis for plot</p></td>
+    </tr>
+    <tr>
+      <th>baseSize</th>
+      <td><p>QQQ The numeric font size to be used in the plot. This applies to all plot labels.</p></td>
+    </tr>
+    <tr>
+      <th>plotContinuous</th>
+      <td><p>QQQ how to plot continuous features (points and hex)</p></td>
+    </tr>
+    <tr>
+      <th>plotParams</th>
+      <td><p>QQQ additional params to pass to ggPoint/ggHex</p></td>
+    </tr>
+    <tr>
+      <th>plotWidth</th>
+      <td><p>QQQ plot width used for creating a consistent plot independent of legend size</p></td>
+    </tr>
+    <tr>
+      <th>plotHeight</th>
+      <td><p>QQQ plot height used for creating a consistent plot independent of legend size</p></td>
     </tr>
     </table>
     

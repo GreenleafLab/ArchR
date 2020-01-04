@@ -26,7 +26,7 @@
 #' 
 #' This function gets the outputDirectory from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getOutputDirectory <- function(ArchRProj, ...){
@@ -43,7 +43,7 @@ getOutputDirectory <- function(ArchRProj, ...){
 #' 
 #' This function gets the names of all ArrowFiles associated with a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getArrowFiles <- function(ArchRProj, ...){
@@ -57,7 +57,7 @@ getArrowFiles <- function(ArchRProj, ...){
 #' 
 #' This function gets the sampleNames from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getSampleNames <- function(ArchRProj, ...){
@@ -70,7 +70,7 @@ getSampleNames <- function(ArchRProj, ...){
 #' 
 #' This function gets number of cells in ArchRProject/ArrowFile
 #' 
-#' @param input ArchRProject or ArrowFiles
+#' @param input An `ArchRProject` object or ArrowFile.
 #' @param ... additional args
 #' @export
 nCells <- function(input, ...){
@@ -89,11 +89,11 @@ nCells <- function(input, ...){
 
 #' Get sampleColData from an ArchRProject
 #' 
-#' This function gets the sampleColData from a given ArchRProject.
+#' This function gets the `sampleColData` from a given `ArchRProject`.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param select select a subset of column names from sampleColData
-#' @param drop drop if selecting only one column name
+#' @param ArchRProj An `ArchRProject` object.
+#' @param select QQQ A character vector containing the column names to select from sampleColData.
+#' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
 #' @param ... additional args
 #' @export
 getSampleColData <- function(ArchRProj, select = NULL, drop = FALSE, ...){
@@ -113,11 +113,11 @@ getSampleColData <- function(ArchRProj, select = NULL, drop = FALSE, ...){
 #' 
 #' This function adds new data to sampleColData in ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param data The data to add to sampleColData.
-#' @param name The column header name to be used for this new data in sampleColData. If a column with this name already exists, you may set "force" equal to TRUE to overwrite the data in this column.
-#' @param samples The names of the samples corresponding to data. Typically new data is added to all samples but you may use this argument to only add data to a subset of samples. Samples here data is not added are set to NA.
-#' @param force A boolean (TRUE/FALSE) argument that indicates whether or not to overwrite data in a given column when the value passed to "name" already exists as a column name in sampleColData.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param data The data to add to `sampleColData`.
+#' @param name The column header name to be used for this new data in `sampleColData`. If a column with this name already exists, you may set `force` equal to TRUE to overwrite the data in this column.
+#' @param samples The names of the samples corresponding to `data`. Typically new data is added to all samples but you may use this argument to only add data to a subset of samples. Samples where `data` is not added are set to `NA`.
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
 #' @param ... additional args
 #' @export
 addSampleColData <- function(ArchRProj, data = NULL, name = NULL, samples = NULL, force = FALSE){
@@ -154,7 +154,7 @@ addSampleColData <- function(ArchRProj, data = NULL, name = NULL, samples = NULL
 #' 
 #' This function gets the cellNames from a given ArchRProject object.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getCellNames <- function(ArchRProj, ...){
@@ -167,9 +167,9 @@ getCellNames <- function(ArchRProj, ...){
 #' 
 #' This function gets the cellColData from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param select A character vector of column names to select from cellColData if you would like to subset the returned data.
-#' @param drop A boolean argument to indicate whether additional data.frame information should be dropped if selecting only a single column name.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param select A character vector of column names to select from `cellColData` if you would like to subset the returned data.
+#' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
 #' @param ... additional args
 #' @export
 getCellColData <- function(ArchRProj, select = NULL, drop = FALSE, ...){
@@ -198,11 +198,11 @@ getCellColData <- function(ArchRProj, select = NULL, drop = FALSE, ...){
 #' 
 #' This function adds new data to cellColData in a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param data The data to add to cellColData.
-#' @param name The column header name to be used for this new data in cellColData. If a column with this name already exists, you may set "force" equal to TRUE to overwrite the data in this column.
-#' @param cells The names of the cells corresponding to "data". Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where data is not added are set to NA.
-#' @param force A boolean (TRUE/FALSE) argument that indicates whether or not to overwrite data in a given column when the value passed to "name" already exists as a column name in cellColData.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param data The data to add to `cellColData`.
+#' @param name The column header name to be used for this new data in `cellColData`. If a column with this name already exists, you may set `force` equal to TRUE to overwrite the data in this column.
+#' @param cells The names of the cells corresponding to `data`. Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where `data` is not added are set to `NA`.
+#' @param force A boolean value indicating whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
 #' @param ... additional args
 #' @export
 addCellColData <- function(ArchRProj, data = NULL, name = NULL, cells = getCellNames(ArchRProj), force = FALSE, ...){
@@ -245,7 +245,7 @@ addCellColData <- function(ArchRProj, data = NULL, name = NULL, cells = getCellN
 
 #' Get the peak set from an ArchRProject
 #' 
-#' This function gets the peakSet as a GRanges object from an ArchRProject.
+#' This function gets the peak set as a GRanges object from an ArchRProject.
 #' 
 #' @param ArchRProj An ArchRProject object.
 #' @param ... additional args
@@ -259,9 +259,9 @@ getPeakSet <- function(ArchRProj, ...){
 #' 
 #' This function adds a peak set as a GRanges object to a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param peakSet A GRanges object containing the set of regions that define all peaks in the desired peak set.
-#' @param force If a peakSet object has already been added to the given ArchRProject, the value of "force" determines whether or not to overwrite this peakSet.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param peakSet A `GRanges` object containing the set of regions that define all peaks in the desired peak set.
+#' @param force If a `peakSet` object has already been added to the given `ArchRProject`, the value of `force` determines whether or not to overwrite this `peakSet`.
 #' @param ... additional args
 #' @export
 addPeakSet <- function(ArchRProj, peakSet, force = FALSE, ...){
@@ -287,7 +287,7 @@ addPeakSet <- function(ArchRProj, peakSet, force = FALSE, ...){
 #' 
 #' This function gets the genomeAnnotation (in format QQQ) from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getGenomeAnnotation <- function(ArchRProj, ...){
@@ -299,7 +299,7 @@ getGenomeAnnotation <- function(ArchRProj, ...){
 #' 
 #' This function gets the blacklist (the regions to be excluded from analysis) as a GRanges from the genomeAnnotation of a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getBlacklist <- function(ArchRProj, ...){
@@ -311,7 +311,7 @@ getBlacklist <- function(ArchRProj, ...){
 #' 
 #' This function gets the name of the genome from the genomeAnnotation used by a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getGenome <- function(ArchRProj, ...){
@@ -323,7 +323,7 @@ getGenome <- function(ArchRProj, ...){
 #' 
 #' This function gets the chromosome lengths as a GRanges onject from the genomeAnnotation of a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getChromSizes <- function(ArchRProj, ...){
@@ -335,7 +335,7 @@ getChromSizes <- function(ArchRProj, ...){
 #' 
 #' This function gets the chromosome lengths as a vector from the genomeAnnotation of a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getChromLengths <- function(ArchRProj, ...){
@@ -363,7 +363,7 @@ getChromLengths <- function(ArchRProj, ...){
 #' 
 #' This function gets the geneAnnotation (in format QQQ) from a given ArchRProject
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getGeneAnnotation <- function(ArchRProj, ...){
@@ -375,7 +375,7 @@ getGeneAnnotation <- function(ArchRProj, ...){
 #' 
 #' This function gets the transcription start sites (TSSs) as a GRanges object of all genes from the geneAnnotation of a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getTSS <- function(ArchRProj, ...){
@@ -387,8 +387,8 @@ getTSS <- function(ArchRProj, ...){
 #' 
 #' This function gets the genes (in format QQQ) from the geneAnnotation of a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param symbols gene symbols to subset
+#' @param ArchRProj An `ArchRProject` object.
+#' @param symbols A character vector containing the gene symbols to subset from the `geneAnnotation`.
 #' @param ... additional args
 #' @export
 getGenes <- function(ArchRProj, symbols = NULL, ...){
@@ -404,7 +404,8 @@ getGenes <- function(ArchRProj, symbols = NULL, ...){
 #' 
 #' This function gets the exons (in format QQQ) from the geneAnnotation of a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param symbols A character vector containing the gene symbols for the genes where exons should be extracted.
 #' @param ... additional args
 #' @export
 getExons <- function(ArchRProj, symbols = NULL, ...){
@@ -431,9 +432,11 @@ getExons <- function(ArchRProj, symbols = NULL, ...){
 #' 
 #' This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param reducedDims QQQ The name of the reducedDims object to retrieve from the designated ArchRProject. Options include QQQ.
-#' @param return If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ.
+#' @param returnMatrix If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.
+#' @param dimsToUse QQQ A vector containing the dimensions to return from the `reducedDims` object.
+#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth.
 #' @param ... additional args
 #' @export
 getReducedDims <- function(
@@ -470,11 +473,11 @@ getReducedDims <- function(
 
 #' Get embedding information stored in an ArchRProject
 #' 
-#' QQQ This function gets an embedding (i.e. QQQ) from a given ArchRProject.
+#' QQQ This function gets an embedding (i.e. UMAP) from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param embedding QQQ The name of the embedding object to retrieve from the designated ArchRProject. Options include QQQ.
-#' @param return If set to "df", the function will return the embedding object as a data.frame. Otherwise, it will return the full embedding object.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param embedding QQQ The name of the `embeddings` object to retrieve from the designated `ArchRProject`. Options include QQQ.
+#' @param returnDF A boolean value indicating whether to return the embedding object as a `data.frame`. Otherwise, it will return the full embedding object.
 #' @param ... additional args
 #' @export
 getEmbedding <- function(ArchRProj, embedding = "UMAP", returnDF = TRUE, ...){
@@ -499,8 +502,8 @@ getEmbedding <- function(ArchRProj, embedding = "UMAP", returnDF = TRUE, ...){
 #' 
 #' This function prints the projectSummary from an ArchRProject
 #' 
-#' @param ArchRProj ArchRProject
-#' @param returnSummary return summary or just print
+#' @param ArchRProj An `ArchRProject` object.
+#' @param returnSummary A boolean value indicating whether to return a summary of the `ArchRProject` or to just print the summary.
 #' @param ... additional args
 #' @export
 getProjectSummary <- function(ArchRProj, returnSummary = FALSE, ...){
@@ -524,9 +527,9 @@ getProjectSummary <- function(ArchRProj, returnSummary = FALSE, ...){
 #' 
 #' This function adds info to the projectSummary from an ArchRProject
 #' 
-#' @param ArchRProj ArchRProject
-#' @param name name of summary input
-#' @param summary summary vector
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name QQQ The name of the summary information to add to the `ArchRProject` object.
+#' @param summary QQQ A vector to add as summary information to the `ArchRProject` object.
 #' @param ... additional args
 #' @export
 addProjectSummary <- function(ArchRProj, name, summary, ...){
@@ -547,8 +550,8 @@ addProjectSummary <- function(ArchRProj, name, summary, ...){
 #' 
 #' This function gets an annotation from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param name QQQ The name of the annotation object to retrieve from the designated ArchRProject. Options include QQQ.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.
 #' @param ... additional args
 #' @export
 getAnnotation <- function(ArchRProj, name = NULL, ...){
@@ -567,9 +570,9 @@ getAnnotation <- function(ArchRProj, name = NULL, ...){
 #' 
 #' This function gets the annotation positions from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param name QQQ The name of the annotation object to retrieve from the designated ArchRProject. Options include QQQ.
-#' @param annoName QQQ name to subset with annotations
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.
+#' @param annoName QQQ ??? name to subset with annotations
 #' @param ... additional args
 #' @export
 getPositions <- function(ArchRProj, name = NULL, annoName = NULL, ...){
@@ -601,9 +604,9 @@ getPositions <- function(ArchRProj, name = NULL, annoName = NULL, ...){
 #' 
 #' This function gets annotation matches from a given ArchRProject.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param name name of annotations
-#' @param annoName name to subset with annotations
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.
+#' @param annoName QQQ ??? name to subset with annotations
 #' @param ... additional args
 #' @export
 getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
@@ -635,13 +638,13 @@ getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
 #' 
 #' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.
 #' 
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param motifSet The motif set to be used for annotation. Options include: (i) "JASPAR2016", which gives the 2016 version of JASPAR motifs, (ii) "JASPAR2018", which gives the 2018 version of JASPAR motifs, or (iii) one of "human", "mouse", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package. 
-#' @param name QQQ of annotations to store as in ArchRProject
-#' @param species QQQ The name of the species relevant to the supplied ArchRProject. This is used for QQQ. By default, this function will attempt to guess the species based on the value from getGenome.
-#' @param collection QQQ If one of the JASPAR motif sets is used via "motifSet", this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.
-#' @param cutOff The p-value cutoff to be used for motif search (see the motimatchr package for more information).
-#' @param w The width in basepairs to consider for motif matches (see the motimatchr package for more information).
+#' @param name QQQ of annotations to store as in `ArchRProject`
+#' @param species QQQ The name of the species relevant to the supplied `ArchRProject`. This is used for QQQ. By default, this function will attempt to guess the species based on the value from `getGenome()`.
+#' @param collection QQQ If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.
+#' @param cutOff QQQ The QQQhypergeometric p-value cutoff to be used for motif search (see the `motimatchr` package for more information).
+#' @param w The width in basepairs to consider for motif matches (see the `motimatchr` package for more information).
 #' @param ... additional args
 #' @export
 addMotifAnnotations <- function(
@@ -869,10 +872,10 @@ addMotifAnnotations <- function(
 #' 
 #' This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return them for downstream plotting utilities.
 #' 
-#' @param ArchRProj An ArchRProject object.
-#' @param useMatrix QQQ The name of the data matrix as stored in the ArrowFiles of the ArchRProject. Options include "TileMatrix", "GeneScoreMatrix", QQQ.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix QQQ The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", QQQ.
 #' @param select QQQ select a specific name with grep
-#' @param ignore.case A boolean value indicating whether or not to ignore the case (upper-case / lower-case) when searching via grep for the string passed to "select".
+#' @param ignore.case A boolean value indicating whether or not to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.
 #' @param ... additional args
 #' @export
 getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL, ignore.case = TRUE, ...){
@@ -905,9 +908,11 @@ getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
 #' @param name The file name to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param height The height in inches to be used for the output PDF.
-#' @param ArchRProj An ArchRProject object.
+#' @param ArchRProj An `ArchRProject` object.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
+#' @param plotList QQQ A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a QQQ format object.
+#' @param useSink QQQ ???
 #' @param ... additional args to pdf
 #' @export
 plotPDF <- function(..., name = "Plot", width = 6, 
@@ -1004,9 +1009,9 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
 #' Get Tutorial Data For ArchR
 #' 
-#' This function will download data for a given tutorial and return the inputFiles for ArchR
+#' This function will download data for a given tutorial and return the input files required for ArchR
 #' 
-#' @param tutorial Available tutorials are Hematopoiesis, PBMC, FreshFrozen
+#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to QQQ. "PBMC" refers to QQQ. "FreshFrozen" refers to QQQ data from Granja et al. Nature Biotechnology 2019.
 #' @param ... additional args
 #' @export
 getTutorialData <- function(tutorial = "hematopoiesis", ...){
@@ -1073,9 +1078,9 @@ getTutorialData <- function(tutorial = "hematopoiesis", ...){
 
 #' Get Input Files from paths to create arrows
 #' 
-#' This function will look for fragment files and bam files in the input paths and return the full path and sampleNames
+#' This function will look for fragment files and bam files in the input paths and return the full path and sample names
 #' 
-#' @param paths vector of paths for searching for input files
+#' @param paths A character vector of paths to search for usable input files.
 #' @param ... additional args
 #' @export
 getInputFiles <- function(paths, ...){ 
@@ -1107,8 +1112,8 @@ getInputFiles <- function(paths, ...){
 #' 
 #' This function will read in processed 10x cell ranger files and identify barcodes that are associated with a cell that passed QC.
 #' 
-#' @param csvFiles vector of filenames for reading in and identifying valid cell barcodes
-#' @param sampleNames sample names associated with each individual csv file
+#' @param csvFiles A character vector of file names to be read in for identification of valid cell barcodes.
+#' @param sampleNames A character vector containing the sample names to be associated with each individual entry in `csvFiles`.
 #' @param ... additional args
 #' @export
 getValidBarcodes <- function(csvFiles, sampleNames, ...){

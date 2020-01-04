@@ -30,7 +30,7 @@ addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
 
 \item{rastr}{A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
-\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
+\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
 
 \item{quantHex}{QQQ quantile evaluation for each hex in geom_hex}
 

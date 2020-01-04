@@ -60,7 +60,7 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -69,7 +69,7 @@
       <a href="../../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -122,9 +122,10 @@
 <p>INSERT PRE-DOUBLET REMOVAL UMAP HERE</p>
 <p>To predict which “cells” are actually doublets, we synthesize in silico doublets from the data by mixing the reads from thousands of combinations of individual cells. We then project these synthetic doublets into the UMAP embedding and identify their nearest neighbor. By iterating this procedure thousands of times, we can identify “cells” in our data whose signal looks very similar to synthetic doublets.</p>
 <div class="figure">
-<img src="doubletRemoval.png" width="350">
+<img src="doubletRemoval.png" width="450">
 </div>
-<p>In real world data, this allows us to color each of our “cells” by a doublet likelihood score, identifying “cells” that are statistically likely to be doublets.</p>
+<p><span class="math inline">\(~\)</span>#newline space</p>
+<p>In real world data, this allows us to score each of our “cells” by a doublet likelihood score, identifying “cells” that are statistically likely to be doublets.</p>
 <p>INSERT DOUBLET COLORED UMAP HERE</p>
 <p>In the ArchR framework, doublet scores are added on a per-cell basis to the relevant <code>ArrowFile</code>. Then, after creation of an <code>ArchRProject</code>, the predicted doublets can be removed using <code><a href="../../reference/filterDoublets.html">filterDoublets(ArchRProject)</a></code>. After doublet removal in the above dataset, the UMAP picture is markedly different:</p>
 <p>INSERT POST-DOUBLET REMOVAL UMAP HERE</p>

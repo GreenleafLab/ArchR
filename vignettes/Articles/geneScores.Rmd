@@ -1,5 +1,7 @@
 ---
-title: "Gene Scores and Marker Genes"
+title: "Gene Activity Scores and Marker Genes"
+resource_files:
+  - images/GeneActivityScore_Schematic.png
 ---
 
 ### Gene Activity Scores
@@ -10,7 +12,9 @@ To do this cell type annotation, we use prior knowledge of cell type-specific ma
 
 Specifically, the 200-kb region centered on the given TSS is tiled into 1000-bp bins and the insertions per bin are counted. Each of these bins is then weighted proportional to the distance from the TSS because regulatory elements closer to the promoter are more likely to affect the promoter.
 
-[INSERT DRAWING OF GENE ACTIVITY SCORE GENERATION]
+![](GeneActivityScore_Schematic.png){width=500px}
+
+$~$
 
 These gene activity scores are calculated for each `ArrowFile` at the time of creation if the parameter `addGeneScoreMat` is set to `TRUE` (the default) or at any time by using the `addGeneScoreMatrix()` function. Once caluclated, individual cells of a UMAP projection can be colored by their gene activity scores to help with the identification of various cell types. For example, in the plot below from the tutorial, __QQQ__ cells are highlighted based on their gene activity scores for __QQQ__.
 

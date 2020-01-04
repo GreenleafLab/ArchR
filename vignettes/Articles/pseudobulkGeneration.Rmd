@@ -1,5 +1,7 @@
 ---
-title: "Pseudo-bulk Generation"
+title: "Pseudo-bulk Replicate Generation"
+resource_files:
+  - images/pseudobulkReplicate_DecisionTree.png
 ---
 
 Many of the analyses we would like to perform require replicates to obtain measurements of statistical significance. In single-cell data, this is done by forming _pseudo-bulk replicates_. The term _pseudo-bulk_ refers to a grouping of single cells where the data from each single cell is combined into a single pseudo-sample that resembles a bulk ATAC-seq experiment. ArchR makes multiple such pseudo-bulk sapmles for each cell grouping, hence the term _pseudo-bulk replicates_.
@@ -73,4 +75,4 @@ In this case, ArchR will minimize the number of cells that overlap between any t
 #### Cluster5
 For Cluster5, the total number of cells is 300 which is less than `minCells * minReps` (900 cells) and less than `minCells / sampleRatio` (375 cells). This means that we do not have sufficient cells to make pseudo-bulk replicates. This represents the least desirable situation illustrated in Option#5 above and we will therefore remove this cell grouping from downstream analyses that require replicates.
 
-[INSERT DECISION TREE HERE]
+![](pseudobulkReplicate_DecisionTree.png){width=1000px}

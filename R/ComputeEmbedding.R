@@ -11,7 +11,7 @@
 #' @param pal The name or numeric index of a custom palette from ArchR_palettes to use for plotting the individual points of the embedding visualization.
 #' @param size The numeric size of points to plot.
 #' @param rastr A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
-#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
+#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
 #' @param quantHex QQQ quantile evaluation for each hex in geom_hex
 #' @param discreteSet QQQ The name or numeric index of a discrete palette from ArchR_palettesdiscrete to use for plotting QQQ.
 #' @param continuousSet QQQcontinuous palette for visualizing embedding

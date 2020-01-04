@@ -3,16 +3,16 @@ pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
   ArchR: ArchR.html
-  faq: faq.html
   annotations: Articles/annotations.html
   dimReduction: Articles/dimReduction.html
   doubletRemoval: Articles/doubletRemoval.html
   footprinting: Articles/footprinting.html
   geneScores: Articles/geneScores.html
   peakCalling: Articles/peakCalling.html
-  pseudobulkGeneration: Articles/pseudobulkGeneration.html
   qcFilters: Articles/qcFilters.html
   signalTracks: Articles/signalTracks.html
   clusterComputing: Articles/clusterComputing.html
   inputFiles: Articles/inputFiles.html
+  pseudobulkGeneration: Articles/pseudobulkGeneration.html
+  faq: faq.html
 

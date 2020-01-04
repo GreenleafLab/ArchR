@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pseudo-bulk Generation • ArchR</title>
+<title>Pseudo-bulk Replicate Generation • ArchR</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
-<script src="../../pkgdown.js"></script><meta property="og:title" content="Pseudo-bulk Generation">
+<script src="../../pkgdown.js"></script><meta property="og:title" content="Pseudo-bulk Replicate Generation">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -60,7 +60,7 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -69,7 +69,7 @@
       <a href="../../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -107,7 +107,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Pseudo-bulk Generation</h1>
+      <h1>Pseudo-bulk Replicate Generation</h1>
             
       
       
@@ -118,7 +118,7 @@
     
     
 <p>Many of the analyses we would like to perform require replicates to obtain measurements of statistical significance. In single-cell data, this is done by forming <em>pseudo-bulk replicates</em>. The term <em>pseudo-bulk</em> refers to a grouping of single cells where the data from each single cell is combined into a single pseudo-sample that resembles a bulk ATAC-seq experiment. ArchR makes multiple such pseudo-bulk sapmles for each cell grouping, hence the term <em>pseudo-bulk replicates</em>.</p>
-<p>To create these pseudo-bulk replicates, ArchR employs a tiered priority approach. The user specifies (i) the minimum and maximum number of replicates desired, (ii) the minimum and maximum number of cells per replicate, and (iii) the sampling ratio to use if a particular grouping lacks sufficient cells to make the desired replicates. For example, a sampling ratio of 75 means that cells can be sampled without replacement up to 75% of the total number of cells for each replicate. In this case, multiple replicates may contain some of the same cells but this is a necessary sacrifice if you would like to generate pseudo-bulk replicates from a cell group that lacks sufficient cells.</p>
+<p>To create these pseudo-bulk replicates, ArchR employs a tiered priority approach. The user specifies (i) the minimum and maximum number of replicates desired, (ii) the minimum and maximum number of cells per replicate, and (iii) the sampling ratio to use if a particular grouping lacks sufficient cells to make the desired replicates. For example, a sampling ratio of 0.8 means that cells can be sampled without replacement up to 80% of the total number of cells for each replicate (this will result in sampling with replacement across replicates). In this case, multiple replicates may contain some of the same cells but this is a necessary sacrifice if you would like to generate pseudo-bulk replicates from a cell group that lacks sufficient cells.</p>
 <p>We describe the pseudo-bulk replicate generation process in a decision tree below and outline some of the key considerations in words here. First, the user identifies the cell groups to be used - this is often the clusters called by ArchR. Then for each cell grouping, ArchR attempts to create the desired pseudo-bulk replicates. The ideal pseudo-bulk replicate would consist of a sufficient number of cells from a single sample. This maintains sample diversity and biological variation in the replicates. This is what ArchR strives to obtain, but in reality there are 5 possible outcomes in this process, ranked below by preference in ArchR:</p>
 <ol style="list-style-type: decimal">
 <li>Enough different samples (at least the max # replicates) each have more than the minimum number of cells to create pseudo-bulk replicates in a sample-aware fashion, combining only cells from the same sample into a single replicate.</li>
@@ -180,7 +180,9 @@ Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overla
 <h4 class="hasAnchor">
 <a href="#cluster5" class="anchor"></a>Cluster5</h4>
 <p>For Cluster5, the total number of cells is 300 which is less than <code>minCells * minReps</code> (900 cells) and less than <code>minCells / sampleRatio</code> (375 cells). This means that we do not have sufficient cells to make pseudo-bulk replicates. This represents the least desirable situation illustrated in Option#5 above and we will therefore remove this cell grouping from downstream analyses that require replicates.</p>
-<p>[INSERT DECISION TREE HERE]</p>
+<div class="figure">
+<img src="pseudobulkReplicate_DecisionTree.png" width="1000">
+</div>
 </div>
   </div>
 

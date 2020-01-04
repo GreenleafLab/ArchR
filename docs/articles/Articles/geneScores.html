@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gene Scores and Marker Genes • ArchR</title>
+<title>Gene Activity Scores and Marker Genes • ArchR</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
-<script src="../../pkgdown.js"></script><meta property="og:title" content="Gene Scores and Marker Genes">
+<script src="../../pkgdown.js"></script><meta property="og:title" content="Gene Activity Scores and Marker Genes">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -60,7 +60,7 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -69,7 +69,7 @@
       <a href="../../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -107,7 +107,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Gene Scores and Marker Genes</h1>
+      <h1>Gene Activity Scores and Marker Genes</h1>
             
       
       
@@ -123,7 +123,9 @@
 <p>While ArchR is able to robustly call clusters, it is not possible to know <em>a priori</em> which cell type is represented by each cluster. This task is often left to manual annotation because every application is different.</p>
 <p>To do this cell type annotation, we use prior knowledge of cell type-specific marker genes and we estimate <em>gene activity scores</em> for these genes. A gene activity score is essentially a prediction of how highly expressed a gene will be based on the accessibility of regulatory elements in the vicinity of the gene promoter.</p>
 <p>Specifically, the 200-kb region centered on the given TSS is tiled into 1000-bp bins and the insertions per bin are counted. Each of these bins is then weighted proportional to the distance from the TSS because regulatory elements closer to the promoter are more likely to affect the promoter.</p>
-<p>[INSERT DRAWING OF GENE ACTIVITY SCORE GENERATION]</p>
+<div class="figure">
+<img src="GeneActivityScore_Schematic.png" width="500">
+</div>
 <p>These gene activity scores are calculated for each <code>ArrowFile</code> at the time of creation if the parameter <code>addGeneScoreMat</code> is set to <code>TRUE</code> (the default) or at any time by using the <code><a href="../../reference/addGeneScoreMatrix.html">addGeneScoreMatrix()</a></code> function. Once caluclated, individual cells of a UMAP projection can be colored by their gene activity scores to help with the identification of various cell types. For example, in the plot below from the tutorial, <strong>QQQ</strong> cells are highlighted based on their gene activity scores for <strong>QQQ</strong>.</p>
 <p>[INSERT UMAP GENE SCORE PLOT FROM PBMCs]</p>
 <p>It is important to note that not all genes behave well with gene activity scores. In particular, genes that reside in very gene-dense areas can be problematic because the promoter accessibility of nearby genes contribute to their score and it is also not necessarily true that nearby regulatory elements will affect their expression. Thus, it is always best to sanity check all gene activity score analyses.</p>
