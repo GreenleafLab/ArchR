@@ -1,12 +1,14 @@
 ---
 title: "Transcription Factor Footprinting"
+  - images/footprintingSchematic.png
+  - images/footprintingMethods.png
 ---
 
 __I dont know what you want to show here__
 
 Transcription factor (TF) footprinting allows for the prediction of the precise binding location of a TF at a particular locus. This is because the DNA bases that are bound by the TF are actually protected from transposition while the DNA bases immediately adjacent to TF binding are accessible.
 
-[INSERT FOOTPRINT SCHEMATIC FROM TCGA]
+![](footprintingSchematic.png){width=350px}
 
 Ideally, TF footprinting is performed at a single site to determine the precise binding location of the TF. However, in practice, this requires very high sequencing depth, often much higher depth than what most users would obtain from either bulk or single-cell ATAC-seq. To get around this problem, we can combine Tn5 insertion locations across many instances of predicted TF binding. For example, we can take all peaks that harbor a CTCF motif and make an aggregate TF footprint for CTCF across the whole genome.
 
@@ -18,4 +20,4 @@ The accuracy of this footprint relies on generating a reliable curated list of p
 
 In practice, footprinting in ArchR follows a paradigm similar to that implemented by [bagfoot](https://www.ncbi.nlm.nih.gov/pubmed/28538187). This involves calculation of the flanking accessibility and footprint depth as metrics of TF binding. These values can be retreived by __QQQ__.
 
-[INSERT TCGA SUP FIGURE]
+![](footprintingMethods.png){width=350px}

@@ -14,7 +14,7 @@ To predict which "cells" are actually doublets, we synthesize in silico doublets
 
 ![](doubletRemoval.png){width=350px}
 
-In real world data, this allows us to color each of our "cells" by a doublet likelihood score, identifying "cells" that are statistically likely to be doublets.
+In real world data, this allows us to score each of our "cells" by a doublet likelihood score, identifying "cells" that are statistically likely to be doublets.
 
 INSERT DOUBLET COLORED UMAP HERE
 
