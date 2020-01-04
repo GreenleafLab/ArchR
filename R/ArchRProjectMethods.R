@@ -436,7 +436,7 @@ getExons <- function(ArchRProj, symbols = NULL, ...){
 #' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ.
 #' @param returnMatrix If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.
 #' @param dimsToUse QQQ A vector containing the dimensions to return from the `reducedDims` object.
-#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth.
+#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.
 #' @param ... additional args
 #' @export
 getReducedDims <- function(

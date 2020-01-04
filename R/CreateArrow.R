@@ -5,6 +5,7 @@
 #' @param inputFiles The names of the input files to use to generate the arrow files. These files can be in any of the following formats: tabix QQQ, QQQ BAM,  or a fragments file). The precise format of each file type QQQ...
 #' @param sampleNames The names to assign to the samples that correspond to the "inputFiles". Each input file should receive a unique sample name. This list should be in the same order as "inputFiles".
 #' @param outputNames The prefix to use for output files. Each input file should receive a unique output file name. This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"
+#' @param validBarcodes QQQ ??? not used in function
 #' @param geneAnno QQQ The geneAnnotation in QQQ format to associate with these arrow files. This is used downstream to calculate TSS Scores etc.
 #' @param genomeAnno QQQ The genomeAnnotation in QQQ format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.
 #' @param filterFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
@@ -33,7 +34,7 @@ createArrowFiles <- function(
   inputFiles = NULL, 
   sampleNames = NULL, 
   outputNames = paste0("./", sampleNames),
-  validBaroces = NULL,
+  validBarcodes = NULL,
   geneAnno = NULL,
   genomeAnno = NULL,
   filterFrags = 1000,
@@ -46,7 +47,6 @@ createArrowFiles <- function(
   excludeChr = c("chrM", "chrY"),
   nChunk = 5,
   bcTag = "qname",
-  gsubExpression = NULL,
   bamFlag = NULL,
   offsetPlus = 4,
   offsetMinus = -5,
@@ -57,8 +57,6 @@ createArrowFiles <- function(
   force = FALSE,
   threads = 1,
   parallelParam = NULL,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
   ...
   ){
 
@@ -588,7 +586,7 @@ createArrowFiles <- function(
 }
 
 #########################################################################################################
-# Methods to Turn Input File into a Temp File that can then be Efficiently converted to an Arrow!
+# Methods to turn input file into a temp file that can then be efficiently converted to an ArrowFile!
 #########################################################################################################
 .isTabix <- function(file){
   tryCatch({
@@ -864,7 +862,7 @@ createArrowFiles <- function(
 
 
 #########################################################################################################
-# Methods to temp file to arrow!
+# Methods to convert temp file to an ArrowFile!
 #########################################################################################################
 
 .tmpToArrow <- function(

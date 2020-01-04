@@ -13,7 +13,7 @@
 #' @param seed QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param method A string indicated the clustering method to be used. Supported methods are "Seurat" and "LouvainJaccard".
 #' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth.
+#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.
 #' @param knnAssign QQQ The number of nearest neighbors to be used during clustering for assignment of outliers and estimation of QQQ.
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
