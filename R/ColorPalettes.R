@@ -1,4 +1,11 @@
-#' List of palettes to be used in plots
+##########################################################################################
+# Plot Aesthetics Objects and Methods
+##########################################################################################
+
+#' List of color palettes that can be used in plots
+#' 
+#' A collection of some original and some borrowed color palettes to provide appealing color aesthetics for plots in ArchR
+#' 
 #' @export
 ArchRPalettes <- list(
 
@@ -82,12 +89,11 @@ ArchRPalettes <- list(
 
 #' Optimized discrete color palette generation
 #'
-#' This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most posible color contrast from the designated set.
+#' This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most possible color contrast from the designated color set.
 #'
-#' @param set The name or numeric index of a color palette provided in ArchR_palettes.
-#' @param values A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated pallete set.
+#' @param set The name or numeric index of a color palette provided in the `ArchRPalettes` list object.
+#' @param values A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated palette set.
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
-#' @param returnStructure QQQ return structure palette
 #' @export
 paletteDiscrete <- function(
   set = "stallion", 
@@ -133,10 +139,9 @@ paletteDiscrete <- function(
 
 #' Continuous Color Palette
 #'
-#' @param set The name or numeric index of a color palette provided in ArchR_palettes.
+#' @param set The name or numeric index of a color palette provided in the `ArchRPalettes` list object.
 #' @param n The number of unique colors to generate as part of this continuous color palette.
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
-#' @param returnStructure QQQ return structure palette
 #' @export
 paletteContinuous <- function(
   set = "solar_extra", 

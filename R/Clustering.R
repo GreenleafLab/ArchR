@@ -4,7 +4,7 @@
 
 #' Add cluster information to
 #' 
-#' This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject
+#' This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
 #' 
 #' @param input Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.
 #' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.
