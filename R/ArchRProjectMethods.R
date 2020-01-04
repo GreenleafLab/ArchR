@@ -908,16 +908,16 @@ getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
 #' @param name The file name to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param height The height in inches to be used for the output PDF.
-#' @param ArchRProj An `ArchRProject` object.
+#' @param ArchRProj QQQ An `ArchRProject` object to be used for QQQ.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
 #' @param plotList QQQ A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a QQQ format object.
 #' @param useSink QQQ ???
 #' @param ... additional args to pdf
 #' @export
-plotPDF <- function(..., name = "Plot", width = 6, 
+plotPDF <- function(name = "Plot", width = 6, 
   height = 6, ArchRProj = NULL, addDOC = TRUE, 
-  useDingbats = FALSE, plotList = NULL, useSink = TRUE){
+  useDingbats = FALSE, plotList = NULL, useSink = TRUE, ...){
 
   if(is.null(plotList)){
     plotList <- list(...)
