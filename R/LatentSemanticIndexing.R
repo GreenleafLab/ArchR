@@ -26,7 +26,7 @@
 #' @param clusterParams Additional parameters to be passed to `ArchR::addClusters()`.
 #' @param runHarmony QQQ A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.
 #' @param harmonyParams Additional parameters to be passed to `harmony::HarmonyMatrix()`.
-#' @param threads The number threads to be used for parallel computing.
+#' @param threads The number of threads to be used for parallel computing.
 #' @param seed QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.

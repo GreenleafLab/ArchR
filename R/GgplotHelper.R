@@ -274,7 +274,7 @@ ggPoint <- function(
 #' @param extend QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
 #' @param baseSize QQQ The base font size to use in the plot.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
-#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ. In most cases, a continuous palette should be used.
+#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the density in the one-to-one plot. In most cases, a continuous palette should be used.
 #' @export
 ggOneToOne <- function (
   x = NULL,
@@ -370,7 +370,7 @@ ggOneToOne <- function (
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param sampleRatio QQQ
 #' @param title The title of the plot.
-#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ. In most cases, a continuous palette should be used.
+#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for violins and boxes.
 #' @export
 ggViolin <- function(
   x = NULL, 
@@ -458,7 +458,7 @@ ggViolin <- function(
 #' @param x A numeric vector containing the x-axis values for each point.
 #' @param y A numeric vector containing the y-axis values for each point.
 #' @param color QQQ A vector of color values to be plotted. This vector must be the same length as QQQ `length(x) * length(y)`
-#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ. In most cases, a continuous palette should be used.
+#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.
 #' @param bins QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ `bins` indicates the total number of hexagons that will fit within the surface area of the plot. 
 #' @param xlim A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.

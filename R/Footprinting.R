@@ -10,8 +10,8 @@
 #' @param positions QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.
 #' @param plotName QQQ The prefix to add to the file name for the output PDF file.
 #' @param groupBy QQQ The name of the column in `sampleColData` to use for grouping multiple samples together prior to footprinting.
-#' @param useGroups QQQ A boolean value that indicates whether samples should be grouped together to produce average tracks. Only TRUE/FALSE are accepted.
-#' @param pal The name or numeric index of a custom palette from ArchR_palettes to use for plotting the lines corresponding to the footprints.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `sampleColData`. This limits the groups used to perform footprinting.
+#' @param pal The name or numeric index of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
 #' @param flank QQQ The number of basepairs from the position center to consider as the flank.
 #' @param flankNorm QQQ The number of basepairs to consider at the edge of the flank region to be used for footprint normalization.
 #' @param smoothWindow QQQ The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
@@ -22,7 +22,7 @@
 #' @param width The width in inches to be used for the output PDF file.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.
 #' @param useSink QQQ ???
-#' @param threads The number threads to be used for parallel computing.
+#' @param threads The number of threads to be used for parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args

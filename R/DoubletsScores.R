@@ -18,7 +18,7 @@
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function umap in the uwot package.
 #' @param LSIParams QQQ The list of parameters to pass to the IterativeLSI function if QQQ. See IterativeLSI.
 #' @param outDir The name or path for the output directory for writing information on doublet identification,
-#' @param threads The number threads to be used for parallel computing.
+#' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.

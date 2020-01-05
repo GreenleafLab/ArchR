@@ -313,6 +313,7 @@ addCNVMatrix <- function(
   windowNuc
 }
 
+# QQQ THIS SHOULD GET DELETED
 # pdf("test.pdf", width = 12, height = 8)
 # ArchR:::.ArchRHeatmap(mat = round(t(assays(seWindows)$log2GCSmooth), 3), clusterRows = FALSE, clusterCols = FALSE, limits = c(-2,2))
 # dev.off()

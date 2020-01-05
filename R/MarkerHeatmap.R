@@ -1,20 +1,25 @@
+####################################################################################################
+# Applications of Markers!
+####################################################################################################
+
 #' Plot a Heatmap of Identified Marker Features
 #' 
 #' This function will plot a heatmap of the results from markerFeatures
 #' 
-#' @param seMarker Summarized Experiment result from markerFeatures
-#' @param cutoff Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker
-#' @param log2Norm log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)
-#' @param scaleTo scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing
-#' @param scaleRows compute row z-scores on matrix
-#' @param limits heatmap color limits 
-#' @param grepExclude remove features by grep
-#' @param pal palette for heatmap, default will use solar_extra
-#' @param binaryClusterRows fast clustering implementation for row clustering by binary sorting
-#' @param labelMarkers label specific markers by name on heatmap (matches rownames of seMarker)
-#' @param labelTop label the top features for each column in seMarker
-#' @param labelRows label all rows
-#' @param returnMat return final matrix that is used for plotting heatmap
+#' @param seMarker QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param log2Norm A boolean value indicating whether a log2 transformation whould be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like `DeviationsMatrix`).
+#' @param scaleTo QQQ scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing
+#' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
+#' @param limits A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.
+#' @param grepExclude QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.
+#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap
+#' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
+#' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
+#' @param labelTop A boolean value that indicates whether the top features for each column in `seMarker` should be labeled on the side of the heatmap.
+#' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
+#' @param returnMat QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
+#' @param invert QQQ
 #' @param ... additional args
 #' @export
 markerHeatmap <- function(
@@ -450,6 +455,17 @@ markerHeatmap <- function(
 
 }
 
+#' QQQ
+#' 
+#' This function QQQ
+#' 
+#' @param seMarker QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param annotations QQQ
+#' @param matches QQQ
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param background QQQ
+#' @param ... additional args
 #' @export
 markerAnnoEnrich <- function(
   seMarker = NULL,
