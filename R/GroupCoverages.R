@@ -1,23 +1,22 @@
-#' Add Group Coverages to ArchR Project
+#' Add Group Coverages to an ArchRProject object
 #' 
-#' This function will merge cells within each group into an insertion
-#' coverage file
+#' QQQ This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file
 #'
-#' @param ArchRProj ArchRProject
-#' @param groupBy group cells by this column in cellColData
-#' @param useLabels use sample labels to create sample guided subgroupings as pseudo replicates
-#' @param minCells minimum cells per group for coverage files
-#' @param maxCells maximum cells per group for coverage files
-#' @param maxFragments maximum fragments per group for coverage files (this prevents large files created for optimizing memory)
-#' @param minReplicates minimum replicates for group for coverage files
-#' @param maxReplicates maximum replicates for group for coverage files
-#' @param sampleRatio sampling ratio for pseudo replicates when needed
-#' @param kmerLength kmer length for adding Tn5 bias estimation
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force creating coverage files if existed
-#' @param verboseHeader verbose sections
-#' @param verboseAll verbose sections and subsections
+#' @param ArchRProj An `ArchRProject` object.
+#' @param groupBy QQQ The name of the column in `cellColData` to use for grouping multiple cells together prior to generation of the insertion coverage file.
+#' @param useLabels QQQ A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.
+#' @param minCells QQQ The minimum number of cells required in a given cell group to permit insertion coverage file generation.
+#' @param maxCells QQQ The maximum number of cells to use during insertion coverage file generation.
+#' @param maxFragments QQQ The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.
+#' @param minReplicates QQQ The minimum number of pseudo-bulk replicates to be generated.
+#' @param maxReplicates QQQ The maximum number of pseudo-bulk replicates to be generated.
+#' @param sampleRatio QQQ The maximum fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
+#' @param kmerLength QQQ The length of the kmer used for estimating Tn5 bias.
+#' @param threads The number threads to be used for parallel computing.
+#' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
 #' @export
 addGroupCoverages <- function(
@@ -31,7 +30,7 @@ addGroupCoverages <- function(
   maxReplicates = 5,
   sampleRatio = 0.8,
   kmerLength = 6,
-  threads = 16,
+  threads = 16, #QQQ THIS DEFAULT IS DANGEROUS
   parallelParam = "mclapply",
   force = FALSE,
   verboseHeader = TRUE,

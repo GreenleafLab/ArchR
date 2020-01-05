@@ -9,13 +9,13 @@
 #' @param input An `ArchRProject` object or Footprint Summarized Experiment
 #' @param positions QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.
 #' @param plotName QQQ The prefix to add to the file name for the output PDF file.
-#' @param groupBy QQQ The column name in `sampleColData` to use for grouping multiple samples together prior to footprinting.
+#' @param groupBy QQQ The name of the column in `sampleColData` to use for grouping multiple samples together prior to footprinting.
 #' @param useGroups QQQ A boolean value that indicates whether samples should be grouped together to produce average tracks. Only TRUE/FALSE are accepted.
 #' @param pal The name or numeric index of a custom palette from ArchR_palettes to use for plotting the lines corresponding to the footprints.
 #' @param flank QQQ The number of basepairs from the position center to consider as the flank.
 #' @param flankNorm QQQ The number of basepairs to consider at the edge of the flank region to be used for footprint normalization.
 #' @param smoothWindow QQQ The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
-#' @param minCells QQQ The minimum number of cells required in a given cluster cell group to permit footprint generation.
+#' @param minCells QQQ The minimum number of cells required in a given cell group to permit footprint generation.
 #' @param nTop QQQ The number of genomic regions to consider. Only the top `nTop` genomic regions based on QQQ will be considered for the footprint.
 #' @param normMethod QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.
 #' @param height The height in inches to be used for the output PDF.
