@@ -18,7 +18,7 @@
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param tstart QQQ The time at which the function run was started.
-#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
 #' @param ... Additional arguments to be provided to Seurat::FindClusters or ArchR:::.clustLouvain (for example, knn = 50, jaccard = TRUE)
 #' @export
 #'

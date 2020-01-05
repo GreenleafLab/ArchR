@@ -14,7 +14,7 @@
 #' @param kmerLength QQQ The length of the kmer used for estimating Tn5 bias.
 #' @param threads The number threads to be used for parallel computing.
 #' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
-#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
+#' @param force QQQ A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args

@@ -1,11 +1,13 @@
-#' Identify Marker Features for each Group
+##########################################################################################
+# Marker Feature Methods
+##########################################################################################
+
+#' Identify Marker Features for each  cell grouping
 #' 
-#' This function will identify a null set of cells that match biases per cell
-#' while maintaining the input group proportions. Then it will compute a pairwise
-#' test of the group vs the null set.
+#' This function will identify features that are definitional of each provided cell grouping where possible
 #' 
-#' @param ArchRProj ArchR Project
-#' @param groupBy group cells by this column in cellColData
+#' @param ArchRProj An `ArchRProject` object.
+#' @param groupBy QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.
 #' @param useGroups use subset of groups in group column in cellColData for comparisons
 #' @param bdgGroups use subset of groups in group column in cellColData for background
 #' @param useMatrix matrix name in Arrow Files that will be used for identifying features
@@ -14,11 +16,13 @@
 #' @param testMethod pairwise test method group vs null
 #' @param minCells minimum cells per group for testing
 #' @param maxCells maximum cells per group for testing
+#' @param 
+#' @param 
 #' @param k knn for matching cell biases
 #' @param bufferRatio buffering ratio for matching cell biases
 #' @param binarize binarize prior to testing
-#' @param method marker identification method
 #' @param useSeqnames specific seqnames to use only
+#' @param method marker identification method
 #' @param verboseHeader verbose sections
 #' @param verboseAll verbose sections and subsections
 #' @param ... additional args

@@ -21,17 +21,16 @@
 #' @param gsubExpression QQQ
 #' @param bamFlag QQQ A list of bam flags to be used for reading in fragments from input bam files. Fromat should be QQQ. See ScanBam in Rsamtools.
 #' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
-#' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. Ssee Buenrostro et al. Nature Methods 2013.
+#' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
 #' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each Arrow file. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome.
-#' @param TileMatParams A list of parameters to pass to the addTileMatrix function. See addTileMatrix for options.
+#' @param TileMatParams A list of parameters to pass to the `addTileMatrix()` function. See `ArchR::addTileMatrix()` for options.
 #' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each Arrow file. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.
-#' @param GeneScoreMatParams A list of parameters to pass to the addGeneScoreMatrix function. See addGeneScoreMatrix for options.
-#' @param force A bollean value indicating whether to force arrow files to be overwritten if already exist in outDir.
+#' @param GeneScoreMatParams A list of parameters to pass to the `addGeneScoreMatrix()` function. See `ArchR::addGeneScoreMatrix()` for options.
+#' @param force A boolean value indicating whether to force arrow files to be overwritten if they already exist in `outDir`.
 #' @param threads The number threads to be used for parallel computing.
 #' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-
 #' @param ... additional args
 #' @export
 createArrowFiles <- function(

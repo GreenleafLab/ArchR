@@ -14,7 +14,7 @@
 #' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.
 #' @param saveModel QQQ A boolean value indicating whether QQQ.
 #' @param seed QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
+#' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if the given `embedding` already exists.
 #' @param threads The number of threads to use for embedding generation computations.
 #' @param embeddingParams A list of extra parameters to pass to the designated `embedding` function.
 #' @param ... additional args
