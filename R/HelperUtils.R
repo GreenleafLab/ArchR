@@ -54,20 +54,28 @@
 
 #' Negated Value Matching
 #'
-#' This function is the reciprocal of %in%
-#' See match funciton in base R
-#' x %ni% table
+#' This function is the reciprocal of %in%. See the match funciton in base R
 #'
-#' @param x x search within table
-#' @param table to search x in
+#' @param x The value to search for in `table`.
+#' @param table The set of values to serve as the base for the match function.
 #' @export
 "%ni%" <- function(x, table) !(match(x, table, nomatch = 0) > 0)
 
-#Mainly used for Rle matching generic handling
+#' QQQ Generic matching function for S4Vector objects primarily used for run length encodings
+#'
+#' QQQ This function provides a general matching function for S4Vector objects primarily used for run length encodings
+#'
+#' @param x An `S4Vector` object search for in `table`.
+#' @param table The set of `S4Vector` objects to serve as the base for the match function.
 #' @export
 '%bcin%' <- function(x, table) S4Vectors::match(x, table, nomatch = 0) > 0
 
-#Mainly used for Rle matching generic handling
+#' QQQ Negated matching function for S4Vector objects primarily used for run length encodings
+#'
+#' QQQ This function provides the reciprocal of %bcin% for S4Vector objects primarily used for run length encodings
+#'
+#' @param x An `S4Vector` object search for in `table`.
+#' @param table The set of `S4Vector` objects to serve as the base for the match function.
 #' @export
 '%bcni%' <- function(x, table) !(S4Vectors::match(x, table, nomatch = 0) > 0)
 

@@ -1,16 +1,16 @@
-#' Add TileMatrix to Arrows/ArchRProject
+#' QQQ
 #' 
-#' This function for each sample will independently compute counts for each tile
-#' per cell in the Arrow File
+#' This function QQQ
 #'
-#' @param input ArchRProject or ArrowFiles
-#' @param chromSizes chromomosome sizes used for identifying number of tiles to count
-#' @param windowSize size for each window to break up each chromosome
-#' @param binarize save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix
-#' @param excludeChr exclude chromosomes from this analysis
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @param ArchRProj An `ArchRProject` object.
+#' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.
+#' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param td QQQ
+#' @param ka QQQ
+#' @param sampleCells A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.
+#' @param k QQQ
+#' @param epsilon QQQ
+#' @param weighted QQQ
 #' @export
 addImputeWeights <- function(
   ArchRProj = NULL,
@@ -144,27 +144,16 @@ addImputeWeights <- function(
 
 }
 
-#' Get outputDirectory in ArchRProject
+#' QQQ
 #' 
-#' This function gets outputDirectory from ArchRProject
+#' This function QQQ
 #' 
-#' @param ArchRProj ArchRProject
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getImputeWeights <- function(ArchRProj, ...){  
   ArchRProj <- .validArchRProject(ArchRProj)
   ArchRProj@imputeWeights
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
