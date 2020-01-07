@@ -495,18 +495,12 @@
   return(o)
 }
 
-#' Get File Extension
-#' @param x character string refering to a file you want to get the extension from
 #' @export
 .fileExtension <- function (x){
   pos <- regexpr("\\.([[:alnum:]]+)$", x)
   ifelse(pos > -1L, substring(x, pos + 1L), "")
 }
 
-#' Check path for utility
-#' @param u utility that you want to check is in path
-#' @param path check on top of path a custom path
-#' @param error cause error if not in path
 #' @export
 .checkPath <- function(u = NULL, path = NULL, throwError = TRUE){
   if(is.null(u)){
@@ -531,10 +525,6 @@
   return(out)
 }
 
-#' Check path for utility
-#' @param u utility that you want to check is in path
-#' @param path check on top of path a custom path
-#' @param error cause error if not in path
 #' @export
 .tempfile <- function(pattern = "tmp", tmpdir = "tmp", fileext = "", addDOC = TRUE){
 
@@ -550,8 +540,6 @@
 
 }
 
-#' This function returns ascii archr LOGO or arrow etc.
-#' @param ascii logo, arrow, target
 #' @export
 .ArchRLogo <- function(ascii = "Logo"){
   Ascii <- list(

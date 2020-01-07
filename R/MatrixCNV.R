@@ -1,16 +1,21 @@
-#' Add TileMatrix to Arrows/ArchRProject
+####################################################################
+# Copy Number Variation Methods
+####################################################################
+
+#' Add a CNV matrix to ArrowFiles or an ArchRProject
 #' 
-#' This function for each sample will independently compute counts for each tile
-#' per cell in the Arrow File
+#' This function for each sample will predict copy number variation from accessibility
 #'
-#' @param input ArchRProject or ArrowFiles
-#' @param chromSizes chromomosome sizes used for identifying number of tiles to count
-#' @param windowSize size for each window to break up each chromosome
-#' @param binarize save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix
-#' @param excludeChr exclude chromosomes from this analysis
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @param input An `ArchRProject` object or character vector of ArrowFiles.
+#' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getChromSizes()`.
+#' @param blacklist A `GRanges` object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getBlacklist()`.
+#' @param genome The genome used by the `input`. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getGenome()`.
+#' @param windowSize The size in basepairs for the sliding window used to break up each chromosome to look for CNVs.
+#' @param stepSize The size in basepairs for the step used to create sliding window bins across each chromosome.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param force A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for `input`.
 #' @export
 addCNVMatrix <- function(
   input,

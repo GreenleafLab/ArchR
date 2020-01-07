@@ -1,19 +1,22 @@
+####################################################################
+# Trajectory Analysis Methods
+####################################################################
+
 #' Add Supervised Trajectory to an ArchR Project
 #' 
 #' This function will fit a supervised trajectory in a lower dimensional space that 
 #' can then be used for downstream analyses.
 #'
-#' @param ArchRProj ArchRProject
-#' @param name name of fitted trajectory to be added in cellColData
-#' @param trajectory trajectory of groups to constrain supervised fitting (in order)
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name A string indicating the name of the fitted trajectory to be added in `cellColData`.
+#' @param trajectory QQQ UNCLEAR trajectory of groups to constrain supervised fitting (in order)
 #' @param groupBy initial group column in cellColData to constrain supervised fit
-#' @param name name of column in cellColData or Feature in Array in Arrows
-#' @param reducedDims name of reduced dimensions used for distance computation
-#' @param preFilter pre filtering quantile for supervised trajectory fit
-#' @param postFilter post filtering quantile for supervised trajectory fit
-#' @param dof degrees of freedom
-#' @param spar sparsity
-#' @param force force addition into ArchRProject if the column name exists
+#' @param reducedDims A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.
+#' @param preFilter QQQ UNCLEAR pre filtering quantile for supervised trajectory fit
+#' @param postFilter QQQ UNCLEAR post filtering quantile for supervised trajectory fit
+#' @param dof QQQ The number of degrees of freedom to be used in QQQ.
+#' @param spar QQQ sparsity
+#' @param force QQQ A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
 #' @param ... additional args
 #' @export
 addTrajectory <- function(
@@ -182,15 +185,17 @@ addTrajectory <- function(
 #' This function will fit get a supervised trajectory from an ArchRProject and aggregate signal
 #' from a matrix and smooth across the trajectory
 #'
-#' @param ArchRProj ArchRProject
-#' @param name name of fitted trajectory in cellColData
-#' @param useMatrix matrix to summarize across the trajectory
-#' @param groupEvery group cells every x quantile
-#' @param scaleTo scale summarized matrix to
-#' @param log2Norm log2 normalize the scaled summarized matrix
-#' @param threads number of threads to use
-#' @param smooth smooth matrix row-wise?
-#' @param smoothFormula smoothing formula for mgcv::gam
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name A string indicating the name of the fitted trajectory in `cellColData` to retrieve from the given `ArchRProject`.
+#' @param useMatrix QQQ The name of the matrix from the `ArchRProject` to use in QQQ.
+#' @param varCutOff QQQ
+#' @param maxFeatures QQQ The maximum number of features to consider from `useMatrix` when generating a trajectory.
+#' @param groupEvery QQQ The number of sequential quantiles to group together when generating a trajectory (QQQ similar to smoothing).
+#' @param threads The number of threads to be used for parallel computing.
+#' @param scaleTo QQQ scale summarized matrix to
+#' @param log2Norm QQQ A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed prior to QQQ.
+#' @param smooth QQQ A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.
+#' @param smoothFormula The smoothing formula to use in the generalized additive model. See the `formula` parameter in `mgcv::gam()`.
 #' @param ... additional args
 #' @export
 getTrajectory <- function(
@@ -300,15 +305,15 @@ getTrajectory <- function(
 #' 
 #' This function will plot a heatmap of the results from getTrajectory
 #' 
-#' @param seTrajectory Summarized Experiment result from markerFeatures
-#' @param varCutOff variance cut off for selecting features varying across trajectory
-#' @param scaleRows compute row z-scores on matrix
-#' @param limits heatmap color limits 
-#' @param pal palette for heatmap, default will use solar_extra
-#' @param labelMarkers label specific markers by name on heatmap (matches rownames of seTrajectory)
-#' @param labelTop label the top features for each column in seTrajectory
-#' @param labelRows label all rows
-#' @param returnMat return final matrix that is used for plotting heatmap
+#' @param seTrajectory A `SummarizedExperiment` object that results from `markerFeatures()`.
+#' @param scaleRows A boolean value that indicates whether row-wise z-scores should be computed on matrix in `seTrajectory`.
+#' @param limits A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.
+#' @param grepExclude QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seTrajectory` to be excluded from the heatmap.
+#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap
+#' @param labelMarkers A character vector listing the `rownames` of `seTrajectory` that should be labeled on the side of the heatmap.
+#' @param labelTop A boolean value that indicates whether the top features for each column in `seTrajectory` should be labeled on the side of the heatmap.
+#' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
+#' @param returnMat QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param ... additional args
 #' @export
 trajectoryHeatmap <- function(
@@ -387,28 +392,29 @@ trajectoryHeatmap <- function(
 
 }
 
-#' Visualize Embedding from ArchR Project
+#' QQQ Visualize a Trajectory from ArchR Project
 #' 
-#' This function will plot an embedding that was created from
-#' computeEmbedding
+#' QQQ This function will plot a trajectory that was created from QQQ
 #'
-#' @param ArchRProj ArchRProject
-#' @param embedding embedding to visualize (see computeEmbedding)
-#' @param colorBy colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
-#' @param name name of column in cellColData or Feature in Array in Arrows
-#' @param log2Norm log2 Normalize features if they are continuous
-#' @param pal custom palette to use for plotting
-#' @param size size of points in plot
-#' @param rastr rastr points in plot
-#' @param quantCut quantile cut of continuous features
-#' @param quantHex quantile evaluation for each hex in geom_hex
-#' @param discreteSet discrete palette for visualizing embedding
-#' @param continuousSet continuous palette for visualizing embedding
-#' @param randomize randomize points prior to plotting
-#' @param keepAxis keep x and y axis for plot
-#' @param baseSize base size for text in plot
-#' @param plotAs how to plot (points vs hex)
-#' @param plotParams additional params to pass to ggPoint/ggHex
+#' @param ArchRProj An `ArchRProject` object.
+#' @param embedding The name of the embedding to use to visualize the given `trajectory`. See `ArchR::computeEmbedding()` for more information.
+#' @param trajectory The name of the trajectory as a column in `cellColData` to plot.
+#' @param colorBy QQQ UNCLEAR A string indicating whether points/hexes in the plot should be colored by cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").
+#' @param name The name of the trajectory as a column in `cellColData` to plot.
+#' @param log2Norm QQQ A boolean value indicating whether a log2 transformation should be performed on the values in QQQ plotting.
+#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.
+#' @param size QQQ A number indicating the size of the points to plot if `plotAs` is set to "points".
+#' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
+#' @param quantHex QQQ UNCLEAR quantile evaluation for each hex in geom_hex
+#' @param discreteSet QQQ The name or numeric index of a discrete palette from `ArchRPalettes` for visualizing QQQ in the embedding.
+#' @param continuousSet QQQ The name or numeric index of a continuous palette from `ArchRPalettes` for visualizing QQQ in the embedding.
+#' @param randomize A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.
+#' @param keepAxis A boolean value that indicates whether the x and y axis ticks and labels should be plotted.
+#' @param baseSize QQQ The base font size to use in the plot.
+#' @param addArrow QQQ A boolean value that indicates whether QQQ.
+#' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.
+#' @param plotParams Additional parameters to pass to `ggPoint()` or `ggHex()`.
 #' @param ... additional args
 #' @export
 plotTrajectory <- function(

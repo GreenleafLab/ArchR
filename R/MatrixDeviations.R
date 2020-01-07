@@ -1,16 +1,19 @@
-#' Add DeviationsMatrix to Arrow Files in ArchRProject
+####################################################################
+# Transcription Factor Deviation Methods
+####################################################################
+
+#' Add a matrix of transcription factor deviations to Arrow Files in ArchRProject
 #' 
-#' This function for each sample will independently compute counts for each tile
-#' per cell and then infer gene activity scores.
+#' This function for each QQQ will independently compute transcription factor deviations.
 #'
-#' @param ArchRProj ArchRProject
-#' @param annotations annotaions name stored in ArchRProject
-#' @param matrixName matrixName to be stored as in Arrow Files
-#' @param out save ouptut matrices deviations and/or z
-#' @param binarize binarize peaks prior to computing deviations
-#' @param threads number of threads for parallel execution
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @param ArchRProj An `ArchRProject` object.
+#' @param annotations QQQ UNCLEAR WHAT ANNOTATIONS MEANS. The name of the annotations object name stored in the `ArchRProject`.
+#' @param matrixName The name to be used for storage of the deviations matrix in the provided `ArchRProject`.
+#' @param out A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).
+#' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param force QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject`.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj,
@@ -409,6 +412,14 @@ addDeviationsMatrix <- function(
 
 }
 
+#' QQQ
+#' 
+#' QQQ
+#' 
+#' @param ArchRProj QQQ
+#' @param name QQQ
+#' @param plot QQQ
+#' @param n QQQ
 #' @export
 getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 25){
 
@@ -433,6 +444,17 @@ getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 2
 
 }
 
+#' QQQ
+#' 
+#' QQQ
+#' 
+#' @param ArchRProj QQQ
+#' @param niterations QQQ
+#' @param w QQQ
+#' @param binSize QQQ
+#' @param seed QQQ
+#' @param outFile QQQ
+#' @param force QQQ
 #' @export
 addBdgPeaks <- function(
   ArchRProj, 
@@ -481,53 +503,6 @@ addBdgPeaks <- function(
 
 }
 
-#' @export
-getBdgPeaks <- function(
-  ArchRProj, 
-  niterations = 50, 
-  w = 0.1, 
-  binSize = 50, 
-  seed = 1,
-  force = FALSE,
-  ...){
-
-  if(!is.null(metadata(getPeakSet(ArchRProj))$bdgPeaks) & !force){
-    
-    if(file.exists(metadata(getPeakSet(ArchRProj))$bdgPeaks)){
-      
-      message("Using Previous Background Peaks!")
-      bdgPeaks <- readRDS(metadata(getPeakSet(ArchRProj))$bdgPeaks)
-
-    }else{
-
-      if(force){
-      
-        message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
-      
-      }else{
-      
-        stop("Previous Background Peaks file does not exist! set add = TRUE to addBdgPeaks!")
-      
-      }
-
-    }
-
-  }else{
-    
-    message("Identifying Background Peaks!")
-    bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
-
-  }
-
-  if(length(getPeakSet(ArchRProj)) != nrow(bdgPeaks)){
-    stop("Number of rows in Background Peaks does not match peakSet!")
-  }
-
-  bdgPeaks
-
-}
-
 .getBdgPeaks <- function(
   ArchRProj, 
   niterations = 50,
@@ -535,7 +510,8 @@ getBdgPeaks <- function(
   binSize = 50, 
   seed = 1, 
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  ...){
+  ...
+  ){
 
   set.seed(1)
   .requirePackage("chromVAR")

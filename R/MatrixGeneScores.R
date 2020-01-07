@@ -1,21 +1,27 @@
+####################################################################
+# Gene Activity Score Methods
+####################################################################
+
 #' Add GeneScoreMatrix to Arrows/ArchRProject
 #' 
 #' This function for each sample will independently compute counts for each tile
 #' per cell and then infer gene activity scores.
 #'
-#' @param input ArchRProject or ArrowFiles
-#' @param genes genes as a GRanges object
-#' @param geneModel gene model as a string for weighting peaks for gene score calculation (function of x)
-#' @param upstream upstream the Gene Start to consider for calculation
-#' @param downstream downstream the Gene Start to consider for calculation
-#' @param tileSize tileSize for binning counts prior to gene score calculation
-#' @param ceiling ceiling of read counts per tile (prevent huge biases)
-#' @param scaleTo scale gene scores to
-#' @param excludeChr exclude chromosomes from this analysis
-#' @param blacklist blacklist GRanges used to remove tiles prior to calculation
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @param input An `ArchRProject` object or character vector of ArrowFiles.
+#' @param genes QQQ A set of transcription start sites encoded as a single-basepair-width `GRanges` object.
+#' @param geneModel QQQ gene model as a string for weighting peaks for gene score calculation (function of x)
+#' @param matrixName The name to be used for storage of the gene activity score matrix in the provided `ArchRProject` or ArrowFiles.
+#' @param upstream The number of basepairs upstream of the transcription start site to consider for gene activity score calculation.
+#' @param downstream The number of basepairs downstream of the transcription start site to consider for gene activity score calculation.
+#' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
+#' @param ceiling QQQ The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
+#' @param useGeneBoundaries QQQ A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.
+#' @param scaleTo QQQ A numeric value indicating QQQ
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
+#' @param blacklist A `GRanges` object containing genomic regions to blacklist from calling CNVs.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param force QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
@@ -29,7 +35,7 @@ addGeneScoreMatrix <- function(
   useGeneBoundaries = TRUE,
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
-  blacklist = NULL,
+  blacklist = NULL, # QQQ for other functions, the default of blacklist is different
   threads = 1,
   parallelParam = NULL,
   force = FALSE,
@@ -347,7 +353,7 @@ addGeneScoreMatrix <- function(
 
 
 
-
+# QQQ THIS SHOULD GET DELETED
 # #' Add GeneScoreMatrix to Arrows/ArchRProject
 # #' 
 # #' This function for each sample will independently compute counts for each tile

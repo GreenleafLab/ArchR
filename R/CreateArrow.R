@@ -28,7 +28,7 @@
 #' @param GeneScoreMatParams A list of parameters to pass to the `addGeneScoreMatrix()` function. See `ArchR::addGeneScoreMatrix()` for options.
 #' @param force A boolean value indicating whether to force arrow files to be overwritten if they already exist in `outDir`.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
+#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args

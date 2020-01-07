@@ -1,25 +1,30 @@
+####################################################################
+# Visualization Methods
+####################################################################
+
 #' Visualize Embedding from ArchR Project
 #' 
 #' This function will plot an embedding that was created from
 #' computeEmbedding
 #'
-#' @param ArchRProj ArchRProject
-#' @param embedding embedding to visualize (see computeEmbedding)
-#' @param colorBy colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
-#' @param name name of column in cellColData or Feature in Array in Arrows
-#' @param log2Norm log2 Normalize features if they are continuous
-#' @param pal custom palette to use for plotting
-#' @param size size of points in plot
-#' @param rastr rastr points in plot
-#' @param quantCut quantile cut of continuous features
-#' @param quantHex quantile evaluation for each hex in geom_hex
-#' @param discreteSet discrete palette for visualizing embedding
-#' @param continuousSet continuous palette for visualizing embedding
-#' @param randomize randomize points prior to plotting
-#' @param keepAxis keep x and y axis for plot
-#' @param baseSize base size for text in plot
-#' @param plotAs how to plot (points vs hex)
-#' @param plotParams additional params to pass to ggPoint/ggHex
+#' @param ArchRProj An `ArchRProject` object.
+#' @param embedding The name of the embedding to plot. See `ArchR::computeEmbedding()` for more information.
+#' @param colorBy QQQ UNCLEAR A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").
+#' @param name QQQ UNCLEAR The name of the column in `cellColData` or `GeneScoreMatrix` to use for QQQ.
+#' @param log2Norm QQQ A boolean value indicating whether a log2 transformation should be performed on the values in QQQ plotting.
+#' @param imputeWeights QQQ
+#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.
+#' @param size QQQ A number indicating the size of the points to plot if `plotAs` is set to "points".
+#' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
+#' @param quantHex QQQ UNCLEAR quantile evaluation for each hex in geom_hex
+#' @param discreteSet QQQ The name or numeric index of a discrete palette from `ArchRPalettes` for visualizing QQQ in the embedding.
+#' @param continuousSet QQQ The name or numeric index of a continuous palette from `ArchRPalettes` for visualizing QQQ in the embedding.
+#' @param randomize A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.
+#' @param keepAxis A boolean value that indicates whether the x and y axis ticks and labels should be plotted.
+#' @param baseSize QQQ The base font size to use in the plot.
+#' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.
+#' @param plotParams Additional parameters to pass to `ggPoint()` or `ggHex()`.
 #' @param ... additional args
 #' @export
 plotEmbedding <- function(
@@ -179,19 +184,18 @@ plotEmbedding <- function(
 
 #' Visualize Groups from ArchR Project
 #' 
-#' This function will plot an embedding that was created from
-#' computeEmbedding
+#' QQQ This function will plot an embedding that was created from computeEmbedding
 #'
-#' @param ArchRProj ArchRProject
+#' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy use groupings in cellColData for summarizing and plotting
-#' @param colorBy colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
-#' @param name name of column in cellColData or Feature in Array in Arrows
-#' @param pal custom palette to use for plotting
-#' @param ylim limits for features in plot
-#' @param size size of points in ggplot
-#' @param baseSize rastr points in ggplot
-#' @param ratioYX ratio of Y axis to X axis
-#' @param points add points to plot using quasirandom
+#' @param colorBy QQQ UNCLEAR A string indicating whether points/hexes in the plot should be colored by cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").
+#' @param name QQQ UNCLEAR The name of the column in `cellColData` or `GeneScoreMatrix` to use for QQQ.
+#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.
+#' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
+#' @param size The numeric size of the points to be plotted.
+#' @param baseSize QQQ The base font size to use in the plot.
+#' @param ratioYX The aspect ratio of the x and y axes on the plot.
+#' @param points A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`
 #' @param ... additional args
 #' @export
 plotGroups <- function(
