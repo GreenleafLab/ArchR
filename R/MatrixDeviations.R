@@ -477,7 +477,7 @@ addBgdPeaks <- function(
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bgdPeaks <- .getBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
       
       }else{
       
@@ -490,7 +490,7 @@ addBgdPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bgdPeaks <- .getBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
 
   }
 
@@ -503,7 +503,7 @@ addBgdPeaks <- function(
 
 }
 
-.getBgdPeaks <- function(
+.computeBgdPeaks <- function(
   ArchRProj, 
   niterations = 50,
   w = 0.1, 
@@ -560,5 +560,51 @@ addBgdPeaks <- function(
 
 }
 
+#' @export
+getBgdPeaks <- function(
+  ArchRProj, 
+  niterations = 50, 
+  w = 0.1, 
+  binSize = 50, 
+  seed = 1,
+  force = FALSE,
+  ...
+  ){
 
+  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
+    
+    if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+      
+      message("Using Previous Background Peaks!")
+      bgdPeaks <- readRDS(metadata(getPeakSet(ArchRProj))$bgdPeaks)
+
+    }else{
+
+      if(force){
+      
+        message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
+        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+      
+      }else{
+      
+        stop("Previous Background Peaks file does not exist! set add = TRUE to addBgdPeaks!")
+      
+      }
+
+    }
+
+  }else{
+    
+    message("Identifying Background Peaks!")
+    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+
+  }
+
+  if(length(getPeakSet(ArchRProj)) != nrow(bgdPeaks)){
+    stop("Number of rows in Background Peaks does not match peakSet!")
+  }
+
+  bgdPeaks
+
+}
 
