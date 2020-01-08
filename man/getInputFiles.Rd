@@ -7,10 +7,10 @@
 getInputFiles(paths, ...)
 }
 \arguments{
-\item{paths}{vector of paths for searching for input files}
+\item{paths}{A character vector of paths to search for usable input files.}
 
 \item{...}{additional args}
 }
 \description{
-This function will look for fragment files and bam files in the input paths and return the full path and sampleNames
+This function will look for fragment files and bam files in the input paths and return the full path and sample names
 }

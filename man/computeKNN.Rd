@@ -2,11 +2,11 @@
 % Please edit documentation in R/Clustering.R
 \name{computeKNN}
 \alias{computeKNN}
-\title{Group Means}
+\title{QQQ Should this be exported?}
 \usage{
 computeKNN(data, query = NULL, k = 50, method = NULL,
   includeSelf = FALSE, ...)
 }
 \description{
-Group Means
+QQQ Should this be exported?
 }

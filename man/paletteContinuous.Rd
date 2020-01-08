@@ -7,13 +7,11 @@
 paletteContinuous(set = "solar_extra", n = 256, reverse = FALSE, ...)
 }
 \arguments{
-\item{set}{The name or numeric index of a color palette provided in ArchR_palettes.}
+\item{set}{The name or numeric index of a color palette provided in the `ArchRPalettes` list object.}
 
 \item{n}{The number of unique colors to generate as part of this continuous color palette.}
 
 \item{reverse}{A boolean variable that indicates whether to return the palette colors in reverse order.}
-
-\item{returnStructure}{QQQ return structure palette}
 }
 \description{
 Continuous Color Palette

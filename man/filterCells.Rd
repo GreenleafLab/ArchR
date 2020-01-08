@@ -7,12 +7,12 @@
 filterCells(ArchRProj, filterList, ...)
 }
 \arguments{
-\item{ArchRProj}{an ArchR Project object}
+\item{ArchRProj}{An `ArchRProject` object}
 
-\item{filterList}{list of filters for filtering cells from cellColData}
+\item{filterList}{QQQ A list of filters based on cellColData to apply when filtering cells. Format should be a named list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria. If numeric, a lower threshold is expected, below which cells are filtered (a higher threshold is optional). If a chatacter vector, rows in cellColData corresponding to the supplied character values are QQQkept. If a list or simpleList, QQQ.}
 
 \item{...}{additional params}
 }
 \description{
-This function plots a list of filters to see which cells would pass filter.
+This function returns an ArchRProject object that has been filtered to remove cells that do not pass the filter critera suppplied in filterList.
 }

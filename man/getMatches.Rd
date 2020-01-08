@@ -7,11 +7,11 @@
 getMatches(ArchRProj, name = NULL, annoName = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{name}{name of annotations}
+\item{name}{QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.}
 
-\item{annoName}{name to subset with annotations}
+\item{annoName}{QQQ ??? name to subset with annotations}
 
 \item{...}{additional args}
 }

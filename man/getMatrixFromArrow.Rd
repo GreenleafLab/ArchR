@@ -15,9 +15,13 @@ getMatrixFromArrow(ArrowFile = NULL, useMatrix = "GeneScoreMatrix",
 
 \item{useSeqnames}{A character vector of chromosome names to be used to subset the data matrix being obtained.}
 
-\item{cellNames}{QQQ ceiling for the number of counts per feature}
+\item{cellNames}{QQQ}
 
-\item{verbose}{A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
+\item{ArchRProj}{QQQ An ArchRProject object to be QQQ.}
+
+\item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
+
+\item{binarize}{A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.}
 
 \item{...}{additional params}
 }

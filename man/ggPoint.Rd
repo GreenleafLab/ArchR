@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggPoint}
 \alias{ggPoint}
-\title{A ggplot-based dot plot}
+\title{A ggplot-based dot plot wrapper function}
 \usage{
 ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
   discreteSet = "stallion", continuousSet = "solar_extra",
@@ -21,25 +21,27 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{color}{QQQ}
 
-\item{discrete}{QQQ A boolean value indicating QQQ}
+\item{discrete}{QQQ A boolean value indicating whether the supplied data is discrete (TRUE) or continuous (FALSE).}
 
-\item{discreteSet}{QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.}
+\item{discreteSet}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
 
-\item{continuousSet}{QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.}
+\item{continuousSet}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
 
 \item{labelMeans}{QQQ A boolean value indicating QQQ}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.}
+\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
+
+\item{defaultColor}{QQQ The default color for points that do not have another color applied (i.e. `NA` values).}
 
 \item{colorDensity}{QQQ A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, QQQ is used as the color palette.}
 
 \item{size}{The numeric size of the points to be plotted.}
 
-\item{xlim}{A set of numeric values indicating the lower and upper bounds of the x-axis on the plot.}
+\item{xlim}{A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.}
 
-\item{ylim}{A set of numeric values indicating the lower and upper bounds of the y-axis on the plot.}
+\item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{extend}{QQQ}
+\item{extend}{QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
 
 \item{xlabel}{The label to plot for the x-axis.}
 
@@ -51,9 +53,9 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{seed}{A numeric seed number for use in randomization.}
 
-\item{alpha}{A number indicating the transparency to use for each point. See ggplot2 for more details.}
+\item{alpha}{A number indicating the transparency to use for each point. See `ggplot2` for more details.}
 
-\item{baseSize}{QQQ The size in inches of the plot.}
+\item{baseSize}{QQQ The base font size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
@@ -67,11 +69,9 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{addFit}{QQQ A string indicating if a fit/regression line should be included in the plot and what method to use for this fit. Options include QQQ.}
 
-\item{rastr}{A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
+\item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
-\item{dpi}{The resolution to use for the plot.}
-
-\item{nullColor}{The color to be used for points that correspond to null values in either the x or y vectors.}
+\item{dpi}{The resolution in dots per inch to use for the plot.}
 }
 \description{
 This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.

@@ -10,29 +10,27 @@ addTrajectory(ArchRProj, name = "Trajectory", trajectory = NULL,
   force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{name}{name of fitted trajectory to be added in cellColData}
+\item{name}{A string indicating the name of the fitted trajectory to be added in `cellColData`.}
 
-\item{trajectory}{trajectory of groups to constrain supervised fitting (in order)}
+\item{trajectory}{QQQ UNCLEAR trajectory of groups to constrain supervised fitting (in order)}
 
 \item{groupBy}{initial group column in cellColData to constrain supervised fit}
 
-\item{reducedDims}{name of reduced dimensions used for distance computation}
+\item{reducedDims}{A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.}
 
-\item{preFilter}{pre filtering quantile for supervised trajectory fit}
+\item{preFilter}{QQQ UNCLEAR pre filtering quantile for supervised trajectory fit}
 
-\item{postFilter}{post filtering quantile for supervised trajectory fit}
+\item{postFilter}{QQQ UNCLEAR post filtering quantile for supervised trajectory fit}
 
-\item{dof}{degrees of freedom}
+\item{dof}{QQQ The number of degrees of freedom to be used in QQQ.}
 
-\item{spar}{sparsity}
+\item{spar}{QQQ sparsity}
 
-\item{force}{force addition into ArchRProject if the column name exists}
+\item{force}{QQQ A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.}
 
 \item{...}{additional args}
-
-\item{name}{name of column in cellColData or Feature in Array in Arrows}
 }
 \description{
 This function will fit a supervised trajectory in a lower dimensional space that 

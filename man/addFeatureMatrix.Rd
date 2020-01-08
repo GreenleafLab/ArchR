@@ -2,30 +2,29 @@
 % Please edit documentation in R/MatrixFeatures.R
 \name{addFeatureMatrix}
 \alias{addFeatureMatrix}
-\title{Add FeatureMatrix to Arrows/ArchRProject}
+\title{Add a feature matrix to an ArchRProject or a set of ArrowFiles}
 \usage{
 addFeatureMatrix(input, features = NULL, matrixName = "FeatureMatrix",
   ceiling = Inf, binarize = FALSE, threads = 1,
   parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{
-\item{input}{ArchRProject or ArrowFiles}
+\item{input}{An `ArchRProject` object or character vector of ArrowFiles.}
 
-\item{features}{GRanges to count for each cell}
+\item{features}{A `GRanges` object containing the regions (aka features) to use for counting insertions for each cell.}
 
-\item{matrixName}{matrix output name in ArrowFiles cannot be a protected matrix name}
+\item{matrixName}{The name to be used for storage of the feature matrix in the provided `ArchRProject` or ArrowFiles.}
 
-\item{ceiling}{ceiling for the number of counts per feature}
+\item{ceiling}{QQQ The maximum counts per feature allowed. This is used to prevent large biases in feature counts.}
 
-\item{binarize}{binarize matrix}
+\item{binarize}{QQQ A boolean value indicating whether the feature matrix should be binarized QQQ prior to storage. This is often desired when working with insertion counts.}
 
-\item{threads}{number of threads}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{parallelParam}{QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.}
 }
 \description{
-This function for each sample will independently compute counts for each feature
-per cell in the Arrow File
+This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.
 }

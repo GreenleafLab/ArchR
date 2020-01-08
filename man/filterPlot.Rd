@@ -2,19 +2,19 @@
 % Please edit documentation in R/FilterCells.R
 \name{filterPlot}
 \alias{filterPlot}
-\title{Filter Plot for cells in an ArchRProject}
+\title{Filter plot for cells in an ArchRProject}
 \usage{
 filterPlot(ArchRProj, filterList, sampleNames = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{an ArchR Project object}
+\item{ArchRProj}{An `ArchRProject` object}
 
-\item{filterList}{list of filters for filtering cells from cellColData (up to 2 will be plotted)}
+\item{filterList}{QQQ A list of filters based on `cellColData` to apply when filtering cells. Format should be a named numeric list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria. A lower threshold is expected, below which cells are filtered (a higher threshold is optional). Only the first 2 filters will be plotted.}
 
-\item{sampleNames}{specific samples to include}
+\item{sampleNames}{The sample names corresponding to the subset of samples to plot. If NULL, all samples are included.}
 
 \item{...}{additional params}
 }
 \description{
-This function plots a list of filters to see which cells would pass filter.
+This function plots a list of attributes with filter criteria to visualize which cells would pass filter.
 }

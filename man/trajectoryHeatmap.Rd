@@ -10,25 +10,25 @@ trajectoryHeatmap(seTrajectory = NULL, scaleRows = TRUE,
   returnMat = FALSE, ...)
 }
 \arguments{
-\item{seTrajectory}{Summarized Experiment result from markerFeatures}
+\item{seTrajectory}{A `SummarizedExperiment` object that results from `markerFeatures()`.}
 
-\item{scaleRows}{compute row z-scores on matrix}
+\item{scaleRows}{A boolean value that indicates whether row-wise z-scores should be computed on matrix in `seTrajectory`.}
 
-\item{limits}{heatmap color limits}
+\item{limits}{A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.}
 
-\item{pal}{palette for heatmap, default will use solar_extra}
+\item{grepExclude}{QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seTrajectory` to be excluded from the heatmap.}
 
-\item{labelMarkers}{label specific markers by name on heatmap (matches rownames of seTrajectory)}
+\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap}
 
-\item{labelTop}{label the top features for each column in seTrajectory}
+\item{labelMarkers}{A character vector listing the `rownames` of `seTrajectory` that should be labeled on the side of the heatmap.}
 
-\item{labelRows}{label all rows}
+\item{labelTop}{A boolean value that indicates whether the top features for each column in `seTrajectory` should be labeled on the side of the heatmap.}
 
-\item{returnMat}{return final matrix that is used for plotting heatmap}
+\item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
+
+\item{returnMat}{QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
 \item{...}{additional args}
-
-\item{varCutOff}{variance cut off for selecting features varying across trajectory}
 }
 \description{
 This function will plot a heatmap of the results from getTrajectory

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ComputeEmbedding.R
 \name{addEmbedding}
 \alias{addEmbedding}
-\title{Add embedding of a reduced dimensions object in an ArchRProject}
+\title{Add an embedding of a reduced dimensions object to an ArchRProject}
 \usage{
 addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
   embedding = "UMAP", embeddingOut = NULL, dimsToUse = NULL,
@@ -10,48 +10,30 @@ addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
   threads = floor(detectCores()/2), embeddingParams = list(), ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{reducedDims}{QQQ The name of the reducedDims object to use. Possible options include "IterativeLSI", QQQ.}
+\item{reducedDims}{QQQ The name of the `reducedDims` object to use from the designated `ArchRProject`. Possible options include "IterativeLSI", QQQ.}
 
-\item{embedding}{QQQ The name of the embedding to create. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".}
+\item{embedding}{QQQ The name of the embedding to add to the `ArchRProject` object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".}
+
+\item{embeddingOut}{QQQ}
+
+\item{dimsToUse}{QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.}
+
+\item{corCutOff}{QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.}
+
+\item{saveModel}{QQQ A boolean value indicating whether QQQ.}
+
+\item{seed}{QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+
+\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if the given `embedding` already exists.}
+
+\item{threads}{The number of threads to use for embedding generation computations.}
+
+\item{embeddingParams}{A list of extra parameters to pass to the designated `embedding` function.}
 
 \item{...}{additional args}
-
-\item{colorBy}{QQQ colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)}
-
-\item{name}{QQQ name of column in cellColData or Feature in Array in Arrows}
-
-\item{log2Norm}{A boolean value that indicates whether log2 Normalization should be performed on the features if they are continuous.}
-
-\item{pal}{The name or numeric index of a custom palette from ArchR_palettes to use for plotting the individual points of the embedding visualization.}
-
-\item{size}{The numeric size of points to plot.}
-
-\item{rastr}{A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
-
-\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
-
-\item{quantHex}{QQQ quantile evaluation for each hex in geom_hex}
-
-\item{discreteSet}{QQQ The name or numeric index of a discrete palette from ArchR_palettesdiscrete to use for plotting QQQ.}
-
-\item{continuousSet}{QQQcontinuous palette for visualizing embedding}
-
-\item{randomize}{A boolean value that determines whether to randomly order the plotting of points to avoid (for ex.) all points from a single cluster being plotted as the top-most layer of the plot.}
-
-\item{keepAxis}{QQQ keep x and y axis for plot}
-
-\item{baseSize}{QQQ The numeric font size to be used in the plot. This applies to all plot labels.}
-
-\item{plotContinuous}{QQQ how to plot continuous features (points and hex)}
-
-\item{plotParams}{QQQ additional params to pass to ggPoint/ggHex}
-
-\item{plotWidth}{QQQ plot width used for creating a consistent plot independent of legend size}
-
-\item{plotHeight}{QQQ plot height used for creating a consistent plot independent of legend size}
 }
 \description{
-This function will compute an embedding and add to an ArchRProject.
+This function will compute an embedding and add it to an ArchRProject.
 }

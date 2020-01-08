@@ -2,17 +2,17 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{overlappingBP}
 \alias{overlappingBP}
-\title{Merge Genomic Ranges}
+\title{QQQ Identify the number of bases that overlap two Genomic Ranges objects}
 \usage{
 overlappingBP(query, subject, ignore.strand = TRUE)
 }
 \arguments{
-\item{query}{see validGRanges}
+\item{query}{A `GRanges` object to be used as the query in `findOverlaps()`.}
 
-\item{subject}{see validGRanges}
+\item{subject}{A `GRanges` object to be used as the subject in `findOverlaps()`.}
 
-\item{ignore.strand}{ignore strandedness for overlaps}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
 }
 \description{
-Merge Genomic Ranges
+QQQ This function returns a data.frame describing how many basepairs overlap the provided query and subject Genomic Ranges objects
 }

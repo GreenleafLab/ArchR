@@ -10,27 +10,27 @@ theme_ArchR(color = "black", baseSize = 6, baseFamily = "",
   xText90 = FALSE, yText90 = FALSE, ...)
 }
 \arguments{
-\item{color}{color of theme}
+\item{color}{The color to be used for text, lines, ticks, etc for the plot.}
 
-\item{baseSize}{is the size of the font for the axis text and title}
+\item{baseSize}{QQQ The base font size to use in the plot.}
 
-\item{baseFamily}{is family for font}
+\item{baseFamily}{QQQ ARGUMENT NOT USED IN FUNCTION. The base family to be used for all fonts.}
 
-\item{baseLineSize}{is the size of line}
+\item{baseLineSize}{The base line width (in points) to be used throughout the plot.}
 
-\item{baseRectSize}{is the size of rectangle boxes}
+\item{baseRectSize}{The base line width (in points) to use for rectangular boxes throughout the plot.}
 
-\item{plotMarginCm}{plot margin in cm}
+\item{plotMarginCm}{The width in centimeters of the whitespace margin around the plot.}
 
-\item{legendPosition}{where is the legend default bottom}
+\item{legendPosition}{QQQ ARGUMENT NOT USED IN FUNCTION. The location to put the legend. Valid options are "bottom", "top", "left", and "right.}
 
 \item{legendTextSize}{0.75*base_size}
 
-\item{axisTickCm}{axis tick length in cm}
+\item{axisTickCm}{The length in centimeters to make the axis ticks.}
 
-\item{xText90}{rotate x axis text 90 degrees}
+\item{xText90}{A boolean value indicating whether the x-axis text should be rotated 90 degrees counterclockwise.}
 
-\item{yText90}{rotate y axis text 90 degrees}
+\item{yText90}{A boolean value indicating whether the y-axis text should be rotated 90 degrees counterclockwise.}
 }
 \description{
 This function returns a ggplot2 theme that is black borded with black font.

@@ -13,31 +13,35 @@ addGeneScoreMatrix(input = NULL, genes = NULL,
   force = FALSE, ...)
 }
 \arguments{
-\item{input}{ArchRProject or ArrowFiles}
+\item{input}{An `ArchRProject` object or character vector of ArrowFiles.}
 
-\item{genes}{genes as a GRanges object}
+\item{genes}{QQQ A set of transcription start sites encoded as a single-basepair-width `GRanges` object.}
 
-\item{geneModel}{gene model as a string for weighting peaks for gene score calculation (function of x)}
+\item{geneModel}{QQQ gene model as a string for weighting peaks for gene score calculation (function of x)}
 
-\item{upstream}{upstream the Gene Start to consider for calculation}
+\item{matrixName}{The name to be used for storage of the gene activity score matrix in the provided `ArchRProject` or ArrowFiles.}
 
-\item{downstream}{downstream the Gene Start to consider for calculation}
+\item{upstream}{The number of basepairs upstream of the transcription start site to consider for gene activity score calculation.}
 
-\item{tileSize}{tileSize for binning counts prior to gene score calculation}
+\item{downstream}{The number of basepairs downstream of the transcription start site to consider for gene activity score calculation.}
 
-\item{ceiling}{ceiling of read counts per tile (prevent huge biases)}
+\item{tileSize}{The size of the tiles used for binning counts prior to gene activity score calculation.}
 
-\item{scaleTo}{scale gene scores to}
+\item{ceiling}{QQQ The maximum counts per tile allowed. This is used to prevent large biases in tile counts.}
 
-\item{excludeChr}{exclude chromosomes from this analysis}
+\item{useGeneBoundaries}{QQQ A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.}
 
-\item{blacklist}{blacklist GRanges used to remove tiles prior to calculation}
+\item{scaleTo}{QQQ A numeric value indicating QQQ}
 
-\item{threads}{number of threads}
+\item{excludeChr}{A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{blacklist}{A `GRanges` object containing genomic regions to blacklist from calling CNVs.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{threads}{The number of threads to be used for parallel computing.}
+
+\item{parallelParam}{QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.}
+
+\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each tile

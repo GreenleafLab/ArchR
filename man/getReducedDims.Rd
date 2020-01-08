@@ -8,13 +8,17 @@ getReducedDims(ArchRProj, reducedDims = "IterativeLSI",
   returnMatrix = TRUE, dimsToUse = NULL, corCutOff = 0.75, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{reducedDims}{QQQ The name of the reducedDims object to retrieve from the designated ArchRProject. Options include QQQ.}
+\item{reducedDims}{QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ.}
+
+\item{returnMatrix}{If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.}
+
+\item{dimsToUse}{QQQ A vector containing the dimensions to return from the `reducedDims` object.}
+
+\item{corCutOff}{QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.}
 
 \item{...}{additional args}
-
-\item{return}{If set to "mat" or "matrix", the function will return the reducedDims object as a matrix. Otherwise, it will return the full reducedDims object.}
 }
 \description{
 This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.

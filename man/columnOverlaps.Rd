@@ -2,20 +2,22 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{columnOverlaps}
 \alias{columnOverlaps}
-\title{Instead of counting overlaps get columns like max score or etc in query}
+\title{QQQ Retreive column metadata for overlapping Genomic Ranges regions}
 \usage{
 columnOverlaps(query, subject, colname = "score", ignore.strand = TRUE,
   decreasing = TRUE)
 }
 \arguments{
-\item{query}{granges query}
+\item{query}{A `GRanges` object to be used as the query in `findOverlaps()`.}
 
-\item{subject}{granges subject}
+\item{subject}{A `GRanges` object to be used as the subject in `findOverlaps()`.}
 
-\item{colname}{mcols(gr)[[colname]] cannot be null}
+\item{colname}{The column name from `mcols(gr)` to return for the overlapping regions. Mandatory parameter; cannot be `NULL`.}
 
-\item{decreasing}{for order}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
+
+\item{decreasing}{A boolean value indicating whether the returned `data.frame` should be ordered in decreasing order based on `colname`.}
 }
 \description{
-Instead of counting overlaps get columns like max score or etc in query
+QQQ This function returns a data.frame containing the overlapping regions and designated metadata columns from mcols(gr)
 }

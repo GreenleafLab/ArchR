@@ -2,20 +2,20 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{nonOverlappingGRanges}
 \alias{nonOverlappingGRanges}
-\title{Instead of counting overlaps get columns like max score or etc in query}
+\title{QQQ Retreive a non-overlapping set of regions from a Genomic Ranges object}
 \usage{
 nonOverlappingGRanges(gr, by = "score", decreasing = TRUE,
   verbose = FALSE)
 }
 \arguments{
-\item{decreasing}{for order}
+\item{gr}{A `GRanges` object.}
 
-\item{query}{granges query}
+\item{by}{QQQ The name of a column in `mcols(gr)` that should be used to determine how overlapping regions should be resolved. The resolution of overlapping regions also depends on `decreasing`. For example, if a column named "score" is used for `by`, `decreasing = TRUE` means that the highest "score" in the overlap will be retained and `decreasing = FALSE` means that the lowest "score" in the overlap will be retained.}
 
-\item{subject}{granges subject}
+\item{decreasing}{QQQ A boolean value indicating whether the values in the column indicated via `by` should be ordered in decreasing order. If `TRUE`, the higher value in `by` will be retained.}
 
-\item{colname}{mcols(gr)[[colname]] cannot be null}
+\item{verbose}{A boolean value that determines whether the output should include extra reporting.}
 }
 \description{
-Instead of counting overlaps get columns like max score or etc in query
+QQQ This function returns a GRanges object containing a non-overlapping set regions derived from a supplied Genomic Ranges object.
 }

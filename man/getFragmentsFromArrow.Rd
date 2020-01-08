@@ -10,11 +10,11 @@ getFragmentsFromArrow(ArrowFile, chr = NULL, cellNames = NULL,
 \arguments{
 \item{ArrowFile}{The ArrowFile object from which fragments should be obtained.}
 
-\item{chr}{A name of a chromosome to be used to subset the fragments GRanges object to a specific chromsome if desired.}
+\item{chr}{A name of a chromosome to be used to subset the fragments `GRanges` object to a specific chromsome if desired.}
 
 \item{cellNames}{QQQ matrix output name in ArrowFiles cannot be a protected matrix name}
 
-\item{verbose}{A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
+\item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
 \item{...}{additional params}
 }

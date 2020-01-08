@@ -7,7 +7,7 @@
 getChromLengths(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An `ArchRProject` object.}
 
 \item{...}{additional args}
 }

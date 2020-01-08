@@ -17,59 +17,63 @@ markerHeatmap(seMarker, cutOff = "FDR <= 0.001 & Log2FC >= 0.1",
   returnMat = FALSE, ...)
 }
 \arguments{
-\item{seMarker}{Summarized Experiment result from markerFeatures}
+\item{seMarker}{QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.}
 
-\item{log2Norm}{log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.}
 
-\item{scaleTo}{scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing}
+\item{log2Norm}{A boolean value indicating whether a log2 transformation whould be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like `DeviationsMatrix`).}
 
-\item{scaleRows}{compute row z-scores on matrix}
+\item{scaleTo}{QQQ scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing}
 
-\item{limits}{heatmap color limits}
+\item{scaleRows}{A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.}
 
-\item{grepExclude}{remove features by grep}
+\item{limits}{A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.}
 
-\item{pal}{palette for heatmap, default will use solar_extra}
+\item{grepExclude}{QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.}
 
-\item{binaryClusterRows}{fast clustering implementation for row clustering by binary sorting}
+\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap}
 
-\item{labelMarkers}{label specific markers by name on heatmap (matches rownames of seMarker)}
+\item{binaryClusterRows}{A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.}
 
-\item{labelTop}{label the top features for each column in seMarker}
+\item{labelMarkers}{A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.}
 
-\item{labelRows}{label all rows}
+\item{labelTop}{A boolean value that indicates whether the top features for each column in `seMarker` should be labeled on the side of the heatmap.}
 
-\item{returnMat}{return final matrix that is used for plotting heatmap}
+\item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
+
+\item{returnMat}{QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
 \item{...}{additional args}
 
-\item{cutoff}{Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker}
+\item{invert}{QQQ}
 
-\item{seMarker}{Summarized Experiment result from markerFeatures}
+\item{seMarker}{QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.}
 
-\item{cutoff}{Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.}
 
-\item{log2Norm}{log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)}
+\item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like `DeviationsMatrix`).}
 
-\item{scaleTo}{scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing}
+\item{scaleTo}{QQQ scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing}
 
-\item{scaleRows}{compute row z-scores on matrix}
+\item{scaleRows}{A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.}
 
-\item{limits}{heatmap color limits}
+\item{limits}{A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.}
 
-\item{grepExclude}{remove features by grep}
+\item{grepExclude}{QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.}
 
-\item{pal}{palette for heatmap, default will use solar_extra}
+\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap}
 
-\item{binaryClusterRows}{fast clustering implementation for row clustering by binary sorting}
+\item{binaryClusterRows}{A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.}
 
-\item{labelMarkers}{label specific markers by name on heatmap (matches rownames of seMarker)}
+\item{labelMarkers}{A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.}
 
-\item{labelTop}{label the top features for each column in seMarker}
+\item{labelTop}{A boolean value that indicates whether the top features for each column in `seMarker` should be labeled on the side of the heatmap.}
 
-\item{labelRows}{label all rows}
+\item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
-\item{returnMat}{return final matrix that is used for plotting heatmap}
+\item{returnMat}{QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
+
+\item{invert}{QQQ}
 
 \item{...}{additional args}
 }

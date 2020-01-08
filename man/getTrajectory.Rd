@@ -11,23 +11,27 @@ getTrajectory(ArchRProj, name = "Trajectory",
   smoothFormula = "y ~ s(x, bs = 'cs')", ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{name}{name of fitted trajectory in cellColData}
+\item{name}{A string indicating the name of the fitted trajectory in `cellColData` to retrieve from the given `ArchRProject`.}
 
-\item{useMatrix}{matrix to summarize across the trajectory}
+\item{useMatrix}{QQQ The name of the matrix from the `ArchRProject` to use in QQQ.}
 
-\item{groupEvery}{group cells every x quantile}
+\item{varCutOff}{QQQ}
 
-\item{threads}{number of threads to use}
+\item{maxFeatures}{QQQ The maximum number of features to consider from `useMatrix` when generating a trajectory.}
 
-\item{scaleTo}{scale summarized matrix to}
+\item{groupEvery}{QQQ The number of sequential quantiles to group together when generating a trajectory (QQQ similar to smoothing).}
 
-\item{log2Norm}{log2 normalize the scaled summarized matrix}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{smooth}{smooth matrix row-wise?}
+\item{scaleTo}{QQQ scale summarized matrix to}
 
-\item{smoothFormula}{smoothing formula for mgcv::gam}
+\item{log2Norm}{QQQ A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed prior to QQQ.}
+
+\item{smooth}{QQQ A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.}
+
+\item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the `formula` parameter in `mgcv::gam()`.}
 
 \item{...}{additional args}
 }

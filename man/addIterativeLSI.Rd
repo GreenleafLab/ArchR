@@ -2,7 +2,7 @@
 % Please edit documentation in R/LatentSemanticIndexing.R
 \name{addIterativeLSI}
 \alias{addIterativeLSI}
-\title{Compute Iterative LSI}
+\title{Add an Iterative LSI-based dimensionality reduction to an ArchRProject}
 \usage{
 addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
   reducedDimsOut = "IterativeLSI", iterations = 3, dimsToUse = 1:25,
@@ -16,49 +16,53 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
   force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{useMatrix}{use matrix for LSI clustering from Arrow}
+\item{useMatrix}{QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.}
 
-\item{reducedDimsOut}{name of dimensionality reduction to be stored as}
+\item{reducedDimsOut}{QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.}
 
-\item{iterations}{number of LSI iterations to perform}
+\item{iterations}{The number of LSI iterations to perform.}
 
-\item{dimsToUse}{number of dimensions to compute and use from LSI (TFIDF-SVD) for clustering}
+\item{dimsToUse}{QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.}
 
-\item{binarize}{binarize matrix prior to LSI}
+\item{corCutOff}{QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.}
 
-\item{sampleCells}{number of cells to sample for LSI estimation}
+\item{LSIMethod}{QQQ}
 
-\item{varFeatures}{number of variable features to use for LSI}
+\item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 
-\item{selectionMethod}{selection method for variable features (var or vmr)}
+\item{sampleCells}{A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.}
 
-\item{scaleTo}{scaleTo for Cluster Averages for variance calculation}
+\item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.}
 
-\item{totalFeatures}{number of features to consider (ranked by total number of counts) use for LSI}
+\item{selectionMethod}{QQQ The selection method to be used for identifying the top variable features. Valid options are "var" or "vmr" (QQQ what is vmr?).}
 
-\item{filterQuantile}{filter features for initial LSI that are above this quantile}
+\item{scaleTo}{QQQ scaleTo for Cluster Averages for variance calculation}
 
-\item{saveIterations}{save LSI iterations as rds in the outDir}
+\item{totalFeatures}{The number of features to consider for use in LSI ranked by the total number of insertion counts.}
 
-\item{outDir}{output directory for saving LSI iterations}
+\item{filterQuantile}{QQQ Remove features that are above this quantile based on insertion counts prior to initial LSI.}
 
-\item{clusterParams}{additional params to pass to addClusters}
+\item{saveIterations}{A boolean value indicating whether the different LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.}
 
-\item{runHarmony}{run harmony batch correction through the iterations}
+\item{outDir}{The output directory for saving LSI iterations if desired.}
 
-\item{harmonyParams}{additional params to pass to harmony}
+\item{clusterParams}{Additional parameters to be passed to `ArchR::addClusters()`.}
 
-\item{threads}{number of threads for parallel execution}
+\item{runHarmony}{QQQ A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.}
 
-\item{seed}{seed for analysis}
+\item{harmonyParams}{Additional parameters to be passed to `harmony::HarmonyMatrix()`.}
 
-\item{verboseHeader}{verbose sections}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{verboseAll}{verbose sections and subsections}
+\item{seed}{QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{force}{verbose sections and subsections}
+\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
+
+\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+
+\item{force}{A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.}
 
 \item{...}{additional args}
 }

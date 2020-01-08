@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggViolin}
 \alias{ggViolin}
-\title{GG Violin Plot}
+\title{A ggplot-based violin plot wrapper function}
 \usage{
 ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
   xOrder = NULL, points = FALSE, size = 1, baseSize = 6,
@@ -10,24 +10,30 @@ ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
   pal = paletteDiscrete(values = x, set = "stallion"), ...)
 }
 \arguments{
-\item{x}{categorical values to each y value}
+\item{x}{A character vector containing the categorical x-axis values for each y-axis value.}
 
-\item{y}{numeric values}
+\item{y}{A numeric vector containing the y-axis values for each point.}
 
-\item{xlabel}{xlabel}
+\item{xlabel}{The label to plot for the x-axis.}
 
-\item{ylabel}{ylabel}
+\item{ylabel}{The label to plot for the y-axis.}
 
-\item{xOrder}{custom order of x for plotting}
+\item{xOrder}{A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of `x` in the desired order.}
 
-\item{points}{add points using ggrastr geom_quasirandom?}
+\item{points}{A boolean value indicating whether individual points should be added to the plot using `geom_quasirandom`.}
 
-\item{size}{size of barplot lines}
+\item{size}{The line width for boxplot lines.}
 
-\item{baseSize}{base size of fonts in plot}
+\item{baseSize}{QQQ The base font size to use in the plot.}
 
-\item{pal}{color palette see paletteDiscrete for examples}
+\item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
+
+\item{sampleRatio}{QQQ}
+
+\item{title}{The title of the plot.}
+
+\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for violins and boxes.}
 }
 \description{
-GG Violin Plot
+A ggplot-based violin plot wrapper function
 }

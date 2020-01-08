@@ -2,19 +2,19 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{constructGRanges}
 \alias{constructGRanges}
-\title{Construct GRanges seqnames start end accounting for ends before starts (adding strandedness)}
+\title{QQQ Construct a Genomic Ranges object taking into account strandedness}
 \usage{
 constructGRanges(seqnames, start, end, ignore.strand = TRUE)
 }
 \arguments{
-\item{seqnames}{seqnames of GRanges}
+\item{seqnames}{A character vector containing the seqnames to be added to the `GRanges` object.}
 
-\item{start}{start of GRanges}
+\item{start}{A vector of start positions to be added to the `GRanges` object.}
 
-\item{end}{end of GRanges}
+\item{end}{A vector of end positions to be added to the `GRanges` object.}
 
-\item{ignore.strand}{ignore strandedness for overlaps}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
 }
 \description{
-Construct GRanges seqnames start end accounting for ends before starts (adding strandedness)
+QQQ This function creates a Genomic Ranges object accounting for strandedness indicated by the relative orientation of the provided start and end positions
 }

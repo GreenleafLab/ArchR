@@ -2,19 +2,19 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getFeatures}
 \alias{getFeatures}
-\title{Return the available features that could be selected from a given data matrix within an ArchRProject}
+\title{Get the features that could be selected from a given data matrix within an ArchRProject}
 \usage{
 getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
   ignore.case = TRUE, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{useMatrix}{QQQ The name of the data matrix as stored in the ArrowFiles of the ArchRProject. Options include "TileMatrix", "GeneScoreMatrix", QQQ.}
+\item{useMatrix}{QQQ The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", QQQ.}
 
 \item{select}{QQQ select a specific name with grep}
 
-\item{ignore.case}{A boolean value indicating whether or not to ignore the case (upper-case / lower-case) when searching via grep for the string passed to "select".}
+\item{ignore.case}{A boolean value indicating whether or not to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.}
 
 \item{...}{additional args}
 }

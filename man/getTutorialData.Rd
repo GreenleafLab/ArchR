@@ -7,10 +7,10 @@
 getTutorialData(tutorial = "hematopoiesis", ...)
 }
 \arguments{
-\item{tutorial}{Available tutorials are Hematopoiesis, PBMC, FreshFrozen}
+\item{tutorial}{The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to QQQ. "PBMC" refers to QQQ. "FreshFrozen" refers to QQQ data from Granja et al. Nature Biotechnology 2019.}
 
 \item{...}{additional args}
 }
 \description{
-This function will download data for a given tutorial and return the inputFiles for ArchR
+This function will download data for a given tutorial and return the input files required for ArchR
 }

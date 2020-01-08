@@ -2,22 +2,22 @@
 % Please edit documentation in R/FilterCells.R
 \name{filterDoublets}
 \alias{filterDoublets}
-\title{Filter Doublets From an ArchR Project}
+\title{Filter Doublets From an ArchRProject}
 \usage{
 filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf,
   filterRatio = 1, ...)
 }
 \arguments{
-\item{ArchRProj}{an ArchR Project object}
+\item{ArchRProj}{An `ArchRProject` object}
 
-\item{cutEnrich}{minimum cutoff for doubletEnrichment which represents number of simulated doublets nearest a cell over the expected if uniform.}
+\item{cutEnrich}{QQQ The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.}
 
-\item{cutScore}{minimum cutoff for doubletScore which represents -log10 binomial adjusted p-value.}
+\item{cutScore}{QQQ The minimum numeric cutoff for `DoubletScore` which represents the -log10(binomial adjusted p-value) for QQQ(what is the pvalue from?).}
 
-\item{filterRatio}{filter ratio for max number of inferred doublets to remove based on the number of cells PF. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (1000 * 100).}
+\item{filterRatio}{QQQ THIS IS VERY CONFUSING TO ME. WHY ISNT THIS JUST THE FRACTION OF YOUR CELLS THAT YOU ARE WILLING TO LOSE TO DOUBLETS? The maximum ratio of predicted doublets to filter based on the number of pass-filter cells. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (100,000).}
 
 \item{...}{additional params}
 }
 \description{
-This function wil filter doublets from an ArchRProject after addDoubletScores has been ran
+This function wil filter doublets from an ArchRProject after addDoubletScores has been run
 }

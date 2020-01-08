@@ -2,30 +2,31 @@
 % Please edit documentation in R/Imputation.R
 \name{addImputeWeights}
 \alias{addImputeWeights}
-\title{Add TileMatrix to Arrows/ArchRProject}
+\title{QQQ}
 \usage{
 addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
   dimsToUse = NULL, td = 3, ka = 4, sampleCells = max(5000,
   floor(nCells(ArchRProj)/10)), k = 15, epsilon = 1, weighted = TRUE)
 }
 \arguments{
-\item{input}{ArchRProject or ArrowFiles}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{chromSizes}{chromomosome sizes used for identifying number of tiles to count}
+\item{reducedDims}{QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.}
 
-\item{windowSize}{size for each window to break up each chromosome}
+\item{dimsToUse}{QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.}
 
-\item{binarize}{save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix}
+\item{td}{QQQ}
 
-\item{excludeChr}{exclude chromosomes from this analysis}
+\item{ka}{QQQ}
 
-\item{threads}{number of threads}
+\item{sampleCells}{A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{k}{QQQ}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{epsilon}{QQQ}
+
+\item{weighted}{QQQ}
 }
 \description{
-This function for each sample will independently compute counts for each tile
-per cell in the Arrow File
+This function QQQ
 }

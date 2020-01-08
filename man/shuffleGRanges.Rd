@@ -2,19 +2,19 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{shuffleGRanges}
 \alias{shuffleGRanges}
-\title{Shuffle Genomic Ranges}
+\title{QQQ Randomly shuffle a Genomic Ranges object}
 \usage{
 shuffleGRanges(subject, genome, n, shuffleChr = TRUE)
 }
 \arguments{
-\item{subject}{see validGRanges}
+\item{subject}{A `GRanges` object.}
 
-\item{genome}{see validBSgenome}
+\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR::validBSgenome()`.}
 
-\item{n}{nPermutations}
+\item{n}{QQQ The number of permutations to perform during shuffling.}
 
-\item{shuffleChr}{shuffle across chromosomes randomly vs using previous knowledge of chromosome distribution}
+\item{shuffleChr}{QQQ A boolean value indicating whether to shuffle across chromosomes randomly or to QQQ (WHAT?) use previous knowledge of chromosome distribution}
 }
 \description{
-Shuffle Genomic Ranges
+QQQ This function randomly shuffles a Genomic Ranges object.
 }

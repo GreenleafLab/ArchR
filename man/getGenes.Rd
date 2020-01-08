@@ -7,9 +7,9 @@
 getGenes(ArchRProj, symbols = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{symbols}{gene symbols to subset}
+\item{symbols}{A character vector containing the gene symbols to subset from the `geneAnnotation`.}
 
 \item{...}{additional args}
 }

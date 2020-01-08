@@ -1298,7 +1298,7 @@ markerRanges <- function(
 #' @param name QQQ
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param plotAs QQQ
-#' @param log2norm
+#' @param log2norm QQQ
 #' @param scaleTo QQQ
 #' @param ... additional args
 #' @export

@@ -2,19 +2,19 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{overlapsMany}
 \alias{overlapsMany}
-\title{Overlaps Many includes information from mcols(gr)}
+\title{QQQ PLEASE ADD A DESCRIPTIVE FUNCTION TITLE}
 \usage{
 overlapsMany(query, subject, by, ignore.strand = TRUE)
 }
 \arguments{
-\item{query}{see validGRanges}
+\item{query}{A `GRanges` object to be used as the query in `findOverlaps()`.}
 
-\item{subject}{see validGRanges}
+\item{subject}{A `GRanges` object to be used as the subject in `findOverlaps()`.}
 
-\item{by}{column in subject to split overlaps by}
+\item{by}{QQQ The name of a column in `mcols(gr)` that should be used to determine how overlapping regions should be resolved. The resolution of overlapping regions also depends on `decreasing`. For example, if a column named "score" is used for `by`, `decreasing = TRUE` means that the highest "score" in the overlap will be retained and `decreasing = FALSE` means that the lowest "score" in the overlap will be retained.}
 
-\item{ignore.strand}{ignore strandedness for overlaps}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
 }
 \description{
-Overlaps Many includes information from mcols(gr)
+QQQ This function returns a sparse matrix QQQ PLEASE ADD MORE DETAIL????
 }

@@ -10,29 +10,28 @@ plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
   baseSize = 6, ratioYX = 0.5, points = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An `ArchRProject` object.}
 
 \item{groupBy}{use groupings in cellColData for summarizing and plotting}
 
-\item{colorBy}{colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)}
+\item{colorBy}{QQQ UNCLEAR A string indicating whether points/hexes in the plot should be colored by cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").}
 
-\item{name}{name of column in cellColData or Feature in Array in Arrows}
+\item{name}{QQQ UNCLEAR The name of the column in `cellColData` or `GeneScoreMatrix` to use for QQQ.}
 
-\item{pal}{custom palette to use for plotting}
+\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
 
-\item{ylim}{limits for features in plot}
+\item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{size}{size of points in ggplot}
+\item{size}{The numeric size of the points to be plotted.}
 
-\item{baseSize}{rastr points in ggplot}
+\item{baseSize}{QQQ The base font size to use in the plot.}
 
-\item{ratioYX}{ratio of Y axis to X axis}
+\item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{points}{add points to plot using quasirandom}
+\item{points}{A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`}
 
 \item{...}{additional args}
 }
 \description{
-This function will plot an embedding that was created from
-computeEmbedding
+QQQ This function will plot an embedding that was created from computeEmbedding
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/MatrixDeviations.R
 \name{addDeviationsMatrix}
 \alias{addDeviationsMatrix}
-\title{Add DeviationsMatrix to Arrow Files in ArchRProject}
+\title{Add a matrix of transcription factor deviations to Arrow Files in ArchRProject}
 \usage{
 addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
   bdgPeaks = getBdgPeaks(ArchRProj), matrixName = NULL, out = c("z",
@@ -10,23 +10,22 @@ addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
   force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{annotations}{annotaions name stored in ArchRProject}
+\item{annotations}{QQQ UNCLEAR WHAT ANNOTATIONS MEANS. The name of the annotations object name stored in the `ArchRProject`.}
 
-\item{matrixName}{matrixName to be stored as in Arrow Files}
+\item{matrixName}{The name to be used for storage of the deviations matrix in the provided `ArchRProject`.}
 
-\item{out}{save ouptut matrices deviations and/or z}
+\item{out}{A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).}
 
-\item{binarize}{binarize peaks prior to computing deviations}
+\item{binarize}{A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.}
 
-\item{threads}{number of threads for parallel execution}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{parallelParam}{QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject`.}
 }
 \description{
-This function for each sample will independently compute counts for each tile
-per cell and then infer gene activity scores.
+This function for each QQQ will independently compute transcription factor deviations.
 }

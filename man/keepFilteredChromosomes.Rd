@@ -2,20 +2,20 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{keepFilteredChromosomes}
 \alias{keepFilteredChromosomes}
-\title{Filters unwanted chr mainly underscores}
+\title{Filters unwanted seqlevels from a Genomic Ranges object or similar object}
 \usage{
 keepFilteredChromosomes(x, remove = c("chrM"), underscore = TRUE,
   standard = TRUE, pruning.mode = "coarse")
 }
 \arguments{
-\item{x}{GRanges or something with seqlevels}
+\item{x}{A `GRanges` object or another object containing seqlevels.}
 
-\item{remove}{remove vector}
+\item{remove}{A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.}
 
-\item{underscore}{remove all underscores?}
+\item{underscore}{A boolean value indicating whether to remove all seqlevels whose name contains an underscore (for example "chr11_KI270721v1_random").}
 
-\item{standard}{keep standard chromosomes}
+\item{standard}{A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.}
 }
 \description{
-Filters unwanted chr mainly underscores
+This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object
 }

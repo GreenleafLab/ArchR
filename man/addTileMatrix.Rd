@@ -10,21 +10,23 @@ addTileMatrix(input, chromSizes = getChromSizes(input),
   force = FALSE, ...)
 }
 \arguments{
-\item{input}{ArchRProject or ArrowFiles}
+\item{input}{An `ArchRProject` object or character vector of ArrowFiles.}
 
-\item{chromSizes}{chromomosome sizes used for identifying number of tiles to count}
+\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getChromSizes()`.}
 
-\item{tileSize}{size for each tile to break up each chromosome}
+\item{blacklist}{A `GRanges` object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getBlacklist()`.}
 
-\item{binarize}{save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix}
+\item{tileSize}{The size of the tiles used for binning counts in the `TileMatrix`.}
 
-\item{excludeChr}{exclude chromosomes from this analysis}
+\item{binarize}{QQQ A boolean value indicating whether the `TileMatrix` should be binarized QQQ prior to storage.}
 
-\item{threads}{number of threads}
+\item{excludeChr}{A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{parallelParam}{QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.}
+
+\item{force}{QQQ A boolean value indicating whether to force the `TileMatrix` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each tile

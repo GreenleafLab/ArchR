@@ -9,19 +9,19 @@ addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
   cutOff = 5e-05, w = 7, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An `ArchRProject` object.}
 
 \item{motifSet}{The motif set to be used for annotation. Options include: (i) "JASPAR2016", which gives the 2016 version of JASPAR motifs, (ii) "JASPAR2018", which gives the 2018 version of JASPAR motifs, or (iii) one of "human", "mouse", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.}
 
-\item{name}{QQQ of annotations to store as in ArchRProject}
+\item{name}{QQQ of annotations to store as in `ArchRProject`}
 
-\item{species}{QQQ The name of the species relevant to the supplied ArchRProject. This is used for QQQ. By default, this function will attempt to guess the species based on the value from getGenome.}
+\item{species}{QQQ The name of the species relevant to the supplied `ArchRProject`. This is used for QQQ. By default, this function will attempt to guess the species based on the value from `getGenome()`.}
 
-\item{collection}{QQQ If one of the JASPAR motif sets is used via "motifSet", this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.}
+\item{collection}{QQQ If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.}
 
-\item{cutOff}{The p-value cutoff to be used for motif search (see the motimatchr package for more information).}
+\item{cutOff}{QQQ The QQQhypergeometric p-value cutoff to be used for motif search (see the `motimatchr` package for more information).}
 
-\item{w}{The width in basepairs to consider for motif matches (see the motimatchr package for more information).}
+\item{w}{The width in basepairs to consider for motif matches (see the `motimatchr` package for more information).}
 
 \item{...}{additional args}
 }

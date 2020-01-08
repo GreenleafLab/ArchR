@@ -2,15 +2,17 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{subsetSeqnames}
 \alias{subsetSeqnames}
-\title{Subset by Seqnames}
+\title{Subset a Genomic Ranges object by the provided seqnames}
 \usage{
 subsetSeqnames(gr, seqNames, useNames = FALSE)
 }
 \arguments{
-\item{gr}{grange}
+\item{gr}{A `GRanges` object to be subsetted.}
 
-\item{seqnames}{seqnames to subset}
+\item{seqNames}{A character vector containing the `seqnames` to keep from the provided `GRanges` object.}
+
+\item{useNames}{QQQ A boolean value indicating whether QQQ.}
 }
 \description{
-Subset by Seqnames
+This function returns a subsetted Genomic Ranges object based on a vector of provided seqnames
 }

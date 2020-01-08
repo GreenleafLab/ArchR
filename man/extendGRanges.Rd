@@ -2,17 +2,17 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{extendGRanges}
 \alias{extendGRanges}
-\title{Merge Genomic Ranges}
+\title{QQQ Extend regions from a Genomic Ranges object}
 \usage{
 extendGRanges(x, upstream, downstream)
 }
 \arguments{
-\item{query}{see validGRanges}
+\item{x}{A `GRanges` object.}
 
-\item{subject}{see validGRanges}
+\item{upstream}{The number of basepairs upstream (5') to extend each region in `x`. Strand-aware.}
 
-\item{ignore.strand}{ignore strandedness for overlaps}
+\item{downstream}{The number of basepairs downstream (3') to extend each region in `x`. Strand-aware.}
 }
 \description{
-Merge Genomic Ranges
+QQQ This function extends each region in a Genomic Ranges object by a designated upstream and downstream extension in a strand-aware fashion
 }

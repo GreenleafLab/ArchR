@@ -2,7 +2,7 @@
 % Please edit documentation in R/MarkerFeatures.R
 \name{markerFeatures}
 \alias{markerFeatures}
-\title{Identify Marker Features for each Group}
+\title{Identify Marker Features for each cell grouping}
 \usage{
 markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
   useGroups = NULL, bdgGroups = NULL, useMatrix = "GeneScoreMatrix",
@@ -13,44 +13,46 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
   verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchR Project}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{groupBy}{group cells by this column in cellColData}
+\item{groupBy}{QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.}
 
-\item{useGroups}{use subset of groups in group column in cellColData for comparisons}
+\item{useGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.}
 
-\item{bdgGroups}{use subset of groups in group column in cellColData for background}
+\item{bdgGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.}
 
-\item{useMatrix}{matrix name in Arrow Files that will be used for identifying features}
+\item{useMatrix}{QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.}
 
-\item{bias}{biases to account for in selecting null group using info from cellColData}
+\item{bias}{QQQ A character vector indicating the potential bias variables to account for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.}
 
-\item{normBy}{normalize by column in cellColData prior to test}
+\item{normBy}{QQQ The name of a column in `cellColData` that should be normalized across cells prior to performing marker feature identification.}
 
-\item{testMethod}{pairwise test method group vs null}
+\item{testMethod}{QQQ The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".}
 
-\item{minCells}{minimum cells per group for testing}
+\item{minCells}{QQQ The minimum number of cells per cell group required to perform marker feature identification.}
 
-\item{maxCells}{maximum cells per group for testing}
+\item{maxCells}{QQQ The maximum number of cells to consider from a single cell group when performing marker feature identification.}
 
-\item{k}{knn for matching cell biases}
+\item{scaleTo}{QQQ}
 
-\item{bufferRatio}{buffering ratio for matching cell biases}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{binarize}{binarize prior to testing}
+\item{k}{QQQ UNCLEAR knn for matching cell biases}
 
-\item{useSeqnames}{specific seqnames to use only}
+\item{bufferRatio}{QQQ UNCLEAR buffering ratio for matching cell biases}
 
-\item{method}{marker identification method}
+\item{binarize}{A boolean value indicating whether to binarize the matrix indicated by `useMatrix` prior to marker feature identification. This is often used when dealing with an insertion counts matrix such as a `TileMatrix`.}
 
-\item{verboseHeader}{verbose sections}
+\item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
 
-\item{verboseAll}{verbose sections and subsections}
+\item{method}{The name of the method to be used  for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the `Signac::VeniceMarker()` fucntion.}
+
+\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
+
+\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{...}{additional args}
 }
 \description{
-This function will identify a null set of cells that match biases per cell
-while maintaining the input group proportions. Then it will compute a pairwise
-test of the group vs the null set.
+This function will identify features that are definitional of each provided cell grouping where possible
 }

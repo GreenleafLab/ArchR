@@ -8,14 +8,12 @@ paletteDiscrete(set = "stallion", values = NULL, reverse = FALSE,
   ...)
 }
 \arguments{
-\item{set}{The name or numeric index of a color palette provided in ArchR_palettes.}
+\item{set}{The name or numeric index of a color palette provided in the `ArchRPalettes` list object.}
 
-\item{values}{A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated pallete set.}
+\item{values}{A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated palette set.}
 
 \item{reverse}{A boolean variable that indicates whether to return the palette colors in reverse order.}
-
-\item{returnStructure}{QQQ return structure palette}
 }
 \description{
-This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most posible color contrast from the designated set.
+This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most possible color contrast from the designated color set.
 }

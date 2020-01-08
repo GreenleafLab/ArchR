@@ -2,15 +2,15 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{addSeqLengths}
 \alias{addSeqLengths}
-\title{Add Seqlengths to genomic ranges}
+\title{QQQ Adds seqlength information to the seqnames of a Genomic Ranges object}
 \usage{
 addSeqLengths(gr, genome)
 }
 \arguments{
-\item{gr}{see validGRanges}
+\item{gr}{A `GRanges` object.}
 
-\item{genome}{see validBSgenome}
+\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR::validBSgenome()`.}
 }
 \description{
-Add Seqlengths to genomic ranges
+QQQ This function adds seqlength information for each of the seqnames in the provided Genomic Ranges object.
 }

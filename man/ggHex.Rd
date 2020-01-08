@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggHex}
 \alias{ggHex}
-\title{Ggplot Hexplot summary of points in a standardized manner}
+\title{A ggplot-based Hexplot wrapper function summary of points in a standardized manner}
 \usage{
 ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
   = "solar_extra"), bins = 200, xlim = NULL, ylim = NULL,
@@ -11,35 +11,39 @@ ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
   quantCut = c(0.01, 0.99), addPoints = FALSE, ...)
 }
 \arguments{
-\item{x}{x vector of data to be plot}
+\item{x}{A numeric vector containing the x-axis values for each point.}
 
-\item{y}{y vector of data to be plot}
+\item{y}{A numeric vector containing the y-axis values for each point.}
 
-\item{color}{color vector of values to be plot (must be same length as x,y)}
+\item{color}{QQQ A vector of color values to be plotted. This vector must be the same length as QQQ `length(x) * length(y)`}
 
-\item{pal}{custom palette option}
+\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
 
-\item{bins}{number of bins for hexplot}
+\item{bins}{QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ `bins` indicates the total number of hexagons that will fit within the surface area of the plot.}
 
-\item{xlim}{xlimits for plot}
+\item{xlim}{A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.}
 
-\item{ylim}{ylimits for plot}
+\item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{extend}{extend limits by this proportion if not set by xlim or ylim}
+\item{extend}{QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
 
-\item{xlabel}{label for x-axis}
+\item{xlabel}{The label to plot for the x-axis.}
 
-\item{ylabel}{label for y-axis}
+\item{ylabel}{The label to plot for the y-axis.}
 
-\item{title}{title of plot}
+\item{title}{The title of the plot.}
 
-\item{colorTitle}{title for legend corresponding to color}
+\item{colorTitle}{The label to use for the legend corresponding to `color`.}
 
-\item{baseSize}{baseSize for fonts}
+\item{baseSize}{QQQ The base font size to use in the plot.}
 
-\item{ratioYX}{ratio of y to x in plot}
+\item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{FUN}{function for summarizing hexagons}
+\item{FUN}{The function to use for summarizing data into hexagons. Typically "mean" or something similar.}
+
+\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
+
+\item{addPoints}{QQQ UNCLEAR WHY POINTS WOULD BE ADDED TO A HEXPLOT. ALSO, IN ggViolin THIS IS CALLED "points". A boolean value indicating whether individual points should be shown on the hexplot.}
 
 \item{...}{additional params to pass}
 }

@@ -3,12 +3,12 @@
 \docType{data}
 \name{ArchRPalettes}
 \alias{ArchRPalettes}
-\title{List of palettes to be used in plots}
+\title{List of color palettes that can be used in plots}
 \format{An object of class \code{list} of length 26.}
 \usage{
 ArchRPalettes
 }
 \description{
-List of palettes to be used in plots
+A collection of some original and some borrowed color palettes to provide appealing color aesthetics for plots in ArchR
 }
 \keyword{datasets}

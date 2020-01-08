@@ -7,9 +7,9 @@
 getAnnotation(ArchRProj, name = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{name}{QQQ The name of the annotation object to retrieve from the designated ArchRProject. Options include QQQ.}
+\item{name}{QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.}
 
 \item{...}{additional args}
 }

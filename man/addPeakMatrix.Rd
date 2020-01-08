@@ -8,19 +8,19 @@ addPeakMatrix(ArchRProj, ceiling = 4, binarize = FALSE,
   parallelParam = NULL, threads = 1, force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An `ArchRProject` object.}
 
-\item{ceiling}{ceiling for the number of counts per feature}
+\item{ceiling}{QQQ The maximum counts per feature allowed. QQQ WHY?}
 
-\item{binarize}{binarize matrix}
+\item{binarize}{QQQ A boolean value indicating whether the feature matrix should be binarized QQQ prior to storage. This is often desired when working with insertion counts.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{parallelParam}{QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.}
 
-\item{threads}{number of threads}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each peak
-per cell in the Arrow File
+per cell in the provided ArchRProject using the "PeakMatrix".
 }

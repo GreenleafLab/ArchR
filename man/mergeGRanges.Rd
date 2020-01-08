@@ -2,15 +2,15 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{mergeGRanges}
 \alias{mergeGRanges}
-\title{Merge Genomic Ranges}
+\title{QQQ Merge regions within a single Genomic Ranges object}
 \usage{
 mergeGRanges(gr, ignore.strand = TRUE)
 }
 \arguments{
-\item{gr}{see validGRanges}
+\item{gr}{A `GRanges` object.}
 
-\item{ignore.strand}{ignore strandedness for merging}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
 }
 \description{
-Merge Genomic Ranges
+QQQ This function merges overlapping regions within a single Genomic Ranges object
 }

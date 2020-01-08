@@ -12,5 +12,5 @@ getPeakSet(ArchRProj, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets the peakSet as a GRanges object from an ArchRProject.
+This function gets the peak set as a GRanges object from an ArchRProject.
 }
