@@ -19,7 +19,7 @@ addDeviationsMatrix <- function(
   ArchRProj,
   annotations = NULL,
   matches = NULL,
-  bdgPeaks = getBdgPeaks(ArchRProj),
+  bgdPeaks = getBgdPeaks(ArchRProj),
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,
@@ -120,7 +120,7 @@ addDeviationsMatrix <- function(
   cellNames = NULL, 
   allCells = NULL,
   featureDF  = NULL,
-  bdgPeaks = NULL,
+  bgdPeaks = NULL,
   binarize = FALSE,
   useMatrix = "PeakMatrix",
   matrixName = "Motif", 
@@ -158,7 +158,7 @@ addDeviationsMatrix <- function(
       countsMatrix = .,
       annotationsMatrix = annotationsMatrix,
       prefix = prefix,
-      backgroudPeaks = SummarizedExperiment::assay(bdgPeaks),
+      backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
       expectation = featureDF$rowSums/sum(featureDF$rowSums),
       out = out
     )}
@@ -456,7 +456,7 @@ getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 2
 #' @param outFile QQQ
 #' @param force QQQ
 #' @export
-addBdgPeaks <- function(
+addBgdPeaks <- function(
   ArchRProj, 
   niterations = 50, 
   w = 0.1, 
@@ -466,22 +466,22 @@ addBdgPeaks <- function(
   force = FALSE,
   ...){
 
-  if(!is.null(metadata(getPeakSet(ArchRProj))$bdgPeaks) & !force){
+  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
     
-    if(file.exists(metadata(getPeakSet(ArchRProj))$bdgPeaks)){
+    if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
       
-      stop("Background Peaks Already Exist! set force = TRUE to addBdgPeaks!")
+      stop("Background Peaks Already Exist! set force = TRUE to addBgdPeaks!")
 
     }else{
 
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+        bgdPeaks <- .getBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
       
       }else{
       
-        stop("Previous Background Peaks file does not exist! set force = TRUE to addBdgPeaks!")
+        stop("Previous Background Peaks file does not exist! set force = TRUE to addBgdPeaks!")
       
       }
 
@@ -490,20 +490,20 @@ addBdgPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+    bgdPeaks <- .getBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
 
   }
 
-  if(length(getPeakSet(ArchRProj)) != nrow(bdgPeaks)){
+  if(length(getPeakSet(ArchRProj)) != nrow(bgdPeaks)){
     stop("Number of rows in Background Peaks does not match peakSet!")
   }
 
-  metadata(ArchRProj@peakSet)$bdgPeaks <- outFile
+  metadata(ArchRProj@peakSet)$bgdPeaks <- outFile
   ArchRProj
 
 }
 
-.getBdgPeaks <- function(
+.getBgdPeaks <- function(
   ArchRProj, 
   niterations = 50,
   w = 0.1, 
@@ -540,7 +540,7 @@ addBdgPeaks <- function(
     rowData = DataFrame(bias = rS$GC)
   )
 
-  bdgPeaks <- chromVAR::getBackgroundPeaks(
+  bgdPeaks <- chromVAR::getBackgroundPeaks(
     object = se,
     bias = rowData(se)$bias, 
     niterations = niterations, 
@@ -548,15 +548,15 @@ addBdgPeaks <- function(
     bs = binSize
   )
 
-  bdgPeaks <- SummarizedExperiment(assays = SimpleList(bdgPeaks = bdgPeaks), 
+  bgdPeaks <- SummarizedExperiment(assays = SimpleList(bgdPeaks = bgdPeaks), 
     rowRanges = GRanges(rS$seqnames,IRanges(rS$start,rS$end),value=rS$rowSums,GC=rS$GC))
 
   #Save Background Peaks
   if(!is.null(outFile)){
-    saveRDS(bdgPeaks, outFile, compress = FALSE)
+    saveRDS(bgdPeaks, outFile, compress = FALSE)
   }
 
-  return(bdgPeaks)
+  return(bgdPeaks)
 
 }
 

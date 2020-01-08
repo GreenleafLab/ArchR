@@ -5,7 +5,7 @@
 \title{Add a matrix of transcription factor deviations to Arrow Files in ArchRProject}
 \usage{
 addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
-  bdgPeaks = getBdgPeaks(ArchRProj), matrixName = NULL, out = c("z",
+  bgdPeaks = getBgdPeaks(ArchRProj), matrixName = NULL, out = c("z",
   "deviations"), binarize = FALSE, threads = 1, parallelParam = NULL,
   force = FALSE, ...)
 }

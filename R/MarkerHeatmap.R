@@ -473,7 +473,7 @@ markerAnnoEnrich <- function(
   annotations = NULL,
   matches = NULL,
   cutOff = "FDR <= 0.01 & Log2FC >= 0",
-  background = "bdgPeaks",
+  background = "bgdPeaks",
   ...){
 
   tstart <- Sys.time()
@@ -510,9 +510,9 @@ markerAnnoEnrich <- function(
     eval(parse(text=paste0("rm(",an,")")))
   }
 
-  if(tolower(background) %in% c("backgroundpeaks", "bdgpeaks", "background", "bdg")){
-    method <- "bdg"
-    bdgPeaks <- SummarizedExperiment::assay(getBdgPeaks(ArchRProj))
+  if(tolower(background) %in% c("backgroundpeaks", "bgdpeaks", "background", "bgd")){
+    method <- "bgd"
+    bgdPeaks <- SummarizedExperiment::assay(getBgdPeaks(ArchRProj))
   }else{
     method <- "all"
   }
@@ -520,8 +520,8 @@ markerAnnoEnrich <- function(
   enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
     .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
     idx <- which(passMat[, x])
-    if(method == "bdg"){
-      .computeEnrichment(matches, idx, c(idx, as.vector(bdgPeaks[idx,])))
+    if(method == "bgd"){
+      .computeEnrichment(matches, idx, c(idx, as.vector(bgdPeaks[idx,])))
     }else{
       .computeEnrichment(matches, idx, seq_len(nrow(matches)))
     }

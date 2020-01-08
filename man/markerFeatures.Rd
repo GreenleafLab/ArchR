@@ -5,7 +5,7 @@
 \title{Identify Marker Features for each cell grouping}
 \usage{
 markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
-  useGroups = NULL, bdgGroups = NULL, useMatrix = "GeneScoreMatrix",
+  useGroups = NULL, bgdGroups = NULL, useMatrix = "GeneScoreMatrix",
   bias = c("TSSEnrichment", "log10(nFrags)"), normBy = NULL,
   testMethod = "wilcoxon", minCells = 50, maxCells = 500,
   scaleTo = 10^4, threads = 1, k = 100, bufferRatio = 0.8,
@@ -19,7 +19,7 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{useGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.}
 
-\item{bdgGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.}
+\item{bgdGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.}
 
 \item{useMatrix}{QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.}
 

@@ -9,7 +9,7 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.
 #' @param useGroups QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.
-#' @param bdgGroups QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.
+#' @param bgdGroups QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.
 #' @param useMatrix QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.
 #' @param bias QQQ A character vector indicating the potential bias variables to account for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.
 #' @param normBy QQQ The name of a column in `cellColData` that should be normalized across cells prior to performing marker feature identification.
@@ -31,7 +31,7 @@ markerFeatures <- function(
     ArchRProj = NULL,
     groupBy = "Clusters",
     useGroups = NULL,
-    bdgGroups = NULL,
+    bgdGroups = NULL,
     useMatrix = "GeneScoreMatrix",
     bias = c("TSSEnrichment", "log10(nFrags)"),
     normBy = NULL,
@@ -80,7 +80,7 @@ markerFeatures <- function(
     ArchRProj = NULL,
     groupBy = "Clusters",
     useGroups = NULL,
-    bdgGroups = NULL,
+    bgdGroups = NULL,
     normBy = NULL,
     minCells = 50,
     maxCells = 500,
@@ -137,7 +137,7 @@ markerFeatures <- function(
       input = colDat, 
       groups = groups,
       useGroups = useGroups,
-      bdgGroups = bdgGroups,
+      bgdGroups = bgdGroups,
       bias = bias,
       k = k,
       n = maxCells
@@ -202,7 +202,7 @@ markerFeatures <- function(
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
               AUC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$auc)) %>% Reduce("cbind",.),
-              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
+              MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
         )
@@ -214,8 +214,8 @@ markerFeatures <- function(
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               Variance = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
-              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.),
-              VarianceBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var2)) %>% Reduce("cbind",.)
+              MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.),
+              VarianceBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
         )
@@ -226,7 +226,7 @@ markerFeatures <- function(
               Log2FC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$log2FC)) %>% Reduce("cbind",.),
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
-              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
+              MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
         )
@@ -246,11 +246,11 @@ markerFeatures <- function(
 
   matchx <- matchObj[[1]][[group]]
   cellsx <- matchObj[[2]]$cells[matchx$cells]
-  bdgx <- matchObj[[2]]$cells[matchx$bdg]
+  bgdx <- matchObj[[2]]$cells[matchx$bgd]
   
   if(!is.null(normFactors)){
     cellNF <- normFactors[cellsx,1]
-    bdgNF <- normFactors[bdgx,1]
+    bgdNF <- normFactors[bgdx,1]
   }
 
   #Add RowNames for Check at the end
@@ -266,7 +266,7 @@ markerFeatures <- function(
       featureDF = featureDFy, 
       threads = threads, 
       useMatrix = useMatrix,
-      cellNames = c(cellsx, bdgx),
+      cellNames = c(cellsx, bgdx),
       progress = FALSE
     ))
     rownames(scMaty) <- rownames(featureDFy)
@@ -278,10 +278,10 @@ markerFeatures <- function(
     args <- list()
     if(!is.null(normFactors)){
       args$mat1 <- Matrix::t(Matrix::t(scMaty[, cellsx, drop = FALSE]) * cellNF)
-      args$mat2 <- Matrix::t(Matrix::t(scMaty[, bdgx, drop = FALSE]) * bdgNF)
+      args$mat2 <- Matrix::t(Matrix::t(scMaty[, bgdx, drop = FALSE]) * bgdNF)
     }else{
       args$mat1 <- scMaty[, cellsx, drop = FALSE]
-      args$mat2 <- scMaty[, bdgx, drop = FALSE]
+      args$mat2 <- scMaty[, bgdx, drop = FALSE]
     }
 
     if(tolower(testMethod) == "wilcoxon"){
@@ -440,7 +440,7 @@ markerFeatures <- function(
 }
 
 
-.matchBiasCellGroups <- function(input, groups, useGroups, bdgGroups, bias, k = 100, n = 500, bufferRatio = 0.8){
+.matchBiasCellGroups <- function(input, groups, useGroups, bgdGroups, bias, k = 100, n = 500, bufferRatio = 0.8){
 
   #Summary Function
   .summarizeColStats <- function(m, name = NULL){
@@ -489,16 +489,16 @@ markerFeatures <- function(
     useGroups <- gtools::mixedsort(unique(paste0(groups)))
   }
 
-  if(is.null(bdgGroups)){
-    bdgGroups <- gtools::mixedsort(unique(paste0(groups)))
+  if(is.null(bgdGroups)){
+    bgdGroups <- gtools::mixedsort(unique(paste0(groups)))
   }
 
   stopifnot(all(useGroups %in% unique(paste0(groups))))
-  stopifnot(all(bdgGroups %in% unique(paste0(groups))))
+  stopifnot(all(bgdGroups %in% unique(paste0(groups))))
 
   #Get proportion of each group
   prob <- table(groups) / length(groups)
-  bdgProb <- prob[which(names(prob) %in% bdgGroups)] / sum(prob[which(names(prob) %in% bdgGroups)])
+  bgdProb <- prob[which(names(prob) %in% bgdGroups)] / sum(prob[which(names(prob) %in% bgdGroups)])
 
   pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
   matchList <- lapply(seq_along(useGroups), function(x){
@@ -509,21 +509,21 @@ markerFeatures <- function(
     # Organize
     #############
     groupx <- useGroups[x]
-    idx <- which(names(bdgProb) == groupx)
-    if(length(idx) > 0 & length(idx) != length(bdgProb)){
-      bdgProbx <- bdgProb[-idx]/sum(bdgProb[-idx])
+    idx <- which(names(bgdProb) == groupx)
+    if(length(idx) > 0 & length(idx) != length(bgdProb)){
+      bgdProbx <- bgdProb[-idx]/sum(bgdProb[-idx])
     }else{
-      bdgProbx <- bdgProb
+      bgdProbx <- bgdProb
     }
 
     idF <- which(groups == groupx)
-    idB <- which(groups %in% names(bdgProbx))
+    idB <- which(groups %in% names(bgdProbx))
 
     knnx <- computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k)
     sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
 
     minTotal <- min(n, length(sx) * bufferRatio)
-    nx <- sort(floor(minTotal * bdgProbx))
+    nx <- sort(floor(minTotal * bgdProbx))
     
     ###############
     # ID Matching
@@ -594,28 +594,28 @@ markerFeatures <- function(
     #####################
     # Matching Stats Groups
     #####################
-    estBdg <- sort(floor(minTotal * bdgProbx))
-    obsBdg <- rep(0, length(estBdg))
-    names(obsBdg) <- names(estBdg)
+    estbgd <- sort(floor(minTotal * bgdProbx))
+    obsbgd <- rep(0, length(estbgd))
+    names(obsbgd) <- names(estbgd)
     tabGroups <- table(groups[idY])
-    obsBdg[names(tabGroups)] <- tabGroups
-    estBdgP <- round(100 * estBdg / sum(estBdg),3)
-    obsBdgP <- round(100 * obsBdg / sum(obsBdg),3)
+    obsbgd[names(tabGroups)] <- tabGroups
+    estbgdP <- round(100 * estbgd / sum(estbgd),3)
+    obsbgdP <- round(100 * obsbgd / sum(obsbgd),3)
 
     #####################
     # Matching Stats Bias Norm Values
     #####################
     forBias <- .summarizeColStats(inputNorm[idX,], name = "foreground")
-    bdgBias <- .summarizeColStats(inputNorm[idY,], name = "background")
+    bgdBias <- .summarizeColStats(inputNorm[idY,], name = "background")
 
     out <- list(
         cells = idX, 
-        bdg = idY, 
+        bgd = idY, 
         summaryCells = forBias, 
-        summaryBdg = bdgBias, 
-        bdgGroups = rbind(estBdg, obsBdg),
-        bdgGroupsProbs = rbind(estBdgP, obsBdgP),
-        corBdgGroups = cor(estBdgP, obsBdgP),
+        summaryBgd = bgdBias, 
+        bgdGroups = rbind(estbgd, obsbgd),
+        bgdGroupsProbs = rbind(estbgdP, obsbgdP),
+        corbgdGroups = cor(estbgdP, obsbgdP),
         n = length(sx), 
         p = it / length(sx),
         group = groupx
@@ -629,7 +629,7 @@ markerFeatures <- function(
   message("\n")
 
   outList <- SimpleList(
-    matchBdg = matchList,
+    matchbgd = matchList,
     info = SimpleList(
         cells = rownames(input),
         groups = groups,
@@ -1131,7 +1131,7 @@ markerAnnoEnrich <- function(
   annotations = NULL,
   matches = NULL,
   cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
-  background = "bdgPeaks",
+  background = "bgdPeaks",
   ...){
 
   tstart <- Sys.time()
@@ -1168,9 +1168,9 @@ markerAnnoEnrich <- function(
     eval(parse(text=paste0("rm(",an,")")))
   }
 
-  if(tolower(background) %in% c("backgroundpeaks", "bdgpeaks", "background", "bdg")){
-    method <- "bdg"
-    bdgPeaks <- SummarizedExperiment::assay(getBdgPeaks(ArchRProj))
+  if(tolower(background) %in% c("backgroundpeaks", "bgdpeaks", "background", "bgd")){
+    method <- "bgd"
+    bgdPeaks <- SummarizedExperiment::assay(getBgdPeaks(ArchRProj))
   }else{
     method <- "all"
   }
@@ -1178,8 +1178,8 @@ markerAnnoEnrich <- function(
   enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
     .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
     idx <- which(passMat[, x])
-    if(method == "bdg"){
-      .computeEnrichment(matches, idx, c(idx, as.vector(bdgPeaks[idx,])))
+    if(method == "bgd"){
+      .computeEnrichment(matches, idx, c(idx, as.vector(bgdPeaks[idx,])))
     }else{
       .computeEnrichment(matches, idx, seq_len(nrow(matches)))
     }
@@ -1333,7 +1333,7 @@ markerPlot <- function(
   FDR <- as.vector(as.matrix(FDR))
   FDR[is.na(FDR)] <- 1
 
-  LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBDG)/2 + 1)
+  LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBGD)/2 + 1)
   LM <- as.vector(as.matrix(LM))
 
   color <- ifelse(passMat[, name], "Differential", "Not-Differential")
