@@ -6,7 +6,7 @@
 #' 
 #' This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 #'
-#' @param input An `ArchRProject` object or Footprint Summarized Experiment
+#' @param ArchRProj An `ArchRProject` object
 #' @param positions QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.
 #' @param plotName QQQ The prefix to add to the file name for the output PDF file.
 #' @param groupBy QQQ The name of the column in `sampleColData` to use for grouping multiple samples together prior to footprinting.
@@ -18,6 +18,7 @@
 #' @param minCells QQQ The minimum number of cells required in a given cell group to permit footprint generation.
 #' @param nTop QQQ The number of genomic regions to consider. Only the top `nTop` genomic regions based on QQQ will be considered for the footprint.
 #' @param normMethod QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.
+#' @param inputSE QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.
 #' @param height The height in inches to be used for the output PDF.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.
@@ -28,7 +29,7 @@
 #' @param ... additional args
 #' @export
 plotFootprints <- function(
-  input = NULL,
+  ArchRProj = NULL,
   positions = NULL,
   plotName = "Plot-Footprints",
   groupBy = "Clusters",
@@ -40,6 +41,7 @@ plotFootprints <- function(
   minCells = 25,
   nTop = NULL,
   normMethod = "none",
+  inputSE = NULL,
   height = 6,
   width = 4,
   addDOC = TRUE,
@@ -51,7 +53,7 @@ plotFootprints <- function(
   ){
 
   tstart <- Sys.time()
-  if(inherits(input, "ArchRProject")){
+  if(is.null(inputSE)){
     
     #Validate Positions
     if(!inherits(positions, "GenomicRangesList") & !inherits(positions, "list") & !inherits(positions, "SimpleList")){
@@ -75,7 +77,7 @@ plotFootprints <- function(
     #Get Footprints
     .messageDiffTime("Summarizing Footprints", tstart, addHeader = verboseAll)
     seFoot <- .summarizeFootprints(
-      ArchRProj = input, 
+      ArchRProj = ArchRProj, 
       positions = positions,
       groupBy = groupBy,
       useGroups = useGroups,
@@ -86,15 +88,13 @@ plotFootprints <- function(
       verboseAll = verboseAll
     )
 
-    ArchRProj <- input
-
   }else{
     
     ArchRProj <- NULL
 
-    if(inherits(input, "SummarizedExperiment")){
-      seFoot <- input
-      rm(input)
+    if(inherits(inputSE, "SummarizedExperiment")){
+      seFoot <- inputSE
+      rm(inputSE)
       gc()
       if(!is.null(useGroups)){
         if(sum(SummarizedExperiment::colData(seFoot)[,1] %in% useGroups) == 0){
@@ -102,6 +102,8 @@ plotFootprints <- function(
         }
         seFoot <- seFoot[,SummarizedExperiment::colData(seFoot)[,1] %in% useGroups]
       }
+    }else{
+      stop("inputSE must be a footprint summarized experiment!")
     }
 
   }

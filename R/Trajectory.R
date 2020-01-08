@@ -9,7 +9,7 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name A string indicating the name of the fitted trajectory to be added in `cellColData`.
-#' @param trajectory QQQ UNCLEAR trajectory of groups to constrain supervised fitting (in order)
+#' @param trajectory Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )
 #' @param groupBy initial group column in cellColData to constrain supervised fit
 #' @param reducedDims A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.
 #' @param preFilter QQQ UNCLEAR pre filtering quantile for supervised trajectory fit
@@ -445,7 +445,7 @@ plotTrajectory <- function(
   ##############################
   # Plot Helpers
   ##############################
-  .quantileCut <- function (x, lo = 0, hi = 0.975, rm0 = TRUE){
+  .quantileCut0 <- function (x, lo = 0, hi = 0.975, rm0 = TRUE){
     q <- quantile(x, probs = c(lo, hi), na.rm = TRUE)
     x[x < q[1]] <- q[1]
     x[x > q[2]] <- q[2]
@@ -528,7 +528,7 @@ plotTrajectory <- function(
   plotParams$color[idxRemove] <- NA
 
   if(!plotParams$discrete){
-    plotParams$color <- .quantileCut(plotParams$color, min(quantCut), max(quantCut))
+    plotParams$color <- .quantileCut0(plotParams$color, min(quantCut), max(quantCut))
     plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
     if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
       plotParams$addPoints <- TRUE

@@ -6,7 +6,7 @@
 \usage{
 addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
   dimsToUse = NULL, td = 3, ka = 4, sampleCells = max(5000,
-  floor(nCells(ArchRProj)/10)), k = 15, epsilon = 1, weighted = TRUE)
+  floor(nCells(ArchRProj)/10)), k = 15, epsilon = 1, ...)
 }
 \arguments{
 \item{ArchRProj}{An `ArchRProject` object.}
@@ -15,17 +15,17 @@ addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
 
 \item{dimsToUse}{QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.}
 
-\item{td}{QQQ}
+\item{td}{diffusion time (number of iterations) for Magic}
 
-\item{ka}{QQQ}
+\item{ka}{kNN autotune parameter for Magic}
 
-\item{sampleCells}{A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.}
+\item{sampleCells}{number of cells to sample per block of estimated imputation matrix}
 
-\item{k}{QQQ}
+\item{k}{number of nearest neighbors to use for Magic}
 
-\item{epsilon}{QQQ}
+\item{epsilon}{a value for the standard deviation of the kernel for Magic}
 
-\item{weighted}{QQQ}
+\item{...}{additional params}
 }
 \description{
 This function QQQ

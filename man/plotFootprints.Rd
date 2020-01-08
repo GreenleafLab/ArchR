@@ -4,16 +4,16 @@
 \alias{plotFootprints}
 \title{Plot footprints for an ArchRProject}
 \usage{
-plotFootprints(input = NULL, positions = NULL,
+plotFootprints(ArchRProj = NULL, positions = NULL,
   plotName = "Plot-Footprints", groupBy = "Clusters",
   useGroups = NULL, pal = NULL, flank = 250, flankNorm = 50,
   smoothWindow = 10, minCells = 25, nTop = NULL,
-  normMethod = "none", height = 6, width = 4, addDOC = TRUE,
-  useSink = TRUE, threads = 1, verboseHeader = TRUE,
+  normMethod = "none", inputSE = NULL, height = 6, width = 4,
+  addDOC = TRUE, useSink = TRUE, threads = 1, verboseHeader = TRUE,
   verboseAll = FALSE, ...)
 }
 \arguments{
-\item{input}{An `ArchRProject` object or Footprint Summarized Experiment}
+\item{ArchRProj}{An `ArchRProject` object}
 
 \item{positions}{QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.}
 
@@ -36,6 +36,8 @@ plotFootprints(input = NULL, positions = NULL,
 \item{nTop}{QQQ The number of genomic regions to consider. Only the top `nTop` genomic regions based on QQQ will be considered for the footprint.}
 
 \item{normMethod}{QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.}
+
+\item{inputSE}{QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.}
 
 \item{height}{The height in inches to be used for the output PDF.}
 

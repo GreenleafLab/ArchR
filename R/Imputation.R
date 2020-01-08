@@ -9,12 +9,12 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.
 #' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param td QQQ
-#' @param ka QQQ
-#' @param sampleCells A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.
-#' @param k QQQ
-#' @param epsilon QQQ
-#' @param weighted QQQ
+#' @param td diffusion time (number of iterations) for Magic
+#' @param ka kNN autotune parameter for Magic
+#' @param sampleCells number of cells to sample per block of estimated imputation matrix
+#' @param k number of nearest neighbors to use for Magic
+#' @param epsilon a value for the standard deviation of the kernel for Magic
+#' @param ... additional params
 #' @export
 addImputeWeights <- function(
   ArchRProj = NULL,
@@ -25,7 +25,7 @@ addImputeWeights <- function(
   sampleCells = max(5000, floor(nCells(ArchRProj) / 10)),
   k = 15,
   epsilon = 1,
-  weighted = TRUE
+  ...
   ){
 
   #Adapted From
@@ -87,7 +87,7 @@ addImputeWeights <- function(
       knnDist <- knnDist / knnDist[,ka]
     }
 
-    if (weighted) {
+    if(epsilon > 0){
       W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=c(knnDist), dims = c(Nx, Nx))
     } else {
       W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=1, dims = c(Nx, Nx)) # unweighted kNN graph

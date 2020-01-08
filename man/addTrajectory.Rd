@@ -14,7 +14,7 @@ addTrajectory(ArchRProj, name = "Trajectory", trajectory = NULL,
 
 \item{name}{A string indicating the name of the fitted trajectory to be added in `cellColData`.}
 
-\item{trajectory}{QQQ UNCLEAR trajectory of groups to constrain supervised fitting (in order)}
+\item{trajectory}{Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )}
 
 \item{groupBy}{initial group column in cellColData to constrain supervised fit}
 
