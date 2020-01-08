@@ -905,6 +905,7 @@ getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
 #' 
 #' This function will save a plot or set of plots as a PDF file in the output directory of a given ArchRProject.
 #' 
+#' @param ... vector of plots to be plotted (if input is a list use plotList instead)
 #' @param name The file name to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param height The height in inches to be used for the output PDF.
@@ -913,11 +914,10 @@ getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
 #' @param plotList QQQ A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a QQQ format object.
 #' @param useSink QQQ ???
-#' @param ... additional args to pdf
 #' @export
-plotPDF <- function(name = "Plot", width = 6, 
+plotPDF <- function(..., name = "Plot", width = 6, 
   height = 6, ArchRProj = NULL, addDOC = TRUE, 
-  useDingbats = FALSE, plotList = NULL, useSink = TRUE, ...){
+  useDingbats = FALSE, plotList = NULL, useSink = TRUE){
 
   if(is.null(plotList)){
     plotList <- list(...)

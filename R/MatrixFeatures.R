@@ -89,6 +89,10 @@ addPeakMatrix <- function(
     stop("Adding a PeakMatrix is only for ArchRProject!")
   }
 
+  if(is.null(ArchRProj@peakSet)){
+    stop("No peakSet found in ArchRProject!")
+  }
+
   ArrowFiles <- getArrowFiles(ArchRProj)
   allCells <- rownames(getCellColData(ArchRProj))
   outDir <- getOutputDirectory(ArchRProj)

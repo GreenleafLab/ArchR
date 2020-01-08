@@ -754,10 +754,11 @@ markerHeatmap <- function(
   if(binaryClusterRows){
     if(invert){
       bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)])
+      mat <- -bS[[1]][,colnames(mat)]
     }else{
       bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
+      mat <- bS[[1]][,colnames(mat)]
     }
-    mat <- -bS[[1]][,colnames(mat)]
     clusterRows <- FALSE
     clusterCols <- bS[[2]]
   }else{
