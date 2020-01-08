@@ -136,6 +136,7 @@ addPeakMatrix <- function(
   ){
 
   ArrowFile <- ArrowFiles[i]
+  sampleName <- .sampleName(ArrowFile)
 
   o <- h5closeAll()
   
@@ -213,7 +214,7 @@ addPeakMatrix <- function(
     o <- h5closeAll()
     chr <- uniqueChr[z]
     featurez <- features[BiocGenerics::which(seqnames(features)==chr)]
-    .messageDiffTime(sprintf("Adding %s for Chromosome %s of %s to Arrow File!", matrixName, z, length(uniqueChr)), tstart)
+    .messageDiffTime(sprintf("Adding %s to %s for Chr (%s of %s)!", sampleName, matrixName, z, length(uniqueChr)), tstart)
 
     #Read in Fragments
     fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)

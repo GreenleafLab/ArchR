@@ -77,9 +77,11 @@ addTileMatrix <- function(
   blacklist = NULL, 
   chromLengths = NULL, 
   force = FALSE,
-  ...){
+  ...
+  ){
 
   ArrowFile <- ArrowFiles[i]
+  sampleName <- .sampleName(ArrowFile)
 
   o <- h5closeAll()
   
@@ -150,7 +152,7 @@ addTileMatrix <- function(
 
     o <- h5closeAll()
     chr <- names(chromLengths)[z]
-    .messageDiffTime(sprintf("Adding Tile Matrix for Chromosome %s of %s to Arrow File!", z, length(chromLengths)), tstart)
+    .messageDiffTime(sprintf("Adding TileMatrix to %s for Chr (%s of %s)!", sampleName, z, length(chromLengths)), tstart)
 
     #Read in Fragments
     fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)
