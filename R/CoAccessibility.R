@@ -46,7 +46,7 @@ addCoAccessibility <- function(
 
   #KNN Matrix
   .messageDiffTime("Computing KNN", tstart)
-  knnObj <- computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
+  knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
 
   #Determin Overlap
   .messageDiffTime("Identifying Non-Overlapping KNN pairs", tstart)

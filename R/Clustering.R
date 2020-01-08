@@ -108,7 +108,7 @@ addClusters <- function(
     #################################################################################
     if(estimatingClusters == 1){
         .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
-        knnAssigni <- computeKNN(matDR, matDRAll[-idx,], knnAssign)
+        knnAssigni <- .computeKNN(matDR, matDRAll[-idx,], knnAssign)
         clustUnique <- unique(clust)
         clustMatch <- match(clust, clustUnique)
         knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
@@ -137,7 +137,7 @@ addClusters <- function(
         for(i in seq_along(clustAssign)){
             clusti <- names(clustAssign[i])
             idxi <- which(clust==clusti)
-            knni <- computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
+            knni <- .computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
             clustf <- unlist(lapply(seq_len(nrow(knni)), function(x) names(sort(table(clust[-idxi][knni[x,]]),decreasing=TRUE)[1])))
             clust[idxi] <- clustf
         }
@@ -158,7 +158,7 @@ addClusters <- function(
     }
     .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
     meanSVD <- t(.groupMeans(t(matDR), clust))
-    meanKNN <- computeKNN(meanSVD, meanSVD, nrow(meanSVD))
+    meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
     idx <- sample(seq_len(nrow(meanSVD)), 1)
     clustOld <- c()
     clustNew <- c()
@@ -336,7 +336,7 @@ addClusters <- function(
 
 #' QQQ Should this be exported?
 #' @export
-computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
+.computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
 
   if(is.null(query)){
     query <- data

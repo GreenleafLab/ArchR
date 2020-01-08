@@ -519,7 +519,7 @@ markerFeatures <- function(
     idF <- which(groups == groupx)
     idB <- which(groups %in% names(bgdProbx))
 
-    knnx <- computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k)
+    knnx <- .computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k)
     sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
 
     minTotal <- min(n, length(sx) * bufferRatio)

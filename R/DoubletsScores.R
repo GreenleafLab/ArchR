@@ -473,11 +473,11 @@ addDoubletScores <- function(
   #Compute KNN 
   if(toupper(knnMethod) == "SVD"){
 
-    knnDoub <- computeKNN(LSI$matSVD, simLSI, k)
+    knnDoub <- .computeKNN(LSI$matSVD, simLSI, k)
 
   }else if(toupper(knnMethod) == "UMAP"){
 
-    knnDoub <- computeKNN(uwotUmap[[1]], umapProject, k)
+    knnDoub <- .computeKNN(uwotUmap[[1]], umapProject, k)
 
   }else{
 
