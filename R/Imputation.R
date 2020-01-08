@@ -139,8 +139,7 @@ addImputeWeights <- function(
         td = td, 
         k = k, 
         ka = ka,
-        epsilon = epsilon,
-        weighted = weighted
+        epsilon = epsilon
         )
       )
   
