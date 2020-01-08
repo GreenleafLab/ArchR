@@ -2,7 +2,7 @@
 # Clustering Methods
 ##########################################################################################
 
-#' Add cluster information to
+#' Add cluster information to an ArchRProject
 #' 
 #' This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
 #' 

@@ -92,7 +92,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -101,7 +101,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -154,23 +154,49 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
+          <h2 id="section-arrow-file-creation" class="hasAnchor"><a href="#section-arrow-file-creation" class="anchor"></a>Arrow file creation</h2>
+          <p class="section-desc"><p>Functions that help create / set up an ArrowFile</p></p>
         </th>
       </tr>
       <tr>
         
         <td>
-          <p><code><a href="ArchRPalettes.html">ArchRPalettes</a></code> </p>
+          <p><code><a href="createArrowFiles.html">createArrowFiles()</a></code> </p>
         </td>
-        <td><p>List of palettes to be used in plots</p></td>
+        <td><p>Create Arrow Files</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="ArchRRegionTrack.html">ArchRRegionTrack()</a></code> </p>
+          <p><code><a href="filterCells.html">filterCells()</a></code> </p>
         </td>
-        <td><p>Plot ArchR Region Track</p></td>
+        <td><p>Filter cells in an ArchRProject</p></td>
       </tr><tr>
+        
+        <td>
+          <p><code><a href="filterDoublets.html">filterDoublets()</a></code> </p>
+        </td>
+        <td><p>Filter Doublets From an ArchR Project</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="filterPlot.html">filterPlot()</a></code> </p>
+        </td>
+        <td><p>Filter Plot for cells in an ArchRProject</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="nCells.html">nCells()</a></code> </p>
+        </td>
+        <td><p>Get number of cells from ArchRProject/ArrowFile</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-add-ers" class="hasAnchor"><a href="#section-add-ers" class="anchor"></a>Add-ers</h2>
+          <p class="section-desc"><p>Functions that add information to ArrowFiles or an ArchRProject</p></p>
+        </th>
+      </tr>
+      <tr>
         
         <td>
           <p><code><a href="addCNVMatrix.html">addCNVMatrix()</a></code> </p>
@@ -302,79 +328,15 @@
           <p><code><a href="addTrajectory.html">addTrajectory()</a></code> </p>
         </td>
         <td><p>Add Supervised Trajectory to an ArchR Project</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="columnOverlaps.html">columnOverlaps()</a></code> </p>
-        </td>
-        <td><p>Instead of counting overlaps get columns like max score or etc in query</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="computeKNN.html">computeKNN()</a></code> </p>
-        </td>
-        <td><p>Group Means</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="constructGRanges.html">constructGRanges()</a></code> </p>
-        </td>
-        <td><p>Construct GRanges seqnames start end accounting for ends before starts (adding strandedness)</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="createArrowFiles.html">createArrowFiles()</a></code> </p>
-        </td>
-        <td><p>Create Arrow Files</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dot-ArchRLogo.html">.ArchRLogo()</a></code> </p>
-        </td>
-        <td><p>This function returns ascii archr LOGO or arrow etc.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dot-checkPath.html">.checkPath()</a></code> </p>
-        </td>
-        <td><p>Check path for utility</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dot-fileExtension.html">.fileExtension()</a></code> </p>
-        </td>
-        <td><p>Get File Extension</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dot-tempfile.html">.tempfile()</a></code> </p>
-        </td>
-        <td><p>Check path for utility</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="extendGRanges.html">extendGRanges()</a></code> </p>
-        </td>
-        <td><p>Merge Genomic Ranges</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="filterCells.html">filterCells()</a></code> </p>
-        </td>
-        <td><p>Filter cells in an ArchRProject</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="filterDoublets.html">filterDoublets()</a></code> </p>
-        </td>
-        <td><p>Filter Doublets From an ArchR Project</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="filterPlot.html">filterPlot()</a></code> </p>
-        </td>
-        <td><p>Filter Plot for cells in an ArchRProject</p></td>
-      </tr><tr>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-get-ers" class="hasAnchor"><a href="#section-get-ers" class="anchor"></a>Get-ers</h2>
+          <p class="section-desc"><p>Functions that get information from ArrowFiles or an ArchRProject</p></p>
+        </th>
+      </tr>
+      <tr>
         
         <td>
           <p><code><a href="getAnnotation.html">getAnnotation()</a></code> </p>
@@ -554,6 +516,20 @@
           <p><code><a href="getValidBarcodes.html">getValidBarcodes()</a></code> </p>
         </td>
         <td><p>Get Valid Barcodes from 10x Cell Ranger output to pre-filter barcodes</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-plotting-aesthetic-functions" class="hasAnchor"><a href="#section-plotting-aesthetic-functions" class="anchor"></a>Plotting / aesthetic functions</h2>
+          <p class="section-desc"><p>Functions for plotting in ArchR</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="ArchRRegionTrack.html">ArchRRegionTrack()</a></code> </p>
+        </td>
+        <td><p>Plot ArchR Region Track</p></td>
       </tr><tr>
         
         <td>
@@ -584,60 +560,6 @@
           <p><code><a href="ggViolin.html">ggViolin()</a></code> </p>
         </td>
         <td><p>GG Violin Plot</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="grapes-ni-grapes.html">`%ni%`</a></code> </p>
-        </td>
-        <td><p>Negated Value Matching</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="keepFilteredChromosomes.html">keepFilteredChromosomes()</a></code> </p>
-        </td>
-        <td><p>Filters unwanted chr mainly underscores</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="markerFeatures.html">markerFeatures()</a></code> </p>
-        </td>
-        <td><p>Identify Marker Features for each Group</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="markerHeatmap.html">markerHeatmap()</a></code> <code><a href="markerHeatmap.html">markerHeatmap()</a></code> </p>
-        </td>
-        <td><p>Plot a Heatmap of Identified Marker Features</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mergeGRanges.html">mergeGRanges()</a></code> </p>
-        </td>
-        <td><p>Merge Genomic Ranges</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="nCells.html">nCells()</a></code> </p>
-        </td>
-        <td><p>Get number of cells from ArchRProject/ArrowFile</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="nonOverlappingGRanges.html">nonOverlappingGRanges()</a></code> </p>
-        </td>
-        <td><p>Instead of counting overlaps get columns like max score or etc in query</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="overlappingBP.html">overlappingBP()</a></code> </p>
-        </td>
-        <td><p>Merge Genomic Ranges</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="overlapsMany.html">overlapsMany()</a></code> </p>
-        </td>
-        <td><p>Overlaps Many includes information from mcols(gr)</p></td>
       </tr><tr>
         
         <td>
@@ -683,27 +605,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="shuffleGRanges.html">shuffleGRanges()</a></code> </p>
-        </td>
-        <td><p>Shuffle Genomic Ranges</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="subsetSeqnames.html">subsetSeqnames()</a></code> </p>
-        </td>
-        <td><p>Subset by Seqnames</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="theme_ArchR.html">theme_ArchR()</a></code> </p>
         </td>
         <td><p>ggplot2 default theme for ArchR</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="trajectoryHeatmap.html">trajectoryHeatmap()</a></code> </p>
-        </td>
-        <td><p>Plot a Heatmap of Features across a Trajectory</p></td>
       </tr>
     </tbody>
     </table>
@@ -712,7 +616,10 @@
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#section-arrow-file-creation">Arrow file creation</a></li>
+      <li><a href="#section-add-ers">Add-ers</a></li>
+      <li><a href="#section-get-ers">Get-ers</a></li>
+      <li><a href="#section-plotting-aesthetic-functions">Plotting / aesthetic functions</a></li>
     </ul>
   </div>
 </div>

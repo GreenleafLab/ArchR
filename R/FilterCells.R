@@ -82,7 +82,7 @@ filterCells <- function(ArchRProj, filterList, ...){
 #' This function plots a list of attributes with filter criteria to visualize which cells would pass filter.
 #' 
 #' @param ArchRProj An `ArchRProject` object
-#' @param filterList QQQ A list of filters based on cellColData to apply when filtering cells. Format should be a named numeric list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria. A lower threshold is expected, below which cells are filtered (a higher threshold is optional). Only the first 2 filters will be plotted.
+#' @param filterList QQQ A list of filters based on `cellColData` to apply when filtering cells. Format should be a named numeric list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria. A lower threshold is expected, below which cells are filtered (a higher threshold is optional). Only the first 2 filters will be plotted.
 #' @param sampleNames The sample names corresponding to the subset of samples to plot. If NULL, all samples are included.
 #' @param ... additional params
 #' @export

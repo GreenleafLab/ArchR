@@ -2,7 +2,7 @@
 # LSI Dimensionality Reduction Methods
 ##########################################################################################
 
-#' Compute Iterative LSI
+#' Add an Iterative LSI-based dimensionality reduction to an ArchRProject
 #' 
 #' This function will compute an iterative LSI dimensionality reduction
 #' on an ArchRProject.

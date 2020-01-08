@@ -868,7 +868,7 @@ addMotifAnnotations <- function(
 # Additional Methods
 ##########################################################################################
 
-#' Return the available features that could be selected from a given data matrix within an ArchRProject
+#' Get the features that could be selected from a given data matrix within an ArchRProject
 #' 
 #' This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return them for downstream plotting utilities.
 #' 
