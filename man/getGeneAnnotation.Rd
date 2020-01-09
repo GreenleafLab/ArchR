@@ -12,5 +12,5 @@ getGeneAnnotation(ArchRProj, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets the geneAnnotation (in format QQQ) from a given ArchRProject
+This function gets the geneAnnotation (see createGeneAnnotation) from a given ArchRProject
 }

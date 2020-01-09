@@ -12,7 +12,7 @@
 #' @param ceiling QQQ The maximum counts per feature allowed. This is used to prevent large biases in feature counts.
 #' @param binarize QQQ A boolean value indicating whether the feature matrix should be binarized QQQ prior to storage. This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.
 #' @export
 addFeatureMatrix <- function(
@@ -72,7 +72,7 @@ addFeatureMatrix <- function(
 #' @param ceiling QQQ The maximum counts per feature allowed. QQQ WHY?
 #' @param binarize QQQ A boolean value indicating whether the feature matrix should be binarized QQQ prior to storage. This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.
 #' @export
 addPeakMatrix <- function(

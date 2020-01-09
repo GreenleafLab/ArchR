@@ -9,7 +9,7 @@ getSampleColData(ArchRProj, select = NULL, drop = FALSE, ...)
 \arguments{
 \item{ArchRProj}{An `ArchRProject` object.}
 
-\item{select}{QQQ A character vector containing the column names to select from sampleColData.}
+\item{select}{A character vector containing the column names to select from sampleColData.}
 
 \item{drop}{A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.}
 

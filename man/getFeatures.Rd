@@ -10,9 +10,9 @@ getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
 \arguments{
 \item{ArchRProj}{An `ArchRProject` object.}
 
-\item{useMatrix}{QQQ The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", QQQ.}
+\item{useMatrix}{The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
-\item{select}{QQQ select a specific name with grep}
+\item{select}{A string specifying a specific featureName (or rowname) found with grep}
 
 \item{ignore.case}{A boolean value indicating whether or not to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.}
 

@@ -10,11 +10,11 @@ filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf,
 \arguments{
 \item{ArchRProj}{An `ArchRProject` object}
 
-\item{cutEnrich}{QQQ The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.}
+\item{cutEnrich}{The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.}
 
-\item{cutScore}{QQQ The minimum numeric cutoff for `DoubletScore` which represents the -log10(binomial adjusted p-value) for QQQ(what is the pvalue from?).}
+\item{cutScore}{The minimum numeric cutoff for `DoubletScore` which represents the -log10(binomial adjusted p-value) for the `DoubletEnrichment`.}
 
-\item{filterRatio}{QQQ THIS IS VERY CONFUSING TO ME. WHY ISNT THIS JUST THE FRACTION OF YOUR CELLS THAT YOU ARE WILLING TO LOSE TO DOUBLETS? The maximum ratio of predicted doublets to filter based on the number of pass-filter cells. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (100,000).}
+\item{filterRatio}{JJJ The maximum ratio of predicted doublets to filter based on the number of pass-filter cells. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (100,000).}
 
 \item{...}{additional params}
 }

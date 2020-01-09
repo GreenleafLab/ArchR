@@ -7,19 +7,19 @@
 #' This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
 #' 
 #' @param input Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.
-#' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.
+#' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`. Not required if input is a matrix.
 #' @param name The column name of the column to be added to `cellColData` if `input` is an `ArchRProject` object.
-#' @param sampleCells A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.
-#' @param seed QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param method A string indicated the clustering method to be used. Supported methods are "Seurat" and "LouvainJaccard".
-#' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.
-#' @param knnAssign QQQ The number of nearest neighbors to be used during clustering for assignment of outliers and estimation of QQQ.
-#' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers.
+#' @param sampleCells An integer specifying number of cells to subset perform clustering and assign the remainder cells by euclidean distance.
+#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param method A string indicated the clustering method to be used. Supported methods are "Seurat" and "Scran".
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.
+#' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
+#' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
-#' @param tstart QQQ The time at which the function run was started.
+#' @param tstart The time at which the function run was started. Useful for keeping track of how long clustering takes relative to a start time. 
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
-#' @param ... Additional arguments to be provided to Seurat::FindClusters or ArchR:::.clustLouvain (for example, knn = 50, jaccard = TRUE)
+#' @param ... Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)
 #' @export
 #'
 addClusters <- function(
@@ -95,6 +95,7 @@ addClusters <- function(
 
     }else if(grepl("louvainjaccard",tolower(method))){
 
+        stop("LouvainJaccard method not currently functional!")
         clust <- .clustLouvain(matDR, ...)
 
     }else{
@@ -334,7 +335,6 @@ addClusters <- function(
 
 # }
 
-#' QQQ Should this be exported?
 #' @export
 .computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
 

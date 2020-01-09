@@ -11,13 +11,13 @@ getMatrixFromArrow(ArrowFile = NULL, useMatrix = "GeneScoreMatrix",
 \arguments{
 \item{ArrowFile}{The ArrowFile object from which the selected data matrix should be obtained.}
 
-\item{useMatrix}{QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.}
+\item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
 \item{useSeqnames}{A character vector of chromosome names to be used to subset the data matrix being obtained.}
 
-\item{cellNames}{QQQ}
+\item{cellNames}{A string vector of cell names to extract the matrix for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.}
 
-\item{ArchRProj}{QQQ An ArchRProject object to be QQQ.}
+\item{ArchRProj}{An ArchRProject object to be used for getting additional information for cells in cellColData.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 

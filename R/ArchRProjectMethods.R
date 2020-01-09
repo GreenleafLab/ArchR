@@ -1,4 +1,40 @@
 ##########################################################################################
+# Parallel Information
+##########################################################################################
+
+#' Add global number of threads for default parallel computing.
+#' 
+#' This function will set the global number of threads to be used for ArchR functions.
+#' 
+#' @param threads default number of threads to be used for parallel execution in ArchR functions by default.
+#' @export
+addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2)){
+  if(tolower(.Platform$OS.type) == "windows"){
+    message("Detected windows OS, setting threads to 1.")
+    threads <- 1
+  }
+  message("Setting default number of Parallel threads to ", threads, ".")
+  assign("ArchRThreads", as.integer(threads), envir = .GlobalEnv)
+}
+
+#' Get global number of threads for default parallel computing.
+#' 
+#' This function will get the global number of threads to be used for ArchR functions.
+#' 
+#' @export
+getArchRThreads <- function(){
+  if(exists("ArchRThreads")){
+    if(!is.integer(ArchRThreads)){
+      1
+    }else{
+      ArchRThreads
+    }
+  }else{
+    1
+  }
+}
+
+##########################################################################################
 # Create Gene/Genome Annotation
 ##########################################################################################
 
@@ -399,7 +435,7 @@ nCells <- function(input, ...){
 #' This function gets the `sampleColData` from a given `ArchRProject`.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param select QQQ A character vector containing the column names to select from sampleColData.
+#' @param select A character vector containing the column names to select from sampleColData.
 #' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
 #' @param ... additional args
 #' @export
@@ -592,7 +628,7 @@ addPeakSet <- function(ArchRProj, peakSet, force = FALSE, ...){
 
 #' Get genomeAnnotation from an ArchRProject
 #' 
-#' This function gets the genomeAnnotation (in format QQQ) from a given ArchRProject.
+#' This function gets the genomeAnnotation (see createGenomeAnnotation) from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
@@ -668,7 +704,7 @@ getChromLengths <- function(ArchRProj, ...){
 
 #' Get geneAnnotation from an ArchRProject
 #' 
-#' This function gets the geneAnnotation (in format QQQ) from a given ArchRProject
+#' This function gets the geneAnnotation (see createGeneAnnotation) from a given ArchRProject
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
@@ -692,7 +728,7 @@ getTSS <- function(ArchRProj, ...){
 
 #' Get the genes from an ArchRProject
 #' 
-#' This function gets the genes (in format QQQ) from the geneAnnotation of a given ArchRProject.
+#' This function gets the genes start to end coordinates as a GRanges from the geneAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param symbols A character vector containing the gene symbols to subset from the `geneAnnotation`.
@@ -709,7 +745,7 @@ getGenes <- function(ArchRProj, symbols = NULL, ...){
 
 #' Get the exons from an ArchRProject
 #' 
-#' This function gets the exons (in format QQQ) from the geneAnnotation of a given ArchRProject.
+#' This function gets the exons coordinates as a GRanges from the geneAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param symbols A character vector containing the gene symbols for the genes where exons should be extracted.
@@ -740,10 +776,10 @@ getExons <- function(ArchRProj, symbols = NULL, ...){
 #' This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ.
+#' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.
 #' @param returnMatrix If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.
-#' @param dimsToUse QQQ A vector containing the dimensions to return from the `reducedDims` object.
-#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.
+#' @param dimsToUse A vector containing the dimensions (i.e. 1:25) to return from the `reducedDims` object.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded.
 #' @param ... additional args
 #' @export
 getReducedDims <- function(
@@ -780,10 +816,10 @@ getReducedDims <- function(
 
 #' Get embedding information stored in an ArchRProject
 #' 
-#' QQQ This function gets an embedding (i.e. UMAP) from a given ArchRProject.
+#' This function gets an embedding (i.e. UMAP) from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param embedding QQQ The name of the `embeddings` object to retrieve from the designated `ArchRProject`. Options include QQQ.
+#' @param embedding The name of the `embeddings` object (i.e. UMAP, TSNE see embeddingOut of addEmbeddings) to retrieve from the designated `ArchRProject`.
 #' @param returnDF A boolean value indicating whether to return the embedding object as a `data.frame`. Otherwise, it will return the full embedding object.
 #' @param ... additional args
 #' @export
@@ -835,8 +871,8 @@ getProjectSummary <- function(ArchRProj, returnSummary = FALSE, ...){
 #' This function adds info to the projectSummary from an ArchRProject
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param name QQQ The name of the summary information to add to the `ArchRProject` object.
-#' @param summary QQQ A vector to add as summary information to the `ArchRProject` object.
+#' @param name The name of the summary information to add to the `ArchRProject` object.
+#' @param summary A vector to add as summary information to the `ArchRProject` object.
 #' @param ... additional args
 #' @export
 addProjectSummary <- function(ArchRProj, name, summary, ...){
@@ -858,8 +894,8 @@ addProjectSummary <- function(ArchRProj, name, summary, ...){
 #' This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return them for downstream plotting utilities.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix QQQ The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", QQQ.
-#' @param select QQQ select a specific name with grep
+#' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
+#' @param select A string specifying a specific featureName (or rowname) found with grep
 #' @param ignore.case A boolean value indicating whether or not to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.
 #' @param ... additional args
 #' @export
@@ -894,11 +930,11 @@ getFeatures <- function(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
 #' @param name The file name to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param height The height in inches to be used for the output PDF.
-#' @param ArchRProj QQQ An `ArchRProject` object to be used for QQQ.
+#' @param ArchRProj An `ArchRProject` object to be used for getting plotDirectory in outputDirectory.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
-#' @param plotList QQQ A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a QQQ format object.
-#' @param useSink QQQ ???
+#' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted object (ggplot2, plot, heatmap, etc).
+#' @param useSink use sink to hide messages from plotting
 #' @export
 plotPDF <- function(..., name = "Plot", width = 6, 
   height = 6, ArchRProj = NULL, addDOC = TRUE, 
@@ -1007,7 +1043,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
 #' 
 #' This function will download data for a given tutorial and return the input files required for ArchR
 #' 
-#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to QQQ. "PBMC" refers to QQQ. "FreshFrozen" refers to QQQ data from Granja et al. Nature Biotechnology 2019.
+#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to hematopoieitic scATAC hierarchy. "PBMC" refers to a small standard PBMC scATAC dataset. "FreshFrozen" refers to a PBMC fresh and frozen scATAC dataset.
 #' @param ... additional args
 #' @export
 getTutorialData <- function(tutorial = "hematopoiesis", ...){
@@ -1131,152 +1167,3 @@ getValidBarcodes <- function(csvFiles, sampleNames, ...){
 
 }
 
-
-#' Save ArchRProject for Later Usage
-#' 
-#' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
-#' 
-#' @param ArchRProj An `ArchRProject` object.
-#' @param copyArrows A boolean indicating whether to copy or copy + remove original ArrowFiles prior to saving ArchRProject.
-#' @export
-saveArchRProject <- function(
-  ArchRProj = NULL, 
-  copyArrows = TRUE
-  ){
-
-  outputDir <- getOutputDirectory(ArchRProj)
-  
-  #Set Up Arrow Files
-  ArrowDir <- file.path(basename(outputDir), "ArrowFiles")
-  dir.create(ArrowDir, showWarnings = FALSE)
-
-  ArrowFiles <- getArrowFiles(ArchRProj)
-  ArrowFilesNew <- file.path(ArrowDir, basename(ArrowFiles))
-  names(ArrowFilesNew) <- names(ArrowFiles)
-
-  for(i in seq_along(ArrowFiles)){
-    cf <- file.copy(ArrowFiles[i], ArrowFilesNew[i])
-    if(!copyArrows){
-      file.remove(ArrowFiles[i])
-    }
-  }
-
-  ArchRProj@sampleColData$ArrowFiles <- ArrowFilesNew[rownames(ArchRProj@sampleColData)]
-
-  saveRDS(ArchRProj, file.path(outputDir, "Save-ArchR-Project.rds"))
-
-}
-
-#' Load Previous ArchRProject into R
-#' 
-#' This function will load a previously saved ArchRProject and re-normalize paths for usage.
-#' 
-#' @param path A character path to an ArchRProject directory that was previously saved.
-#' @param force A boolean indicating when re-normalizing paths if an annotation/bdgPeaks is not found ignore and continue
-#' @param showLogo show ArchRLogo upon completion.
-#' @export
-loadArchRProject <- function(
-  path = "./", 
-  force = FALSE, 
-  showLogo = TRUE
-  ){
-
-  path2Proj <- file.path(path, "Save-ArchR-Project.rds")
-  
-  if(!file.exists(path2Proj)){
-    stop("Could not find previously saved ArchRProject in the path specified!")
-  }
-
-  ArchRProj <- readRDS(path2Proj)
-
-  outputDir <- getOutputDirectory(ArchRProj)
-  outputDirNew <- normalizePath(path)
-
-  #1. Arrows Paths
-  ArrowFilesNew <- file.path(outputDirNew, gsub(paste0(basename(outputDir),"/"),"",ArchRProj@sampleColData$ArrowFiles))
-  if(!all(file.exists(ArrowFilesNew))){
-    stop("ArrowFiles do not exist in saved ArchRProject!")
-  }
-  ArchRProj@sampleColData$ArrowFiles <- ArrowFilesNew
-
-  #2. Annotations Paths
-
-  if(length(ArchRProj@peakAnnotation) > 0){
-    
-    keepAnno <- rep(TRUE, length(ArchRProj@peakAnnotation))
-
-    for(i in seq_along(ArchRProj@peakAnnotation)){
-      #Postions
-      if(!is.null(ArchRProj@peakAnnotation[[i]]$Positions)){
-
-        PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Positions)
-        if(!all(file.exists(PositionsNew))){
-          if(force){
-            keepAnno[i] <- FALSE
-            message("Positions for peakAnnotation do not exist in saved ArchRProject!")
-          }else{
-            stop("Positions for peakAnnotation do not exist in saved ArchRProject!")
-          }
-        }
-        ArchRProj@peakAnnotation[[i]]$Positions <- PositionsNew
-
-      }
-
-      #Matches
-      if(!is.null(ArchRProj@peakAnnotation[[i]]$Matches)){
-
-        MatchesNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Matches)
-        if(!all(file.exists(MatchesNew))){
-          if(force){
-            message("Matches for peakAnnotation do not exist in saved ArchRProject!")
-            keepAnno[i] <- FALSE
-          }else{
-            stop("Matches for peakAnnotation do not exist in saved ArchRProject!")
-          }
-        }
-        ArchRProj@peakAnnotation[[i]]$Matches <- MatchesNew
-
-      }
-
-    }
-
-    ArchRProj@peakAnnotation <- ArchRProj@peakAnnotation[keepAnno]
-
-  }
-
-
-  #3. Background Peaks Paths
-
-  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
-
-    bgdPeaksNew <- gsub(outputDir, outputDirNew, metadata(getPeakSet(ArchRProj))$bgdPeaks)
-
-    if(!all(file.exists(bgdPeaksNew))){
-      
-      if(force){
-        message("BackgroundPeaks do not exist in saved ArchRProject!")
-        metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
-      }else{
-        stop("BackgroundPeaks do not exist in saved ArchRProject!")
-      }
-
-    }else{
-
-      metadata(ArchRProj@peakSet)$bgdPeaks <- bgdPeaksNew
-
-    }    
-
-  }
-
-  #4. Set Output Directory 
-
-  ArchRProj@projectMetadata$outputDirectory <- outputDirNew
-
-  message("Successfully loaded ArchRProject!")
-  if(showLogo){
-      .ArchRLogo(ascii = "Logo")
-  }  
-
-  ArchRProj
-
-}

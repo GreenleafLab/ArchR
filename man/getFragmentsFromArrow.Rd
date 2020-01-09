@@ -12,7 +12,7 @@ getFragmentsFromArrow(ArrowFile, chr = NULL, cellNames = NULL,
 
 \item{chr}{A name of a chromosome to be used to subset the fragments `GRanges` object to a specific chromsome if desired.}
 
-\item{cellNames}{QQQ matrix output name in ArrowFiles cannot be a protected matrix name}
+\item{cellNames}{A string vector of cell names to extract fragments for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 

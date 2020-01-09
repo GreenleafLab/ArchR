@@ -23,7 +23,7 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{useGroups}{A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups to be plotted.}
 
-\item{useCoverages}{QQQ use group coverages for track plotting}
+\item{useCoverages}{A boolean indicating whether to use group coverages of pseudobulks (see createGroupCoverages) for track plotting instead of ArrowFiles}
 
 \item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak bed regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).}
 
@@ -43,19 +43,19 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{threads}{The number of threads to use for parallel execution.}
 
-\item{ylim}{QQQ The numeric y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be QQQ.}
+\item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
 
-\item{baseSize}{QQQ The numeric font size to be used in the plot. This applies to all plot labels.}
+\item{baseSize}{The numeric font size to be used in the plot. This applies to all plot labels.}
 
 \item{borderWidth}{The numeric line width to be used for plot borders.}
 
 \item{tickWidth}{The numeric line width to be used for axis tick marks.}
 
-\item{facetbaseSize}{QQQ}
+\item{facetbaseSize}{The numeric font size to be used in the facets (gray boxes) of the plot.}
 
-\item{geneAnno}{QQQ The `geneAnnotation` object to be used for plotting the "geneTrack" object. This must be a `TxDB` object.}
+\item{geneAnno}{The `geneAnnotation` object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.}
 
-\item{title}{QQQ The title to add at the top of the plot.}
+\item{title}{The title to add at the top of the plot next to the plot genomic coordinates.}
 
 \item{...}{additional args}
 }

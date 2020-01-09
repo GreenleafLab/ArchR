@@ -9,7 +9,13 @@ filterCells(ArchRProj, filterList, ...)
 \arguments{
 \item{ArchRProj}{An `ArchRProject` object}
 
-\item{filterList}{QQQ A list of filters based on cellColData to apply when filtering cells. Format should be a named list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria. If numeric, a lower threshold is expected, below which cells are filtered (a higher threshold is optional). If a chatacter vector, rows in cellColData corresponding to the supplied character values are QQQkept. If a list or simpleList, QQQ.}
+\item{filterList}{A list of filters based on cellColData to apply when filtering cells. 
+Format should be a named list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria. 
+If numeric, a lower threshold is expected, below which cells are filtered (a higher threshold is optional). 
+If a chatacter vector, rows in cellColData corresponding to the supplied character values are kept. 
+If a list or simpleList, the user can additionally supply filters that are specific to each sample 
+(i.e. apply to all samples : list("TSSEnrichment" = c(4,25)),
+apply to specific samples : list(TSSEnrichment = list("Sample1" = c(4, 25), "Sample2" = c(5, 25)))).}
 
 \item{...}{additional params}
 }

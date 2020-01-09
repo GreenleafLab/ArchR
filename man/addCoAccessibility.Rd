@@ -7,26 +7,26 @@
 addCoAccessibility(ArchRProj, reducedDims = "IterativeLSI", k = 100,
   knnIteration = 5000, overlapCutoff = 0.8, maxDist = 250000,
   scaleTo = 10^4, log2Norm = TRUE, seed = 1, knnMethod = "nabor",
-  threads = floor(detectCores()/2), ...)
+  threads = 1, ...)
 }
 \arguments{
 \item{ArchRProj}{An `ArchRProject` object.}
 
-\item{reducedDims}{QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.}
+\item{reducedDims}{The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.}
 
-\item{k}{QQQ The number of k-nearest neighbors to use for QQQ.}
+\item{k}{The number of k-nearest neighbors to use for creating single cell groups for correlation.}
 
 \item{knnIteration}{The number of KNN groupings to test for passing the supplied `overlapCutoff`.}
 
-\item{overlapCutoff}{QQQ The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during QQQ k-nearest neighbor calculations.}
+\item{overlapCutoff}{The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.}
 
 \item{maxDist}{The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.}
 
-\item{scaleTo}{A numeric value indicating how to scale the accessibility of a QQQ group prior to computing co-accessibility correlations.}
+\item{scaleTo}{A numeric value indicating how to scale the accessibility of a single cell group prior to computing co-accessibility correlations.}
 
-\item{log2Norm}{A boolean value indicating whether to log2 transform the QQQ prior to computing co-accessibility correlations.}
+\item{log2Norm}{A boolean value indicating whether to log2 transform the single cell groups prior to computing co-accessibility correlations.}
 
-\item{seed}{QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{knnMethod}{The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.}
 
