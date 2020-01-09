@@ -257,6 +257,7 @@ createArrowFiles <- function(
 
   }, error = function(x){
 
+      suppressWarnings(sink())
       .messageDiffTime("Continuing through after error ggplot for Fragment Size Distribution", tstart)
       print(x)
       message("\n")
@@ -312,6 +313,7 @@ createArrowFiles <- function(
 
   }, error = function(x) {
 
+      suppressWarnings(sink())
       .messageDiffTime("Continuing through after error ggplot for TSS by Frags", tstart)
       print(x)
       message("\n")

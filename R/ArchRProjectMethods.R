@@ -636,52 +636,63 @@ plotPDF <- function(..., name = "Plot", width = 6,
     sink(tmpFile)
   }
 
-  pdf(filename, width = width, height = height, useDingbats = useDingbats)
-  for(i in seq_along(plotList)){
-    
-    if(inherits(plotList[[i]], "gg")){
-      
-      print("plotting ggplot!")
+  o <- tryCatch({
 
-      if(!is.null(attr(plotList[[i]], "ratioYX"))){
-        print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE))
+    pdf(filename, width = width, height = height, useDingbats = useDingbats)
+    for(i in seq_along(plotList)){
+      
+      if(inherits(plotList[[i]], "gg")){
+        
+        print("plotting ggplot!")
+
+        if(!is.null(attr(plotList[[i]], "ratioYX"))){
+          print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE))
+        }else{
+          print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
+        }
+
+        if(i != length(plotList)){
+          grid::grid.newpage()
+        }
+      
+      }else if(inherits(plotList[[i]], "gtable")){
+        
+        print(grid::grid.draw(plotList[[i]]))
+        if(i != length(plotList)){
+          grid::grid.newpage()
+        }
+      }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
+        padding <- 45
+        draw(plotList[[i]], 
+          padding = unit(c(padding, padding, padding, padding), "mm"), 
+          heatmap_legend_side = "bot", 
+          annotation_legend_side = "bot"
+        )
+
       }else{
-        print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
-      }
 
-      if(i != length(plotList)){
-        grid::grid.newpage()
-      }
-    
-    }else if(inherits(plotList[[i]], "gtable")){
-      
-      print(grid::grid.draw(plotList[[i]]))
-      if(i != length(plotList)){
-        grid::grid.newpage()
-      }
-    }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
-      padding <- 45
-      draw(plotList[[i]], 
-        padding = unit(c(padding, padding, padding, padding), "mm"), 
-        heatmap_legend_side = "bot", 
-        annotation_legend_side = "bot"
-      )
+        print("plotting with print")
+       
+        print(plotList[[i]])
 
-    }else{
-
-      print("plotting with print")
-     
-      print(plotList[[i]])
+      }
 
     }
+    dev.off()
 
-  }
-  dev.off()
+    if(useSink){
+      sink()
+      file.remove(tmpFile)
+    }
 
-  if(useSink){
-    sink()
-    file.remove(tmpFile)
-  }
+  }, error = function(x){
+
+    suppressWarnings(sink())
+    message(x)
+
+  })
+
+  return(0)
 
 }
 
@@ -813,3 +824,152 @@ getValidBarcodes <- function(csvFiles, sampleNames, ...){
 
 }
 
+
+#' Save ArchRProject for Later Usage
+#' 
+#' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param copyArrows A boolean indicating whether to copy or copy + remove original ArrowFiles prior to saving ArchRProject.
+#' @export
+saveArchRProject <- function(
+  ArchRProj = NULL, 
+  copyArrows = TRUE
+  ){
+
+  outputDir <- getOutputDirectory(ArchRProj)
+  
+  #Set Up Arrow Files
+  ArrowDir <- file.path(basename(outputDir), "ArrowFiles")
+  dir.create(ArrowDir, showWarnings = FALSE)
+
+  ArrowFiles <- getArrowFiles(ArchRProj)
+  ArrowFilesNew <- file.path(ArrowDir, basename(ArrowFiles))
+  names(ArrowFilesNew) <- names(ArrowFiles)
+
+  for(i in seq_along(ArrowFiles)){
+    cf <- file.copy(ArrowFiles[i], ArrowFilesNew[i])
+    if(!copyArrows){
+      file.remove(ArrowFiles[i])
+    }
+  }
+
+  ArchRProj@sampleColData$ArrowFiles <- ArrowFilesNew[rownames(ArchRProj@sampleColData)]
+
+  saveRDS(ArchRProj, file.path(outputDir, "Save-ArchR-Project.rds"))
+
+}
+
+#' Load Previous ArchRProject into R
+#' 
+#' This function will load a previously saved ArchRProject and re-normalize paths for usage.
+#' 
+#' @param path A character path to an ArchRProject directory that was previously saved.
+#' @param force A boolean indicating when re-normalizing paths if an annotation/bdgPeaks is not found ignore and continue
+#' @param showLogo show ArchRLogo upon completion.
+#' @export
+loadArchRProject <- function(
+  path = "./", 
+  force = FALSE, 
+  showLogo = TRUE
+  ){
+
+  path2Proj <- file.path(path, "Save-ArchR-Project.rds")
+  
+  if(!file.exists(path2Proj)){
+    stop("Could not find previously saved ArchRProject in the path specified!")
+  }
+
+  ArchRProj <- readRDS(path2Proj)
+
+  outputDir <- getOutputDirectory(ArchRProj)
+  outputDirNew <- normalizePath(path)
+
+  #1. Arrows Paths
+  ArrowFilesNew <- file.path(outputDirNew, gsub(paste0(basename(outputDir),"/"),"",ArchRProj@sampleColData$ArrowFiles))
+  if(!all(file.exists(ArrowFilesNew))){
+    stop("ArrowFiles do not exist in saved ArchRProject!")
+  }
+  ArchRProj@sampleColData$ArrowFiles <- ArrowFilesNew
+
+  #2. Annotations Paths
+
+  if(length(ArchRProj@annotations) > 0){
+    
+    keepAnno <- rep(TRUE, length(ArchRProj@annotations))
+
+    for(i in seq_along(ArchRProj@annotations)){
+      #Postions
+      if(!is.null(ArchRProj@annotations[[i]]$Positions)){
+
+        PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@annotations[[i]]$Positions)
+        if(!all(file.exists(PositionsNew))){
+          if(force){
+            keepAnno[i] <- FALSE
+            message("Positions for Annotation do not exist in saved ArchRProject!")
+          }else{
+            stop("Positions for Annotation do not exist in saved ArchRProject!")
+          }
+        }
+        ArchRProj@annotations[[i]]$Positions <- PositionsNew
+
+      }
+
+      #Matches
+      if(!is.null(ArchRProj@annotations[[i]]$Matches)){
+
+        MatchesNew <- gsub(outputDir, outputDirNew, ArchRProj@annotations[[i]]$Matches)
+        if(!all(file.exists(MatchesNew))){
+          if(force){
+            message("Matches for Annotation do not exist in saved ArchRProject!")
+            keepAnno[i] <- FALSE
+          }else{
+            stop("Matches for Annotation do not exist in saved ArchRProject!")
+          }
+        }
+        ArchRProj@annotations[[i]]$Matches <- MatchesNew
+
+      }
+
+    }
+
+    ArchRProj@annotations <- ArchRProj@annotations[keepAnno]
+
+  }
+
+
+  #3. Background Peaks Paths
+
+  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+
+    bgdPeaksNew <- gsub(outputDir, outputDirNew, metadata(getPeakSet(ArchRProj))$bgdPeaks)
+
+    if(!all(file.exists(bgdPeaksNew))){
+      
+      if(force){
+        message("BackgroundPeaks do not exist in saved ArchRProject!")
+        metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
+      }else{
+        stop("BackgroundPeaks do not exist in saved ArchRProject!")
+      }
+
+    }else{
+
+      metadata(ArchRProj@peakSet)$bgdPeaks <- bgdPeaksNew
+
+    }    
+
+  }
+
+  #4. Set Output Directory 
+
+  ArchRProj@projectMetadata$outputDirectory <- outputDirNew
+
+  message("Successfully loaded ArchRProject!")
+  if(showLogo){
+      .ArchRLogo(ascii = "Logo")
+  }  
+
+  ArchRProj
+
+}

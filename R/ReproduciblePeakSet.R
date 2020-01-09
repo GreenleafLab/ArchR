@@ -203,7 +203,7 @@ addReproduciblePeakSet <- function(
 
 	.messageDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart)
 
-	closeAllConnections()
+    suppressWarnings(sink())
 
 	return(ArchRProj)
 

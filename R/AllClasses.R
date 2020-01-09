@@ -74,7 +74,7 @@ ArchRProject <- function(
   if(length(sampleNames) != length(ArrowFiles)) stop("Samples is not equal to input ArrowFiles!")
 
   dir.create(outputDirectory,showWarnings=FALSE)
-  sampleDirectory <- file.path(normalizePath(outputDirectory),"InputArrows")
+  sampleDirectory <- file.path(normalizePath(outputDirectory), "ArrowFiles")
   dir.create(sampleDirectory,showWarnings=FALSE)
 
   if(copyArrows){
