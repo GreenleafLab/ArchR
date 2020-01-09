@@ -1131,7 +1131,7 @@ markerAnnoEnrich <- function(
   ArchRProj = NULL,
   annotations = NULL,
   matches = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
   background = "bgdPeaks",
   ...){
 
@@ -1254,7 +1254,7 @@ markerAnnoEnrich <- function(
 #' @export
 markerRanges <- function(
   seMarker,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
   ...
   ){
   

@@ -4,7 +4,7 @@
 \alias{markerRanges}
 \title{QQQ}
 \usage{
-markerRanges(seMarker, cutOff = "FDR <= 0.01 & Log2FC >= 0.5", ...)
+markerRanges(seMarker, cutOff = "FDR <= 0.1 & Log2FC >= 0.5", ...)
 }
 \arguments{
 \item{seMarker}{QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.}
