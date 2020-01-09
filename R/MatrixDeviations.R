@@ -49,7 +49,7 @@ addDeviationsMatrix <- function(
   ##############################################################
   print(matches)
   if(is.null(matches)){
-    anno <- getAnnotation(ArchRProj, annotations)
+    anno <- getPeakAnnotation(ArchRProj, annotations)
     matches <- readRDS(anno$Matches)
     if(is.null(matrixName)){
       matrixName <- paste0(anno$Name, "Matrix")

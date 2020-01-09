@@ -11,16 +11,16 @@
 #' @param name QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.
 #' @param ... additional args
 #' @export
-getAnnotation <- function(ArchRProj, name = NULL, ...){
+getPeakAnnotation <- function(ArchRProj, name = NULL, ...){
   ArchRProj <- .validArchRProject(ArchRProj)
   if(is.null(name)){
     name <- 1
   }else{
-    if(name %ni% names(ArchRProj@annotations)){
-      stop("Name is not in Annotations!")
+    if(name %ni% names(ArchRProj@peakAnnotation)){
+      stop("Name is not in peakAnnotation!")
     }
   }
-  ArchRProj@annotations[[name]]
+  ArchRProj@peakAnnotation[[name]]
 }
 
 #' Get annotation positions from an ArchRProject
@@ -37,14 +37,14 @@ getPositions <- function(ArchRProj, name = NULL, annoName = NULL, ...){
   if(is.null(name)){
     name <- 1
   }else{
-    if(name %ni% names(ArchRProj@annotations)){
-      stop("Name is not in Annotations!")
+    if(name %ni% names(ArchRProj@peakAnnotation)){
+      stop("Name is not in peakAnnotation!")
     }
   }
-  anno <- ArchRProj@annotations[[name]]
+  anno <- ArchRProj@peakAnnotation[[name]]
   idx <- grep("positions", names(anno), ignore.case=TRUE)
   if(length(idx)==0){
-    stop("Annotation does not contain positions!")
+    stop("peakAnnotation does not contain positions!")
   }
   positions <- readRDS(anno[[idx]])
   if(!is.null(annoName)){
@@ -71,14 +71,14 @@ getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
   if(is.null(name)){
     name <- 1
   }else{
-    if(name %ni% names(ArchRProj@annotations)){
-      stop("Name is not in Annotations!")
+    if(name %ni% names(ArchRProj@peakAnnotation)){
+      stop("Name is not in peakAnnotation!")
     }
   }
-  anno <- ArchRProj@annotations[[name]]
+  anno <- ArchRProj@peakAnnotation[[name]]
   idx <- grep("matches", names(anno), ignore.case=TRUE)
   if(length(idx)==0){
-    stop("Annotation does not contain positions!")
+    stop("peakAnnotation does not contain positions!")
   }
   matches <- readRDS(anno[[idx]])
   if(!is.null(annoName)){
@@ -245,11 +245,11 @@ addMotifAnnotations <- function(
   savePositions <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Positions-In-Peaks.rds"))
   saveMatches <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Matches-In-Peaks.rds"))
 
-  ArchRProj@annotations[[name]]$Name <- name
-  ArchRProj@annotations[[name]]$motifs <- motifs
-  ArchRProj@annotations[[name]]$motifSummary <- motifSummary
-  ArchRProj@annotations[[name]]$Positions <- savePositions
-  ArchRProj@annotations[[name]]$Matches <- saveMatches
+  ArchRProj@peakAnnotation[[name]]$Name <- name
+  ArchRProj@peakAnnotation[[name]]$motifs <- motifs
+  ArchRProj@peakAnnotation[[name]]$motifSummary <- motifSummary
+  ArchRProj@peakAnnotation[[name]]$Positions <- savePositions
+  ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
 
   saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
   saveRDS(out$motifPositions, savePositions, compress = FALSE)

@@ -1,21 +1,328 @@
 ##########################################################################################
-# Validation Methods
+# Create Gene/Genome Annotation
 ##########################################################################################
 
-.validArchRProject <- function(ArchRProj, ...){
-  if(!inherits(ArchRProj, "ArchRProject")){
-    stop("Not a valid ArchRProject as input!")
+#' Create Genome Annotation for ArchR
+#' 
+#' This function will create a genome annotation that can be used for createArrowFiles, ArchRProject, etc.
+#' 
+#' @param genome A string that points to a BSgenome or a BSgenome object (ie hg38, BSgenome.Hsapiens.UCSC.hg38).
+#' @param chromSizes A GRanges of chromosome start and end coordinates.
+#' @param blacklist A GRanges of regions that should be excluded from analyses due to unwanted biases.
+#' @param filter A boolean indicating whether non-normal chromosome scaffolds should be excluded.
+#' @export
+createGenomeAnnotation <- function(
+  genome = NULL,
+  chromSizes = NULL,
+  blacklist = NULL,
+  filter = TRUE
+  ){
+
+  if(is.null(genome) | is.null(blacklist) | is.null(chromSizes)){
+
+    ##################
+    message("Getting genome...")
+    bsg <- .validBSgenome(genome)
+    genome <- bsg@pkgname
+
+    ##################
+    message("Getting chromSizes...")
+    chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
+    if(filter){
+        chromSizes <- keepFilteredChromosomes(chromSizes)
+    }
+    seqlengths(chromSizes) <- end(chromSizes)
+
+    ##################
+    message("Getting blacklist...")
+    blacklist <- .getBlacklist(genome = bsg@provider_version)
+
   }else{
-    ArchRProj
+
+    bsg <- .validBSgenome(genome)
+    genome <- bsg@pkgname
+    
+    chromSizes <- .validGRanges(chromSizes)
+    
+    blacklist <- .validGRanges(blacklist)
+
   }
+
+  SimpleList(genome = genome, chromSizes = chromSizes, blacklist = blacklist)
+
+}
+
+#' Create Gene Annotation for ArchR
+#' 
+#' This function will create a gene annotation that can be used for createArrowFiles, ArchRProject, etc.
+#' 
+#' @param genome A string that specifies the genome (ie hg38, hg19, mm10, mm9).
+#' @param TxDb A transcript database from Bioconductor which contains information for gene/transcript coordinates.
+#' @param OrgDb An organism database from Bioconductor which contains information for gene/transcript symbols from ids.
+#' @param genes A GRanges of gene coordinates (start to end). Needs to have a symbols column matching the exons symbols column.
+#' @param exons A GRanges of gene exon coordinates. Needs to have a symbols column matching the genes symbols column
+#' @param TSS A GRanges of transcription start sites (stranded) for computing TSS enrichment scores downstream.
+#' @export
+createGeneAnnnotation <- function(
+  genome = NULL,
+  TxDb = NULL,
+  OrgDb = NULL,
+  genes = NULL,
+  exons = NULL,
+  TSS = NULL
+  ){
+
+  if(is.null(genes) | is.null(exons) | is.null(TSS)){
+
+    inGenes <- genes
+    inExons <- exons
+    inTSS <- TSS
+
+    .requirePackage("GenomicFeatures")
+
+    if(is.null(genome)) {
+      if (is.null(TxDb) | is.null(OrgDb)) {
+          stop("If no provided genome then you need TxDb and OrgDb!")
+      }
+    }
+
+    if(!is.null(genome)){
+      TxDb <- .getTxDb(genome)
+      OrgDb <- .getOrgDb(genome)
+    }
+
+    ###########################
+    message("Getting Genes...")
+    genes <- GenomicFeatures::genes(TxDb)
+    mcols(genes)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, 
+        column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
+    names(genes) <- NULL
+    genes <- sort(sortSeqlevels(genes), ignore.strand = TRUE)
+
+    ###########################
+    message("Getting Exons...")
+    exons <- unlist(GenomicFeatures::exonsBy(TxDb, by = "tx"))
+    exons$tx_id <- names(exons)
+    mcols(exons)$gene_id <- suppressMessages(AnnotationDbi::select(TxDb, keys = paste0(mcols(exons)$tx_id), 
+        column = "GENEID", keytype = "TXID")[, "GENEID"])
+    exons <- exons[!is.na(mcols(exons)$gene_id), ]
+    mcols(exons)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(exons)$gene_id, 
+        column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
+    names(exons) <- NULL
+    mcols(exons)$exon_id <- NULL
+    mcols(exons)$exon_name <- NULL
+    mcols(exons)$exon_rank <- NULL
+    mcols(exons)$tx_id <- NULL
+    exons <- sort(sortSeqlevels(exons), ignore.strand = TRUE)
+
+    ###########################
+    message("Getting TSS...")
+    TSS <- unique(resize(GenomicFeatures::transcripts(TxDb), width = 1, fix = "start"))
+
+    if(!is.null(inGenes)){
+      genes <- .validGRanges(inGenes)
+    }
+
+    if(!is.null(inExons)){
+      exons <- .validGRanges(inExons)
+    }
+
+    if(!is.null(inTSS)){
+      TSS <- .validGRanges(inTSS)
+    }
+
+  }else{
+
+    genes <- .validGRanges(genes)
+    exons <- .validGRanges(exons)
+    TSS <- unique(.validGRanges(TSS))
+
+  }
+
+  SimpleList(genes = genes, exons = exons, TSS = TSS)
+
+}
+
+.getBlacklist <- function(genome){
+  
+  encodeBL <- c(
+    "hg19" = "https://github.com/Boyle-Lab/Blacklist/raw/master/lists/hg19-blacklist.v2.bed.gz",
+    "hg38" = "https://github.com/Boyle-Lab/Blacklist/raw/master/lists/hg38-blacklist.v2.bed.gz",
+    "mm10" = "https://github.com/Boyle-Lab/Blacklist/raw/master/lists/mm10-blacklist.v2.bed.gz",
+    "mm9" = "https://github.com/Boyle-Lab/Blacklist/raw/master/lists/Blacklist_v1/mm9-blacklist.bed.gz",
+    "ce10" = "http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/ce10-C.elegans/ce10-blacklist.bed.gz",
+    "dm3" = "http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/dm3-D.melanogaster/dm3-blacklist.bed.gz"
+  )
+
+  if(tolower(genome) %in% names(encodeBL)){
+    bl <- tryCatch({
+      blacklist <- import.bed(encodeBL[tolower(genome)])
+    }, error = function(x){
+      message("Blacklist not downloaded! Continuing without, be careful for downstream biases...")
+      GRanges()
+    })
+  }else{
+    message("Blacklist not downloaded! Continuing without, be careful for downstream biases...")
+    bl <- GRanges()
+  }
+
+  bl
+
+}
+
+.getTxDb <- function(genome, filter = TRUE, install = TRUE){
+
+  if(toupper(genome) == "HG19"){
+    if(suppressWarnings(!require(TxDb.Hsapiens.UCSC.hg19.knownGene))){
+      if(install){
+        message("Package does not exist, now trying bioconductor...")
+        BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene", update=FALSE)
+      }else{
+        stop("TxDb.Hsapiens.UCSC.hg19.knownGene is not installed!")
+      }
+    }
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+  }else if(toupper(genome) == "HG38"){
+    if(suppressWarnings(!require(TxDb.Hsapiens.UCSC.hg38.knownGene))){
+      if(install){
+        message("Package does not exist, now trying bioconductor...")
+        BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene", update=FALSE)
+      }else{
+        stop("TxDb.Hsapiens.UCSC.hg38.knownGene is not installed!")
+      }
+    }
+    library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+    txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
+  }else if(toupper(genome) == "MM9"){
+    if(suppressWarnings(!require(TxDb.Mmusculus.UCSC.mm9.knownGene))){
+      if(install){
+        message("Package does not exist, now trying bioconductor...")
+        BiocManager::install("TxDb.Mmusculus.UCSC.mm9.knownGene", update=FALSE)
+      }else{
+        stop("TxDb.Mmusculus.UCSC.mm9.knownGene is not installed!")
+      }
+    }
+    library(TxDb.Mmusculus.UCSC.mm9.knownGene)
+    txdb <- TxDb.Mmusculus.UCSC.mm9.knownGene
+  }else if(toupper(genome) == "MM10"){
+    if(suppressWarnings(!require(TxDb.Mmusculus.UCSC.mm10.knownGene))){
+      if(install){
+        message("Package does not exist, now trying bioconductor...")
+        BiocManager::install("TxDb.Mmusculus.UCSC.mm10.knownGene", update=FALSE)
+      }else{
+        stop("TxDb.Mmusculus.UCSC.mm10.knownGene is not installed!")
+      }
+    }
+    library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+    txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
+  }else if(toupper(genome) == "SACCER3"){
+    if(suppressWarnings(!require(TxDb.Scerevisiae.UCSC.sacCer3.sgdGene))){
+      if(install){
+        message("Package does not exist, now trying bioconductor...")
+        BiocManager::install("TxDb.Scerevisiae.UCSC.sacCer3.sgdGene", update=FALSE)
+      }else{
+        stop("TxDb.Scerevisiae.UCSC.sacCer3.sgdGene is not installed!")
+      }
+    }
+    library(TxDb.Scerevisiae.UCSC.sacCer3.sgdGene)
+    txdb <- TxDb.Scerevisiae.UCSC.sacCer3.sgdGene
+  }else if(toupper(genome) == "RHEMAC8"){
+    if(suppressWarnings(!require(TxDb.Mmulatta.UCSC.rheMac8.refGene))){
+      if(install){
+        message("Package does not exist, now trying bioconductor...")
+        BiocManager::install("TxDb.Mmulatta.UCSC.rheMac8.refGene", update=FALSE)
+      }else{
+        stop("TxDb.Mmulatta.UCSC.rheMac8.refGene is not installed!")
+      }
+    }
+    library(TxDb.Mmulatta.UCSC.rheMac8.refGene)
+    txdb <- TxDb.Mmulatta.UCSC.rheMac8.refGene
+  }else{
+    stop("Genome not recognized!")
+  }
+
+  if(filter){
+    txdb <- keepFilteredChromosomes(txdb)
+  }
+
+  return(txdb)
+
+}
+
+.getOrgDb <- function(genome){
+
+  if(toupper(genome) == "HG19" | toupper(genome) == "HG38"){
+    if(suppressWarnings(!require(org.Hs.eg.db))){
+      message("Package does not exist, now trying bioconductor...")
+      BiocManager::install("org.Hs.eg.db", update=FALSE)
+    }
+    library(org.Hs.eg.db)
+    annodb <- org.Hs.eg.db
+  }else if(toupper(genome) == "MM9" | toupper(genome) == "MM10"){
+    if(suppressWarnings(!require(org.Mm.eg.db))){
+      message("Package does not exist, now trying bioconductor...")
+      BiocManager::install("org.Mm.eg.db", update=FALSE)
+    }
+    library(org.Mm.eg.db)
+    annodb <- org.Mm.eg.db
+  }else{
+    stop("Genome not recognized!")
+  }
+  return(annodb)
+
 }
 
 .validGeneAnnotation <- function(geneAnnotation, ...){
-  # Need to put this code
+  
+  if(!inherits(geneAnnotation, "SimpleList")){
+    if(inherits(geneAnnotation, "list")){
+      geneAnnotation <- as(geneAnnotation, "SimpleList")
+    }else{
+      stop("geneAnnotation must be a list/SimpleList of 3 GRanges for : Genes GRanges, Exons GRanges and TSS GRanges!")
+    }
+  }
+  if(identical(sort(tolower(names(geneAnnotation))), c("exons", "genes", "tss"))){
+
+    gA <- SimpleList()
+    gA$genes <- .validGRanges(geneAnnotation[[grep("genes", names(geneAnnotation), ignore.case = TRUE)]])
+    gA$exons <- .validGRanges(geneAnnotation[[grep("exons", names(geneAnnotation), ignore.case = TRUE)]])
+    gA$TSS <- .validGRanges(geneAnnotation[[grep("TSS", names(geneAnnotation), ignore.case = TRUE)]])
+
+  }else{
+    stop("geneAnnotation must be a list/SimpleList of 3 GRanges for : Genes GRanges, Exons GRanges and TSS GRanges!")
+  }
+
+  gA
+
 }
 
 .validGenomeAnnotation <- function(genomeAnnotation, ...){
-  # Need to put this code
+  
+  if(!inherits(genomeAnnotation, "SimpleList")){
+    if(inherits(genomeAnnotation, "list")){
+      genomeAnnotation <- as(genomeAnnotation, "SimpleList")
+    }else{
+      stop("genomeAnnotation must be a list/SimpleList of 3 GRanges for : blacklist GRanges, chromSizes GRanges and genome BSgenome package string (ie hg38 or BSgenome.Hsapiens.UCSC.hg38)!")
+    }
+  }
+  
+  if(identical(sort(tolower(names(genomeAnnotation))), c("blacklist", "chromsizes", "genome"))){
+
+    gA <- SimpleList()
+    gA$blacklist <- .validGRanges(genomeAnnotation[[grep("blacklist", names(genomeAnnotation), ignore.case = TRUE)]])
+    bsg <- .validBSgenome(genomeAnnotation[[grep("genome", names(genomeAnnotation), ignore.case = TRUE)]])
+    gA$genome <- bsg@pkgname
+    gA$chromSizes <- .validGRanges(genomeAnnotation[[grep("chromsizes", names(genomeAnnotation), ignore.case = TRUE)]])
+
+  }else{
+
+    stop("genomeAnnotation must be a list/SimpleList of 3 GRanges for : blacklist GRanges, chromSizes GRanges and genome BSgenome package string (ie hg38 or BSgenome.Hsapiens.UCSC.hg38)!")
+  
+  }
+
+  gA
+
 }
 
 ##########################################################################################
@@ -894,46 +1201,46 @@ loadArchRProject <- function(
 
   #2. Annotations Paths
 
-  if(length(ArchRProj@annotations) > 0){
+  if(length(ArchRProj@peakAnnotation) > 0){
     
-    keepAnno <- rep(TRUE, length(ArchRProj@annotations))
+    keepAnno <- rep(TRUE, length(ArchRProj@peakAnnotation))
 
-    for(i in seq_along(ArchRProj@annotations)){
+    for(i in seq_along(ArchRProj@peakAnnotation)){
       #Postions
-      if(!is.null(ArchRProj@annotations[[i]]$Positions)){
+      if(!is.null(ArchRProj@peakAnnotation[[i]]$Positions)){
 
-        PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@annotations[[i]]$Positions)
+        PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Positions)
         if(!all(file.exists(PositionsNew))){
           if(force){
             keepAnno[i] <- FALSE
-            message("Positions for Annotation do not exist in saved ArchRProject!")
+            message("Positions for peakAnnotation do not exist in saved ArchRProject!")
           }else{
-            stop("Positions for Annotation do not exist in saved ArchRProject!")
+            stop("Positions for peakAnnotation do not exist in saved ArchRProject!")
           }
         }
-        ArchRProj@annotations[[i]]$Positions <- PositionsNew
+        ArchRProj@peakAnnotation[[i]]$Positions <- PositionsNew
 
       }
 
       #Matches
-      if(!is.null(ArchRProj@annotations[[i]]$Matches)){
+      if(!is.null(ArchRProj@peakAnnotation[[i]]$Matches)){
 
-        MatchesNew <- gsub(outputDir, outputDirNew, ArchRProj@annotations[[i]]$Matches)
+        MatchesNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Matches)
         if(!all(file.exists(MatchesNew))){
           if(force){
-            message("Matches for Annotation do not exist in saved ArchRProject!")
+            message("Matches for peakAnnotation do not exist in saved ArchRProject!")
             keepAnno[i] <- FALSE
           }else{
-            stop("Matches for Annotation do not exist in saved ArchRProject!")
+            stop("Matches for peakAnnotation do not exist in saved ArchRProject!")
           }
         }
-        ArchRProj@annotations[[i]]$Matches <- MatchesNew
+        ArchRProj@peakAnnotation[[i]]$Matches <- MatchesNew
 
       }
 
     }
 
-    ArchRProj@annotations <- ArchRProj@annotations[keepAnno]
+    ArchRProj@peakAnnotation <- ArchRProj@peakAnnotation[keepAnno]
 
   }
 

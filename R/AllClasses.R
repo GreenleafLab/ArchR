@@ -4,7 +4,6 @@ NULL
 
 setClassUnion("characterOrNull", c("character", "NULL"))
 setClassUnion("GRangesOrNull", c("GRanges", "NULL"))
-setClassUnion("matrixOrNull",members = c("dgCMatrix","NULL"))
 
 setClass("ArchRProject", 
   representation(
@@ -13,13 +12,13 @@ setClass("ArchRProject",
     sampleColData = "DataFrame",
     sampleMetadata = "SimpleList",
     cellColData = "DataFrame", 
-    cellMetadata = "SimpleList", #Where clustering output will go to
-    reducedDims = "SimpleList", #Where clustering output will go to
-    embeddings = "SimpleList", #Where clustering output will go to
+    cellMetadata = "SimpleList", 
+    reducedDims = "SimpleList",
+    embeddings = "SimpleList",
     peakSet = "GRangesOrNull",
-    annotations = "SimpleList", #MotifMatches ETC go here
-    geneAnnotation = "SimpleList", #genes exons TSS
-    genomeAnnotation = "SimpleList", #genome chromSizes BSgenome blacklist
+    peakAnnotation = "SimpleList",
+    geneAnnotation = "SimpleList",
+    genomeAnnotation = "SimpleList",
     imputeWeights = "SimpleList"
   )
 )
@@ -44,15 +43,25 @@ setMethod("show", "ArchRProject",
   }
 )
 
+#' Create ArchRProject from ArrowFiles
+#' 
+#' This function will create an ArchRProject with given ArrowFiles.
+#'
+#' @param ArrowFiles A character vector containing the names of ArrowFiles to be used.
+#' @param outputDirectory A name for the relative path of the outputDirectory for ArchR results 
+#' @param copyArrows A boolean indicating whether ArrowFiles should be copied into outputDirectory
+#' @param geneAnnotation 
+#' @param genomeAnnotation 
+#' @param showLogo A boolean indicating whether to show ArchR Logo after successful creation of an ArchRProject.
 #' @export
 ArchRProject <- function(
-  ArrowFiles=NULL, 
-  sampleNames=NULL, 
-  outputDirectory = "ArchR_Results", 
+  ArrowFiles = NULL, 
+  outputDirectory = "ArchR_Output", 
   copyArrows = FALSE,
   geneAnnotation = NULL,
   genomeAnnotation = NULL,
-  showLogo = TRUE){
+  showLogo = TRUE
+  ){
 
   if(is.null(ArrowFiles)){
     stop("Need to Provide Arrow Files!")
@@ -62,10 +71,8 @@ ArchRProject <- function(
   message("Validating Arrows...")
   ArrowFiles <- unlist(lapply(ArrowFiles, .validArrow))
 
-  if(is.null(sampleNames)){
-    message("Getting SampleNames...")
-    sampleNames <- unlist(lapply(seq_along(ArrowFiles), function(x) .sampleName(ArrowFiles[x])))
-  }
+  message("Getting SampleNames...")
+  sampleNames <- unlist(lapply(seq_along(ArrowFiles), function(x) .sampleName(ArrowFiles[x])))
 
   if(any(duplicated(sampleNames))){
     stop("Error cannot have duplicate sampleNames, please add sampleNames that will overwrite the current sample name in Arrow file!")
@@ -102,9 +109,12 @@ ArchRProject <- function(
     cellMetadata = SimpleList(),
     reducedDims = SimpleList(),
     embeddings = SimpleList(),
-    annotations = SimpleList(),
+    peakSet = NULL,
+    peakAnnotation = SimpleList(),
     geneAnnotation = geneAnnotation,
-    genomeAnnotation = genomeAnnotation)
+    genomeAnnotation = genomeAnnotation
+  )
+  
   if(showLogo){
     .ArchRLogo(ascii = "Logo") 
   }
@@ -113,5 +123,14 @@ ArchRProject <- function(
 
   proj
 
+}
+
+#Validity
+.validArchRProject <- function(ArchRProj, ...){
+  if(!inherits(ArchRProj, "ArchRProject")){
+    stop("Not a valid ArchRProject as input!")
+  }else{
+    ArchRProj
+  }
 }
 
