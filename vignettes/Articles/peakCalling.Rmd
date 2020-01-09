@@ -34,6 +34,10 @@ Iterative overlap removal avoids the issues mentioned above. Peaks are first ran
 
 ### Comparison of Peak Calling Methods
 
-Comparing the peak calls resulting from all of these methods directly shows clear differences in the final peak sets.
+Comparing the peak calls resulting from all of these methods directly shows clear differences in the final peak sets. It is our opinion that the iterative overlap peak merging process yields the best peak set with the fewest caveats.
 
 ![](peakCalling_Comparison.png){width=350px}
+
+### What if I don't like this iterative overlap peak merging process?
+
+The iterative overlap peak merging process is implemented by ArchR via `addReproduciblePeakSet()` but you can always use your own peak set via `ArchRProj <- addPeakSet(...)`.

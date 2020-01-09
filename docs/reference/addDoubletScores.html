@@ -8,6 +8,13 @@
 
 <title>Add Doublet Scores to a collection of Arrow files or an ArchRProject — addDoubletScores • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -37,6 +44,8 @@
 <meta property="og:description" content="For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
 to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -97,7 +106,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -106,7 +115,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -170,11 +179,11 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>An ArchRProject object or a set of ArrowFiles.</p></td>
+      <td><p>An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>The name of the matrix to be used for performing doublet identification analyses.</p></td>
+      <td><p>QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.</p></td>
     </tr>
     <tr>
       <th>k</th>
@@ -182,7 +191,15 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>nTrials</th>
-      <td><p>The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5N trials.</p></td>
+      <td><p>QQQ The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.</p></td>
+    </tr>
+    <tr>
+      <th>dimsToUse</th>
+      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
+    </tr>
+    <tr>
+      <th>corCutOff</th>
+      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>knnMethod</th>
@@ -190,11 +207,11 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>UMAPParams</th>
-      <td><p>The list of parameters to pass to the UMAP function. See the function umap in the uwot package.</p></td>
+      <td><p>The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function umap in the uwot package.</p></td>
     </tr>
     <tr>
       <th>LSIParams</th>
-      <td><p>The list of parameters to pass to the IterativeLSI. See IterativeLSI.</p></td>
+      <td><p>QQQ The list of parameters to pass to the IterativeLSI function if QQQ. See IterativeLSI.</p></td>
     </tr>
     <tr>
       <th>outDir</th>
@@ -202,11 +219,11 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>The number threads to be used for parallel computing.</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>QQQ A list of parameters to be used for batch-style parallel computing.</p></td>
+      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
@@ -219,10 +236,6 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     <tr>
       <th>...</th>
       <td><p>additional args</p></td>
-    </tr>
-    <tr>
-      <th>useClusters</th>
-      <td><p>QQQ A boolean value that determins QQQ</p></td>
     </tr>
     </table>
     
@@ -240,7 +253,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

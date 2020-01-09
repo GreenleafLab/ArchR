@@ -8,6 +8,13 @@
 
 <title>Add Supervised Trajectory to an ArchR Project — addTrajectory • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -36,6 +43,8 @@
 
 <meta property="og:description" content="This function will fit a supervised trajectory in a lower dimensional space that 
 can then be used for downstream analyses." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +105,7 @@ can then be used for downstream analyses." />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -105,7 +114,7 @@ can then be used for downstream analyses." />
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -166,15 +175,15 @@ can then be used for downstream analyses.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>name of fitted trajectory to be added in cellColData</p></td>
+      <td><p>A string indicating the name of the fitted trajectory to be added in `cellColData`.</p></td>
     </tr>
     <tr>
       <th>trajectory</th>
-      <td><p>trajectory of groups to constrain supervised fitting (in order)</p></td>
+      <td><p>Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
@@ -182,35 +191,31 @@ can then be used for downstream analyses.</p>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>name of reduced dimensions used for distance computation</p></td>
+      <td><p>A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.</p></td>
     </tr>
     <tr>
       <th>preFilter</th>
-      <td><p>pre filtering quantile for supervised trajectory fit</p></td>
+      <td><p>QQQ UNCLEAR pre filtering quantile for supervised trajectory fit</p></td>
     </tr>
     <tr>
       <th>postFilter</th>
-      <td><p>post filtering quantile for supervised trajectory fit</p></td>
+      <td><p>QQQ UNCLEAR post filtering quantile for supervised trajectory fit</p></td>
     </tr>
     <tr>
       <th>dof</th>
-      <td><p>degrees of freedom</p></td>
+      <td><p>QQQ The number of degrees of freedom to be used in QQQ.</p></td>
     </tr>
     <tr>
       <th>spar</th>
-      <td><p>sparsity</p></td>
+      <td><p>QQQ sparsity</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>force addition into ArchRProject if the column name exists</p></td>
+      <td><p>QQQ A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional args</p></td>
-    </tr>
-    <tr>
-      <th>name</th>
-      <td><p>name of column in cellColData or Feature in Array in Arrows</p></td>
     </tr>
     </table>
     
@@ -228,7 +233,7 @@ can then be used for downstream analyses.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compute Iterative LSI — addIterativeLSI • ArchR</title>
+<title>Add an Iterative LSI-based dimensionality reduction to an ArchRProject — addIterativeLSI • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,10 +39,12 @@
 
 
 
-<meta property="og:title" content="Compute Iterative LSI — addIterativeLSI" />
+<meta property="og:title" content="Add an Iterative LSI-based dimensionality reduction to an ArchRProject — addIterativeLSI" />
 
 <meta property="og:description" content="This function will compute an iterative LSI dimensionality reduction
 on an ArchRProject." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +105,7 @@ on an ArchRProject." />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -105,7 +114,7 @@ on an ArchRProject." />
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -144,7 +153,7 @@ on an ArchRProject." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compute Iterative LSI</h1>
+    <h1>Add an Iterative LSI-based dimensionality reduction to an ArchRProject</h1>
     
     <div class="hidden name"><code>addIterativeLSI.Rd</code></div>
     </div>
@@ -172,91 +181,99 @@ on an ArchRProject.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>use matrix for LSI clustering from Arrow</p></td>
+      <td><p>QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.</p></td>
     </tr>
     <tr>
       <th>reducedDimsOut</th>
-      <td><p>name of dimensionality reduction to be stored as</p></td>
+      <td><p>QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.</p></td>
     </tr>
     <tr>
       <th>iterations</th>
-      <td><p>number of LSI iterations to perform</p></td>
+      <td><p>The number of LSI iterations to perform.</p></td>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>number of dimensions to compute and use from LSI (TFIDF-SVD) for clustering</p></td>
+      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
+    </tr>
+    <tr>
+      <th>corCutOff</th>
+      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
+    </tr>
+    <tr>
+      <th>LSIMethod</th>
+      <td><p>QQQ</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>binarize matrix prior to LSI</p></td>
+      <td><p>A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.</p></td>
     </tr>
     <tr>
       <th>sampleCells</th>
-      <td><p>number of cells to sample for LSI estimation</p></td>
+      <td><p>A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.</p></td>
     </tr>
     <tr>
       <th>varFeatures</th>
-      <td><p>number of variable features to use for LSI</p></td>
+      <td><p>The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.</p></td>
     </tr>
     <tr>
       <th>selectionMethod</th>
-      <td><p>selection method for variable features (var or vmr)</p></td>
+      <td><p>QQQ The selection method to be used for identifying the top variable features. Valid options are "var" or "vmr" (QQQ what is vmr?).</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>scaleTo for Cluster Averages for variance calculation</p></td>
+      <td><p>QQQ scaleTo for Cluster Averages for variance calculation</p></td>
     </tr>
     <tr>
       <th>totalFeatures</th>
-      <td><p>number of features to consider (ranked by total number of counts) use for LSI</p></td>
+      <td><p>The number of features to consider for use in LSI ranked by the total number of insertion counts.</p></td>
     </tr>
     <tr>
       <th>filterQuantile</th>
-      <td><p>filter features for initial LSI that are above this quantile</p></td>
+      <td><p>QQQ Remove features that are above this quantile based on insertion counts prior to initial LSI.</p></td>
     </tr>
     <tr>
       <th>saveIterations</th>
-      <td><p>save LSI iterations as rds in the outDir</p></td>
+      <td><p>A boolean value indicating whether the different LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.</p></td>
     </tr>
     <tr>
       <th>outDir</th>
-      <td><p>output directory for saving LSI iterations</p></td>
+      <td><p>The output directory for saving LSI iterations if desired.</p></td>
     </tr>
     <tr>
       <th>clusterParams</th>
-      <td><p>additional params to pass to addClusters</p></td>
+      <td><p>Additional parameters to be passed to `ArchR::addClusters()`.</p></td>
     </tr>
     <tr>
       <th>runHarmony</th>
-      <td><p>run harmony batch correction through the iterations</p></td>
+      <td><p>QQQ A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.</p></td>
     </tr>
     <tr>
       <th>harmonyParams</th>
-      <td><p>additional params to pass to harmony</p></td>
+      <td><p>Additional parameters to be passed to `harmony::HarmonyMatrix()`.</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads for parallel execution</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>seed for analysis</p></td>
+      <td><p>QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
-      <td><p>verbose sections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose sections.</p></td>
     </tr>
     <tr>
       <th>verboseAll</th>
-      <td><p>verbose sections and subsections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose subsections.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>verbose sections and subsections</p></td>
+      <td><p>A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -278,7 +295,7 @@ on an ArchRProject.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

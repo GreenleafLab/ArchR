@@ -8,6 +8,13 @@
 
 <title>Plot ArchR Region Track — ArchRRegionTrack • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,6 +42,8 @@
 <meta property="og:title" content="Plot ArchR Region Track — ArchRRegionTrack" />
 
 <meta property="og:description" content="This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -169,19 +178,19 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An ArchRProject object.</p></td>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>region</th>
-      <td><p>A GRanges region that indicates the region to be plotted. If more than one region exists in the GRanges object, all will be plotted. If no region is supplied, then the "geneSymbol" argument can be used to center the plot window at the transcription start site of the gene passed to "geneSymbol".</p></td>
+      <td><p>A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object, all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the transcription start site of the supplied gene.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>A string that indicates how samples should be grouped. This string corresponds to one of the standard or user-supplied metadata columns (for example, "Clusters"). Samples with the same value annotated in this metadata column will be grouped together and the average signal will be used.</p></td>
+      <td><p>A string that indicates how cells should be grouped. This string corresponds to one of the standard or user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be used.</p></td>
     </tr>
     <tr>
       <th>useGroups</th>
-      <td><p>A boolean value that indicates whether samples should be grouped together to produce average tracks. Only TRUE/FALSE are accepted.</p></td>
+      <td><p>A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups to be plotted.</p></td>
     </tr>
     <tr>
       <th>useCoverages</th>
@@ -193,11 +202,11 @@
     </tr>
     <tr>
       <th>sizes</th>
-      <td><p>A numeric vector containing 3 values that indicate the sizes of the individual components passed in plotSummary. The order must be the same as plotSummary.</p></td>
+      <td><p>A numeric vector containing 3 values that indicate the sizes of the individual components passed in `plotSummary`. The order must be the same as `plotSummary`.</p></td>
     </tr>
     <tr>
       <th>features</th>
-      <td><p>A GRanges object containing the "features" to be plotted (This should be thought of as a bed track. i.e. the set of peaks obtained using getPeakSet(ArchRProj)).</p></td>
+      <td><p>A `GRanges` object containing the "features" to be plotted (This should be thought of as a bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`.</p></td>
     </tr>
     <tr>
       <th>geneSymbol</th>
@@ -205,11 +214,11 @@
     </tr>
     <tr>
       <th>upstream</th>
-      <td><p>The number of basepairs upstream of the transcription start site of "geneSymbol" to extend the plotting window. If "region" is supplied, this argument is ignored.</p></td>
+      <td><p>The number of basepairs upstream of the transcription start site of `geneSymbol` to extend the plotting window. If `region` is supplied, this argument is ignored.</p></td>
     </tr>
     <tr>
       <th>downstream</th>
-      <td><p>The number of basepairs downstream of the transcription start site of "geneSymbol" to extend the plotting window. If "region" is supplied, this argument is ignored.</p></td>
+      <td><p>The number of basepairs downstream of the transcription start site of `geneSymbol` to extend the plotting window. If `region` is supplied, this argument is ignored.</p></td>
     </tr>
     <tr>
       <th>tileSize</th>
@@ -217,7 +226,7 @@
     </tr>
     <tr>
       <th>normMethod</th>
-      <td><p>The name of the column in cellColData object by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.</p></td>
+      <td><p>The name of the column in `cellColData` object by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -225,7 +234,7 @@
     </tr>
     <tr>
       <th>ylim</th>
-      <td><p>QQQ The numeric y-axis limit to be used for for bulkTrack plotting. If not provided, the y-axis limit will be QQQ.</p></td>
+      <td><p>QQQ The numeric y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be QQQ.</p></td>
     </tr>
     <tr>
       <th>baseSize</th>
@@ -240,12 +249,16 @@
       <td><p>The numeric line width to be used for axis tick marks.</p></td>
     </tr>
     <tr>
+      <th>facetbaseSize</th>
+      <td><p>QQQ</p></td>
+    </tr>
+    <tr>
       <th>geneAnno</th>
-      <td><p>QQQ The geneAnnotation objection to be used for plotting the "geneTrack" object. This must be a TxDB object.</p></td>
+      <td><p>QQQ The `geneAnnotation` object to be used for plotting the "geneTrack" object. This must be a `TxDB` object.</p></td>
     </tr>
     <tr>
       <th>title</th>
-      <td><p>verbose sections</p></td>
+      <td><p>QQQ The title to add at the top of the plot.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -267,7 +280,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

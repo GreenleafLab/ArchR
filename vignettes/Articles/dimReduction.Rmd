@@ -8,6 +8,8 @@ If you were to perform a standard dimensionality reduction, like Principal Compo
 
 ArchR implements an iterative LSI approach and we recommend using a tiled genome-wide matrix as input. This allows for the identification of clusters prior to calling peaks which provides many advantages both in terms of speed and bias. The iterative approach is important because __QQQ__. All of this happens under the hood using the `addIterativeLSI()` function. You can tweak all of the parameters including the matrix used (`useMatrix`), the number of `iterations`, the top N dimensions to use (`dimsToUse`), and many others.
 
-[INSERT ITERATIVE LSI SCHEMATIC HERE]
+![](peakCalling_Comparison.png){width=350px}
 
 The last piece of the dimensionality reduction puzzle in scATAC-seq is the removal of batch effects which is a complex problem to address. The `addIterativeLSI()` function allows for the use of [Harmony](https://github.com/immunogenomics/harmony) to remove batch effects via the `runHarmony` and `harmonyParams` parameters. This approach performs well in our hands but is not set to run by default. Users should be aware of the caveats of batch correction for their particular application.
+
+[INSERT PRE- AND POST-HARMONY UMAPS]

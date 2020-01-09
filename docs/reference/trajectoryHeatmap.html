@@ -8,6 +8,13 @@
 
 <title>Plot a Heatmap of Features across a Trajectory — trajectoryHeatmap • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,6 +42,8 @@
 <meta property="og:title" content="Plot a Heatmap of Features across a Trajectory — trajectoryHeatmap" />
 
 <meta property="og:description" content="This function will plot a heatmap of the results from getTrajectory" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -164,43 +173,43 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seTrajectory</th>
-      <td><p>Summarized Experiment result from markerFeatures</p></td>
+      <td><p>A `SummarizedExperiment` object that results from `markerFeatures()`.</p></td>
     </tr>
     <tr>
       <th>scaleRows</th>
-      <td><p>compute row z-scores on matrix</p></td>
+      <td><p>A boolean value that indicates whether row-wise z-scores should be computed on matrix in `seTrajectory`.</p></td>
     </tr>
     <tr>
       <th>limits</th>
-      <td><p>heatmap color limits</p></td>
+      <td><p>A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.</p></td>
+    </tr>
+    <tr>
+      <th>grepExclude</th>
+      <td><p>QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seTrajectory` to be excluded from the heatmap.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>palette for heatmap, default will use solar_extra</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap</p></td>
     </tr>
     <tr>
       <th>labelMarkers</th>
-      <td><p>label specific markers by name on heatmap (matches rownames of seTrajectory)</p></td>
+      <td><p>A character vector listing the `rownames` of `seTrajectory` that should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelTop</th>
-      <td><p>label the top features for each column in seTrajectory</p></td>
+      <td><p>A boolean value that indicates whether the top features for each column in `seTrajectory` should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelRows</th>
-      <td><p>label all rows</p></td>
+      <td><p>A boolean value that indicates whether all rows should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>returnMat</th>
-      <td><p>return final matrix that is used for plotting heatmap</p></td>
+      <td><p>QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional args</p></td>
-    </tr>
-    <tr>
-      <th>varCutOff</th>
-      <td><p>variance cut off for selecting features varying across trajectory</p></td>
     </tr>
     </table>
     
@@ -218,7 +227,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

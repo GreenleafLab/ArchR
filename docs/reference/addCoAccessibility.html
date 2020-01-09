@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add Peak Co-Accessibility to ArchR Project — addCoAccessibility • ArchR</title>
+<title>Add Peak Co-Accessibility to an ArchRProject — addCoAccessibility • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Add Peak Co-Accessibility to ArchR Project — addCoAccessibility" />
+<meta property="og:title" content="Add Peak Co-Accessibility to an ArchRProject — addCoAccessibility" />
 
-<meta property="og:description" content="This function will randomly group cells and compute correlations of knn groupings" />
+<meta property="og:description" content="This function will add co-accessibility scores to peaks in a given ArchRProject" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,72 +152,72 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add Peak Co-Accessibility to ArchR Project</h1>
+    <h1>Add Peak Co-Accessibility to an ArchRProject</h1>
     
     <div class="hidden name"><code>addCoAccessibility.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function will randomly group cells and compute correlations of knn groupings</p>
+    <p>This function will add co-accessibility scores to peaks in a given ArchRProject</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>addCoAccessibility</span>(<span class='no'>ArchRProj</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>knnIteration</span> <span class='kw'>=</span> <span class='fl'>5000</span>, <span class='kw'>overlapCutoff</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>maxDist</span> <span class='kw'>=</span> <span class='fl'>250000</span>,
   <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>knnMethod</span> <span class='kw'>=</span> <span class='st'>"nabor"</span>,
-  <span class='no'>...</span>)</pre>
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>floor</a></span>(<span class='fu'>detectCores</span>()/<span class='fl'>2</span>), <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>reduced dimensions for KNN groupings</p></td>
+      <td><p>QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>k-nearest neighbors</p></td>
+      <td><p>QQQ The number of k-nearest neighbors to use for QQQ.</p></td>
     </tr>
     <tr>
       <th>knnIteration</th>
-      <td><p>number of KNN groupings to test overlapCutoff</p></td>
+      <td><p>The number of KNN groupings to test for passing the supplied `overlapCutoff`.</p></td>
     </tr>
     <tr>
       <th>overlapCutoff</th>
-      <td><p>overlap maximum between group and previous groups to be added to group list</p></td>
+      <td><p>QQQ The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during QQQ k-nearest neighbor calculations.</p></td>
     </tr>
     <tr>
       <th>maxDist</th>
-      <td><p>maximum distance in bp between peaks for co-accessibility</p></td>
+      <td><p>The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>scale group accessibility to prior to computing correlations</p></td>
+      <td><p>A numeric value indicating how to scale the accessibility of a QQQ group prior to computing co-accessibility correlations.</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>log2 normalize prior to computing correlations</p></td>
+      <td><p>A boolean value indicating whether to log2 transform the QQQ prior to computing co-accessibility correlations.</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>seed for sampling</p></td>
+      <td><p>QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>knnMethod</th>
-      <td><p>method for KNN computations</p></td>
+      <td><p>The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.</p></td>
+    </tr>
+    <tr>
+      <th>threads</th>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional args</p></td>
-    </tr>
-    <tr>
-      <th>threads</th>
-      <td><p>number of threads</p></td>
     </tr>
     </table>
     
@@ -226,7 +235,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

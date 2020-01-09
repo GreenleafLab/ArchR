@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Ggplot Hexplot summary of points in a standardized manner — ggHex • ArchR</title>
+<title>A ggplot-based Hexplot wrapper function summary of points in a standardized manner — ggHex • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Ggplot Hexplot summary of points in a standardized manner — ggHex" />
+<meta property="og:title" content="A ggplot-based Hexplot wrapper function summary of points in a standardized manner — ggHex" />
 
-<meta property="og:description" content="This function will plot x,y coordinates values summarized in hexagons in a standardized manner" />
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +102,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +111,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,15 +150,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Ggplot Hexplot summary of points in a standardized manner</h1>
+    <h1>A ggplot-based Hexplot wrapper function summary of points in a standardized manner</h1>
     
     <div class="hidden name"><code>ggHex.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    
-    <p>This function will plot x,y coordinates values summarized in hexagons in a standardized manner</p>
-    
+
     </div>
 
     <pre class="usage"><span class='fu'>ggHex</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteContinuous.html'>paletteContinuous</a></span>(<span class='kw'>set</span>
@@ -165,67 +170,46 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>x vector of data to be plot</p></td>
+      <td><p>A numeric vector containing the x-axis values for each point.</p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p>y vector of data to be plot</p></td>
+      <td><p>A numeric vector containing the y-axis values for each point.</p></td>
     </tr>
     <tr>
       <th>color</th>
-      <td><p>color vector of values to be plot (must be same length as x,y)</p></td>
+      <td><p>QQQ A vector of color values to be plotted. This vector must be the same length as QQQ `length(x) * length(y)`</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>custom palette option</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.</p></td>
     </tr>
     <tr>
       <th>bins</th>
-      <td><p>number of bins for hexplot</p></td>
+      <td><p>QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ `bins` indicates the total number of hexagons that will fit within the surface area of the plot.</p></td>
     </tr>
     <tr>
       <th>xlim</th>
-      <td><p>xlimits for plot</p></td>
+      <td><p>A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.</p></td>
     </tr>
     <tr>
       <th>ylim</th>
-      <td><p>ylimits for plot</p></td>
+      <td><p>A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.</p></td>
     </tr>
     <tr>
       <th>extend</th>
-      <td><p>extend limits by this proportion if not set by xlim or ylim</p></td>
-    </tr>
-    <tr>
-      <th>xlabel</th>
-      <td><p>label for x-axis</p></td>
-    </tr>
-    <tr>
-      <th>ylabel</th>
-      <td><p>label for y-axis</p></td>
-    </tr>
-    <tr>
-      <th>title</th>
-      <td><p>title of plot</p></td>
-    </tr>
-    <tr>
-      <th>colorTitle</th>
-      <td><p>title for legend corresponding to color</p></td>
-    </tr>
-    <tr>
-      <th>baseSize</th>
-      <td><p>baseSize for fonts</p></td>
-    </tr>
-    <tr>
-      <th>ratioYX</th>
-      <td><p>ratio of y to x in plot</p></td>
-    </tr>
-    <tr>
-      <th>FUN</th>
-      <td><p>function for summarizing hexagons</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>additional params to pass</p></td>
+      <td><p>QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
+<p>xlabelThe label to plot for the x-axis.</p>
+<p>ylabelThe label to plot for the y-axis.</p>
+<p>titleThe title of the plot.</p>
+<p>colorTitleThe label to use for the legend corresponding to `color`.</p>
+<p>baseSizeQQQ The base font size to use in the plot.</p>
+<p>ratioYXThe aspect ratio of the x and y axes on the plot.</p>
+<p>FUNThe function to use for summarizing data into hexagons. Typically "mean" or something similar.</p>
+<p>quantCutIf this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of the 97.5th and 2.5th percentile values respectively.} -->addPointsQQQ UNCLEAR WHY POINTS WOULD BE ADDED TO A HEXPLOT. ALSO, IN ggViolin THIS IS CALLED "points". A boolean value indicating whether individual points should be shown on the hexplot....additional params to pass
+
+
+This function will plot x,y coordinates values summarized in hexagons in a standardized manner</p></td>
     </tr>
     </table>
     
@@ -243,7 +227,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

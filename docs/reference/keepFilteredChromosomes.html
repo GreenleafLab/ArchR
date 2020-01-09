@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Filters unwanted chr mainly underscores — keepFilteredChromosomes • ArchR</title>
+<title>Filters unwanted seqlevels from a Genomic Ranges object or similar object — keepFilteredChromosomes • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Filters unwanted chr mainly underscores — keepFilteredChromosomes" />
+<meta property="og:title" content="Filters unwanted seqlevels from a Genomic Ranges object or similar object — keepFilteredChromosomes" />
 
-<meta property="og:description" content="Filters unwanted chr mainly underscores" />
+<meta property="og:description" content="This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,14 +152,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Filters unwanted chr mainly underscores</h1>
+    <h1>Filters unwanted seqlevels from a Genomic Ranges object or similar object</h1>
     
     <div class="hidden name"><code>keepFilteredChromosomes.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Filters unwanted chr mainly underscores</p>
+    <p>This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object</p>
     
     </div>
 
@@ -162,19 +171,19 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>GRanges or something with seqlevels</p></td>
+      <td><p>A `GRanges` object or another object containing seqlevels.</p></td>
     </tr>
     <tr>
       <th>remove</th>
-      <td><p>remove vector</p></td>
+      <td><p>A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.</p></td>
     </tr>
     <tr>
       <th>underscore</th>
-      <td><p>remove all underscores?</p></td>
+      <td><p>A boolean value indicating whether to remove all seqlevels whose name contains an underscore (for example "chr11_KI270721v1_random").</p></td>
     </tr>
     <tr>
       <th>standard</th>
-      <td><p>keep standard chromosomes</p></td>
+      <td><p>A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.</p></td>
     </tr>
     </table>
     
@@ -192,7 +201,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

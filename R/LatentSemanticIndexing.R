@@ -8,7 +8,7 @@
 #' on an ArchRProject.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.
+#' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".
 #' @param reducedDimsOut QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
 #' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.

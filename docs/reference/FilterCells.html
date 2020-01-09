@@ -8,6 +8,13 @@
 
 <title>Filter cells in an ArchRProject — filterCells • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -34,7 +41,9 @@
 
 <meta property="og:title" content="Filter cells in an ArchRProject — filterCells" />
 
-<meta property="og:description" content="This function plots a list of filters to see which cells would pass filter." />
+<meta property="og:description" content="This function returns an ArchRProject object that has been filtered to remove cells that do not pass the filter critera suppplied in filterList." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -150,7 +159,7 @@
 
     <div class="ref-description">
     
-    <p>This function plots a list of filters to see which cells would pass filter.</p>
+    <p>This function returns an ArchRProject object that has been filtered to remove cells that do not pass the filter critera suppplied in filterList.</p>
     
     </div>
 
@@ -161,11 +170,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>an ArchR Project object</p></td>
+      <td><p>An `ArchRProject` object</p></td>
     </tr>
     <tr>
       <th>filterList</th>
-      <td><p>list of filters for filtering cells from cellColData</p></td>
+      <td><p>QQQ A list of filters based on cellColData to apply when filtering cells. Format should be a named list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria. If numeric, a lower threshold is expected, below which cells are filtered (a higher threshold is optional). If a chatacter vector, rows in cellColData corresponding to the supplied character values are QQQkept. If a list or simpleList, QQQ.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -187,7 +196,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

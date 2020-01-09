@@ -12,16 +12,16 @@ We describe the pseudo-bulk replicate generation process in a decision tree belo
 
 1) Enough different samples (at least the max # replicates) each have more than the minimum number of cells to create pseudo-bulk replicates in a sample-aware fashion, combining only cells from the same sample into a single replicate.
 2) Some samples each have more than the minimum number of cells to create pseudo-bulk replicates in a sample-aware fashion. The remaing required replicates are created by combining cells _without replacement_ from __samples that are not already represented in the sample-aware pseudobulks__.
-3) No samples have more than the minimum number of cells to create a sample-aware pseudo-bulk replicate. All required replicates are created by combining cells _without replacement_ from __in a sample-agnostic fashion__.
+3) No samples have more than the minimum number of cells to create a sample-aware pseudo-bulk replicate but there are more cells than `minCells * minReps`. All required replicates are created by combining cells _without replacement_ from __in a sample-agnostic fashion__.
 4) The total number of cells within a cell grouping is less than the minimum number of cells multiplied by the minimum number of replicates __but greater than the minimum number of cells divided by the sampling ratio__. Create the minimum number of replicates by sampling __without__ replacement within a single replicate but __with__ replacement across replicates while minimizing the number of cells present in multiple pseudo-bulk replicates.
-5) The total number of cells within a cell grouping is less than the minimum number of cells divided by the sampling ratio. This means that there are not sufficient cells to make worthwhile pseudo-bulk replicates. No replicates will be created and this cluster will be excluded from replicate-based analyses.
+5) The total number of cells within a cell grouping is less than the minimum number of cells divided by the sampling ratio. This means that we must make replicates by sampling with replacement within a single replicate and across different replicates. This is the worst case scenario and users should be cautious about using these pseudo-bulk replicates downstream. This can be controled in various functions using the `minCells` parameter.
 
 To illustrate this process, we will use the following example data set:
 
 ```
 Sample 	Cluster1	Cluster2	Cluster3	Cluster4	Cluster5
-A 		800			600			900			100			100
-B 		1000		50			400			150			50
+A 		800			600			900			100			75
+B 		1000		50			400			150			25
 C 		600			900			100			200			50
 D 		1200		500			50			50			25
 E 		900			100			50			150			50
@@ -73,6 +73,11 @@ Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overla
 In this case, ArchR will minimize the number of cells that overlap between any two pseudo-bulk replicates.
 
 #### Cluster5
-For Cluster5, the total number of cells is 300 which is less than `minCells * minReps` (900 cells) and less than `minCells / sampleRatio` (375 cells). This means that we do not have sufficient cells to make pseudo-bulk replicates. This represents the least desirable situation illustrated in Option#5 above and we will therefore remove this cell grouping from downstream analyses that require replicates.
+For Cluster5, the total number of cells is 250 which is less than `minCells * minReps` (900 cells) and less than `minCells / sampleRatio` (375 cells). This means that we we will have to sample with replacement within each sample and across different replicates to make pseudo-bulk replicates. This represents the least desirable situation illustrated in Option#5 above and we should therefore be cautious in using these pseudo-bulk replicates in downstream analyses. We will therefore make the following replicates:
+```
+Rep1 = 300 cells [250 unique cells + 25 cells overlapping Rep2 + 25 cells overlapping Rep3]
+Rep2 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep3]
+Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep2]
+```
 
 ![](pseudobulkReplicate_DecisionTree.png){width=1000px}

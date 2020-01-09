@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Align Ggplots vertically or horizontally — ggAlignPlots • ArchR</title>
+<title>Align ggplot plots vertically or horizontally — ggAlignPlots • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Align Ggplots vertically or horizontally — ggAlignPlots" />
+<meta property="og:title" content="Align ggplot plots vertically or horizontally — ggAlignPlots" />
 
 <meta property="og:description" content="This function aligns ggplots vertically or horizontally" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,7 +152,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Align Ggplots vertically or horizontally</h1>
+    <h1>Align ggplot plots vertically or horizontally</h1>
     
     <div class="hidden name"><code>ggAlignPlots.Rd</code></div>
     </div>
@@ -154,31 +163,35 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>ggAlignPlots</span>(<span class='no'>...</span>, <span class='no'>sizes</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"v"</span>, <span class='kw'>plotList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>grobList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>draw</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>ggAlignPlots</span>(<span class='kw'>plotList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>grobList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>sizes</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"v"</span>,
+  <span class='kw'>draw</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>...</th>
-      <td><p>ggplots</p></td>
-    </tr>
-    <tr>
-      <th>sizes</th>
-      <td><p>sizes are a vector or list of values for each ggplot ie c(1,1) for two plots</p></td>
-    </tr>
-    <tr>
-      <th>type</th>
-      <td><p>v,vertical or h,horizontal</p></td>
-    </tr>
-    <tr>
       <th>plotList</th>
-      <td><p>add a list of plots to be aligned</p></td>
+      <td><p>A list of `ggplot2` plot objects to be aligned.</p></td>
     </tr>
     <tr>
       <th>grobList</th>
-      <td><p>add a list of grobs to be aligned</p></td>
+      <td><p>QQQ A list of grobs (grid graphical objects) to be aligned.</p></td>
+    </tr>
+    <tr>
+      <th>sizes</th>
+      <td><p>QQQ NOT CLEAR. A numeric vector or list of values indicating the size in QQQ for each of the objects in `plotList` or `grobList`.</p></td>
+    </tr>
+    <tr>
+      <th>type</th>
+      <td><p>A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.</p></td>
+    </tr>
+    <tr>
+      <th>draw</th>
+      <td><p>QQQ A boolean value indicating whether QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `grobList` and `plotList` are `NULL`</p></td>
     </tr>
     </table>
     
@@ -196,7 +209,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

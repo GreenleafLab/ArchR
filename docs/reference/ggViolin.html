@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>GG Violin Plot — ggViolin • ArchR</title>
+<title>A ggplot-based violin plot wrapper function — ggViolin • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="GG Violin Plot — ggViolin" />
+<meta property="og:title" content="A ggplot-based violin plot wrapper function — ggViolin" />
 
-<meta property="og:description" content="GG Violin Plot" />
+<meta property="og:description" content="A ggplot-based violin plot wrapper function" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,14 +152,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>GG Violin Plot</h1>
+    <h1>A ggplot-based violin plot wrapper function</h1>
     
     <div class="hidden name"><code>ggViolin.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>GG Violin Plot</p>
+    <p>A ggplot-based violin plot wrapper function</p>
     
     </div>
 
@@ -164,39 +173,51 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>categorical values to each y value</p></td>
+      <td><p>A character vector containing the categorical x-axis values for each y-axis value.</p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p>numeric values</p></td>
+      <td><p>A numeric vector containing the y-axis values for each point.</p></td>
     </tr>
     <tr>
       <th>xlabel</th>
-      <td><p>xlabel</p></td>
+      <td><p>The label to plot for the x-axis.</p></td>
     </tr>
     <tr>
       <th>ylabel</th>
-      <td><p>ylabel</p></td>
+      <td><p>The label to plot for the y-axis.</p></td>
     </tr>
     <tr>
       <th>xOrder</th>
-      <td><p>custom order of x for plotting</p></td>
+      <td><p>A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of `x` in the desired order.</p></td>
     </tr>
     <tr>
       <th>points</th>
-      <td><p>add points using ggrastr geom_quasirandom?</p></td>
+      <td><p>A boolean value indicating whether individual points should be added to the plot using `geom_quasirandom`.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p>size of barplot lines</p></td>
+      <td><p>The line width for boxplot lines.</p></td>
     </tr>
     <tr>
       <th>baseSize</th>
-      <td><p>base size of fonts in plot</p></td>
+      <td><p>QQQ The base font size to use in the plot.</p></td>
+    </tr>
+    <tr>
+      <th>ratioYX</th>
+      <td><p>The aspect ratio of the x and y axes on the plot.</p></td>
+    </tr>
+    <tr>
+      <th>sampleRatio</th>
+      <td><p>QQQ</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>The title of the plot.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>color palette see paletteDiscrete for examples</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for violins and boxes.</p></td>
     </tr>
     </table>
     
@@ -214,7 +235,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

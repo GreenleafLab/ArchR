@@ -5,8 +5,6 @@ resource_files:
   - images/footprintingMethods.png
 ---
 
-__I dont know what you want to show here__
-
 Transcription factor (TF) footprinting allows for the prediction of the precise binding location of a TF at a particular locus. This is because the DNA bases that are bound by the TF are actually protected from transposition while the DNA bases immediately adjacent to TF binding are accessible.
 
 ![](footprintingSchematic.png){width=250px}

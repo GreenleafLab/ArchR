@@ -8,6 +8,13 @@
 
 <title>Plot footprints for an ArchRProject — plotFootprints • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,6 +42,8 @@
 <meta property="og:title" content="Plot footprints for an ArchRProject — plotFootprints" />
 
 <meta property="og:description" content="This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -154,36 +163,40 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>plotFootprints</span>(<span class='kw'>input</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>positions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+    <pre class="usage"><span class='fu'>plotFootprints</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>positions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>plotName</span> <span class='kw'>=</span> <span class='st'>"Plot-Footprints"</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
   <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>flank</span> <span class='kw'>=</span> <span class='fl'>250</span>, <span class='kw'>flankNorm</span> <span class='kw'>=</span> <span class='fl'>50</span>,
   <span class='kw'>smoothWindow</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>nTop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>normMethod</span> <span class='kw'>=</span> <span class='st'>"none"</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>normMethod</span> <span class='kw'>=</span> <span class='st'>"none"</span>, <span class='kw'>inputSE</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>4</span>,
+  <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>input</th>
-      <td><p>An ArchRProject object or Footprint Summarized Experiment</p></td>
+      <th>ArchRProj</th>
+      <td><p>An `ArchRProject` object</p></td>
     </tr>
     <tr>
       <th>positions</th>
       <td><p>QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.</p></td>
     </tr>
     <tr>
+      <th>plotName</th>
+      <td><p>QQQ The prefix to add to the file name for the output PDF file.</p></td>
+    </tr>
+    <tr>
       <th>groupBy</th>
-      <td><p>QQQ The column name in sampleColData to use for grouping multiple samples together prior to footprinting.</p></td>
+      <td><p>QQQ The name of the column in `sampleColData` to use for grouping multiple samples together prior to footprinting.</p></td>
     </tr>
     <tr>
       <th>useGroups</th>
-      <td><p>QQQ</p></td>
+      <td><p>A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `sampleColData`. This limits the groups used to perform footprinting.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>The name or numeric index of a custom palette from ArchR_palettes to use for plotting the lines corresponding to the footprints.</p></td>
+      <td><p>The name or numeric index of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.</p></td>
     </tr>
     <tr>
       <th>flank</th>
@@ -198,16 +211,40 @@
       <td><p>QQQ The size in basepairs of the sliding window to be used for smoothing of the footprint signal.</p></td>
     </tr>
     <tr>
+      <th>minCells</th>
+      <td><p>QQQ The minimum number of cells required in a given cell group to permit footprint generation.</p></td>
+    </tr>
+    <tr>
       <th>nTop</th>
-      <td><p>QQQ The number of positions to consider. Only the top nTop positions based on QQQ will be considered for the footprint.</p></td>
+      <td><p>QQQ The number of genomic regions to consider. Only the top `nTop` genomic regions based on QQQ will be considered for the footprint.</p></td>
     </tr>
     <tr>
       <th>normMethod</th>
       <td><p>QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.</p></td>
     </tr>
     <tr>
+      <th>inputSE</th>
+      <td><p>QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>height</th>
+      <td><p>The height in inches to be used for the output PDF.</p></td>
+    </tr>
+    <tr>
+      <th>width</th>
+      <td><p>The width in inches to be used for the output PDF file.</p></td>
+    </tr>
+    <tr>
+      <th>addDOC</th>
+      <td><p>A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.</p></td>
+    </tr>
+    <tr>
+      <th>useSink</th>
+      <td><p>QQQ ???</p></td>
+    </tr>
+    <tr>
       <th>threads</th>
-      <td><p>The number threads to be used for parallel computing.</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
@@ -237,7 +274,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

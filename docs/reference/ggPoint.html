@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>A ggplot-based dot plot — ggPoint • ArchR</title>
+<title>A ggplot-based dot plot wrapper function — ggPoint • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,9 @@
 
 
 
-<meta property="og:title" content="A ggplot-based dot plot — ggPoint" />
+<meta property="og:title" content="A ggplot-based dot plot wrapper function — ggPoint" />
 
-<meta property="og:description" content="This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data." />
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +102,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +111,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,15 +150,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>A ggplot-based dot plot</h1>
+    <h1>A ggplot-based dot plot wrapper function</h1>
     
     <div class="hidden name"><code>ggPoint.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    
-    <p>This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.</p>
-    
+
     </div>
 
     <pre class="usage"><span class='fu'>ggPoint</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>discrete</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
@@ -181,15 +186,15 @@
     </tr>
     <tr>
       <th>discrete</th>
-      <td><p>QQQ A boolean value indicating QQQ</p></td>
+      <td><p>QQQ A boolean value indicating whether the supplied data is discrete (TRUE) or continuous (FALSE).</p></td>
     </tr>
     <tr>
       <th>discreteSet</th>
-      <td><p>QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.</p></td>
     </tr>
     <tr>
       <th>continuousSet</th>
-      <td><p>QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.</p></td>
     </tr>
     <tr>
       <th>labelMeans</th>
@@ -197,7 +202,11 @@
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>QQQ The name or numeric index of a custom palette from ArchR_palettes to use for QQQ.</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>defaultColor</th>
+      <td><p>QQQ The default color for points that do not have another color applied (i.e. `NA` values).</p></td>
     </tr>
     <tr>
       <th>colorDensity</th>
@@ -209,79 +218,30 @@
     </tr>
     <tr>
       <th>xlim</th>
-      <td><p>A set of numeric values indicating the lower and upper bounds of the x-axis on the plot.</p></td>
+      <td><p>A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.</p></td>
     </tr>
     <tr>
       <th>ylim</th>
-      <td><p>A set of numeric values indicating the lower and upper bounds of the y-axis on the plot.</p></td>
+      <td><p>A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.</p></td>
     </tr>
     <tr>
       <th>extend</th>
-      <td><p>QQQ</p></td>
-    </tr>
-    <tr>
-      <th>xlabel</th>
-      <td><p>The label to plot for the x-axis.</p></td>
-    </tr>
-    <tr>
-      <th>ylabel</th>
-      <td><p>The label to plot for the y-axis.</p></td>
-    </tr>
-    <tr>
-      <th>title</th>
-      <td><p>The title of the plot.</p></td>
-    </tr>
-    <tr>
-      <th>randomize</th>
-      <td><p>A boolean value indicating whether to randomize the order of the points when plotting.</p></td>
-    </tr>
-    <tr>
-      <th>seed</th>
-      <td><p>A numeric seed number for use in randomization.</p></td>
-    </tr>
-    <tr>
-      <th>alpha</th>
-      <td><p>A number indicating the transparency to use for each point. See ggplot2 for more details.</p></td>
-    </tr>
-    <tr>
-      <th>baseSize</th>
-      <td><p>QQQ The size in inches of the plot.</p></td>
-    </tr>
-    <tr>
-      <th>ratioYX</th>
-      <td><p>The aspect ratio of the x and y axes on the plot.</p></td>
-    </tr>
-    <tr>
-      <th>labelType</th>
-      <td><p>QQQ A string indicating how to label the points on the plot. Options include "ggrepel", QQQ</p></td>
-    </tr>
-    <tr>
-      <th>fgColor</th>
-      <td><p>The foreground color of the plot.</p></td>
-    </tr>
-    <tr>
-      <th>bgColor</th>
-      <td><p>The background color of the plot.</p></td>
-    </tr>
-    <tr>
-      <th>labelSize</th>
-      <td><p>The numeric font size of labels.</p></td>
-    </tr>
-    <tr>
-      <th>addFit</th>
-      <td><p>QQQ A string indicating if a fit/regression line should be included in the plot and what method to use for this fit. Options include QQQ.</p></td>
-    </tr>
-    <tr>
-      <th>rastr</th>
-      <td><p>A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.</p></td>
-    </tr>
-    <tr>
-      <th>dpi</th>
-      <td><p>The resolution to use for the plot.</p></td>
-    </tr>
-    <tr>
-      <th>nullColor</th>
-      <td><p>The color to be used for points that correspond to null values in either the x or y vectors.</p></td>
+      <td><p>QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
+<p>xlabelThe label to plot for the x-axis.</p>
+<p>ylabelThe label to plot for the y-axis.</p>
+<p>titleThe title of the plot.</p>
+<p>randomizeA boolean value indicating whether to randomize the order of the points when plotting.</p>
+<p>seedA numeric seed number for use in randomization.</p>
+<p>alphaA number indicating the transparency to use for each point. See `ggplot2` for more details.</p>
+<p>baseSizeQQQ The base font size to use in the plot.</p>
+<p>ratioYXThe aspect ratio of the x and y axes on the plot.</p>
+<p>labelTypeQQQ A string indicating how to label the points on the plot. Options include "ggrepel", QQQ</p>
+<p>fgColorThe foreground color of the plot.</p>
+<p>bgColorThe background color of the plot.</p>
+<p>labelSizeThe numeric font size of labels.</p>
+<p>addFitQQQ A string indicating if a fit/regression line should be included in the plot and what method to use for this fit. Options include QQQ.</p>
+<p>rastrA boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.</p>
+<p>dpiThe resolution in dots per inch to use for the plot.</p></td>
     </tr>
     </table>
     
@@ -299,7 +259,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

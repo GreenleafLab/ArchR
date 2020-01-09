@@ -22,7 +22,7 @@
 #' @param bufferRatio QQQ UNCLEAR buffering ratio for matching cell biases
 #' @param binarize A boolean value indicating whether to binarize the matrix indicated by `useMatrix` prior to marker feature identification. This is often used when dealing with an insertion counts matrix such as a `TileMatrix`.
 #' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
-#' @param method The name of the method to be used  for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the `Signac::VeniceMarker()` fucntion.
+#' @param method The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the `Signac::VeniceMarker()` fucntion.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args

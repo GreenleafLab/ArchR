@@ -8,6 +8,13 @@
 
 <title>Get Supervised Trajectory from an ArchR Project — getTrajectory • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -36,6 +43,8 @@
 
 <meta property="og:description" content="This function will fit get a supervised trajectory from an ArchRProject and aggregate signal
 from a matrix and smooth across the trajectory" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +105,7 @@ from a matrix and smooth across the trajectory" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -105,7 +114,7 @@ from a matrix and smooth across the trajectory" />
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -167,39 +176,47 @@ from a matrix and smooth across the trajectory</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>name of fitted trajectory in cellColData</p></td>
+      <td><p>A string indicating the name of the fitted trajectory in `cellColData` to retrieve from the given `ArchRProject`.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>matrix to summarize across the trajectory</p></td>
+      <td><p>QQQ The name of the matrix from the `ArchRProject` to use in QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>varCutOff</th>
+      <td><p>QQQ</p></td>
+    </tr>
+    <tr>
+      <th>maxFeatures</th>
+      <td><p>QQQ The maximum number of features to consider from `useMatrix` when generating a trajectory.</p></td>
     </tr>
     <tr>
       <th>groupEvery</th>
-      <td><p>group cells every x quantile</p></td>
+      <td><p>QQQ The number of sequential quantiles to group together when generating a trajectory (QQQ similar to smoothing).</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads to use</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>scale summarized matrix to</p></td>
+      <td><p>QQQ scale summarized matrix to</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>log2 normalize the scaled summarized matrix</p></td>
+      <td><p>QQQ A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed prior to QQQ.</p></td>
     </tr>
     <tr>
       <th>smooth</th>
-      <td><p>smooth matrix row-wise?</p></td>
+      <td><p>QQQ A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.</p></td>
     </tr>
     <tr>
       <th>smoothFormula</th>
-      <td><p>smoothing formula for mgcv::gam</p></td>
+      <td><p>The smoothing formula to use in the generalized additive model. See the `formula` parameter in `mgcv::gam()`.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -221,7 +238,7 @@ from a matrix and smooth across the trajectory</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

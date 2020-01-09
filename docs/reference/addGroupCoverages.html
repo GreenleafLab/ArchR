@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add Group Coverages to ArchR Project — addGroupCoverages • ArchR</title>
+<title>Add Group Coverages to an ArchRProject object — addGroupCoverages • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,10 +39,11 @@
 
 
 
-<meta property="og:title" content="Add Group Coverages to ArchR Project — addGroupCoverages" />
+<meta property="og:title" content="Add Group Coverages to an ArchRProject object — addGroupCoverages" />
 
-<meta property="og:description" content="This function will merge cells within each group into an insertion
-coverage file" />
+<meta property="og:description" content="QQQ This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +104,7 @@ coverage file" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -105,7 +113,7 @@ coverage file" />
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -144,22 +152,21 @@ coverage file" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add Group Coverages to ArchR Project</h1>
+    <h1>Add Group Coverages to an ArchRProject object</h1>
     
     <div class="hidden name"><code>addGroupCoverages.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function will merge cells within each group into an insertion
-coverage file</p>
+    <p>QQQ This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>addGroupCoverages</span>(<span class='no'>ArchRProj</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>, <span class='kw'>useLabels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>40</span>, <span class='kw'>maxCells</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>maxFragments</span> <span class='kw'>=</span> <span class='fl'>25</span> * <span class='fl'>10</span>^<span class='fl'>6</span>,
   <span class='kw'>minReplicates</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>maxReplicates</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>sampleRatio</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
-  <span class='kw'>kmerLength</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>16</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='st'>"mclapply"</span>,
+  <span class='kw'>kmerLength</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='st'>"mclapply"</span>,
   <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -167,63 +174,63 @@ coverage file</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>group cells by this column in cellColData</p></td>
+      <td><p>QQQ The name of the column in `cellColData` to use for grouping multiple cells together prior to generation of the insertion coverage file.</p></td>
     </tr>
     <tr>
       <th>useLabels</th>
-      <td><p>use sample labels to create sample guided subgroupings as pseudo replicates</p></td>
+      <td><p>QQQ A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.</p></td>
     </tr>
     <tr>
       <th>minCells</th>
-      <td><p>minimum cells per group for coverage files</p></td>
+      <td><p>QQQ The minimum number of cells required in a given cell group to permit insertion coverage file generation.</p></td>
     </tr>
     <tr>
       <th>maxCells</th>
-      <td><p>maximum cells per group for coverage files</p></td>
+      <td><p>QQQ The maximum number of cells to use during insertion coverage file generation.</p></td>
     </tr>
     <tr>
       <th>maxFragments</th>
-      <td><p>maximum fragments per group for coverage files (this prevents large files created for optimizing memory)</p></td>
+      <td><p>QQQ The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.</p></td>
     </tr>
     <tr>
       <th>minReplicates</th>
-      <td><p>minimum replicates for group for coverage files</p></td>
+      <td><p>QQQ The minimum number of pseudo-bulk replicates to be generated.</p></td>
     </tr>
     <tr>
       <th>maxReplicates</th>
-      <td><p>maximum replicates for group for coverage files</p></td>
+      <td><p>QQQ The maximum number of pseudo-bulk replicates to be generated.</p></td>
     </tr>
     <tr>
       <th>sampleRatio</th>
-      <td><p>sampling ratio for pseudo replicates when needed</p></td>
+      <td><p>QQQ The maximum fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.</p></td>
     </tr>
     <tr>
       <th>kmerLength</th>
-      <td><p>kmer length for adding Tn5 bias estimation</p></td>
+      <td><p>QQQ The length of the kmer used for estimating Tn5 bias.</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>parallel parameters for batch style execution</p></td>
+      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>force creating coverage files if existed</p></td>
+      <td><p>QQQ A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
-      <td><p>verbose sections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose sections.</p></td>
     </tr>
     <tr>
       <th>verboseAll</th>
-      <td><p>verbose sections and subsections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose subsections.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -245,7 +252,7 @@ coverage file</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">
