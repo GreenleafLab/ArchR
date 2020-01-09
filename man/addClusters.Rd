@@ -13,31 +13,31 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 \arguments{
 \item{input}{Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.}
 
-\item{reducedDims}{QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.}
+\item{reducedDims}{The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`. Not required if input is a matrix.}
 
 \item{name}{The column name of the column to be added to `cellColData` if `input` is an `ArchRProject` object.}
 
-\item{sampleCells}{A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.}
+\item{sampleCells}{An integer specifying number of cells to subset perform clustering and assign the remainder cells by euclidean distance.}
 
-\item{seed}{QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{method}{A string indicated the clustering method to be used. Supported methods are "Seurat" and "LouvainJaccard".}
+\item{method}{A string indicated the clustering method to be used. Supported methods are "Seurat" and "Scran".}
 
-\item{dimsToUse}{QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.}
+\item{dimsToUse}{A vector containing the dimensions from the `reducedDims` object to use in clustering.}
 
-\item{corCutOff}{QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.}
 
-\item{knnAssign}{QQQ The number of nearest neighbors to be used during clustering for assignment of outliers and estimation of QQQ.}
+\item{knnAssign}{The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).}
 
-\item{nOutlier}{The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers.}
+\item{nOutlier}{The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
-\item{tstart}{QQQ The time at which the function run was started.}
+\item{tstart}{The time at which the function run was started. Useful for keeping track of how long clustering takes relative to a start time.}
 
 \item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.}
 
-\item{...}{Additional arguments to be provided to Seurat::FindClusters or ArchR:::.clustLouvain (for example, knn = 50, jaccard = TRUE)}
+\item{...}{Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)}
 }
 \description{
 This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.

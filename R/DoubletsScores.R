@@ -9,17 +9,17 @@
 #' contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell. 
 #'
 #' @param input An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.
-#' @param useMatrix QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.
+#' @param useMatrix The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", "PeakMatrix".
 #' @param k The number of cells neighboring a simulated doublet to be considered as putative doublets.
-#' @param nTrials QQQ The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.
-#' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.
+#' @param nTrials The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.
 #' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function umap in the uwot package.
-#' @param LSIParams QQQ The list of parameters to pass to the IterativeLSI function if QQQ. See IterativeLSI.
-#' @param outDir The name or path for the output directory for writing information on doublet identification,
+#' @param LSIParams The list of parameters to pass to the IterativeLSI function. See IterativeLSI.
+#' @param outDir The name or path for the output directory for plot/result information on doublet identification,
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
@@ -247,99 +247,109 @@ addDoubletScores <- function(
   dfDoub$color <- dfDoub$density
   
   tmpFile <- .tempfile()
-  sink(tmpFile)
 
-  #Plot Doublet Summary
-  pdf(file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.pdf")), width = 6, height = 6)
+  o <- tryCatch({
 
-  #Plot Doublet Density
-  xlim <- range(df$X1) %>% extendrange(f = 0.05)
-  ylim <- range(df$X2) %>% extendrange(f = 0.05)
-  
-  if(!requireNamespace("ggrastr", quietly = TRUE)){
+    sink(tmpFile)
+
+    #Plot Doublet Summary
+    pdf(file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.pdf")), width = 6, height = 6)
+
+    #Plot Doublet Density
+    xlim <- range(df$X1) %>% extendrange(f = 0.05)
+    ylim <- range(df$X2) %>% extendrange(f = 0.05)
     
-    message("ggrastr is not available for rastr of points, continuing without rastr!")
+    if(!requireNamespace("ggrastr", quietly = TRUE)){
+      
+      message("ggrastr is not available for rastr of points, continuing without rastr!")
 
-    pdensity <- ggplot() + 
-      geom_point(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
-      geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
-        scale_colour_gradientn(colors = pal) + 
-        xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-        guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
-        labs(color = "Simulated Doublet Density") +
-        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-              axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-        coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
-        ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
-        legend.box.background = element_rect(color = NA))
+      pdensity <- ggplot() + 
+        geom_point(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
+        geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
+          scale_colour_gradientn(colors = pal) + 
+          xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
+          guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
+          labs(color = "Simulated Doublet Density") +
+          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+          coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
+          ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
+          legend.box.background = element_rect(color = NA))
 
-  }else{
+    }else{
 
-    .requirePackage("ggrastr")
+      .requirePackage("ggrastr")
 
-    pdensity <- ggplot() + 
-      geom_point_rast(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
-      geom_point_rast(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
-        scale_colour_gradientn(colors = pal) + 
-        xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-        labs(color = "Simulated Doublet Density") +
-        guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
-        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-              axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-        coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
-        ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
-        legend.box.background = element_rect(color = NA))
+      pdensity <- ggplot() + 
+        geom_point_rast(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
+        geom_point_rast(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
+          scale_colour_gradientn(colors = pal) + 
+          xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
+          labs(color = "Simulated Doublet Density") +
+          guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
+          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+          coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
+          ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
+          legend.box.background = element_rect(color = NA))
 
-  }
-  
-  print(.fixPlotSize(pdensity, plotWidth = 6, plotHeight = 6))
+    }
+    
+    print(.fixPlotSize(pdensity, plotWidth = 6, plotHeight = 6))
 
-  #Plot Doublet Score
-  pscore <- ggPoint(
-    x = df[,1],
-    y = df[,2],
-    color = .quantileCut(df$score, 0, 0.95),
-    xlim = xlim,
-    ylim = ylim,
-    discrete = FALSE,
-    size = 0.5,
-    xlab = "UMAP Dimension 1",
-    ylab = "UMAP Dimension 2",
-    pal = pal,
-    title = "Doublet Scores -log10(FDR)",
-    colorTitle = "Doublet Scores -log10(FDR)",
-    rastr = TRUE,
-    baseSize = 6
-    ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-          axis.text.y = element_blank(), axis.ticks.y = element_blank())
-  
-  grid::grid.newpage()
-  print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
-  
-  #Plot Enrichment Summary
-  penrich <- ggPoint(
-    x = df[,1],
-    y = df[,2],
-    color = .quantileCut(df$enrichment, 0, 0.95),
-    xlim = xlim,
-    ylim = ylim,
-    discrete = FALSE,
-    size = 0.5,
-    xlab = "UMAP Dimension 1",
-    ylab = "UMAP Dimension 2",
-    pal = pal,
-    title = "Doublet Enrichment",
-    colorTitle = "Doublet Enrichment",
-    rastr = TRUE
-    ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-          axis.text.y = element_blank(), axis.ticks.y = element_blank())
-  
-  grid::grid.newpage()
-  print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
+    #Plot Doublet Score
+    pscore <- ggPoint(
+      x = df[,1],
+      y = df[,2],
+      color = .quantileCut(df$score, 0, 0.95),
+      xlim = xlim,
+      ylim = ylim,
+      discrete = FALSE,
+      size = 0.5,
+      xlab = "UMAP Dimension 1",
+      ylab = "UMAP Dimension 2",
+      pal = pal,
+      title = "Doublet Scores -log10(FDR)",
+      colorTitle = "Doublet Scores -log10(FDR)",
+      rastr = TRUE,
+      baseSize = 6
+      ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+            axis.text.y = element_blank(), axis.ticks.y = element_blank())
+    
+    grid::grid.newpage()
+    print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
+    
+    #Plot Enrichment Summary
+    penrich <- ggPoint(
+      x = df[,1],
+      y = df[,2],
+      color = .quantileCut(df$enrichment, 0, 0.95),
+      xlim = xlim,
+      ylim = ylim,
+      discrete = FALSE,
+      size = 0.5,
+      xlab = "UMAP Dimension 1",
+      ylab = "UMAP Dimension 2",
+      pal = pal,
+      title = "Doublet Enrichment",
+      colorTitle = "Doublet Enrichment",
+      rastr = TRUE
+      ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+            axis.text.y = element_blank(), axis.ticks.y = element_blank())
+    
+    grid::grid.newpage()
+    print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
 
-  dev.off()
-  sink()
-  file.remove(tmpFile)
+    dev.off()
+    sink()
+    file.remove(tmpFile)
+
+  }, error = function(x){
+    
+    suppressWarnings(sink())
+    message(x)
+    
+  })
 
   summaryList <- SimpleList(
     originalDataUMAP = df,

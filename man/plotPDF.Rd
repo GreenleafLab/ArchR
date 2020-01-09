@@ -4,28 +4,28 @@
 \alias{plotPDF}
 \title{Plot PDF in outputDirectory of an ArchRProject}
 \usage{
-plotPDF(name = "Plot", width = 6, height = 6, ArchRProj = NULL,
-  addDOC = TRUE, useDingbats = FALSE, plotList = NULL,
-  useSink = TRUE, ...)
+plotPDF(..., name = "Plot", width = 6, height = 6,
+  ArchRProj = NULL, addDOC = TRUE, useDingbats = FALSE,
+  plotList = NULL, useSink = TRUE)
 }
 \arguments{
+\item{...}{vector of plots to be plotted (if input is a list use plotList instead)}
+
 \item{name}{The file name to be used for the output PDF file.}
 
 \item{width}{The width in inches to be used for the output PDF file.}
 
 \item{height}{The height in inches to be used for the output PDF.}
 
-\item{ArchRProj}{QQQ An `ArchRProject` object to be used for QQQ.}
+\item{ArchRProj}{An `ArchRProject` object to be used for getting plotDirectory in outputDirectory.}
 
 \item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.}
 
 \item{useDingbats}{A boolean variable that determines wheter to use dingbats characters for plotting points.}
 
-\item{plotList}{QQQ A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a QQQ format object.}
+\item{plotList}{A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted object (ggplot2, plot, heatmap, etc).}
 
-\item{useSink}{QQQ ???}
-
-\item{...}{additional args to pdf}
+\item{useSink}{use sink to hide messages from plotting}
 }
 \description{
 This function will save a plot or set of plots as a PDF file in the output directory of a given ArchRProject.

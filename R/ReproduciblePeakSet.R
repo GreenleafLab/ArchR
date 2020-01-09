@@ -26,7 +26,7 @@
 #' @param geneAnno QQQ The geneAnnotation in QQQ format.
 #' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject`.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
@@ -203,7 +203,7 @@ addReproduciblePeakSet <- function(
 
 	.messageDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart)
 
-	closeAllConnections()
+    suppressWarnings(sink())
 
 	return(ArchRProj)
 

@@ -14,7 +14,7 @@
 #' @param stepSize The size in basepairs for the step used to create sliding window bins across each chromosome.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for `input`.
 #' @export
 addCNVMatrix <- function(

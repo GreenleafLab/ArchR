@@ -14,7 +14,7 @@ addPeakMatrix(ArchRProj, ceiling = 4, binarize = FALSE,
 
 \item{binarize}{QQQ A boolean value indicating whether the feature matrix should be binarized QQQ prior to storage. This is often desired when working with insertion counts.}
 
-\item{parallelParam}{QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.}
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

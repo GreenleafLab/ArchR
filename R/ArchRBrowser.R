@@ -6,7 +6,7 @@
 #' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object, all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the transcription start site of the supplied gene.
 #' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be used.
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups to be plotted.
-#' @param useCoverages QQQ use group coverages for track plotting
+#' @param useCoverages A boolean indicating whether to use group coverages of pseudobulks (see createGroupCoverages) for track plotting instead of ArrowFiles
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak bed regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).
 #' @param sizes A numeric vector containing 3 values that indicate the sizes of the individual components passed in `plotSummary`. The order must be the same as `plotSummary`.
 #' @param features A `GRanges` object containing the "features" to be plotted (This should be thought of as a bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
@@ -16,20 +16,20 @@
 #' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.
 #' @param normMethod The name of the column in `cellColData` object by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
 #' @param threads The number of threads to use for parallel execution.
-#' @param ylim QQQ The numeric y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be QQQ.
-#' @param baseSize QQQ The numeric font size to be used in the plot. This applies to all plot labels.
+#' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
+#' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
-#' @param facetbaseSize QQQ
-#' @param geneAnno QQQ The `geneAnnotation` object to be used for plotting the "geneTrack" object. This must be a `TxDB` object.
-#' @param title QQQ The title to add at the top of the plot.
+#' @param facetbaseSize The numeric font size to be used in the facets (gray boxes) of the plot.
+#' @param geneAnno The `geneAnnotation` object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.
+#' @param title The title to add at the top of the plot next to the plot genomic coordinates.
 #' @param ... additional args
 #' @export
 ArchRRegionTrack <- function(
   ArchRProj = NULL, 
   region = NULL, 
   groupBy = "Clusters",
-  useGroups = NULL, #QQQ should this default really be NULL and not FALSE??
+  useGroups = NULL, 
   useCoverages = FALSE,
   plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
   sizes = c(10, 2, 4),

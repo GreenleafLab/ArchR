@@ -14,5 +14,5 @@ getGenes(ArchRProj, symbols = NULL, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets the genes (in format QQQ) from the geneAnnotation of a given ArchRProject.
+This function gets the genes start to end coordinates as a GRanges from the geneAnnotation of a given ArchRProject.
 }

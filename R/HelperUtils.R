@@ -8,7 +8,18 @@
   if(inherits(genome, "BSgenome")){
     return(genome)
   }else if(is.character(genome)){
-    return(BSgenome::getBSgenome(genome, masked = masked))
+    genome <- tryCatch({
+      .requirePackage(genome)
+      bsg <- eval(parse(text = genome))
+      if(inherits(bsg, "BSgenome")){
+        return(bsg)
+      }else{
+        stop("genome is not a BSgenome valid class!")
+      }
+    }, error = function(x){
+      BSgenome::getBSgenome(genome, masked = masked)
+    })  
+    return(genome)
   }else{
     stop("Cannot validate BSgenome options are a valid BSgenome or character for getBSgenome")
   }  

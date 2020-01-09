@@ -754,10 +754,11 @@ markerHeatmap <- function(
   if(binaryClusterRows){
     if(invert){
       bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)])
+      mat <- -bS[[1]][,colnames(mat)]
     }else{
       bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
+      mat <- bS[[1]][,colnames(mat)]
     }
-    mat <- -bS[[1]][,colnames(mat)]
     clusterRows <- FALSE
     clusterCols <- bS[[2]]
   }else{
@@ -1130,7 +1131,7 @@ markerAnnoEnrich <- function(
   ArchRProj = NULL,
   annotations = NULL,
   matches = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
   background = "bgdPeaks",
   ...){
 
@@ -1253,7 +1254,7 @@ markerAnnoEnrich <- function(
 #' @export
 markerRanges <- function(
   seMarker,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
   ...
   ){
   

@@ -33,7 +33,7 @@ addGroupCoverages(ArchRProj, groupBy = "Clusters", useLabels = TRUE,
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{parallelParam}{QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.}
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{QQQ A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.}
 

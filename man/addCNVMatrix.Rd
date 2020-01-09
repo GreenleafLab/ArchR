@@ -26,7 +26,7 @@ addCNVMatrix(input, chromSizes = getChromSizes(input),
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{parallelParam}{QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.}
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for `input`.}
 }

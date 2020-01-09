@@ -14,5 +14,5 @@ getExons(ArchRProj, symbols = NULL, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets the exons (in format QQQ) from the geneAnnotation of a given ArchRProject.
+This function gets the exons coordinates as a GRanges from the geneAnnotation of a given ArchRProject.
 }

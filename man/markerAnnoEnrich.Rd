@@ -6,7 +6,7 @@
 \usage{
 markerAnnoEnrich(seMarker = NULL, ArchRProj = NULL,
   annotations = NULL, matches = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5", background = "bgdPeaks", ...)
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5", background = "bgdPeaks", ...)
 }
 \arguments{
 \item{seMarker}{QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.}

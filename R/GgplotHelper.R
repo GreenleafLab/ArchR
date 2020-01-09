@@ -557,14 +557,14 @@ ggHex <- function(
 #'
 #' This function aligns ggplots vertically or horizontally
 #'
+#' @param ... All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `grobList` and `plotList` are `NULL`
 #' @param plotList A list of `ggplot2` plot objects to be aligned.
 #' @param grobList QQQ A list of grobs (grid graphical objects) to be aligned.
 #' @param sizes QQQ NOT CLEAR. A numeric vector or list of values indicating the size in QQQ for each of the objects in `plotList` or `grobList`.
 #' @param type A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.
 #' @param draw QQQ A boolean value indicating whether QQQ.
-#' @param ... All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `grobList` and `plotList` are `NULL`
 #' @export
-ggAlignPlots <- function(plotList = NULL, grobList = NULL, sizes, type = "v",  draw = TRUE, ...){
+ggAlignPlots <- function(..., plotList = NULL, grobList = NULL, sizes, type = "v",  draw = TRUE){
   
   #http://stackoverflow.com/a/21503904
 

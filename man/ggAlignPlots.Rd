@@ -4,10 +4,12 @@
 \alias{ggAlignPlots}
 \title{Align ggplot plots vertically or horizontally}
 \usage{
-ggAlignPlots(plotList = NULL, grobList = NULL, sizes, type = "v",
-  draw = TRUE, ...)
+ggAlignPlots(..., plotList = NULL, grobList = NULL, sizes,
+  type = "v", draw = TRUE)
 }
 \arguments{
+\item{...}{All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `grobList` and `plotList` are `NULL`}
+
 \item{plotList}{A list of `ggplot2` plot objects to be aligned.}
 
 \item{grobList}{QQQ A list of grobs (grid graphical objects) to be aligned.}
@@ -17,8 +19,6 @@ ggAlignPlots(plotList = NULL, grobList = NULL, sizes, type = "v",
 \item{type}{A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.}
 
 \item{draw}{QQQ A boolean value indicating whether QQQ.}
-
-\item{...}{All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `grobList` and `plotList` are `NULL`}
 }
 \description{
 This function aligns ggplots vertically or horizontally

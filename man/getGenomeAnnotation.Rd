@@ -12,5 +12,5 @@ getGenomeAnnotation(ArchRProj, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets the genomeAnnotation (in format QQQ) from a given ArchRProject.
+This function gets the genomeAnnotation (see createGenomeAnnotation) from a given ArchRProject.
 }

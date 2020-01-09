@@ -14,7 +14,7 @@
 #' @param binarize QQQ A boolean value indicating whether the `TileMatrix` should be binarized QQQ prior to storage.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force QQQ A boolean value indicating whether to force the `TileMatrix` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.
 #' @export
 addTileMatrix <- function(
@@ -77,9 +77,11 @@ addTileMatrix <- function(
   blacklist = NULL, 
   chromLengths = NULL, 
   force = FALSE,
-  ...){
+  ...
+  ){
 
   ArrowFile <- ArrowFiles[i]
+  sampleName <- .sampleName(ArrowFile)
 
   o <- h5closeAll()
   
@@ -150,7 +152,7 @@ addTileMatrix <- function(
 
     o <- h5closeAll()
     chr <- names(chromLengths)[z]
-    .messageDiffTime(sprintf("Adding Tile Matrix for Chromosome %s of %s to Arrow File!", z, length(chromLengths)), tstart)
+    .messageDiffTime(sprintf("Adding TileMatrix to %s for Chr (%s of %s)!", sampleName, z, length(chromLengths)), tstart)
 
     #Read in Fragments
     fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)

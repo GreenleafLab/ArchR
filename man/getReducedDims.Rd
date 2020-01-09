@@ -10,13 +10,13 @@ getReducedDims(ArchRProj, reducedDims = "IterativeLSI",
 \arguments{
 \item{ArchRProj}{An `ArchRProject` object.}
 
-\item{reducedDims}{QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ.}
+\item{reducedDims}{The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.}
 
 \item{returnMatrix}{If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.}
 
-\item{dimsToUse}{QQQ A vector containing the dimensions to return from the `reducedDims` object.}
+\item{dimsToUse}{A vector containing the dimensions (i.e. 1:25) to return from the `reducedDims` object.}
 
-\item{corCutOff}{QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded.}
 
 \item{...}{additional args}
 }

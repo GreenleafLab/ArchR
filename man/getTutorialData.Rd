@@ -7,7 +7,7 @@
 getTutorialData(tutorial = "hematopoiesis", ...)
 }
 \arguments{
-\item{tutorial}{The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to QQQ. "PBMC" refers to QQQ. "FreshFrozen" refers to QQQ data from Granja et al. Nature Biotechnology 2019.}
+\item{tutorial}{The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to hematopoieitic scATAC hierarchy. "PBMC" refers to a small standard PBMC scATAC dataset. "FreshFrozen" refers to a PBMC fresh and frozen scATAC dataset.}
 
 \item{...}{additional args}
 }

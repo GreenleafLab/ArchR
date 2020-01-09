@@ -12,7 +12,7 @@
 #' @param out A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).
 #' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject`.
 #' @export
 addDeviationsMatrix <- function(
@@ -49,7 +49,7 @@ addDeviationsMatrix <- function(
   ##############################################################
   print(matches)
   if(is.null(matches)){
-    anno <- getAnnotation(ArchRProj, annotations)
+    anno <- getPeakAnnotation(ArchRProj, annotations)
     matches <- readRDS(anno$Matches)
     if(is.null(matrixName)){
       matrixName <- paste0(anno$Name, "Matrix")

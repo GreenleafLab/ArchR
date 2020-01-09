@@ -13,7 +13,7 @@
 #' @param sampleRatio QQQ The maximum fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
 #' @param kmerLength QQQ The length of the kmer used for estimating Tn5 bias.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force QQQ A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
