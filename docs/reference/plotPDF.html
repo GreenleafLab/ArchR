@@ -8,6 +8,13 @@
 
 <title>Plot PDF in outputDirectory of an ArchRProject — plotPDF • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,6 +42,8 @@
 <meta property="og:title" content="Plot PDF in outputDirectory of an ArchRProject — plotPDF" />
 
 <meta property="og:description" content="This function will save a plot or set of plots as a PDF file in the output directory of a given ArchRProject." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -154,17 +163,13 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>plotPDF</span>(<span class='no'>...</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Plot"</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>6</span>,
-  <span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useDingbats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>plotList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>plotPDF</span>(<span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Plot"</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useDingbats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>plotList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>...</th>
-      <td><p>additional args to pdf</p></td>
-    </tr>
     <tr>
       <th>name</th>
       <td><p>The file name to be used for the output PDF file.</p></td>
@@ -179,7 +184,7 @@
     </tr>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An ArchRProject object.</p></td>
+      <td><p>QQQ An `ArchRProject` object to be used for QQQ.</p></td>
     </tr>
     <tr>
       <th>addDOC</th>
@@ -188,6 +193,18 @@
     <tr>
       <th>useDingbats</th>
       <td><p>A boolean variable that determines wheter to use dingbats characters for plotting points.</p></td>
+    </tr>
+    <tr>
+      <th>plotList</th>
+      <td><p>QQQ A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a QQQ format object.</p></td>
+    </tr>
+    <tr>
+      <th>useSink</th>
+      <td><p>QQQ ???</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional args to pdf</p></td>
     </tr>
     </table>
     
@@ -205,7 +222,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

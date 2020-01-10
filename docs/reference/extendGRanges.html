@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Merge Genomic Ranges — extendGRanges • ArchR</title>
+<title>QQQ Extend regions from a Genomic Ranges object — extendGRanges • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Merge Genomic Ranges — extendGRanges" />
+<meta property="og:title" content="QQQ Extend regions from a Genomic Ranges object — extendGRanges" />
 
-<meta property="og:description" content="Merge Genomic Ranges" />
+<meta property="og:description" content="QQQ This function extends each region in a Genomic Ranges object by a designated upstream and downstream extension in a strand-aware fashion" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,14 +152,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Merge Genomic Ranges</h1>
+    <h1>QQQ Extend regions from a Genomic Ranges object</h1>
     
     <div class="hidden name"><code>extendGRanges.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Merge Genomic Ranges</p>
+    <p>QQQ This function extends each region in a Genomic Ranges object by a designated upstream and downstream extension in a strand-aware fashion</p>
     
     </div>
 
@@ -160,16 +169,16 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>query</th>
-      <td><p>see validGRanges</p></td>
+      <th>x</th>
+      <td><p>A `GRanges` object.</p></td>
     </tr>
     <tr>
-      <th>subject</th>
-      <td><p>see validGRanges</p></td>
+      <th>upstream</th>
+      <td><p>The number of basepairs upstream (5') to extend each region in `x`. Strand-aware.</p></td>
     </tr>
     <tr>
-      <th>ignore.strand</th>
-      <td><p>ignore strandedness for overlaps</p></td>
+      <th>downstream</th>
+      <td><p>The number of basepairs downstream (3') to extend each region in `x`. Strand-aware.</p></td>
     </tr>
     </table>
     
@@ -187,7 +196,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

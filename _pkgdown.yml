@@ -5,6 +5,9 @@ template:
 authors:
   Jeffrey Granja:
     href: https://twitter.com/JeffreyGranja
+  Ryan Corces:
+    href: https://twitter.com/doctorcorces
+
 
 navbar:
   left:
@@ -20,8 +23,10 @@ navbar:
         href: articles/Articles/peakCalling.html
       - text: Dimensionality Reduction
         href: articles/Articles/dimReduction.html
-      - text: Gene Activity Scores and Marker Genes
+      - text: Gene Activity Scores
         href: articles/Articles/geneScores.html
+      - text: Marker Feature Identification
+        href: articles/Articles/markerFeatures.html
       - text: Signal Track Ploting
         href: articles/Articles/signalTracks.html
       - text: TF Footprinting
@@ -67,6 +72,28 @@ reference:
     - starts_with("palette")
     - starts_with("plot")
     - starts_with("theme")
-
-
-
+  - title: Helper functions
+    desc: Generic helper functions
+    contents:
+    - '%ni%'
+    - '%bcin%'
+    - '%bcni%'
+    - findMacs2
+  - title: GRanges manipulation
+    desc: Functions to manipulate GRanges objects
+    contents:
+    - columnOverlaps
+    - constructGRanges
+    - extendGRanges
+    - keepFilteredChromosomes
+    - mergeGRanges
+    - nonOverlappingGRanges
+    - overlappingBP
+    - overlapsMany
+    - shuffleGRanges
+    - subsetSeqnames
+  - title: Marker feature / trajectory identification
+    desc: Functions to identify and visualize marker features and cellular trajectories
+    contents:
+    - starts_with("marker")
+    - trajectoryHeatmap

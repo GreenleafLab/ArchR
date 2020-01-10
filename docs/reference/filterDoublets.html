@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Filter Doublets From an ArchR Project — filterDoublets • ArchR</title>
+<title>Filter Doublets From an ArchRProject — filterDoublets • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Filter Doublets From an ArchR Project — filterDoublets" />
+<meta property="og:title" content="Filter Doublets From an ArchRProject — filterDoublets" />
 
-<meta property="og:description" content="This function wil filter doublets from an ArchRProject after addDoubletScores has been ran" />
+<meta property="og:description" content="This function wil filter doublets from an ArchRProject after addDoubletScores has been run" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,14 +152,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Filter Doublets From an ArchR Project</h1>
+    <h1>Filter Doublets From an ArchRProject</h1>
     
     <div class="hidden name"><code>filterDoublets.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function wil filter doublets from an ArchRProject after addDoubletScores has been ran</p>
+    <p>This function wil filter doublets from an ArchRProject after addDoubletScores has been run</p>
     
     </div>
 
@@ -162,19 +171,19 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>an ArchR Project object</p></td>
+      <td><p>An `ArchRProject` object</p></td>
     </tr>
     <tr>
       <th>cutEnrich</th>
-      <td><p>minimum cutoff for doubletEnrichment which represents number of simulated doublets nearest a cell over the expected if uniform.</p></td>
+      <td><p>QQQ The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.</p></td>
     </tr>
     <tr>
       <th>cutScore</th>
-      <td><p>minimum cutoff for doubletScore which represents -log10 binomial adjusted p-value.</p></td>
+      <td><p>QQQ The minimum numeric cutoff for `DoubletScore` which represents the -log10(binomial adjusted p-value) for QQQ(what is the pvalue from?).</p></td>
     </tr>
     <tr>
       <th>filterRatio</th>
-      <td><p>filter ratio for max number of inferred doublets to remove based on the number of cells PF. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (1000 * 100).</p></td>
+      <td><p>QQQ THIS IS VERY CONFUSING TO ME. WHY ISNT THIS JUST THE FRACTION OF YOUR CELLS THAT YOU ARE WILLING TO LOSE TO DOUBLETS? The maximum ratio of predicted doublets to filter based on the number of pass-filter cells. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (100,000).</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -196,7 +205,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

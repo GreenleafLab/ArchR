@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add TileMatrix to Arrows/ArchRProject — addImputeWeights • ArchR</title>
+<title>QQQ — addImputeWeights • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,10 +39,11 @@
 
 
 
-<meta property="og:title" content="Add TileMatrix to Arrows/ArchRProject — addImputeWeights" />
+<meta property="og:title" content="QQQ — addImputeWeights" />
 
-<meta property="og:description" content="This function for each sample will independently compute counts for each tile
-per cell in the Arrow File" />
+<meta property="og:description" content="This function QQQ" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +104,7 @@ per cell in the Arrow File" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -105,7 +113,7 @@ per cell in the Arrow File" />
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -144,56 +152,59 @@ per cell in the Arrow File" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add TileMatrix to Arrows/ArchRProject</h1>
+    <h1>QQQ</h1>
     
     <div class="hidden name"><code>addImputeWeights.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function for each sample will independently compute counts for each tile
-per cell in the Arrow File</p>
+    <p>This function QQQ</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>addImputeWeights</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>,
   <span class='kw'>dimsToUse</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>td</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ka</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>sampleCells</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>5000</span>,
-  <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>floor</a></span>(<span class='fu'><a href='nCells.html'>nCells</a></span>(<span class='no'>ArchRProj</span>)/<span class='fl'>10</span>)), <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>epsilon</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>weighted</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>floor</a></span>(<span class='fu'><a href='nCells.html'>nCells</a></span>(<span class='no'>ArchRProj</span>)/<span class='fl'>10</span>)), <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>epsilon</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>input</th>
-      <td><p>ArchRProject or ArrowFiles</p></td>
+      <th>ArchRProj</th>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
-      <th>chromSizes</th>
-      <td><p>chromomosome sizes used for identifying number of tiles to count</p></td>
+      <th>reducedDims</th>
+      <td><p>QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.</p></td>
     </tr>
     <tr>
-      <th>windowSize</th>
-      <td><p>size for each window to break up each chromosome</p></td>
+      <th>dimsToUse</th>
+      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
     </tr>
     <tr>
-      <th>binarize</th>
-      <td><p>save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix</p></td>
+      <th>td</th>
+      <td><p>diffusion time (number of iterations) for Magic</p></td>
     </tr>
     <tr>
-      <th>excludeChr</th>
-      <td><p>exclude chromosomes from this analysis</p></td>
+      <th>ka</th>
+      <td><p>kNN autotune parameter for Magic</p></td>
     </tr>
     <tr>
-      <th>threads</th>
-      <td><p>number of threads</p></td>
+      <th>sampleCells</th>
+      <td><p>number of cells to sample per block of estimated imputation matrix</p></td>
     </tr>
     <tr>
-      <th>parallelParam</th>
-      <td><p>parallel parameters for batch style execution</p></td>
+      <th>k</th>
+      <td><p>number of nearest neighbors to use for Magic</p></td>
     </tr>
     <tr>
-      <th>force</th>
-      <td><p>force overwriting previous TileMatrix in ArrowFile</p></td>
+      <th>epsilon</th>
+      <td><p>a value for the standard deviation of the kernel for Magic</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional params</p></td>
     </tr>
     </table>
     
@@ -211,7 +222,7 @@ per cell in the Arrow File</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

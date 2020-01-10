@@ -3,7 +3,9 @@ Type: Package
 Date: 2019-10-17
 Title: Analyzing regulatory chromatin in R
 Version: 0.1.4
-Author: Jeffrey Granja [aut, cre], Ryan Corces [aut]
+Authors@R: c(
+    person("Jeffrey", "Granja", role = c("aut","cre")),
+    person("Ryan", "Corces", role = "aut"))
 Maintainer: Jeffrey Granja <jgranja.stanford@gmail.com>
 Description: This package is designed to streamline scATAC analyses in R.
 License: GPL (>= 2)

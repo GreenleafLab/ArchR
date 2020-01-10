@@ -8,6 +8,13 @@
 
 <title>Plot a Heatmap of Identified Marker Features — markerHeatmap • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -34,8 +41,9 @@
 
 <meta property="og:title" content="Plot a Heatmap of Identified Marker Features — markerHeatmap" />
 
-<meta property="og:description" content="This function will plot a heatmap of the results from markerFeatures
-This function will plot a heatmap of the results from markerFeatures" />
+<meta property="og:description" content="This function will plot a heatmap of the results from markerFeatures" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +104,7 @@ This function will plot a heatmap of the results from markerFeatures" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -105,7 +113,7 @@ This function will plot a heatmap of the results from markerFeatures" />
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -152,132 +160,74 @@ This function will plot a heatmap of the results from markerFeatures" />
     <div class="ref-description">
     
     <p>This function will plot a heatmap of the results from markerFeatures</p>
-<p>This function will plot a heatmap of the results from markerFeatures</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>markerHeatmap</span>(<span class='no'>seMarker</span>, <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='st'>"FDR &lt;= 0.001 &amp; Log2FC &gt;= 0.1"</span>,
-  <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='kw'>scaleRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>2</span>,
-  <span class='fl'>2</span>), <span class='kw'>grepExclude</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>binaryClusterRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>labelMarkers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labelTop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labelRows</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>returnMat</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
-
-<span class='fu'>markerHeatmap</span>(<span class='no'>seMarker</span>, <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='st'>"FDR &lt;= 0.001 &amp; Log2FC &gt;= 0.1"</span>,
-  <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='kw'>scaleRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>2</span>,
-  <span class='fl'>2</span>), <span class='kw'>grepExclude</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>binaryClusterRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>labelMarkers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labelTop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labelRows</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>returnMat</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>markerHeatmap</span>(<span class='no'>seMarker</span>, <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='st'>"FDR &lt;= 0.01 &amp; Log2FC &gt;= 0.5"</span>,
+  <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='kw'>scaleRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>plotLog2FC</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>2</span>, <span class='fl'>2</span>), <span class='kw'>grepExclude</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>binaryClusterRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>labelMarkers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>labelTop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labelRows</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>returnMat</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>invert</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seMarker</th>
-      <td><p>Summarized Experiment result from markerFeatures</p></td>
+      <td><p>QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.</p></td>
+    </tr>
+    <tr>
+      <th>cutOff</th>
+      <td><p>A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)</p></td>
+      <td><p>A boolean value indicating whether a log2 transformation whould be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like `DeviationsMatrix`).</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing</p></td>
+      <td><p>QQQ scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing</p></td>
     </tr>
     <tr>
       <th>scaleRows</th>
-      <td><p>compute row z-scores on matrix</p></td>
+      <td><p>A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.</p></td>
     </tr>
     <tr>
       <th>limits</th>
-      <td><p>heatmap color limits</p></td>
+      <td><p>A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.</p></td>
     </tr>
     <tr>
       <th>grepExclude</th>
-      <td><p>remove features by grep</p></td>
+      <td><p>QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>palette for heatmap, default will use solar_extra</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap</p></td>
     </tr>
     <tr>
       <th>binaryClusterRows</th>
-      <td><p>fast clustering implementation for row clustering by binary sorting</p></td>
+      <td><p>A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.</p></td>
     </tr>
     <tr>
       <th>labelMarkers</th>
-      <td><p>label specific markers by name on heatmap (matches rownames of seMarker)</p></td>
+      <td><p>A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelTop</th>
-      <td><p>label the top features for each column in seMarker</p></td>
+      <td><p>A boolean value that indicates whether the top features for each column in `seMarker` should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelRows</th>
-      <td><p>label all rows</p></td>
+      <td><p>A boolean value that indicates whether all rows should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>returnMat</th>
-      <td><p>return final matrix that is used for plotting heatmap</p></td>
+      <td><p>QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>additional args</p></td>
-    </tr>
-    <tr>
-      <th>cutoff</th>
-      <td><p>Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker</p></td>
-    </tr>
-    <tr>
-      <th>seMarker</th>
-      <td><p>Summarized Experiment result from markerFeatures</p></td>
-    </tr>
-    <tr>
-      <th>cutoff</th>
-      <td><p>Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker</p></td>
-    </tr>
-    <tr>
-      <th>log2Norm</th>
-      <td><p>log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)</p></td>
-    </tr>
-    <tr>
-      <th>scaleTo</th>
-      <td><p>scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing</p></td>
-    </tr>
-    <tr>
-      <th>scaleRows</th>
-      <td><p>compute row z-scores on matrix</p></td>
-    </tr>
-    <tr>
-      <th>limits</th>
-      <td><p>heatmap color limits</p></td>
-    </tr>
-    <tr>
-      <th>grepExclude</th>
-      <td><p>remove features by grep</p></td>
-    </tr>
-    <tr>
-      <th>pal</th>
-      <td><p>palette for heatmap, default will use solar_extra</p></td>
-    </tr>
-    <tr>
-      <th>binaryClusterRows</th>
-      <td><p>fast clustering implementation for row clustering by binary sorting</p></td>
-    </tr>
-    <tr>
-      <th>labelMarkers</th>
-      <td><p>label specific markers by name on heatmap (matches rownames of seMarker)</p></td>
-    </tr>
-    <tr>
-      <th>labelTop</th>
-      <td><p>label the top features for each column in seMarker</p></td>
-    </tr>
-    <tr>
-      <th>labelRows</th>
-      <td><p>label all rows</p></td>
-    </tr>
-    <tr>
-      <th>returnMat</th>
-      <td><p>return final matrix that is used for plotting heatmap</p></td>
+      <th>invert</th>
+      <td><p>QQQ</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -299,7 +249,7 @@ This function will plot a heatmap of the results from markerFeatures" />
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

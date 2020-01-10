@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject — addClusters • ArchR</title>
+<title>Add cluster information to an ArchRProject — addClusters • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject — addClusters" />
+<meta property="og:title" content="Add cluster information to an ArchRProject — addClusters" />
 
-<meta property="og:description" content="This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject" />
+<meta property="og:description" content="This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,14 +152,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject</h1>
+    <h1>Add cluster information to an ArchRProject</h1>
     
     <div class="hidden name"><code>addClusters.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject</p>
+    <p>This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.</p>
     
     </div>
 
@@ -165,39 +174,59 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>ArchRProject or matrix for cluster identification</p></td>
+      <td><p>Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>reducedDims of ArchRProject if provided</p></td>
+      <td><p>QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>name of cluster column if input is ArchRProject</p></td>
+      <td><p>The column name of the column to be added to `cellColData` if `input` is an `ArchRProject` object.</p></td>
+    </tr>
+    <tr>
+      <th>sampleCells</th>
+      <td><p>A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>seed</p></td>
+      <td><p>QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>supported methods are Seurat and LouvainJaccard</p></td>
+      <td><p>A string indicated the clustering method to be used. Supported methods are "Seurat" and "LouvainJaccard".</p></td>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>reduced dims to use</p></td>
+      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
+    </tr>
+    <tr>
+      <th>corCutOff</th>
+      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>knnAssign</th>
-      <td><p>number of nearest neighbors for assignment of outliers and estimation</p></td>
+      <td><p>QQQ The number of nearest neighbors to be used during clustering for assignment of outliers and estimation of QQQ.</p></td>
     </tr>
     <tr>
       <th>nOutlier</th>
-      <td><p>number of cells required for a cluster to be called if not then these will be considered an outlier</p></td>
+      <td><p>The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.</p></td>
+    </tr>
+    <tr>
+      <th>tstart</th>
+      <td><p>QQQ The time at which the function run was started.</p></td>
+    </tr>
+    <tr>
+      <th>force</th>
+      <td><p>A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>arguments to provide Seurat::FindClusters or ArchR:::.clustLouvain (knn = 50, jaccard = TRUE)</p></td>
+      <td><p>Additional arguments to be provided to Seurat::FindClusters or ArchR:::.clustLouvain (for example, knn = 50, jaccard = TRUE)</p></td>
     </tr>
     </table>
     
@@ -215,7 +244,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

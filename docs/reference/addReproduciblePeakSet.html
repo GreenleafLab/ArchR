@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add Reproducible Peak Set to ArchR Project — addReproduciblePeakSet • ArchR</title>
+<title>Add a Reproducible Peak Set to an ArchRProject — addReproduciblePeakSet • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,10 +39,12 @@
 
 
 
-<meta property="og:title" content="Add Reproducible Peak Set to ArchR Project — addReproduciblePeakSet" />
+<meta property="og:title" content="Add a Reproducible Peak Set to an ArchRProject — addReproduciblePeakSet" />
 
-<meta property="og:description" content="This function will get insertions from coverage files call peaks
-and merge to get a Union Reproducible Peak Set" />
+<meta property="og:description" content="This function will get insertions from coverage files, call peaks,
+and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +105,7 @@ and merge to get a Union Reproducible Peak Set" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -105,7 +114,7 @@ and merge to get a Union Reproducible Peak Set" />
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -144,15 +153,15 @@ and merge to get a Union Reproducible Peak Set" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add Reproducible Peak Set to ArchR Project</h1>
+    <h1>Add a Reproducible Peak Set to an ArchRProject</h1>
     
     <div class="hidden name"><code>addReproduciblePeakSet.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function will get insertions from coverage files call peaks
-and merge to get a Union Reproducible Peak Set</p>
+    <p>This function will get insertions from coverage files, call peaks,
+and merge peaks to get a "Union Reproducible Peak Set"</p>
     
     </div>
 
@@ -172,87 +181,95 @@ and merge to get a Union Reproducible Peak Set</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>use groupings for peak calling matching group coverage files</p></td>
+      <td><p>QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.</p></td>
     </tr>
     <tr>
       <th>reproducibility</th>
-      <td><p>reproducibility for peak calling (string that is a function of n)</p></td>
+      <td><p>A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of `n` where `n` is the number of samples being assessed. For example, `reproducibility = "2"` means at least 2 samples must have a peak call at this locus and `reproducibility = "(n+1)/2"` means that the majority of samples must have a peak call at this locus.</p></td>
     </tr>
     <tr>
       <th>peaksPerCell</th>
-      <td><p>number of peaks that can be identified per cell on average</p></td>
+      <td><p>QQQ An estimate for the average number of peaks that can be identified per cell.</p></td>
+    </tr>
+    <tr>
+      <th>maxPeaks</th>
+      <td><p>QQQ A numeric threshold for the maximum peaks to retain in the union reproducible peak set.</p></td>
+    </tr>
+    <tr>
+      <th>minCells</th>
+      <td><p>The minimum number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
-      <td><p>exclude chromosomes from peak calling</p></td>
+      <td><p>A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.</p></td>
     </tr>
     <tr>
       <th>pathToMacs2</th>
-      <td><p>path to macs2 executable (see Macs2)</p></td>
+      <td><p>The full path to the MACS2 executable.</p></td>
     </tr>
     <tr>
       <th>genomeSize</th>
-      <td><p>genome size for peak calling (see Macs2)</p></td>
+      <td><p>The genome size to be used for MACS2 peak calling (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>shift</th>
-      <td><p>shift of Tn5 insertions (&lt;- |   ) (see Macs2)</p></td>
+      <td><p>The number of basepairs to shift each Tn5 insertion. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>extsize</th>
-      <td><p>extension of Tn5 insertions (|&lt;- -&gt;|) (see Macs2)</p></td>
+      <td><p>The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>significance method for Macs2 (see Macs2)</p></td>
+      <td><p>The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with `cutOff` this gives the method and significance threshold for peak calling (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
-      <td><p>significance cutoff for Macs2 (see Macs2)</p></td>
+      <td><p>The numeric significance cutoff for the testing method indicated by `method` (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>extendSummits</th>
-      <td><p>extend peak summits for final fixed-width peaks</p></td>
+      <td><p>The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.</p></td>
     </tr>
     <tr>
       <th>promoterDist</th>
-      <td><p>promoter distance from TSS for annotating peaks</p></td>
+      <td><p>QQQ The maximum distance in basepairs from the peak QQQ EDGE OR SUMMIT? to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.</p></td>
     </tr>
     <tr>
       <th>genomeAnno</th>
-      <td><p>genome annotation for ArchRProject</p></td>
+      <td><p>QQQ The genomeAnnotation in QQQ format.</p></td>
     </tr>
     <tr>
       <th>geneAnno</th>
-      <td><p>gene annotation for ArchRProject</p></td>
+      <td><p>QQQ The geneAnnotation in QQQ format.</p></td>
     </tr>
     <tr>
       <th>additionalParams</th>
-      <td><p>additional parameters to pass to Macs2 (see Macs2)</p></td>
+      <td><p>A string of additional parameters to pass to MACS2 (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads for parallel execution</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>parallel parameters for batch style execution</p></td>
+      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>force creating peakSet if existed</p></td>
+      <td><p>QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject`.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
-      <td><p>verbose sections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose sections.</p></td>
     </tr>
     <tr>
       <th>verboseAll</th>
-      <td><p>verbose sections and subsections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose subsections.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -274,7 +291,7 @@ and merge to get a Union Reproducible Peak Set</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

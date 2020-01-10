@@ -8,6 +8,13 @@
 
 <title>Optimized discrete color palette generation — paletteDiscrete • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -34,7 +41,9 @@
 
 <meta property="og:title" content="Optimized discrete color palette generation — paletteDiscrete" />
 
-<meta property="og:description" content="This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most posible color contrast from the designated set." />
+<meta property="og:description" content="This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most possible color contrast from the designated color set." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -150,7 +159,7 @@
 
     <div class="ref-description">
     
-    <p>This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most posible color contrast from the designated set.</p>
+    <p>This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most possible color contrast from the designated color set.</p>
     
     </div>
 
@@ -162,19 +171,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>set</th>
-      <td><p>The name or numeric index of a color palette provided in ArchR_palettes.</p></td>
+      <td><p>The name or numeric index of a color palette provided in the `ArchRPalettes` list object.</p></td>
     </tr>
     <tr>
       <th>values</th>
-      <td><p>A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated pallete set.</p></td>
+      <td><p>A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated palette set.</p></td>
     </tr>
     <tr>
       <th>reverse</th>
       <td><p>A boolean variable that indicates whether to return the palette colors in reverse order.</p></td>
-    </tr>
-    <tr>
-      <th>returnStructure</th>
-      <td><p>QQQ return structure palette</p></td>
     </tr>
     </table>
     
@@ -192,7 +197,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

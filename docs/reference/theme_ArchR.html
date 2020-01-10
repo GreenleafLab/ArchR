@@ -8,6 +8,13 @@
 
 <title>ggplot2 default theme for ArchR — theme_ArchR • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,6 +42,8 @@
 <meta property="og:title" content="ggplot2 default theme for ArchR — theme_ArchR" />
 
 <meta property="og:description" content="This function returns a ggplot2 theme that is black borded with black font." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -164,31 +173,31 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>color</th>
-      <td><p>color of theme</p></td>
+      <td><p>The color to be used for text, lines, ticks, etc for the plot.</p></td>
     </tr>
     <tr>
       <th>baseSize</th>
-      <td><p>is the size of the font for the axis text and title</p></td>
+      <td><p>QQQ The base font size to use in the plot.</p></td>
     </tr>
     <tr>
       <th>baseFamily</th>
-      <td><p>is family for font</p></td>
+      <td><p>QQQ ARGUMENT NOT USED IN FUNCTION. The base family to be used for all fonts.</p></td>
     </tr>
     <tr>
       <th>baseLineSize</th>
-      <td><p>is the size of line</p></td>
+      <td><p>The base line width (in points) to be used throughout the plot.</p></td>
     </tr>
     <tr>
       <th>baseRectSize</th>
-      <td><p>is the size of rectangle boxes</p></td>
+      <td><p>The base line width (in points) to use for rectangular boxes throughout the plot.</p></td>
     </tr>
     <tr>
       <th>plotMarginCm</th>
-      <td><p>plot margin in cm</p></td>
+      <td><p>The width in centimeters of the whitespace margin around the plot.</p></td>
     </tr>
     <tr>
       <th>legendPosition</th>
-      <td><p>where is the legend default bottom</p></td>
+      <td><p>QQQ ARGUMENT NOT USED IN FUNCTION. The location to put the legend. Valid options are "bottom", "top", "left", and "right.</p></td>
     </tr>
     <tr>
       <th>legendTextSize</th>
@@ -196,15 +205,15 @@
     </tr>
     <tr>
       <th>axisTickCm</th>
-      <td><p>axis tick length in cm</p></td>
+      <td><p>The length in centimeters to make the axis ticks.</p></td>
     </tr>
     <tr>
       <th>xText90</th>
-      <td><p>rotate x axis text 90 degrees</p></td>
+      <td><p>A boolean value indicating whether the x-axis text should be rotated 90 degrees counterclockwise.</p></td>
     </tr>
     <tr>
       <th>yText90</th>
-      <td><p>rotate y axis text 90 degrees</p></td>
+      <td><p>A boolean value indicating whether the y-axis text should be rotated 90 degrees counterclockwise.</p></td>
     </tr>
     </table>
     
@@ -222,7 +231,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

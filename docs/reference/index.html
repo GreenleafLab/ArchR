@@ -8,6 +8,13 @@
 
 <title>Function reference • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -33,6 +40,9 @@
 
 
 <meta property="og:title" content="Function reference" />
+
+<meta property="og:image" content="/logo.png" />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -175,13 +185,13 @@
         <td>
           <p><code><a href="filterDoublets.html">filterDoublets()</a></code> </p>
         </td>
-        <td><p>Filter Doublets From an ArchR Project</p></td>
+        <td><p>Filter Doublets From an ArchRProject</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="filterPlot.html">filterPlot()</a></code> </p>
         </td>
-        <td><p>Filter Plot for cells in an ArchRProject</p></td>
+        <td><p>Filter plot for cells in an ArchRProject</p></td>
       </tr><tr>
         
         <td>
@@ -201,7 +211,7 @@
         <td>
           <p><code><a href="addCNVMatrix.html">addCNVMatrix()</a></code> </p>
         </td>
-        <td><p>Add TileMatrix to Arrows/ArchRProject</p></td>
+        <td><p>Add a CNV matrix to ArrowFiles or an ArchRProject</p></td>
       </tr><tr>
         
         <td>
@@ -213,13 +223,13 @@
         <td>
           <p><code><a href="addClusters.html">addClusters()</a></code> </p>
         </td>
-        <td><p>This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject</p></td>
+        <td><p>Add cluster information to an ArchRProject</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="addCoAccessibility.html">addCoAccessibility()</a></code> </p>
         </td>
-        <td><p>Add Peak Co-Accessibility to ArchR Project</p></td>
+        <td><p>Add Peak Co-Accessibility to an ArchRProject</p></td>
       </tr><tr>
         
         <td>
@@ -231,7 +241,7 @@
         <td>
           <p><code><a href="addDeviationsMatrix.html">addDeviationsMatrix()</a></code> </p>
         </td>
-        <td><p>Add DeviationsMatrix to Arrow Files in ArchRProject</p></td>
+        <td><p>Add a matrix of transcription factor deviations to Arrow Files in ArchRProject</p></td>
       </tr><tr>
         
         <td>
@@ -243,13 +253,13 @@
         <td>
           <p><code><a href="addEmbedding.html">addEmbedding()</a></code> </p>
         </td>
-        <td><p>Add embedding of a reduced dimensions object in an ArchRProject</p></td>
+        <td><p>Add an embedding of a reduced dimensions object to an ArchRProject</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="addFeatureMatrix.html">addFeatureMatrix()</a></code> </p>
         </td>
-        <td><p>Add FeatureMatrix to Arrows/ArchRProject</p></td>
+        <td><p>Add a feature matrix to an ArchRProject or a set of ArrowFiles</p></td>
       </tr><tr>
         
         <td>
@@ -261,19 +271,19 @@
         <td>
           <p><code><a href="addGroupCoverages.html">addGroupCoverages()</a></code> </p>
         </td>
-        <td><p>Add Group Coverages to ArchR Project</p></td>
+        <td><p>Add Group Coverages to an ArchRProject object</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="addImputeWeights.html">addImputeWeights()</a></code> </p>
         </td>
-        <td><p>Add TileMatrix to Arrows/ArchRProject</p></td>
+        <td><p>QQQ</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="addIterativeLSI.html">addIterativeLSI()</a></code> </p>
         </td>
-        <td><p>Compute Iterative LSI</p></td>
+        <td><p>Add an Iterative LSI-based dimensionality reduction to an ArchRProject</p></td>
       </tr><tr>
         
         <td>
@@ -303,7 +313,7 @@
         <td>
           <p><code><a href="addReproduciblePeakSet.html">addReproduciblePeakSet()</a></code> </p>
         </td>
-        <td><p>Add Reproducible Peak Set to ArchR Project</p></td>
+        <td><p>Add a Reproducible Peak Set to an ArchRProject</p></td>
       </tr><tr>
         
         <td>
@@ -315,7 +325,7 @@
         <td>
           <p><code><a href="addSeqLengths.html">addSeqLengths()</a></code> </p>
         </td>
-        <td><p>Add Seqlengths to genomic ranges</p></td>
+        <td><p>QQQ Adds seqlength information to the seqnames of a Genomic Ranges object</p></td>
       </tr><tr>
         
         <td>
@@ -328,6 +338,12 @@
           <p><code><a href="addTrajectory.html">addTrajectory()</a></code> </p>
         </td>
         <td><p>Add Supervised Trajectory to an ArchR Project</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="addBgdPeaks.html">addBgdPeaks()</a></code> </p>
+        </td>
+        <td><p>QQQ</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -395,7 +411,7 @@
         <td>
           <p><code><a href="getFeatures.html">getFeatures()</a></code> </p>
         </td>
-        <td><p>Return the available features that could be selected from a given data matrix within an ArchRProject</p></td>
+        <td><p>Get the features that could be selected from a given data matrix within an ArchRProject</p></td>
       </tr><tr>
         
         <td>
@@ -431,7 +447,7 @@
         <td>
           <p><code><a href="getImputeWeights.html">getImputeWeights()</a></code> </p>
         </td>
-        <td><p>Get outputDirectory in ArchRProject</p></td>
+        <td><p>QQQ</p></td>
       </tr><tr>
         
         <td>
@@ -516,6 +532,12 @@
           <p><code><a href="getValidBarcodes.html">getValidBarcodes()</a></code> </p>
         </td>
         <td><p>Get Valid Barcodes from 10x Cell Ranger output to pre-filter barcodes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getVarDeviations.html">getVarDeviations()</a></code> </p>
+        </td>
+        <td><p>QQQ</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -527,6 +549,12 @@
       <tr>
         
         <td>
+          <p><code><a href="ArchRPalettes.html">ArchRPalettes</a></code> </p>
+        </td>
+        <td><p>List of color palettes that can be used in plots</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="ArchRRegionTrack.html">ArchRRegionTrack()</a></code> </p>
         </td>
         <td><p>Plot ArchR Region Track</p></td>
@@ -535,31 +563,31 @@
         <td>
           <p><code><a href="ggAlignPlots.html">ggAlignPlots()</a></code> </p>
         </td>
-        <td><p>Align Ggplots vertically or horizontally</p></td>
+        <td><p>Align ggplot plots vertically or horizontally</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="ggHex.html">ggHex()</a></code> </p>
         </td>
-        <td><p>Ggplot Hexplot summary of points in a standardized manner</p></td>
+        <td><p>A ggplot-based Hexplot wrapper function summary of points in a standardized manner</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="ggOneToOne.html">ggOneToOne()</a></code> </p>
         </td>
-        <td><p>A ggplot-based one-to-one dot plot</p></td>
+        <td><p>A ggplot-based one-to-one dot plot wrapper function</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="ggPoint.html">ggPoint()</a></code> </p>
         </td>
-        <td><p>A ggplot-based dot plot</p></td>
+        <td><p>A ggplot-based dot plot wrapper function</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="ggViolin.html">ggViolin()</a></code> </p>
         </td>
-        <td><p>GG Violin Plot</p></td>
+        <td><p>A ggplot-based violin plot wrapper function</p></td>
       </tr><tr>
         
         <td>
@@ -601,13 +629,157 @@
         <td>
           <p><code><a href="plotTrajectory.html">plotTrajectory()</a></code> </p>
         </td>
-        <td><p>Visualize Embedding from ArchR Project</p></td>
+        <td><p>QQQ Visualize a Trajectory from ArchR Project</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="theme_ArchR.html">theme_ArchR()</a></code> </p>
         </td>
         <td><p>ggplot2 default theme for ArchR</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-helper-functions" class="hasAnchor"><a href="#section-helper-functions" class="anchor"></a>Helper functions</h2>
+          <p class="section-desc"><p>Generic helper functions</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="grapes-ni-grapes.html">`%ni%`</a></code> </p>
+        </td>
+        <td><p>Negated Value Matching</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="grapes-bcin-grapes.html">`%bcin%`</a></code> </p>
+        </td>
+        <td><p>QQQ Generic matching function for S4Vector objects primarily used for run length encodings</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="grapes-bcni-grapes.html">`%bcni%`</a></code> </p>
+        </td>
+        <td><p>QQQ Negated matching function for S4Vector objects primarily used for run length encodings</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="findMacs2.html">findMacs2()</a></code> </p>
+        </td>
+        <td><p>Find the installed location of the MACS2 executable</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-granges-manipulation" class="hasAnchor"><a href="#section-granges-manipulation" class="anchor"></a>GRanges manipulation</h2>
+          <p class="section-desc"><p>Functions to manipulate GRanges objects</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="columnOverlaps.html">columnOverlaps()</a></code> </p>
+        </td>
+        <td><p>QQQ Retreive column metadata for overlapping Genomic Ranges regions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="constructGRanges.html">constructGRanges()</a></code> </p>
+        </td>
+        <td><p>QQQ Construct a Genomic Ranges object taking into account strandedness</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="extendGRanges.html">extendGRanges()</a></code> </p>
+        </td>
+        <td><p>QQQ Extend regions from a Genomic Ranges object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="keepFilteredChromosomes.html">keepFilteredChromosomes()</a></code> </p>
+        </td>
+        <td><p>Filters unwanted seqlevels from a Genomic Ranges object or similar object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mergeGRanges.html">mergeGRanges()</a></code> </p>
+        </td>
+        <td><p>QQQ Merge regions within a single Genomic Ranges object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="nonOverlappingGRanges.html">nonOverlappingGRanges()</a></code> </p>
+        </td>
+        <td><p>QQQ Retreive a non-overlapping set of regions from a Genomic Ranges object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="overlappingBP.html">overlappingBP()</a></code> </p>
+        </td>
+        <td><p>QQQ Identify the number of bases that overlap two Genomic Ranges objects</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="overlapsMany.html">overlapsMany()</a></code> </p>
+        </td>
+        <td><p>QQQ PLEASE ADD A DESCRIPTIVE FUNCTION TITLE</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="shuffleGRanges.html">shuffleGRanges()</a></code> </p>
+        </td>
+        <td><p>QQQ Randomly shuffle a Genomic Ranges object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="subsetSeqnames.html">subsetSeqnames()</a></code> </p>
+        </td>
+        <td><p>Subset a Genomic Ranges object by the provided seqnames</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-marker-feature-trajectory-identification" class="hasAnchor"><a href="#section-marker-feature-trajectory-identification" class="anchor"></a>Marker feature / trajectory identification</h2>
+          <p class="section-desc"><p>Functions to identify and visualize marker features and cellular trajectories</p></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="markerFeatures.html">markerFeatures()</a></code> </p>
+        </td>
+        <td><p>Identify Marker Features for each cell grouping</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="markerHeatmap.html">markerHeatmap()</a></code> </p>
+        </td>
+        <td><p>Plot a Heatmap of Identified Marker Features</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="markerAnnoEnrich.html">markerAnnoEnrich()</a></code> </p>
+        </td>
+        <td><p>QQQ</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="markerPlot.html">markerPlot()</a></code> </p>
+        </td>
+        <td><p>QQQ</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="markerRanges.html">markerRanges()</a></code> </p>
+        </td>
+        <td><p>QQQ</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="trajectoryHeatmap.html">trajectoryHeatmap()</a></code> </p>
+        </td>
+        <td><p>Plot a Heatmap of Features across a Trajectory</p></td>
       </tr>
     </tbody>
     </table>
@@ -620,6 +792,9 @@
       <li><a href="#section-add-ers">Add-ers</a></li>
       <li><a href="#section-get-ers">Get-ers</a></li>
       <li><a href="#section-plotting-aesthetic-functions">Plotting / aesthetic functions</a></li>
+      <li><a href="#section-helper-functions">Helper functions</a></li>
+      <li><a href="#section-granges-manipulation">GRanges manipulation</a></li>
+      <li><a href="#section-marker-feature-trajectory-identification">Marker feature / trajectory identification</a></li>
     </ul>
   </div>
 </div>
@@ -627,7 +802,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

@@ -1,5 +1,5 @@
 ---
-title: "Gene Activity Scores and Marker Genes"
+title: "Gene Activity Scores and Marker Features"
 resource_files:
   - images/GeneActivityScore_Schematic.png
 ---
@@ -22,10 +22,3 @@ These gene activity scores are calculated for each `ArrowFile` at the time of cr
 
 It is important to note that not all genes behave well with gene activity scores. In particular, genes that reside in very gene-dense areas can be problematic because the promoter accessibility of nearby genes contribute to their score and it is also not necessarily true that nearby regulatory elements will affect their expression. Thus, it is always best to sanity check all gene activity score analyses.
 
-### Marker Genes
-
-An alternative less-supervised method for identification of cell types is the identification of features that are highly specific to the given cluster (or a small group of clusters). Here, a feature could be a single regulatory element or it could be a gene. ArchR does this using the `markerFeatures()` function which can take as input any matrix via the `useMatrix` parameter and it identifies features unique to the groups indicated by the `groupBy` parameter (default is "Clusters"). If the `useMatrix` parameter is set to "GeneScoreMatrix", then the function will identify the genes that appear to be uniquely active in each cell type. This provides an unbiased way of seeing which genes are predicted to be active in each cluster and can aid in cluster annotation.
-
-__Can you not set the max number of clusters that can have the activity??__
-
-It is worth noting that the same function can be used with the `useMatrix` parameter set to "TileMatrix" or __QQQ__ in order to identify genomic regions or regulatory elements that are highly specific to a certain cluster.

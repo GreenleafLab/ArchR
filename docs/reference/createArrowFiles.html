@@ -8,6 +8,13 @@
 
 <title>Create Arrow Files — createArrowFiles • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,6 +42,8 @@
 <meta property="og:title" content="Create Arrow Files — createArrowFiles" />
 
 <meta property="og:description" content="This function will create Arrow Files from input files. These Arrow Files are the main constituent for downstream analysis in ArchR." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -155,7 +164,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>createArrowFiles</span>(<span class='kw'>inputFiles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sampleNames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>outputNames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"./"</span>, <span class='no'>sampleNames</span>), <span class='kw'>validBaroces</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>outputNames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"./"</span>, <span class='no'>sampleNames</span>), <span class='kw'>validBarcodes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>geneAnno</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>genomeAnno</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>filterFrags</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>filterTSS</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>removeFilteredCells</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>minFrags</span> <span class='kw'>=</span> <span class='fl'>500</span>,
   <span class='kw'>outDir</span> <span class='kw'>=</span> <span class='st'>"QualityControl"</span>, <span class='kw'>nucLength</span> <span class='kw'>=</span> <span class='fl'>147</span>, <span class='kw'>TSSParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
@@ -180,6 +189,10 @@
     <tr>
       <th>outputNames</th>
       <td><p>The prefix to use for output files. Each input file should receive a unique output file name. This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"</p></td>
+    </tr>
+    <tr>
+      <th>validBarcodes</th>
+      <td><p>QQQ ??? not used in function</p></td>
     </tr>
     <tr>
       <th>geneAnno</th>
@@ -230,6 +243,10 @@
       <td><p>The name of the field in the input bam file containing the barcode tag information. See ScanBam in Rsamtools.</p></td>
     </tr>
     <tr>
+      <th>gsubExpression</th>
+      <td><p>QQQ</p></td>
+    </tr>
+    <tr>
       <th>bamFlag</th>
       <td><p>QQQ A list of bam flags to be used for reading in fragments from input bam files. Fromat should be QQQ. See ScanBam in Rsamtools.</p></td>
     </tr>
@@ -239,7 +256,7 @@
     </tr>
     <tr>
       <th>offsetMinus</th>
-      <td><p>The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. Ssee Buenrostro et al. Nature Methods 2013.</p></td>
+      <td><p>The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.</p></td>
     </tr>
     <tr>
       <th>addTileMat</th>
@@ -247,7 +264,7 @@
     </tr>
     <tr>
       <th>TileMatParams</th>
-      <td><p>A list of parameters to pass to the addTileMatrix function. See addTileMatrix for options.</p></td>
+      <td><p>A list of parameters to pass to the `addTileMatrix()` function. See `ArchR::addTileMatrix()` for options.</p></td>
     </tr>
     <tr>
       <th>addGeneScoreMat</th>
@@ -255,19 +272,27 @@
     </tr>
     <tr>
       <th>GeneScoreMatParams</th>
-      <td><p>A list of parameters to pass to the addGeneScoreMatrix function. See addGeneScoreMatrix for options.</p></td>
+      <td><p>A list of parameters to pass to the `addGeneScoreMatrix()` function. See `ArchR::addGeneScoreMatrix()` for options.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A bollean value indicating whether to force arrow files to be overwritten if already exist in outDir.</p></td>
+      <td><p>A boolean value indicating whether to force arrow files to be overwritten if they already exist in `outDir`.</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>The number threads to be used for parallel computing.</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>QQQ A list of parameters to be used for batch-style parallel computing.</p></td>
+      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
+    </tr>
+    <tr>
+      <th>verboseHeader</th>
+      <td><p>A boolean value that determines whether standard output includes verbose sections.</p></td>
+    </tr>
+    <tr>
+      <th>verboseAll</th>
+      <td><p>A boolean value that determines whether standard output includes verbose subsections.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -289,7 +314,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

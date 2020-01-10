@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add embedding of a reduced dimensions object in an ArchRProject — addEmbedding • ArchR</title>
+<title>Add an embedding of a reduced dimensions object to an ArchRProject — addEmbedding • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Add embedding of a reduced dimensions object in an ArchRProject — addEmbedding" />
+<meta property="og:title" content="Add an embedding of a reduced dimensions object to an ArchRProject — addEmbedding" />
 
-<meta property="og:description" content="This function will compute an embedding and add to an ArchRProject." />
+<meta property="og:description" content="This function will compute an embedding and add it to an ArchRProject." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -95,7 +104,7 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,7 +113,7 @@
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
     <li>
-      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Generation</a>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
     </li>
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
@@ -143,14 +152,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add embedding of a reduced dimensions object in an ArchRProject</h1>
+    <h1>Add an embedding of a reduced dimensions object to an ArchRProject</h1>
     
     <div class="hidden name"><code>addEmbedding.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function will compute an embedding and add to an ArchRProject.</p>
+    <p>This function will compute an embedding and add it to an ArchRProject.</p>
     
     </div>
 
@@ -164,87 +173,51 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An ArchRProject object.</p></td>
+      <td><p>An `ArchRProject` object.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>QQQ The name of the reducedDims object to use. Possible options include "IterativeLSI", QQQ.</p></td>
+      <td><p>QQQ The name of the `reducedDims` object to use from the designated `ArchRProject`. Possible options include "IterativeLSI", QQQ.</p></td>
     </tr>
     <tr>
       <th>embedding</th>
-      <td><p>QQQ The name of the embedding to create. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".</p></td>
+      <td><p>QQQ The name of the embedding to add to the `ArchRProject` object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".</p></td>
+    </tr>
+    <tr>
+      <th>embeddingOut</th>
+      <td><p>QQQ</p></td>
+    </tr>
+    <tr>
+      <th>dimsToUse</th>
+      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
+    </tr>
+    <tr>
+      <th>corCutOff</th>
+      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
+    </tr>
+    <tr>
+      <th>saveModel</th>
+      <td><p>QQQ A boolean value indicating whether QQQ.</p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p>QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
+    </tr>
+    <tr>
+      <th>force</th>
+      <td><p>A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if the given `embedding` already exists.</p></td>
+    </tr>
+    <tr>
+      <th>threads</th>
+      <td><p>The number of threads to use for embedding generation computations.</p></td>
+    </tr>
+    <tr>
+      <th>embeddingParams</th>
+      <td><p>A list of extra parameters to pass to the designated `embedding` function.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional args</p></td>
-    </tr>
-    <tr>
-      <th>colorBy</th>
-      <td><p>QQQ colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)</p></td>
-    </tr>
-    <tr>
-      <th>name</th>
-      <td><p>QQQ name of column in cellColData or Feature in Array in Arrows</p></td>
-    </tr>
-    <tr>
-      <th>log2Norm</th>
-      <td><p>A boolean value that indicates whether log2 Normalization should be performed on the features if they are continuous.</p></td>
-    </tr>
-    <tr>
-      <th>pal</th>
-      <td><p>The name or numeric index of a custom palette from ArchR_palettes to use for plotting the individual points of the embedding visualization.</p></td>
-    </tr>
-    <tr>
-      <th>size</th>
-      <td><p>The numeric size of points to plot.</p></td>
-    </tr>
-    <tr>
-      <th>rastr</th>
-      <td><p>A boolean valut that indicates that the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.</p></td>
-    </tr>
-    <tr>
-      <th>quantCut</th>
-      <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.</p></td>
-    </tr>
-    <tr>
-      <th>quantHex</th>
-      <td><p>QQQ quantile evaluation for each hex in geom_hex</p></td>
-    </tr>
-    <tr>
-      <th>discreteSet</th>
-      <td><p>QQQ The name or numeric index of a discrete palette from ArchR_palettesdiscrete to use for plotting QQQ.</p></td>
-    </tr>
-    <tr>
-      <th>continuousSet</th>
-      <td><p>QQQcontinuous palette for visualizing embedding</p></td>
-    </tr>
-    <tr>
-      <th>randomize</th>
-      <td><p>A boolean value that determines whether to randomly order the plotting of points to avoid (for ex.) all points from a single cluster being plotted as the top-most layer of the plot.</p></td>
-    </tr>
-    <tr>
-      <th>keepAxis</th>
-      <td><p>QQQ keep x and y axis for plot</p></td>
-    </tr>
-    <tr>
-      <th>baseSize</th>
-      <td><p>QQQ The numeric font size to be used in the plot. This applies to all plot labels.</p></td>
-    </tr>
-    <tr>
-      <th>plotContinuous</th>
-      <td><p>QQQ how to plot continuous features (points and hex)</p></td>
-    </tr>
-    <tr>
-      <th>plotParams</th>
-      <td><p>QQQ additional params to pass to ggPoint/ggHex</p></td>
-    </tr>
-    <tr>
-      <th>plotWidth</th>
-      <td><p>QQQ plot width used for creating a consistent plot independent of legend size</p></td>
-    </tr>
-    <tr>
-      <th>plotHeight</th>
-      <td><p>QQQ plot height used for creating a consistent plot independent of legend size</p></td>
     </tr>
     </table>
     
@@ -262,7 +235,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">
