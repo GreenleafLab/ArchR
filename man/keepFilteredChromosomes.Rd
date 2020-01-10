@@ -8,13 +8,13 @@ keepFilteredChromosomes(x, remove = c("chrM"), underscore = TRUE,
   standard = TRUE, pruning.mode = "coarse")
 }
 \arguments{
-\item{x}{A `GRanges` object or another object containing seqlevels.}
+\item{x}{A \code{GRanges} object or another object containing seqlevels.}
 
 \item{remove}{A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.}
 
 \item{underscore}{A boolean value indicating whether to remove all seqlevels whose name contains an underscore (for example "chr11_KI270721v1_random").}
 
-\item{standard}{A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.}
+\item{standard}{A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by \code{GenomeInfoDb::keepStandardChromosomes()}.}
 }
 \description{
 This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object

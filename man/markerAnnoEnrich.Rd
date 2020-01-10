@@ -9,15 +9,15 @@ markerAnnoEnrich(seMarker = NULL, ArchRProj = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5", background = "bgdPeaks", ...)
 }
 \arguments{
-\item{seMarker}{QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.}
+\item{seMarker}{QQQ A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{annotations}{QQQ}
 
 \item{matches}{QQQ}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{background}{QQQ}
 

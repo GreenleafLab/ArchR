@@ -9,11 +9,11 @@ addFeatureMatrix(input, features = NULL, matrixName = "FeatureMatrix",
   parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{
-\item{input}{An `ArchRProject` object or character vector of ArrowFiles.}
+\item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{features}{A `GRanges` object containing the regions (aka features) to use for counting insertions for each cell.}
+\item{features}{A \code{GRanges} object containing the regions (aka features) to use for counting insertions for each cell.}
 
-\item{matrixName}{The name to be used for storage of the feature matrix in the provided `ArchRProject` or ArrowFiles.}
+\item{matrixName}{The name to be used for storage of the feature matrix in the provided \code{ArchRProject} or ArrowFiles.}
 
 \item{ceiling}{QQQ The maximum counts per feature allowed. This is used to prevent large biases in feature counts.}
 
@@ -23,7 +23,7 @@ addFeatureMatrix(input, features = NULL, matrixName = "FeatureMatrix",
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.}
+\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArchRProject} or ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.

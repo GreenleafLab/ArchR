@@ -8,11 +8,11 @@ nonOverlappingGRanges(gr, by = "score", decreasing = TRUE,
   verbose = FALSE)
 }
 \arguments{
-\item{gr}{A `GRanges` object.}
+\item{gr}{A \code{GRanges} object.}
 
-\item{by}{QQQ The name of a column in `mcols(gr)` that should be used to determine how overlapping regions should be resolved. The resolution of overlapping regions also depends on `decreasing`. For example, if a column named "score" is used for `by`, `decreasing = TRUE` means that the highest "score" in the overlap will be retained and `decreasing = FALSE` means that the lowest "score" in the overlap will be retained.}
+\item{by}{QQQ The name of a column in \code{mcols(gr)} that should be used to determine how overlapping regions should be resolved. The resolution of overlapping regions also depends on \code{decreasing}. For example, if a column named "score" is used for \code{by}, \code{decreasing = TRUE} means that the highest "score" in the overlap will be retained and \code{decreasing = FALSE} means that the lowest "score" in the overlap will be retained.}
 
-\item{decreasing}{QQQ A boolean value indicating whether the values in the column indicated via `by` should be ordered in decreasing order. If `TRUE`, the higher value in `by` will be retained.}
+\item{decreasing}{QQQ A boolean value indicating whether the values in the column indicated via \code{by} should be ordered in decreasing order. If \code{TRUE}, the higher value in \code{by} will be retained.}
 
 \item{verbose}{A boolean value that determines whether the output should include extra reporting.}
 }

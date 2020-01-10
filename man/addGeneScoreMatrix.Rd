@@ -13,13 +13,13 @@ addGeneScoreMatrix(input = NULL, genes = NULL,
   force = FALSE, ...)
 }
 \arguments{
-\item{input}{An `ArchRProject` object or character vector of ArrowFiles.}
+\item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{genes}{QQQ A set of transcription start sites encoded as a single-basepair-width `GRanges` object.}
+\item{genes}{QQQ A set of transcription start sites encoded as a single-basepair-width \code{GRanges} object.}
 
 \item{geneModel}{QQQ gene model as a string for weighting peaks for gene score calculation (function of x)}
 
-\item{matrixName}{The name to be used for storage of the gene activity score matrix in the provided `ArchRProject` or ArrowFiles.}
+\item{matrixName}{The name to be used for storage of the gene activity score matrix in the provided \code{ArchRProject} or ArrowFiles.}
 
 \item{upstream}{The number of basepairs upstream of the transcription start site to consider for gene activity score calculation.}
 
@@ -33,15 +33,15 @@ addGeneScoreMatrix(input = NULL, genes = NULL,
 
 \item{scaleTo}{QQQ A numeric value indicating QQQ}
 
-\item{excludeChr}{A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.}
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
-\item{blacklist}{A `GRanges` object containing genomic regions to blacklist from calling CNVs.}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist from calling CNVs.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.}
+\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArchRProject} or ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each tile

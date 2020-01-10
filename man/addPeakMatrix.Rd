@@ -8,7 +8,7 @@ addPeakMatrix(ArchRProj, ceiling = 4, binarize = FALSE,
   parallelParam = NULL, threads = 1, force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{ceiling}{QQQ The maximum counts per feature allowed. QQQ WHY?}
 
@@ -18,7 +18,7 @@ addPeakMatrix(ArchRProj, ceiling = 4, binarize = FALSE,
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.}
+\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArchRProject} or ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each peak

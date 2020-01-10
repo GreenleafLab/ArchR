@@ -7,7 +7,7 @@
 saveArchRProject(ArchRProj = NULL, copyArrows = TRUE)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{copyArrows}{A boolean indicating whether to copy or copy + remove original ArrowFiles prior to saving ArchRProject.}
 }

@@ -10,11 +10,11 @@ addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
   force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{annotations}{QQQ UNCLEAR WHAT ANNOTATIONS MEANS. The name of the annotations object name stored in the `ArchRProject`.}
+\item{annotations}{QQQ UNCLEAR WHAT ANNOTATIONS MEANS. The name of the annotations object name stored in the \code{ArchRProject}.}
 
-\item{matrixName}{The name to be used for storage of the deviations matrix in the provided `ArchRProject`.}
+\item{matrixName}{The name to be used for storage of the deviations matrix in the provided \code{ArchRProject}.}
 
 \item{out}{A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).}
 
@@ -24,7 +24,7 @@ addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject`.}
+\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArchRProject}.}
 }
 \description{
 This function for each QQQ will independently compute transcription factor deviations.

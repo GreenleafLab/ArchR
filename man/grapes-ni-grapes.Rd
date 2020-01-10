@@ -7,7 +7,7 @@
 x \%ni\% table
 }
 \arguments{
-\item{x}{The value to search for in `table`.}
+\item{x}{The value to search for in \code{table}.}
 
 \item{table}{The set of values to serve as the base for the match function.}
 }

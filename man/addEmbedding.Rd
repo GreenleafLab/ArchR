@@ -10,15 +10,15 @@ addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
   threads = 1, embeddingParams = list(), ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{reducedDims}{The name of the `reducedDims` object (i.e. IterativeLSI) to use from the designated `ArchRProject`.}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to use from the designated \code{ArchRProject}.}
 
-\item{embedding}{The type of the embedding to add to the `ArchRProject` object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".}
+\item{embedding}{The type of the embedding to add to the \code{ArchRProject} object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".}
 
-\item{embeddingOut}{The name for the embedding to be stored as in the `ArchRProject` object.}
+\item{embeddingOut}{The name for the embedding to be stored as in the \code{ArchRProject} object.}
 
-\item{dimsToUse}{A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.}
+\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.}
 
@@ -26,11 +26,11 @@ addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
 
 \item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if the given `embedding` already exists.}
+\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if the given \code{embedding} already exists.}
 
 \item{threads}{The number of threads to use for embedding generation computations.}
 
-\item{embeddingParams}{A list of extra parameters to pass to the designated `embedding` function.}
+\item{embeddingParams}{A list of extra parameters to pass to the designated \code{embedding} function.}
 
 \item{...}{additional args}
 }

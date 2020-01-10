@@ -7,9 +7,9 @@
 shuffleGRanges(subject, genome, n, shuffleChr = TRUE)
 }
 \arguments{
-\item{subject}{A `GRanges` object.}
+\item{subject}{A \code{GRanges} object.}
 
-\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR::validBSgenome()`.}
+\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"). See \code{ArchR::validBSgenome()}.}
 
 \item{n}{QQQ The number of permutations to perform during shuffling.}
 

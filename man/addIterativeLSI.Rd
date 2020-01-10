@@ -16,15 +16,15 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
   force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".}
 
-\item{reducedDimsOut}{QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.}
+\item{reducedDimsOut}{QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the \code{ArchRProject} as a \code{reducedDims} object.}
 
 \item{iterations}{The number of LSI iterations to perform.}
 
-\item{dimsToUse}{QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.}
+\item{dimsToUse}{QQQ A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
 \item{corCutOff}{QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.}
 
@@ -32,9 +32,9 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 
-\item{sampleCells}{A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.}
+\item{sampleCells}{A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in \code{cellColData}.}
 
-\item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.}
+\item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
 
 \item{selectionMethod}{QQQ The selection method to be used for identifying the top variable features. Valid options are "var" or "vmr" (QQQ what is vmr?).}
 
@@ -44,15 +44,15 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 
 \item{filterQuantile}{QQQ Remove features that are above this quantile based on insertion counts prior to initial LSI.}
 
-\item{saveIterations}{A boolean value indicating whether the different LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.}
+\item{saveIterations}{A boolean value indicating whether the different LSI iterations should be saved as compressed \code{.rds} files in the designated \code{outDir}.}
 
 \item{outDir}{The output directory for saving LSI iterations if desired.}
 
-\item{clusterParams}{Additional parameters to be passed to `ArchR::addClusters()`.}
+\item{clusterParams}{Additional parameters to be passed to \code{ArchR::addClusters()}.}
 
 \item{runHarmony}{QQQ A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.}
 
-\item{harmonyParams}{Additional parameters to be passed to `harmony::HarmonyMatrix()`.}
+\item{harmonyParams}{Additional parameters to be passed to \code{harmony::HarmonyMatrix()}.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
@@ -62,7 +62,7 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.}
+\item{force}{A boolean value that indicates whether or not to overwrite relevant data in the \code{ArchRProject} object.}
 
 \item{...}{additional args}
 }

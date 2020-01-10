@@ -11,9 +11,9 @@ addGroupCoverages(ArchRProj, groupBy = "Clusters", useLabels = TRUE,
   force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{QQQ The name of the column in `cellColData` to use for grouping multiple cells together prior to generation of the insertion coverage file.}
+\item{groupBy}{QQQ The name of the column in \code{cellColData} to use for grouping multiple cells together prior to generation of the insertion coverage file.}
 
 \item{useLabels}{QQQ A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.}
 
@@ -35,7 +35,7 @@ addGroupCoverages(ArchRProj, groupBy = "Clusters", useLabels = TRUE,
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.}
+\item{force}{QQQ A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if insertion coverage / pseudo-bulk replicate information already exists.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

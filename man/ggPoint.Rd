@@ -23,15 +23,15 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{discrete}{QQQ A boolean value indicating whether the supplied data is discrete (TRUE) or continuous (FALSE).}
 
-\item{discreteSet}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
+\item{discreteSet}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for QQQ.}
 
-\item{continuousSet}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
+\item{continuousSet}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for QQQ.}
 
 \item{labelMeans}{QQQ A boolean value indicating QQQ}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
+\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for QQQ.}
 
-\item{defaultColor}{QQQ The default color for points that do not have another color applied (i.e. `NA` values).}
+\item{defaultColor}{QQQ The default color for points that do not have another color applied (i.e. \code{NA} values).}
 
 \item{colorDensity}{QQQ A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, QQQ is used as the color palette.}
 
@@ -41,7 +41,7 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{extend}{QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
+\item{extend}{QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
 
 \item{xlabel}{The label to plot for the x-axis.}
 
@@ -53,7 +53,7 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{seed}{A numeric seed number for use in randomization.}
 
-\item{alpha}{A number indicating the transparency to use for each point. See `ggplot2` for more details.}
+\item{alpha}{A number indicating the transparency to use for each point. See \code{ggplot2} for more details.}
 
 \item{baseSize}{QQQ The base font size to use in the plot.}
 

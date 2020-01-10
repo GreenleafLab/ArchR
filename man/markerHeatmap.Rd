@@ -12,11 +12,11 @@ markerHeatmap(seMarker, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   invert = FALSE, ...)
 }
 \arguments{
-\item{seMarker}{QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.}
+\item{seMarker}{QQQ A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
-\item{log2Norm}{A boolean value indicating whether a log2 transformation whould be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like `DeviationsMatrix`).}
+\item{log2Norm}{A boolean value indicating whether a log2 transformation whould be performed on the values in \code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like \code{DeviationsMatrix}).}
 
 \item{scaleTo}{QQQ scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing}
 
@@ -24,15 +24,15 @@ markerHeatmap(seMarker, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
 
 \item{limits}{A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.}
 
-\item{grepExclude}{QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.}
+\item{grepExclude}{QQQ A character vector or string that indicates the \code{rownames} or a specific pattern that identifies rownames from \code{seMarker} to be excluded from the heatmap.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap}
+\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for the heatmap}
 
 \item{binaryClusterRows}{A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.}
 
-\item{labelMarkers}{A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.}
+\item{labelMarkers}{A character vector listing the \code{rownames} of \code{seMarker} that should be labeled on the side of the heatmap.}
 
-\item{labelTop}{A boolean value that indicates whether the top features for each column in `seMarker` should be labeled on the side of the heatmap.}
+\item{labelTop}{A boolean value that indicates whether the top features for each column in \code{seMarker} should be labeled on the side of the heatmap.}
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 

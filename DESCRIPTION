@@ -4,9 +4,10 @@ Date: 2019-10-17
 Title: Analyzing regulatory chromatin in R
 Version: 0.1.4
 Authors@R: c(
-    person("Jeffrey", "Granja", role = c("aut","cre")),
+    person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
 Description: This package is designed to streamline scATAC analyses in R.
+Roxygen: list(markdown = TRUE)
 License: GPL (>= 2)
 LinkingTo: Rcpp
 LazyData: TRUE

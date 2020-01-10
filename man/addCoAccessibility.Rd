@@ -10,13 +10,13 @@ addCoAccessibility(ArchRProj, reducedDims = "IterativeLSI", k = 100,
   threads = 1, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{reducedDims}{The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to retrieve from the designated \code{ArchRProject}.}
 
 \item{k}{The number of k-nearest neighbors to use for creating single cell groups for correlation.}
 
-\item{knnIteration}{The number of KNN groupings to test for passing the supplied `overlapCutoff`.}
+\item{knnIteration}{The number of KNN groupings to test for passing the supplied \code{overlapCutoff}.}
 
 \item{overlapCutoff}{The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.}
 

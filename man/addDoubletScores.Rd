@@ -12,7 +12,7 @@ addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
   verboseAll = FALSE, ...)
 }
 \arguments{
-\item{input}{An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.}
+\item{input}{An \code{ArchRProject} object or a character vector containing the names of ArrowFiles to be used.}
 
 \item{useMatrix}{The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", "PeakMatrix".}
 
@@ -20,13 +20,13 @@ addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
 
 \item{nTrials}{The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.}
 
-\item{dimsToUse}{A vector containing the dimensions from the `reducedDims` object to use in clustering.}
+\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.}
 
 \item{knnMethod}{The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".}
 
-\item{UMAPParams}{The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function umap in the uwot package.}
+\item{UMAPParams}{The list of parameters to pass to the UMAP function if "UMAP" is designated to \code{knnMethod}. See the function umap in the uwot package.}
 
 \item{LSIParams}{The list of parameters to pass to the IterativeLSI function. See IterativeLSI.}
 

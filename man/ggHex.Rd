@@ -15,17 +15,17 @@ ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
 
 \item{y}{A numeric vector containing the y-axis values for each point.}
 
-\item{color}{QQQ A vector of color values to be plotted. This vector must be the same length as QQQ `length(x) * length(y)`}
+\item{color}{QQQ A vector of color values to be plotted. This vector must be the same length as QQQ \code{length(x) * length(y)}}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
+\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for QQQ.}
 
-\item{bins}{QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ `bins` indicates the total number of hexagons that will fit within the surface area of the plot.}
+\item{bins}{QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ \code{bins} indicates the total number of hexagons that will fit within the surface area of the plot.}
 
 \item{xlim}{A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.}
 
 \item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{extend}{QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
+\item{extend}{QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
 
 \item{xlabel}{The label to plot for the x-axis.}
 
@@ -33,7 +33,7 @@ ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
 
 \item{title}{The title of the plot.}
 
-\item{colorTitle}{The label to use for the legend corresponding to `color`.}
+\item{colorTitle}{The label to use for the legend corresponding to \code{color}.}
 
 \item{baseSize}{QQQ The base font size to use in the plot.}
 

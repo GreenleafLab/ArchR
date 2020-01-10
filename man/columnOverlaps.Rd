@@ -8,15 +8,15 @@ columnOverlaps(query, subject, colname = "score", ignore.strand = TRUE,
   decreasing = TRUE)
 }
 \arguments{
-\item{query}{A `GRanges` object to be used as the query in `findOverlaps()`.}
+\item{query}{A \code{GRanges} object to be used as the query in \code{findOverlaps()}.}
 
-\item{subject}{A `GRanges` object to be used as the subject in `findOverlaps()`.}
+\item{subject}{A \code{GRanges} object to be used as the subject in \code{findOverlaps()}.}
 
-\item{colname}{The column name from `mcols(gr)` to return for the overlapping regions. Mandatory parameter; cannot be `NULL`.}
+\item{colname}{The column name from \code{mcols(gr)} to return for the overlapping regions. Mandatory parameter; cannot be \code{NULL}.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
 
-\item{decreasing}{A boolean value indicating whether the returned `data.frame` should be ordered in decreasing order based on `colname`.}
+\item{decreasing}{A boolean value indicating whether the returned \code{data.frame} should be ordered in decreasing order based on \code{colname}.}
 }
 \description{
 QQQ This function returns a data.frame containing the overlapping regions and designated metadata columns from mcols(gr)

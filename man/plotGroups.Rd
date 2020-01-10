@@ -10,15 +10,15 @@ plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
   baseSize = 6, ratioYX = 0.5, points = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{groupBy}{use groupings in cellColData for summarizing and plotting}
 
 \item{colorBy}{QQQ UNCLEAR A string indicating whether points/hexes in the plot should be colored by cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").}
 
-\item{name}{QQQ UNCLEAR The name of the column in `cellColData` or `GeneScoreMatrix` to use for QQQ.}
+\item{name}{QQQ UNCLEAR The name of the column in \code{cellColData} or \code{GeneScoreMatrix} to use for QQQ.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
+\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for QQQ.}
 
 \item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
@@ -28,7 +28,7 @@ plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{points}{A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`}
+\item{points}{A boolean value that indicates whether points should be added to the plot using \code{geom_quasirandom()}}
 
 \item{...}{additional args}
 }

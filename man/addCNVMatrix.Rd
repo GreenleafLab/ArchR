@@ -10,25 +10,25 @@ addCNVMatrix(input, chromSizes = getChromSizes(input),
   "chrY"), threads = 1, parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{
-\item{input}{An `ArchRProject` object or character vector of ArrowFiles.}
+\item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getChromSizes()`.}
+\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getChromSizes()}.}
 
-\item{blacklist}{A `GRanges` object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getBlacklist()`.}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getBlacklist()}.}
 
-\item{genome}{The genome used by the `input`. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getGenome()`.}
+\item{genome}{The genome used by the \code{input}. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getGenome()}.}
 
 \item{windowSize}{The size in basepairs for the sliding window used to break up each chromosome to look for CNVs.}
 
 \item{stepSize}{The size in basepairs for the step used to create sliding window bins across each chromosome.}
 
-\item{excludeChr}{A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.}
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from CNV analysis.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for `input`.}
+\item{force}{A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for \code{input}.}
 }
 \description{
 This function for each sample will predict copy number variation from accessibility

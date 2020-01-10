@@ -7,9 +7,9 @@
 x \%bcin\% table
 }
 \arguments{
-\item{x}{An `S4Vector` object search for in `table`.}
+\item{x}{An \code{S4Vector} object search for in \code{table}.}
 
-\item{table}{The set of `S4Vector` objects to serve as the base for the match function.}
+\item{table}{The set of \code{S4Vector} objects to serve as the base for the match function.}
 }
 \description{
 QQQ This function provides a general matching function for S4Vector objects primarily used for run length encodings

@@ -10,15 +10,15 @@ addTrajectory(ArchRProj, name = "Trajectory", trajectory = NULL,
   force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{A string indicating the name of the fitted trajectory to be added in `cellColData`.}
+\item{name}{A string indicating the name of the fitted trajectory to be added in \code{cellColData}.}
 
 \item{trajectory}{Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )}
 
 \item{groupBy}{initial group column in cellColData to constrain supervised fit}
 
-\item{reducedDims}{A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.}
+\item{reducedDims}{A string indicating the name of the \code{reducedDims} object from the \code{ArchRProject} that should be used for distance computation.}
 
 \item{preFilter}{QQQ UNCLEAR pre filtering quantile for supervised trajectory fit}
 
@@ -28,11 +28,11 @@ addTrajectory(ArchRProj, name = "Trajectory", trajectory = NULL,
 
 \item{spar}{QQQ sparsity}
 
-\item{force}{QQQ A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.}
+\item{force}{QQQ A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 
 \item{...}{additional args}
 }
 \description{
-This function will fit a supervised trajectory in a lower dimensional space that 
+This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses.
 }

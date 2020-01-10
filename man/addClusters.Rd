@@ -11,11 +11,11 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
   force = FALSE, ...)
 }
 \arguments{
-\item{input}{Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.}
+\item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims} or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.}
 
-\item{reducedDims}{The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`. Not required if input is a matrix.}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to retrieve from the designated \code{ArchRProject}. Not required if input is a matrix.}
 
-\item{name}{The column name of the column to be added to `cellColData` if `input` is an `ArchRProject` object.}
+\item{name}{The column name of the column to be added to \code{cellColData} if \code{input} is an \code{ArchRProject} object.}
 
 \item{sampleCells}{An integer specifying number of cells to subset perform clustering and assign the remainder cells by euclidean distance.}
 
@@ -23,7 +23,7 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 
 \item{method}{A string indicated the clustering method to be used. Supported methods are "Seurat" and "Scran".}
 
-\item{dimsToUse}{A vector containing the dimensions from the `reducedDims` object to use in clustering.}
+\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.}
 
@@ -35,7 +35,7 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 
 \item{tstart}{The time at which the function run was started. Useful for keeping track of how long clustering takes relative to a start time.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.}
+\item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already exists as a column name in \code{cellColData}.}
 
 \item{...}{Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)}
 }

@@ -7,7 +7,7 @@
 getExons(ArchRProj, symbols = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{symbols}{A character vector containing the gene symbols for the genes where exons should be extracted.}
 

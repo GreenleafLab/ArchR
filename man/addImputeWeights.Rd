@@ -9,11 +9,11 @@ addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
   floor(nCells(ArchRProj)/10)), k = 15, epsilon = 1, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{reducedDims}{QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.}
+\item{reducedDims}{QQQ The name of the \code{reducedDims} object to retrieve from the designated \code{ArchRProject}. Options include QQQ. QQQ Not required if input is a matrix.}
 
-\item{dimsToUse}{QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.}
+\item{dimsToUse}{QQQ A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
 \item{td}{diffusion time (number of iterations) for Magic}
 

@@ -7,9 +7,9 @@
 getProjectSummary(ArchRProj, returnSummary = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{returnSummary}{A boolean value indicating whether to return a summary of the `ArchRProject` or to just print the summary.}
+\item{returnSummary}{A boolean value indicating whether to return a summary of the \code{ArchRProject} or to just print the summary.}
 
 \item{...}{additional args}
 }

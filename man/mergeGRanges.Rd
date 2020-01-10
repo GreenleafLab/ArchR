@@ -7,9 +7,9 @@
 mergeGRanges(gr, ignore.strand = TRUE)
 }
 \arguments{
-\item{gr}{A `GRanges` object.}
+\item{gr}{A \code{GRanges} object.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
 }
 \description{
 QQQ This function merges overlapping regions within a single Genomic Ranges object

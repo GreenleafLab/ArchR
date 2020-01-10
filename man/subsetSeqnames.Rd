@@ -7,9 +7,9 @@
 subsetSeqnames(gr, seqNames, useNames = FALSE)
 }
 \arguments{
-\item{gr}{A `GRanges` object to be subsetted.}
+\item{gr}{A \code{GRanges} object to be subsetted.}
 
-\item{seqNames}{A character vector containing the `seqnames` to keep from the provided `GRanges` object.}
+\item{seqNames}{A character vector containing the \code{seqnames} to keep from the provided \code{GRanges} object.}
 
 \item{useNames}{QQQ A boolean value indicating whether QQQ.}
 }

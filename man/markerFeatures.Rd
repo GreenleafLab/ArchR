@@ -13,19 +13,19 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
   verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.}
+\item{groupBy}{QQQ The name of the column in \code{cellColData} to use for grouping cells together for marker feature identification.}
 
-\item{useGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.}
+\item{useGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform marker feature identification.}
 
-\item{bgdGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.}
+\item{bgdGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData} to be used for background calculations in marker feature identification.}
 
 \item{useMatrix}{QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.}
 
-\item{bias}{QQQ A character vector indicating the potential bias variables to account for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.}
+\item{bias}{QQQ A character vector indicating the potential bias variables to account for in selecting a matched null group for marker feature identification. These should be column names from \code{cellColData}.}
 
-\item{normBy}{QQQ The name of a column in `cellColData` that should be normalized across cells prior to performing marker feature identification.}
+\item{normBy}{QQQ The name of a column in \code{cellColData} that should be normalized across cells prior to performing marker feature identification.}
 
 \item{testMethod}{QQQ The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".}
 
@@ -41,11 +41,11 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{bufferRatio}{QQQ UNCLEAR buffering ratio for matching cell biases}
 
-\item{binarize}{A boolean value indicating whether to binarize the matrix indicated by `useMatrix` prior to marker feature identification. This is often used when dealing with an insertion counts matrix such as a `TileMatrix`.}
+\item{binarize}{A boolean value indicating whether to binarize the matrix indicated by \code{useMatrix} prior to marker feature identification. This is often used when dealing with an insertion counts matrix such as a \code{TileMatrix}.}
 
 \item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
 
-\item{method}{The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the `Signac::VeniceMarker()` fucntion.}
+\item{method}{The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the \code{Signac::VeniceMarker()} fucntion.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

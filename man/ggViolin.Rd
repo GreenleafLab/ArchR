@@ -18,9 +18,9 @@ ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
 
 \item{ylabel}{The label to plot for the y-axis.}
 
-\item{xOrder}{A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of `x` in the desired order.}
+\item{xOrder}{A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of \code{x} in the desired order.}
 
-\item{points}{A boolean value indicating whether individual points should be added to the plot using `geom_quasirandom`.}
+\item{points}{A boolean value indicating whether individual points should be added to the plot using \code{geom_quasirandom}.}
 
 \item{size}{The line width for boxplot lines.}
 
@@ -32,7 +32,7 @@ ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
 
 \item{title}{The title of the plot.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for violins and boxes.}
+\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for violins and boxes.}
 }
 \description{
 A ggplot-based violin plot wrapper function

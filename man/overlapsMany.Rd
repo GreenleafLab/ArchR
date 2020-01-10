@@ -7,13 +7,13 @@
 overlapsMany(query, subject, by, ignore.strand = TRUE)
 }
 \arguments{
-\item{query}{A `GRanges` object to be used as the query in `findOverlaps()`.}
+\item{query}{A \code{GRanges} object to be used as the query in \code{findOverlaps()}.}
 
-\item{subject}{A `GRanges` object to be used as the subject in `findOverlaps()`.}
+\item{subject}{A \code{GRanges} object to be used as the subject in \code{findOverlaps()}.}
 
-\item{by}{QQQ The name of a column in `mcols(gr)` that should be used to determine how overlapping regions should be resolved. The resolution of overlapping regions also depends on `decreasing`. For example, if a column named "score" is used for `by`, `decreasing = TRUE` means that the highest "score" in the overlap will be retained and `decreasing = FALSE` means that the lowest "score" in the overlap will be retained.}
+\item{by}{QQQ The name of a column in \code{mcols(gr)} that should be used to determine how overlapping regions should be resolved. The resolution of overlapping regions also depends on \code{decreasing}. For example, if a column named "score" is used for \code{by}, \code{decreasing = TRUE} means that the highest "score" in the overlap will be retained and \code{decreasing = FALSE} means that the lowest "score" in the overlap will be retained.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
 }
 \description{
 QQQ This function returns a sparse matrix QQQ PLEASE ADD MORE DETAIL????

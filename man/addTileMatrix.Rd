@@ -10,23 +10,23 @@ addTileMatrix(input, chromSizes = getChromSizes(input),
   force = FALSE, ...)
 }
 \arguments{
-\item{input}{An `ArchRProject` object or character vector of ArrowFiles.}
+\item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getChromSizes()`.}
+\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getChromSizes()}.}
 
-\item{blacklist}{A `GRanges` object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getBlacklist()`.}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getBlacklist()}.}
 
-\item{tileSize}{The size of the tiles used for binning counts in the `TileMatrix`.}
+\item{tileSize}{The size of the tiles used for binning counts in the \code{TileMatrix}.}
 
-\item{binarize}{QQQ A boolean value indicating whether the `TileMatrix` should be binarized QQQ prior to storage.}
+\item{binarize}{QQQ A boolean value indicating whether the \code{TileMatrix} should be binarized QQQ prior to storage.}
 
-\item{excludeChr}{A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.}
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from CNV analysis.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the `TileMatrix` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.}
+\item{force}{QQQ A boolean value indicating whether to force the \code{TileMatrix} to be overwritten if it already exist in the given \code{ArchRProject} or ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each tile

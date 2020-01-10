@@ -8,11 +8,11 @@ filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf,
   filterRatio = 1, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object}
+\item{ArchRProj}{An \code{ArchRProject} object}
 
-\item{cutEnrich}{The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.}
+\item{cutEnrich}{The minimum numeric cutoff for \code{DoubletEnrichment}. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.}
 
-\item{cutScore}{The minimum numeric cutoff for `DoubletScore` which represents the -log10(binomial adjusted p-value) for the `DoubletEnrichment`.}
+\item{cutScore}{The minimum numeric cutoff for \code{DoubletScore} which represents the -log10(binomial adjusted p-value) for the \code{DoubletEnrichment}.}
 
 \item{filterRatio}{JJJ The maximum ratio of predicted doublets to filter based on the number of pass-filter cells. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (100,000).}
 

@@ -7,11 +7,11 @@
 addProjectSummary(ArchRProj, name, summary, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{The name of the summary information to add to the `ArchRProject` object.}
+\item{name}{The name of the summary information to add to the \code{ArchRProject} object.}
 
-\item{summary}{A vector to add as summary information to the `ArchRProject` object.}
+\item{summary}{A vector to add as summary information to the \code{ArchRProject} object.}
 
 \item{...}{additional args}
 }

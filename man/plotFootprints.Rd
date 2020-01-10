@@ -13,17 +13,17 @@ plotFootprints(ArchRProj = NULL, positions = NULL,
   verboseAll = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object}
+\item{ArchRProj}{An \code{ArchRProject} object}
 
 \item{positions}{A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be stranded.}
 
 \item{plotName}{The prefix to add to the file name for the output PDF file.}
 
-\item{groupBy}{The name of the column in `cellColData` to use for grouping multiple samples together prior to footprinting.}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping multiple samples together prior to footprinting.}
 
-\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform footprinting.}
+\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform footprinting.}
 
-\item{pal}{The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.}
+\item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for plotting the lines corresponding to the footprints.}
 
 \item{flank}{The number of basepairs from the position center (+/-) to consider as the flank.}
 
@@ -33,7 +33,7 @@ plotFootprints(ArchRProj = NULL, positions = NULL,
 
 \item{minCells}{The minimum number of cells required in a given cell group to permit footprint generation.}
 
-\item{nTop}{The number of genomic regions to consider. Only the top `nTop` genomic regions based on the "score" column in the GRanges will be considered for the footprint.}
+\item{nTop}{The number of genomic regions to consider. Only the top \code{nTop} genomic regions based on the "score" column in the GRanges will be considered for the footprint.}
 
 \item{normMethod}{The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "None", "Subtract", "Divide".}
 

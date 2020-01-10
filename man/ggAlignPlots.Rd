@@ -8,13 +8,13 @@ ggAlignPlots(..., plotList = NULL, grobList = NULL, sizes,
   type = "v", draw = TRUE)
 }
 \arguments{
-\item{...}{All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `grobList` and `plotList` are `NULL`}
+\item{...}{All additional arguments will be interpreted as \code{ggplot2} plot objects and used if and only if \code{grobList} and \code{plotList} are \code{NULL}}
 
-\item{plotList}{A list of `ggplot2` plot objects to be aligned.}
+\item{plotList}{A list of \code{ggplot2} plot objects to be aligned.}
 
 \item{grobList}{QQQ A list of grobs (grid graphical objects) to be aligned.}
 
-\item{sizes}{QQQ NOT CLEAR. A numeric vector or list of values indicating the size in QQQ for each of the objects in `plotList` or `grobList`.}
+\item{sizes}{QQQ NOT CLEAR. A numeric vector or list of values indicating the size in QQQ for each of the objects in \code{plotList} or \code{grobList}.}
 
 \item{type}{A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.}
 

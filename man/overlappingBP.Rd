@@ -7,11 +7,11 @@
 overlappingBP(query, subject, ignore.strand = TRUE)
 }
 \arguments{
-\item{query}{A `GRanges` object to be used as the query in `findOverlaps()`.}
+\item{query}{A \code{GRanges} object to be used as the query in \code{findOverlaps()}.}
 
-\item{subject}{A `GRanges` object to be used as the subject in `findOverlaps()`.}
+\item{subject}{A \code{GRanges} object to be used as the subject in \code{findOverlaps()}.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
 }
 \description{
 QQQ This function returns a data.frame describing how many basepairs overlap the provided query and subject Genomic Ranges objects

@@ -7,7 +7,7 @@
 nCells(input, ...)
 }
 \arguments{
-\item{input}{An `ArchRProject` object or ArrowFile.}
+\item{input}{An \code{ArchRProject} object or ArrowFile.}
 
 \item{...}{additional args}
 }

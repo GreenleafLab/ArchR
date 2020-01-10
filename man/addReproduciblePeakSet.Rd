@@ -16,11 +16,11 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
   verboseAll = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.}
+\item{groupBy}{QQQ The name of the column in \code{cellColData} to use for grouping cells together for marker feature identification.}
 
-\item{reproducibility}{A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of `n` where `n` is the number of samples being assessed. For example, `reproducibility = "2"` means at least 2 samples must have a peak call at this locus and `reproducibility = "(n+1)/2"` means that the majority of samples must have a peak call at this locus.}
+\item{reproducibility}{A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of \code{n} where \code{n} is the number of samples being assessed. For example, \code{reproducibility = "2"} means at least 2 samples must have a peak call at this locus and \code{reproducibility = "(n+1)/2"} means that the majority of samples must have a peak call at this locus.}
 
 \item{peaksPerCell}{QQQ An estimate for the average number of peaks that can be identified per cell.}
 
@@ -28,21 +28,21 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{minCells}{The minimum number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.}
 
-\item{excludeChr}{A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.}
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from peak calling.}
 
 \item{pathToMacs2}{The full path to the MACS2 executable.}
 
 \item{genomeSize}{The genome size to be used for MACS2 peak calling (see MACS2 documentation).}
 
-\item{shift}{The number of basepairs to shift each Tn5 insertion. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).}
+\item{shift}{The number of basepairs to shift each Tn5 insertion. When combined with \code{extsize} this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).}
 
-\item{extsize}{The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).}
+\item{extsize}{The number of basepairs to extend the MACS2 fragment after \code{shift} has been applied. When combined with \code{extsize} this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).}
 
-\item{method}{The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with `cutOff` this gives the method and significance threshold for peak calling (see MACS2 documentation).}
+\item{method}{The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with \code{cutOff} this gives the method and significance threshold for peak calling (see MACS2 documentation).}
 
-\item{cutOff}{The numeric significance cutoff for the testing method indicated by `method` (see MACS2 documentation).}
+\item{cutOff}{The numeric significance cutoff for the testing method indicated by \code{method} (see MACS2 documentation).}
 
-\item{extendSummits}{The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.}
+\item{extendSummits}{The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, \code{extendSummits = 250} will create 501-bp fixed-width peaks from the 1-bp summits.}
 
 \item{promoterDist}{QQQ The maximum distance in basepairs from the peak QQQ EDGE OR SUMMIT? to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.}
 
@@ -56,7 +56,7 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject`.}
+\item{force}{QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given \code{ArchRProject}.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

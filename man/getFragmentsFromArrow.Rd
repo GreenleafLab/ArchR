@@ -10,7 +10,7 @@ getFragmentsFromArrow(ArrowFile, chr = NULL, cellNames = NULL,
 \arguments{
 \item{ArrowFile}{The ArrowFile object from which fragments should be obtained.}
 
-\item{chr}{A name of a chromosome to be used to subset the fragments `GRanges` object to a specific chromsome if desired.}
+\item{chr}{A name of a chromosome to be used to subset the fragments \code{GRanges} object to a specific chromsome if desired.}
 
 \item{cellNames}{A string vector of cell names to extract fragments for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.}
 

@@ -11,15 +11,15 @@ getTrajectory(ArchRProj, name = "Trajectory",
   smoothFormula = "y ~ s(x, bs = 'cs')", ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{A string indicating the name of the fitted trajectory in `cellColData` to retrieve from the given `ArchRProject`.}
+\item{name}{A string indicating the name of the fitted trajectory in \code{cellColData} to retrieve from the given \code{ArchRProject}.}
 
-\item{useMatrix}{QQQ The name of the matrix from the `ArchRProject` to use in QQQ.}
+\item{useMatrix}{QQQ The name of the matrix from the \code{ArchRProject} to use in QQQ.}
 
 \item{varCutOff}{QQQ}
 
-\item{maxFeatures}{QQQ The maximum number of features to consider from `useMatrix` when generating a trajectory.}
+\item{maxFeatures}{QQQ The maximum number of features to consider from \code{useMatrix} when generating a trajectory.}
 
 \item{groupEvery}{QQQ The number of sequential quantiles to group together when generating a trajectory (QQQ similar to smoothing).}
 
@@ -31,7 +31,7 @@ getTrajectory(ArchRProj, name = "Trajectory",
 
 \item{smooth}{QQQ A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.}
 
-\item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the `formula` parameter in `mgcv::gam()`.}
+\item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the \code{formula} parameter in \code{mgcv::gam()}.}
 
 \item{...}{additional args}
 }

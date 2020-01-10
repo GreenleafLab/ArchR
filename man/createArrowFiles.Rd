@@ -41,7 +41,7 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
 
 \item{nucLength}{The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as sub-nucleosome, mono-nucleosome, or multi-nucleosome spanning}
 
-\item{TSSParams}{TSS parameters for computing TSS Enrichment scores. This includes `window` which describes the window centered at each TSS (default 101), the `flank` which describes the +/- window size to compute TSS enrichment (default 2000) , the `norm` which describes the normalization window size at the flanks to compute TSS enrichment (default 100 i.e. -2000:-1901 and 1901:2000).}
+\item{TSSParams}{TSS parameters for computing TSS Enrichment scores. This includes \code{window} which describes the window centered at each TSS (default 101), the \code{flank} which describes the +/- window size to compute TSS enrichment (default 2000) , the \code{norm} which describes the normalization window size at the flanks to compute TSS enrichment (default 100 i.e. -2000:-1901 and 1901:2000).}
 
 \item{excludeChr}{The names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the .arrow file.}
 
@@ -59,13 +59,13 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
 
 \item{addTileMat}{A boolean value indicating whether to add a "Tile Matrix" to each Arrow file. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome.}
 
-\item{TileMatParams}{A list of parameters to pass to the `addTileMatrix()` function. See `ArchR::addTileMatrix()` for options.}
+\item{TileMatParams}{A list of parameters to pass to the \code{addTileMatrix()} function. See \code{ArchR::addTileMatrix()} for options.}
 
 \item{addGeneScoreMat}{A boolean value indicating whether to add a Gene-Score Matrix to each Arrow file. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.}
 
-\item{GeneScoreMatParams}{A list of parameters to pass to the `addGeneScoreMatrix()` function. See `ArchR::addGeneScoreMatrix()` for options.}
+\item{GeneScoreMatParams}{A list of parameters to pass to the \code{addGeneScoreMatrix()} function. See \code{ArchR::addGeneScoreMatrix()} for options.}
 
-\item{force}{A boolean value indicating whether to force arrow files to be overwritten if they already exist in `outDir`.}
+\item{force}{A boolean value indicating whether to force arrow files to be overwritten if they already exist in \code{outDir}.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

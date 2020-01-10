@@ -13,21 +13,21 @@ plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
   plotParams = list(), ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{embedding}{The name of the embedding to use to visualize the given `trajectory`. See `ArchR::computeEmbedding()` for more information.}
+\item{embedding}{The name of the embedding to use to visualize the given \code{trajectory}. See \code{ArchR::computeEmbedding()} for more information.}
 
-\item{trajectory}{The name of the trajectory as a column in `cellColData` to plot.}
+\item{trajectory}{The name of the trajectory as a column in \code{cellColData} to plot.}
 
 \item{colorBy}{QQQ UNCLEAR A string indicating whether points/hexes in the plot should be colored by cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").}
 
-\item{name}{The name of the trajectory as a column in `cellColData` to plot.}
+\item{name}{The name of the trajectory as a column in \code{cellColData} to plot.}
 
 \item{log2Norm}{QQQ A boolean value indicating whether a log2 transformation should be performed on the values in QQQ plotting.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
+\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for QQQ.}
 
-\item{size}{QQQ A number indicating the size of the points to plot if `plotAs` is set to "points".}
+\item{size}{QQQ A number indicating the size of the points to plot if \code{plotAs} is set to "points".}
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
@@ -35,9 +35,9 @@ plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
 
 \item{quantHex}{QQQ UNCLEAR quantile evaluation for each hex in geom_hex}
 
-\item{discreteSet}{QQQ The name or numeric index of a discrete palette from `ArchRPalettes` for visualizing QQQ in the embedding.}
+\item{discreteSet}{QQQ The name or numeric index of a discrete palette from \code{ArchRPalettes} for visualizing QQQ in the embedding.}
 
-\item{continuousSet}{QQQ The name or numeric index of a continuous palette from `ArchRPalettes` for visualizing QQQ in the embedding.}
+\item{continuousSet}{QQQ The name or numeric index of a continuous palette from \code{ArchRPalettes} for visualizing QQQ in the embedding.}
 
 \item{randomize}{A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.}
 
@@ -49,7 +49,7 @@ plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
 
 \item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.}
 
-\item{plotParams}{Additional parameters to pass to `ggPoint()` or `ggHex()`.}
+\item{plotParams}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 
 \item{...}{additional args}
 }

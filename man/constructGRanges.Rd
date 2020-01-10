@@ -7,13 +7,13 @@
 constructGRanges(seqnames, start, end, ignore.strand = TRUE)
 }
 \arguments{
-\item{seqnames}{A character vector containing the seqnames to be added to the `GRanges` object.}
+\item{seqnames}{A character vector containing the seqnames to be added to the \code{GRanges} object.}
 
-\item{start}{A vector of start positions to be added to the `GRanges` object.}
+\item{start}{A vector of start positions to be added to the \code{GRanges} object.}
 
-\item{end}{A vector of end positions to be added to the `GRanges` object.}
+\item{end}{A vector of end positions to be added to the \code{GRanges} object.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.}
+\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
 }
 \description{
 QQQ This function creates a Genomic Ranges object accounting for strandedness indicated by the relative orientation of the provided start and end positions

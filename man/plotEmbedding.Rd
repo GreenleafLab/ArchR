@@ -13,29 +13,29 @@ plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
   plotParams = list(), ...)
 }
 \arguments{
-\item{ArchRProj}{An `ArchRProject` object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{embedding}{The name of the embedding to plot. See `ArchR::computeEmbedding()` for more information.}
+\item{embedding}{The name of the embedding to plot. See \code{ArchR::computeEmbedding()} for more information.}
 
 \item{colorBy}{QQQ UNCLEAR A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").}
 
-\item{name}{QQQ UNCLEAR The name of the column in `cellColData` or `GeneScoreMatrix` to use for QQQ.}
+\item{name}{QQQ UNCLEAR The name of the column in \code{cellColData} or \code{GeneScoreMatrix} to use for QQQ.}
 
 \item{log2Norm}{QQQ A boolean value indicating whether a log2 transformation should be performed on the values in QQQ plotting.}
 
 \item{imputeWeights}{QQQ}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.}
+\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for QQQ.}
 
-\item{size}{QQQ A number indicating the size of the points to plot if `plotAs` is set to "points".}
+\item{size}{QQQ A number indicating the size of the points to plot if \code{plotAs} is set to "points".}
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
 \item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
 
-\item{discreteSet}{QQQ The name or numeric index of a discrete palette from `ArchRPalettes` for visualizing QQQ in the embedding.}
+\item{discreteSet}{QQQ The name or numeric index of a discrete palette from \code{ArchRPalettes} for visualizing QQQ in the embedding.}
 
-\item{continuousSet}{QQQ The name or numeric index of a continuous palette from `ArchRPalettes` for visualizing QQQ in the embedding.}
+\item{continuousSet}{QQQ The name or numeric index of a continuous palette from \code{ArchRPalettes} for visualizing QQQ in the embedding.}
 
 \item{randomize}{A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.}
 
@@ -45,7 +45,7 @@ plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
 
 \item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.}
 
-\item{plotParams}{Additional parameters to pass to `ggPoint()` or `ggHex()`.}
+\item{plotParams}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 
 \item{...}{additional args}
 
