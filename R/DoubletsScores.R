@@ -137,7 +137,6 @@ addDoubletScores <- function(
   dir.create(tmpDir)
   proj <- suppressMessages(ArchRProject(
     ArrowFiles = ArrowFile,
-    sampleNames = .sampleName(ArrowFile),
     outputDirectory = tmpDir,
     copyArrows = FALSE,
     showLogo = FALSE,
