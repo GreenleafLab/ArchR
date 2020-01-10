@@ -18,7 +18,7 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 \arguments{
 \item{ArchRProj}{An `ArchRProject` object.}
 
-\item{useMatrix}{QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.}
+\item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".}
 
 \item{reducedDimsOut}{QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.}
 

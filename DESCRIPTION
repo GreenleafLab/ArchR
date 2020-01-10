@@ -6,7 +6,6 @@ Version: 0.1.4
 Authors@R: c(
     person("Jeffrey", "Granja", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
-Maintainer: Jeffrey Granja <jgranja.stanford@gmail.com>
 Description: This package is designed to streamline scATAC analyses in R.
 License: GPL (>= 2)
 LinkingTo: Rcpp
