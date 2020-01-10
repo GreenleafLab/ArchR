@@ -15,21 +15,21 @@ getTrajectory(ArchRProj, name = "Trajectory",
 
 \item{name}{A string indicating the name of the fitted trajectory in \code{cellColData} to retrieve from the given \code{ArchRProject}.}
 
-\item{useMatrix}{QQQ The name of the matrix from the \code{ArchRProject} to use in QQQ.}
+\item{useMatrix}{The name of the data matrix from the \code{ArrowFiles} to get numerical values for each cell from.}
 
-\item{varCutOff}{QQQ}
+\item{varCutOff}{Variance Quantile Cutoff for identifying top variable features across trajectory.}
 
-\item{maxFeatures}{QQQ The maximum number of features to consider from \code{useMatrix} when generating a trajectory.}
+\item{maxFeatures}{The maximum number of features (ordered by variance) to consider from \code{useMatrix} when generating a trajectory.}
 
-\item{groupEvery}{QQQ The number of sequential quantiles to group together when generating a trajectory (QQQ similar to smoothing).}
+\item{groupEvery}{The number of sequential percentiles (0-100 every x percentile) to group together when generating a trajectory (similar to smoothing).}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{scaleTo}{QQQ scale summarized matrix to}
+\item{scaleTo}{Scale group data matrix to this value for normalizaiton.}
 
-\item{log2Norm}{QQQ A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed prior to QQQ.}
+\item{log2Norm}{A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed.}
 
-\item{smooth}{QQQ A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.}
+\item{smooth}{A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.}
 
 \item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the \code{formula} parameter in \code{mgcv::gam()}.}
 

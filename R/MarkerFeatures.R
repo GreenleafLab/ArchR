@@ -844,7 +844,7 @@ markerHeatmap <- function(
   padding = 45,
   borderColor = NA,
   draw = TRUE,
-  name = ""
+  name = "Heatmap"
   ){
   
   #Packages

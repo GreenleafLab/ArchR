@@ -16,9 +16,9 @@ trajectoryHeatmap(seTrajectory = NULL, scaleRows = TRUE,
 
 \item{limits}{A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.}
 
-\item{grepExclude}{QQQ A character vector or string that indicates the \code{rownames} or a specific pattern that identifies rownames from \code{seTrajectory} to be excluded from the heatmap.}
+\item{grepExclude}{A character vector or string that indicates the \code{rownames} or a specific pattern that identifies rownames from \code{seTrajectory} to be excluded from the heatmap.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for the heatmap}
+\item{pal}{A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.}
 
 \item{labelMarkers}{A character vector listing the \code{rownames} of \code{seTrajectory} that should be labeled on the side of the heatmap.}
 
@@ -26,7 +26,7 @@ trajectoryHeatmap(seTrajectory = NULL, scaleRows = TRUE,
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
-\item{returnMat}{QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
+\item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
 \item{...}{additional args}
 }

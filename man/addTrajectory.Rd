@@ -24,11 +24,11 @@ addTrajectory(ArchRProj = NULL, name = "Trajectory",
 
 \item{postQuantile}{Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.}
 
-\item{dof}{The number of degrees of freedom to be used in QQQ.}
+\item{dof}{The number of degrees of freedom to be used in spline fit (see smooth.spline)}
 
-\item{spar}{QQQ sparsity}
+\item{spar}{The sparsity to be used in spline fit (see smooth.spline)}
 
-\item{force}{QQQ A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
+\item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 
 \item{...}{additional args}
 }
