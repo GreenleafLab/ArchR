@@ -4,38 +4,39 @@
 \alias{addGroupCoverages}
 \title{Add Group Coverages to an ArchRProject object}
 \usage{
-addGroupCoverages(ArchRProj, groupBy = "Clusters", useLabels = TRUE,
-  minCells = 40, maxCells = 500, maxFragments = 25 * 10^6,
-  minReplicates = 2, maxReplicates = 5, sampleRatio = 0.8,
-  kmerLength = 6, threads = 1, parallelParam = "mclapply",
-  force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
+addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
+  useLabels = TRUE, minCells = 40, maxCells = 500,
+  maxFragments = 25 * 10^6, minReplicates = 2, maxReplicates = 5,
+  sampleRatio = 0.8, kmerLength = 6, threads = 1,
+  parallelParam = "mclapply", force = FALSE, verboseHeader = TRUE,
+  verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{QQQ The name of the column in \code{cellColData} to use for grouping multiple cells together prior to generation of the insertion coverage file.}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping multiple cells together prior to generation of the insertion coverage file.}
 
-\item{useLabels}{QQQ A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.}
+\item{useLabels}{A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.}
 
-\item{minCells}{QQQ The minimum number of cells required in a given cell group to permit insertion coverage file generation.}
+\item{minCells}{The minimum number of cells required in a given cell group to permit insertion coverage file generation.}
 
-\item{maxCells}{QQQ The maximum number of cells to use during insertion coverage file generation.}
+\item{maxCells}{The maximum number of cells to use during insertion coverage file generation.}
 
-\item{maxFragments}{QQQ The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.}
+\item{maxFragments}{The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.}
 
-\item{minReplicates}{QQQ The minimum number of pseudo-bulk replicates to be generated.}
+\item{minReplicates}{The minimum number of pseudo-bulk replicates to be generated.}
 
-\item{maxReplicates}{QQQ The maximum number of pseudo-bulk replicates to be generated.}
+\item{maxReplicates}{The maximum number of pseudo-bulk replicates to be generated.}
 
-\item{sampleRatio}{QQQ The maximum fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.}
+\item{sampleRatio}{The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.}
 
-\item{kmerLength}{QQQ The length of the kmer used for estimating Tn5 bias.}
+\item{kmerLength}{The length of the kmer used for estimating Tn5 bias.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if insertion coverage / pseudo-bulk replicate information already exists.}
+\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if insertion coverage / pseudo-bulk replicate information already exists.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
@@ -44,5 +45,5 @@ addGroupCoverages(ArchRProj, groupBy = "Clusters", useLabels = TRUE,
 \item{...}{additional args}
 }
 \description{
-QQQ This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file
+This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file.
 }

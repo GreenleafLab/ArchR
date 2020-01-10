@@ -2,27 +2,27 @@
 % Please edit documentation in R/MatrixDeviations.R
 \name{addBgdPeaks}
 \alias{addBgdPeaks}
-\title{QQQ}
+\title{Add backgroundPeaks to ArchRProject}
 \usage{
 addBgdPeaks(ArchRProj, niterations = 50, w = 0.1, binSize = 50,
   seed = 1, outFile = file.path(getOutputDirectory(ArchRProj),
   "Background-Peaks.rds"), force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{QQQ}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{niterations}{QQQ}
+\item{niterations}{The number of background peaks to sample (see chromVAR::getBackgroundPeaks).}
 
-\item{w}{QQQ}
+\item{w}{The parameter controlling similarity of background peaks (see chromVAR::getBackgroundPeaks).}
 
-\item{binSize}{QQQ}
+\item{binSize}{the precision with which the similarity is computed (see chromVAR::getBackgroundPeaks).}
 
-\item{seed}{QQQ}
+\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{outFile}{QQQ}
+\item{outFile}{Path to save backgroundPeaks object to for ArchRProject.}
 
-\item{force}{QQQ}
+\item{force}{Force creation of backgroundPeaks even if file exists.}
 }
 \description{
-QQQ
+This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject.
 }

@@ -25,23 +25,25 @@ ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
 
 \item{title}{The title of the plot.}
 
-\item{min}{QQQ xmin quantile \link{0,1}}
+\item{min}{x-limits min quantile \link{0,1}}
 
-\item{max}{QQQ xmax quantile \link{0,1}}
+\item{max}{x-limits max quantile \link{0,1}}
 
 \item{nPlot}{The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.}
 
 \item{nKernel}{The value of n to use the kde2d from the MASS package.}
 
-\item{densityMax}{QQQ The quantile that should be represented by the maximum color on the continuous scale designated by \code{pal}. Above this value will be thresholded to the maximum color.}
+\item{densityMax}{The quantile that should be represented by the maximum color on the continuous scale designated by \code{pal}. Above this value will be thresholded to the maximum color.}
 
-\item{extend}{QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
+\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
 
-\item{baseSize}{QQQ The base font size to use in the plot.}
+\item{baseSize}{The base font size to use in the plot.}
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for the density in the one-to-one plot. In most cases, a continuous palette should be used.}
+\item{pal}{A custom palette used to override continuousSet for coloring vector.}
+
+\item{...}{Additional params to be supplied to ggPoint}
 }
 \description{
 This function is a wrapper around ggplot geom_point to allow for plotting one-to-one sample comparisons in ArchR.

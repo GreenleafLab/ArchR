@@ -2,18 +2,18 @@
 # Imputation Methods
 ##########################################################################################
 
-#' QQQ
+#' Add Imputation Weights to ArchRProject
 #' 
-#' This function QQQ
+#' This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param reducedDims QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.
-#' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param td diffusion time (number of iterations) for Magic
-#' @param ka kNN autotune parameter for Magic
+#' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param td diffusion time (number of iterations) for MAGIC
+#' @param ka kNN autotune parameter for MAGIC
 #' @param sampleCells number of cells to sample per block of estimated imputation matrix
-#' @param k number of nearest neighbors to use for Magic
-#' @param epsilon a value for the standard deviation of the kernel for Magic
+#' @param k number of nearest neighbors to use for MAGIC
+#' @param epsilon a value for the standard deviation of the kernel for MAGIC
 #' @param ... additional params
 #' @export
 addImputeWeights <- function(
@@ -147,9 +147,9 @@ addImputeWeights <- function(
 
 }
 
-#' QQQ
+#' Get Imputation Weights from ArchRProject
 #' 
-#' This function QQQ
+#' This function gets imputation weights from an ArchRProject to impute numeric values.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args

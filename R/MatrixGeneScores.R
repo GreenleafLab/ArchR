@@ -18,7 +18,7 @@
 #' @param useGeneBoundaries QQQ A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.
 #' @param scaleTo QQQ A numeric value indicating QQQ
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
-#' @param blacklist A `GRanges` object containing genomic regions to blacklist from calling CNVs.
+#' @param blacklist A `GRanges` object containing genomic regions to blacklist for geneScore biases.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.
@@ -35,7 +35,7 @@ addGeneScoreMatrix <- function(
   useGeneBoundaries = TRUE,
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
-  blacklist = NULL, # QQQ for other functions, the default of blacklist is different
+  blacklist = NULL,
   threads = 1,
   parallelParam = NULL,
   force = FALSE,
@@ -214,11 +214,11 @@ addGeneScoreMatrix <- function(
 
       idx <- which(width(extenedGeneStart) < (min(upstream) + min(downstream)))
       
-      extenedGeneStart[idx] <- ranges(suppressWarnings(extendGRanges(geneStarti[idx], upstream = min(upstream), downstream = min(downstream))))
+      extenedGeneStart[idx] <- ranges(suppressWarnings(extendGR(geneStarti[idx], upstream = min(upstream), downstream = min(downstream))))
       
     }else{
 
-      extenedGeneStart <- ranges(suppressWarnings(extendGRanges(geneStarti, upstream = max(upstream), downstream = max(downstream))))
+      extenedGeneStart <- ranges(suppressWarnings(extendGR(geneStarti, upstream = max(upstream), downstream = max(downstream))))
 
     }
 

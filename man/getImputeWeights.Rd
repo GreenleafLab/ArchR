@@ -2,7 +2,7 @@
 % Please edit documentation in R/Imputation.R
 \name{getImputeWeights}
 \alias{getImputeWeights}
-\title{QQQ}
+\title{Get Imputation Weights from ArchRProject}
 \usage{
 getImputeWeights(ArchRProj, ...)
 }
@@ -12,5 +12,5 @@ getImputeWeights(ArchRProj, ...)
 \item{...}{additional args}
 }
 \description{
-This function QQQ
+This function gets imputation weights from an ArchRProject to impute numeric values.
 }

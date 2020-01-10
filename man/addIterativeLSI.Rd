@@ -20,43 +20,44 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 
 \item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".}
 
-\item{reducedDimsOut}{QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the \code{ArchRProject} as a \code{reducedDims} object.}
+\item{reducedDimsOut}{The name to use for storage of the IterativeLSI dimensionality reduction in the \code{ArchRProject} as a \code{reducedDims} object.}
 
 \item{iterations}{The number of LSI iterations to perform.}
 
-\item{dimsToUse}{QQQ A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{corCutOff}{QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.}
 
-\item{LSIMethod}{QQQ}
+\item{LSIMethod}{A numeric/character indicating the order of operations in the TF-IDF normalization.
+The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd option is 3 or "logtf-logidf".}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 
-\item{sampleCells}{A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in \code{cellColData}.}
+\item{sampleCells}{An integer specifying number of cells to subset perform estimatedLSI and clustering.}
 
 \item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
 
-\item{selectionMethod}{QQQ The selection method to be used for identifying the top variable features. Valid options are "var" or "vmr" (QQQ what is vmr?).}
+\item{selectionMethod}{The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.}
 
-\item{scaleTo}{QQQ scaleTo for Cluster Averages for variance calculation}
+\item{scaleTo}{scaleTo normalization depth for Cluster Averages for variance calculation}
 
 \item{totalFeatures}{The number of features to consider for use in LSI ranked by the total number of insertion counts.}
 
-\item{filterQuantile}{QQQ Remove features that are above this quantile based on insertion counts prior to initial LSI.}
+\item{filterQuantile}{Remove features that are above this quantile based on insertion counts prior to initial (1st iteration) LSI.}
 
 \item{saveIterations}{A boolean value indicating whether the different LSI iterations should be saved as compressed \code{.rds} files in the designated \code{outDir}.}
 
-\item{outDir}{The output directory for saving LSI iterations if desired.}
+\item{outDir}{The output directory for saving LSI iterations if desired. Default is in outputDirectory of ArchRProject.}
 
 \item{clusterParams}{Additional parameters to be passed to \code{ArchR::addClusters()}.}
 
-\item{runHarmony}{QQQ A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.}
+\item{runHarmony}{A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.}
 
 \item{harmonyParams}{Additional parameters to be passed to \code{harmony::HarmonyMatrix()}.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{seed}{QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

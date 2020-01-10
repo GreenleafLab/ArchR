@@ -35,7 +35,7 @@ addGeneScoreMatrix(input = NULL, genes = NULL,
 
 \item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
-\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist from calling CNVs.}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist for geneScore biases.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

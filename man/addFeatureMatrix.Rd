@@ -15,15 +15,15 @@ addFeatureMatrix(input, features = NULL, matrixName = "FeatureMatrix",
 
 \item{matrixName}{The name to be used for storage of the feature matrix in the provided \code{ArchRProject} or ArrowFiles.}
 
-\item{ceiling}{QQQ The maximum counts per feature allowed. This is used to prevent large biases in feature counts.}
+\item{ceiling}{The maximum counts per feature allowed. This is used to prevent large biases in feature counts.}
 
-\item{binarize}{QQQ A boolean value indicating whether the feature matrix should be binarized QQQ prior to storage. This is often desired when working with insertion counts.}
+\item{binarize}{A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArchRProject} or ArrowFiles.}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.

@@ -9,25 +9,26 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".
-#' @param reducedDimsOut QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
+#' @param reducedDimsOut The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
-#' @param dimsToUse QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param corCutOff QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.
-#' @param LSIMethod QQQ
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.
+#' @param LSIMethod A numeric/character indicating the order of operations in the TF-IDF normalization.
+#' The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd option is 3 or "logtf-logidf".
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
-#' @param sampleCells A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.
+#' @param sampleCells An integer specifying number of cells to subset perform estimatedLSI and clustering.
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
-#' @param selectionMethod QQQ The selection method to be used for identifying the top variable features. Valid options are "var" or "vmr" (QQQ what is vmr?).
-#' @param scaleTo QQQ scaleTo for Cluster Averages for variance calculation
+#' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.
+#' @param scaleTo scaleTo normalization depth for Cluster Averages for variance calculation
 #' @param totalFeatures The number of features to consider for use in LSI ranked by the total number of insertion counts.
-#' @param filterQuantile QQQ Remove features that are above this quantile based on insertion counts prior to initial LSI.
+#' @param filterQuantile Remove features that are above this quantile based on insertion counts prior to initial (1st iteration) LSI.
 #' @param saveIterations A boolean value indicating whether the different LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.
-#' @param outDir The output directory for saving LSI iterations if desired.
+#' @param outDir The output directory for saving LSI iterations if desired. Default is in outputDirectory of ArchRProject.
 #' @param clusterParams Additional parameters to be passed to `ArchR::addClusters()`.
-#' @param runHarmony QQQ A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.
+#' @param runHarmony A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.
 #' @param harmonyParams Additional parameters to be passed to `harmony::HarmonyMatrix()`.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param seed QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.

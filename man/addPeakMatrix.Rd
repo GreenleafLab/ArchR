@@ -10,15 +10,15 @@ addPeakMatrix(ArchRProj, ceiling = 4, binarize = FALSE,
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{ceiling}{QQQ The maximum counts per feature allowed. QQQ WHY?}
+\item{ceiling}{The maximum counts per feature allowed. This is used to prevent large biases in peak counts.}
 
-\item{binarize}{QQQ A boolean value indicating whether the feature matrix should be binarized QQQ prior to storage. This is often desired when working with insertion counts.}
+\item{binarize}{A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArchRProject} or ArrowFiles.}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each peak

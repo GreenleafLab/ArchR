@@ -65,7 +65,7 @@ createGenomeAnnotation <- function(
     message("Getting chromSizes...")
     chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
     if(filter){
-        chromSizes <- keepFilteredChromosomes(chromSizes)
+        chromSizes <- filterChrGR(chromSizes)
     }
     seqlengths(chromSizes) <- end(chromSizes)
 
@@ -279,7 +279,7 @@ createGeneAnnnotation <- function(
   }
 
   if(filter){
-    txdb <- keepFilteredChromosomes(txdb)
+    txdb <- filterChrGR(txdb)
   }
 
   return(txdb)

@@ -185,7 +185,7 @@ addReproduciblePeakSet <- function(
 	#Construct Union Peak Set
 	.messageDiffTime("Creating Union Peak Set!", tstart)
 	unionPeaks <- Reduce("c",groupPeaks)
-	unionPeaks <- nonOverlappingGRanges(unionPeaks, by = "groupScoreQuantile", decreasing = TRUE)
+	unionPeaks <- nonOverlappingGR(unionPeaks, by = "groupScoreQuantile", decreasing = TRUE)
 
 	#Summarize Output
 	peakDF <- lapply(seq_along(groupPeaks), function(x){
@@ -299,11 +299,11 @@ addReproduciblePeakSet <- function(
 
   extendedSummits <- resize(summits, extendSummits * 2 + 1, "center")
   extendedSummits <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
-    nonES <- nonOverlappingGRanges(x, by = "score", decreasing = TRUE)
+    nonES <- nonOverlappingGR(x, by = "score", decreasing = TRUE)
     nonES$replicateScoreQuantile <- round(.getQuantiles(nonES$score),3)
     nonES
   }) %>% Reduce("c", .)
-  nonOverlapES <- nonOverlappingGRanges(extendedSummits, by = "replicateScoreQuantile", decreasing = TRUE)
+  nonOverlapES <- nonOverlappingGR(extendedSummits, by = "replicateScoreQuantile", decreasing = TRUE)
 
   overlapMat <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
     overlapsAny(nonOverlapES, x)

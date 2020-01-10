@@ -63,7 +63,7 @@ ArchRRegionTrack <- function(
       region <- region[which(tolower(mcols(region)$symbol) %in% tolower(geneSymbol))]
       region <- resize(region, 1, "start")
       strand(region) <- "*"
-      region <- extendGRanges(region, upstream = upstream, downstream = downstream)
+      region <- extendGR(region, upstream = upstream, downstream = downstream)
     }
   }
   region <- .validGRanges(region)
@@ -509,7 +509,7 @@ ArchRRegionTrack <- function(
 
   #only take first region
   region <- ArchR::.validGRanges(region)
-  region <- subsetSeqnames(region[1],as.character(seqnames(region[1])))
+  region <- subsetSeqnamesGR(region[1], as.character(seqnames(region[1])))
 
   genes <- sort(sortSeqlevels(geneAnnotation$genes), ignore.strand = TRUE)
   exons <- sort(sortSeqlevels(geneAnnotation$exons), ignore.strand = TRUE)
@@ -642,7 +642,7 @@ ArchRRegionTrack <- function(
 
   #only take first region
   region <- ArchR::.validGRanges(region)
-  region <- subsetSeqnames(region[1],as.character(seqnames(region[1])))
+  region <- subsetSeqnamesGR(region[1], as.character(seqnames(region[1])))
 
   if(!inherits(features,"GRangesList") & !inherits(features,"GenomicRangesList")){
     features <- ArchR::.validGRanges(features)
