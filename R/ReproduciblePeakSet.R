@@ -302,7 +302,9 @@ addReproduciblePeakSet <- function(
     nonES <- nonOverlappingGR(x, by = "score", decreasing = TRUE)
     nonES$replicateScoreQuantile <- round(.getQuantiles(nonES$score),3)
     nonES
-  }) %>% Reduce("c", .)
+  })
+  extendedSummits <- Reduce("c", as(extendedSummits, "GRangesList"))
+  
   nonOverlapES <- nonOverlappingGR(extendedSummits, by = "replicateScoreQuantile", decreasing = TRUE)
 
   overlapMat <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
