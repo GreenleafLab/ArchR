@@ -295,7 +295,8 @@ addReproduciblePeakSet <- function(
   	grx <- subsetByOverlaps(grx, blacklist, invert = TRUE) #Not Overlapping Blacklist!
   	grx$GroupReplicate <- paste0(summitNames[x])
   	grx
-  }) %>% Reduce("c", .)
+  })
+  summits <- Reduce("c", as(summits, "GRangesList"))
 
   extendedSummits <- resize(summits, extendSummits * 2 + 1, "center")
   extendedSummits <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
@@ -304,7 +305,7 @@ addReproduciblePeakSet <- function(
     nonES
   })
   extendedSummits <- Reduce("c", as(extendedSummits, "GRangesList"))
-  
+
   nonOverlapES <- nonOverlappingGR(extendedSummits, by = "replicateScoreQuantile", decreasing = TRUE)
 
   overlapMat <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
