@@ -11,15 +11,15 @@ addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{motifSet}{The motif set to be used for annotation. Options include: (i) "JASPAR2016", which gives the 2016 version of JASPAR motifs, (ii) "JASPAR2018", which gives the 2018 version of JASPAR motifs, or (iii) one of "human", "mouse", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.}
+\item{motifSet}{The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020" which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.}
 
-\item{name}{QQQ of annotations to store as in \code{ArchRProject}}
+\item{name}{The name of peakAnnotations to be stored as in \code{ArchRProject}}
 
-\item{species}{QQQ The name of the species relevant to the supplied \code{ArchRProject}. This is used for QQQ. By default, this function will attempt to guess the species based on the value from \code{getGenome()}.}
+\item{species}{The name of the species relevant to the supplied \code{ArchRProject}. This is used for identifying which motif to be used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from \code{getGenome()}.}
 
-\item{collection}{QQQ If one of the JASPAR motif sets is used via \code{motifSet}, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.}
+\item{collection}{If one of the JASPAR motif sets is used via \code{motifSet}, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", etc.}
 
-\item{cutOff}{QQQ The QQQhypergeometric p-value cutoff to be used for motif search (see the \code{motimatchr} package for more information).}
+\item{cutOff}{The  p-value cutoff to be used for motif search (see the \code{motimatchr} package for more information).}
 
 \item{w}{The width in basepairs to consider for motif matches (see the \code{motimatchr} package for more information).}
 

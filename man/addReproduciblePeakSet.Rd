@@ -18,13 +18,13 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{QQQ The name of the column in \code{cellColData} to use for grouping cells together for marker feature identification.}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for peak calling.}
 
 \item{reproducibility}{A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of \code{n} where \code{n} is the number of samples being assessed. For example, \code{reproducibility = "2"} means at least 2 samples must have a peak call at this locus and \code{reproducibility = "(n+1)/2"} means that the majority of samples must have a peak call at this locus.}
 
-\item{peaksPerCell}{QQQ An estimate for the average number of peaks that can be identified per cell.}
+\item{peaksPerCell}{The limit of number of peaks that can be identified per cell (this is useful for controlling how many peaks can be called from low cell groups).}
 
-\item{maxPeaks}{QQQ A numeric threshold for the maximum peaks to retain in the union reproducible peak set.}
+\item{maxPeaks}{A numeric threshold for the maximum peaks to retain per group in \code{groupBy} in the union reproducible peak set.}
 
 \item{minCells}{The minimum number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.}
 
@@ -44,11 +44,11 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{extendSummits}{The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, \code{extendSummits = 250} will create 501-bp fixed-width peaks from the 1-bp summits.}
 
-\item{promoterDist}{QQQ The maximum distance in basepairs from the peak QQQ EDGE OR SUMMIT? to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.}
+\item{promoterDist}{The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.}
 
-\item{genomeAnno}{QQQ The genomeAnnotation in QQQ format.}
+\item{genomeAnno}{The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.}
 
-\item{geneAnno}{QQQ The geneAnnotation in QQQ format.}
+\item{geneAnno}{The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.}
 
 \item{additionalParams}{A string of additional parameters to pass to MACS2 (see MACS2 documentation).}
 
@@ -56,7 +56,7 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given \code{ArchRProject}.}
+\item{force}{A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given \code{ArchRProject} peakSet.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

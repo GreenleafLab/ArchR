@@ -14,17 +14,17 @@ plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
 
 \item{groupBy}{use groupings in cellColData for summarizing and plotting}
 
-\item{colorBy}{QQQ UNCLEAR A string indicating whether points/hexes in the plot should be colored by cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").}
+\item{colorBy}{A string indicating whether numeric values in violin plot should be from a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").}
 
-\item{name}{QQQ UNCLEAR The name of the column in \code{cellColData} or \code{GeneScoreMatrix} to use for QQQ.}
+\item{name}{The name of the column in \code{cellColData} or the featureName in the data matrix.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for QQQ.}
+\item{pal}{A custom palette used to override discreteSet/continuousSet for coloring vector.}
 
 \item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
 \item{size}{The numeric size of the points to be plotted.}
 
-\item{baseSize}{QQQ The base font size to use in the plot.}
+\item{baseSize}{The base font size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
@@ -33,5 +33,5 @@ plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
 \item{...}{additional args}
 }
 \description{
-QQQ This function will plot an embedding that was created from computeEmbedding
+This function will plot an embedding that was created from computeEmbedding
 }

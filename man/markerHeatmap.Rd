@@ -12,21 +12,21 @@ markerHeatmap(seMarker, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   invert = FALSE, ...)
 }
 \arguments{
-\item{seMarker}{QQQ A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
+\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{log2Norm}{A boolean value indicating whether a log2 transformation whould be performed on the values in \code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like \code{DeviationsMatrix}).}
 
-\item{scaleTo}{QQQ scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing}
+\item{scaleTo}{scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing}
 
 \item{scaleRows}{A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.}
 
 \item{limits}{A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.}
 
-\item{grepExclude}{QQQ A character vector or string that indicates the \code{rownames} or a specific pattern that identifies rownames from \code{seMarker} to be excluded from the heatmap.}
+\item{grepExclude}{A character vector or string that indicates the \code{rownames} or a specific pattern that identifies rownames from \code{seMarker} to be excluded from the heatmap.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for the heatmap}
+\item{pal}{A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.}
 
 \item{binaryClusterRows}{A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.}
 
@@ -36,9 +36,9 @@ markerHeatmap(seMarker, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
-\item{returnMat}{QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
+\item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
-\item{invert}{QQQ}
+\item{invert}{A boolean value that indicates whether the heatmap will be inverted ie when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).}
 
 \item{...}{additional args}
 }

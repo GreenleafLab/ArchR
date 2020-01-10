@@ -12,21 +12,21 @@
 #' @param trajectory Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )
 #' @param groupBy initial group column in cellColData to constrain supervised fit
 #' @param reducedDims A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.
-#' @param preFilter QQQ UNCLEAR pre filtering quantile for supervised trajectory fit
-#' @param postFilter QQQ UNCLEAR post filtering quantile for supervised trajectory fit
-#' @param dof QQQ The number of degrees of freedom to be used in QQQ.
+#' @param preQuantile Prior to supervised trajectory fitting, the quantile for filtering cells that are far (by euclidean distance) from cluster centers.
+#' @param postQuantile Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.
+#' @param dof The number of degrees of freedom to be used in QQQ.
 #' @param spar QQQ sparsity
 #' @param force QQQ A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
 #' @param ... additional args
 #' @export
 addTrajectory <- function(
-  ArchRProj,
+  ArchRProj = NULL,
   name = "Trajectory",
   trajectory = NULL, 
   groupBy = "Clusters",
   reducedDims = "IterativeLSI",
-  preFilter = 0.1, 
-  postFilter = 0.1, 
+  preQuantile = 0.1, 
+  postQuantile = 0.1, 
   dof = 250,
   spar = 1,
   force = FALSE,
@@ -63,7 +63,7 @@ addTrajectory <- function(
         #Filter Distance
         matMeanx <- colMeans(matx)
         diffx <- sqrt(colSums((t(matx) - matMeanx)^2))
-        idxKeep <- which(diffx <= quantile(diffx, 1 - preFilter))
+        idxKeep <- which(diffx <= quantile(diffx, 1 - preQuantile))
         
         #Filter
         list(mat = matx[idxKeep,,drop=FALSE], groups = groupsx[idxKeep])
@@ -126,7 +126,7 @@ addTrajectory <- function(
     knnDistQ <- .getQuantiles(knnDist[,1])
 
     #Filter Outlier Cells to Trajectory for High Resolution
-    idxKeep <- which(knnDist[,1] <= quantile(knnDist[,1], 1 - postFilter))
+    idxKeep <- which(knnDist[,1] <= quantile(knnDist[,1], 1 - postQuantile))
     dfTrajectory <- DataFrame(
         row.names = rownames(mat),
         Distance = knnDist[, 1],

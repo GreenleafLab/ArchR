@@ -7,41 +7,39 @@
 markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
   useGroups = NULL, bgdGroups = NULL, useMatrix = "GeneScoreMatrix",
   bias = c("TSSEnrichment", "log10(nFrags)"), normBy = NULL,
-  testMethod = "wilcoxon", minCells = 50, maxCells = 500,
-  scaleTo = 10^4, threads = 1, k = 100, bufferRatio = 0.8,
-  binarize = FALSE, useSeqnames = NULL, method = "ArchR",
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+  testMethod = "wilcoxon", maxCells = 500, scaleTo = 10^4,
+  threads = 1, k = 100, bufferRatio = 0.8, binarize = FALSE,
+  useSeqnames = NULL, method = "ArchR", verboseHeader = TRUE,
+  verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{QQQ The name of the column in \code{cellColData} to use for grouping cells together for marker feature identification.}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for marker feature identification.}
 
-\item{useGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform marker feature identification.}
+\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform marker feature identification.}
 
-\item{bgdGroups}{QQQ A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData} to be used for background calculations in marker feature identification.}
+\item{bgdGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData} to be used for background calculations in marker feature identification.}
 
-\item{useMatrix}{QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.}
+\item{useMatrix}{The name of the matrix to be used for performing differential analyses. Options include "GeneScoreMatrix", "PeakMatrix", etc.}
 
-\item{bias}{QQQ A character vector indicating the potential bias variables to account for in selecting a matched null group for marker feature identification. These should be column names from \code{cellColData}.}
+\item{bias}{A character vector indicating the potential bias variables as a function (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from \code{cellColData}.}
 
-\item{normBy}{QQQ The name of a column in \code{cellColData} that should be normalized across cells prior to performing marker feature identification.}
+\item{normBy}{The name of a numeric column in \code{cellColData} that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.}
 
-\item{testMethod}{QQQ The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".}
+\item{testMethod}{The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".}
 
-\item{minCells}{QQQ The minimum number of cells per cell group required to perform marker feature identification.}
+\item{maxCells}{The maximum number of cells to consider from a single cell group when performing marker feature identification.}
 
-\item{maxCells}{QQQ The maximum number of cells to consider from a single cell group when performing marker feature identification.}
-
-\item{scaleTo}{QQQ}
+\item{scaleTo}{Normalization depth to center normalization to in normBy (default is 10,000).}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{k}{QQQ UNCLEAR knn for matching cell biases}
+\item{k}{The number of nearby cells to use for selecting biased-matched background while accounting for bgdGroups proportions.}
 
-\item{bufferRatio}{QQQ UNCLEAR buffering ratio for matching cell biases}
+\item{bufferRatio}{The buffering ratio of cells to enable best biased-matched background while accounting for bgdGroups proportions.}
 
-\item{binarize}{A boolean value indicating whether to binarize the matrix indicated by \code{useMatrix} prior to marker feature identification. This is often used when dealing with an insertion counts matrix such as a \code{TileMatrix}.}
+\item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing.}
 
 \item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
 

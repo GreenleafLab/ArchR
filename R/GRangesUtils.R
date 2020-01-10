@@ -129,7 +129,7 @@ nonOverlappingGR <- function(
 #' @export
 subsetSeqnamesGR <- function(gr = NULL, names = NULL){
   gr <- .validGRanges(gr)
-  gr <- gr[which(as.character(seqnames(gr)) %in% seqNames),]
+  gr <- gr[which(as.character(seqnames(gr)) %in% names),]
   seqlevels(gr) <- as.character(unique(seqnames(gr)))
   return(gr)
 }

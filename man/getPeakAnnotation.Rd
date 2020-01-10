@@ -2,17 +2,17 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{getPeakAnnotation}
 \alias{getPeakAnnotation}
-\title{Get annotation from an ArchRProject}
+\title{Get peakAnnotation from an ArchRProject}
 \usage{
 getPeakAnnotation(ArchRProj, name = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{QQQ The name of the annotation object to retrieve from the designated \code{ArchRProject}. Options include QQQ.}
+\item{name}{The name of the peakAnnotation object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets an annotation from a given ArchRProject.
+This function gets a peakAnnotation from a given ArchRProject.
 }

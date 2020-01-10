@@ -8,10 +8,10 @@
 #' and merge peaks to get a "Union Reproducible Peak Set"
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param groupBy QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.
+#' @param groupBy The name of the column in `cellColData` to use for grouping cells together for peak calling.
 #' @param reproducibility A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of `n` where `n` is the number of samples being assessed. For example, `reproducibility = "2"` means at least 2 samples must have a peak call at this locus and `reproducibility = "(n+1)/2"` means that the majority of samples must have a peak call at this locus.
-#' @param peaksPerCell QQQ An estimate for the average number of peaks that can be identified per cell.
-#' @param maxPeaks QQQ A numeric threshold for the maximum peaks to retain in the union reproducible peak set.
+#' @param peaksPerCell The limit of number of peaks that can be identified per cell (this is useful for controlling how many peaks can be called from low cell groups).
+#' @param maxPeaks A numeric threshold for the maximum peaks to retain per group in `groupBy` in the union reproducible peak set.
 #' @param minCells The minimum number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.
 #' @param pathToMacs2 The full path to the MACS2 executable.
@@ -21,13 +21,13 @@
 #' @param method The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with `cutOff` this gives the method and significance threshold for peak calling (see MACS2 documentation).
 #' @param cutOff The numeric significance cutoff for the testing method indicated by `method` (see MACS2 documentation).
 #' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
-#' @param promoterDist QQQ The maximum distance in basepairs from the peak QQQ EDGE OR SUMMIT? to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.
-#' @param genomeAnno QQQ The genomeAnnotation in QQQ format.
-#' @param geneAnno QQQ The geneAnnotation in QQQ format.
+#' @param promoterDist The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.
+#' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.
+#' @param geneAnno The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.
 #' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject`.
+#' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args

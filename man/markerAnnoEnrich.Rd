@@ -2,27 +2,27 @@
 % Please edit documentation in R/MarkerFeatures.R
 \name{markerAnnoEnrich}
 \alias{markerAnnoEnrich}
-\title{QQQ}
+\title{Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
 markerAnnoEnrich(seMarker = NULL, ArchRProj = NULL,
-  annotations = NULL, matches = NULL,
+  peakAnnotation = NULL, matches = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5", background = "bgdPeaks", ...)
 }
 \arguments{
-\item{seMarker}{QQQ A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
+\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{annotations}{QQQ}
+\item{peakAnnotation}{A peakAnnotation in an \code{ArchRProject} to be used for hypergeometric test.}
 
-\item{matches}{QQQ}
+\item{matches}{A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker}. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
-\item{background}{QQQ}
+\item{background}{Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).}
 
 \item{...}{additional args}
 }
 \description{
-This function QQQ
+This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
 }
