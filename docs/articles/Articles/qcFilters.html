@@ -45,7 +45,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Tutorial</a>
+  <a href="../../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -67,7 +67,10 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -87,7 +90,7 @@
   </ul>
 </li>
 <li>
-  <a href="../../articles/faq.html">FAQ</a>
+  <a href="../../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../../reference/index.html">Reference</a>
@@ -126,13 +129,13 @@
     
 <p>Typically, when we refer to data quality in ATAC-seq, we are referring to the <em>signal-to-background</em> ratio. Because promoter regions are largely accessible across cell types, this is often measured as an enrichment of signal at transcription start sites (TSSs) compared to the surrounding region. Another common quality control metric is the <em>fraction of reads in peaks</em> (FRiP). In our hands, these two metrics perform very similarly but the TSS enrichment score has one key advantage - it does not require you to call peaks.</p>
 <div class="figure">
-<img src="TSS_vs_FRiP.png" width="350">
+<img src="../../images/TSS_vs_FRiP.png" width="350">
 </div>
 <p>To really drive this point home, to calculate FRiP you either must create a new peak set from your sample of interest or input a pre-defined peak set. Neither of these is a good solution because creating a new peak set for each sample leads to variation across samples and inputing a pre-defined peak set may not adequately capture the signal in your sample of interest. Thus, we use the TSS enrichment score.</p>
 <p>However, the TSS enrichment score is not without its own caveats. In particular, the set of TSS regions that you use will change the numeric value of the score. As genome annotations change or if you generate ATAC-seq data from different organisms, the actual numeric value may not be consistent across these conditions. To standardize this, we use the TSS regions derived from <strong>QQQ</strong>.</p>
 <p>In scATAC-seq, we additionally use the number of unique fragments per cell as a second quality control filter. If a single cell does not have at least <strong>QQQ</strong> unique fragments, it becomes difficult to make reliable conclusions about that single cell, even if it has a high TSS enrichment score.</p>
 <div class="figure">
-<img src="Frags_vs_TSS.png" width="350">
+<img src="../../images/Frags_vs_TSS.png" width="350">
 </div>
 <p>In ArchR, quality control filtering is performed during <code>ArrowFile</code> creation using the <code><a href="../../reference/createArrowFiles.html">createArrowFiles()</a></code> function with parameters <code>filterTSS</code>, <code>filterFrags</code>, and <code>removeFilteredCells</code>.</p>
   </div>

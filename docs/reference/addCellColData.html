@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -171,23 +174,23 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>data</th>
-      <td><p>The data to add to `cellColData`.</p></td>
+      <td><p>The data to add to <code>cellColData</code>.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The column header name to be used for this new data in `cellColData`. If a column with this name already exists, you may set `force` equal to TRUE to overwrite the data in this column.</p></td>
+      <td><p>The column header name to be used for this new data in <code>cellColData</code>. If a column with this name already exists, you may set <code>force</code> equal to TRUE to overwrite the data in this column.</p></td>
     </tr>
     <tr>
       <th>cells</th>
-      <td><p>The names of the cells corresponding to `data`. Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where `data` is not added are set to `NA`.</p></td>
+      <td><p>The names of the cells corresponding to <code>data</code>. Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where <code>data</code> is not added are set to <code>NA</code>.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value indicating whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.</p></td>
+      <td><p>A boolean value indicating whether or not to overwrite data in a given column when the value passed to <code>name</code> already exists as a column name in <code>cellColData</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>

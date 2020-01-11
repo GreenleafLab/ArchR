@@ -45,7 +45,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Tutorial</a>
+  <a href="../../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -67,7 +67,7 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores</a>
     </li>
     <li>
       <a href="../../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
@@ -90,7 +90,7 @@
   </ul>
 </li>
 <li>
-  <a href="../../articles/faq.html">FAQ</a>
+  <a href="../../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../../reference/index.html">Reference</a>
@@ -134,7 +134,7 @@
 <p>To do this cell type annotation, we use prior knowledge of cell type-specific marker genes and we estimate <em>gene activity scores</em> for these genes. A gene activity score is essentially a prediction of how highly expressed a gene will be based on the accessibility of regulatory elements in the vicinity of the gene promoter.</p>
 <p>Specifically, the 200-kb region centered on the given TSS is tiled into 1000-bp bins and the insertions per bin are counted. Each of these bins is then weighted proportional to the distance from the TSS because regulatory elements closer to the promoter are more likely to affect the promoter.</p>
 <div class="figure">
-<img src="GeneActivityScore_Schematic.png" width="500">
+<img src="../../images/GeneActivityScore_Schematic.png" width="500">
 </div>
 <p><span class="math inline">\(~\)</span></p>
 <p>These gene activity scores are calculated for each <code>ArrowFile</code> at the time of creation if the parameter <code>addGeneScoreMat</code> is set to <code>TRUE</code> (the default) or at any time by using the <code><a href="../../reference/addGeneScoreMatrix.html">addGeneScoreMatrix()</a></code> function. Once caluclated, individual cells of a UMAP projection can be colored by their gene activity scores to help with the identification of various cell types. For example, in the plot below from the tutorial, <strong>QQQ</strong> cells are highlighted based on their gene activity scores for <strong>QQQ</strong>.</p>

@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -180,7 +183,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>inputFiles</th>
-      <td><p>The names of the input files to use to generate the arrow files. These files can be in any of the following formats: tabix QQQ, QQQ BAM,  or a fragments file). The precise format of each file type QQQ...</p></td>
+      <td><p>The names of the input files to use to generate the arrow files. These files can be in any of the following formats: scATAC tabix fragment files or a bam file).</p></td>
     </tr>
     <tr>
       <th>sampleNames</th>
@@ -192,15 +195,15 @@
     </tr>
     <tr>
       <th>validBarcodes</th>
-      <td><p>QQQ ??? not used in function</p></td>
+      <td><p>A list of validBarcode strings to be used for filtering cells read from each input file (see getValidBarcodes for 10x fragment files).</p></td>
     </tr>
     <tr>
       <th>geneAnno</th>
-      <td><p>QQQ The geneAnnotation in QQQ format to associate with these arrow files. This is used downstream to calculate TSS Scores etc.</p></td>
+      <td><p>The geneAnnotation (see createGeneAnnotation) to associate with these arrow files. This is used downstream to calculate TSS Enrichment Scores etc.</p></td>
     </tr>
     <tr>
       <th>genomeAnno</th>
-      <td><p>QQQ The genomeAnnotation in QQQ format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.</p></td>
+      <td><p>The genomeAnnotation (see createGenomeAnnotation) format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.</p></td>
     </tr>
     <tr>
       <th>filterFrags</th>
@@ -216,7 +219,7 @@
     </tr>
     <tr>
       <th>minFrags</th>
-      <td><p>QQQ min fragments per cell to be immediately filtered</p></td>
+      <td><p>The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment).</p></td>
     </tr>
     <tr>
       <th>outDir</th>
@@ -228,7 +231,7 @@
     </tr>
     <tr>
       <th>TSSParams</th>
-      <td><p>QQQ TSS parameters for computing TSS scores</p></td>
+      <td><p>TSS parameters for computing TSS Enrichment scores. This includes <code>window</code> which describes the window centered at each TSS (default 101), the <code>flank</code> which describes the +/- window size to compute TSS enrichment (default 2000) , the <code>norm</code> which describes the normalization window size at the flanks to compute TSS enrichment (default 100 i.e. -2000:-1901 and 1901:2000).</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
@@ -244,11 +247,11 @@
     </tr>
     <tr>
       <th>gsubExpression</th>
-      <td><p>QQQ</p></td>
+      <td><p>A regular expression to clean up the barcode tag read in from a bam file. For example if the barcode is appended to the qname (read name) like for Shendure mouse data the gsubExpression would be ":.*" for getting the string after the colon in the qname.</p></td>
     </tr>
     <tr>
       <th>bamFlag</th>
-      <td><p>QQQ A list of bam flags to be used for reading in fragments from input bam files. Fromat should be QQQ. See ScanBam in Rsamtools.</p></td>
+      <td><p>A list of bam flags to be used for reading in fragments from input bam files. Format should be scanBamFlag for ScanBam in Rsamtools.</p></td>
     </tr>
     <tr>
       <th>offsetPlus</th>
@@ -264,7 +267,7 @@
     </tr>
     <tr>
       <th>TileMatParams</th>
-      <td><p>A list of parameters to pass to the `addTileMatrix()` function. See `ArchR::addTileMatrix()` for options.</p></td>
+      <td><p>A list of parameters to pass to the <code><a href='addTileMatrix.html'>addTileMatrix()</a></code> function. See <code><a href='addTileMatrix.html'>ArchR::addTileMatrix()</a></code> for options.</p></td>
     </tr>
     <tr>
       <th>addGeneScoreMat</th>
@@ -272,11 +275,11 @@
     </tr>
     <tr>
       <th>GeneScoreMatParams</th>
-      <td><p>A list of parameters to pass to the `addGeneScoreMatrix()` function. See `ArchR::addGeneScoreMatrix()` for options.</p></td>
+      <td><p>A list of parameters to pass to the <code><a href='addGeneScoreMatrix.html'>addGeneScoreMatrix()</a></code> function. See <code><a href='addGeneScoreMatrix.html'>ArchR::addGeneScoreMatrix()</a></code> for options.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value indicating whether to force arrow files to be overwritten if they already exist in `outDir`.</p></td>
+      <td><p>A boolean value indicating whether to force arrow files to be overwritten if they already exist in <code>outDir</code>.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -284,7 +287,7 @@
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>

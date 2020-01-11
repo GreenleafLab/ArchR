@@ -83,7 +83,7 @@ on an ArchRProject." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -105,7 +105,10 @@ on an ArchRProject." />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -125,7 +128,7 @@ on an ArchRProject." />
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -181,15 +184,15 @@ on an ArchRProject.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.</p></td>
+      <td><p>The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".</p></td>
     </tr>
     <tr>
       <th>reducedDimsOut</th>
-      <td><p>QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.</p></td>
+      <td><p>QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the <code>ArchRProject</code> as a <code>reducedDims</code> object.</p></td>
     </tr>
     <tr>
       <th>iterations</th>
@@ -197,7 +200,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
+      <td><p>QQQ A vector containing the dimensions from the <code>reducedDims</code> object to use in clustering.</p></td>
     </tr>
     <tr>
       <th>corCutOff</th>
@@ -213,11 +216,11 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>sampleCells</th>
-      <td><p>A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.</p></td>
+      <td><p>A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in <code>cellColData</code>.</p></td>
     </tr>
     <tr>
       <th>varFeatures</th>
-      <td><p>The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.</p></td>
+      <td><p>The number of N variable features to use for LSI. The top N features will be used based on the <code>selectionMethod</code>.</p></td>
     </tr>
     <tr>
       <th>selectionMethod</th>
@@ -237,7 +240,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>saveIterations</th>
-      <td><p>A boolean value indicating whether the different LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.</p></td>
+      <td><p>A boolean value indicating whether the different LSI iterations should be saved as compressed <code>.rds</code> files in the designated <code>outDir</code>.</p></td>
     </tr>
     <tr>
       <th>outDir</th>
@@ -245,7 +248,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>clusterParams</th>
-      <td><p>Additional parameters to be passed to `ArchR::addClusters()`.</p></td>
+      <td><p>Additional parameters to be passed to <code><a href='addClusters.html'>ArchR::addClusters()</a></code>.</p></td>
     </tr>
     <tr>
       <th>runHarmony</th>
@@ -253,7 +256,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>harmonyParams</th>
-      <td><p>Additional parameters to be passed to `harmony::HarmonyMatrix()`.</p></td>
+      <td><p>Additional parameters to be passed to <code>harmony::HarmonyMatrix()</code>.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -273,7 +276,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.</p></td>
+      <td><p>A boolean value that indicates whether or not to overwrite relevant data in the <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>...</th>

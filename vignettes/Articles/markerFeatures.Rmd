@@ -1,8 +1,10 @@
 ---
 title: "Marker Feature Identification"
-resource_files:
-  - images/GeneActivityScore_Schematic.png
 ---
+
+```{r image, include=FALSE}
+knitr::include_graphics(c("../../images/markerFeature_schematic.png","../../images/background_preNorm.png","../../images/background_postNorm.png"))
+```
 
 ### Marker Features
 

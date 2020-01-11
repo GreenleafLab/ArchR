@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -175,15 +178,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seMarker</th>
-      <td><p>QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.</p></td>
+      <td><p>QQQ A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>ArchR::markerFeatures()</a></code>.</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
-      <td><p>A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.</p></td>
+      <td><p>A valid-syntax logical statement that defines which marker features from <code>seMarker</code> will be plotted in the heatmap. <code>cutoff</code> can contain any of the <code>assayNames</code> from <code>seMarker</code>.</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>A boolean value indicating whether a log2 transformation whould be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like `DeviationsMatrix`).</p></td>
+      <td><p>A boolean value indicating whether a log2 transformation whould be performed on the values in <code>seMarker</code> prior to plotting. Should be set to <code>TRUE</code> for counts-based assays (but not assays like <code>DeviationsMatrix</code>).</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
@@ -199,11 +202,11 @@
     </tr>
     <tr>
       <th>grepExclude</th>
-      <td><p>QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.</p></td>
+      <td><p>QQQ A character vector or string that indicates the <code>rownames</code> or a specific pattern that identifies rownames from <code>seMarker</code> to be excluded from the heatmap.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from <code>ArchRPalettes</code> to use for the heatmap</p></td>
     </tr>
     <tr>
       <th>binaryClusterRows</th>
@@ -211,11 +214,11 @@
     </tr>
     <tr>
       <th>labelMarkers</th>
-      <td><p>A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.</p></td>
+      <td><p>A character vector listing the <code>rownames</code> of <code>seMarker</code> that should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelTop</th>
-      <td><p>A boolean value that indicates whether the top features for each column in `seMarker` should be labeled on the side of the heatmap.</p></td>
+      <td><p>A boolean value that indicates whether the top features for each column in <code>seMarker</code> should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelRows</th>

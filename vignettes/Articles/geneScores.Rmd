@@ -1,8 +1,10 @@
 ---
 title: "Gene Activity Scores and Marker Features"
-resource_files:
-  - images/GeneActivityScore_Schematic.png
 ---
+
+```{r image, include=FALSE}
+knitr::include_graphics(c("../../images/GeneActivityScore_Schematic.png"))
+```
 
 ### Gene Activity Scores
 
@@ -12,7 +14,7 @@ To do this cell type annotation, we use prior knowledge of cell type-specific ma
 
 Specifically, the 200-kb region centered on the given TSS is tiled into 1000-bp bins and the insertions per bin are counted. Each of these bins is then weighted proportional to the distance from the TSS because regulatory elements closer to the promoter are more likely to affect the promoter.
 
-![](GeneActivityScore_Schematic.png){width=500px}
+![](../../images/GeneActivityScore_Schematic.png){width=500px}
 
 $~$
 

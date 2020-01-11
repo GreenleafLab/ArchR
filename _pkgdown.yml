@@ -12,7 +12,7 @@ authors:
 navbar:
   left:
   - text: Tutorial
-    href: articles/ArchR.html
+    href: articles/Articles/tutorial.html
   - text: Vignettes
     menu:
       - text: Doublet Removal
@@ -35,10 +35,8 @@ navbar:
         href: articles/Articles/pseudobulkGeneration.html
       - text: Gene and Genome Annotation
         href: articles/Articles/annotations.html
-      - text: Cluster Computing with ArchR
-        href: articles/Articles/clusterComputing.html
   - text: FAQ
-    href: articles/faq.html
+    href: articles/Articles/faq.html
   - text: Reference
     href: reference/index.html
   right:

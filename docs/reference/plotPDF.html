@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -163,13 +166,17 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>plotPDF</span>(<span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Plot"</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useDingbats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>plotList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>plotPDF</span>(<span class='no'>...</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Plot"</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useDingbats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>plotList</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>...</th>
+      <td><p>vector of plots to be plotted (if input is a list use plotList instead)</p></td>
+    </tr>
     <tr>
       <th>name</th>
       <td><p>The file name to be used for the output PDF file.</p></td>
@@ -184,7 +191,7 @@
     </tr>
     <tr>
       <th>ArchRProj</th>
-      <td><p>QQQ An `ArchRProject` object to be used for QQQ.</p></td>
+      <td><p>An <code>ArchRProject</code> object to be used for getting plotDirectory in outputDirectory.</p></td>
     </tr>
     <tr>
       <th>addDOC</th>
@@ -196,15 +203,11 @@
     </tr>
     <tr>
       <th>plotList</th>
-      <td><p>QQQ A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a QQQ format object.</p></td>
+      <td><p>A <code>list</code> of plots to be printed to the output PDF file. Each element of <code>plotList</code> should be a printable plot formatted object (ggplot2, plot, heatmap, etc).</p></td>
     </tr>
     <tr>
       <th>useSink</th>
-      <td><p>QQQ ???</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>additional args to pdf</p></td>
+      <td><p>use sink to hide messages from plotting</p></td>
     </tr>
     </table>
     

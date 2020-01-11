@@ -83,7 +83,7 @@ per cell in the Arrow File" />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -105,7 +105,10 @@ per cell in the Arrow File" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -125,7 +128,7 @@ per cell in the Arrow File" />
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -175,27 +178,27 @@ per cell in the Arrow File</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>An `ArchRProject` object or character vector of ArrowFiles.</p></td>
+      <td><p>An <code>ArchRProject</code> object or character vector of ArrowFiles.</p></td>
     </tr>
     <tr>
       <th>chromSizes</th>
-      <td><p>A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getChromSizes()`.</p></td>
+      <td><p>A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getChromSizes.html'>ArchR::getChromSizes()</a></code>.</p></td>
     </tr>
     <tr>
       <th>blacklist</th>
-      <td><p>A `GRanges` object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getBlacklist()`.</p></td>
+      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getBlacklist.html'>ArchR::getBlacklist()</a></code>.</p></td>
     </tr>
     <tr>
       <th>tileSize</th>
-      <td><p>The size of the tiles used for binning counts in the `TileMatrix`.</p></td>
+      <td><p>The size of the tiles used for binning counts in the <code>TileMatrix</code>.</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>QQQ A boolean value indicating whether the `TileMatrix` should be binarized QQQ prior to storage.</p></td>
+      <td><p>QQQ A boolean value indicating whether the <code>TileMatrix</code> should be binarized QQQ prior to storage.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
-      <td><p>A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.</p></td>
+      <td><p>A character vector containing the <code>seqnames</code> of the chromosomes that should be excluded from CNV analysis.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -203,11 +206,11 @@ per cell in the Arrow File</p>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the `TileMatrix` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.</p></td>
+      <td><p>QQQ A boolean value indicating whether to force the <code>TileMatrix</code> to be overwritten if it already exist in the given <code>ArchRProject</code> or ArrowFiles.</p></td>
     </tr>
     </table>
     

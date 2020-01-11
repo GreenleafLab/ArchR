@@ -80,7 +80,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,7 +102,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -122,7 +125,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -178,15 +181,15 @@
     </tr>
     <tr>
       <th>color</th>
-      <td><p>QQQ A vector of color values to be plotted. This vector must be the same length as QQQ `length(x) * length(y)`</p></td>
+      <td><p>QQQ A vector of color values to be plotted. This vector must be the same length as QQQ <code>length(x) * length(y)</code></p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from <code>ArchRPalettes</code> to use for QQQ.</p></td>
     </tr>
     <tr>
       <th>bins</th>
-      <td><p>QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ `bins` indicates the total number of hexagons that will fit within the surface area of the plot.</p></td>
+      <td><p>QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ <code>bins</code> indicates the total number of hexagons that will fit within the surface area of the plot.</p></td>
     </tr>
     <tr>
       <th>xlim</th>
@@ -198,11 +201,11 @@
     </tr>
     <tr>
       <th>extend</th>
-      <td><p>QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
+      <td><p>QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
 <p>xlabelThe label to plot for the x-axis.</p>
 <p>ylabelThe label to plot for the y-axis.</p>
 <p>titleThe title of the plot.</p>
-<p>colorTitleThe label to use for the legend corresponding to `color`.</p>
+<p>colorTitleThe label to use for the legend corresponding to <code>color</code>.</p>
 <p>baseSizeQQQ The base font size to use in the plot.</p>
 <p>ratioYXThe aspect ratio of the x and y axes on the plot.</p>
 <p>FUNThe function to use for summarizing data into hexagons. Typically "mean" or something similar.</p>

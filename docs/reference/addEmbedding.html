@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -166,46 +169,46 @@
     <pre class="usage"><span class='fu'>addEmbedding</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>,
   <span class='kw'>embedding</span> <span class='kw'>=</span> <span class='st'>"UMAP"</span>, <span class='kw'>embeddingOut</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>dimsToUse</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>corCutOff</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='kw'>saveModel</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>floor</a></span>(<span class='fu'>detectCores</span>()/<span class='fl'>2</span>), <span class='kw'>embeddingParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='no'>...</span>)</pre>
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>embeddingParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>QQQ The name of the `reducedDims` object to use from the designated `ArchRProject`. Possible options include "IterativeLSI", QQQ.</p></td>
+      <td><p>The name of the <code>reducedDims</code> object (i.e. IterativeLSI) to use from the designated <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>embedding</th>
-      <td><p>QQQ The name of the embedding to add to the `ArchRProject` object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".</p></td>
+      <td><p>The type of the embedding to add to the <code>ArchRProject</code> object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".</p></td>
     </tr>
     <tr>
       <th>embeddingOut</th>
-      <td><p>QQQ</p></td>
+      <td><p>The name for the embedding to be stored as in the <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
+      <td><p>A vector containing the dimensions from the <code>reducedDims</code> object to use in computing the embedding.</p></td>
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>saveModel</th>
-      <td><p>QQQ A boolean value indicating whether QQQ.</p></td>
+      <td><p>A boolean value indicating whether to save UMAP model for later usage such as projection. Only relevant for UMAP.</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
+      <td><p>A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if the given `embedding` already exists.</p></td>
+      <td><p>A boolean value that indicates whether or not to overwrite the relevant data in the <code>ArchRProject</code> object if the given <code>embedding</code> already exists.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -213,7 +216,7 @@
     </tr>
     <tr>
       <th>embeddingParams</th>
-      <td><p>A list of extra parameters to pass to the designated `embedding` function.</p></td>
+      <td><p>A list of extra parameters to pass to the designated <code>embedding</code> function.</p></td>
     </tr>
     <tr>
       <th>...</th>

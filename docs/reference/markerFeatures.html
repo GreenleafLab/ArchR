@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -176,19 +179,19 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.</p></td>
+      <td><p>QQQ The name of the column in <code>cellColData</code> to use for grouping cells together for marker feature identification.</p></td>
     </tr>
     <tr>
       <th>useGroups</th>
-      <td><p>QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.</p></td>
+      <td><p>QQQ A character vector that is used to select a subset of groups by name from the designated <code>groupBy</code> column in <code>cellColData</code>. This limits the groups used to perform marker feature identification.</p></td>
     </tr>
     <tr>
       <th>bgdGroups</th>
-      <td><p>QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.</p></td>
+      <td><p>QQQ A character vector that is used to select a subset of groups by name from the designated <code>groupBy</code> column in <code>cellColData</code> to be used for background calculations in marker feature identification.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
@@ -196,11 +199,11 @@
     </tr>
     <tr>
       <th>bias</th>
-      <td><p>QQQ A character vector indicating the potential bias variables to account for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.</p></td>
+      <td><p>QQQ A character vector indicating the potential bias variables to account for in selecting a matched null group for marker feature identification. These should be column names from <code>cellColData</code>.</p></td>
     </tr>
     <tr>
       <th>normBy</th>
-      <td><p>QQQ The name of a column in `cellColData` that should be normalized across cells prior to performing marker feature identification.</p></td>
+      <td><p>QQQ The name of a column in <code>cellColData</code> that should be normalized across cells prior to performing marker feature identification.</p></td>
     </tr>
     <tr>
       <th>testMethod</th>
@@ -232,7 +235,7 @@
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>A boolean value indicating whether to binarize the matrix indicated by `useMatrix` prior to marker feature identification. This is often used when dealing with an insertion counts matrix such as a `TileMatrix`.</p></td>
+      <td><p>A boolean value indicating whether to binarize the matrix indicated by <code>useMatrix</code> prior to marker feature identification. This is often used when dealing with an insertion counts matrix such as a <code>TileMatrix</code>.</p></td>
     </tr>
     <tr>
       <th>useSeqnames</th>
@@ -240,7 +243,7 @@
     </tr>
     <tr>
       <th>method</th>
-      <td><p>The name of the method to be used  for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the `Signac::VeniceMarker()` fucntion.</p></td>
+      <td><p>The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the <code>Signac::VeniceMarker()</code> fucntion.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>

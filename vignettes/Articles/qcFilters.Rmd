@@ -1,13 +1,14 @@
 ---
 title: "Quality Control Filtering"
-resource_files:
-  - images/TSS_vs_FRiP.png
-  - images/Frags_vs_TSS.png
 ---
+
+```{r image, include=FALSE}
+knitr::include_graphics(c("../../images/TSS_vs_FRiP.png", "../../images/Frags_vs_TSS.png"))
+```
 
 Typically, when we refer to data quality in ATAC-seq, we are referring to the _signal-to-background_ ratio. Because promoter regions are largely accessible across cell types, this is often measured as an enrichment of signal at transcription start sites (TSSs) compared to the surrounding region. Another common quality control metric is the _fraction of reads in peaks_ (FRiP). In our hands, these two metrics perform very similarly but the TSS enrichment score has one key advantage - it does not require you to call peaks.
 
-![](TSS_vs_FRiP.png){width=350px}
+![](../../images/TSS_vs_FRiP.png){width=350px}
 
 To really drive this point home, to calculate FRiP you either must create a new peak set from your sample of interest or input a pre-defined peak set. Neither of these is a good solution because creating a new peak set for each sample leads to variation across samples and inputing a pre-defined peak set may not adequately capture the signal in your sample of interest. Thus, we use the TSS enrichment score.
 
@@ -15,6 +16,6 @@ However, the TSS enrichment score is not without its own caveats. In particular,
 
 In scATAC-seq, we additionally use the number of unique fragments per cell as a second quality control filter. If a single cell does not have at least __QQQ__ unique fragments, it becomes difficult to make reliable conclusions about that single cell, even if it has a high TSS enrichment score.
 
-![](Frags_vs_TSS.png){width=350px}
+![](../../images/Frags_vs_TSS.png){width=350px}
 
 In ArchR, quality control filtering is performed during `ArrowFile` creation using the `createArrowFiles()` function with parameters `filterTSS`, `filterFrags`, and `removeFilteredCells`.

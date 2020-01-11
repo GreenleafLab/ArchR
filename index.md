@@ -1,4 +1,4 @@
-# ArchR ![](ArchR_dartLogo_small.jpg)
+# ArchR <img src="man/figures/ArchR_dartLogo_small.jpg" alt="" width="45" >
 
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
@@ -35,12 +35,14 @@ devtools::install_github('immunogenomics/presto')
 ```
 
 # ArchR Workflow
-![ArchR Workflow](https://web.stanford.edu/~mcorces/ArchR_Workflow_v1.PNG)
+
+<img src="man/figures/ArchR_Workflow.png" alt="" width="450">
+
 
 # Documentation
 Please see the navigation bar at the top of this page for links to [a brief ArchR tutorial](articles/ArchR.html) as well as detailed [vignettes and examples](articles/index.html) for each of the major ArchR analytical components.
 
 # Issues using ArchR?
-If you find a bug, please report it on [Github](https://github.com/GreenleafLab/ArchR/issues). If you have questions about ArchR usage, please refer to the [publication](https://greenleaf.stanford.edu/assets/pdf/), the [vignettes](articles/index.html), or the [FAQ section](articles/faq.html).
+If you find a bug, please report it as an issue on [Github](https://github.com/GreenleafLab/ArchR/issues). If you think the documentation on this website or in the function annotations is unclear, please submit this as an issue on [Github](https://github.com/GreenleafLab/ArchR/issues) with the _documentation_ tag. If you have questions about ArchR usage, please refer to the [publication](https://greenleaf.stanford.edu/assets/pdf/), the [vignettes](articles/index.html), or the [FAQ section](articles/faq.html).
 
 

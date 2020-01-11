@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -173,11 +176,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seTrajectory</th>
-      <td><p>A `SummarizedExperiment` object that results from `markerFeatures()`.</p></td>
+      <td><p>A <code>SummarizedExperiment</code> object that results from <code><a href='markerFeatures.html'>markerFeatures()</a></code>.</p></td>
     </tr>
     <tr>
       <th>scaleRows</th>
-      <td><p>A boolean value that indicates whether row-wise z-scores should be computed on matrix in `seTrajectory`.</p></td>
+      <td><p>A boolean value that indicates whether row-wise z-scores should be computed on matrix in <code>seTrajectory</code>.</p></td>
     </tr>
     <tr>
       <th>limits</th>
@@ -185,19 +188,19 @@
     </tr>
     <tr>
       <th>grepExclude</th>
-      <td><p>QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seTrajectory` to be excluded from the heatmap.</p></td>
+      <td><p>QQQ A character vector or string that indicates the <code>rownames</code> or a specific pattern that identifies rownames from <code>seTrajectory</code> to be excluded from the heatmap.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from <code>ArchRPalettes</code> to use for the heatmap</p></td>
     </tr>
     <tr>
       <th>labelMarkers</th>
-      <td><p>A character vector listing the `rownames` of `seTrajectory` that should be labeled on the side of the heatmap.</p></td>
+      <td><p>A character vector listing the <code>rownames</code> of <code>seTrajectory</code> that should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelTop</th>
-      <td><p>A boolean value that indicates whether the top features for each column in `seTrajectory` should be labeled on the side of the heatmap.</p></td>
+      <td><p>A boolean value that indicates whether the top features for each column in <code>seTrajectory</code> should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelRows</th>

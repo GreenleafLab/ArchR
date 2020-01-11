@@ -84,7 +84,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -106,7 +106,10 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -126,7 +129,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -179,11 +182,11 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.</p></td>
+      <td><p>An <code>ArchRProject</code> object or a character vector containing the names of ArrowFiles to be used.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.</p></td>
+      <td><p>The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", "PeakMatrix".</p></td>
     </tr>
     <tr>
       <th>k</th>
@@ -191,15 +194,15 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>nTrials</th>
-      <td><p>QQQ The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.</p></td>
+      <td><p>The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.</p></td>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
+      <td><p>A vector containing the dimensions from the <code>reducedDims</code> object to use in clustering.</p></td>
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>knnMethod</th>
@@ -207,15 +210,15 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>UMAPParams</th>
-      <td><p>The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function umap in the uwot package.</p></td>
+      <td><p>The list of parameters to pass to the UMAP function if "UMAP" is designated to <code>knnMethod</code>. See the function umap in the uwot package.</p></td>
     </tr>
     <tr>
       <th>LSIParams</th>
-      <td><p>QQQ The list of parameters to pass to the IterativeLSI function if QQQ. See IterativeLSI.</p></td>
+      <td><p>The list of parameters to pass to the IterativeLSI function. See IterativeLSI.</p></td>
     </tr>
     <tr>
       <th>outDir</th>
-      <td><p>The name or path for the output directory for writing information on doublet identification,</p></td>
+      <td><p>The name or path for the output directory for plot/result information on doublet identification,</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -223,7 +226,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
