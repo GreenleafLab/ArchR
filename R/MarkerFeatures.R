@@ -27,26 +27,26 @@
 #' @param ... additional args
 #' @export
 markerFeatures <- function(
-    ArchRProj = NULL,
-    groupBy = "Clusters",
-    useGroups = NULL,
-    bgdGroups = NULL,
-    useMatrix = "GeneScoreMatrix",
-    bias = c("TSSEnrichment", "log10(nFrags)"),
-    normBy = NULL,
-    testMethod = "wilcoxon",
-    maxCells = 500,
-    scaleTo = 10^4,
-    threads = 1,
-    k = 100,
-    bufferRatio = 0.8,
-    binarize = FALSE,
-    useSeqnames = NULL,
-    method = "ArchR",
-    verboseHeader = TRUE,
-    verboseAll = FALSE,
-    ...
-    ){
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  useGroups = NULL,
+  bgdGroups = NULL,
+  useMatrix = "GeneScoreMatrix",
+  bias = c("TSSEnrichment", "log10(nFrags)"),
+  normBy = NULL,
+  testMethod = "wilcoxon",
+  maxCells = 500,
+  scaleTo = 10^4,
+  threads = 1,
+  k = 100,
+  bufferRatio = 0.8,
+  binarize = FALSE,
+  useSeqnames = NULL,
+  method = "ArchR",
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  ...
+  ){
   
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
@@ -694,9 +694,9 @@ markerHeatmap <- function(
   }
   #Now Get Values
   if(plotLog2FC){
-    mat <- SummarizedExperiment::assays(seMarker)[["Log2FC"]]
+    mat <- as.matrix(SummarizedExperiment::assays(seMarker)[["Log2FC"]])
   }else{
-    mat <- SummarizedExperiment::assays(seMarker)[["Mean"]]
+    mat <- as.matrix(SummarizedExperiment::assays(seMarker)[["Mean"]])
     if(log2Norm){
       mat <- log2(t(t(mat)/colSums(mat)) * scaleTo + 1)
     }
