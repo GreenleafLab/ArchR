@@ -2,9 +2,9 @@
 % Please edit documentation in R/MatrixDeviations.R
 \name{addDeviationsMatrix}
 \alias{addDeviationsMatrix}
-\title{Add a matrix of transcription factor deviations to Arrow Files in ArchRProject}
+\title{Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject}
 \usage{
-addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
+addDeviationsMatrix(ArchRProj, peakAnnotation = NULL, matches = NULL,
   bgdPeaks = getBgdPeaks(ArchRProj), matrixName = NULL, out = c("z",
   "deviations"), binarize = FALSE, threads = 1, parallelParam = NULL,
   force = FALSE, ...)
@@ -12,7 +12,7 @@ addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{annotations}{QQQ UNCLEAR WHAT ANNOTATIONS MEANS. The name of the annotations object name stored in the \code{ArchRProject}.}
+\item{peakAnnotation}{The name of the peakAnnotation name stored in the \code{ArchRProject}.}
 
 \item{matrixName}{The name to be used for storage of the deviations matrix in the provided \code{ArchRProject}.}
 
@@ -24,8 +24,8 @@ addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArchRProject}.}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArrowFiles}.}
 }
 \description{
-This function for each QQQ will independently compute transcription factor deviations.
+This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).
 }

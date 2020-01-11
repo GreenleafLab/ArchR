@@ -2,7 +2,7 @@
 % Please edit documentation in R/Imputation.R
 \name{addImputeWeights}
 \alias{addImputeWeights}
-\title{QQQ}
+\title{Add Imputation Weights to ArchRProject}
 \usage{
 addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
   dimsToUse = NULL, td = 3, ka = 4, sampleCells = max(5000,
@@ -11,22 +11,22 @@ addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{reducedDims}{QQQ The name of the \code{reducedDims} object to retrieve from the designated \code{ArchRProject}. Options include QQQ. QQQ Not required if input is a matrix.}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to retrieve from the designated \code{ArchRProject}.}
 
-\item{dimsToUse}{QQQ A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{td}{diffusion time (number of iterations) for Magic}
+\item{td}{diffusion time (number of iterations) for MAGIC}
 
-\item{ka}{kNN autotune parameter for Magic}
+\item{ka}{kNN autotune parameter for MAGIC}
 
 \item{sampleCells}{number of cells to sample per block of estimated imputation matrix}
 
-\item{k}{number of nearest neighbors to use for Magic}
+\item{k}{number of nearest neighbors to use for MAGIC}
 
-\item{epsilon}{a value for the standard deviation of the kernel for Magic}
+\item{epsilon}{a value for the standard deviation of the kernel for MAGIC}
 
 \item{...}{additional params}
 }
 \description{
-This function QQQ
+This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix.
 }

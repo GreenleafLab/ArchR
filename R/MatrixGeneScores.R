@@ -8,24 +8,24 @@
 #' per cell and then infer gene activity scores.
 #'
 #' @param input An `ArchRProject` object or character vector of ArrowFiles.
-#' @param genes QQQ A set of transcription start sites encoded as a single-basepair-width `GRanges` object.
-#' @param geneModel QQQ gene model as a string for weighting peaks for gene score calculation (function of x)
+#' @param genes A `GRanges` of all genes coordinates start to end (stranded). 
+#' @param geneModel A gene model function (function of x describing stranded distance from gene promoter f(x)) as a string for weighting peaks for gene score calculation.
 #' @param matrixName The name to be used for storage of the gene activity score matrix in the provided `ArchRProject` or ArrowFiles.
 #' @param upstream The number of basepairs upstream of the transcription start site to consider for gene activity score calculation.
 #' @param downstream The number of basepairs downstream of the transcription start site to consider for gene activity score calculation.
 #' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
-#' @param ceiling QQQ The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
-#' @param useGeneBoundaries QQQ A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.
-#' @param scaleTo QQQ A numeric value indicating QQQ
+#' @param ceiling The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
+#' @param useGeneBoundaries A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.
+#' @param scaleTo A numeric value indicating what to scale the computed geneScores to across all cells.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
-#' @param blacklist A `GRanges` object containing genomic regions to blacklist from calling CNVs.
+#' @param blacklist A `GRanges` object containing genomic regions to blacklist for geneScore biases.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given ArrowFiles.
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
-  genes = NULL,
+  genes = ifelse(inherits(input, "ArchRProject"), getGenes(input), NULL),
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
   matrixName = "GeneScoreMatrix",
   upstream = c(5000, 100000),
@@ -35,7 +35,7 @@ addGeneScoreMatrix <- function(
   useGeneBoundaries = TRUE,
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
-  blacklist = NULL, # QQQ for other functions, the default of blacklist is different
+  blacklist = ifelse(inherits(input, "ArchRProject"), getBlacklist(input), NULL),
   threads = 1,
   parallelParam = NULL,
   force = FALSE,
@@ -214,11 +214,11 @@ addGeneScoreMatrix <- function(
 
       idx <- which(width(extenedGeneStart) < (min(upstream) + min(downstream)))
       
-      extenedGeneStart[idx] <- ranges(suppressWarnings(extendGRanges(geneStarti[idx], upstream = min(upstream), downstream = min(downstream))))
+      extenedGeneStart[idx] <- ranges(suppressWarnings(extendGR(geneStarti[idx], upstream = min(upstream), downstream = min(downstream))))
       
     }else{
 
-      extenedGeneStart <- ranges(suppressWarnings(extendGRanges(geneStarti, upstream = max(upstream), downstream = max(downstream))))
+      extenedGeneStart <- ranges(suppressWarnings(extendGR(geneStarti, upstream = max(upstream), downstream = max(downstream))))
 
     }
 

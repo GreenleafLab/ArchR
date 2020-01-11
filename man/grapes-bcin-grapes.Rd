@@ -2,7 +2,7 @@
 % Please edit documentation in R/HelperUtils.R
 \name{\%bcin\%}
 \alias{\%bcin\%}
-\title{QQQ Generic matching function for S4Vector objects primarily used for run length encodings}
+\title{Generic matching function for S4Vector objects}
 \usage{
 x \%bcin\% table
 }
@@ -12,5 +12,5 @@ x \%bcin\% table
 \item{table}{The set of \code{S4Vector} objects to serve as the base for the match function.}
 }
 \description{
-QQQ This function provides a general matching function for S4Vector objects primarily used for run length encodings
+This function provides a general matching function for S4Vector objects primarily to avoid ambiguity.
 }

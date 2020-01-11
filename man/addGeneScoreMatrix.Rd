@@ -4,20 +4,22 @@
 \alias{addGeneScoreMatrix}
 \title{Add GeneScoreMatrix to Arrows/ArchRProject}
 \usage{
-addGeneScoreMatrix(input = NULL, genes = NULL,
+addGeneScoreMatrix(input = NULL, genes = ifelse(inherits(input,
+  "ArchRProject"), getGenes(input), NULL),
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
   matrixName = "GeneScoreMatrix", upstream = c(5000, 1e+05),
   downstream = c(5000, 1e+05), tileSize = 500, ceiling = 4,
   useGeneBoundaries = TRUE, scaleTo = 10000, excludeChr = c("chrY",
-  "chrM"), blacklist = NULL, threads = 1, parallelParam = NULL,
+  "chrM"), blacklist = ifelse(inherits(input, "ArchRProject"),
+  getBlacklist(input), NULL), threads = 1, parallelParam = NULL,
   force = FALSE, ...)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{genes}{QQQ A set of transcription start sites encoded as a single-basepair-width \code{GRanges} object.}
+\item{genes}{A \code{GRanges} of all genes coordinates start to end (stranded).}
 
-\item{geneModel}{QQQ gene model as a string for weighting peaks for gene score calculation (function of x)}
+\item{geneModel}{A gene model function (function of x describing stranded distance from gene promoter f(x)) as a string for weighting peaks for gene score calculation.}
 
 \item{matrixName}{The name to be used for storage of the gene activity score matrix in the provided \code{ArchRProject} or ArrowFiles.}
 
@@ -27,21 +29,21 @@ addGeneScoreMatrix(input = NULL, genes = NULL,
 
 \item{tileSize}{The size of the tiles used for binning counts prior to gene activity score calculation.}
 
-\item{ceiling}{QQQ The maximum counts per tile allowed. This is used to prevent large biases in tile counts.}
+\item{ceiling}{The maximum counts per tile allowed. This is used to prevent large biases in tile counts.}
 
-\item{useGeneBoundaries}{QQQ A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.}
+\item{useGeneBoundaries}{A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.}
 
-\item{scaleTo}{QQQ A numeric value indicating QQQ}
+\item{scaleTo}{A numeric value indicating what to scale the computed geneScores to across all cells.}
 
 \item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
-\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist from calling CNVs.}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist for geneScore biases.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{QQQ A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArchRProject} or ArrowFiles.}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each tile

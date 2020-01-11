@@ -7,20 +7,19 @@
 #' This function will identify features that are definitional of each provided cell grouping where possible
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param groupBy QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.
-#' @param useGroups QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.
-#' @param bgdGroups QQQ A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.
-#' @param useMatrix QQQ The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", QQQ.
-#' @param bias QQQ A character vector indicating the potential bias variables to account for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.
-#' @param normBy QQQ The name of a column in `cellColData` that should be normalized across cells prior to performing marker feature identification.
-#' @param testMethod QQQ The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".
-#' @param minCells QQQ The minimum number of cells per cell group required to perform marker feature identification.
-#' @param maxCells QQQ The maximum number of cells to consider from a single cell group when performing marker feature identification.
-#' @param scaleTo QQQ
+#' @param groupBy The name of the column in `cellColData` to use for grouping cells together for marker feature identification.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.
+#' @param bgdGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.
+#' @param useMatrix The name of the matrix to be used for performing differential analyses. Options include "GeneScoreMatrix", "PeakMatrix", etc.
+#' @param bias A character vector indicating the potential bias variables as a function (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.
+#' @param normBy The name of a numeric column in `cellColData` that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.
+#' @param testMethod The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".
+#' @param maxCells The maximum number of cells to consider from a single cell group when performing marker feature identification.
+#' @param scaleTo Normalization depth to center normalization to in normBy (default is 10,000).
 #' @param threads The number of threads to be used for parallel computing.
-#' @param k QQQ UNCLEAR knn for matching cell biases
-#' @param bufferRatio QQQ UNCLEAR buffering ratio for matching cell biases
-#' @param binarize A boolean value indicating whether to binarize the matrix indicated by `useMatrix` prior to marker feature identification. This is often used when dealing with an insertion counts matrix such as a `TileMatrix`.
+#' @param k The number of nearby cells to use for selecting biased-matched background while accounting for bgdGroups proportions.
+#' @param bufferRatio The buffering ratio of cells to enable best biased-matched background while accounting for bgdGroups proportions.
+#' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing.
 #' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
 #' @param method The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the `Signac::VeniceMarker()` fucntion.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
@@ -36,7 +35,6 @@ markerFeatures <- function(
     bias = c("TSSEnrichment", "log10(nFrags)"),
     normBy = NULL,
     testMethod = "wilcoxon",
-    minCells = 50,
     maxCells = 500,
     scaleTo = 10^4,
     threads = 1,
@@ -82,7 +80,6 @@ markerFeatures <- function(
     useGroups = NULL,
     bgdGroups = NULL,
     normBy = NULL,
-    minCells = 50,
     maxCells = 500,
     scaleTo = 10^4,
     bufferRatio = 0.8,
@@ -651,20 +648,20 @@ markerFeatures <- function(
 #' 
 #' This function will plot a heatmap of the results from markerFeatures
 #' 
-#' @param seMarker QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param log2Norm A boolean value indicating whether a log2 transformation whould be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like `DeviationsMatrix`).
-#' @param scaleTo QQQ scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing
+#' @param scaleTo scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing
 #' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
 #' @param limits A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.
-#' @param grepExclude QQQ A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.
-#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the heatmap
+#' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.
+#' @param pal A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
 #' @param labelTop A boolean value that indicates whether the top features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
-#' @param returnMat QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param invert QQQ
+#' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
+#' @param invert A boolean value that indicates whether the heatmap will be inverted ie when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
 #' @param ... additional args
 #' @export
 markerHeatmap <- function(
@@ -847,7 +844,8 @@ markerHeatmap <- function(
   padding = 45,
   borderColor = NA,
   draw = TRUE,
-  name = ""){
+  name = "Heatmap"
+  ){
   
   #Packages
   .requirePackage("ComplexHeatmap")
@@ -1114,26 +1112,27 @@ markerHeatmap <- function(
 
 }
 
-#' QQQ
+#' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
 #' 
-#' This function QQQ
+#' This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
 #' 
-#' @param seMarker QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param seMarker  A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
 #' @param ArchRProj An `ArchRProject` object.
-#' @param annotations QQQ
-#' @param matches QQQ
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
-#' @param background QQQ
+#' @param peakAnnotation A peakAnnotation in an `ArchRProject` to be used for hypergeometric test.
+#' @param matches A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param background Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).
 #' @param ... additional args
 #' @export
 markerAnnoEnrich <- function(
   seMarker = NULL,
   ArchRProj = NULL,
-  annotations = NULL,
+  peakAnnotation = NULL,
   matches = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
   background = "bgdPeaks",
-  ...){
+  ...
+  ){
 
   tstart <- Sys.time()
   if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
@@ -1141,7 +1140,7 @@ markerAnnoEnrich <- function(
   }
 
   if(is.null(matches)){
-    matches <- getMatches(ArchRProj, annotations)
+    matches <- getMatches(ArchRProj, peakAnnotation)
   }
   
   r1 <- SummarizedExperiment::rowRanges(matches)
@@ -1244,15 +1243,15 @@ markerAnnoEnrich <- function(
 
 }
 
-#' QQQ 
+#' Identify Marker Feature Ranges
 #' 
-#' This function QQQ
+#' This function will identify Markers and return a GRangesList for each group of significant marker regions.
 #' 
-#' @param seMarker QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param ... additional args
 #' @export
-markerRanges <- function(
+markerGR <- function(
   seMarker,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
   ...
@@ -1291,16 +1290,14 @@ markerRanges <- function(
 
 }
 
-#' QQQ 
+#' Plot Differential Markers
 #' 
-#' This function QQQ
+#' This function will plot one group/column of a differential markers se as a MA or Volcano plot.
 #' 
-#' @param seMarker QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
-#' @param name QQQ
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
-#' @param plotAs QQQ
-#' @param log2norm QQQ
-#' @param scaleTo QQQ
+#' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param name column/group name of seMarker to be plotted.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param plotAs plot as "Volcano" or "MA" plot.
 #' @param ... additional args
 #' @export
 markerPlot <- function(
@@ -1308,9 +1305,9 @@ markerPlot <- function(
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
-  log2Norm = TRUE,
   scaleTo = 10^4,
-  ...){
+  ...
+  ){
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))

@@ -4,10 +4,10 @@
 \alias{addTrajectory}
 \title{Add Supervised Trajectory to an ArchR Project}
 \usage{
-addTrajectory(ArchRProj, name = "Trajectory", trajectory = NULL,
-  groupBy = "Clusters", reducedDims = "IterativeLSI",
-  preFilter = 0.1, postFilter = 0.1, dof = 250, spar = 1,
-  force = FALSE, ...)
+addTrajectory(ArchRProj = NULL, name = "Trajectory",
+  trajectory = NULL, groupBy = "Clusters",
+  reducedDims = "IterativeLSI", preQuantile = 0.1,
+  postQuantile = 0.1, dof = 250, spar = 1, force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -20,15 +20,15 @@ addTrajectory(ArchRProj, name = "Trajectory", trajectory = NULL,
 
 \item{reducedDims}{A string indicating the name of the \code{reducedDims} object from the \code{ArchRProject} that should be used for distance computation.}
 
-\item{preFilter}{QQQ UNCLEAR pre filtering quantile for supervised trajectory fit}
+\item{preQuantile}{Prior to supervised trajectory fitting, the quantile for filtering cells that are far (by euclidean distance) from cluster centers.}
 
-\item{postFilter}{QQQ UNCLEAR post filtering quantile for supervised trajectory fit}
+\item{postQuantile}{Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.}
 
-\item{dof}{QQQ The number of degrees of freedom to be used in QQQ.}
+\item{dof}{The number of degrees of freedom to be used in spline fit (see smooth.spline)}
 
-\item{spar}{QQQ sparsity}
+\item{spar}{The sparsity to be used in spline fit (see smooth.spline)}
 
-\item{force}{QQQ A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
+\item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 
 \item{...}{additional args}
 }

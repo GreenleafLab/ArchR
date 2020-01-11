@@ -2,20 +2,20 @@
 % Please edit documentation in R/MatrixDeviations.R
 \name{getVarDeviations}
 \alias{getVarDeviations}
-\title{QQQ}
+\title{Get Variable Deviations across cells in ArchRProject.}
 \usage{
 getVarDeviations(ArchRProj, name = "MotifMatrix", plot = TRUE,
   n = 25)
 }
 \arguments{
-\item{ArchRProj}{QQQ}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{QQQ}
+\item{name}{name of DeviationsMatrix see addDeviationsMatrix}
 
-\item{plot}{QQQ}
+\item{plot}{plot ranked variability for each annotation}
 
-\item{n}{QQQ}
+\item{n}{number of annotations to label with ggrepel}
 }
 \description{
-QQQ
+This function will rank the variability of the deviations computed by ArchR and label the top variable annotations.
 }

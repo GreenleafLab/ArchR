@@ -3,12 +3,12 @@
 # Annotation Methods
 ##########################################################################################
 
-#' Get annotation from an ArchRProject
+#' Get peakAnnotation from an ArchRProject
 #' 
-#' This function gets an annotation from a given ArchRProject.
+#' This function gets a peakAnnotation from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param name QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.
+#' @param name The name of the peakAnnotation object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param ... additional args
 #' @export
 getPeakAnnotation <- function(ArchRProj, name = NULL, ...){
@@ -23,13 +23,13 @@ getPeakAnnotation <- function(ArchRProj, name = NULL, ...){
   ArchRProj@peakAnnotation[[name]]
 }
 
-#' Get annotation positions from an ArchRProject
+#' Get peakAnnotation positions from an ArchRProject
 #' 
-#' This function gets the annotation positions from a given ArchRProject.
+#' This function gets the peakAnnotation positions (i.e. Motifs) from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param name QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.
-#' @param annoName QQQ ??? name to subset with annotations
+#' @param name The name of the peakAnnotation object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
+#' @param annoName The name of a specific annotation to subset within the peakAnnotation.
 #' @param ... additional args
 #' @export
 getPositions <- function(ArchRProj, name = NULL, annoName = NULL, ...){
@@ -57,13 +57,13 @@ getPositions <- function(ArchRProj, name = NULL, annoName = NULL, ...){
   positions
 }
 
-#' Get annotation matches from an ArchRProject
+#' Get peakAnnotation matches from an ArchRProject
 #' 
-#' This function gets annotation matches from a given ArchRProject.
+#' This function gets peakAnnotation matches from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param name QQQ The name of the annotation object to retrieve from the designated `ArchRProject`. Options include QQQ.
-#' @param annoName QQQ ??? name to subset with annotations
+#' @param name The name of the annotation object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
+#' @param annoName The name of a specific annotation to subset within the peakAnnotation.
 #' @param ... additional args
 #' @export
 getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
@@ -96,11 +96,11 @@ getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
 #' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param motifSet The motif set to be used for annotation. Options include: (i) "JASPAR2016", which gives the 2016 version of JASPAR motifs, (ii) "JASPAR2018", which gives the 2018 version of JASPAR motifs, or (iii) one of "human", "mouse", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package. 
-#' @param name QQQ of annotations to store as in `ArchRProject`
-#' @param species QQQ The name of the species relevant to the supplied `ArchRProject`. This is used for QQQ. By default, this function will attempt to guess the species based on the value from `getGenome()`.
-#' @param collection QQQ If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.
-#' @param cutOff QQQ The QQQhypergeometric p-value cutoff to be used for motif search (see the `motimatchr` package for more information).
+#' @param motifSet The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020" which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package. 
+#' @param name The name of peakAnnotations to be stored as in `ArchRProject`
+#' @param species The name of the species relevant to the supplied `ArchRProject`. This is used for identifying which motif to be used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from `getGenome()`.
+#' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", etc.
+#' @param cutOff The  p-value cutoff to be used for motif search (see the `motimatchr` package for more information).
 #' @param w The width in basepairs to consider for motif matches (see the `motimatchr` package for more information).
 #' @param ... additional args
 #' @export
@@ -140,27 +140,34 @@ addMotifAnnotations <- function(
   .messageDiffTime(paste0("Gettting Motif Set, Species : ", species), tstart)
 
   if(tolower(motifSet)=="jaspar2020"){
+    
     .requirePackage("JASPAR2020",installInfo='BiocManager::install("JASPAR2020")')
     args <- list(species = species, collection = collection, ...)
     motifs <- TFBSTools::getMatrixSet(JASPAR2020::JASPAR2020, args)
     obj <- .summarizeJASPARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
+
   }else if(tolower(motifSet)=="jaspar2016"){
+
     .requirePackage("JASPAR2016",installInfo='BiocManager::install("JASPAR2018")')
     args <- list(species = species, collection = collection, ...)
     motifs <- TFBSTools::getMatrixSet(JASPAR2016::JASPAR2016, args)
     obj <- .summarizeJASPARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
+
   }else if(tolower(motifSet)=="jaspar2016"){
+
     .requirePackage("JASPAR2016",installInfo='BiocManager::install("JASPAR2018")')
     args <- list(species = species, collection = collection, ...)
     motifs <- TFBSTools::getMatrixSet(JASPAR2016::JASPAR2016, args)
     obj <- .summarizeJASPARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
+
   }else if(tolower(motifSet)=="cisbp"){
+
     .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
     if(tolower(species) == "mus musculus"){
       data("mouse_pwms_v2")
@@ -177,22 +184,29 @@ addMotifAnnotations <- function(
     }else{
       stop("Species not recognized homo sapiens, mus musculus supported by CisBP!")
     }
+
   }else if(tolower(motifSet)=="encode"){
+
     .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
     data("encode_pwms")
     motifs <- encode_pwms
     obj <- .summarizeChromVARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
+
   }else if(tolower(motifSet)=="homer"){
+
     .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
     data("homer_pwms")
     motifs <- homer_pwms
     obj <- .summarizeChromVARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
+
   }else{
+
     stop("Error MotifSet Not Recognized!")
+
   }
 
   #############################################################

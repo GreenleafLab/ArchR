@@ -15,11 +15,11 @@ ArchRProject(ArrowFiles = NULL, outputDirectory = "ArchR_Output",
 
 \item{copyArrows}{A boolean indicating whether ArrowFiles should be copied into outputDirectory}
 
-\item{geneAnnotation}{}
-
-\item{genomeAnnotation}{}
-
 \item{showLogo}{A boolean indicating whether to show ArchR Logo after successful creation of an ArchRProject.}
+
+\item{geneAnno}{The geneAnnotation (see createGeneAnnotation) is used for downstream analyses such as calculate TSS Enrichment Scores, Gene Scores, etc.}
+
+\item{genomeAnno}{The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information or chromosome sizes.}
 }
 \description{
 This function will create an ArchRProject with given ArrowFiles.

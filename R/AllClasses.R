@@ -50,8 +50,8 @@ setMethod("show", "ArchRProject",
 #' @param ArrowFiles A character vector containing the names of ArrowFiles to be used.
 #' @param outputDirectory A name for the relative path of the outputDirectory for ArchR results 
 #' @param copyArrows A boolean indicating whether ArrowFiles should be copied into outputDirectory
-#' @param geneAnnotation 
-#' @param genomeAnnotation 
+#' @param geneAnno The geneAnnotation (see createGeneAnnotation) is used for downstream analyses such as calculate TSS Enrichment Scores, Gene Scores, etc.
+#' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information or chromosome sizes.
 #' @param showLogo A boolean indicating whether to show ArchR Logo after successful creation of an ArchRProject.
 #' @export
 ArchRProject <- function(
@@ -248,25 +248,28 @@ loadArchRProject <- function(
 
 
   #3. Background Peaks Paths
+  if(!is.null(getPeakSet(ArchRProj))){
 
-  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+    if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
 
-    bgdPeaksNew <- gsub(outputDir, outputDirNew, metadata(getPeakSet(ArchRProj))$bgdPeaks)
+      bgdPeaksNew <- gsub(outputDir, outputDirNew, metadata(getPeakSet(ArchRProj))$bgdPeaks)
 
-    if(!all(file.exists(bgdPeaksNew))){
-      
-      if(force){
-        message("BackgroundPeaks do not exist in saved ArchRProject!")
-        metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
+      if(!all(file.exists(bgdPeaksNew))){
+        
+        if(force){
+          message("BackgroundPeaks do not exist in saved ArchRProject!")
+          metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
+        }else{
+          stop("BackgroundPeaks do not exist in saved ArchRProject!")
+        }
+
       }else{
-        stop("BackgroundPeaks do not exist in saved ArchRProject!")
-      }
 
-    }else{
+        metadata(ArchRProj@peakSet)$bgdPeaks <- bgdPeaksNew
 
-      metadata(ArchRProj@peakSet)$bgdPeaks <- bgdPeaksNew
+      }    
 
-    }    
+    }
 
   }
 

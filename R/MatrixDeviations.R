@@ -2,22 +2,22 @@
 # Transcription Factor Deviation Methods
 ####################################################################
 
-#' Add a matrix of transcription factor deviations to Arrow Files in ArchRProject
+#' Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject
 #' 
-#' This function for each QQQ will independently compute transcription factor deviations.
+#' This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param annotations QQQ UNCLEAR WHAT ANNOTATIONS MEANS. The name of the annotations object name stored in the `ArchRProject`.
+#' @param peakAnnotation The name of the peakAnnotation name stored in the `ArchRProject`.
 #' @param matrixName The name to be used for storage of the deviations matrix in the provided `ArchRProject`.
 #' @param out A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).
 #' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject`.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArrowFiles`.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj,
-  annotations = NULL,
+  peakAnnotation = NULL,
   matches = NULL,
   bgdPeaks = getBgdPeaks(ArchRProj),
   matrixName = NULL,
@@ -49,7 +49,7 @@ addDeviationsMatrix <- function(
   ##############################################################
   print(matches)
   if(is.null(matches)){
-    anno <- getPeakAnnotation(ArchRProj, annotations)
+    anno <- getPeakAnnotation(ArchRProj, peakAnnotation)
     matches <- readRDS(anno$Matches)
     if(is.null(matrixName)){
       matrixName <- paste0(anno$Name, "Matrix")
@@ -91,8 +91,9 @@ addDeviationsMatrix <- function(
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
 
   #Add args to list
-  args$annotations <- NULL
-  rm(annotations)
+  args$peakAnnotation <- NULL
+  rm(peakAnnotation)
+
   args$annotationsMatrix <- annotationsMatrix
   args$featureDF <- rS
   args$useMatrix <- useMatrix
@@ -412,14 +413,14 @@ addDeviationsMatrix <- function(
 
 }
 
-#' QQQ
+#' Get Variable Deviations across cells in ArchRProject.
 #' 
-#' QQQ
+#' This function will rank the variability of the deviations computed by ArchR and label the top variable annotations.
 #' 
-#' @param ArchRProj QQQ
-#' @param name QQQ
-#' @param plot QQQ
-#' @param n QQQ
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name name of DeviationsMatrix see addDeviationsMatrix
+#' @param plot plot ranked variability for each annotation
+#' @param n number of annotations to label with ggrepel
 #' @export
 getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 25){
 
@@ -444,17 +445,17 @@ getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 2
 
 }
 
-#' QQQ
+#' Add backgroundPeaks to ArchRProject
 #' 
-#' QQQ
+#' This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject.
 #' 
-#' @param ArchRProj QQQ
-#' @param niterations QQQ
-#' @param w QQQ
-#' @param binSize QQQ
-#' @param seed QQQ
-#' @param outFile QQQ
-#' @param force QQQ
+#' @param ArchRProj An `ArchRProject` object.
+#' @param niterations The number of background peaks to sample (see chromVAR::getBackgroundPeaks).
+#' @param w The parameter controlling similarity of background peaks (see chromVAR::getBackgroundPeaks).
+#' @param binSize the precision with which the similarity is computed (see chromVAR::getBackgroundPeaks).
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param outFile Path to save backgroundPeaks object to for ArchRProject.
+#' @param force Force creation of backgroundPeaks even if file exists.
 #' @export
 addBgdPeaks <- function(
   ArchRProj, 

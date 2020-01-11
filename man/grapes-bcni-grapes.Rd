@@ -2,7 +2,7 @@
 % Please edit documentation in R/HelperUtils.R
 \name{\%bcni\%}
 \alias{\%bcni\%}
-\title{QQQ Negated matching function for S4Vector objects primarily used for run length encodings}
+\title{Negated matching function for S4Vector objects}
 \usage{
 x \%bcni\% table
 }
@@ -12,5 +12,5 @@ x \%bcni\% table
 \item{table}{The set of \code{S4Vector} objects to serve as the base for the match function.}
 }
 \description{
-QQQ This function provides the reciprocal of %bcin% for S4Vector objects primarily used for run length encodings
+This function provides the reciprocal of %bcin% for S4Vector objects primarily to avoid ambiguity.
 }

@@ -4,17 +4,15 @@
 \alias{theme_ArchR}
 \title{ggplot2 default theme for ArchR}
 \usage{
-theme_ArchR(color = "black", baseSize = 6, baseFamily = "",
-  baseLineSize = 0.5, baseRectSize = 0.5, plotMarginCm = 1,
-  legendPosition = "bottom", legendTextSize = 5, axisTickCm = 0.1,
-  xText90 = FALSE, yText90 = FALSE, ...)
+theme_ArchR(color = "black", baseSize = 6, baseLineSize = 0.5,
+  baseRectSize = 0.5, plotMarginCm = 1, legendPosition = "bottom",
+  legendTextSize = 5, axisTickCm = 0.1, xText90 = FALSE,
+  yText90 = FALSE, ...)
 }
 \arguments{
 \item{color}{The color to be used for text, lines, ticks, etc for the plot.}
 
-\item{baseSize}{QQQ The base font size to use in the plot.}
-
-\item{baseFamily}{QQQ ARGUMENT NOT USED IN FUNCTION. The base family to be used for all fonts.}
+\item{baseSize}{The base font size to use in the plot.}
 
 \item{baseLineSize}{The base line width (in points) to be used throughout the plot.}
 
@@ -22,9 +20,9 @@ theme_ArchR(color = "black", baseSize = 6, baseFamily = "",
 
 \item{plotMarginCm}{The width in centimeters of the whitespace margin around the plot.}
 
-\item{legendPosition}{QQQ ARGUMENT NOT USED IN FUNCTION. The location to put the legend. Valid options are "bottom", "top", "left", and "right.}
+\item{legendPosition}{The location to put the legend. Valid options are "bottom", "top", "left", and "right.}
 
-\item{legendTextSize}{0.75*base_size}
+\item{legendTextSize}{0.75 times the base_size}
 
 \item{axisTickCm}{The length in centimeters to make the axis ticks.}
 

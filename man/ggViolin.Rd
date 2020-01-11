@@ -5,7 +5,7 @@
 \title{A ggplot-based violin plot wrapper function}
 \usage{
 ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
-  xOrder = NULL, points = FALSE, size = 1, baseSize = 6,
+  xOrder = NULL, addPoints = FALSE, size = 1, baseSize = 6,
   ratioYX = NULL, sampleRatio = 0.1, title = "",
   pal = paletteDiscrete(values = x, set = "stallion"), ...)
 }
@@ -20,19 +20,19 @@ ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
 
 \item{xOrder}{A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of \code{x} in the desired order.}
 
-\item{points}{A boolean value indicating whether individual points should be added to the plot using \code{geom_quasirandom}.}
+\item{addPoints}{A boolean value indicating whether individual points should be added to the plot using \code{geom_quasirandom}.}
 
 \item{size}{The line width for boxplot lines.}
 
-\item{baseSize}{QQQ The base font size to use in the plot.}
+\item{baseSize}{The base font size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{sampleRatio}{QQQ}
+\item{sampleRatio}{sampling ratio for number of dots to be shown from original data over violins to prevent over-crowding. Default is set to 0.1.}
 
 \item{title}{The title of the plot.}
 
-\item{pal}{QQQ The name or numeric index of a custom palette from \code{ArchRPalettes} to use for violins and boxes.}
+\item{pal}{A custom palette for discrete coloring.}
 }
 \description{
 A ggplot-based violin plot wrapper function

@@ -8,32 +8,32 @@
 #'
 #' @param x A numeric vector containing the x-axis values for each point.
 #' @param y A numeric vector containing the y-axis values for each point.
-#' @param color QQQ
-#' @param discrete QQQ A boolean value indicating whether the supplied data is discrete (TRUE) or continuous (FALSE).
-#' @param discreteSet QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.
-#' @param continuousSet QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.
-#' @param labelMeans QQQ A boolean value indicating QQQ
-#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.
-#' @param defaultColor QQQ The default color for points that do not have another color applied (i.e. `NA` values).
-#' @param colorDensity QQQ A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, QQQ is used as the color palette.
+#' @param color A numeric/categorical vector containing coloring information for each point.
+#' @param discrete A boolean value indicating whether the supplied data is discrete (TRUE) or continuous (FALSE).
+#' @param discreteSet The name of a custom palette from `ArchRPalettes` to use for categorical/discrete color.
+#' @param continuousSet The name of a custom palette from `ArchRPalettes` to use for numeric color.
+#' @param labelMeans A boolean value indicating whether the mean of each categorical/discrete color should be labeled.
+#' @param pal A custom palette used to override discreteSet/continuousSet for coloring vector.
+#' @param defaultColor The default color for points that do not have another color applied (i.e. `NA` values).
+#' @param colorDensity A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, continuousSet is used as the color palette.
 #' @param size The numeric size of the points to be plotted.
 #' @param xlim A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
-#' @param extend QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
+#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.
 #' @param randomize A boolean value indicating whether to randomize the order of the points when plotting.
 #' @param seed A numeric seed number for use in randomization.
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
-#' @param baseSize QQQ The base font size to use in the plot.
+#' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param labelType QQQ A string indicating how to label the points on the plot. Options include "ggrepel", QQQ
+#' @param labelType A string indicating how to label the points on the plot. Options include "ggrepel", "shadowtext".
 #' @param fgColor The foreground color of the plot.
 #' @param bgColor The background color of the plot.
 #' @param labelSize The numeric font size of labels.
-#' @param addFit QQQ A string indicating if a fit/regression line should be included in the plot and what method to use for this fit. Options include QQQ.
-#' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param addFit A string indicating if a fit/regression line (see geom_smooth methods) should be included in the plot and what method to use for this fit.
+#' @param rastr A boolean value that indicates whether the plot should be rasterized using ggrastr. This does not rasterize lines and labels, just the internal portions of the plot.
 #' @param dpi The resolution in dots per inch to use for the plot.
 #' @export
 ggPoint <- function(
@@ -266,15 +266,16 @@ ggPoint <- function(
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.
-#' @param min QQQ xmin quantile [0,1]
-#' @param max QQQ xmax quantile [0,1]
+#' @param min x-limits min quantile [0,1]
+#' @param max x-limits max quantile [0,1]
 #' @param nPlot The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.
 #' @param nKernel The value of n to use the kde2d from the MASS package.
-#' @param densityMax QQQ The quantile that should be represented by the maximum color on the continuous scale designated by `pal`. Above this value will be thresholded to the maximum color.
-#' @param extend QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
-#' @param baseSize QQQ The base font size to use in the plot.
+#' @param densityMax The quantile that should be represented by the maximum color on the continuous scale designated by `pal`. Above this value will be thresholded to the maximum color.
+#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
+#' @param baseSize The base font size to use in the plot.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
-#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for the density in the one-to-one plot. In most cases, a continuous palette should be used.
+#' @param pal A custom palette used to override continuousSet for coloring vector.
+#' @param ... Additional params to be supplied to ggPoint
 #' @export
 ggOneToOne <- function (
   x = NULL,
@@ -293,7 +294,8 @@ ggOneToOne <- function (
   baseSize = 6, 
   rastr = TRUE,
   pal = paletteContinuous(set = "blue_yellow"),
-  ...){
+  ...
+  ){
   
   #Check is Numeric
   stopifnot(is.numeric(x))
@@ -364,13 +366,13 @@ ggOneToOne <- function (
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param xOrder A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of `x` in the desired order.
-#' @param points A boolean value indicating whether individual points should be added to the plot using `geom_quasirandom`.
+#' @param addPoints A boolean value indicating whether individual points should be added to the plot using `geom_quasirandom`.
 #' @param size The line width for boxplot lines.
-#' @param baseSize QQQ The base font size to use in the plot.
+#' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param sampleRatio QQQ
+#' @param sampleRatio sampling ratio for number of dots to be shown from original data over violins to prevent over-crowding. Default is set to 0.1.
 #' @param title The title of the plot.
-#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for violins and boxes.
+#' @param pal A custom palette for discrete coloring.
 #' @export
 ggViolin <- function(
   x = NULL, 
@@ -378,14 +380,15 @@ ggViolin <- function(
   xlabel = NULL, 
   ylabel = NULL, 
   xOrder = NULL,
-  points = FALSE,
+  addPoints = FALSE,
   size = 1,  
   baseSize = 6, 
   ratioYX = NULL,
   sampleRatio = 0.1, 
   title = "", 
   pal = paletteDiscrete(values=x, set = "stallion"),
-  ...){
+  ...
+  ){
 
   stopifnot(!is.numeric(x))
   stopifnot(is.numeric(y))
@@ -457,21 +460,21 @@ ggViolin <- function(
 #'
 #' @param x A numeric vector containing the x-axis values for each point.
 #' @param y A numeric vector containing the y-axis values for each point.
-#' @param color QQQ A vector of color values to be plotted. This vector must be the same length as QQQ `length(x) * length(y)`
-#' @param pal QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.
-#' @param bins QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ `bins` indicates the total number of hexagons that will fit within the surface area of the plot. 
+#' @param color A numeric/categorical vector containing coloring information for each point.
+#' @param pal A custom palette for continuous coloring.
+#' @param bins The number of bins to be used for plotting the hexplot. `bins` indicates the total number of hexagons that will fit within the surface area of the plot. 
 #' @param xlim A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
-#' @param extend QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
+#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.
 #' @param colorTitle The label to use for the legend corresponding to `color`.
-#' @param baseSize QQQ The base font size to use in the plot.
+#' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param FUN The function to use for summarizing data into hexagons. Typically "mean" or something similar.
 #' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
-#' @param addPoints QQQ UNCLEAR WHY POINTS WOULD BE ADDED TO A HEXPLOT. ALSO, IN ggViolin THIS IS CALLED "points". A boolean value indicating whether individual points should be shown on the hexplot.
+#' @param addPoints A boolean value indicating whether individual points should be shown on the hexplot.
 #' @param ... additional params to pass
 #' @export
 ggHex <- function(
@@ -490,7 +493,7 @@ ggHex <- function(
   baseSize = 6,
   ratioYX = 1, 
   FUN = "mean", 
-  quantCut = c(0.01,0.99),
+  quantCut = c(0.01, 0.99),
   addPoints = FALSE,
   ...){
 
@@ -557,37 +560,27 @@ ggHex <- function(
 #'
 #' This function aligns ggplots vertically or horizontally
 #'
-#' @param ... All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `grobList` and `plotList` are `NULL`
+#' @param ... All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `plotList` is `NULL`
 #' @param plotList A list of `ggplot2` plot objects to be aligned.
-#' @param grobList QQQ A list of grobs (grid graphical objects) to be aligned.
-#' @param sizes QQQ NOT CLEAR. A numeric vector or list of values indicating the size in QQQ for each of the objects in `plotList` or `grobList`.
+#' @param sizes A numeric vector or list of values indicating the relative size for each of the objects in `plotList` or supplied in `...`.
 #' @param type A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.
-#' @param draw QQQ A boolean value indicating whether QQQ.
+#' @param draw A boolean value indicating whether to draw plot or return grob.
 #' @export
-ggAlignPlots <- function(..., plotList = NULL, grobList = NULL, sizes, type = "v",  draw = TRUE){
+ggAlignPlots <- function(
+  ..., plotList = NULL, sizes = NULL, type = "v",  draw = TRUE){
   
   #http://stackoverflow.com/a/21503904
 
   .requirePackage("gtable")
 
-  if(is.null(grobList)){
-
-    if(is.null(plotList)){
-      plotList <- list(...)
-    }
-
-    ## test that only passing plots
-    stopifnot(do.call(all, lapply(plotList, inherits, "gg")))
-
-    gl <- lapply(plotList, ggplotGrob)
-
-  }else{
-    
-    gl <- grobList
-    rm(grobList)
-    gc()
-
+  if(is.null(plotList)){
+    plotList <- list(...)
   }
+
+  ## test that only passing plots
+  stopifnot(do.call(all, lapply(plotList, inherits, "gg")))
+
+  gl <- lapply(plotList, ggplotGrob)
 
   #if ncols do not match fill with empty gtables_add_cols
   if(type == "v" | type == "vertical"){
@@ -649,13 +642,12 @@ ggAlignPlots <- function(..., plotList = NULL, grobList = NULL, sizes, type = "v
 #' This function returns a ggplot2 theme that is black borded with black font.
 #' 
 #' @param color The color to be used for text, lines, ticks, etc for the plot.
-#' @param baseSize QQQ The base font size to use in the plot.
-#' @param baseFamily QQQ ARGUMENT NOT USED IN FUNCTION. The base family to be used for all fonts.
+#' @param baseSize The base font size to use in the plot.
 #' @param baseLineSize The base line width (in points) to be used throughout the plot.
 #' @param baseRectSize The base line width (in points) to use for rectangular boxes throughout the plot.
 #' @param plotMarginCm The width in centimeters of the whitespace margin around the plot.
-#' @param legendPosition QQQ ARGUMENT NOT USED IN FUNCTION. The location to put the legend. Valid options are "bottom", "top", "left", and "right.
-#' @param legendTextSize 0.75*base_size
+#' @param legendPosition The location to put the legend. Valid options are "bottom", "top", "left", and "right.
+#' @param legendTextSize 0.75 times the base_size
 #' @param axisTickCm The length in centimeters to make the axis ticks.
 #' @param xText90 A boolean value indicating whether the x-axis text should be rotated 90 degrees counterclockwise.
 #' @param yText90 A boolean value indicating whether the y-axis text should be rotated 90 degrees counterclockwise.
@@ -663,7 +655,6 @@ ggAlignPlots <- function(..., plotList = NULL, grobList = NULL, sizes, type = "v
 theme_ArchR <- function(
   color = "black",
   baseSize = 6, 
-  baseFamily = "",
   baseLineSize = 0.5,
   baseRectSize = 0.5,
   plotMarginCm = 1,
@@ -690,6 +681,7 @@ theme_ArchR <- function(
       legend.text = element_text(color = color, size = legendTextSize),
       legend.background = element_rect(fill = "transparent"),
       legend.box.background = element_rect(fill = "transparent"),
+      legend.position = legendPosition,
       strip.text = element_text(size = baseSize, color="black"),
       plot.background = element_rect(fill = "transparent", color = NA)
     )

@@ -2,27 +2,23 @@
 % Please edit documentation in R/MarkerFeatures.R
 \name{markerPlot}
 \alias{markerPlot}
-\title{QQQ}
+\title{Plot Differential Markers}
 \usage{
 markerPlot(seMarker, name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5", plotAs = "Volcano",
-  log2Norm = TRUE, scaleTo = 10^4, ...)
+  scaleTo = 10^4, ...)
 }
 \arguments{
-\item{seMarker}{QQQ A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
+\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
-\item{name}{QQQ}
+\item{name}{column/group name of seMarker to be plotted.}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
-\item{plotAs}{QQQ}
-
-\item{scaleTo}{QQQ}
+\item{plotAs}{plot as "Volcano" or "MA" plot.}
 
 \item{...}{additional args}
-
-\item{log2norm}{QQQ}
 }
 \description{
-This function QQQ
+This function will plot one group/column of a differential markers se as a MA or Volcano plot.
 }
