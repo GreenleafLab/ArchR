@@ -122,9 +122,6 @@ per cell and then infer gene activity scores." />
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -168,12 +165,14 @@ per cell and then infer gene activity scores.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addGeneScoreMatrix</span>(<span class='kw'>input</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>genes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+    <pre class="usage"><span class='fu'>addGeneScoreMatrix</span>(<span class='kw'>input</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>genes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>input</span>,
+  <span class='st'>"ArchRProject"</span>), <span class='fu'><a href='getGenes.html'>getGenes</a></span>(<span class='no'>input</span>), <span class='kw'>NULL</span>),
   <span class='kw'>geneModel</span> <span class='kw'>=</span> <span class='st'>"max(exp(-abs(x)/5000), exp(-1))"</span>,
   <span class='kw'>matrixName</span> <span class='kw'>=</span> <span class='st'>"GeneScoreMatrix"</span>, <span class='kw'>upstream</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>5000</span>, <span class='fl'>1e+05</span>),
   <span class='kw'>downstream</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>5000</span>, <span class='fl'>1e+05</span>), <span class='kw'>tileSize</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>ceiling</span> <span class='kw'>=</span> <span class='fl'>4</span>,
   <span class='kw'>useGeneBoundaries</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10000</span>, <span class='kw'>excludeChr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrY"</span>,
-  <span class='st'>"chrM"</span>), <span class='kw'>blacklist</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='st'>"chrM"</span>), <span class='kw'>blacklist</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>input</span>, <span class='st'>"ArchRProject"</span>),
+  <span class='fu'><a href='getBlacklist.html'>getBlacklist</a></span>(<span class='no'>input</span>), <span class='kw'>NULL</span>), <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -185,11 +184,11 @@ per cell and then infer gene activity scores.</p>
     </tr>
     <tr>
       <th>genes</th>
-      <td><p>QQQ A set of transcription start sites encoded as a single-basepair-width <code>GRanges</code> object.</p></td>
+      <td><p>A <code>GRanges</code> of all genes coordinates start to end (stranded).</p></td>
     </tr>
     <tr>
       <th>geneModel</th>
-      <td><p>QQQ gene model as a string for weighting peaks for gene score calculation (function of x)</p></td>
+      <td><p>A gene model function (function of x describing stranded distance from gene promoter f(x)) as a string for weighting peaks for gene score calculation.</p></td>
     </tr>
     <tr>
       <th>matrixName</th>
@@ -209,15 +208,15 @@ per cell and then infer gene activity scores.</p>
     </tr>
     <tr>
       <th>ceiling</th>
-      <td><p>QQQ The maximum counts per tile allowed. This is used to prevent large biases in tile counts.</p></td>
+      <td><p>The maximum counts per tile allowed. This is used to prevent large biases in tile counts.</p></td>
     </tr>
     <tr>
       <th>useGeneBoundaries</th>
-      <td><p>QQQ A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.</p></td>
+      <td><p>A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>QQQ A numeric value indicating QQQ</p></td>
+      <td><p>A numeric value indicating what to scale the computed geneScores to across all cells.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
@@ -225,7 +224,7 @@ per cell and then infer gene activity scores.</p>
     </tr>
     <tr>
       <th>blacklist</th>
-      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist from calling CNVs.</p></td>
+      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist for geneScore biases.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -237,7 +236,7 @@ per cell and then infer gene activity scores.</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given <code>ArchRProject</code> or ArrowFiles.</p></td>
+      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
     </tr>
     </table>
     

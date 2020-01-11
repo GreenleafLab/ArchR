@@ -3,7 +3,7 @@ title: "Getting Started With ArchR"
 ---
 
 ```{r image, include=FALSE}
-knitr::include_graphics(c("../../images/ArchRProject_Schematic.png", "../../images/ArchR_FunctionSchematic.png"))
+knitr::include_graphics(c("../../images/ArchRProject_Schematic.png", "../../images/ArchR_FunctionSchematic.png", "../../images/tutorial_1_UMAP-Clusters.png", "../../images/tutorial_2_tracks.pdf", "../../images/tutorial_3_MarkerGeneScores.pdf", "../../images/tutorial_4_MarkerGeneHeatmap.pdf"))
 ```
 
 The following tutorial shows the basics of setting up and interacting with an ArchR Project using a gold-standard dataset of hematopoietic cells ( CITATION ). This tutorial and all of the accompanying vignettes assume that you are running ArchR __locally__. Once all of these steps work for you, feel free to [set up ArchR to work in a cluster environment](articles/Articles/clusterComputing.html). This tutorial does not explain every detail of every step. Please see the [Vignettes section](articles/index.html) for more details on each major analytical step and all of the major features of ArchR.
@@ -115,7 +115,7 @@ plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Cl
 plotPDF(plotList = plotList, name = "UMAP-Samples-Clusters", width = 6, height = 6, ArchRProj = proj)
 ```
 
-Using our tutorial data, your UMAP plots should look like [this](articles/Articles/Tutorial_dimReduction_UMAP.pdf).
+Using our tutorial data, your UMAP plots should look like [this](../../images/tutorial_1_UMAP-Clusters.pdf).
 
 ### Identifying Cluster Cell Types Using Marker Genes
 

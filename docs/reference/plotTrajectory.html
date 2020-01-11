@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>QQQ Visualize a Trajectory from ArchR Project — plotTrajectory • ArchR</title>
+<title>Visualize a Trajectory from ArchR Project — plotTrajectory • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -39,7 +39,9 @@
 
 
 
-<meta property="og:title" content="QQQ Visualize a Trajectory from ArchR Project — plotTrajectory" />
+<meta property="og:title" content="Visualize a Trajectory from ArchR Project — plotTrajectory" />
+
+<meta property="og:description" content="This function will plot a trajectory that was created from addTrajectory onto an embedding." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -119,9 +121,6 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -153,13 +152,15 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>QQQ Visualize a Trajectory from ArchR Project</h1>
+    <h1>Visualize a Trajectory from ArchR Project</h1>
     
     <div class="hidden name"><code>plotTrajectory.Rd</code></div>
     </div>
 
     <div class="ref-description">
-
+    
+    <p>This function will plot a trajectory that was created from addTrajectory onto an embedding.</p>
+    
     </div>
 
     <pre class="usage"><span class='fu'>plotTrajectory</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>embedding</span> <span class='kw'>=</span> <span class='st'>"UMAP"</span>,
@@ -179,7 +180,7 @@
     </tr>
     <tr>
       <th>embedding</th>
-      <td><p>The name of the embedding to use to visualize the given <code>trajectory</code>. See <code>ArchR::computeEmbedding()</code> for more information.</p></td>
+      <td><p>The name of the embedding to use to visualize the given <code>trajectory</code>. See <code><a href='addEmbedding.html'>ArchR::addEmbedding()</a></code> for more information.</p></td>
     </tr>
     <tr>
       <th>trajectory</th>
@@ -187,7 +188,7 @@
     </tr>
     <tr>
       <th>colorBy</th>
-      <td><p>QQQ UNCLEAR A string indicating whether points/hexes in the plot should be colored by cellColData ("cellColData") or by the gene activity score matrix ("GeneScoreMatrix").</p></td>
+      <td><p>A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").</p></td>
     </tr>
     <tr>
       <th>name</th>
@@ -195,15 +196,15 @@
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>QQQ A boolean value indicating whether a log2 transformation should be performed on the values in QQQ plotting.</p></td>
+      <td><p>A boolean value indicating whether a log2 transformation should be performed on the values prior to plotting.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>QQQ The name or numeric index of a custom palette from <code>ArchRPalettes</code> to use for QQQ.</p></td>
+      <td><p>The name of a custom palette from <code>ArchRPalettes</code> to use for coloring cells.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p>QQQ A number indicating the size of the points to plot if <code>plotAs</code> is set to "points".</p></td>
+      <td><p>A number indicating the size of the points to plot if <code>plotAs</code> is set to "points".</p></td>
     </tr>
     <tr>
       <th>rastr</th>
@@ -211,17 +212,50 @@
     </tr>
     <tr>
       <th>quantCut</th>
-      <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of the 97.5th and 2.5th percentile values respectively.} --></p>
-<p>quantHexQQQ UNCLEAR quantile evaluation for each hex in geom_hex</p>
-<p>discreteSetQQQ The name or numeric index of a discrete palette from <code>ArchRPalettes</code> for visualizing QQQ in the embedding.</p>
-<p>continuousSetQQQ The name or numeric index of a continuous palette from <code>ArchRPalettes</code> for visualizing QQQ in the embedding.</p>
-<p>randomizeA boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.</p>
-<p>keepAxisA boolean value that indicates whether the x and y axis ticks and labels should be plotted.</p>
-<p>baseSizeQQQ The base font size to use in the plot.</p>
-<p>addArrowQQQ A boolean value that indicates whether QQQ.</p>
-<p>plotAsA string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.</p>
-<p>plotParamsAdditional parameters to pass to <code><a href='ggPoint.html'>ggPoint()</a></code> or <code><a href='ggHex.html'>ggHex()</a></code>.</p>
-<p>...additional args</p></td>
+      <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values.
+This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is
+the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of -->
+the 97.5th and 2.5th percentile values respectively.</p></td>
+    </tr>
+    <tr>
+      <th>quantHex</th>
+      <td><p>The quantile to</p></td>
+    </tr>
+    <tr>
+      <th>discreteSet</th>
+      <td><p>The name of a discrete palette from <code>ArchRPalettes</code> for visualizing colorBy in the embedding.</p></td>
+    </tr>
+    <tr>
+      <th>continuousSet</th>
+      <td><p>The name of a continuous palette from <code>ArchRPalettes</code> for visualizing colorBy in the embedding.</p></td>
+    </tr>
+    <tr>
+      <th>randomize</th>
+      <td><p>A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>keepAxis</th>
+      <td><p>A boolean value that indicates whether the x and y axis ticks and labels should be plotted.</p></td>
+    </tr>
+    <tr>
+      <th>baseSize</th>
+      <td><p>The base font size to use in the plot.</p></td>
+    </tr>
+    <tr>
+      <th>addArrow</th>
+      <td><p>A boolean value that indicates whether to add a smoothed arrow in the embedding based on the aligned trajectory.</p></td>
+    </tr>
+    <tr>
+      <th>plotAs</th>
+      <td><p>A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.</p></td>
+    </tr>
+    <tr>
+      <th>plotParams</th>
+      <td><p>Additional parameters to pass to <code><a href='ggPoint.html'>ggPoint()</a></code> or <code><a href='ggHex.html'>ggHex()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional args</p></td>
     </tr>
     </table>
     

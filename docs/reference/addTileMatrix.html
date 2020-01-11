@@ -122,9 +122,6 @@ per cell in the Arrow File" />
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -168,8 +165,10 @@ per cell in the Arrow File</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addTileMatrix</span>(<span class='no'>input</span>, <span class='kw'>chromSizes</span> <span class='kw'>=</span> <span class='fu'><a href='getChromSizes.html'>getChromSizes</a></span>(<span class='no'>input</span>),
-  <span class='kw'>blacklist</span> <span class='kw'>=</span> <span class='fu'><a href='getBlacklist.html'>getBlacklist</a></span>(<span class='no'>input</span>), <span class='kw'>tileSize</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+    <pre class="usage"><span class='fu'>addTileMatrix</span>(<span class='kw'>input</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>chromSizes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>input</span>,
+  <span class='st'>"ArchRProject"</span>), <span class='fu'>chromSizes</span>(<span class='no'>input</span>), <span class='kw'>NULL</span>),
+  <span class='kw'>blacklist</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>input</span>, <span class='st'>"ArchRProject"</span>),
+  <span class='fu'><a href='getBlacklist.html'>getBlacklist</a></span>(<span class='no'>input</span>), <span class='kw'>NULL</span>), <span class='kw'>tileSize</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>excludeChr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrM"</span>, <span class='st'>"chrY"</span>), <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
@@ -186,7 +185,7 @@ per cell in the Arrow File</p>
     </tr>
     <tr>
       <th>blacklist</th>
-      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getBlacklist.html'>ArchR::getBlacklist()</a></code>.</p></td>
+      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getBlacklist.html'>ArchR::getBlacklist()</a></code>.</p></td>
     </tr>
     <tr>
       <th>tileSize</th>
@@ -194,7 +193,7 @@ per cell in the Arrow File</p>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>QQQ A boolean value indicating whether the <code>TileMatrix</code> should be binarized QQQ prior to storage.</p></td>
+      <td><p>A boolean value indicating whether the <code>TileMatrix</code> should be binarized prior to storage.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
@@ -210,7 +209,7 @@ per cell in the Arrow File</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the <code>TileMatrix</code> to be overwritten if it already exist in the given <code>ArchRProject</code> or ArrowFiles.</p></td>
+      <td><p>A boolean value indicating whether to force the <code>TileMatrix</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
     </tr>
     </table>
     

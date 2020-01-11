@@ -82,4 +82,6 @@ Rep2 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overla
 Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep2]
 ```
 
+#### Pseudo-bulk Replicate Decision Tree
+
 ![](../../images/pseudobulkReplicate_DecisionTree.png){width=1000px}

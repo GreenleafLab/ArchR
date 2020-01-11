@@ -1,3 +1,7 @@
+####################################################################
+# Signal Track Plotting Methods
+####################################################################
+
 #' Plot ArchR Region Track
 #' 
 #' This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.
@@ -14,6 +18,7 @@
 #' @param upstream The number of basepairs upstream of the transcription start site of `geneSymbol` to extend the plotting window. If `region` is supplied, this argument is ignored.
 #' @param downstream The number of basepairs downstream of the transcription start site of `geneSymbol` to extend the plotting window. If `region` is supplied, this argument is ignored.
 #' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.
+#' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted.
 #' @param normMethod The name of the column in `cellColData` object by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
 #' @param threads The number of threads to use for parallel execution.
 #' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
@@ -22,7 +27,7 @@
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes) of the plot.
 #' @param geneAnno The `geneAnnotation` object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.
-#' @param title The title to add at the top of the plot next to the plot genomic coordinates.
+#' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
 #' @param ... additional args
 #' @export
 ArchRRegionTrack <- function(

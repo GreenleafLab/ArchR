@@ -7,7 +7,7 @@
 #' This function will add co-accessibility scores to peaks in a given ArchRProject
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.
+#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param k The number of k-nearest neighbors to use for creating single cell groups for correlation.
 #' @param knnIteration The number of KNN groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.

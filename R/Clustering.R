@@ -11,7 +11,7 @@
 #' @param name The column name of the column to be added to `cellColData` if `input` is an `ArchRProject` object.
 #' @param sampleCells An integer specifying number of cells to subset perform clustering and assign the remainder cells by euclidean distance.
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param method A string indicated the clustering method to be used. Supported methods are "Seurat" and "Scran".
+#' @param method A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).

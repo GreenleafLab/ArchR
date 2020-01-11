@@ -122,9 +122,6 @@ on an ArchRProject." />
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -192,7 +189,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>reducedDimsOut</th>
-      <td><p>QQQ The name to use for storage of the IterativeLSI dimensionality reduction in the <code>ArchRProject</code> as a <code>reducedDims</code> object.</p></td>
+      <td><p>The name to use for storage of the IterativeLSI dimensionality reduction in the <code>ArchRProject</code> as a <code>reducedDims</code> object.</p></td>
     </tr>
     <tr>
       <th>iterations</th>
@@ -200,15 +197,16 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>QQQ A vector containing the dimensions from the <code>reducedDims</code> object to use in clustering.</p></td>
+      <td><p>A vector containing the dimensions from the <code>reducedDims</code> object to use in clustering.</p></td>
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>LSIMethod</th>
-      <td><p>QQQ</p></td>
+      <td><p>A numeric/character indicating the order of operations in the TF-IDF normalization.
+The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd option is 3 or "logtf-logidf".</p></td>
     </tr>
     <tr>
       <th>binarize</th>
@@ -216,7 +214,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>sampleCells</th>
-      <td><p>A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in <code>cellColData</code>.</p></td>
+      <td><p>An integer specifying number of cells to subset perform estimatedLSI and clustering.</p></td>
     </tr>
     <tr>
       <th>varFeatures</th>
@@ -224,11 +222,11 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>selectionMethod</th>
-      <td><p>QQQ The selection method to be used for identifying the top variable features. Valid options are "var" or "vmr" (QQQ what is vmr?).</p></td>
+      <td><p>The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>QQQ scaleTo for Cluster Averages for variance calculation</p></td>
+      <td><p>scaleTo normalization depth for Cluster Averages for variance calculation</p></td>
     </tr>
     <tr>
       <th>totalFeatures</th>
@@ -236,7 +234,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>filterQuantile</th>
-      <td><p>QQQ Remove features that are above this quantile based on insertion counts prior to initial LSI.</p></td>
+      <td><p>Remove features that are above this quantile based on insertion counts prior to initial (1st iteration) LSI.</p></td>
     </tr>
     <tr>
       <th>saveIterations</th>
@@ -244,7 +242,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>outDir</th>
-      <td><p>The output directory for saving LSI iterations if desired.</p></td>
+      <td><p>The output directory for saving LSI iterations if desired. Default is in outputDirectory of ArchRProject.</p></td>
     </tr>
     <tr>
       <th>clusterParams</th>
@@ -252,7 +250,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>runHarmony</th>
-      <td><p>QQQ A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.</p></td>
+      <td><p>A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.</p></td>
     </tr>
     <tr>
       <th>harmonyParams</th>
@@ -264,7 +262,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
+      <td><p>A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>

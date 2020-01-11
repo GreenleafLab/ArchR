@@ -6,7 +6,7 @@
 #' 
 #' This function will set the global number of threads to be used for ArchR functions.
 #' 
-#' @param threads default number of threads to be used for parallel execution in ArchR functions by default.
+#' @param threads The default number of threads to be used for parallel execution across all ArchR functions. This value is stored as a global environment variable, not part of the `ArchRProject`. This can be overwritten on a per-function basis using the given function's parameters.
 #' @export
 addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2)){
   if(tolower(.Platform$OS.type) == "windows"){
@@ -42,10 +42,10 @@ getArchRThreads <- function(){
 #' 
 #' This function will create a genome annotation that can be used for createArrowFiles, ArchRProject, etc.
 #' 
-#' @param genome A string that points to a BSgenome or a BSgenome object (ie hg38, BSgenome.Hsapiens.UCSC.hg38).
-#' @param chromSizes A GRanges of chromosome start and end coordinates.
-#' @param blacklist A GRanges of regions that should be excluded from analyses due to unwanted biases.
-#' @param filter A boolean indicating whether non-normal chromosome scaffolds should be excluded.
+#' @param genome A string that indicates a valid `BSgenome` or a `BSgenome` object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").
+#' @param chromSizes A `GRanges` containing chromosome start and end coordinates.
+#' @param blacklist A `GRanges` containing regions that should be excluded from analyses due to unwanted biases.
+#' @param filter A boolean indicating whether non-standard chromosome scaffolds should be excluded.
 #' @export
 createGenomeAnnotation <- function(
   genome = NULL,
@@ -90,10 +90,10 @@ createGenomeAnnotation <- function(
 
 #' Create Gene Annotation for ArchR
 #' 
-#' This function will create a gene annotation that can be used for createArrowFiles, ArchRProject, etc.
+#' This function will create a gene annotation that can be used to  create ArrowFiles or an ArchRProject, etc.
 #' 
-#' @param genome A string that specifies the genome (ie hg38, hg19, mm10, mm9).
-#' @param TxDb A transcript database from Bioconductor which contains information for gene/transcript coordinates.
+#' @param genome A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If `genome` is not supplied, `TxDb` and `OrgDb` are required. If genome is supplied, `TxDb` wil
+#' @param TxDb QQQ A `TxDb` object (transcript database) from Bioconductor which contains information for gene/transcript coordinates. For example, from `txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene`
 #' @param OrgDb An organism database from Bioconductor which contains information for gene/transcript symbols from ids.
 #' @param genes A GRanges of gene coordinates (start to end). Needs to have a symbols column matching the exons symbols column.
 #' @param exons A GRanges of gene exon coordinates. Needs to have a symbols column matching the genes symbols column

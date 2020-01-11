@@ -16,17 +16,17 @@ As mentioned above, the same `markerFeatures()` function can be used with any ma
 
 This process of marker feature identification hinges on the selection of a group of bias-matched background cells for each cell group. Across all features, each cell group is compared to its own background group of cells to determine if the given cell group has significantly higher accessibility. Then, ArchR looks for features that are uniquely significantly accessible in a single cell group (or a small number of cell groups).
 
-![](markerFeature_schematic.png){width=500px}
+![](../../images/markerFeature_schematic.png){width=500px}
 
 The selection of these background cell groups is critical to the success of this process and is performed across the multidimensional space provided by the user via the `bias` argument to `markerFeatures()`. For each cell in the cell group, ArchR finds the nearest neighbor cell across the provided multidimensional space that is not a member of the given cell group and adds it to the background group of cells. In this way, ArchR creates a group of bias-matched cells that is as similar as possible to the given cell group, thus enabling a more robust determination of significance even if the group of cells is small.
 
 The way ArchR does this is by taking all of the dimensions provided via the `bias` parameter and quantile normalizing their values to distribute the variance of each dimension across the same relative scale. Taking a toy example, if the parameters `TSS` and `log10(Num Fragments)` were provided to `bias`, the pre-quantile normalized values might look like this:
 
-![](background_preNorm.png){width=500px}
+![](../../images/background_preNorm.png){width=500px}
 
 Here, the relative variance across the y-axis is very small compared to the variance across the x-axis. If we normalize these axes so that their values range from 0 to 1 instead, we make the relative variance much more equal. Importantly, we also change the nearest neighbors dramatically.
 
-![](background_postNorm.png){width=500px}
+![](../../images/background_postNorm.png){width=500px}
 
 ArchR normalizes all of the dimensions and uses euclidean distance in this normalized multidimensional space to find the nearest neighbors. Using real data from __QQQ__, this process can identify __QQQ__.
 

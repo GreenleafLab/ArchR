@@ -122,9 +122,6 @@ can then be used for downstream analyses." />
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -168,10 +165,10 @@ can then be used for downstream analyses.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addTrajectory</span>(<span class='no'>ArchRProj</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Trajectory"</span>, <span class='kw'>trajectory</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>,
-  <span class='kw'>preFilter</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>postFilter</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>dof</span> <span class='kw'>=</span> <span class='fl'>250</span>, <span class='kw'>spar</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>addTrajectory</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Trajectory"</span>,
+  <span class='kw'>trajectory</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
+  <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>, <span class='kw'>preQuantile</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>postQuantile</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>dof</span> <span class='kw'>=</span> <span class='fl'>250</span>, <span class='kw'>spar</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -197,24 +194,24 @@ can then be used for downstream analyses.</p>
       <td><p>A string indicating the name of the <code>reducedDims</code> object from the <code>ArchRProject</code> that should be used for distance computation.</p></td>
     </tr>
     <tr>
-      <th>preFilter</th>
-      <td><p>QQQ UNCLEAR pre filtering quantile for supervised trajectory fit</p></td>
+      <th>preQuantile</th>
+      <td><p>Prior to supervised trajectory fitting, the quantile for filtering cells that are far (by euclidean distance) from cluster centers.</p></td>
     </tr>
     <tr>
-      <th>postFilter</th>
-      <td><p>QQQ UNCLEAR post filtering quantile for supervised trajectory fit</p></td>
+      <th>postQuantile</th>
+      <td><p>Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.</p></td>
     </tr>
     <tr>
       <th>dof</th>
-      <td><p>QQQ The number of degrees of freedom to be used in QQQ.</p></td>
+      <td><p>The number of degrees of freedom to be used in spline fit (see smooth.spline)</p></td>
     </tr>
     <tr>
       <th>spar</th>
-      <td><p>QQQ sparsity</p></td>
+      <td><p>The sparsity to be used in spline fit (see smooth.spline)</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the trajactory indicated by <code>name</code> to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
+      <td><p>A boolean value indicating whether to force the trajactory indicated by <code>name</code> to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>

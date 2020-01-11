@@ -119,9 +119,6 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -201,11 +198,11 @@
     </tr>
     <tr>
       <th>min</th>
-      <td><p>QQQ xmin quantile 0,1</p></td>
+      <td><p>x-limits min quantile 0,1</p></td>
     </tr>
     <tr>
       <th>max</th>
-      <td><p>QQQ xmax quantile 0,1</p></td>
+      <td><p>x-limits max quantile 0,1</p></td>
     </tr>
     <tr>
       <th>nPlot</th>
@@ -217,14 +214,15 @@
     </tr>
     <tr>
       <th>densityMax</th>
-      <td><p>QQQ The quantile that should be represented by the maximum color on the continuous scale designated by <code>pal</code>. Above this value will be thresholded to the maximum color.</p></td>
+      <td><p>The quantile that should be represented by the maximum color on the continuous scale designated by <code>pal</code>. Above this value will be thresholded to the maximum color.</p></td>
     </tr>
     <tr>
       <th>extend</th>
-      <td><p>QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
-<p>baseSizeQQQ The base font size to use in the plot.</p>
+      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
+<p>baseSizeThe base font size to use in the plot.</p>
 <p>rastrA boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.</p>
-<p>palQQQ The name or numeric index of a custom palette from <code>ArchRPalettes</code> to use for the density in the one-to-one plot. In most cases, a continuous palette should be used.</p></td>
+<p>palA custom palette used to override continuousSet for coloring vector.</p>
+<p>...Additional params to be supplied to ggPoint</p></td>
     </tr>
     </table>
     

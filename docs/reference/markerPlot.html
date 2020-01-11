@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>QQQ — markerPlot • ArchR</title>
+<title>Plot Differential Markers — markerPlot • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="QQQ — markerPlot" />
+<meta property="og:title" content="Plot Differential Markers — markerPlot" />
 
-<meta property="og:description" content="This function QQQ" />
+<meta property="og:description" content="This function will plot one group/column of a differential markers se as a MA or Volcano plot." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -121,9 +121,6 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -155,51 +152,43 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>QQQ</h1>
+    <h1>Plot Differential Markers</h1>
     
     <div class="hidden name"><code>markerPlot.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function QQQ</p>
+    <p>This function will plot one group/column of a differential markers se as a MA or Volcano plot.</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>markerPlot</span>(<span class='no'>seMarker</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='st'>"FDR &lt;= 0.01 &amp; abs(Log2FC) &gt;= 0.5"</span>, <span class='kw'>plotAs</span> <span class='kw'>=</span> <span class='st'>"Volcano"</span>,
-  <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seMarker</th>
-      <td><p>QQQ A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>ArchR::markerFeatures()</a></code>.</p></td>
+      <td><p>A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>ArchR::markerFeatures()</a></code>.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>QQQ</p></td>
+      <td><p>column/group name of seMarker to be plotted.</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
-      <td><p>A valid-syntax logical statement that defines which marker features from <code>seMarker</code> will be plotted in the heatmap. <code>cutoff</code> can contain any of the <code>assayNames</code> from <code>seMarker</code>.</p></td>
+      <td><p>A valid-syntax logical statement that defines which marker features from <code>seMarker</code> will be plotted. <code>cutoff</code> can contain any of the <code>assayNames</code> from <code>seMarker</code>.</p></td>
     </tr>
     <tr>
       <th>plotAs</th>
-      <td><p>QQQ</p></td>
-    </tr>
-    <tr>
-      <th>scaleTo</th>
-      <td><p>QQQ</p></td>
+      <td><p>plot as "Volcano" or "MA" plot.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional args</p></td>
-    </tr>
-    <tr>
-      <th>log2norm</th>
-      <td><p>QQQ</p></td>
     </tr>
     </table>
     

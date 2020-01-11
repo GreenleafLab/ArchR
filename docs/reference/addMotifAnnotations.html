@@ -121,9 +121,6 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -179,23 +176,23 @@
     </tr>
     <tr>
       <th>motifSet</th>
-      <td><p>The motif set to be used for annotation. Options include: (i) "JASPAR2016", which gives the 2016 version of JASPAR motifs, (ii) "JASPAR2018", which gives the 2018 version of JASPAR motifs, or (iii) one of "human", "mouse", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.</p></td>
+      <td><p>The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020" which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>QQQ of annotations to store as in <code>ArchRProject</code></p></td>
+      <td><p>The name of peakAnnotations to be stored as in <code>ArchRProject</code></p></td>
     </tr>
     <tr>
       <th>species</th>
-      <td><p>QQQ The name of the species relevant to the supplied <code>ArchRProject</code>. This is used for QQQ. By default, this function will attempt to guess the species based on the value from <code><a href='getGenome.html'>getGenome()</a></code>.</p></td>
+      <td><p>The name of the species relevant to the supplied <code>ArchRProject</code>. This is used for identifying which motif to be used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from <code><a href='getGenome.html'>getGenome()</a></code>.</p></td>
     </tr>
     <tr>
       <th>collection</th>
-      <td><p>QQQ If one of the JASPAR motif sets is used via <code>motifSet</code>, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", QQQ.</p></td>
+      <td><p>If one of the JASPAR motif sets is used via <code>motifSet</code>, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", etc.</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
-      <td><p>QQQ The QQQhypergeometric p-value cutoff to be used for motif search (see the <code>motimatchr</code> package for more information).</p></td>
+      <td><p>The  p-value cutoff to be used for motif search (see the <code>motimatchr</code> package for more information).</p></td>
     </tr>
     <tr>
       <th>w</th>

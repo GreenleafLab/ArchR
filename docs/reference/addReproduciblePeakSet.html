@@ -122,9 +122,6 @@ and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -188,7 +185,7 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>QQQ The name of the column in <code>cellColData</code> to use for grouping cells together for marker feature identification.</p></td>
+      <td><p>The name of the column in <code>cellColData</code> to use for grouping cells together for peak calling.</p></td>
     </tr>
     <tr>
       <th>reproducibility</th>
@@ -196,11 +193,11 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>peaksPerCell</th>
-      <td><p>QQQ An estimate for the average number of peaks that can be identified per cell.</p></td>
+      <td><p>The limit of number of peaks that can be identified per cell (this is useful for controlling how many peaks can be called from low cell groups).</p></td>
     </tr>
     <tr>
       <th>maxPeaks</th>
-      <td><p>QQQ A numeric threshold for the maximum peaks to retain in the union reproducible peak set.</p></td>
+      <td><p>A numeric threshold for the maximum peaks to retain per group in <code>groupBy</code> in the union reproducible peak set.</p></td>
     </tr>
     <tr>
       <th>minCells</th>
@@ -240,15 +237,15 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>promoterDist</th>
-      <td><p>QQQ The maximum distance in basepairs from the peak QQQ EDGE OR SUMMIT? to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.</p></td>
+      <td><p>The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.</p></td>
     </tr>
     <tr>
       <th>genomeAnno</th>
-      <td><p>QQQ The genomeAnnotation in QQQ format.</p></td>
+      <td><p>The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.</p></td>
     </tr>
     <tr>
       <th>geneAnno</th>
-      <td><p>QQQ The geneAnnotation in QQQ format.</p></td>
+      <td><p>The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.</p></td>
     </tr>
     <tr>
       <th>additionalParams</th>
@@ -264,7 +261,7 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
+      <td><p>A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given <code>ArchRProject</code> peakSet.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>

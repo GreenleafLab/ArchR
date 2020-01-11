@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>QQQ — addBgdPeaks • ArchR</title>
+<title>Add backgroundPeaks to ArchRProject — addBgdPeaks • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="QQQ — addBgdPeaks" />
+<meta property="og:title" content="Add backgroundPeaks to ArchRProject — addBgdPeaks" />
 
-<meta property="og:description" content="QQQ" />
+<meta property="og:description" content="This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -121,9 +121,6 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -155,14 +152,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>QQQ</h1>
+    <h1>Add backgroundPeaks to ArchRProject</h1>
     
     <div class="hidden name"><code>addBgdPeaks.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>QQQ</p>
+    <p>This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject.</p>
     
     </div>
 
@@ -175,31 +172,31 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>QQQ</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>niterations</th>
-      <td><p>QQQ</p></td>
+      <td><p>The number of background peaks to sample (see chromVAR::getBackgroundPeaks).</p></td>
     </tr>
     <tr>
       <th>w</th>
-      <td><p>QQQ</p></td>
+      <td><p>The parameter controlling similarity of background peaks (see chromVAR::getBackgroundPeaks).</p></td>
     </tr>
     <tr>
       <th>binSize</th>
-      <td><p>QQQ</p></td>
+      <td><p>the precision with which the similarity is computed (see chromVAR::getBackgroundPeaks).</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>QQQ</p></td>
+      <td><p>A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>outFile</th>
-      <td><p>QQQ</p></td>
+      <td><p>Path to save backgroundPeaks object to for ArchRProject.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ</p></td>
+      <td><p>Force creation of backgroundPeaks even if file exists.</p></td>
     </tr>
     </table>
     

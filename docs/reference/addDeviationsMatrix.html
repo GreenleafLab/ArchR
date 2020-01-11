@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add a matrix of transcription factor deviations to Arrow Files in ArchRProject — addDeviationsMatrix • ArchR</title>
+<title>Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject — addDeviationsMatrix • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Add a matrix of transcription factor deviations to Arrow Files in ArchRProject — addDeviationsMatrix" />
+<meta property="og:title" content="Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject — addDeviationsMatrix" />
 
-<meta property="og:description" content="This function for each QQQ will independently compute transcription factor deviations." />
+<meta property="og:description" content="This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement)." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -121,9 +121,6 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -155,18 +152,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add a matrix of transcription factor deviations to Arrow Files in ArchRProject</h1>
+    <h1>Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject</h1>
     
     <div class="hidden name"><code>addDeviationsMatrix.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function for each QQQ will independently compute transcription factor deviations.</p>
+    <p>This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addDeviationsMatrix</span>(<span class='no'>ArchRProj</span>, <span class='kw'>annotations</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>matches</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+    <pre class="usage"><span class='fu'>addDeviationsMatrix</span>(<span class='no'>ArchRProj</span>, <span class='kw'>peakAnnotation</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>matches</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>bgdPeaks</span> <span class='kw'>=</span> <span class='fu'>getBgdPeaks</span>(<span class='no'>ArchRProj</span>), <span class='kw'>matrixName</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>out</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"z"</span>,
   <span class='st'>"deviations"</span>), <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
@@ -179,8 +176,8 @@
       <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
-      <th>annotations</th>
-      <td><p>QQQ UNCLEAR WHAT ANNOTATIONS MEANS. The name of the annotations object name stored in the <code>ArchRProject</code>.</p></td>
+      <th>peakAnnotation</th>
+      <td><p>The name of the peakAnnotation name stored in the <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>matrixName</th>
@@ -204,7 +201,7 @@
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
+      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given <code>ArrowFiles</code>.</p></td>
     </tr>
     </table>
     

@@ -121,9 +121,6 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -178,7 +175,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seMarker</th>
-      <td><p>QQQ A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>ArchR::markerFeatures()</a></code>.</p></td>
+      <td><p>A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>ArchR::markerFeatures()</a></code>.</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
@@ -190,7 +187,7 @@
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>QQQ scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing</p></td>
+      <td><p>scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing</p></td>
     </tr>
     <tr>
       <th>scaleRows</th>
@@ -202,11 +199,11 @@
     </tr>
     <tr>
       <th>grepExclude</th>
-      <td><p>QQQ A character vector or string that indicates the <code>rownames</code> or a specific pattern that identifies rownames from <code>seMarker</code> to be excluded from the heatmap.</p></td>
+      <td><p>A character vector or string that indicates the <code>rownames</code> or a specific pattern that identifies rownames from <code>seMarker</code> to be excluded from the heatmap.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>QQQ The name or numeric index of a custom palette from <code>ArchRPalettes</code> to use for the heatmap</p></td>
+      <td><p>A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.</p></td>
     </tr>
     <tr>
       <th>binaryClusterRows</th>
@@ -226,11 +223,11 @@
     </tr>
     <tr>
       <th>returnMat</th>
-      <td><p>QQQ A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.</p></td>
+      <td><p>A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.</p></td>
     </tr>
     <tr>
       <th>invert</th>
-      <td><p>QQQ</p></td>
+      <td><p>A boolean value that indicates whether the heatmap will be inverted ie when looking for down-regulated markers (Log2FC &lt; 0) instead of up-regulated markers (Log2FC &gt; 0).</p></td>
     </tr>
     <tr>
       <th>...</th>

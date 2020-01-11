@@ -122,9 +122,6 @@ per cell in the provided ArchRProject using the &quot;PeakMatrix&quot;." />
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -180,11 +177,11 @@ per cell in the provided ArchRProject using the "PeakMatrix".</p>
     </tr>
     <tr>
       <th>ceiling</th>
-      <td><p>QQQ The maximum counts per feature allowed. QQQ WHY?</p></td>
+      <td><p>The maximum counts per feature allowed. This is used to prevent large biases in peak counts.</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>QQQ A boolean value indicating whether the feature matrix should be binarized QQQ prior to storage. This is often desired when working with insertion counts.</p></td>
+      <td><p>A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
@@ -196,7 +193,7 @@ per cell in the provided ArchRProject using the "PeakMatrix".</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given <code>ArchRProject</code> or ArrowFiles.</p></td>
+      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
     </tr>
     </table>
     

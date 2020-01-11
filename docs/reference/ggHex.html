@@ -119,9 +119,6 @@
     <li>
       <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
     </li>
-    <li>
-      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
-    </li>
   </ul>
 </li>
 <li>
@@ -181,15 +178,15 @@
     </tr>
     <tr>
       <th>color</th>
-      <td><p>QQQ A vector of color values to be plotted. This vector must be the same length as QQQ <code>length(x) * length(y)</code></p></td>
+      <td><p>A numeric/categorical vector containing coloring information for each point.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>QQQ The name or numeric index of a custom palette from <code>ArchRPalettes</code> to use for QQQ.</p></td>
+      <td><p>A custom palette for continuous coloring.</p></td>
     </tr>
     <tr>
       <th>bins</th>
-      <td><p>QQQ NOT CLEAR WHAT IS A BIN. The number of bins to be used for plotting the hexplot. QQQ <code>bins</code> indicates the total number of hexagons that will fit within the surface area of the plot.</p></td>
+      <td><p>The number of bins to be used for plotting the hexplot. <code>bins</code> indicates the total number of hexagons that will fit within the surface area of the plot.</p></td>
     </tr>
     <tr>
       <th>xlim</th>
@@ -201,15 +198,15 @@
     </tr>
     <tr>
       <th>extend</th>
-      <td><p>QQQ A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
+      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
 <p>xlabelThe label to plot for the x-axis.</p>
 <p>ylabelThe label to plot for the y-axis.</p>
 <p>titleThe title of the plot.</p>
 <p>colorTitleThe label to use for the legend corresponding to <code>color</code>.</p>
-<p>baseSizeQQQ The base font size to use in the plot.</p>
+<p>baseSizeThe base font size to use in the plot.</p>
 <p>ratioYXThe aspect ratio of the x and y axes on the plot.</p>
 <p>FUNThe function to use for summarizing data into hexagons. Typically "mean" or something similar.</p>
-<p>quantCutIf this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of the 97.5th and 2.5th percentile values respectively.} -->addPointsQQQ UNCLEAR WHY POINTS WOULD BE ADDED TO A HEXPLOT. ALSO, IN ggViolin THIS IS CALLED "points". A boolean value indicating whether individual points should be shown on the hexplot....additional params to pass
+<p>quantCutIf this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of the 97.5th and 2.5th percentile values respectively.} -->addPointsA boolean value indicating whether individual points should be shown on the hexplot....additional params to pass
 
 
 This function will plot x,y coordinates values summarized in hexagons in a standardized manner</p></td>
