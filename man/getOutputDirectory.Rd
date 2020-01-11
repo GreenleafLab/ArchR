@@ -7,7 +7,7 @@
 getOutputDirectory(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{...}{additional args}
 }

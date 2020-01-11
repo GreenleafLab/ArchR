@@ -2,7 +2,7 @@ pandoc: 1.17.2
 pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
-  ArchR: ArchR.html
+  annotations: Articles/annotations.html
   dimReduction: Articles/dimReduction.html
   doubletRemoval: Articles/doubletRemoval.html
   footprinting: Articles/footprinting.html
@@ -10,5 +10,12 @@ articles:
   peakCalling: Articles/peakCalling.html
   qcFilters: Articles/qcFilters.html
   signalTracks: Articles/signalTracks.html
-  faq: faq.html
+  faq: Articles/faq.html
+  clusterComputing: Articles/clusterComputing.html
+  inputFiles: Articles/inputFiles.html
+  pseudobulkGeneration: Articles/pseudobulkGeneration.html
+  markerFeatures: Articles/markerFeatures.html
+  tutorial: Articles/tutorial.html
+  cnvIdentification: Articles/cnvIdentification.html
+  trajectories: Articles/trajectories.html
 

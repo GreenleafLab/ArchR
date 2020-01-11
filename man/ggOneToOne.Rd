@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggOneToOne}
 \alias{ggOneToOne}
-\title{A ggplot-based one-to-one dot plot}
+\title{A ggplot-based one-to-one dot plot wrapper function}
 \usage{
 ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
   ylabel = "y", title = "Correlation", min = 0.05, max = 0.9999,
@@ -17,7 +17,7 @@ ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
 
 \item{size}{The numeric size of the points to plot.}
 
-\item{alpha}{geom_point alpha}
+\item{alpha}{A number indicating the transparency to use for each point. See \code{ggplot2} for more details.}
 
 \item{xlabel}{The label to plot for the x-axis.}
 
@@ -25,17 +25,25 @@ ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
 
 \item{title}{The title of the plot.}
 
-\item{min}{xmin quantile [0,1]}
+\item{min}{x-limits min quantile \link{0,1}}
 
-\item{max}{xmax quantile [0,1]}
+\item{max}{x-limits max quantile \link{0,1}}
 
 \item{nPlot}{The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.}
 
 \item{nKernel}{The value of n to use the kde2d from the MASS package.}
 
-\item{baseSize}{base_font size default is 12}
+\item{densityMax}{The quantile that should be represented by the maximum color on the continuous scale designated by \code{pal}. Above this value will be thresholded to the maximum color.}
 
-\item{pal}{continuous color palette to use}
+\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
+
+\item{baseSize}{The base font size to use in the plot.}
+
+\item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
+
+\item{pal}{A custom palette used to override continuousSet for coloring vector.}
+
+\item{...}{Additional params to be supplied to ggPoint}
 }
 \description{
 This function is a wrapper around ggplot geom_point to allow for plotting one-to-one sample comparisons in ArchR.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/MatrixCNV.R
 \name{addCNVMatrix}
 \alias{addCNVMatrix}
-\title{Add TileMatrix to Arrows/ArchRProject}
+\title{Add a CNV matrix to ArrowFiles or an ArchRProject}
 \usage{
 addCNVMatrix(input, chromSizes = getChromSizes(input),
   blacklist = getBlacklist(input), genome = getGenome(input),
@@ -10,23 +10,26 @@ addCNVMatrix(input, chromSizes = getChromSizes(input),
   "chrY"), threads = 1, parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{
-\item{input}{ArchRProject or ArrowFiles}
+\item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{chromSizes}{chromomosome sizes used for identifying number of tiles to count}
+\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getChromSizes()}.}
 
-\item{windowSize}{size for each window to break up each chromosome}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getBlacklist()}.}
 
-\item{excludeChr}{exclude chromosomes from this analysis}
+\item{genome}{The genome used by the \code{input}. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getGenome()}.}
 
-\item{threads}{number of threads}
+\item{windowSize}{The size in basepairs for the sliding window used to break up each chromosome to look for CNVs.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{stepSize}{The size in basepairs for the step used to create sliding window bins across each chromosome.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from CNV analysis.}
 
-\item{binarize}{save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix}
+\item{threads}{The number of threads to be used for parallel computing.}
+
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
+
+\item{force}{A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for \code{input}.}
 }
 \description{
-This function for each sample will independently compute counts for each tile
-per cell in the Arrow File
+This function for each sample will predict copy number variation from accessibility
 }

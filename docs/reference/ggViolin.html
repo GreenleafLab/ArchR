@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>GG Violin Plot — ggViolin • ArchR</title>
+<title>A ggplot-based violin plot wrapper function — ggViolin • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="GG Violin Plot — ggViolin" />
+<meta property="og:title" content="A ggplot-based violin plot wrapper function — ggViolin" />
 
-<meta property="og:description" content="GG Violin Plot" />
+<meta property="og:description" content="A ggplot-based violin plot wrapper function" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -95,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -103,10 +115,16 @@
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -134,52 +152,72 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>GG Violin Plot</h1>
+    <h1>A ggplot-based violin plot wrapper function</h1>
     
     <div class="hidden name"><code>ggViolin.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>GG Violin Plot</p>
+    <p>A ggplot-based violin plot wrapper function</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>ggViolin</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>base_size</span> <span class='kw'>=</span> <span class='fl'>12</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>points</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>sampleRatio</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteDiscrete.html'>paletteDiscrete</a></span>(<span class='kw'>values</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>set</span> <span class='kw'>=</span>
-  <span class='st'>"stallion"</span>))</pre>
+    <pre class="usage"><span class='fu'>ggViolin</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>xOrder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>addPoints</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>,
+  <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sampleRatio</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteDiscrete.html'>paletteDiscrete</a></span>(<span class='kw'>values</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>set</span> <span class='kw'>=</span> <span class='st'>"stallion"</span>), <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>categorical values to each y value</p></td>
+      <td><p>A character vector containing the categorical x-axis values for each y-axis value.</p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p>numeric values</p></td>
-    </tr>
-    <tr>
-      <th>base_size</th>
-      <td><p>base_size of theme</p></td>
+      <td><p>A numeric vector containing the y-axis values for each point.</p></td>
     </tr>
     <tr>
       <th>xlabel</th>
-      <td><p>xlabel</p></td>
+      <td><p>The label to plot for the x-axis.</p></td>
     </tr>
     <tr>
       <th>ylabel</th>
-      <td><p>ylabel</p></td>
+      <td><p>The label to plot for the y-axis.</p></td>
+    </tr>
+    <tr>
+      <th>xOrder</th>
+      <td><p>A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of <code>x</code> in the desired order.</p></td>
+    </tr>
+    <tr>
+      <th>addPoints</th>
+      <td><p>A boolean value indicating whether individual points should be added to the plot using <code>geom_quasirandom</code>.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p>size of barplot lines</p></td>
+      <td><p>The line width for boxplot lines.</p></td>
+    </tr>
+    <tr>
+      <th>baseSize</th>
+      <td><p>The base font size to use in the plot.</p></td>
+    </tr>
+    <tr>
+      <th>ratioYX</th>
+      <td><p>The aspect ratio of the x and y axes on the plot.</p></td>
+    </tr>
+    <tr>
+      <th>sampleRatio</th>
+      <td><p>sampling ratio for number of dots to be shown from original data over violins to prevent over-crowding. Default is set to 0.1.</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>The title of the plot.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>color palette see paletteDiscrete for examples</p></td>
+      <td><p>A custom palette for discrete coloring.</p></td>
     </tr>
     </table>
     
@@ -197,7 +235,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

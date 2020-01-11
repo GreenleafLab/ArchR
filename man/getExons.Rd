@@ -7,10 +7,12 @@
 getExons(ArchRProj, symbols = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
+
+\item{symbols}{A character vector containing the gene symbols for the genes where exons should be extracted.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets the exons (in format QQQ) from the geneAnnotation of a given ArchRProject.
+This function gets the exons coordinates as a GRanges from the geneAnnotation of a given ArchRProject.
 }

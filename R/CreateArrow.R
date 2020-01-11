@@ -2,38 +2,43 @@
 #' 
 #' This function will create Arrow Files from input files. These Arrow Files are the main constituent for downstream analysis in ArchR.
 #'
-#' @param inputFiles The names of the input files to use to generate the arrow files. These files can be in any of the following formats: tabix QQQ, QQQ BAM,  or a fragments file). The precise format of each file type QQQ...
+#' @param inputFiles The names of the input files to use to generate the arrow files. These files can be in any of the following formats: scATAC tabix fragment files or a bam file).
 #' @param sampleNames The names to assign to the samples that correspond to the "inputFiles". Each input file should receive a unique sample name. This list should be in the same order as "inputFiles".
 #' @param outputNames The prefix to use for output files. Each input file should receive a unique output file name. This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"
-#' @param geneAnno QQQ The geneAnnotation in QQQ format to associate with these arrow files. This is used downstream to calculate TSS Scores etc.
-#' @param genomeAnno QQQ The genomeAnnotation in QQQ format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.
+#' @param validBarcodes A list of validBarcode strings to be used for filtering cells read from each input file (see getValidBarcodes for 10x fragment files).
+#' @param geneAnno The geneAnnotation (see createGeneAnnotation) to associate with these arrow files. This is used downstream to calculate TSS Enrichment Scores etc.
+#' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.
 #' @param filterFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
 #' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use in downstream analyses. TSS enrichment score is a measurement of signal-to-background in ATAC-seq.
 #' @param removeFilteredCells A boolean value that determines whether to remove fragments corresponding to cells that do not pass filterFrags and filterTSS.
-#' @param minFrags QQQ min fragments per cell to be immediately filtered
+#' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment).
 #' @param outDir The name or path for the output directory for QC-level information and plots for each sample/arrow.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as sub-nucleosome, mono-nucleosome, or multi-nucleosome spanning
-#' @param TSSParams QQQ TSS parameters for computing TSS scores
+#' @param TSSParams TSS parameters for computing TSS Enrichment scores. This includes `window` which describes the window centered at each TSS (default 101), the `flank` which describes the +/- window size to compute TSS enrichment (default 2000) , the `norm` which describes the normalization window size at the flanks to compute TSS enrichment (default 100 i.e. -2000:-1901 and 1901:2000).
 #' @param excludeChr The names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the .arrow file.
 #' @param nChunk The number of chunks to divide each chromosome into reading in input files. Higher numbers reduce memory usage but increase compute time.
 #' @param bcTag The name of the field in the input bam file containing the barcode tag information. See ScanBam in Rsamtools.
-#' @param bamFlag QQQ A list of bam flags to be used for reading in fragments from input bam files. Fromat should be QQQ. See ScanBam in Rsamtools.
+#' @param gsubExpression A regular expression to clean up the barcode tag read in from a bam file. For example if the barcode is appended to the qname (read name) like for Shendure mouse data the gsubExpression would be ":.*" for getting the string after the colon in the qname.
+#' @param bamFlag A list of bam flags to be used for reading in fragments from input bam files. Format should be scanBamFlag for ScanBam in Rsamtools.
 #' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
-#' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. Ssee Buenrostro et al. Nature Methods 2013.
+#' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
 #' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each Arrow file. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome.
-#' @param TileMatParams A list of parameters to pass to the addTileMatrix function. See addTileMatrix for options.
+#' @param TileMatParams A list of parameters to pass to the `addTileMatrix()` function. See `ArchR::addTileMatrix()` for options.
 #' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each Arrow file. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.
-#' @param GeneScoreMatParams A list of parameters to pass to the addGeneScoreMatrix function. See addGeneScoreMatrix for options.
-#' @param force A bollean value indicating whether to force arrow files to be overwritten if already exist in outDir.
-#' @param threads The number threads to be used for parallel computing.
-#' @param parallelParam QQQ A list of parameters to be used for batch-style parallel computing.
+#' @param GeneScoreMatParams A list of parameters to pass to the [addGeneScoreMatrix()] function. See `ArchR::addGeneScoreMatrix()` for options.
+#' @param force A boolean value indicating whether to force arrow files to be overwritten if they already exist in `outDir`.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
 #' @export
+#' 
 createArrowFiles <- function(
   inputFiles = NULL, 
   sampleNames = NULL, 
   outputNames = paste0("./", sampleNames),
-  validBaroces = NULL,
+  validBarcodes = NULL,
   geneAnno = NULL,
   genomeAnno = NULL,
   filterFrags = 1000,
@@ -253,6 +258,7 @@ createArrowFiles <- function(
 
   }, error = function(x){
 
+      suppressWarnings(sink())
       .messageDiffTime("Continuing through after error ggplot for Fragment Size Distribution", tstart)
       print(x)
       message("\n")
@@ -308,6 +314,7 @@ createArrowFiles <- function(
 
   }, error = function(x) {
 
+      suppressWarnings(sink())
       .messageDiffTime("Continuing through after error ggplot for TSS by Frags", tstart)
       print(x)
       message("\n")
@@ -588,7 +595,7 @@ createArrowFiles <- function(
 }
 
 #########################################################################################################
-# Methods to Turn Input File into a Temp File that can then be Efficiently converted to an Arrow!
+# Methods to turn input file into a temp file that can then be efficiently converted to an ArrowFile!
 #########################################################################################################
 .isTabix <- function(file){
   tryCatch({
@@ -864,7 +871,7 @@ createArrowFiles <- function(
 
 
 #########################################################################################################
-# Methods to temp file to arrow!
+# Methods to convert temp file to an ArrowFile!
 #########################################################################################################
 
 .tmpToArrow <- function(

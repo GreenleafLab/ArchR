@@ -11,23 +11,27 @@ getTrajectory(ArchRProj, name = "Trajectory",
   smoothFormula = "y ~ s(x, bs = 'cs')", ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{name of fitted trajectory in cellColData}
+\item{name}{A string indicating the name of the fitted trajectory in \code{cellColData} to retrieve from the given \code{ArchRProject}.}
 
-\item{useMatrix}{matrix to summarize across the trajectory}
+\item{useMatrix}{The name of the data matrix from the \code{ArrowFiles} to get numerical values for each cell from.}
 
-\item{groupEvery}{group cells every x quantile}
+\item{varCutOff}{Variance Quantile Cutoff for identifying top variable features across trajectory.}
 
-\item{threads}{number of threads to use}
+\item{maxFeatures}{The maximum number of features (ordered by variance) to consider from \code{useMatrix} when generating a trajectory.}
 
-\item{scaleTo}{scale summarized matrix to}
+\item{groupEvery}{The number of sequential percentiles (0-100 every x percentile) to group together when generating a trajectory (similar to smoothing).}
 
-\item{log2Norm}{log2 normalize the scaled summarized matrix}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{smooth}{smooth matrix row-wise?}
+\item{scaleTo}{Scale group data matrix to this value for normalizaiton.}
 
-\item{smoothFormula}{smoothing formula for mgcv::gam}
+\item{log2Norm}{A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed.}
+
+\item{smooth}{A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.}
+
+\item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the \code{formula} parameter in \code{mgcv::gam()}.}
 
 \item{...}{additional args}
 }

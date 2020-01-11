@@ -4,33 +4,31 @@
 \alias{theme_ArchR}
 \title{ggplot2 default theme for ArchR}
 \usage{
-theme_ArchR(color = "black", baseSize = 6, baseFamily = "",
-  baseLineSize = 0.5, baseRectSize = 0.5, plotMarginCm = 1,
-  legendPosition = "bottom", legendTextSize = 5, axisTickCm = 0.1,
-  xText90 = FALSE, yText90 = FALSE, ...)
+theme_ArchR(color = "black", baseSize = 6, baseLineSize = 0.5,
+  baseRectSize = 0.5, plotMarginCm = 1, legendPosition = "bottom",
+  legendTextSize = 5, axisTickCm = 0.1, xText90 = FALSE,
+  yText90 = FALSE, ...)
 }
 \arguments{
-\item{color}{color of theme}
+\item{color}{The color to be used for text, lines, ticks, etc for the plot.}
 
-\item{baseSize}{is the size of the font for the axis text and title}
+\item{baseSize}{The base font size to use in the plot.}
 
-\item{baseFamily}{is family for font}
+\item{baseLineSize}{The base line width (in points) to be used throughout the plot.}
 
-\item{baseLineSize}{is the size of line}
+\item{baseRectSize}{The base line width (in points) to use for rectangular boxes throughout the plot.}
 
-\item{baseRectSize}{is the size of rectangle boxes}
+\item{plotMarginCm}{The width in centimeters of the whitespace margin around the plot.}
 
-\item{plotMarginCm}{plot margin in cm}
+\item{legendPosition}{The location to put the legend. Valid options are "bottom", "top", "left", and "right.}
 
-\item{legendPosition}{where is the legend default bottom}
+\item{legendTextSize}{0.75 times the base_size}
 
-\item{legendTextSize}{0.75*base_size}
+\item{axisTickCm}{The length in centimeters to make the axis ticks.}
 
-\item{axisTickCm}{axis tick length in cm}
+\item{xText90}{A boolean value indicating whether the x-axis text should be rotated 90 degrees counterclockwise.}
 
-\item{xText90}{rotate x axis text 90 degrees}
-
-\item{yText90}{rotate y axis text 90 degrees}
+\item{yText90}{A boolean value indicating whether the y-axis text should be rotated 90 degrees counterclockwise.}
 }
 \description{
 This function returns a ggplot2 theme that is black borded with black font.

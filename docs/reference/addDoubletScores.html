@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add Doublet Scores to Arrows/ArchRProject — addDoubletScores • ArchR</title>
+<title>Add Doublet Scores to a collection of Arrow files or an ArchRProject — addDoubletScores • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,10 +39,13 @@
 
 
 
-<meta property="og:title" content="Add Doublet Scores to Arrows/ArchRProject — addDoubletScores" />
+<meta property="og:title" content="Add Doublet Scores to a collection of Arrow files or an ArchRProject — addDoubletScores" />
 
-<meta property="og:description" content="This function for each sample will independently assign inferred doublet information
-to each cell for removing strong heterotropic doublet based clusters downstream." />
+<meta property="og:description" content="For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
+to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
+contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -74,7 +84,7 @@ to each cell for removing strong heterotropic doublet based clusters downstream.
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -96,7 +106,10 @@ to each cell for removing strong heterotropic doublet based clusters downstream.
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,10 +117,16 @@ to each cell for removing strong heterotropic doublet based clusters downstream.
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -135,21 +154,23 @@ to each cell for removing strong heterotropic doublet based clusters downstream.
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add Doublet Scores to Arrows/ArchRProject</h1>
+    <h1>Add Doublet Scores to a collection of Arrow files or an ArchRProject</h1>
     
     <div class="hidden name"><code>addDoubletScores.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function for each sample will independently assign inferred doublet information
-to each cell for removing strong heterotropic doublet based clusters downstream.</p>
+    <p>For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
+to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
+contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addDoubletScores</span>(<span class='no'>input</span>, <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"TileMatrix"</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>200</span>,
-  <span class='kw'>nTrials</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>knnMethod</span> <span class='kw'>=</span> <span class='st'>"UMAP"</span>, <span class='kw'>UMAPParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>LSIParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='kw'>useClusters</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>outDir</span> <span class='kw'>=</span> <span class='st'>"QualityControl"</span>,
+    <pre class="usage"><span class='fu'>addDoubletScores</span>(<span class='no'>input</span>, <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"TileMatrix"</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>nTrials</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>dimsToUse</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>25</span>, <span class='kw'>corCutOff</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
+  <span class='kw'>knnMethod</span> <span class='kw'>=</span> <span class='st'>"UMAP"</span>, <span class='kw'>UMAPParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  <span class='kw'>LSIParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>sampleCells</span> <span class='kw'>=</span> <span class='kw'>NULL</span>), <span class='kw'>outDir</span> <span class='kw'>=</span> <span class='st'>"QualityControl"</span>,
   <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
@@ -158,63 +179,63 @@ to each cell for removing strong heterotropic doublet based clusters downstream.
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>ArchRProject or ArrowFiles</p></td>
+      <td><p>An <code>ArchRProject</code> object or a character vector containing the names of ArrowFiles to be used.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>matrix name for performing analyses</p></td>
+      <td><p>The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", "PeakMatrix".</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>number of cells nearby a simulated doublet to consider</p></td>
+      <td><p>The number of cells neighboring a simulated doublet to be considered as putative doublets.</p></td>
     </tr>
     <tr>
       <th>nTrials</th>
-      <td><p>number of trials to simulate doublets in thousands</p></td>
+      <td><p>The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.</p></td>
+    </tr>
+    <tr>
+      <th>dimsToUse</th>
+      <td><p>A vector containing the dimensions from the <code>reducedDims</code> object to use in clustering.</p></td>
+    </tr>
+    <tr>
+      <th>corCutOff</th>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>knnMethod</th>
-      <td><p>dimension reduction to use for KNN (UMAP or SVD)</p></td>
+      <td><p>The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".</p></td>
     </tr>
     <tr>
       <th>UMAPParams</th>
-      <td><p>list of parameters to pass to uwot::umap</p></td>
+      <td><p>The list of parameters to pass to the UMAP function if "UMAP" is designated to <code>knnMethod</code>. See the function umap in the uwot package.</p></td>
     </tr>
     <tr>
       <th>LSIParams</th>
-      <td><p>list of parameters to pass to IterativeLSI</p></td>
+      <td><p>The list of parameters to pass to the IterativeLSI function. See IterativeLSI.</p></td>
     </tr>
     <tr>
       <th>outDir</th>
-      <td><p>directory to plot and store results from analyses</p></td>
+      <td><p>The name or path for the output directory for plot/result information on doublet identification,</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>parallel parameters for batch style execution</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
-      <td><p>verbose sections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose sections.</p></td>
     </tr>
     <tr>
       <th>verboseAll</th>
-      <td><p>verbose sections and subsections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose subsections.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional args</p></td>
-    </tr>
-    <tr>
-      <th>threads</th>
-      <td><p>number of therads for parallel execution</p></td>
-    </tr>
-    <tr>
-      <th>parallelParam</th>
-      <td><p>parallel parameters for batch style execution</p></td>
     </tr>
     </table>
     
@@ -232,7 +253,7 @@ to each cell for removing strong heterotropic doublet based clusters downstream.
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

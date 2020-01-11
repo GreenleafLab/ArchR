@@ -2,6 +2,27 @@
 title: "Doublet Removal"
 ---
 
-Under construction...
+```{r image, include=FALSE}
+knitr::include_graphics("../../images/doubletRemoval.png")
+```
 
-![](doubletRemoval.png){width=350px}
+Single-cell data generated on essentially any platform is susceptible to the presence of doublets. A doublet refers to a single droplet that received a single barcoded bead and more than one nucleus. This causes the reads from more than one cell to appear as a single cell. For 10x, the percentage of total "cells" that are actually doublets is proportional to the number of cells loaded into the reaction. Even at the lower levels of doublets that result from standard kit use, more than 5% of the data may come from doublets and this exerts substantial effects on clustering. This issue becomes particularly problematic in the context of developmental/trajectory data because doublets look like a mixture between two cell types and this can be confounded with intermediate cell types or cell states.
+
+To illustrate this problem, we will use 10x scATAC-seq data from __QQQ__ cells. These cells should be very discrete yet we see many "strands" of cells that connect two distinct clusters.
+
+INSERT PRE-DOUBLET REMOVAL UMAP HERE
+
+To predict which "cells" are actually doublets, we synthesize in silico doublets from the data by mixing the reads from thousands of combinations of individual cells. We then project these synthetic doublets into the UMAP embedding and identify their nearest neighbor. By iterating this procedure thousands of times, we can identify "cells" in our data whose signal looks very similar to synthetic doublets.
+
+![](../../images/doubletRemoval.png){width=450px}
+
+$~$
+
+In real world data, this allows us to score each of our "cells" by a doublet likelihood score, identifying "cells" that are statistically likely to be doublets.
+
+INSERT DOUBLET COLORED UMAP HERE
+
+In the ArchR framework, doublet scores are added on a per-cell basis to the relevant `ArrowFile`. Then, after creation of an `ArchRProject`, the predicted doublets can be removed using `filterDoublets(ArchRProject)`. After doublet removal in the above dataset, the UMAP picture is markedly different:
+
+INSERT POST-DOUBLET REMOVAL UMAP HERE
+

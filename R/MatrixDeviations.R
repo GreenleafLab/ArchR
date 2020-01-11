@@ -1,22 +1,25 @@
-#' Add DeviationsMatrix to Arrow Files in ArchRProject
+####################################################################
+# Transcription Factor Deviation Methods
+####################################################################
+
+#' Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject
 #' 
-#' This function for each sample will independently compute counts for each tile
-#' per cell and then infer gene activity scores.
+#' This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).
 #'
-#' @param ArchRProj ArchRProject
-#' @param annotations annotaions name stored in ArchRProject
-#' @param matrixName matrixName to be stored as in Arrow Files
-#' @param out save ouptut matrices deviations and/or z
-#' @param binarize binarize peaks prior to computing deviations
-#' @param threads number of threads for parallel execution
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @param ArchRProj An `ArchRProject` object.
+#' @param peakAnnotation The name of the peakAnnotation name stored in the `ArchRProject`.
+#' @param matrixName The name to be used for storage of the deviations matrix in the provided `ArchRProject`.
+#' @param out A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).
+#' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArrowFiles`.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj,
-  annotations = NULL,
+  peakAnnotation = NULL,
   matches = NULL,
-  bdgPeaks = getBdgPeaks(ArchRProj),
+  bgdPeaks = getBgdPeaks(ArchRProj),
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,
@@ -46,7 +49,7 @@ addDeviationsMatrix <- function(
   ##############################################################
   print(matches)
   if(is.null(matches)){
-    anno <- getAnnotation(ArchRProj, annotations)
+    anno <- getPeakAnnotation(ArchRProj, peakAnnotation)
     matches <- readRDS(anno$Matches)
     if(is.null(matrixName)){
       matrixName <- paste0(anno$Name, "Matrix")
@@ -88,8 +91,9 @@ addDeviationsMatrix <- function(
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
 
   #Add args to list
-  args$annotations <- NULL
-  rm(annotations)
+  args$peakAnnotation <- NULL
+  rm(peakAnnotation)
+
   args$annotationsMatrix <- annotationsMatrix
   args$featureDF <- rS
   args$useMatrix <- useMatrix
@@ -117,7 +121,7 @@ addDeviationsMatrix <- function(
   cellNames = NULL, 
   allCells = NULL,
   featureDF  = NULL,
-  bdgPeaks = NULL,
+  bgdPeaks = NULL,
   binarize = FALSE,
   useMatrix = "PeakMatrix",
   matrixName = "Motif", 
@@ -155,7 +159,7 @@ addDeviationsMatrix <- function(
       countsMatrix = .,
       annotationsMatrix = annotationsMatrix,
       prefix = prefix,
-      backgroudPeaks = SummarizedExperiment::assay(bdgPeaks),
+      backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
       expectation = featureDF$rowSums/sum(featureDF$rowSums),
       out = out
     )}
@@ -409,6 +413,14 @@ addDeviationsMatrix <- function(
 
 }
 
+#' Get Variable Deviations across cells in ArchRProject.
+#' 
+#' This function will rank the variability of the deviations computed by ArchR and label the top variable annotations.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name name of DeviationsMatrix see addDeviationsMatrix
+#' @param plot plot ranked variability for each annotation
+#' @param n number of annotations to label with ggrepel
 #' @export
 getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 25){
 
@@ -433,8 +445,19 @@ getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 2
 
 }
 
+#' Add backgroundPeaks to ArchRProject
+#' 
+#' This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param niterations The number of background peaks to sample (see chromVAR::getBackgroundPeaks).
+#' @param w The parameter controlling similarity of background peaks (see chromVAR::getBackgroundPeaks).
+#' @param binSize the precision with which the similarity is computed (see chromVAR::getBackgroundPeaks).
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param outFile Path to save backgroundPeaks object to for ArchRProject.
+#' @param force Force creation of backgroundPeaks even if file exists.
 #' @export
-addBdgPeaks <- function(
+addBgdPeaks <- function(
   ArchRProj, 
   niterations = 50, 
   w = 0.1, 
@@ -444,22 +467,22 @@ addBdgPeaks <- function(
   force = FALSE,
   ...){
 
-  if(!is.null(metadata(getPeakSet(ArchRProj))$bdgPeaks) & !force){
+  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
     
-    if(file.exists(metadata(getPeakSet(ArchRProj))$bdgPeaks)){
+    if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
       
-      stop("Background Peaks Already Exist! set force = TRUE to addBdgPeaks!")
+      stop("Background Peaks Already Exist! set force = TRUE to addBgdPeaks!")
 
     }else{
 
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
       
       }else{
       
-        stop("Previous Background Peaks file does not exist! set force = TRUE to addBdgPeaks!")
+        stop("Previous Background Peaks file does not exist! set force = TRUE to addBgdPeaks!")
       
       }
 
@@ -468,46 +491,47 @@ addBdgPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
 
   }
 
-  if(length(getPeakSet(ArchRProj)) != nrow(bdgPeaks)){
+  if(length(getPeakSet(ArchRProj)) != nrow(bgdPeaks)){
     stop("Number of rows in Background Peaks does not match peakSet!")
   }
 
-  metadata(ArchRProj@peakSet)$bdgPeaks <- outFile
+  metadata(ArchRProj@peakSet)$bgdPeaks <- outFile
   ArchRProj
 
 }
 
 #' @export
-getBdgPeaks <- function(
+getBgdPeaks <- function(
   ArchRProj, 
   niterations = 50, 
   w = 0.1, 
   binSize = 50, 
   seed = 1,
   force = FALSE,
-  ...){
+  ...
+  ){
 
-  if(!is.null(metadata(getPeakSet(ArchRProj))$bdgPeaks) & !force){
+  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
     
-    if(file.exists(metadata(getPeakSet(ArchRProj))$bdgPeaks)){
+    if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
       
       message("Using Previous Background Peaks!")
-      bdgPeaks <- readRDS(metadata(getPeakSet(ArchRProj))$bdgPeaks)
+      bgdPeaks <- readRDS(metadata(getPeakSet(ArchRProj))$bgdPeaks)
 
     }else{
 
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
       
       }else{
       
-        stop("Previous Background Peaks file does not exist! set add = TRUE to addBdgPeaks!")
+        stop("Previous Background Peaks file does not exist! set add = TRUE to addBgdPeaks!")
       
       }
 
@@ -516,26 +540,27 @@ getBdgPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bdgPeaks <- .getBdgPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
 
   }
 
-  if(length(getPeakSet(ArchRProj)) != nrow(bdgPeaks)){
+  if(length(getPeakSet(ArchRProj)) != nrow(bgdPeaks)){
     stop("Number of rows in Background Peaks does not match peakSet!")
   }
 
-  bdgPeaks
+  bgdPeaks
 
 }
 
-.getBdgPeaks <- function(
+.computeBgdPeaks <- function(
   ArchRProj, 
   niterations = 50,
   w = 0.1, 
   binSize = 50, 
   seed = 1, 
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  ...){
+  ...
+  ){
 
   set.seed(1)
   .requirePackage("chromVAR")
@@ -564,7 +589,7 @@ getBdgPeaks <- function(
     rowData = DataFrame(bias = rS$GC)
   )
 
-  bdgPeaks <- chromVAR::getBackgroundPeaks(
+  bgdPeaks <- chromVAR::getBackgroundPeaks(
     object = se,
     bias = rowData(se)$bias, 
     niterations = niterations, 
@@ -572,17 +597,15 @@ getBdgPeaks <- function(
     bs = binSize
   )
 
-  bdgPeaks <- SummarizedExperiment(assays = SimpleList(bdgPeaks = bdgPeaks), 
+  bgdPeaks <- SummarizedExperiment(assays = SimpleList(bgdPeaks = bgdPeaks), 
     rowRanges = GRanges(rS$seqnames,IRanges(rS$start,rS$end),value=rS$rowSums,GC=rS$GC))
 
   #Save Background Peaks
   if(!is.null(outFile)){
-    saveRDS(bdgPeaks, outFile, compress = FALSE)
+    saveRDS(bgdPeaks, outFile, compress = FALSE)
   }
 
-  return(bdgPeaks)
+  return(bgdPeaks)
 
 }
-
-
 

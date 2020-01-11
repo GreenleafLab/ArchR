@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Merge Genomic Ranges — mergeGRanges • ArchR</title>
+<title>QQQ Merge regions within a single Genomic Ranges object — mergeGRanges • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Merge Genomic Ranges — mergeGRanges" />
+<meta property="og:title" content="QQQ Merge regions within a single Genomic Ranges object — mergeGRanges" />
 
-<meta property="og:description" content="Merge Genomic Ranges" />
+<meta property="og:description" content="QQQ This function merges overlapping regions within a single Genomic Ranges object" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -95,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -103,10 +115,19 @@
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/clusterComputing.html">Cluster Computing with ArchR</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -134,14 +155,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Merge Genomic Ranges</h1>
+    <h1>QQQ Merge regions within a single Genomic Ranges object</h1>
     
     <div class="hidden name"><code>mergeGRanges.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Merge Genomic Ranges</p>
+    <p>QQQ This function merges overlapping regions within a single Genomic Ranges object</p>
     
     </div>
 
@@ -152,11 +173,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>gr</th>
-      <td><p>see validGRanges</p></td>
+      <td><p>A <code>GRanges</code> object.</p></td>
     </tr>
     <tr>
       <th>ignore.strand</th>
-      <td><p>ignore strandedness for merging</p></td>
+      <td><p>A boolean value indicating whether strandedness should be ignored in <code>findOverlaps()</code>.</p></td>
     </tr>
     </table>
     
@@ -174,7 +195,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

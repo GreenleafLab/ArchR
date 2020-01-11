@@ -8,6 +8,13 @@
 
 <title>Add PeakMatrix to Arrows in ArchRProject — addPeakMatrix • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,7 +42,9 @@
 <meta property="og:title" content="Add PeakMatrix to Arrows in ArchRProject — addPeakMatrix" />
 
 <meta property="og:description" content="This function for each sample will independently compute counts for each peak
-per cell in the Arrow File" />
+per cell in the provided ArchRProject using the &quot;PeakMatrix&quot;." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -74,7 +83,7 @@ per cell in the Arrow File" />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -96,7 +105,10 @@ per cell in the Arrow File" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,10 +116,16 @@ per cell in the Arrow File" />
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -143,7 +161,7 @@ per cell in the Arrow File" />
     <div class="ref-description">
     
     <p>This function for each sample will independently compute counts for each peak
-per cell in the Arrow File</p>
+per cell in the provided ArchRProject using the "PeakMatrix".</p>
     
     </div>
 
@@ -155,27 +173,27 @@ per cell in the Arrow File</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>ceiling</th>
-      <td><p>ceiling for the number of counts per feature</p></td>
+      <td><p>The maximum counts per feature allowed. This is used to prevent large biases in peak counts.</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>binarize matrix</p></td>
+      <td><p>A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>parallel parameters for batch style execution</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>force overwriting previous TileMatrix in ArrowFile</p></td>
+      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
     </tr>
     </table>
     
@@ -193,7 +211,7 @@ per cell in the Arrow File</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

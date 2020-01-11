@@ -8,6 +8,13 @@
 
 <title>Add Demuxlet Results to ArchR Project — addDemuxletResults • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -34,8 +41,10 @@
 
 <meta property="og:title" content="Add Demuxlet Results to ArchR Project — addDemuxletResults" />
 
-<meta property="og:description" content="This function will read in .best file output from demuxlet and add the
+<meta property="og:description" content="This function will read in the .best file output from demuxlet and add the doublet
 classifications into the cellColData for the ArchR Project" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -74,7 +83,7 @@ classifications into the cellColData for the ArchR Project" />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -96,7 +105,10 @@ classifications into the cellColData for the ArchR Project" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,10 +116,16 @@ classifications into the cellColData for the ArchR Project" />
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -142,27 +160,31 @@ classifications into the cellColData for the ArchR Project" />
 
     <div class="ref-description">
     
-    <p>This function will read in .best file output from demuxlet and add the
+    <p>This function will read in the .best file output from demuxlet and add the doublet
 classifications into the cellColData for the ArchR Project</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addDemuxletResults</span>(<span class='no'>ArchRProj</span>, <span class='no'>bestFiles</span>, <span class='no'>sampleNames</span>)</pre>
+    <pre class="usage"><span class='fu'>addDemuxletResults</span>(<span class='no'>ArchRProj</span>, <span class='no'>bestFiles</span>, <span class='no'>sampleNames</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchR Project</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>bestFiles</th>
-      <td><p>paths to best files</p></td>
+      <td><p>The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>sampleNames</th>
-      <td><p>sampleNames corresponding to best files (match those in ArchRProj)</p></td>
+      <td><p>The sample names corresponding to the .best files. These must match the sample names present in the <code>ArchRProject</code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional args</p></td>
     </tr>
     </table>
     
@@ -180,7 +202,7 @@ classifications into the cellColData for the ArchR Project</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

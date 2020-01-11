@@ -4,27 +4,31 @@
 \alias{addTileMatrix}
 \title{Add TileMatrix to Arrows/ArchRProject}
 \usage{
-addTileMatrix(input, chromSizes = getChromSizes(input),
-  blacklist = getBlacklist(input), tileSize = 500, binarize = TRUE,
+addTileMatrix(input = NULL, chromSizes = ifelse(inherits(input,
+  "ArchRProject"), chromSizes(input), NULL),
+  blacklist = ifelse(inherits(input, "ArchRProject"),
+  getBlacklist(input), NULL), tileSize = 500, binarize = TRUE,
   excludeChr = c("chrM", "chrY"), threads = 1, parallelParam = NULL,
   force = FALSE, ...)
 }
 \arguments{
-\item{input}{ArchRProject or ArrowFiles}
+\item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{chromSizes}{chromomosome sizes used for identifying number of tiles to count}
+\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getChromSizes()}.}
 
-\item{tileSize}{size for each tile to break up each chromosome}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getBlacklist()}.}
 
-\item{binarize}{save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix}
+\item{tileSize}{The size of the tiles used for binning counts in the \code{TileMatrix}.}
 
-\item{excludeChr}{exclude chromosomes from this analysis}
+\item{binarize}{A boolean value indicating whether the \code{TileMatrix} should be binarized prior to storage.}
 
-\item{threads}{number of threads}
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from CNV analysis.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
+
+\item{force}{A boolean value indicating whether to force the \code{TileMatrix} to be overwritten if it already exist in the given ArrowFiles.}
 }
 \description{
 This function for each sample will independently compute counts for each tile

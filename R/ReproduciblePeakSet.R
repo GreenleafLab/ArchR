@@ -1,29 +1,35 @@
-#' Add Reproducible Peak Set to ArchR Project
+####################################################################
+# Peak Set Creation Methods
+####################################################################
+
+#' Add a Reproducible Peak Set to an ArchRProject
 #' 
-#' This function will get insertions from coverage files call peaks
-#' and merge to get a Union Reproducible Peak Set
+#' This function will get insertions from coverage files, call peaks,
+#' and merge peaks to get a "Union Reproducible Peak Set"
 #'
-#' @param ArchRProj ArchRProject
-#' @param groupBy use groupings for peak calling matching group coverage files
-#' @param reproducibility reproducibility for peak calling (string that is a function of n)
-#' @param peaksPerCell number of peaks that can be identified per cell on average
-#' @param excludeChr exclude chromosomes from peak calling
-#' @param pathToMacs2 path to macs2 executable (see Macs2)
-#' @param genomeSize genome size for peak calling (see Macs2)
-#' @param shift shift of Tn5 insertions (<- |   ) (see Macs2)
-#' @param extsize extension of Tn5 insertions (|<- ->|) (see Macs2)
-#' @param method significance method for Macs2 (see Macs2)
-#' @param cutOff significance cutoff for Macs2 (see Macs2)
-#' @param extendSummits extend peak summits for final fixed-width peaks
-#' @param promoterDist promoter distance from TSS for annotating peaks
-#' @param genomeAnno genome annotation for ArchRProject
-#' @param geneAnno gene annotation for ArchRProject
-#' @param additionalParams additional parameters to pass to Macs2 (see Macs2)
-#' @param threads number of threads for parallel execution
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force creating peakSet if existed
-#' @param verboseHeader verbose sections
-#' @param verboseAll verbose sections and subsections
+#' @param ArchRProj An `ArchRProject` object.
+#' @param groupBy The name of the column in `cellColData` to use for grouping cells together for peak calling.
+#' @param reproducibility A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of `n` where `n` is the number of samples being assessed. For example, `reproducibility = "2"` means at least 2 samples must have a peak call at this locus and `reproducibility = "(n+1)/2"` means that the majority of samples must have a peak call at this locus.
+#' @param peaksPerCell The limit of number of peaks that can be identified per cell (this is useful for controlling how many peaks can be called from low cell groups).
+#' @param maxPeaks A numeric threshold for the maximum peaks to retain per group in `groupBy` in the union reproducible peak set.
+#' @param minCells The minimum number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.
+#' @param pathToMacs2 The full path to the MACS2 executable.
+#' @param genomeSize The genome size to be used for MACS2 peak calling (see MACS2 documentation).
+#' @param shift The number of basepairs to shift each Tn5 insertion. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
+#' @param extsize The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
+#' @param method The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with `cutOff` this gives the method and significance threshold for peak calling (see MACS2 documentation).
+#' @param cutOff The numeric significance cutoff for the testing method indicated by `method` (see MACS2 documentation).
+#' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
+#' @param promoterDist The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.
+#' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.
+#' @param geneAnno The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.
+#' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
 #' @export
 addReproduciblePeakSet <- function(
@@ -179,7 +185,7 @@ addReproduciblePeakSet <- function(
 	#Construct Union Peak Set
 	.messageDiffTime("Creating Union Peak Set!", tstart)
 	unionPeaks <- Reduce("c",groupPeaks)
-	unionPeaks <- nonOverlappingGRanges(unionPeaks, by = "groupScoreQuantile", decreasing = TRUE)
+	unionPeaks <- nonOverlappingGR(unionPeaks, by = "groupScoreQuantile", decreasing = TRUE)
 
 	#Summarize Output
 	peakDF <- lapply(seq_along(groupPeaks), function(x){
@@ -197,7 +203,7 @@ addReproduciblePeakSet <- function(
 
 	.messageDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart)
 
-	closeAllConnections()
+    suppressWarnings(sink())
 
 	return(ArchRProj)
 
@@ -289,15 +295,18 @@ addReproduciblePeakSet <- function(
   	grx <- subsetByOverlaps(grx, blacklist, invert = TRUE) #Not Overlapping Blacklist!
   	grx$GroupReplicate <- paste0(summitNames[x])
   	grx
-  }) %>% Reduce("c", .)
+  })
+  summits <- Reduce("c", as(summits, "GRangesList"))
 
   extendedSummits <- resize(summits, extendSummits * 2 + 1, "center")
   extendedSummits <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
-    nonES <- nonOverlappingGRanges(x, by = "score", decreasing = TRUE)
+    nonES <- nonOverlappingGR(x, by = "score", decreasing = TRUE)
     nonES$replicateScoreQuantile <- round(.getQuantiles(nonES$score),3)
     nonES
-  }) %>% Reduce("c", .)
-  nonOverlapES <- nonOverlappingGRanges(extendedSummits, by = "replicateScoreQuantile", decreasing = TRUE)
+  })
+  extendedSummits <- Reduce("c", as(extendedSummits, "GRangesList"))
+
+  nonOverlapES <- nonOverlappingGR(extendedSummits, by = "replicateScoreQuantile", decreasing = TRUE)
 
   overlapMat <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
     overlapsAny(nonOverlapES, x)
@@ -402,6 +411,10 @@ addReproduciblePeakSet <- function(
 
 }
 
+#' Find the installed location of the MACS2 executable
+#' 
+#' This function attempts to find the path to the MACS2 executable by serting the path and python's pip.
+#'
 #' @export
 findMacs2 <- function(){
   

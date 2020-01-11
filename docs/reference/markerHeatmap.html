@@ -8,6 +8,13 @@
 
 <title>Plot a Heatmap of Identified Marker Features — markerHeatmap • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,6 +42,8 @@
 <meta property="og:title" content="Plot a Heatmap of Identified Marker Features — markerHeatmap" />
 
 <meta property="og:description" content="This function will plot a heatmap of the results from markerFeatures" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -95,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -103,10 +115,16 @@
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -145,30 +163,27 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>markerHeatmap</span>(<span class='no'>seMarker</span>, <span class='kw'>FDR</span> <span class='kw'>=</span> <span class='fl'>0.001</span>, <span class='kw'>log2FC</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='kw'>scaleRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>2</span>, <span class='fl'>2</span>),
-  <span class='kw'>grepExclude</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>binaryClusterRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>labelMarkers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labelTop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labelRows</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>returnMat</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>markerHeatmap</span>(<span class='no'>seMarker</span>, <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='st'>"FDR &lt;= 0.01 &amp; Log2FC &gt;= 0.5"</span>,
+  <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='kw'>scaleRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>plotLog2FC</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>2</span>, <span class='fl'>2</span>), <span class='kw'>grepExclude</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>binaryClusterRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>labelMarkers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>labelTop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>labelRows</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>returnMat</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>invert</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seMarker</th>
-      <td><p>Summarized Experiment result from markerFeatures</p></td>
+      <td><p>A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>ArchR::markerFeatures()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>FDR</th>
-      <td><p>False-Discovery Rate Cutoff to Be called a Marker</p></td>
-    </tr>
-    <tr>
-      <th>log2FC</th>
-      <td><p>Log2 Fold Change Cutoff to Be called a Marker</p></td>
+      <th>cutOff</th>
+      <td><p>A valid-syntax logical statement that defines which marker features from <code>seMarker</code> will be plotted in the heatmap. <code>cutoff</code> can contain any of the <code>assayNames</code> from <code>seMarker</code>.</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)</p></td>
+      <td><p>A boolean value indicating whether a log2 transformation whould be performed on the values in <code>seMarker</code> prior to plotting. Should be set to <code>TRUE</code> for counts-based assays (but not assays like <code>DeviationsMatrix</code>).</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
@@ -176,39 +191,43 @@
     </tr>
     <tr>
       <th>scaleRows</th>
-      <td><p>compute row z-scores on matrix</p></td>
+      <td><p>A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.</p></td>
     </tr>
     <tr>
       <th>limits</th>
-      <td><p>heatmap color limits</p></td>
+      <td><p>A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.</p></td>
     </tr>
     <tr>
       <th>grepExclude</th>
-      <td><p>remove features by grep</p></td>
+      <td><p>A character vector or string that indicates the <code>rownames</code> or a specific pattern that identifies rownames from <code>seMarker</code> to be excluded from the heatmap.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>palette for heatmap, default will use solar_extra</p></td>
+      <td><p>A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.</p></td>
     </tr>
     <tr>
       <th>binaryClusterRows</th>
-      <td><p>fast clustering implementation for row clustering by binary sorting</p></td>
+      <td><p>A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.</p></td>
     </tr>
     <tr>
       <th>labelMarkers</th>
-      <td><p>label specific markers by name on heatmap (matches rownames of seMarker)</p></td>
+      <td><p>A character vector listing the <code>rownames</code> of <code>seMarker</code> that should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelTop</th>
-      <td><p>label the top features for each column in seMarker</p></td>
+      <td><p>A boolean value that indicates whether the top features for each column in <code>seMarker</code> should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelRows</th>
-      <td><p>label all rows</p></td>
+      <td><p>A boolean value that indicates whether all rows should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>returnMat</th>
-      <td><p>return final matrix that is used for plotting heatmap</p></td>
+      <td><p>A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.</p></td>
+    </tr>
+    <tr>
+      <th>invert</th>
+      <td><p>A boolean value that indicates whether the heatmap will be inverted ie when looking for down-regulated markers (Log2FC &lt; 0) instead of up-regulated markers (Log2FC &gt; 0).</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -230,7 +249,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

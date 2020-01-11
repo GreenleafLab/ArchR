@@ -1,16 +1,20 @@
-#' Add TileMatrix to Arrows/ArchRProject
+##########################################################################################
+# Imputation Methods
+##########################################################################################
+
+#' Add Imputation Weights to ArchRProject
 #' 
-#' This function for each sample will independently compute counts for each tile
-#' per cell in the Arrow File
+#' This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix.
 #'
-#' @param input ArchRProject or ArrowFiles
-#' @param chromSizes chromomosome sizes used for identifying number of tiles to count
-#' @param windowSize size for each window to break up each chromosome
-#' @param binarize save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix
-#' @param excludeChr exclude chromosomes from this analysis
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @param ArchRProj An `ArchRProject` object.
+#' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param td diffusion time (number of iterations) for MAGIC
+#' @param ka kNN autotune parameter for MAGIC
+#' @param sampleCells number of cells to sample per block of estimated imputation matrix
+#' @param k number of nearest neighbors to use for MAGIC
+#' @param epsilon a value for the standard deviation of the kernel for MAGIC
+#' @param ... additional params
 #' @export
 addImputeWeights <- function(
   ArchRProj = NULL,
@@ -21,7 +25,7 @@ addImputeWeights <- function(
   sampleCells = max(5000, floor(nCells(ArchRProj) / 10)),
   k = 15,
   epsilon = 1,
-  weighted = TRUE
+  ...
   ){
 
   #Adapted From
@@ -83,7 +87,7 @@ addImputeWeights <- function(
       knnDist <- knnDist / knnDist[,ka]
     }
 
-    if (weighted) {
+    if(epsilon > 0){
       W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=c(knnDist), dims = c(Nx, Nx))
     } else {
       W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=1, dims = c(Nx, Nx)) # unweighted kNN graph
@@ -135,8 +139,7 @@ addImputeWeights <- function(
         td = td, 
         k = k, 
         ka = ka,
-        epsilon = epsilon,
-        weighted = weighted
+        epsilon = epsilon
         )
       )
   
@@ -144,27 +147,16 @@ addImputeWeights <- function(
 
 }
 
-#' Get outputDirectory in ArchRProject
+#' Get Imputation Weights from ArchRProject
 #' 
-#' This function gets outputDirectory from ArchRProject
+#' This function gets imputation weights from an ArchRProject to impute numeric values.
 #' 
-#' @param ArchRProj ArchRProject
+#' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
 getImputeWeights <- function(ArchRProj, ...){  
   ArchRProj <- .validArchRProject(ArchRProj)
   ArchRProj@imputeWeights
 }
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -6,12 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quality Control Filtering • ArchR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../../apple-touch-icon-60x60.png">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
 <script src="../../pkgdown.js"></script><meta property="og:title" content="Quality Control Filtering">
 <meta property="og:description" content="">
+<meta property="og:image" content="/logo.png">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -38,7 +45,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Get Started</a>
+  <a href="../../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -60,7 +67,10 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -68,10 +78,16 @@
     <li>
       <a href="../../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../../articles/faq.html">FAQ</a>
+  <a href="../../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../../reference/index.html">Reference</a>
@@ -108,7 +124,17 @@
 
     
     
-<p>Under construction…</p>
+<p>Typically, when we refer to data quality in ATAC-seq, we are referring to the <em>signal-to-background</em> ratio. Because promoter regions are largely accessible across cell types, this is often measured as an enrichment of signal at transcription start sites (TSSs) compared to the surrounding region. Another common quality control metric is the <em>fraction of reads in peaks</em> (FRiP). In our hands, these two metrics perform very similarly but the TSS enrichment score has one key advantage - it does not require you to call peaks.</p>
+<div class="figure">
+<img src="../../images/TSS_vs_FRiP.png" width="350">
+</div>
+<p>To really drive this point home, to calculate FRiP you either must create a new peak set from your sample of interest or input a pre-defined peak set. Neither of these is a good solution because creating a new peak set for each sample leads to variation across samples and inputing a pre-defined peak set may not adequately capture the signal in your sample of interest. Thus, we use the TSS enrichment score.</p>
+<p>However, the TSS enrichment score is not without its own caveats. In particular, the set of TSS regions that you use will change the numeric value of the score. As genome annotations change or if you generate ATAC-seq data from different organisms, the actual numeric value may not be consistent across these conditions. To standardize this, we use the TSS regions derived from <strong>QQQ</strong>.</p>
+<p>In scATAC-seq, we additionally use the number of unique fragments per cell as a second quality control filter. If a single cell does not have at least <strong>QQQ</strong> unique fragments, it becomes difficult to make reliable conclusions about that single cell, even if it has a high TSS enrichment score.</p>
+<div class="figure">
+<img src="../../images/Frags_vs_TSS.png" width="350">
+</div>
+<p>In ArchR, quality control filtering is performed during <code>ArrowFile</code> creation using the <code><a href="../../reference/createArrowFiles.html">createArrowFiles()</a></code> function with parameters <code>filterTSS</code>, <code>filterFrags</code>, and <code>removeFilteredCells</code>.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -119,7 +145,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://twitter.com/JeffreyGranja">Jeffrey Granja</a>.</p>
+  <p>Developed by <a href="https://twitter.com/JeffreyGranja">Jeffrey Granja</a>, <a href="https://twitter.com/doctorcorces">Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

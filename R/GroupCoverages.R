@@ -1,27 +1,26 @@
-#' Add Group Coverages to ArchR Project
+#' Add Group Coverages to an ArchRProject object
 #' 
-#' This function will merge cells within each group into an insertion
-#' coverage file
+#' This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file.
 #'
-#' @param ArchRProj ArchRProject
-#' @param groupBy group cells by this column in cellColData
-#' @param useLabels use sample labels to create sample guided subgroupings as pseudo replicates
-#' @param minCells minimum cells per group for coverage files
-#' @param maxCells maximum cells per group for coverage files
-#' @param maxFragments maximum fragments per group for coverage files (this prevents large files created for optimizing memory)
-#' @param minReplicates minimum replicates for group for coverage files
-#' @param maxReplicates maximum replicates for group for coverage files
-#' @param sampleRatio sampling ratio for pseudo replicates when needed
-#' @param kmerLength kmer length for adding Tn5 bias estimation
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force creating coverage files if existed
-#' @param verboseHeader verbose sections
-#' @param verboseAll verbose sections and subsections
+#' @param ArchRProj An `ArchRProject` object.
+#' @param groupBy The name of the column in `cellColData` to use for grouping multiple cells together prior to generation of the insertion coverage file.
+#' @param useLabels A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.
+#' @param minCells The minimum number of cells required in a given cell group to permit insertion coverage file generation.
+#' @param maxCells The maximum number of cells to use during insertion coverage file generation.
+#' @param maxFragments The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.
+#' @param minReplicates The minimum number of pseudo-bulk replicates to be generated.
+#' @param maxReplicates The maximum number of pseudo-bulk replicates to be generated.
+#' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
+#' @param kmerLength The length of the kmer used for estimating Tn5 bias.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
 #' @export
 addGroupCoverages <- function(
-  ArchRProj,
+  ArchRProj = NULL,
   groupBy = "Clusters",
   useLabels = TRUE,
   minCells = 40,
@@ -31,7 +30,7 @@ addGroupCoverages <- function(
   maxReplicates = 5,
   sampleRatio = 0.8,
   kmerLength = 6,
-  threads = 16,
+  threads = 1,
   parallelParam = "mclapply",
   force = FALSE,
   verboseHeader = TRUE,
@@ -45,11 +44,11 @@ addGroupCoverages <- function(
 
   tstart <- Sys.time()
   Params <- SimpleList(
-    groupBy=groupBy,
-    minCells=minCells,
-    maxCells=maxCells,
-    minReplicates=minReplicates,
-    sampleRatio=sampleRatio,
+    groupBy = groupBy,
+    minCells = minCells,
+    maxCells = maxCells,
+    minReplicates = minReplicates,
+    sampleRatio = sampleRatio,
     kmerLength = kmerLength
   )
 
@@ -325,7 +324,7 @@ addGroupCoverages <- function(
         out <- lapply(seq_len(ncol(maxMat)), function(i){
             x[which(maxMat[,i]==1)]
         })
-            return(out)
+        return(out)
     }
 
     if(is.null(sampleLabels)){

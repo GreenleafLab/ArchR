@@ -7,14 +7,14 @@
 getEmbedding(ArchRProj, embedding = "UMAP", returnDF = TRUE, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{embedding}{QQQ The name of the embedding object to retrieve from the designated ArchRProject. Options include QQQ.}
+\item{embedding}{The name of the \code{embeddings} object (i.e. UMAP, TSNE see embeddingOut of addEmbeddings) to retrieve from the designated \code{ArchRProject}.}
+
+\item{returnDF}{A boolean value indicating whether to return the embedding object as a \code{data.frame}. Otherwise, it will return the full embedding object.}
 
 \item{...}{additional args}
-
-\item{return}{If set to "df", the function will return the embedding object as a data.frame. Otherwise, it will return the full embedding object.}
 }
 \description{
-QQQ This function gets an embedding (i.e. QQQ) from a given ArchRProject.
+This function gets an embedding (i.e. UMAP) from a given ArchRProject.
 }

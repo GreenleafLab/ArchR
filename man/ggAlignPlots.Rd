@@ -2,21 +2,21 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggAlignPlots}
 \alias{ggAlignPlots}
-\title{Align Ggplots vertically or horizontally}
+\title{Align ggplot plots vertically or horizontally}
 \usage{
-ggAlignPlots(..., sizes, type = "v", plotList = NULL,
-  grobList = NULL, draw = TRUE)
+ggAlignPlots(..., plotList = NULL, sizes = NULL, type = "v",
+  draw = TRUE)
 }
 \arguments{
-\item{...}{ggplots}
+\item{...}{All additional arguments will be interpreted as \code{ggplot2} plot objects and used if and only if \code{plotList} is \code{NULL}}
 
-\item{sizes}{sizes are a vector or list of values for each ggplot ie c(1,1) for two plots}
+\item{plotList}{A list of \code{ggplot2} plot objects to be aligned.}
 
-\item{type}{v,vertical or h,horizontal}
+\item{sizes}{A numeric vector or list of values indicating the relative size for each of the objects in \code{plotList} or supplied in \code{...}.}
 
-\item{plotList}{add a list of plots to be aligned}
+\item{type}{A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.}
 
-\item{grobList}{add a list of grobs to be aligned}
+\item{draw}{A boolean value indicating whether to draw plot or return grob.}
 }
 \description{
 This function aligns ggplots vertically or horizontally

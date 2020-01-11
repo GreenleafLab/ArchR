@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Extend Filter then Normalize Scores for Summits — FilterCells • ArchR</title>
+<title>Filter cells in an ArchRProject — filterCells • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Extend Filter then Normalize Scores for Summits — FilterCells" />
+<meta property="og:title" content="Filter cells in an ArchRProject — filterCells" />
 
-<meta property="og:description" content="Extend Filter then Normalize Scores for Summits" />
+<meta property="og:description" content="This function returns an ArchRProject object that has been filtered to remove cells that do not pass the filter critera suppplied in filterList." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -95,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -103,10 +115,16 @@
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -134,45 +152,39 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Extend Filter then Normalize Scores for Summits</h1>
+    <h1>Filter cells in an ArchRProject</h1>
     
-    <div class="hidden name"><code>FilterCells.Rd</code></div>
+    <div class="hidden name"><code>filterCells.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Extend Filter then Normalize Scores for Summits</p>
+    <p>This function returns an ArchRProject object that has been filtered to remove cells that do not pass the filter critera suppplied in filterList.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>FilterCells</span>(<span class='no'>ArchRProj</span>, <span class='no'>filterList</span>)</pre>
+    <pre class="usage"><span class='fu'>filterCells</span>(<span class='no'>ArchRProj</span>, <span class='no'>filterList</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>df</th>
-      <td><p>dataframe where first column is sample names 2nd column is group information and 3rd column is MACS2 summit files</p></td>
+      <th>ArchRProj</th>
+      <td><p>An <code>ArchRProject</code> object</p></td>
     </tr>
     <tr>
-      <th>genome</th>
-      <td><p>mm9, hg19 character or BSgenome object</p></td>
+      <th>filterList</th>
+      <td><p>A list of filters based on cellColData to apply when filtering cells.
+Format should be a named list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria.
+If numeric, a lower threshold is expected, below which cells are filtered (a higher threshold is optional).
+If a chatacter vector, rows in cellColData corresponding to the supplied character values are kept.
+If a list or simpleList, the user can additionally supply filters that are specific to each sample
+(i.e. apply to all samples : list("TSSEnrichment" = c(4,25)),
+apply to specific samples : list(TSSEnrichment = list("Sample1" = c(4, 25), "Sample2" = c(5, 25)))).</p></td>
     </tr>
     <tr>
-      <th>blacklist</th>
-      <td><p>regions to blacklist</p></td>
-    </tr>
-    <tr>
-      <th>extend</th>
-      <td><p>how to extend summits (summit +- extend)</p></td>
-    </tr>
-    <tr>
-      <th>scorePerMillion</th>
-      <td><p>normalized Score-per-million minimum to keep</p></td>
-    </tr>
-    <tr>
-      <th>selectionRules</th>
-      <td><p>string with a formula containing n (majority = (n+1)/2, multiple samples = 2)</p></td>
+      <th>...</th>
+      <td><p>additional params</p></td>
     </tr>
     </table>
     
@@ -190,7 +202,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

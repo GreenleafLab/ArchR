@@ -2,31 +2,30 @@
 % Please edit documentation in R/MatrixDeviations.R
 \name{addDeviationsMatrix}
 \alias{addDeviationsMatrix}
-\title{Add DeviationsMatrix to Arrow Files in ArchRProject}
+\title{Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject}
 \usage{
-addDeviationsMatrix(ArchRProj, annotations = NULL, matches = NULL,
-  bdgPeaks = getBdgPeaks(ArchRProj), matrixName = NULL, out = c("z",
+addDeviationsMatrix(ArchRProj, peakAnnotation = NULL, matches = NULL,
+  bgdPeaks = getBgdPeaks(ArchRProj), matrixName = NULL, out = c("z",
   "deviations"), binarize = FALSE, threads = 1, parallelParam = NULL,
   force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{annotations}{annotaions name stored in ArchRProject}
+\item{peakAnnotation}{The name of the peakAnnotation name stored in the \code{ArchRProject}.}
 
-\item{matrixName}{matrixName to be stored as in Arrow Files}
+\item{matrixName}{The name to be used for storage of the deviations matrix in the provided \code{ArchRProject}.}
 
-\item{out}{save ouptut matrices deviations and/or z}
+\item{out}{A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).}
 
-\item{binarize}{binarize peaks prior to computing deviations}
+\item{binarize}{A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.}
 
-\item{threads}{number of threads for parallel execution}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArrowFiles}.}
 }
 \description{
-This function for each sample will independently compute counts for each tile
-per cell and then infer gene activity scores.
+This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).
 }

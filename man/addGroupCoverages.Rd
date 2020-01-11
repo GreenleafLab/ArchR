@@ -2,48 +2,48 @@
 % Please edit documentation in R/GroupCoverages.R
 \name{addGroupCoverages}
 \alias{addGroupCoverages}
-\title{Add Group Coverages to ArchR Project}
+\title{Add Group Coverages to an ArchRProject object}
 \usage{
-addGroupCoverages(ArchRProj, groupBy = "Clusters", useLabels = TRUE,
-  minCells = 40, maxCells = 500, maxFragments = 25 * 10^6,
-  minReplicates = 2, maxReplicates = 5, sampleRatio = 0.8,
-  kmerLength = 6, threads = 16, parallelParam = "mclapply",
-  force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
+addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
+  useLabels = TRUE, minCells = 40, maxCells = 500,
+  maxFragments = 25 * 10^6, minReplicates = 2, maxReplicates = 5,
+  sampleRatio = 0.8, kmerLength = 6, threads = 1,
+  parallelParam = "mclapply", force = FALSE, verboseHeader = TRUE,
+  verboseAll = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{group cells by this column in cellColData}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping multiple cells together prior to generation of the insertion coverage file.}
 
-\item{useLabels}{use sample labels to create sample guided subgroupings as pseudo replicates}
+\item{useLabels}{A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.}
 
-\item{minCells}{minimum cells per group for coverage files}
+\item{minCells}{The minimum number of cells required in a given cell group to permit insertion coverage file generation.}
 
-\item{maxCells}{maximum cells per group for coverage files}
+\item{maxCells}{The maximum number of cells to use during insertion coverage file generation.}
 
-\item{maxFragments}{maximum fragments per group for coverage files (this prevents large files created for optimizing memory)}
+\item{maxFragments}{The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.}
 
-\item{minReplicates}{minimum replicates for group for coverage files}
+\item{minReplicates}{The minimum number of pseudo-bulk replicates to be generated.}
 
-\item{maxReplicates}{maximum replicates for group for coverage files}
+\item{maxReplicates}{The maximum number of pseudo-bulk replicates to be generated.}
 
-\item{sampleRatio}{sampling ratio for pseudo replicates when needed}
+\item{sampleRatio}{The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.}
 
-\item{kmerLength}{kmer length for adding Tn5 bias estimation}
+\item{kmerLength}{The length of the kmer used for estimating Tn5 bias.}
 
-\item{threads}{number of threads}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{force creating coverage files if existed}
+\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if insertion coverage / pseudo-bulk replicate information already exists.}
 
-\item{verboseHeader}{verbose sections}
+\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
-\item{verboseAll}{verbose sections and subsections}
+\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{...}{additional args}
 }
 \description{
-This function will merge cells within each group into an insertion
-coverage file
+This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file.
 }

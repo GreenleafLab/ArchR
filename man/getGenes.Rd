@@ -7,12 +7,12 @@
 getGenes(ArchRProj, symbols = NULL, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{symbols}{gene symbols to subset}
+\item{symbols}{A character vector containing the gene symbols to subset from the \code{geneAnnotation}.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets the genes (in format QQQ) from the geneAnnotation of a given ArchRProject.
+This function gets the genes start to end coordinates as a GRanges from the geneAnnotation of a given ArchRProject.
 }

@@ -1,24 +1,35 @@
+##########################################################################################
+# Transcription Factor Footprinting Methods
+##########################################################################################
+
 #' Plot footprints for an ArchRProject
 #' 
 #' This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 #'
-#' @param input An ArchRProject object or Footprint Summarized Experiment
-#' @param positions QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.
-#' @param groupBy QQQ The column name in sampleColData to use for grouping multiple samples together prior to footprinting.
-#' @param useGroups QQQ
-#' @param pal The name or numeric index of a custom palette from ArchR_palettes to use for plotting the lines corresponding to the footprints.
-#' @param flank QQQ The number of basepairs from the position center to consider as the flank.
-#' @param flankNorm QQQ The number of basepairs to consider at the edge of the flank region to be used for footprint normalization.
-#' @param smoothWindow QQQ The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
-#' @param nTop QQQ The number of positions to consider. Only the top nTop positions based on QQQ will be considered for the footprint.
-#' @param normMethod QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.
-#' @param threads The number threads to be used for parallel computing.
+#' @param ArchRProj An `ArchRProject` object
+#' @param positions A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be stranded.
+#' @param plotName The prefix to add to the file name for the output PDF file.
+#' @param groupBy The name of the column in `cellColData` to use for grouping multiple samples together prior to footprinting.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform footprinting.
+#' @param pal The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
+#' @param flank The number of basepairs from the position center (+/-) to consider as the flank.
+#' @param flankNorm The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.
+#' @param smoothWindow The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
+#' @param minCells The minimum number of cells required in a given cell group to permit footprint generation.
+#' @param nTop The number of genomic regions to consider. Only the top `nTop` genomic regions based on the "score" column in the GRanges will be considered for the footprint.
+#' @param normMethod The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "None", "Subtract", "Divide".
+#' @param inputSE Input a previous footprint Summarized Experiment to be plotted instead of being regenerated.
+#' @param height The height in inches to be used for the output PDF.
+#' @param width The width in inches to be used for the output PDF file.
+#' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.
+#' @param useSink Use sink to hide messages during plotting.
+#' @param threads The number of threads to be used for parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
 #' @export
 plotFootprints <- function(
-  input = NULL,
+  ArchRProj = NULL,
   positions = NULL,
   plotName = "Plot-Footprints",
   groupBy = "Clusters",
@@ -30,6 +41,7 @@ plotFootprints <- function(
   minCells = 25,
   nTop = NULL,
   normMethod = "none",
+  inputSE = NULL,
   height = 6,
   width = 4,
   addDOC = TRUE,
@@ -41,7 +53,7 @@ plotFootprints <- function(
   ){
 
   tstart <- Sys.time()
-  if(inherits(input, "ArchRProject")){
+  if(is.null(inputSE)){
     
     #Validate Positions
     if(!inherits(positions, "GenomicRangesList") & !inherits(positions, "list") & !inherits(positions, "SimpleList")){
@@ -65,7 +77,7 @@ plotFootprints <- function(
     #Get Footprints
     .messageDiffTime("Summarizing Footprints", tstart, addHeader = verboseAll)
     seFoot <- .summarizeFootprints(
-      ArchRProj = input, 
+      ArchRProj = ArchRProj, 
       positions = positions,
       groupBy = groupBy,
       useGroups = useGroups,
@@ -76,15 +88,13 @@ plotFootprints <- function(
       verboseAll = verboseAll
     )
 
-    ArchRProj <- input
-
   }else{
     
     ArchRProj <- NULL
 
-    if(inherits(input, "SummarizedExperiment")){
-      seFoot <- input
-      rm(input)
+    if(inherits(inputSE, "SummarizedExperiment")){
+      seFoot <- inputSE
+      rm(inputSE)
       gc()
       if(!is.null(useGroups)){
         if(sum(SummarizedExperiment::colData(seFoot)[,1] %in% useGroups) == 0){
@@ -92,6 +102,8 @@ plotFootprints <- function(
         }
         seFoot <- seFoot[,SummarizedExperiment::colData(seFoot)[,1] %in% useGroups]
       }
+    }else{
+      stop("inputSE must be a footprint summarized experiment!")
     }
 
   }
@@ -99,51 +111,60 @@ plotFootprints <- function(
   ############################################################################################
   # Plot Helper
   ############################################################################################
-  if(useSink){
-    tmpFile <- .tempfile()
-    sink(tmpFile)
-  }
 
-  name <- gsub("\\.pdf", "", plotName)
-  if(is.null(ArchRProj)){
-    outDir <- "Plots"
-  }else{
-    ArchRProj <- .validArchRProject(ArchRProj)
-    outDir <- file.path(getOutputDirectory(ArchRProj), "Plots")
-  }
-
-  dir.create(outDir, showWarnings = FALSE)
-  if(addDOC){
-    doc <- gsub(":","-",stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2])
-    filename <- file.path(outDir, paste0(name, "_Date-", Sys.Date(), "_Time-", doc, ".pdf"))
-  }else{
-    filename <- file.path(outDir, paste0(name, ".pdf"))
-  }
-
-  pdf(filename, width = width, height = height, useDingbats = FALSE)
-
-  for(i in seq_along(seFoot@assays)){
-    print(
-      grid::grid.draw(.ggFootprint(
-        seFoot = seFoot, 
-        name = names(seFoot@assays)[i], 
-        pal = pal, 
-        smoothWindow = smoothWindow, 
-        flank = flank, 
-        flankNorm = flankNorm, 
-        normMethod=normMethod
-      )
-    ))
-    if(i != length(seFoot@assays)){
-      grid::grid.newpage()
+  o <- tryCatch({
+    if(useSink){
+      tmpFile <- .tempfile()
+      sink(tmpFile)
     }
-  }
-  dev.off()
 
-  if(useSink){
-    sink()
-    file.remove(tmpFile)
-  }
+    name <- gsub("\\.pdf", "", plotName)
+    if(is.null(ArchRProj)){
+      outDir <- "Plots"
+    }else{
+      ArchRProj <- .validArchRProject(ArchRProj)
+      outDir <- file.path(getOutputDirectory(ArchRProj), "Plots")
+    }
+
+    dir.create(outDir, showWarnings = FALSE)
+    if(addDOC){
+      doc <- gsub(":","-",stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2])
+      filename <- file.path(outDir, paste0(name, "_Date-", Sys.Date(), "_Time-", doc, ".pdf"))
+    }else{
+      filename <- file.path(outDir, paste0(name, ".pdf"))
+    }
+
+    pdf(filename, width = width, height = height, useDingbats = FALSE)
+
+    for(i in seq_along(seFoot@assays)){
+      print(
+        grid::grid.draw(.ggFootprint(
+          seFoot = seFoot, 
+          name = names(seFoot@assays)[i], 
+          pal = pal, 
+          smoothWindow = smoothWindow, 
+          flank = flank, 
+          flankNorm = flankNorm, 
+          normMethod=normMethod
+        )
+      ))
+      if(i != length(seFoot@assays)){
+        grid::grid.newpage()
+      }
+    }
+    dev.off()
+
+    if(useSink){
+      sink()
+      file.remove(tmpFile)
+    }
+
+  }, error = function(x){
+
+    suppressWarnings(sink())
+    message(x)
+
+  })
 
   seFoot
 
@@ -455,23 +476,4 @@ plotFootprints <- function(
   }  
   return(kmers)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

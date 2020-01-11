@@ -7,9 +7,9 @@
 getValidBarcodes(csvFiles, sampleNames, ...)
 }
 \arguments{
-\item{csvFiles}{vector of filenames for reading in and identifying valid cell barcodes}
+\item{csvFiles}{A character vector of file names to be read in for identification of valid cell barcodes.}
 
-\item{sampleNames}{sample names associated with each individual csv file}
+\item{sampleNames}{A character vector containing the sample names to be associated with each individual entry in \code{csvFiles}.}
 
 \item{...}{additional args}
 }

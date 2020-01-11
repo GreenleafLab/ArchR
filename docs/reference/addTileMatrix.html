@@ -8,6 +8,13 @@
 
 <title>Add TileMatrix to Arrows/ArchRProject — addTileMatrix • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -36,6 +43,8 @@
 
 <meta property="og:description" content="This function for each sample will independently compute counts for each tile
 per cell in the Arrow File" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -74,7 +83,7 @@ per cell in the Arrow File" />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -96,7 +105,10 @@ per cell in the Arrow File" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,10 +116,16 @@ per cell in the Arrow File" />
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -147,44 +165,51 @@ per cell in the Arrow File</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>addTileMatrix</span>(<span class='no'>input</span>, <span class='kw'>chromSizes</span> <span class='kw'>=</span> <span class='fu'><a href='getChromSizes.html'>getChromSizes</a></span>(<span class='no'>input</span>), <span class='kw'>tileSize</span> <span class='kw'>=</span> <span class='fl'>500</span>,
-  <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>excludeChr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrM"</span>, <span class='st'>"chrY"</span>), <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>addTileMatrix</span>(<span class='kw'>input</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>chromSizes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>input</span>,
+  <span class='st'>"ArchRProject"</span>), <span class='fu'>chromSizes</span>(<span class='no'>input</span>), <span class='kw'>NULL</span>),
+  <span class='kw'>blacklist</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>input</span>, <span class='st'>"ArchRProject"</span>),
+  <span class='fu'><a href='getBlacklist.html'>getBlacklist</a></span>(<span class='no'>input</span>), <span class='kw'>NULL</span>), <span class='kw'>tileSize</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>excludeChr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrM"</span>, <span class='st'>"chrY"</span>), <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>ArchRProject or ArrowFiles</p></td>
+      <td><p>An <code>ArchRProject</code> object or character vector of ArrowFiles.</p></td>
     </tr>
     <tr>
       <th>chromSizes</th>
-      <td><p>chromomosome sizes used for identifying number of tiles to count</p></td>
+      <td><p>A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getChromSizes.html'>ArchR::getChromSizes()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>blacklist</th>
+      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getBlacklist.html'>ArchR::getBlacklist()</a></code>.</p></td>
     </tr>
     <tr>
       <th>tileSize</th>
-      <td><p>size for each tile to break up each chromosome</p></td>
+      <td><p>The size of the tiles used for binning counts in the <code>TileMatrix</code>.</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>save as a Sparse.Binary.Matrix or Sparse.Integer.Matrix</p></td>
+      <td><p>A boolean value indicating whether the <code>TileMatrix</code> should be binarized prior to storage.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
-      <td><p>exclude chromosomes from this analysis</p></td>
+      <td><p>A character vector containing the <code>seqnames</code> of the chromosomes that should be excluded from CNV analysis.</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>parallel parameters for batch style execution</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>force overwriting previous TileMatrix in ArrowFile</p></td>
+      <td><p>A boolean value indicating whether to force the <code>TileMatrix</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
     </tr>
     </table>
     
@@ -202,7 +227,7 @@ per cell in the Arrow File</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

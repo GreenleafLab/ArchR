@@ -7,11 +7,11 @@
 addPeakSet(ArchRProj, peakSet, force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{peakSet}{A GRanges object containing the set of regions that define all peaks in the desired peak set.}
+\item{peakSet}{A \code{GRanges} object containing the set of regions that define all peaks in the desired peak set.}
 
-\item{force}{If a peakSet object has already been added to the given ArchRProject, the value of "force" determines whether or not to overwrite this peakSet.}
+\item{force}{If a \code{peakSet} object has already been added to the given \code{ArchRProject}, the value of \code{force} determines whether or not to overwrite this \code{peakSet}.}
 
 \item{...}{additional args}
 }

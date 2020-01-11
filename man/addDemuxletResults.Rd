@@ -7,11 +7,13 @@
 addDemuxletResults(ArchRProj, bestFiles, sampleNames, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{bestFiles}{The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the ArchRProject.}
+\item{bestFiles}{The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the \code{ArchRProject}.}
 
-\item{sampleNames}{The sample names corresponding to the .best files. These must match the sample names present in the ArchRProject.}
+\item{sampleNames}{The sample names corresponding to the .best files. These must match the sample names present in the \code{ArchRProject}.}
+
+\item{...}{additional args}
 }
 \description{
 This function will read in the .best file output from demuxlet and add the doublet

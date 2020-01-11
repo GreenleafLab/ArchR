@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Read Fragments from Arrow — getFragmentsFromArrow • ArchR</title>
+<title>Get the fragments from an ArrowFile — getFragmentsFromArrow • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,10 +39,11 @@
 
 
 
-<meta property="og:title" content="Read Fragments from Arrow — getFragmentsFromArrow" />
+<meta property="og:title" content="Get the fragments from an ArrowFile — getFragmentsFromArrow" />
 
-<meta property="og:description" content="This function for each sample will independently compute counts for each feature
-per cell in the Arrow File" />
+<meta property="og:description" content="This function retrieves the fragments from a given ArrowFile as a GRanges object." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -74,7 +82,7 @@ per cell in the Arrow File" />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -96,7 +104,10 @@ per cell in the Arrow File" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,10 +115,16 @@ per cell in the Arrow File" />
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -135,43 +152,38 @@ per cell in the Arrow File" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Read Fragments from Arrow</h1>
+    <h1>Get the fragments from an ArrowFile</h1>
     
     <div class="hidden name"><code>getFragmentsFromArrow.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function for each sample will independently compute counts for each feature
-per cell in the Arrow File</p>
+    <p>This function retrieves the fragments from a given ArrowFile as a GRanges object.</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>getFragmentsFromArrow</span>(<span class='no'>ArrowFile</span>, <span class='kw'>chr</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>cellNames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"fast"</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArrowFile</th>
-      <td><p>ArchRProject or ArrowFiles</p></td>
+      <td><p>The ArrowFile object from which fragments should be obtained.</p></td>
     </tr>
     <tr>
       <th>chr</th>
-      <td><p>GRanges to count for each cell</p></td>
+      <td><p>A name of a chromosome to be used to subset the fragments <code>GRanges</code> object to a specific chromsome if desired.</p></td>
     </tr>
     <tr>
       <th>cellNames</th>
-      <td><p>matrix output name in ArrowFiles cannot be a protected matrix name</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p>ceiling for the number of counts per feature</p></td>
+      <td><p>A string vector of cell names to extract fragments for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
-      <td><p>binarize matrix</p></td>
+      <td><p>A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -193,7 +205,7 @@ per cell in the Arrow File</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

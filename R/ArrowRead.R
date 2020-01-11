@@ -7,9 +7,9 @@
 #' This function retrieves the fragments from a given ArrowFile as a GRanges object.
 #'
 #' @param ArrowFile The ArrowFile object from which fragments should be obtained.
-#' @param chr A name of a chromosome to be used to subset the fragments GRanges object to a specific chromsome if desired.
-#' @param cellNames QQQ matrix output name in ArrowFiles cannot be a protected matrix name
-#' @param verbose A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param chr A name of a chromosome to be used to subset the fragments `GRanges` object to a specific chromsome if desired.
+#' @param cellNames A string vector of cell names to extract fragments for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param ... additional params
 #' @export
 getFragmentsFromArrow <- function(
@@ -147,10 +147,12 @@ getFragmentsFromArrow <- function(
 #' This function gets a given data matrix from an individual ArrowFile.
 #'
 #' @param ArrowFile The ArrowFile object from which the selected data matrix should be obtained.
-#' @param useMatrix QQQ The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", QQQ.
+#' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
-#' @param cellNames QQQ ceiling for the number of counts per feature
-#' @param verbose A boolean variable indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param cellNames A string vector of cell names to extract the matrix for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.
+#' @param ArchRProj An ArchRProject object to be used for getting additional information for cells in cellColData.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @param ... additional params
 #' @export
 getMatrixFromArrow <- function(
@@ -581,7 +583,7 @@ getMatrixFromArrow <- function(
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   fnames <- rownames(featureDF)
 
-  featureDF <- split(featureDF, as.character(featureDF$seqnames))
+  featureDF <- S4Vectors::split(featureDF, as.character(featureDF$seqnames))
 
   ns <- lapply(seq_along(ArrowFiles), function(y){
     length(.availableCells(ArrowFiles[y], useMatrix))

@@ -8,6 +8,13 @@
 
 <title>Plot ArchR Region Track — ArchRRegionTrack • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -34,7 +41,9 @@
 
 <meta property="og:title" content="Plot ArchR Region Track — ArchRRegionTrack" />
 
-<meta property="og:description" content="This function will plot the coverage at an input region" />
+<meta property="og:description" content="This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -95,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -103,10 +115,16 @@
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -141,102 +159,106 @@
 
     <div class="ref-description">
     
-    <p>This function will plot the coverage at an input region</p>
+    <p>This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>ArchRRegionTrack</span>(<span class='no'>ArchRProj</span>, <span class='kw'>region</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
-  <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useCoverages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+    <pre class="usage"><span class='fu'>ArchRRegionTrack</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>region</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>, <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useCoverages</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>plotSummary</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"bulkTrack"</span>, <span class='st'>"featureTrack"</span>, <span class='st'>"geneTrack"</span>),
-  <span class='kw'>sizes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>0.5</span>, <span class='fl'>4</span>), <span class='kw'>features</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>geneSymbol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>upstream</span> <span class='kw'>=</span> <span class='fl'>50000</span>, <span class='kw'>downstream</span> <span class='kw'>=</span> <span class='fl'>50000</span>, <span class='kw'>tileSize</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>normMethod</span> <span class='kw'>=</span> <span class='st'>"ReadsInTSS"</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>7</span>, <span class='kw'>borderWidth</span> <span class='kw'>=</span> <span class='fl'>0.4</span>, <span class='kw'>tickWidth</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
-  <span class='kw'>facetbaseSize</span> <span class='kw'>=</span> <span class='fl'>7</span>, <span class='kw'>geneAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGeneAnnotation.html'>getGeneAnnotation</a></span>(<span class='no'>ArchRProj</span>),
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>sizes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>2</span>, <span class='fl'>4</span>), <span class='kw'>features</span> <span class='kw'>=</span> <span class='fu'><a href='getPeakSet.html'>getPeakSet</a></span>(<span class='no'>ArchRProj</span>),
+  <span class='kw'>geneSymbol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>upstream</span> <span class='kw'>=</span> <span class='fl'>50000</span>, <span class='kw'>downstream</span> <span class='kw'>=</span> <span class='fl'>50000</span>,
+  <span class='kw'>tileSize</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>normMethod</span> <span class='kw'>=</span> <span class='st'>"ReadsInTSS"</span>,
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>7</span>, <span class='kw'>borderWidth</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
+  <span class='kw'>tickWidth</span> <span class='kw'>=</span> <span class='fl'>0.4</span>, <span class='kw'>facetbaseSize</span> <span class='kw'>=</span> <span class='fl'>7</span>,
+  <span class='kw'>geneAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGeneAnnotation.html'>getGeneAnnotation</a></span>(<span class='no'>ArchRProj</span>), <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchRProject</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>region</th>
-      <td><p>GRanges region that will be plotted in (if more that one first will be selected)</p></td>
+      <td><p>A <code>GRanges</code> region that indicates the region to be plotted. If more than one region exists in the <code>GRanges</code> object, all will be plotted. If no region is supplied, then the <code>geneSymbol</code> argument can be used to center the plot window at the transcription start site of the supplied gene.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>use groupings for bulk/scTrack</p></td>
+      <td><p>A string that indicates how cells should be grouped. This string corresponds to one of the standard or user-supplied <code>cellColData</code> metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be used.</p></td>
     </tr>
     <tr>
       <th>useGroups</th>
-      <td><p>select a subset of groups for plotting</p></td>
+      <td><p>A character vector that is used to select a subset of groups by name from the designated <code>groupBy</code> column in <code>cellColData</code>. This limits the groups to be plotted.</p></td>
     </tr>
     <tr>
       <th>useCoverages</th>
-      <td><p>use group coverages for track plotting</p></td>
+      <td><p>A boolean indicating whether to use group coverages of pseudobulks (see createGroupCoverages) for track plotting instead of ArrowFiles</p></td>
     </tr>
     <tr>
       <th>plotSummary</th>
-      <td><p>summary of region track to be plotted</p></td>
+      <td><p>A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak bed regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).</p></td>
     </tr>
     <tr>
       <th>sizes</th>
-      <td><p>sizes corresponding to plotSummary</p></td>
+      <td><p>A numeric vector containing 3 values that indicate the sizes of the individual components passed in <code>plotSummary</code>. The order must be the same as <code>plotSummary</code>.</p></td>
     </tr>
     <tr>
       <th>features</th>
-      <td><p>GRanges features to be plotted (ie getPeakSet(ArchRProj))</p></td>
+      <td><p>A <code>GRanges</code> object containing the "features" to be plotted (This should be thought of as a bed track. i.e. the set of peaks obtained using <code>getPeakSet(ArchRProj))</code>.</p></td>
     </tr>
     <tr>
       <th>geneSymbol</th>
-      <td><p>if region is null plotting can be centered at gene start site corresponding to the gene symbol</p></td>
+      <td><p>If "region" is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.</p></td>
     </tr>
     <tr>
       <th>upstream</th>
-      <td><p>bp upstream of geneStart to extend</p></td>
+      <td><p>The number of basepairs upstream of the transcription start site of <code>geneSymbol</code> to extend the plotting window. If <code>region</code> is supplied, this argument is ignored.</p></td>
     </tr>
     <tr>
       <th>downstream</th>
-      <td><p>bp downstream of geneStart to extend</p></td>
+      <td><p>The number of basepairs downstream of the transcription start site of <code>geneSymbol</code> to extend the plotting window. If <code>region</code> is supplied, this argument is ignored.</p></td>
     </tr>
     <tr>
       <th>tileSize</th>
-      <td><p>with of tiles to plot bulk/scTrack</p></td>
+      <td><p>The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.</p></td>
     </tr>
     <tr>
       <th>normMethod</th>
-      <td><p>normMethod normalization column in cellColData to normalize bulkTrack</p></td>
+      <td><p>The name of the column in <code>cellColData</code> object by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads for parallel execution</p></td>
+      <td><p>The number of threads to use for parallel execution.</p></td>
     </tr>
     <tr>
       <th>ylim</th>
-      <td><p>y-limits for bulkTrack</p></td>
+      <td><p>The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).</p></td>
     </tr>
     <tr>
       <th>baseSize</th>
-      <td><p>size of font in plot</p></td>
+      <td><p>The numeric font size to be used in the plot. This applies to all plot labels.</p></td>
     </tr>
     <tr>
       <th>borderWidth</th>
-      <td><p>border width in plot</p></td>
+      <td><p>The numeric line width to be used for plot borders.</p></td>
     </tr>
     <tr>
       <th>tickWidth</th>
-      <td><p>axis tick width in plot</p></td>
+      <td><p>The numeric line width to be used for axis tick marks.</p></td>
+    </tr>
+    <tr>
+      <th>facetbaseSize</th>
+      <td><p>The numeric font size to be used in the facets (gray boxes) of the plot.</p></td>
     </tr>
     <tr>
       <th>geneAnno</th>
-      <td><p>geneAnnotation for geneTrack</p></td>
+      <td><p>The <code>geneAnnotation</code> object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.</p></td>
     </tr>
     <tr>
       <th>title</th>
-      <td><p>verbose sections</p></td>
+      <td><p>The title to add at the top of the plot next to the plot genomic coordinates.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -258,7 +280,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

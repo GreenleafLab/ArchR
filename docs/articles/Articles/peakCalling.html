@@ -6,12 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Peak Calling • ArchR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../../apple-touch-icon-60x60.png">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
 <script src="../../pkgdown.js"></script><meta property="og:title" content="Peak Calling">
 <meta property="og:description" content="">
+<meta property="og:image" content="/logo.png">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -38,7 +45,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Get Started</a>
+  <a href="../../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -60,7 +67,10 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -68,10 +78,16 @@
     <li>
       <a href="../../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../../articles/faq.html">FAQ</a>
+  <a href="../../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../../reference/index.html">Reference</a>
@@ -112,28 +128,47 @@
 <div id="fixed-width-vs-variable-width-peaks" class="section level4">
 <h4 class="hasAnchor">
 <a href="#fixed-width-vs-variable-width-peaks" class="anchor"></a>Fixed-width vs Variable-width Peaks</h4>
-<p>We use 501-bp fixed-width peaks because they make downstream computation easier as peak length does not need to be normalized. Moreover, the vast majority of peaks in ATAC-seq are less than 501-bp wide. Using variable-width peaks also makes it difficult to merge peak calls from multiple samples. In general, we do not feel that any benefit derived from using variable-width peaks outweighs the costs.</p>
+<p>We use 501-bp fixed-width peaks because they make downstream computation easier as peak length does not need to be normalized. Moreover, the vast majority of peaks in ATAC-seq are less than 501-bp wide. Using variable-width peaks also makes it difficult to merge peak calls from multiple samples. In general, we do not feel that the potential benefit derived from using variable-width peaks outweighs the costs. More broadly, most analyses are stable with respect to the peak set or peak style used.</p>
+<p>Below, we use the same toy example of a few cell types with a few different peaks to illustrate the differences between these often used peak merging methods.</p>
 </div>
 <div id="raw-peak-overlap-using-bedtools-merge" class="section level4">
 <h4 class="hasAnchor">
 <a href="#raw-peak-overlap-using-bedtools-merge" class="anchor"></a>Raw Peak Overlap Using <em>bedtools merge</em>
 </h4>
+<p>Raw peak overlap involves taking any peaks that overlap each other and merging these into a single larger peak. In this scheme, daisy-chaining becomes a large problem because peaks that dont directly overlap each other get included in the same larger peak because they are bridged by a shared internal peak. Another problem with this type of approach is that, if you want to keep track of peak summits, you are forced to pick a single summit for this each new merged peak.</p>
+<div class="figure">
+<img src="../../images/peakCalling_RawOverlap.png" width="350">
+</div>
 </div>
 <div id="clustered-overlap-using-bedtools-cluster" class="section level4">
 <h4 class="hasAnchor">
 <a href="#clustered-overlap-using-bedtools-cluster" class="anchor"></a>Clustered Overlap Using <em>bedtools cluster</em>
 </h4>
+<p>Clustered overlap takes peaks that cluster together and picks a single winner. This is often done by using <em>bedtools cluster</em> and then keeping the most significant peak in each cluster. In our experience, this ends up under-calling and misses smaller peaks located nearby.</p>
+<div class="figure">
+<img src="../../images/peakCalling_ClusteredOverlap.png" width="350">
+</div>
 </div>
 <div id="iterative-overlap-in-archr" class="section level4">
 <h4 class="hasAnchor">
 <a href="#iterative-overlap-in-archr" class="anchor"></a>Iterative Overlap In ArchR</h4>
+<p>Iterative overlap removal avoids the issues mentioned above. Peaks are first ranked by their significance. The most significant peak is retained and any peak that directly overlaps with the most significant peak is removed from further analysis. Then, of the remaining peaks, this process is repeated until no more peaks exist. This avoids daisy-chaining and still allows for use of fixed-width peaks. It is important to note that we use a normalized metric of significance for peaks because the reported MACS2 significance is proportional to the sequencing depth.</p>
 <div class="figure">
-<img src="../../../../../../My%20Drive/Work/GitHub/ArchR/vignettes/Articles/iterativePeakCalling.png" width="350">
+<img src="../../images/peakCalling_IterativeOverlap.png" width="350">
 </div>
 </div>
 <div id="comparison-of-peak-calling-methods" class="section level3">
 <h3 class="hasAnchor">
 <a href="#comparison-of-peak-calling-methods" class="anchor"></a>Comparison of Peak Calling Methods</h3>
+<p>Comparing the peak calls resulting from all of these methods directly shows clear differences in the final peak sets. It is our opinion that the iterative overlap peak merging process yields the best peak set with the fewest caveats.</p>
+<div class="figure">
+<img src="../../images/peakCalling_Comparison.png" width="350">
+</div>
+</div>
+<div id="what-if-i-dont-like-this-iterative-overlap-peak-merging-process" class="section level3">
+<h3 class="hasAnchor">
+<a href="#what-if-i-dont-like-this-iterative-overlap-peak-merging-process" class="anchor"></a>What if I don’t like this iterative overlap peak merging process?</h3>
+<p>The iterative overlap peak merging process is implemented by ArchR via <code><a href="../../reference/addReproduciblePeakSet.html">addReproduciblePeakSet()</a></code> but you can always use your own peak set via <code>ArchRProj &lt;- addPeakSet(...)</code>.</p>
 </div>
   </div>
 
@@ -145,7 +180,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://twitter.com/JeffreyGranja">Jeffrey Granja</a>.</p>
+  <p>Developed by <a href="https://twitter.com/JeffreyGranja">Jeffrey Granja</a>, <a href="https://twitter.com/doctorcorces">Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

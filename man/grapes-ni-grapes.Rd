@@ -7,12 +7,10 @@
 x \%ni\% table
 }
 \arguments{
-\item{x}{x search within table}
+\item{x}{The value to search for in \code{table}.}
 
-\item{table}{to search x in}
+\item{table}{The set of values to serve as the base for the match function.}
 }
 \description{
-This function is the reciprocal of %in%
-See match funciton in base R
-x %ni% table
+This function is the reciprocal of %in%. See the match funciton in base R.
 }

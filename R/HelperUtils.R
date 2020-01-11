@@ -8,7 +8,18 @@
   if(inherits(genome, "BSgenome")){
     return(genome)
   }else if(is.character(genome)){
-    return(BSgenome::getBSgenome(genome, masked = masked))
+    genome <- tryCatch({
+      .requirePackage(genome)
+      bsg <- eval(parse(text = genome))
+      if(inherits(bsg, "BSgenome")){
+        return(bsg)
+      }else{
+        stop("genome is not a BSgenome valid class!")
+      }
+    }, error = function(x){
+      BSgenome::getBSgenome(genome, masked = masked)
+    })  
+    return(genome)
   }else{
     stop("Cannot validate BSgenome options are a valid BSgenome or character for getBSgenome")
   }  
@@ -54,20 +65,28 @@
 
 #' Negated Value Matching
 #'
-#' This function is the reciprocal of %in%
-#' See match funciton in base R
-#' x %ni% table
+#' This function is the reciprocal of %in%. See the match funciton in base R.
 #'
-#' @param x x search within table
-#' @param table to search x in
+#' @param x The value to search for in `table`.
+#' @param table The set of values to serve as the base for the match function.
 #' @export
 "%ni%" <- function(x, table) !(match(x, table, nomatch = 0) > 0)
 
-#Mainly used for Rle matching generic handling
+#' Generic matching function for S4Vector objects
+#'
+#' This function provides a general matching function for S4Vector objects primarily to avoid ambiguity.
+#'
+#' @param x An `S4Vector` object search for in `table`.
+#' @param table The set of `S4Vector` objects to serve as the base for the match function.
 #' @export
 '%bcin%' <- function(x, table) S4Vectors::match(x, table, nomatch = 0) > 0
 
-#Mainly used for Rle matching generic handling
+#' Negated matching function for S4Vector objects
+#'
+#' This function provides the reciprocal of %bcin% for S4Vector objects primarily to avoid ambiguity.
+#'
+#' @param x An `S4Vector` object search for in `table`.
+#' @param table The set of `S4Vector` objects to serve as the base for the match function.
 #' @export
 '%bcni%' <- function(x, table) !(S4Vectors::match(x, table, nomatch = 0) > 0)
 
@@ -487,18 +506,12 @@
   return(o)
 }
 
-#' Get File Extension
-#' @param x character string refering to a file you want to get the extension from
 #' @export
 .fileExtension <- function (x){
   pos <- regexpr("\\.([[:alnum:]]+)$", x)
   ifelse(pos > -1L, substring(x, pos + 1L), "")
 }
 
-#' Check path for utility
-#' @param u utility that you want to check is in path
-#' @param path check on top of path a custom path
-#' @param error cause error if not in path
 #' @export
 .checkPath <- function(u = NULL, path = NULL, throwError = TRUE){
   if(is.null(u)){
@@ -523,10 +536,6 @@
   return(out)
 }
 
-#' Check path for utility
-#' @param u utility that you want to check is in path
-#' @param path check on top of path a custom path
-#' @param error cause error if not in path
 #' @export
 .tempfile <- function(pattern = "tmp", tmpdir = "tmp", fileext = "", addDOC = TRUE){
 
@@ -542,8 +551,6 @@
 
 }
 
-#' This function returns ascii archr LOGO or arrow etc.
-#' @param ascii logo, arrow, target
 #' @export
 .ArchRLogo <- function(ascii = "Logo"){
   Ascii <- list(

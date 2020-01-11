@@ -10,29 +10,28 @@ plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
   baseSize = 6, ratioYX = 0.5, points = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{groupBy}{use groupings in cellColData for summarizing and plotting}
 
-\item{colorBy}{colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)}
+\item{colorBy}{A string indicating whether numeric values in violin plot should be from a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").}
 
-\item{name}{name of column in cellColData or Feature in Array in Arrows}
+\item{name}{The name of the column in \code{cellColData} or the featureName in the data matrix.}
 
-\item{pal}{custom palette to use for plotting}
+\item{pal}{A custom palette used to override discreteSet/continuousSet for coloring vector.}
 
-\item{ylim}{limits for features in plot}
+\item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{size}{size of points in ggplot}
+\item{size}{The numeric size of the points to be plotted.}
 
-\item{baseSize}{rastr points in ggplot}
+\item{baseSize}{The base font size to use in the plot.}
 
-\item{ratioYX}{ratio of Y axis to X axis}
+\item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{points}{add points to plot using quasirandom}
+\item{points}{A boolean value that indicates whether points should be added to the plot using \code{geom_quasirandom()}}
 
 \item{...}{additional args}
 }
 \description{
-This function will plot an embedding that was created from
-computeEmbedding
+This function will plot an embedding that was created from computeEmbedding
 }

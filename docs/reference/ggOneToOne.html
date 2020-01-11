@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>GG Plot One to One Heatscatter — ggOneToOne • ArchR</title>
+<title>A ggplot-based one-to-one dot plot wrapper function — ggOneToOne • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,9 @@
 
 
 
-<meta property="og:title" content="GG Plot One to One Heatscatter — ggOneToOne" />
+<meta property="og:title" content="A ggplot-based one-to-one dot plot wrapper function — ggOneToOne" />
 
-<meta property="og:description" content="GG Plot One to One Heatscatter" />
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +80,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -95,7 +102,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -103,10 +113,16 @@
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -134,76 +150,79 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>GG Plot One to One Heatscatter</h1>
+    <h1>A ggplot-based one-to-one dot plot wrapper function</h1>
     
     <div class="hidden name"><code>ggOneToOne.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    
-    <p>GG Plot One to One Heatscatter</p>
-    
+
     </div>
 
-    <pre class="usage"><span class='fu'>ggOneToOne</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>nPlot</span> <span class='kw'>=</span> <span class='fl'>100</span> * <span class='fl'>10</span>^<span class='fl'>3</span>, <span class='kw'>nKernel</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"Sample Correlation"</span>,
-  <span class='kw'>min</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>max</span> <span class='kw'>=</span> <span class='fl'>0.9999</span>, <span class='kw'>densityMax</span> <span class='kw'>=</span> <span class='fl'>0.95</span>, <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>12</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteContinuous.html'>paletteContinuous</a></span>(<span class='kw'>set</span> <span class='kw'>=</span> <span class='st'>"viridis"</span>))</pre>
+    <pre class="usage"><span class='fu'>ggOneToOne</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>,
+  <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"Correlation"</span>, <span class='kw'>min</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>max</span> <span class='kw'>=</span> <span class='fl'>0.9999</span>,
+  <span class='kw'>nPlot</span> <span class='kw'>=</span> <span class='fl'>100</span> * <span class='fl'>10</span>^<span class='fl'>3</span>, <span class='kw'>nKernel</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>densityMax</span> <span class='kw'>=</span> <span class='fl'>0.95</span>,
+  <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteContinuous.html'>paletteContinuous</a></span>(<span class='kw'>set</span> <span class='kw'>=</span> <span class='st'>"blue_yellow"</span>), <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>x</p></td>
+      <td><p>A numeric vector containing the x-axis values for each point.</p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p>y</p></td>
-    </tr>
-    <tr>
-      <th>nPlot</th>
-      <td><p>number of points to plot</p></td>
-    </tr>
-    <tr>
-      <th>nKernel</th>
-      <td><p>n for MASS::kde2d default = 100</p></td>
+      <td><p>A numeric vector containing the y-axis values for each point.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p>geom_point size</p></td>
-    </tr>
-    <tr>
-      <th>xlabel</th>
-      <td><p>xlabel</p></td>
-    </tr>
-    <tr>
-      <th>ylabel</th>
-      <td><p>ylabel</p></td>
-    </tr>
-    <tr>
-      <th>title</th>
-      <td><p>ggtitle</p></td>
-    </tr>
-    <tr>
-      <th>min</th>
-      <td><p>xmin quantile [0,1]</p></td>
-    </tr>
-    <tr>
-      <th>max</th>
-      <td><p>xmax quantile [0,1]</p></td>
+      <td><p>The numeric size of the points to plot.</p></td>
     </tr>
     <tr>
       <th>alpha</th>
-      <td><p>geom_point alpha</p></td>
+      <td><p>A number indicating the transparency to use for each point. See <code>ggplot2</code> for more details.</p></td>
     </tr>
     <tr>
-      <th>baseSize</th>
-      <td><p>base_font size default is 12</p></td>
+      <th>xlabel</th>
+      <td><p>The label to plot for the x-axis.</p></td>
     </tr>
     <tr>
-      <th>pal</th>
-      <td><p>continuous color palette to use</p></td>
+      <th>ylabel</th>
+      <td><p>The label to plot for the y-axis.</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>The title of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td><p>x-limits min quantile 0,1</p></td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td><p>x-limits max quantile 0,1</p></td>
+    </tr>
+    <tr>
+      <th>nPlot</th>
+      <td><p>The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.</p></td>
+    </tr>
+    <tr>
+      <th>nKernel</th>
+      <td><p>The value of n to use the kde2d from the MASS package.</p></td>
+    </tr>
+    <tr>
+      <th>densityMax</th>
+      <td><p>The quantile that should be represented by the maximum color on the continuous scale designated by <code>pal</code>. Above this value will be thresholded to the maximum color.</p></td>
+    </tr>
+    <tr>
+      <th>extend</th>
+      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
+<p>baseSizeThe base font size to use in the plot.</p>
+<p>rastrA boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.</p>
+<p>palA custom palette used to override continuousSet for coloring vector.</p>
+<p>...Additional params to be supplied to ggPoint</p></td>
     </tr>
     </table>
     
@@ -221,7 +240,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

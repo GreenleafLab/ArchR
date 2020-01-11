@@ -5,7 +5,7 @@
 \title{Create Arrow Files}
 \usage{
 createArrowFiles(inputFiles = NULL, sampleNames = NULL,
-  outputNames = paste0("./", sampleNames), validBaroces = NULL,
+  outputNames = paste0("./", sampleNames), validBarcodes = NULL,
   geneAnno = NULL, genomeAnno = NULL, filterFrags = 1000,
   filterTSS = 4, removeFilteredCells = TRUE, minFrags = 500,
   outDir = "QualityControl", nucLength = 147, TSSParams = list(),
@@ -17,15 +17,17 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
   verboseAll = FALSE, ...)
 }
 \arguments{
-\item{inputFiles}{The names of the input files to use to generate the arrow files. These files can be in any of the following formats: tabix QQQ, QQQ BAM,  or a fragments file). The precise format of each file type QQQ...}
+\item{inputFiles}{The names of the input files to use to generate the arrow files. These files can be in any of the following formats: scATAC tabix fragment files or a bam file).}
 
 \item{sampleNames}{The names to assign to the samples that correspond to the "inputFiles". Each input file should receive a unique sample name. This list should be in the same order as "inputFiles".}
 
 \item{outputNames}{The prefix to use for output files. Each input file should receive a unique output file name. This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"}
 
-\item{geneAnno}{QQQ The geneAnnotation in QQQ format to associate with these arrow files. This is used downstream to calculate TSS Scores etc.}
+\item{validBarcodes}{A list of validBarcode strings to be used for filtering cells read from each input file (see getValidBarcodes for 10x fragment files).}
 
-\item{genomeAnno}{QQQ The genomeAnnotation in QQQ format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.}
+\item{geneAnno}{The geneAnnotation (see createGeneAnnotation) to associate with these arrow files. This is used downstream to calculate TSS Enrichment Scores etc.}
+
+\item{genomeAnno}{The genomeAnnotation (see createGenomeAnnotation) format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.}
 
 \item{filterFrags}{The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.}
 
@@ -33,13 +35,13 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
 
 \item{removeFilteredCells}{A boolean value that determines whether to remove fragments corresponding to cells that do not pass filterFrags and filterTSS.}
 
-\item{minFrags}{QQQ min fragments per cell to be immediately filtered}
+\item{minFrags}{The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment).}
 
 \item{outDir}{The name or path for the output directory for QC-level information and plots for each sample/arrow.}
 
 \item{nucLength}{The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as sub-nucleosome, mono-nucleosome, or multi-nucleosome spanning}
 
-\item{TSSParams}{QQQ TSS parameters for computing TSS scores}
+\item{TSSParams}{TSS parameters for computing TSS Enrichment scores. This includes \code{window} which describes the window centered at each TSS (default 101), the \code{flank} which describes the +/- window size to compute TSS enrichment (default 2000) , the \code{norm} which describes the normalization window size at the flanks to compute TSS enrichment (default 100 i.e. -2000:-1901 and 1901:2000).}
 
 \item{excludeChr}{The names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the .arrow file.}
 
@@ -47,25 +49,31 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
 
 \item{bcTag}{The name of the field in the input bam file containing the barcode tag information. See ScanBam in Rsamtools.}
 
-\item{bamFlag}{QQQ A list of bam flags to be used for reading in fragments from input bam files. Fromat should be QQQ. See ScanBam in Rsamtools.}
+\item{gsubExpression}{A regular expression to clean up the barcode tag read in from a bam file. For example if the barcode is appended to the qname (read name) like for Shendure mouse data the gsubExpression would be ":.*" for getting the string after the colon in the qname.}
+
+\item{bamFlag}{A list of bam flags to be used for reading in fragments from input bam files. Format should be scanBamFlag for ScanBam in Rsamtools.}
 
 \item{offsetPlus}{The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.}
 
-\item{offsetMinus}{The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. Ssee Buenrostro et al. Nature Methods 2013.}
+\item{offsetMinus}{The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.}
 
 \item{addTileMat}{A boolean value indicating whether to add a "Tile Matrix" to each Arrow file. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome.}
 
-\item{TileMatParams}{A list of parameters to pass to the addTileMatrix function. See addTileMatrix for options.}
+\item{TileMatParams}{A list of parameters to pass to the \code{addTileMatrix()} function. See \code{ArchR::addTileMatrix()} for options.}
 
 \item{addGeneScoreMat}{A boolean value indicating whether to add a Gene-Score Matrix to each Arrow file. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.}
 
-\item{GeneScoreMatParams}{A list of parameters to pass to the addGeneScoreMatrix function. See addGeneScoreMatrix for options.}
+\item{GeneScoreMatParams}{A list of parameters to pass to the \code{addGeneScoreMatrix()} function. See \code{ArchR::addGeneScoreMatrix()} for options.}
 
-\item{force}{A bollean value indicating whether to force arrow files to be overwritten if already exist in outDir.}
+\item{force}{A boolean value indicating whether to force arrow files to be overwritten if they already exist in \code{outDir}.}
 
-\item{threads}{The number threads to be used for parallel computing.}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{parallelParam}{QQQ A list of parameters to be used for batch-style parallel computing.}
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
+
+\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
+
+\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{...}{additional args}
 }

@@ -2,38 +2,38 @@
 % Please edit documentation in R/CoAccessibility.R
 \name{addCoAccessibility}
 \alias{addCoAccessibility}
-\title{Add Peak Co-Accessibility to ArchR Project}
+\title{Add Peak Co-Accessibility to an ArchRProject}
 \usage{
 addCoAccessibility(ArchRProj, reducedDims = "IterativeLSI", k = 100,
   knnIteration = 5000, overlapCutoff = 0.8, maxDist = 250000,
   scaleTo = 10^4, log2Norm = TRUE, seed = 1, knnMethod = "nabor",
-  ...)
+  threads = 1, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{reducedDims}{reduced dimensions for KNN groupings}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to retrieve from the designated \code{ArchRProject}.}
 
-\item{k}{k-nearest neighbors}
+\item{k}{The number of k-nearest neighbors to use for creating single cell groups for correlation.}
 
-\item{knnIteration}{number of KNN groupings to test overlapCutoff}
+\item{knnIteration}{The number of KNN groupings to test for passing the supplied \code{overlapCutoff}.}
 
-\item{overlapCutoff}{overlap maximum between group and previous groups to be added to group list}
+\item{overlapCutoff}{The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.}
 
-\item{maxDist}{maximum distance in bp between peaks for co-accessibility}
+\item{maxDist}{The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.}
 
-\item{scaleTo}{scale group accessibility to prior to computing correlations}
+\item{scaleTo}{A numeric value indicating how to scale the accessibility of a single cell group prior to computing co-accessibility correlations.}
 
-\item{log2Norm}{log2 normalize prior to computing correlations}
+\item{log2Norm}{A boolean value indicating whether to log2 transform the single cell groups prior to computing co-accessibility correlations.}
 
-\item{seed}{seed for sampling}
+\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{knnMethod}{method for KNN computations}
+\item{knnMethod}{The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.}
+
+\item{threads}{The number of threads to be used for parallel computing.}
 
 \item{...}{additional args}
-
-\item{threads}{number of threads}
 }
 \description{
-This function will randomly group cells and compute correlations of knn groupings
+This function will add co-accessibility scores to peaks in a given ArchRProject
 }

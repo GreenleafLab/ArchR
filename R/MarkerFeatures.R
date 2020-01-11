@@ -1,50 +1,52 @@
-#' Identify Marker Features for each Group
+##########################################################################################
+# Marker Feature Methods
+##########################################################################################
+
+#' Identify Marker Features for each cell grouping
 #' 
-#' This function will identify a null set of cells that match biases per cell
-#' while maintaining the input group proportions. Then it will compute a pairwise
-#' test of the group vs the null set.
+#' This function will identify features that are definitional of each provided cell grouping where possible
 #' 
-#' @param ArchRProj ArchR Project
-#' @param groupBy group cells by this column in cellColData
-#' @param useGroups use subset of groups in group column in cellColData for comparisons
-#' @param bdgGroups use subset of groups in group column in cellColData for background
-#' @param useMatrix matrix name in Arrow Files that will be used for identifying features
-#' @param bias biases to account for in selecting null group using info from cellColData
-#' @param normBy normalize by column in cellColData prior to test
-#' @param testMethod pairwise test method group vs null
-#' @param minCells minimum cells per group for testing
-#' @param maxCells maximum cells per group for testing
-#' @param k knn for matching cell biases
-#' @param bufferRatio buffering ratio for matching cell biases
-#' @param binarize binarize prior to testing
-#' @param method marker identification method
-#' @param useSeqnames specific seqnames to use only
-#' @param verboseHeader verbose sections
-#' @param verboseAll verbose sections and subsections
+#' @param ArchRProj An `ArchRProject` object.
+#' @param groupBy The name of the column in `cellColData` to use for grouping cells together for marker feature identification.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.
+#' @param bgdGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.
+#' @param useMatrix The name of the matrix to be used for performing differential analyses. Options include "GeneScoreMatrix", "PeakMatrix", etc.
+#' @param bias A character vector indicating the potential bias variables as a function (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.
+#' @param normBy The name of a numeric column in `cellColData` that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.
+#' @param testMethod The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".
+#' @param maxCells The maximum number of cells to consider from a single cell group when performing marker feature identification.
+#' @param scaleTo Normalization depth to center normalization to in normBy (default is 10,000).
+#' @param threads The number of threads to be used for parallel computing.
+#' @param k The number of nearby cells to use for selecting biased-matched background while accounting for bgdGroups proportions.
+#' @param bufferRatio The buffering ratio of cells to enable best biased-matched background while accounting for bgdGroups proportions.
+#' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing.
+#' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
+#' @param method The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the `Signac::VeniceMarker()` fucntion.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
 #' @export
 markerFeatures <- function(
-    ArchRProj = NULL,
-    groupBy = "Clusters",
-    useGroups = NULL,
-    bdgGroups = NULL,
-    useMatrix = "GeneScoreMatrix",
-    bias = c("TSSEnrichment", "log10(nFrags)"),
-    normBy = NULL,
-    testMethod = "wilcoxon",
-    minCells = 50,
-    maxCells = 500,
-    scaleTo = 10^4,
-    threads = 1,
-    k = 100,
-    bufferRatio = 0.8,
-    binarize = FALSE,
-    useSeqnames = NULL,
-    method = "ArchR",
-    verboseHeader = TRUE,
-    verboseAll = FALSE,
-    ...
-    ){
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  useGroups = NULL,
+  bgdGroups = NULL,
+  useMatrix = "GeneScoreMatrix",
+  bias = c("TSSEnrichment", "log10(nFrags)"),
+  normBy = NULL,
+  testMethod = "wilcoxon",
+  maxCells = 500,
+  scaleTo = 10^4,
+  threads = 1,
+  k = 100,
+  bufferRatio = 0.8,
+  binarize = FALSE,
+  useSeqnames = NULL,
+  method = "ArchR",
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  ...
+  ){
   
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
@@ -76,9 +78,8 @@ markerFeatures <- function(
     ArchRProj = NULL,
     groupBy = "Clusters",
     useGroups = NULL,
-    bdgGroups = NULL,
+    bgdGroups = NULL,
     normBy = NULL,
-    minCells = 50,
     maxCells = 500,
     scaleTo = 10^4,
     bufferRatio = 0.8,
@@ -133,7 +134,7 @@ markerFeatures <- function(
       input = colDat, 
       groups = groups,
       useGroups = useGroups,
-      bdgGroups = bdgGroups,
+      bgdGroups = bgdGroups,
       bias = bias,
       k = k,
       n = maxCells
@@ -198,7 +199,7 @@ markerFeatures <- function(
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
               AUC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$auc)) %>% Reduce("cbind",.),
-              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
+              MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
         )
@@ -210,8 +211,8 @@ markerFeatures <- function(
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               Variance = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
-              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.),
-              VarianceBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var2)) %>% Reduce("cbind",.)
+              MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.),
+              VarianceBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
         )
@@ -222,7 +223,7 @@ markerFeatures <- function(
               Log2FC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$log2FC)) %>% Reduce("cbind",.),
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
-              MeanBDG = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
+              MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
         )
@@ -242,11 +243,11 @@ markerFeatures <- function(
 
   matchx <- matchObj[[1]][[group]]
   cellsx <- matchObj[[2]]$cells[matchx$cells]
-  bdgx <- matchObj[[2]]$cells[matchx$bdg]
+  bgdx <- matchObj[[2]]$cells[matchx$bgd]
   
   if(!is.null(normFactors)){
     cellNF <- normFactors[cellsx,1]
-    bdgNF <- normFactors[bdgx,1]
+    bgdNF <- normFactors[bgdx,1]
   }
 
   #Add RowNames for Check at the end
@@ -262,7 +263,7 @@ markerFeatures <- function(
       featureDF = featureDFy, 
       threads = threads, 
       useMatrix = useMatrix,
-      cellNames = c(cellsx, bdgx),
+      cellNames = c(cellsx, bgdx),
       progress = FALSE
     ))
     rownames(scMaty) <- rownames(featureDFy)
@@ -274,10 +275,10 @@ markerFeatures <- function(
     args <- list()
     if(!is.null(normFactors)){
       args$mat1 <- Matrix::t(Matrix::t(scMaty[, cellsx, drop = FALSE]) * cellNF)
-      args$mat2 <- Matrix::t(Matrix::t(scMaty[, bdgx, drop = FALSE]) * bdgNF)
+      args$mat2 <- Matrix::t(Matrix::t(scMaty[, bgdx, drop = FALSE]) * bgdNF)
     }else{
       args$mat1 <- scMaty[, cellsx, drop = FALSE]
-      args$mat2 <- scMaty[, bdgx, drop = FALSE]
+      args$mat2 <- scMaty[, bgdx, drop = FALSE]
     }
 
     if(tolower(testMethod) == "wilcoxon"){
@@ -436,7 +437,7 @@ markerFeatures <- function(
 }
 
 
-.matchBiasCellGroups <- function(input, groups, useGroups, bdgGroups, bias, k = 100, n = 500, bufferRatio = 0.8){
+.matchBiasCellGroups <- function(input, groups, useGroups, bgdGroups, bias, k = 100, n = 500, bufferRatio = 0.8){
 
   #Summary Function
   .summarizeColStats <- function(m, name = NULL){
@@ -485,16 +486,16 @@ markerFeatures <- function(
     useGroups <- gtools::mixedsort(unique(paste0(groups)))
   }
 
-  if(is.null(bdgGroups)){
-    bdgGroups <- gtools::mixedsort(unique(paste0(groups)))
+  if(is.null(bgdGroups)){
+    bgdGroups <- gtools::mixedsort(unique(paste0(groups)))
   }
 
   stopifnot(all(useGroups %in% unique(paste0(groups))))
-  stopifnot(all(bdgGroups %in% unique(paste0(groups))))
+  stopifnot(all(bgdGroups %in% unique(paste0(groups))))
 
   #Get proportion of each group
   prob <- table(groups) / length(groups)
-  bdgProb <- prob[which(names(prob) %in% bdgGroups)] / sum(prob[which(names(prob) %in% bdgGroups)])
+  bgdProb <- prob[which(names(prob) %in% bgdGroups)] / sum(prob[which(names(prob) %in% bgdGroups)])
 
   pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
   matchList <- lapply(seq_along(useGroups), function(x){
@@ -505,21 +506,21 @@ markerFeatures <- function(
     # Organize
     #############
     groupx <- useGroups[x]
-    idx <- which(names(bdgProb) == groupx)
-    if(length(idx) > 0 & length(idx) != length(bdgProb)){
-      bdgProbx <- bdgProb[-idx]/sum(bdgProb[-idx])
+    idx <- which(names(bgdProb) == groupx)
+    if(length(idx) > 0 & length(idx) != length(bgdProb)){
+      bgdProbx <- bgdProb[-idx]/sum(bgdProb[-idx])
     }else{
-      bdgProbx <- bdgProb
+      bgdProbx <- bgdProb
     }
 
     idF <- which(groups == groupx)
-    idB <- which(groups %in% names(bdgProbx))
+    idB <- which(groups %in% names(bgdProbx))
 
-    knnx <- computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k)
+    knnx <- .computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k)
     sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
 
     minTotal <- min(n, length(sx) * bufferRatio)
-    nx <- sort(floor(minTotal * bdgProbx))
+    nx <- sort(floor(minTotal * bgdProbx))
     
     ###############
     # ID Matching
@@ -590,28 +591,28 @@ markerFeatures <- function(
     #####################
     # Matching Stats Groups
     #####################
-    estBdg <- sort(floor(minTotal * bdgProbx))
-    obsBdg <- rep(0, length(estBdg))
-    names(obsBdg) <- names(estBdg)
+    estbgd <- sort(floor(minTotal * bgdProbx))
+    obsbgd <- rep(0, length(estbgd))
+    names(obsbgd) <- names(estbgd)
     tabGroups <- table(groups[idY])
-    obsBdg[names(tabGroups)] <- tabGroups
-    estBdgP <- round(100 * estBdg / sum(estBdg),3)
-    obsBdgP <- round(100 * obsBdg / sum(obsBdg),3)
+    obsbgd[names(tabGroups)] <- tabGroups
+    estbgdP <- round(100 * estbgd / sum(estbgd),3)
+    obsbgdP <- round(100 * obsbgd / sum(obsbgd),3)
 
     #####################
     # Matching Stats Bias Norm Values
     #####################
     forBias <- .summarizeColStats(inputNorm[idX,], name = "foreground")
-    bdgBias <- .summarizeColStats(inputNorm[idY,], name = "background")
+    bgdBias <- .summarizeColStats(inputNorm[idY,], name = "background")
 
     out <- list(
         cells = idX, 
-        bdg = idY, 
+        bgd = idY, 
         summaryCells = forBias, 
-        summaryBdg = bdgBias, 
-        bdgGroups = rbind(estBdg, obsBdg),
-        bdgGroupsProbs = rbind(estBdgP, obsBdgP),
-        corBdgGroups = cor(estBdgP, obsBdgP),
+        summaryBgd = bgdBias, 
+        bgdGroups = rbind(estbgd, obsbgd),
+        bgdGroupsProbs = rbind(estbgdP, obsbgdP),
+        corbgdGroups = cor(estbgdP, obsbgdP),
         n = length(sx), 
         p = it / length(sx),
         group = groupx
@@ -625,7 +626,7 @@ markerFeatures <- function(
   message("\n")
 
   outList <- SimpleList(
-    matchBdg = matchList,
+    matchbgd = matchList,
     info = SimpleList(
         cells = rownames(input),
         groups = groups,
@@ -640,28 +641,27 @@ markerFeatures <- function(
 
 
 ####################################################################################################
-#
 # Applications of Markers!
-#
 ####################################################################################################
 
 #' Plot a Heatmap of Identified Marker Features
 #' 
 #' This function will plot a heatmap of the results from markerFeatures
 #' 
-#' @param seMarker Summarized Experiment result from markerFeatures
-#' @param cutoff Logical Statement for Cutoff to Be called a Marker a statement containing assayNames from seMarker
-#' @param log2Norm log2 Normalization prior to plotting set true for counting assays (not DeviationsMatrix!)
+#' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param log2Norm A boolean value indicating whether a log2 transformation whould be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like `DeviationsMatrix`).
 #' @param scaleTo scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing
-#' @param scaleRows compute row z-scores on matrix
-#' @param limits heatmap color limits 
-#' @param grepExclude remove features by grep
-#' @param pal palette for heatmap, default will use solar_extra
-#' @param binaryClusterRows fast clustering implementation for row clustering by binary sorting
-#' @param labelMarkers label specific markers by name on heatmap (matches rownames of seMarker)
-#' @param labelTop label the top features for each column in seMarker
-#' @param labelRows label all rows
-#' @param returnMat return final matrix that is used for plotting heatmap
+#' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
+#' @param limits A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.
+#' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.
+#' @param pal A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.
+#' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
+#' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
+#' @param labelTop A boolean value that indicates whether the top features for each column in `seMarker` should be labeled on the side of the heatmap.
+#' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
+#' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
+#' @param invert A boolean value that indicates whether the heatmap will be inverted ie when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
 #' @param ... additional args
 #' @export
 markerHeatmap <- function(
@@ -694,9 +694,9 @@ markerHeatmap <- function(
   }
   #Now Get Values
   if(plotLog2FC){
-    mat <- SummarizedExperiment::assays(seMarker)[["Log2FC"]]
+    mat <- as.matrix(SummarizedExperiment::assays(seMarker)[["Log2FC"]])
   }else{
-    mat <- SummarizedExperiment::assays(seMarker)[["Mean"]]
+    mat <- as.matrix(SummarizedExperiment::assays(seMarker)[["Mean"]])
     if(log2Norm){
       mat <- log2(t(t(mat)/colSums(mat)) * scaleTo + 1)
     }
@@ -751,10 +751,11 @@ markerHeatmap <- function(
   if(binaryClusterRows){
     if(invert){
       bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)])
+      mat <- -bS[[1]][,colnames(mat)]
     }else{
       bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
+      mat <- bS[[1]][,colnames(mat)]
     }
-    mat <- -bS[[1]][,colnames(mat)]
     clusterRows <- FALSE
     clusterCols <- bS[[2]]
   }else{
@@ -843,7 +844,8 @@ markerHeatmap <- function(
   padding = 45,
   borderColor = NA,
   draw = TRUE,
-  name = ""){
+  name = "Heatmap"
+  ){
   
   #Packages
   .requirePackage("ComplexHeatmap")
@@ -1110,15 +1112,27 @@ markerHeatmap <- function(
 
 }
 
+#' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
+#' 
+#' This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
+#' 
+#' @param seMarker  A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param peakAnnotation A peakAnnotation in an `ArchRProject` to be used for hypergeometric test.
+#' @param matches A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param background Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).
+#' @param ... additional args
 #' @export
 markerAnnoEnrich <- function(
   seMarker = NULL,
   ArchRProj = NULL,
-  annotations = NULL,
+  peakAnnotation = NULL,
   matches = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
-  background = "bdgPeaks",
-  ...){
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
+  background = "bgdPeaks",
+  ...
+  ){
 
   tstart <- Sys.time()
   if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
@@ -1126,7 +1140,7 @@ markerAnnoEnrich <- function(
   }
 
   if(is.null(matches)){
-    matches <- getMatches(ArchRProj, annotations)
+    matches <- getMatches(ArchRProj, peakAnnotation)
   }
   
   r1 <- SummarizedExperiment::rowRanges(matches)
@@ -1154,9 +1168,9 @@ markerAnnoEnrich <- function(
     eval(parse(text=paste0("rm(",an,")")))
   }
 
-  if(tolower(background) %in% c("backgroundpeaks", "bdgpeaks", "background", "bdg")){
-    method <- "bdg"
-    bdgPeaks <- SummarizedExperiment::assay(getBdgPeaks(ArchRProj))
+  if(tolower(background) %in% c("backgroundpeaks", "bgdpeaks", "background", "bgd")){
+    method <- "bgd"
+    bgdPeaks <- SummarizedExperiment::assay(getBgdPeaks(ArchRProj))
   }else{
     method <- "all"
   }
@@ -1164,8 +1178,8 @@ markerAnnoEnrich <- function(
   enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
     .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
     idx <- which(passMat[, x])
-    if(method == "bdg"){
-      .computeEnrichment(matches, idx, c(idx, as.vector(bdgPeaks[idx,])))
+    if(method == "bgd"){
+      .computeEnrichment(matches, idx, c(idx, as.vector(bgdPeaks[idx,])))
     }else{
       .computeEnrichment(matches, idx, seq_len(nrow(matches)))
     }
@@ -1229,10 +1243,17 @@ markerAnnoEnrich <- function(
 
 }
 
+#' Identify Marker Feature Ranges
+#' 
+#' This function will identify Markers and return a GRangesList for each group of significant marker regions.
+#' 
+#' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param ... additional args
 #' @export
-markerRanges <- function(
+markerGR <- function(
   seMarker,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
   ...
   ){
   
@@ -1269,15 +1290,24 @@ markerRanges <- function(
 
 }
 
+#' Plot Differential Markers
+#' 
+#' This function will plot one group/column of a differential markers se as a MA or Volcano plot.
+#' 
+#' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param name column/group name of seMarker to be plotted.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param plotAs plot as "Volcano" or "MA" plot.
+#' @param ... additional args
 #' @export
 markerPlot <- function(
   seMarker,
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
-  log2Norm = TRUE,
   scaleTo = 10^4,
-  ...){
+  ...
+  ){
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))
@@ -1301,7 +1331,7 @@ markerPlot <- function(
   FDR <- as.vector(as.matrix(FDR))
   FDR[is.na(FDR)] <- 1
 
-  LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBDG)/2 + 1)
+  LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBGD)/2 + 1)
   LM <- as.vector(as.matrix(LM))
 
   color <- ifelse(passMat[, name], "Differential", "Not-Differential")

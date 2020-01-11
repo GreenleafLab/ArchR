@@ -1,25 +1,32 @@
+####################################################################
+# Visualization Methods
+####################################################################
+
 #' Visualize Embedding from ArchR Project
 #' 
 #' This function will plot an embedding that was created from
 #' computeEmbedding
 #'
-#' @param ArchRProj ArchRProject
-#' @param embedding embedding to visualize (see computeEmbedding)
-#' @param colorBy colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
-#' @param name name of column in cellColData or Feature in Array in Arrows
-#' @param log2Norm log2 Normalize features if they are continuous
-#' @param pal custom palette to use for plotting
-#' @param size size of points in plot
-#' @param rastr rastr points in plot
-#' @param quantCut quantile cut of continuous features
-#' @param quantHex quantile evaluation for each hex in geom_hex
-#' @param discreteSet discrete palette for visualizing embedding
-#' @param continuousSet continuous palette for visualizing embedding
-#' @param randomize randomize points prior to plotting
-#' @param keepAxis keep x and y axis for plot
-#' @param baseSize base size for text in plot
-#' @param plotAs how to plot (points vs hex)
-#' @param plotParams additional params to pass to ggPoint/ggHex
+#' @param ArchRProj An `ArchRProject` object.
+#' @param embedding The name of the embedding to plot. See `ArchR::computeEmbedding()` for more information.
+#' @param colorBy A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").
+#' @param name The name of the column in `cellColData` or the featureName in the data matrix.
+#' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values (if continuous) in plotting.
+#' @param imputeWeights imputation weights for imputing numerical values for each cell as a linear combination of other cells values (see add/getImutationWeights).
+#' @param pal A custom palette used to override discreteSet/continuousSet for coloring vector.
+#' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
+#' @param rastr A boolean value that indicates whether the plot should be rasterized with ggrastr. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values. 
+#' This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is 
+#' the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of 
+#' the 97.5th and 2.5th percentile values respectively.
+#' @param discreteSet The name of a discrete palette from `ArchRPalettes` for visualizing colorBy in the embedding.
+#' @param continuousSet The name of a continuous palette from `ArchRPalettes` for visualizing colorBy in the embedding.
+#' @param randomize A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.
+#' @param keepAxis A boolean value that indicates whether the x and y axis ticks and labels should be plotted.
+#' @param baseSize The base font size to use in the plot.
+#' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.
+#' @param plotParams Additional parameters to pass to `ggPoint()` or `ggHex()`.
 #' @param ... additional args
 #' @export
 plotEmbedding <- function(
@@ -179,19 +186,18 @@ plotEmbedding <- function(
 
 #' Visualize Groups from ArchR Project
 #' 
-#' This function will plot an embedding that was created from
-#' computeEmbedding
+#' This function will plot an embedding that was created from computeEmbedding
 #'
-#' @param ArchRProj ArchRProject
+#' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy use groupings in cellColData for summarizing and plotting
-#' @param colorBy colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)
-#' @param name name of column in cellColData or Feature in Array in Arrows
-#' @param pal custom palette to use for plotting
-#' @param ylim limits for features in plot
-#' @param size size of points in ggplot
-#' @param baseSize rastr points in ggplot
-#' @param ratioYX ratio of Y axis to X axis
-#' @param points add points to plot using quasirandom
+#' @param colorBy A string indicating whether numeric values in violin plot should be from a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").
+#' @param name The name of the column in `cellColData` or the featureName in the data matrix.
+#' @param pal A custom palette used to override discreteSet/continuousSet for coloring vector.
+#' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
+#' @param size The numeric size of the points to be plotted.
+#' @param baseSize The base font size to use in the plot.
+#' @param ratioYX The aspect ratio of the x and y axes on the plot.
+#' @param points A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`
 #' @param ... additional args
 #' @export
 plotGroups <- function(
@@ -467,35 +473,7 @@ plotGroups <- function(
         valueOnly = TRUE
       )
 
-      # message(pw, " ", slw)
-      # message(ph* 0.1, " ", slh)
-      # message("\n")
-
     }
-
-    # scaleBy <- 1 / max(c(slw/pw, 4 * slh/ph))
-
-    # gl$heights <- lapply(seq_along(gl$heights), function(x){
-    #   if(convertHeight(gl$heights[x], unitTo="in", valueOnly = TRUE) != 0){
-    #     unit(convertHeight(gl$heights[x], unitTo="in", valueOnly = TRUE) * scaleBy, "in")
-    #   }else{
-    #     if(grepl("null", gl$heights[x])){
-    #       unit(as.numeric(gsub("null","",gl$heights[x])) * scaleBy, "null")
-    #     }
-    #     gl$heights[x]
-    #   }
-    # }) %>% Reduce("unit.c", .)
-
-    # gl$widths <- lapply(seq_along(gl$widths), function(x){
-    #   if(convertHeight(gl$widths[x], unitTo="in", valueOnly = TRUE) != 0){
-    #     unit(convertHeight(gl$widths[x], unitTo="in", valueOnly = TRUE) * scaleBy, "in")
-    #   }else{
-    #     if(grepl("null", gl$widths[x])){
-    #       unit(as.numeric(gsub("null","",gl$widths[x])) * scaleBy, "null")
-    #     }
-    #     gl$widths[x]
-    #   }
-    # }) %>% Reduce("unit.c", .)
 
     p <- grid.arrange(g, gl, ncol=1, nrow=2, 
       heights = unit.c(unit(sgh,"in"), unit(min(slh, 0.2 * pw), "in")),

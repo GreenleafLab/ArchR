@@ -2,7 +2,7 @@
 % Please edit documentation in R/Trajectory.R
 \name{plotTrajectory}
 \alias{plotTrajectory}
-\title{Visualize Embedding from ArchR Project}
+\title{Visualize a Trajectory from ArchR Project}
 \usage{
 plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
   trajectory = "Trajectory", colorBy = "colData",
@@ -13,43 +13,49 @@ plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
   plotParams = list(), ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{embedding}{embedding to visualize (see computeEmbedding)}
+\item{embedding}{The name of the embedding to use to visualize the given \code{trajectory}. See \code{ArchR::addEmbedding()} for more information.}
 
-\item{colorBy}{colorBy cellColData or Arrays in Arrows (ie GeneScoreMatrix)}
+\item{trajectory}{The name of the trajectory as a column in \code{cellColData} to plot.}
 
-\item{name}{name of column in cellColData or Feature in Array in Arrows}
+\item{colorBy}{A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").}
 
-\item{log2Norm}{log2 Normalize features if they are continuous}
+\item{name}{The name of the trajectory as a column in \code{cellColData} to plot.}
 
-\item{pal}{custom palette to use for plotting}
+\item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values prior to plotting.}
 
-\item{size}{size of points in plot}
+\item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for coloring cells.}
 
-\item{rastr}{rastr points in plot}
+\item{size}{A number indicating the size of the points to plot if \code{plotAs} is set to "points".}
 
-\item{quantCut}{quantile cut of continuous features}
+\item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
-\item{quantHex}{quantile evaluation for each hex in geom_hex}
+\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values.
+This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is
+the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of
+the 97.5th and 2.5th percentile values respectively.}
 
-\item{discreteSet}{discrete palette for visualizing embedding}
+\item{quantHex}{The quantile to}
 
-\item{continuousSet}{continuous palette for visualizing embedding}
+\item{discreteSet}{The name of a discrete palette from \code{ArchRPalettes} for visualizing colorBy in the embedding.}
 
-\item{randomize}{randomize points prior to plotting}
+\item{continuousSet}{The name of a continuous palette from \code{ArchRPalettes} for visualizing colorBy in the embedding.}
 
-\item{keepAxis}{keep x and y axis for plot}
+\item{randomize}{A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.}
 
-\item{baseSize}{base size for text in plot}
+\item{keepAxis}{A boolean value that indicates whether the x and y axis ticks and labels should be plotted.}
 
-\item{plotAs}{how to plot (points vs hex)}
+\item{baseSize}{The base font size to use in the plot.}
 
-\item{plotParams}{additional params to pass to ggPoint/ggHex}
+\item{addArrow}{A boolean value that indicates whether to add a smoothed arrow in the embedding based on the aligned trajectory.}
+
+\item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.}
+
+\item{plotParams}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 
 \item{...}{additional args}
 }
 \description{
-This function will plot an embedding that was created from
-computeEmbedding
+This function will plot a trajectory that was created from addTrajectory onto an embedding.
 }

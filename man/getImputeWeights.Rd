@@ -2,15 +2,15 @@
 % Please edit documentation in R/Imputation.R
 \name{getImputeWeights}
 \alias{getImputeWeights}
-\title{Get outputDirectory in ArchRProject}
+\title{Get Imputation Weights from ArchRProject}
 \usage{
 getImputeWeights(ArchRProj, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets outputDirectory from ArchRProject
+This function gets imputation weights from an ArchRProject to impute numeric values.
 }

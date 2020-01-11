@@ -8,6 +8,13 @@
 
 <title>ggplot2 default theme for ArchR — theme_ArchR • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -35,6 +42,8 @@
 <meta property="og:title" content="ggplot2 default theme for ArchR — theme_ArchR" />
 
 <meta property="og:description" content="This function returns a ggplot2 theme that is black borded with black font." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -95,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -103,10 +115,16 @@
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -145,57 +163,53 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>theme_ArchR</span>(<span class='kw'>color</span> <span class='kw'>=</span> <span class='st'>"black"</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>baseFamily</span> <span class='kw'>=</span> <span class='st'>""</span>,
-  <span class='kw'>baseLineSize</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>baseRectSize</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>plotMarginCm</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>legendPosition</span> <span class='kw'>=</span> <span class='st'>"bottom"</span>, <span class='kw'>legendTextSize</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>axisTickCm</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>xText90</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>yText90</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>theme_ArchR</span>(<span class='kw'>color</span> <span class='kw'>=</span> <span class='st'>"black"</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>baseLineSize</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>baseRectSize</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>plotMarginCm</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>legendPosition</span> <span class='kw'>=</span> <span class='st'>"bottom"</span>,
+  <span class='kw'>legendTextSize</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>axisTickCm</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>xText90</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>yText90</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>color</th>
-      <td><p>color of theme</p></td>
+      <td><p>The color to be used for text, lines, ticks, etc for the plot.</p></td>
     </tr>
     <tr>
-      <th>base_size</th>
-      <td><p>is the size of the font for the axis text and title</p></td>
+      <th>baseSize</th>
+      <td><p>The base font size to use in the plot.</p></td>
     </tr>
     <tr>
-      <th>base_family</th>
-      <td><p>is family for font</p></td>
+      <th>baseLineSize</th>
+      <td><p>The base line width (in points) to be used throughout the plot.</p></td>
     </tr>
     <tr>
-      <th>base_line_size</th>
-      <td><p>is the size of line</p></td>
+      <th>baseRectSize</th>
+      <td><p>The base line width (in points) to use for rectangular boxes throughout the plot.</p></td>
     </tr>
     <tr>
-      <th>base_rect_size</th>
-      <td><p>is the size of rectangle boxes</p></td>
+      <th>plotMarginCm</th>
+      <td><p>The width in centimeters of the whitespace margin around the plot.</p></td>
     </tr>
     <tr>
-      <th>plot_margin_cm</th>
-      <td><p>plot margin in cm</p></td>
+      <th>legendPosition</th>
+      <td><p>The location to put the legend. Valid options are "bottom", "top", "left", and "right.</p></td>
     </tr>
     <tr>
-      <th>legend_position</th>
-      <td><p>where is the legend default bottom</p></td>
+      <th>legendTextSize</th>
+      <td><p>0.75 times the base_size</p></td>
     </tr>
     <tr>
-      <th>legend_text_size</th>
-      <td><p>0.75*base_size</p></td>
+      <th>axisTickCm</th>
+      <td><p>The length in centimeters to make the axis ticks.</p></td>
     </tr>
     <tr>
-      <th>axis_tick_length_cm</th>
-      <td><p>axis tick length in cm</p></td>
+      <th>xText90</th>
+      <td><p>A boolean value indicating whether the x-axis text should be rotated 90 degrees counterclockwise.</p></td>
     </tr>
     <tr>
-      <th>rotate_x_axis_text_90</th>
-      <td><p>rotate x axis text 90 degrees</p></td>
-    </tr>
-    <tr>
-      <th>rotate_y_axis_text_90</th>
-      <td><p>rotate y axis text 90 degrees</p></td>
+      <th>yText90</th>
+      <td><p>A boolean value indicating whether the y-axis text should be rotated 90 degrees counterclockwise.</p></td>
     </tr>
     </table>
     
@@ -213,7 +227,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

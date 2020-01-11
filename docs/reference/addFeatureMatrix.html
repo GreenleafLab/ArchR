@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add FeatureMatrix to Arrows/ArchRProject — addFeatureMatrix • ArchR</title>
+<title>Add a feature matrix to an ArchRProject or a set of ArrowFiles — addFeatureMatrix • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,10 +39,11 @@
 
 
 
-<meta property="og:title" content="Add FeatureMatrix to Arrows/ArchRProject — addFeatureMatrix" />
+<meta property="og:title" content="Add a feature matrix to an ArchRProject or a set of ArrowFiles — addFeatureMatrix" />
 
-<meta property="og:description" content="This function for each sample will independently compute counts for each feature
-per cell in the Arrow File" />
+<meta property="og:description" content="This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -74,7 +82,7 @@ per cell in the Arrow File" />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -96,7 +104,10 @@ per cell in the Arrow File" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -104,10 +115,16 @@ per cell in the Arrow File" />
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -135,15 +152,14 @@ per cell in the Arrow File" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add FeatureMatrix to Arrows/ArchRProject</h1>
+    <h1>Add a feature matrix to an ArchRProject or a set of ArrowFiles</h1>
     
     <div class="hidden name"><code>addFeatureMatrix.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function for each sample will independently compute counts for each feature
-per cell in the Arrow File</p>
+    <p>This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.</p>
     
     </div>
 
@@ -156,35 +172,35 @@ per cell in the Arrow File</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>ArchRProject or ArrowFiles</p></td>
+      <td><p>An <code>ArchRProject</code> object or character vector of ArrowFiles.</p></td>
     </tr>
     <tr>
       <th>features</th>
-      <td><p>GRanges to count for each cell</p></td>
+      <td><p>A <code>GRanges</code> object containing the regions (aka features) to use for counting insertions for each cell.</p></td>
     </tr>
     <tr>
       <th>matrixName</th>
-      <td><p>matrix output name in ArrowFiles cannot be a protected matrix name</p></td>
+      <td><p>The name to be used for storage of the feature matrix in the provided <code>ArchRProject</code> or ArrowFiles.</p></td>
     </tr>
     <tr>
       <th>ceiling</th>
-      <td><p>ceiling for the number of counts per feature</p></td>
+      <td><p>The maximum counts per feature allowed. This is used to prevent large biases in feature counts.</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>binarize matrix</p></td>
+      <td><p>A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>number of threads</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>parallel parameters for batch style execution</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>force overwriting previous TileMatrix in ArrowFile</p></td>
+      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
     </tr>
     </table>
     
@@ -202,7 +218,7 @@ per cell in the Arrow File</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

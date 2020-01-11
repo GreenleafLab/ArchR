@@ -2,30 +2,29 @@
 % Please edit documentation in R/MatrixFeatures.R
 \name{addFeatureMatrix}
 \alias{addFeatureMatrix}
-\title{Add FeatureMatrix to Arrows/ArchRProject}
+\title{Add a feature matrix to an ArchRProject or a set of ArrowFiles}
 \usage{
 addFeatureMatrix(input, features = NULL, matrixName = "FeatureMatrix",
   ceiling = Inf, binarize = FALSE, threads = 1,
   parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{
-\item{input}{ArchRProject or ArrowFiles}
+\item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{features}{GRanges to count for each cell}
+\item{features}{A \code{GRanges} object containing the regions (aka features) to use for counting insertions for each cell.}
 
-\item{matrixName}{matrix output name in ArrowFiles cannot be a protected matrix name}
+\item{matrixName}{The name to be used for storage of the feature matrix in the provided \code{ArchRProject} or ArrowFiles.}
 
-\item{ceiling}{ceiling for the number of counts per feature}
+\item{ceiling}{The maximum counts per feature allowed. This is used to prevent large biases in feature counts.}
 
-\item{binarize}{binarize matrix}
+\item{binarize}{A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.}
 
-\item{threads}{number of threads}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{parallelParam}{parallel parameters for batch style execution}
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{force overwriting previous TileMatrix in ArrowFile}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given ArrowFiles.}
 }
 \description{
-This function for each sample will independently compute counts for each feature
-per cell in the Arrow File
+This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.
 }

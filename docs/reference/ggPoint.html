@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>GG Plot One to One Heatscatter — ggPoint • ArchR</title>
+<title>A ggplot-based dot plot wrapper function — ggPoint • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,9 +39,9 @@
 
 
 
-<meta property="og:title" content="GG Plot One to One Heatscatter — ggPoint" />
+<meta property="og:title" content="A ggplot-based dot plot wrapper function — ggPoint" />
 
-<meta property="og:description" content="GG Plot One to One Heatscatter" />
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -73,7 +80,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -95,7 +102,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -103,10 +113,16 @@
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -134,85 +150,98 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>GG Plot One to One Heatscatter</h1>
+    <h1>A ggplot-based dot plot wrapper function</h1>
     
     <div class="hidden name"><code>ggPoint.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    
-    <p>GG Plot One to One Heatscatter</p>
-    
+
     </div>
 
-    <pre class="usage"><span class='fu'>ggPoint</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>discrete</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>discreteSet</span> <span class='kw'>=</span> <span class='st'>"stallion"</span>, <span class='kw'>labelMeans</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>continuousSet</span> <span class='kw'>=</span> <span class='st'>"solar_extra"</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>colorDensity</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>xlim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-  <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>, <span class='kw'>randomize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>,
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>labelType</span> <span class='kw'>=</span> <span class='st'>"ggrepel"</span>, <span class='kw'>bgColor</span> <span class='kw'>=</span> <span class='st'>"white"</span>, <span class='kw'>fgColor</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>labelSize</span> <span class='kw'>=</span> <span class='fl'>1.5</span>, <span class='kw'>addFit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nullColor</span> <span class='kw'>=</span> <span class='st'>"lightGrey"</span>,
-  <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>dpi</span> <span class='kw'>=</span> <span class='fl'>300</span>)</pre>
+    <pre class="usage"><span class='fu'>ggPoint</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>discrete</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>discreteSet</span> <span class='kw'>=</span> <span class='st'>"stallion"</span>, <span class='kw'>continuousSet</span> <span class='kw'>=</span> <span class='st'>"solar_extra"</span>,
+  <span class='kw'>labelMeans</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>defaultColor</span> <span class='kw'>=</span> <span class='st'>"lightGrey"</span>,
+  <span class='kw'>colorDensity</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>xlim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='kw'>randomize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>colorTitle</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>colorOrder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>labelType</span> <span class='kw'>=</span> <span class='st'>"ggrepel"</span>, <span class='kw'>fgColor</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bgColor</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>labelSize</span> <span class='kw'>=</span> <span class='fl'>1.5</span>, <span class='kw'>addFit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>dpi</span> <span class='kw'>=</span> <span class='fl'>300</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>x</p></td>
+      <td><p>A numeric vector containing the x-axis values for each point.</p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p>y</p></td>
+      <td><p>A numeric vector containing the y-axis values for each point.</p></td>
+    </tr>
+    <tr>
+      <th>color</th>
+      <td><p>A numeric/categorical vector containing coloring information for each point.</p></td>
+    </tr>
+    <tr>
+      <th>discrete</th>
+      <td><p>A boolean value indicating whether the supplied data is discrete (TRUE) or continuous (FALSE).</p></td>
+    </tr>
+    <tr>
+      <th>discreteSet</th>
+      <td><p>The name of a custom palette from <code>ArchRPalettes</code> to use for categorical/discrete color.</p></td>
+    </tr>
+    <tr>
+      <th>continuousSet</th>
+      <td><p>The name of a custom palette from <code>ArchRPalettes</code> to use for numeric color.</p></td>
+    </tr>
+    <tr>
+      <th>labelMeans</th>
+      <td><p>A boolean value indicating whether the mean of each categorical/discrete color should be labeled.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>continuous color palette to use</p></td>
+      <td><p>A custom palette used to override discreteSet/continuousSet for coloring vector.</p></td>
+    </tr>
+    <tr>
+      <th>defaultColor</th>
+      <td><p>The default color for points that do not have another color applied (i.e. <code>NA</code> values).</p></td>
+    </tr>
+    <tr>
+      <th>colorDensity</th>
+      <td><p>A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, continuousSet is used as the color palette.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p>geom_point size</p></td>
+      <td><p>The numeric size of the points to be plotted.</p></td>
     </tr>
     <tr>
-      <th>xlabel</th>
-      <td><p>xlabel</p></td>
+      <th>xlim</th>
+      <td><p>A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.</p></td>
     </tr>
     <tr>
-      <th>ylabel</th>
-      <td><p>ylabel</p></td>
+      <th>ylim</th>
+      <td><p>A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.</p></td>
     </tr>
     <tr>
-      <th>title</th>
-      <td><p>ggtitle</p></td>
-    </tr>
-    <tr>
-      <th>alpha</th>
-      <td><p>geom_point alpha</p></td>
-    </tr>
-    <tr>
-      <th>baseSize</th>
-      <td><p>base_font size</p></td>
-    </tr>
-    <tr>
-      <th>min</th>
-      <td><p>xmin quantile [0,1]</p></td>
-    </tr>
-    <tr>
-      <th>max</th>
-      <td><p>xmax quantile [0,1]</p></td>
-    </tr>
-    <tr>
-      <th>plot_n</th>
-      <td><p>number of points to plot</p></td>
-    </tr>
-    <tr>
-      <th>kernel_n</th>
-      <td><p>n for MASS::kde2d default = 100</p></td>
-    </tr>
-    <tr>
-      <th>plot_n</th>
-      <td><p>number of points to plot</p></td>
+      <th>extend</th>
+      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
+<p>xlabelThe label to plot for the x-axis.</p>
+<p>ylabelThe label to plot for the y-axis.</p>
+<p>titleThe title of the plot.</p>
+<p>randomizeA boolean value indicating whether to randomize the order of the points when plotting.</p>
+<p>seedA numeric seed number for use in randomization.</p>
+<p>alphaA number indicating the transparency to use for each point. See <code>ggplot2</code> for more details.</p>
+<p>baseSizeThe base font size to use in the plot.</p>
+<p>ratioYXThe aspect ratio of the x and y axes on the plot.</p>
+<p>labelTypeA string indicating how to label the points on the plot. Options include "ggrepel", "shadowtext".</p>
+<p>fgColorThe foreground color of the plot.</p>
+<p>bgColorThe background color of the plot.</p>
+<p>labelSizeThe numeric font size of labels.</p>
+<p>addFitA string indicating if a fit/regression line (see geom_smooth methods) should be included in the plot and what method to use for this fit.</p>
+<p>rastrA boolean value that indicates whether the plot should be rasterized using ggrastr. This does not rasterize lines and labels, just the internal portions of the plot.</p>
+<p>dpiThe resolution in dots per inch to use for the plot.</p></td>
     </tr>
     </table>
     
@@ -230,7 +259,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

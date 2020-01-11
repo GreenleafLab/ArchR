@@ -2,55 +2,55 @@
 % Please edit documentation in R/MarkerFeatures.R
 \name{markerFeatures}
 \alias{markerFeatures}
-\title{Identify Marker Features for each Group}
+\title{Identify Marker Features for each cell grouping}
 \usage{
 markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
-  useGroups = NULL, bdgGroups = NULL, useMatrix = "GeneScoreMatrix",
+  useGroups = NULL, bgdGroups = NULL, useMatrix = "GeneScoreMatrix",
   bias = c("TSSEnrichment", "log10(nFrags)"), normBy = NULL,
-  testMethod = "wilcoxon", minCells = 50, maxCells = 500,
-  scaleTo = 10^4, threads = 1, k = 100, bufferRatio = 0.8,
-  binarize = FALSE, useSeqnames = NULL, method = "ArchR",
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+  testMethod = "wilcoxon", maxCells = 500, scaleTo = 10^4,
+  threads = 1, k = 100, bufferRatio = 0.8, binarize = FALSE,
+  useSeqnames = NULL, method = "ArchR", verboseHeader = TRUE,
+  verboseAll = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchR Project}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{group cells by this column in cellColData}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for marker feature identification.}
 
-\item{useGroups}{use subset of groups in group column in cellColData for comparisons}
+\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform marker feature identification.}
 
-\item{bdgGroups}{use subset of groups in group column in cellColData for background}
+\item{bgdGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData} to be used for background calculations in marker feature identification.}
 
-\item{useMatrix}{matrix name in Arrow Files that will be used for identifying features}
+\item{useMatrix}{The name of the matrix to be used for performing differential analyses. Options include "GeneScoreMatrix", "PeakMatrix", etc.}
 
-\item{bias}{biases to account for in selecting null group using info from cellColData}
+\item{bias}{A character vector indicating the potential bias variables as a function (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from \code{cellColData}.}
 
-\item{normBy}{normalize by column in cellColData prior to test}
+\item{normBy}{The name of a numeric column in \code{cellColData} that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.}
 
-\item{testMethod}{pairwise test method group vs null}
+\item{testMethod}{The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".}
 
-\item{minCells}{minimum cells per group for testing}
+\item{maxCells}{The maximum number of cells to consider from a single cell group when performing marker feature identification.}
 
-\item{maxCells}{maximum cells per group for testing}
+\item{scaleTo}{Normalization depth to center normalization to in normBy (default is 10,000).}
 
-\item{k}{knn for matching cell biases}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{bufferRatio}{buffering ratio for matching cell biases}
+\item{k}{The number of nearby cells to use for selecting biased-matched background while accounting for bgdGroups proportions.}
 
-\item{binarize}{binarize prior to testing}
+\item{bufferRatio}{The buffering ratio of cells to enable best biased-matched background while accounting for bgdGroups proportions.}
 
-\item{useSeqnames}{specific seqnames to use only}
+\item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing.}
 
-\item{method}{marker identification method}
+\item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
 
-\item{verboseHeader}{verbose sections}
+\item{method}{The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the \code{Signac::VeniceMarker()} fucntion.}
 
-\item{verboseAll}{verbose sections and subsections}
+\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
+
+\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{...}{additional args}
 }
 \description{
-This function will identify a null set of cells that match biases per cell
-while maintaining the input group proportions. Then it will compute a pairwise
-test of the group vs the null set.
+This function will identify features that are definitional of each provided cell grouping where possible
 }

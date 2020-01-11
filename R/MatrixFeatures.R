@@ -1,16 +1,19 @@
-#' Add FeatureMatrix to Arrows/ArchRProject
+####################################################################
+# Peak and Feature Matrix Methods
+####################################################################
+
+#' Add a feature matrix to an ArchRProject or a set of ArrowFiles
 #' 
-#' This function for each sample will independently compute counts for each feature
-#' per cell in the Arrow File
+#' This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.
 #'
-#' @param input ArchRProject or ArrowFiles
-#' @param features GRanges to count for each cell
-#' @param matrixName matrix output name in ArrowFiles cannot be a protected matrix name
-#' @param ceiling ceiling for the number of counts per feature
-#' @param binarize binarize matrix
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @param input An `ArchRProject` object or character vector of ArrowFiles.
+#' @param features A `GRanges` object containing the regions (aka features) to use for counting insertions for each cell.
+#' @param matrixName The name to be used for storage of the feature matrix in the provided `ArchRProject` or ArrowFiles.
+#' @param ceiling The maximum counts per feature allowed. This is used to prevent large biases in feature counts.
+#' @param binarize A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given ArrowFiles.
 #' @export
 addFeatureMatrix <- function(
   input,
@@ -63,14 +66,14 @@ addFeatureMatrix <- function(
 #' Add PeakMatrix to Arrows in ArchRProject
 #' 
 #' This function for each sample will independently compute counts for each peak
-#' per cell in the Arrow File
+#' per cell in the provided ArchRProject using the "PeakMatrix".
 #'
-#' @param ArchRProj ArchRProject
-#' @param ceiling ceiling for the number of counts per feature
-#' @param binarize binarize matrix
-#' @param threads number of threads
-#' @param parallelParam parallel parameters for batch style execution
-#' @param force force overwriting previous TileMatrix in ArrowFile
+#' @param ArchRProj An `ArchRProject` object.
+#' @param ceiling The maximum counts per feature allowed. This is used to prevent large biases in peak counts.
+#' @param binarize A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given ArrowFiles.
 #' @export
 addPeakMatrix <- function(
   ArchRProj,
@@ -84,6 +87,10 @@ addPeakMatrix <- function(
 
   if(!inherits(ArchRProj, "ArchRProject")){
     stop("Adding a PeakMatrix is only for ArchRProject!")
+  }
+
+  if(is.null(ArchRProj@peakSet)){
+    stop("No peakSet found in ArchRProject!")
   }
 
   ArrowFiles <- getArrowFiles(ArchRProj)
@@ -129,6 +136,7 @@ addPeakMatrix <- function(
   ){
 
   ArrowFile <- ArrowFiles[i]
+  sampleName <- .sampleName(ArrowFile)
 
   o <- h5closeAll()
   
@@ -206,7 +214,7 @@ addPeakMatrix <- function(
     o <- h5closeAll()
     chr <- uniqueChr[z]
     featurez <- features[BiocGenerics::which(seqnames(features)==chr)]
-    .messageDiffTime(sprintf("Adding %s for Chromosome %s of %s to Arrow File!", matrixName, z, length(uniqueChr)), tstart)
+    .messageDiffTime(sprintf("Adding %s to %s for Chr (%s of %s)!", sampleName, matrixName, z, length(uniqueChr)), tstart)
 
     #Read in Fragments
     fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)

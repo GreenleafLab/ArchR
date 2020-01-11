@@ -1,30 +1,37 @@
-#' Compute Iterative LSI
+##########################################################################################
+# LSI Dimensionality Reduction Methods
+##########################################################################################
+
+#' Add an Iterative LSI-based dimensionality reduction to an ArchRProject
 #' 
 #' This function will compute an iterative LSI dimensionality reduction
 #' on an ArchRProject.
 #'
-#' @param ArchRProj ArchRProject
-#' @param useMatrix use matrix for LSI clustering from Arrow
-#' @param reducedDimsOut name of dimensionality reduction to be stored as
-#' @param iterations number of LSI iterations to perform
-#' @param dimsToUse number of dimensions to compute and use from LSI (TFIDF-SVD) for clustering
-#' @param binarize binarize matrix prior to LSI
-#' @param sampleCells number of cells to sample for LSI estimation
-#' @param varFeatures number of variable features to use for LSI
-#' @param selectionMethod selection method for variable features (var or vmr)
-#' @param scaleTo scaleTo for Cluster Averages for variance calculation
-#' @param totalFeatures number of features to consider (ranked by total number of counts) use for LSI
-#' @param filterQuantile filter features for initial LSI that are above this quantile
-#' @param saveIterations save LSI iterations as rds in the outDir
-#' @param outDir output directory for saving LSI iterations
-#' @param clusterParams additional params to pass to addClusters
-#' @param runHarmony run harmony batch correction through the iterations
-#' @param harmonyParams additional params to pass to harmony
-#' @param threads number of threads for parallel execution
-#' @param seed seed for analysis
-#' @param verboseHeader verbose sections
-#' @param verboseAll verbose sections and subsections
-#' @param force verbose sections and subsections
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".
+#' @param reducedDimsOut The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
+#' @param iterations The number of LSI iterations to perform.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.
+#' @param LSIMethod A numeric/character indicating the order of operations in the TF-IDF normalization.
+#' The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd option is 3 or "logtf-logidf".
+#' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
+#' @param sampleCells An integer specifying number of cells to subset perform estimatedLSI and clustering.
+#' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
+#' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.
+#' @param scaleTo scaleTo normalization depth for Cluster Averages for variance calculation
+#' @param totalFeatures The number of features to consider for use in LSI ranked by the total number of insertion counts.
+#' @param filterQuantile Remove features that are above this quantile based on insertion counts prior to initial (1st iteration) LSI.
+#' @param saveIterations A boolean value indicating whether the different LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.
+#' @param outDir The output directory for saving LSI iterations if desired. Default is in outputDirectory of ArchRProject.
+#' @param clusterParams Additional parameters to be passed to `ArchR::addClusters()`.
+#' @param runHarmony A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.
+#' @param harmonyParams Additional parameters to be passed to `harmony::HarmonyMatrix()`.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
 #' @param ... additional args
 #' @export
 addIterativeLSI <- function(

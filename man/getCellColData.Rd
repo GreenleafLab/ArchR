@@ -7,11 +7,11 @@
 getCellColData(ArchRProj, select = NULL, drop = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An ArchRProject object.}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{select}{A character vector of column names to select from cellColData if you would like to subset the returned data.}
+\item{select}{A character vector of column names to select from \code{cellColData} if you would like to subset the returned data.}
 
-\item{drop}{A boolean argument to indicate whether additional data.frame information should be dropped if selecting only a single column name.}
+\item{drop}{A boolean value that indicates whether to drop the \code{dataframe} structure and convert to a vector if selecting only one column.}
 
 \item{...}{additional args}
 }

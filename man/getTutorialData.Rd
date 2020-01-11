@@ -7,10 +7,10 @@
 getTutorialData(tutorial = "hematopoiesis", ...)
 }
 \arguments{
-\item{tutorial}{Available tutorials are Hematopoiesis, PBMC, FreshFrozen}
+\item{tutorial}{The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to hematopoieitic scATAC hierarchy. "PBMC" refers to a small standard PBMC scATAC dataset. "FreshFrozen" refers to a PBMC fresh and frozen scATAC dataset.}
 
 \item{...}{additional args}
 }
 \description{
-This function will download data for a given tutorial and return the inputFiles for ArchR
+This function will download data for a given tutorial and return the input files required for ArchR
 }

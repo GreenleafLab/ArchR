@@ -4,37 +4,35 @@
 \alias{addTrajectory}
 \title{Add Supervised Trajectory to an ArchR Project}
 \usage{
-addTrajectory(ArchRProj, name = "Trajectory", trajectory = NULL,
-  groupBy = "Clusters", reducedDims = "IterativeLSI",
-  preFilter = 0.1, postFilter = 0.1, dof = 250, spar = 1,
-  force = FALSE, ...)
+addTrajectory(ArchRProj = NULL, name = "Trajectory",
+  trajectory = NULL, groupBy = "Clusters",
+  reducedDims = "IterativeLSI", preQuantile = 0.1,
+  postQuantile = 0.1, dof = 250, spar = 1, force = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{ArchRProject}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{name of fitted trajectory to be added in cellColData}
+\item{name}{A string indicating the name of the fitted trajectory to be added in \code{cellColData}.}
 
-\item{trajectory}{trajectory of groups to constrain supervised fitting (in order)}
+\item{trajectory}{Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )}
 
 \item{groupBy}{initial group column in cellColData to constrain supervised fit}
 
-\item{reducedDims}{name of reduced dimensions used for distance computation}
+\item{reducedDims}{A string indicating the name of the \code{reducedDims} object from the \code{ArchRProject} that should be used for distance computation.}
 
-\item{preFilter}{pre filtering quantile for supervised trajectory fit}
+\item{preQuantile}{Prior to supervised trajectory fitting, the quantile for filtering cells that are far (by euclidean distance) from cluster centers.}
 
-\item{postFilter}{post filtering quantile for supervised trajectory fit}
+\item{postQuantile}{Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.}
 
-\item{dof}{degrees of freedom}
+\item{dof}{The number of degrees of freedom to be used in spline fit (see smooth.spline)}
 
-\item{spar}{sparsity}
+\item{spar}{The sparsity to be used in spline fit (see smooth.spline)}
 
-\item{force}{force addition into ArchRProject if the column name exists}
+\item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 
 \item{...}{additional args}
-
-\item{name}{name of column in cellColData or Feature in Array in Arrows}
 }
 \description{
-This function will fit a supervised trajectory in a lower dimensional space that 
+This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses.
 }

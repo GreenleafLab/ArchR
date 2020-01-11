@@ -1,18 +1,22 @@
-#' Add Peak Co-Accessibility to ArchR Project
+##########################################################################################
+# Co-accessibility Methods
+##########################################################################################
+
+#' Add Peak Co-Accessibility to an ArchRProject
 #' 
-#' This function will randomly group cells and compute correlations of knn groupings
+#' This function will add co-accessibility scores to peaks in a given ArchRProject
 #'
-#' @param ArchRProj ArchRProject
-#' @param reducedDims reduced dimensions for KNN groupings
-#' @param k k-nearest neighbors
-#' @param knnIteration number of KNN groupings to test overlapCutoff
-#' @param overlapCutoff overlap maximum between group and previous groups to be added to group list
-#' @param maxDist maximum distance in bp between peaks for co-accessibility
-#' @param scaleTo scale group accessibility to prior to computing correlations
-#' @param log2Norm log2 normalize prior to computing correlations
-#' @param seed seed for sampling
-#' @param knnMethod method for KNN computations
-#' @param threads number of threads
+#' @param ArchRProj An `ArchRProject` object.
+#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
+#' @param k The number of k-nearest neighbors to use for creating single cell groups for correlation.
+#' @param knnIteration The number of KNN groupings to test for passing the supplied `overlapCutoff`.
+#' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.
+#' @param maxDist The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.
+#' @param scaleTo A numeric value indicating how to scale the accessibility of a single cell group prior to computing co-accessibility correlations.
+#' @param log2Norm A boolean value indicating whether to log2 transform the single cell groups prior to computing co-accessibility correlations.
+#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param knnMethod The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.
+#' @param threads The number of threads to be used for parallel computing.
 #' @param ... additional args
 #' @export
 addCoAccessibility <- function(
@@ -25,7 +29,8 @@ addCoAccessibility <- function(
   scaleTo = 10^4,
   log2Norm = TRUE,
   seed = 1, 
-  knnMethod = "nabor", 
+  knnMethod = "nabor",
+  threads = 1,
   ...
   ){
 
@@ -41,7 +46,7 @@ addCoAccessibility <- function(
 
   #KNN Matrix
   .messageDiffTime("Computing KNN", tstart)
-  knnObj <- computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
+  knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
 
   #Determin Overlap
   .messageDiffTime("Identifying Non-Overlapping KNN pairs", tstart)

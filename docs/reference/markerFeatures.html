@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Identify Marker Features for each Group — markerFeatures • ArchR</title>
+<title>Identify Marker Features for each cell grouping — markerFeatures • ArchR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -32,11 +39,11 @@
 
 
 
-<meta property="og:title" content="Identify Marker Features for each Group — markerFeatures" />
+<meta property="og:title" content="Identify Marker Features for each cell grouping — markerFeatures" />
 
-<meta property="og:description" content="This function will identify a null set of cells that match biases per cell
-while maintaining the input group proportions. Then it will compute a pairwise
-test of the group vs the null set." />
+<meta property="og:description" content="This function will identify features that are definitional of each provided cell grouping where possible" />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -75,7 +82,7 @@ test of the group vs the null set." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Get Started</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -97,7 +104,10 @@ test of the group vs the null set." />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -105,10 +115,16 @@ test of the group vs the null set." />
     <li>
       <a href="../articles/Articles/footprinting.html">TF Footprinting</a>
     </li>
+    <li>
+      <a href="../articles/Articles/pseudobulkGeneration.html">Pseudobulk Replicate Generation</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/annotations.html">Gene and Genome Annotation</a>
+    </li>
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -136,23 +152,21 @@ test of the group vs the null set." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Identify Marker Features for each Group</h1>
+    <h1>Identify Marker Features for each cell grouping</h1>
     
     <div class="hidden name"><code>markerFeatures.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function will identify a null set of cells that match biases per cell
-while maintaining the input group proportions. Then it will compute a pairwise
-test of the group vs the null set.</p>
+    <p>This function will identify features that are definitional of each provided cell grouping where possible</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>markerFeatures</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
-  <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"GeneScoreMatrix"</span>,
+  <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bgdGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"GeneScoreMatrix"</span>,
   <span class='kw'>bias</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"TSSEnrichment"</span>, <span class='st'>"log10(nFrags)"</span>), <span class='kw'>normBy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>testMethod</span> <span class='kw'>=</span> <span class='st'>"wilcoxon"</span>, <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>maxCells</span> <span class='kw'>=</span> <span class='fl'>500</span>,
+  <span class='kw'>testMethod</span> <span class='kw'>=</span> <span class='st'>"wilcoxon"</span>, <span class='kw'>maxCells</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>,
   <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>bufferRatio</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>useSeqnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"ArchR"</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
@@ -162,67 +176,75 @@ test of the group vs the null set.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>ArchR Project</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>group cells by this column in cellColData</p></td>
+      <td><p>The name of the column in <code>cellColData</code> to use for grouping cells together for marker feature identification.</p></td>
     </tr>
     <tr>
       <th>useGroups</th>
-      <td><p>use subset of groups in group column in cellColData</p></td>
+      <td><p>A character vector that is used to select a subset of groups by name from the designated <code>groupBy</code> column in <code>cellColData</code>. This limits the groups used to perform marker feature identification.</p></td>
+    </tr>
+    <tr>
+      <th>bgdGroups</th>
+      <td><p>A character vector that is used to select a subset of groups by name from the designated <code>groupBy</code> column in <code>cellColData</code> to be used for background calculations in marker feature identification.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>matrix name in Arrow Files that will be used for identifying features</p></td>
+      <td><p>The name of the matrix to be used for performing differential analyses. Options include "GeneScoreMatrix", "PeakMatrix", etc.</p></td>
     </tr>
     <tr>
       <th>bias</th>
-      <td><p>biases to account for in selecting null group using info from cellColData</p></td>
+      <td><p>A character vector indicating the potential bias variables as a function (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from <code>cellColData</code>.</p></td>
     </tr>
     <tr>
       <th>normBy</th>
-      <td><p>normalize by column in cellColData prior to test</p></td>
+      <td><p>The name of a numeric column in <code>cellColData</code> that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.</p></td>
     </tr>
     <tr>
       <th>testMethod</th>
-      <td><p>pairwise test method group vs null</p></td>
-    </tr>
-    <tr>
-      <th>minCells</th>
-      <td><p>minimum cells per group for testing</p></td>
+      <td><p>The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".</p></td>
     </tr>
     <tr>
       <th>maxCells</th>
-      <td><p>maximum cells per group for testing</p></td>
+      <td><p>The maximum number of cells to consider from a single cell group when performing marker feature identification.</p></td>
+    </tr>
+    <tr>
+      <th>scaleTo</th>
+      <td><p>Normalization depth to center normalization to in normBy (default is 10,000).</p></td>
+    </tr>
+    <tr>
+      <th>threads</th>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>knn for matching cell biases</p></td>
+      <td><p>The number of nearby cells to use for selecting biased-matched background while accounting for bgdGroups proportions.</p></td>
     </tr>
     <tr>
       <th>bufferRatio</th>
-      <td><p>buffering ratio for matching cell biases</p></td>
+      <td><p>The buffering ratio of cells to enable best biased-matched background while accounting for bgdGroups proportions.</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>binarize prior to testing</p></td>
+      <td><p>A boolean value indicating whether to binarize the matrix prior to differential testing.</p></td>
     </tr>
     <tr>
       <th>useSeqnames</th>
-      <td><p>specific seqnames to use only</p></td>
+      <td><p>A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>marker identification method</p></td>
+      <td><p>The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the <code>Signac::VeniceMarker()</code> fucntion.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
-      <td><p>verbose sections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose sections.</p></td>
     </tr>
     <tr>
       <th>verboseAll</th>
-      <td><p>verbose sections and subsections</p></td>
+      <td><p>A boolean value that determines whether standard output includes verbose subsections.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -244,7 +266,7 @@ test of the group vs the null set.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>.</p>
+  <p>Developed by <a href='https://twitter.com/JeffreyGranja'>Jeffrey Granja</a>, <a href='https://twitter.com/doctorcorces'>Ryan Corces</a>.</p>
 </div>
 
 <div class="pkgdown">

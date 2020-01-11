@@ -4,36 +4,50 @@
 \alias{plotFootprints}
 \title{Plot footprints for an ArchRProject}
 \usage{
-plotFootprints(input = NULL, positions = NULL,
+plotFootprints(ArchRProj = NULL, positions = NULL,
   plotName = "Plot-Footprints", groupBy = "Clusters",
   useGroups = NULL, pal = NULL, flank = 250, flankNorm = 50,
   smoothWindow = 10, minCells = 25, nTop = NULL,
-  normMethod = "none", height = 6, width = 4, addDOC = TRUE,
-  useSink = TRUE, threads = 1, verboseHeader = TRUE,
+  normMethod = "none", inputSE = NULL, height = 6, width = 4,
+  addDOC = TRUE, useSink = TRUE, threads = 1, verboseHeader = TRUE,
   verboseAll = FALSE, ...)
 }
 \arguments{
-\item{input}{An ArchRProject object or Footprint Summarized Experiment}
+\item{ArchRProj}{An \code{ArchRProject} object}
 
-\item{positions}{QQQ A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be QQQ.}
+\item{positions}{A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be stranded.}
 
-\item{groupBy}{QQQ The column name in sampleColData to use for grouping multiple samples together prior to footprinting.}
+\item{plotName}{The prefix to add to the file name for the output PDF file.}
 
-\item{useGroups}{QQQ}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping multiple samples together prior to footprinting.}
 
-\item{pal}{The name or numeric index of a custom palette from ArchR_palettes to use for plotting the lines corresponding to the footprints.}
+\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform footprinting.}
 
-\item{flank}{QQQ The number of basepairs from the position center to consider as the flank.}
+\item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for plotting the lines corresponding to the footprints.}
 
-\item{flankNorm}{QQQ The number of basepairs to consider at the edge of the flank region to be used for footprint normalization.}
+\item{flank}{The number of basepairs from the position center (+/-) to consider as the flank.}
 
-\item{smoothWindow}{QQQ The size in basepairs of the sliding window to be used for smoothing of the footprint signal.}
+\item{flankNorm}{The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.}
 
-\item{nTop}{QQQ The number of positions to consider. Only the top nTop positions based on QQQ will be considered for the footprint.}
+\item{smoothWindow}{The size in basepairs of the sliding window to be used for smoothing of the footprint signal.}
 
-\item{normMethod}{QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include QQQ.}
+\item{minCells}{The minimum number of cells required in a given cell group to permit footprint generation.}
 
-\item{threads}{The number threads to be used for parallel computing.}
+\item{nTop}{The number of genomic regions to consider. Only the top \code{nTop} genomic regions based on the "score" column in the GRanges will be considered for the footprint.}
+
+\item{normMethod}{The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "None", "Subtract", "Divide".}
+
+\item{inputSE}{Input a previous footprint Summarized Experiment to be plotted instead of being regenerated.}
+
+\item{height}{The height in inches to be used for the output PDF.}
+
+\item{width}{The width in inches to be used for the output PDF file.}
+
+\item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.}
+
+\item{useSink}{Use sink to hide messages during plotting.}
+
+\item{threads}{The number of threads to be used for parallel computing.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

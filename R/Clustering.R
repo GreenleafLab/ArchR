@@ -1,15 +1,25 @@
+##########################################################################################
+# Clustering Methods
+##########################################################################################
+
+#' Add cluster information to an ArchRProject
 #' 
-#' This function will identify clusters for single cell reduced dimensions supplied or from and ArchRProject
+#' This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
 #' 
-#' @param input ArchRProject or matrix for cluster identification
-#' @param reducedDims reducedDims of ArchRProject if provided
-#' @param name name of cluster column if input is ArchRProject
-#' @param method supported methods are Seurat and LouvainJaccard
-#' @param dimsToUse reduced dims to use
-#' @param knnAssign number of nearest neighbors for assignment of outliers and estimation
-#' @param nOutlier number of cells required for a cluster to be called if not then these will be considered an outlier
-#' @param seed seed
-#' @param ... arguments to provide Seurat::FindClusters or ArchR:::.clustLouvain (knn = 50, jaccard = TRUE)
+#' @param input Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.
+#' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`. Not required if input is a matrix.
+#' @param name The column name of the column to be added to `cellColData` if `input` is an `ArchRProject` object.
+#' @param sampleCells An integer specifying number of cells to subset perform clustering and assign the remainder cells by euclidean distance.
+#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param method A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.
+#' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
+#' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
+#' @param tstart The time at which the function run was started. Useful for keeping track of how long clustering takes relative to a start time. 
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
+#' @param ... Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)
 #' @export
 #'
 addClusters <- function(
@@ -40,7 +50,6 @@ addClusters <- function(
             stop("Error reducedDims not available!")
         }
         matDR <- getReducedDims(ArchRProj = input, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
-        print(dim(matDR))
     }else if(inherits(input, "matrix")){
         matDR <- input
     }else{
@@ -86,6 +95,7 @@ addClusters <- function(
 
     }else if(grepl("louvainjaccard",tolower(method))){
 
+        stop("LouvainJaccard method not currently functional!")
         clust <- .clustLouvain(matDR, ...)
 
     }else{
@@ -99,7 +109,7 @@ addClusters <- function(
     #################################################################################
     if(estimatingClusters == 1){
         .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
-        knnAssigni <- computeKNN(matDR, matDRAll[-idx,], knnAssign)
+        knnAssigni <- .computeKNN(matDR, matDRAll[-idx,], knnAssign)
         clustUnique <- unique(clust)
         clustMatch <- match(clust, clustUnique)
         knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
@@ -128,7 +138,7 @@ addClusters <- function(
         for(i in seq_along(clustAssign)){
             clusti <- names(clustAssign[i])
             idxi <- which(clust==clusti)
-            knni <- computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
+            knni <- .computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
             clustf <- unlist(lapply(seq_len(nrow(knni)), function(x) names(sort(table(clust[-idxi][knni[x,]]),decreasing=TRUE)[1])))
             clust[idxi] <- clustf
         }
@@ -149,7 +159,7 @@ addClusters <- function(
     }
     .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
     meanSVD <- t(.groupMeans(t(matDR), clust))
-    meanKNN <- computeKNN(meanSVD, meanSVD, nrow(meanSVD))
+    meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
     idx <- sample(seq_len(nrow(meanSVD)), 1)
     clustOld <- c()
     clustNew <- c()
@@ -325,9 +335,8 @@ addClusters <- function(
 
 # }
 
-#' Group Means
 #' @export
-computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
+.computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
 
   if(is.null(query)){
     query <- data
@@ -387,9 +396,4 @@ computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = 
   knnIdx
 
 }
-
-
-
-
-
 
