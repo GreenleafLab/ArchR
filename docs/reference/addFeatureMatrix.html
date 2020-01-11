@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -172,15 +175,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>An `ArchRProject` object or character vector of ArrowFiles.</p></td>
+      <td><p>An <code>ArchRProject</code> object or character vector of ArrowFiles.</p></td>
     </tr>
     <tr>
       <th>features</th>
-      <td><p>A `GRanges` object containing the regions (aka features) to use for counting insertions for each cell.</p></td>
+      <td><p>A <code>GRanges</code> object containing the regions (aka features) to use for counting insertions for each cell.</p></td>
     </tr>
     <tr>
       <th>matrixName</th>
-      <td><p>The name to be used for storage of the feature matrix in the provided `ArchRProject` or ArrowFiles.</p></td>
+      <td><p>The name to be used for storage of the feature matrix in the provided <code>ArchRProject</code> or ArrowFiles.</p></td>
     </tr>
     <tr>
       <th>ceiling</th>
@@ -196,11 +199,11 @@
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArchRProject` or ArrowFiles.</p></td>
+      <td><p>QQQ A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given <code>ArchRProject</code> or ArrowFiles.</p></td>
     </tr>
     </table>
     

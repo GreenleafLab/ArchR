@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -166,30 +169,30 @@
     <pre class="usage"><span class='fu'>addCoAccessibility</span>(<span class='no'>ArchRProj</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>knnIteration</span> <span class='kw'>=</span> <span class='fl'>5000</span>, <span class='kw'>overlapCutoff</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>maxDist</span> <span class='kw'>=</span> <span class='fl'>250000</span>,
   <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>, <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>knnMethod</span> <span class='kw'>=</span> <span class='st'>"nabor"</span>,
-  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>floor</a></span>(<span class='fu'>detectCores</span>()/<span class='fl'>2</span>), <span class='no'>...</span>)</pre>
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.</p></td>
+      <td><p>The name of the <code>reducedDims</code> object (i.e. IterativeLSI) to retrieve from the designated <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>QQQ The number of k-nearest neighbors to use for QQQ.</p></td>
+      <td><p>The number of k-nearest neighbors to use for creating single cell groups for correlation.</p></td>
     </tr>
     <tr>
       <th>knnIteration</th>
-      <td><p>The number of KNN groupings to test for passing the supplied `overlapCutoff`.</p></td>
+      <td><p>The number of KNN groupings to test for passing the supplied <code>overlapCutoff</code>.</p></td>
     </tr>
     <tr>
       <th>overlapCutoff</th>
-      <td><p>QQQ The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during QQQ k-nearest neighbor calculations.</p></td>
+      <td><p>The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.</p></td>
     </tr>
     <tr>
       <th>maxDist</th>
@@ -197,15 +200,15 @@
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>A numeric value indicating how to scale the accessibility of a QQQ group prior to computing co-accessibility correlations.</p></td>
+      <td><p>A numeric value indicating how to scale the accessibility of a single cell group prior to computing co-accessibility correlations.</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>A boolean value indicating whether to log2 transform the QQQ prior to computing co-accessibility correlations.</p></td>
+      <td><p>A boolean value indicating whether to log2 transform the single cell groups prior to computing co-accessibility correlations.</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
+      <td><p>A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>knnMethod</th>

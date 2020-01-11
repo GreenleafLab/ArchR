@@ -41,7 +41,7 @@
 
 <meta property="og:title" content="Add Supervised Trajectory to an ArchR Project — addTrajectory" />
 
-<meta property="og:description" content="This function will fit a supervised trajectory in a lower dimensional space that 
+<meta property="og:description" content="This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses." />
 
 <meta property="og:image" content="/logo.png" />
@@ -83,7 +83,7 @@ can then be used for downstream analyses." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -105,7 +105,10 @@ can then be used for downstream analyses." />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -125,7 +128,7 @@ can then be used for downstream analyses." />
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -160,7 +163,7 @@ can then be used for downstream analyses." />
 
     <div class="ref-description">
     
-    <p>This function will fit a supervised trajectory in a lower dimensional space that 
+    <p>This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses.</p>
     
     </div>
@@ -175,11 +178,11 @@ can then be used for downstream analyses.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>A string indicating the name of the fitted trajectory to be added in `cellColData`.</p></td>
+      <td><p>A string indicating the name of the fitted trajectory to be added in <code>cellColData</code>.</p></td>
     </tr>
     <tr>
       <th>trajectory</th>
@@ -191,7 +194,7 @@ can then be used for downstream analyses.</p>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.</p></td>
+      <td><p>A string indicating the name of the <code>reducedDims</code> object from the <code>ArchRProject</code> that should be used for distance computation.</p></td>
     </tr>
     <tr>
       <th>preFilter</th>
@@ -211,7 +214,7 @@ can then be used for downstream analyses.</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.</p></td>
+      <td><p>QQQ A boolean value indicating whether to force the trajactory indicated by <code>name</code> to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>

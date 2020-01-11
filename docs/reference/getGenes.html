@@ -41,7 +41,7 @@
 
 <meta property="og:title" content="Get the genes from an ArchRProject — getGenes" />
 
-<meta property="og:description" content="This function gets the genes (in format QQQ) from the geneAnnotation of a given ArchRProject." />
+<meta property="og:description" content="This function gets the genes start to end coordinates as a GRanges from the geneAnnotation of a given ArchRProject." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -159,7 +162,7 @@
 
     <div class="ref-description">
     
-    <p>This function gets the genes (in format QQQ) from the geneAnnotation of a given ArchRProject.</p>
+    <p>This function gets the genes start to end coordinates as a GRanges from the geneAnnotation of a given ArchRProject.</p>
     
     </div>
 
@@ -170,11 +173,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>symbols</th>
-      <td><p>A character vector containing the gene symbols to subset from the `geneAnnotation`.</p></td>
+      <td><p>A character vector containing the gene symbols to subset from the <code>geneAnnotation</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>

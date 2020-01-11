@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -174,43 +177,43 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>input</th>
-      <td><p>Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.</p></td>
+      <td><p>Either (i) an <code>ArchRProject</code> object containing the dimensionality reduction matrix passed by <code>reducedDims</code> or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ. QQQ Not required if input is a matrix.</p></td>
+      <td><p>The name of the <code>reducedDims</code> object (i.e. IterativeLSI) to retrieve from the designated <code>ArchRProject</code>. Not required if input is a matrix.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The column name of the column to be added to `cellColData` if `input` is an `ArchRProject` object.</p></td>
+      <td><p>The column name of the column to be added to <code>cellColData</code> if <code>input</code> is an <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>sampleCells</th>
-      <td><p>A vector containing the names (QQQ or indicies??) of the cells to which cluster information should be added in `cellColData`.</p></td>
+      <td><p>An integer specifying number of cells to subset perform clustering and assign the remainder cells by euclidean distance.</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>QQQ A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
+      <td><p>A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>A string indicated the clustering method to be used. Supported methods are "Seurat" and "LouvainJaccard".</p></td>
+      <td><p>A string indicated the clustering method to be used. Supported methods are "Seurat" and "Scran".</p></td>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>QQQ A vector containing the dimensions from the `reducedDims` object to use in clustering.</p></td>
+      <td><p>A vector containing the dimensions from the <code>reducedDims</code> object to use in clustering.</p></td>
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>knnAssign</th>
-      <td><p>QQQ The number of nearest neighbors to be used during clustering for assignment of outliers and estimation of QQQ.</p></td>
+      <td><p>The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).</p></td>
     </tr>
     <tr>
       <th>nOutlier</th>
-      <td><p>The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers.</p></td>
+      <td><p>The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -218,15 +221,15 @@
     </tr>
     <tr>
       <th>tstart</th>
-      <td><p>QQQ The time at which the function run was started.</p></td>
+      <td><p>The time at which the function run was started. Useful for keeping track of how long clustering takes relative to a start time.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.</p></td>
+      <td><p>A boolean value that indicates whether or not to overwrite data in a given column when the value passed to <code>name</code> already exists as a column name in <code>cellColData</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Additional arguments to be provided to Seurat::FindClusters or ArchR:::.clustLouvain (for example, knn = 50, jaccard = TRUE)</p></td>
+      <td><p>Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)</p></td>
     </tr>
     </table>
     

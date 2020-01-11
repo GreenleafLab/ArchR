@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -171,23 +174,23 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>QQQ The name of the `reducedDims` object to retrieve from the designated `ArchRProject`. Options include QQQ.</p></td>
+      <td><p>The name of the <code>reducedDims</code> object (i.e. IterativeLSI) to retrieve from the designated <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>returnMatrix</th>
-      <td><p>If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.</p></td>
+      <td><p>If set to "mat" or "matrix", the function will return the <code>reducedDims</code> object as a matrix with entries for each individual cell. Otherwise, it will return the full <code>reducedDims</code> object.</p></td>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>QQQ A vector containing the dimensions to return from the `reducedDims` object.</p></td>
+      <td><p>A vector containing the dimensions (i.e. 1:25) to return from the <code>reducedDims</code> object.</p></td>
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>QQQ A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is QQQ greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded.</p></td>
     </tr>
     <tr>
       <th>...</th>

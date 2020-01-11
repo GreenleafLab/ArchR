@@ -45,7 +45,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Tutorial</a>
+  <a href="../../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -67,7 +67,7 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores</a>
     </li>
     <li>
       <a href="../../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
@@ -90,7 +90,7 @@
   </ul>
 </li>
 <li>
-  <a href="../../articles/faq.html">FAQ</a>
+  <a href="../../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../../reference/index.html">Reference</a>
@@ -132,14 +132,13 @@
 <a href="#marker-features" class="anchor"></a>Marker Features</h3>
 <p>An alternative less-supervised method for elucidation of cluster-specifc biology is the identification of features that are highly specific to the given cell group (or a small number of cell groups). Here, a feature could be a single regulatory element or it could be a gene. ArchR does this using the <code><a href="../../reference/markerFeatures.html">markerFeatures()</a></code> function which can take as input any matrix via the <code>useMatrix</code> parameter and it identifies features unique to the groups indicated by the <code>groupBy</code> parameter (default is “Clusters”). If the <code>useMatrix</code> parameter is set to “GeneScoreMatrix”, then the function will identify the genes that appear to be uniquely active in each cell type. This provides an unbiased way of seeing which genes are predicted to be active in each cluster and can aid in cluster annotation.</p>
 <p>As mentioned above, the same <code><a href="../../reference/markerFeatures.html">markerFeatures()</a></code> function can be used with any matrix stored in the ArrowFiles to identify features that are specific to certain cell groups. This is accomplished via the <code>useMatrix</code> parameter. For example, <code>useMatrix = "TileMatrix"</code> would identify genomic regions that are highly specific to a certain cell group and <code>useMatrix = "PeakMatrix"</code> would identify peaks that are highly specific to a certain cell group.</p>
-<p><strong>Can you not set the max number of clusters that can have the activity??</strong></p>
 </div>
 <div id="how-does-this-happen" class="section level3">
 <h3 class="hasAnchor">
 <a href="#how-does-this-happen" class="anchor"></a>How does this happen?</h3>
 <p>This process of marker feature identification hinges on the selection of a group of bias-matched background cells for each cell group. Across all features, each cell group is compared to its own background group of cells to determine if the given cell group has significantly higher accessibility. Then, ArchR looks for features that are uniquely significantly accessible in a single cell group (or a small number of cell groups).</p>
 <div class="figure">
-<img src="markerFeature_schematic.png" width="600">
+<img src="markerFeature_schematic.png" width="500">
 </div>
 <p>The selection of these background cell groups is critical to the success of this process and is performed across the multidimensional space provided by the user via the <code>bias</code> argument to <code><a href="../../reference/markerFeatures.html">markerFeatures()</a></code>. For each cell in the cell group, ArchR finds the nearest neighbor cell across the provided multidimensional space that is not a member of the given cell group and adds it to the background group of cells. In this way, ArchR creates a group of bias-matched cells that is as similar as possible to the given cell group, thus enabling a more robust determination of significance even if the group of cells is small.</p>
 <p>The way ArchR does this is by taking all of the dimensions provided via the <code>bias</code> parameter and quantile normalizing their values to distribute the variance of each dimension across the same relative scale. Taking a toy example, if the parameters <code>TSS</code> and <code>log10(Num Fragments)</code> were provided to <code>bias</code>, the pre-quantile normalized values might look like this:</p>

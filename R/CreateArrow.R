@@ -25,7 +25,7 @@
 #' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each Arrow file. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome.
 #' @param TileMatParams A list of parameters to pass to the `addTileMatrix()` function. See `ArchR::addTileMatrix()` for options.
 #' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each Arrow file. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.
-#' @param GeneScoreMatParams A list of parameters to pass to the `addGeneScoreMatrix()` function. See `ArchR::addGeneScoreMatrix()` for options.
+#' @param GeneScoreMatParams A list of parameters to pass to the [addGeneScoreMatrix()] function. See `ArchR::addGeneScoreMatrix()` for options.
 #' @param force A boolean value indicating whether to force arrow files to be overwritten if they already exist in `outDir`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.

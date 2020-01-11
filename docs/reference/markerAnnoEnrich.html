@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -165,18 +168,18 @@
 
     <pre class="usage"><span class='fu'>markerAnnoEnrich</span>(<span class='kw'>seMarker</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>annotations</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>matches</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='st'>"FDR &lt;= 0.01 &amp; Log2FC &gt;= 0.5"</span>, <span class='kw'>background</span> <span class='kw'>=</span> <span class='st'>"bgdPeaks"</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='st'>"FDR &lt;= 0.1 &amp; Log2FC &gt;= 0.5"</span>, <span class='kw'>background</span> <span class='kw'>=</span> <span class='st'>"bgdPeaks"</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seMarker</th>
-      <td><p>QQQ A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.</p></td>
+      <td><p>QQQ A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>ArchR::markerFeatures()</a></code>.</p></td>
     </tr>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>annotations</th>
@@ -188,7 +191,7 @@
     </tr>
     <tr>
       <th>cutOff</th>
-      <td><p>A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.</p></td>
+      <td><p>A valid-syntax logical statement that defines which marker features from <code>seMarker</code> will be plotted in the heatmap. <code>cutoff</code> can contain any of the <code>assayNames</code> from <code>seMarker</code>.</p></td>
     </tr>
     <tr>
       <th>background</th>

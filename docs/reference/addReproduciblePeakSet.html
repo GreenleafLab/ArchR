@@ -83,7 +83,7 @@ and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -105,7 +105,10 @@ and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -125,7 +128,7 @@ and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -168,7 +171,7 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     <pre class="usage"><span class='fu'>addReproduciblePeakSet</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
   <span class='kw'>reproducibility</span> <span class='kw'>=</span> <span class='st'>"2"</span>, <span class='kw'>peaksPerCell</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>maxPeaks</span> <span class='kw'>=</span> <span class='fl'>150000</span>,
   <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>excludeChr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrM"</span>, <span class='st'>"chrY"</span>),
-  <span class='kw'>pathToMacs2</span> <span class='kw'>=</span> <span class='fu'>findMacs2</span>(), <span class='kw'>genomeSize</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>shift</span> <span class='kw'>=</span> -<span class='fl'>75</span>,
+  <span class='kw'>pathToMacs2</span> <span class='kw'>=</span> <span class='fu'><a href='findMacs2.html'>findMacs2</a></span>(), <span class='kw'>genomeSize</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>shift</span> <span class='kw'>=</span> -<span class='fl'>75</span>,
   <span class='kw'>extsize</span> <span class='kw'>=</span> <span class='fl'>150</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"q"</span>, <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>extendSummits</span> <span class='kw'>=</span> <span class='fl'>250</span>,
   <span class='kw'>promoterDist</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>genomeAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGenomeAnnotation.html'>getGenomeAnnotation</a></span>(<span class='no'>ArchRProj</span>),
   <span class='kw'>geneAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGeneAnnotation.html'>getGeneAnnotation</a></span>(<span class='no'>ArchRProj</span>),
@@ -181,15 +184,15 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>QQQ The name of the column in `cellColData` to use for grouping cells together for marker feature identification.</p></td>
+      <td><p>QQQ The name of the column in <code>cellColData</code> to use for grouping cells together for marker feature identification.</p></td>
     </tr>
     <tr>
       <th>reproducibility</th>
-      <td><p>A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of `n` where `n` is the number of samples being assessed. For example, `reproducibility = "2"` means at least 2 samples must have a peak call at this locus and `reproducibility = "(n+1)/2"` means that the majority of samples must have a peak call at this locus.</p></td>
+      <td><p>A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of <code>n</code> where <code>n</code> is the number of samples being assessed. For example, <code>reproducibility = "2"</code> means at least 2 samples must have a peak call at this locus and <code>reproducibility = "(n+1)/2"</code> means that the majority of samples must have a peak call at this locus.</p></td>
     </tr>
     <tr>
       <th>peaksPerCell</th>
@@ -205,7 +208,7 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>excludeChr</th>
-      <td><p>A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.</p></td>
+      <td><p>A character vector containing the <code>seqnames</code> of the chromosomes that should be excluded from peak calling.</p></td>
     </tr>
     <tr>
       <th>pathToMacs2</th>
@@ -217,23 +220,23 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>shift</th>
-      <td><p>The number of basepairs to shift each Tn5 insertion. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).</p></td>
+      <td><p>The number of basepairs to shift each Tn5 insertion. When combined with <code>extsize</code> this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>extsize</th>
-      <td><p>The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).</p></td>
+      <td><p>The number of basepairs to extend the MACS2 fragment after <code>shift</code> has been applied. When combined with <code>extsize</code> this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with `cutOff` this gives the method and significance threshold for peak calling (see MACS2 documentation).</p></td>
+      <td><p>The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with <code>cutOff</code> this gives the method and significance threshold for peak calling (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
-      <td><p>The numeric significance cutoff for the testing method indicated by `method` (see MACS2 documentation).</p></td>
+      <td><p>The numeric significance cutoff for the testing method indicated by <code>method</code> (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>extendSummits</th>
-      <td><p>The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.</p></td>
+      <td><p>The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, <code>extendSummits = 250</code> will create 501-bp fixed-width peaks from the 1-bp summits.</p></td>
     </tr>
     <tr>
       <th>promoterDist</th>
@@ -257,11 +260,11 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>parallelParam</th>
-      <td><p>QQQ A list of parameters to be passed to QQQ for batch-style parallel computing.</p></td>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject`.</p></td>
+      <td><p>QQQ A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>

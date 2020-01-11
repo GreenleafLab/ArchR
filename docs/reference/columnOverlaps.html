@@ -82,7 +82,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -104,7 +104,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -124,7 +127,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -171,23 +174,23 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>query</th>
-      <td><p>A `GRanges` object to be used as the query in `findOverlaps()`.</p></td>
+      <td><p>A <code>GRanges</code> object to be used as the query in <code>findOverlaps()</code>.</p></td>
     </tr>
     <tr>
       <th>subject</th>
-      <td><p>A `GRanges` object to be used as the subject in `findOverlaps()`.</p></td>
+      <td><p>A <code>GRanges</code> object to be used as the subject in <code>findOverlaps()</code>.</p></td>
     </tr>
     <tr>
       <th>colname</th>
-      <td><p>The column name from `mcols(gr)` to return for the overlapping regions. Mandatory parameter; cannot be `NULL`.</p></td>
+      <td><p>The column name from <code>mcols(gr)</code> to return for the overlapping regions. Mandatory parameter; cannot be <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>ignore.strand</th>
-      <td><p>A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.</p></td>
+      <td><p>A boolean value indicating whether strandedness should be ignored in <code>findOverlaps()</code>.</p></td>
     </tr>
     <tr>
       <th>decreasing</th>
-      <td><p>A boolean value indicating whether the returned `data.frame` should be ordered in decreasing order based on `colname`.</p></td>
+      <td><p>A boolean value indicating whether the returned <code>data.frame</code> should be ordered in decreasing order based on <code>colname</code>.</p></td>
     </tr>
     </table>
     

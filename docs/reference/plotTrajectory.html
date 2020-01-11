@@ -80,7 +80,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/ArchR.html">Tutorial</a>
+  <a href="../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -102,7 +102,10 @@
       <a href="../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -122,7 +125,7 @@
   </ul>
 </li>
 <li>
-  <a href="../articles/faq.html">FAQ</a>
+  <a href="../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -172,15 +175,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An `ArchRProject` object.</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>embedding</th>
-      <td><p>The name of the embedding to use to visualize the given `trajectory`. See `ArchR::computeEmbedding()` for more information.</p></td>
+      <td><p>The name of the embedding to use to visualize the given <code>trajectory</code>. See <code>ArchR::computeEmbedding()</code> for more information.</p></td>
     </tr>
     <tr>
       <th>trajectory</th>
-      <td><p>The name of the trajectory as a column in `cellColData` to plot.</p></td>
+      <td><p>The name of the trajectory as a column in <code>cellColData</code> to plot.</p></td>
     </tr>
     <tr>
       <th>colorBy</th>
@@ -188,7 +191,7 @@
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The name of the trajectory as a column in `cellColData` to plot.</p></td>
+      <td><p>The name of the trajectory as a column in <code>cellColData</code> to plot.</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
@@ -196,11 +199,11 @@
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>QQQ The name or numeric index of a custom palette from `ArchRPalettes` to use for QQQ.</p></td>
+      <td><p>QQQ The name or numeric index of a custom palette from <code>ArchRPalettes</code> to use for QQQ.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p>QQQ A number indicating the size of the points to plot if `plotAs` is set to "points".</p></td>
+      <td><p>QQQ A number indicating the size of the points to plot if <code>plotAs</code> is set to "points".</p></td>
     </tr>
     <tr>
       <th>rastr</th>
@@ -210,14 +213,14 @@
       <th>quantCut</th>
       <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of the 97.5th and 2.5th percentile values respectively.} --></p>
 <p>quantHexQQQ UNCLEAR quantile evaluation for each hex in geom_hex</p>
-<p>discreteSetQQQ The name or numeric index of a discrete palette from `ArchRPalettes` for visualizing QQQ in the embedding.</p>
-<p>continuousSetQQQ The name or numeric index of a continuous palette from `ArchRPalettes` for visualizing QQQ in the embedding.</p>
+<p>discreteSetQQQ The name or numeric index of a discrete palette from <code>ArchRPalettes</code> for visualizing QQQ in the embedding.</p>
+<p>continuousSetQQQ The name or numeric index of a continuous palette from <code>ArchRPalettes</code> for visualizing QQQ in the embedding.</p>
 <p>randomizeA boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.</p>
 <p>keepAxisA boolean value that indicates whether the x and y axis ticks and labels should be plotted.</p>
 <p>baseSizeQQQ The base font size to use in the plot.</p>
 <p>addArrowQQQ A boolean value that indicates whether QQQ.</p>
 <p>plotAsA string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.</p>
-<p>plotParamsAdditional parameters to pass to `ggPoint()` or `ggHex()`.</p>
+<p>plotParamsAdditional parameters to pass to <code><a href='ggPoint.html'>ggPoint()</a></code> or <code><a href='ggHex.html'>ggHex()</a></code>.</p>
 <p>...additional args</p></td>
     </tr>
     </table>

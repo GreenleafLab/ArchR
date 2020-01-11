@@ -45,7 +45,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Tutorial</a>
+  <a href="../../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -67,7 +67,10 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -87,7 +90,7 @@
   </ul>
 </li>
 <li>
-  <a href="../../articles/faq.html">FAQ</a>
+  <a href="../../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../../reference/index.html">Reference</a>
@@ -130,14 +133,14 @@
 <ol style="list-style-type: decimal">
 <li>Enough different samples (at least the max # replicates) each have more than the minimum number of cells to create pseudo-bulk replicates in a sample-aware fashion, combining only cells from the same sample into a single replicate.</li>
 <li>Some samples each have more than the minimum number of cells to create pseudo-bulk replicates in a sample-aware fashion. The remaing required replicates are created by combining cells <em>without replacement</em> from <strong>samples that are not already represented in the sample-aware pseudobulks</strong>.</li>
-<li>No samples have more than the minimum number of cells to create a sample-aware pseudo-bulk replicate. All required replicates are created by combining cells <em>without replacement</em> from <strong>in a sample-agnostic fashion</strong>.</li>
+<li>No samples have more than the minimum number of cells to create a sample-aware pseudo-bulk replicate but there are more cells than <code>minCells * minReps</code>. All required replicates are created by combining cells <em>without replacement</em> from <strong>in a sample-agnostic fashion</strong>.</li>
 <li>The total number of cells within a cell grouping is less than the minimum number of cells multiplied by the minimum number of replicates <strong>but greater than the minimum number of cells divided by the sampling ratio</strong>. Create the minimum number of replicates by sampling <strong>without</strong> replacement within a single replicate but <strong>with</strong> replacement across replicates while minimizing the number of cells present in multiple pseudo-bulk replicates.</li>
-<li>The total number of cells within a cell grouping is less than the minimum number of cells divided by the sampling ratio. This means that there are not sufficient cells to make worthwhile pseudo-bulk replicates. No replicates will be created and this cluster will be excluded from replicate-based analyses.</li>
+<li>The total number of cells within a cell grouping is less than the minimum number of cells divided by the sampling ratio. This means that we must make replicates by sampling with replacement within a single replicate and across different replicates. This is the worst case scenario and users should be cautious about using these pseudo-bulk replicates downstream. This can be controled in various functions using the <code>minCells</code> parameter.</li>
 </ol>
 <p>To illustrate this process, we will use the following example data set:</p>
 <pre><code>Sample  Cluster1    Cluster2    Cluster3    Cluster4    Cluster5
-A       800         600         900         100         100
-B       1000        50          400         150         50
+A       800         600         900         100         75
+B       1000        50          400         150         25
 C       600         900         100         200         50
 D       1200        500         50          50          25
 E       900         100         50          150         50
@@ -186,9 +189,12 @@ Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overla
 <div id="cluster5" class="section level4">
 <h4 class="hasAnchor">
 <a href="#cluster5" class="anchor"></a>Cluster5</h4>
-<p>For Cluster5, the total number of cells is 300 which is less than <code>minCells * minReps</code> (900 cells) and less than <code>minCells / sampleRatio</code> (375 cells). This means that we do not have sufficient cells to make pseudo-bulk replicates. This represents the least desirable situation illustrated in Option#5 above and we will therefore remove this cell grouping from downstream analyses that require replicates.</p>
+<p>For Cluster5, the total number of cells is 250 which is less than <code>minCells * minReps</code> (900 cells) and less than <code>minCells / sampleRatio</code> (375 cells). This means that we we will have to sample with replacement within each sample and across different replicates to make pseudo-bulk replicates. This represents the least desirable situation illustrated in Option#5 above and we should therefore be cautious in using these pseudo-bulk replicates in downstream analyses. We will therefore make the following replicates:</p>
+<pre><code>Rep1 = 300 cells [250 unique cells + 25 cells overlapping Rep2 + 25 cells overlapping Rep3]
+Rep2 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep3]
+Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep2]</code></pre>
 <div class="figure">
-<img src="pseudobulkReplicate_DecisionTree.png" width="1000">
+<img src="../../images/pseudobulkReplicate_DecisionTree.png" width="1000">
 </div>
 </div>
   </div>

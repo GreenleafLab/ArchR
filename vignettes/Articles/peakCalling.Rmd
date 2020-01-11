@@ -1,11 +1,10 @@
 ---
 title: "Peak Calling"
-resource_files:
-  - images/peakCalling_RawOverlap.png
-  - images/peakCalling_ClusteredOverlap.png
-  - images/peakCalling_IterativeOverlap.png
-  - images/peakCalling_Comparison.png
 ---
+
+```{r image, include=FALSE}
+knitr::include_graphics(c("../../images/peakCalling_RawOverlap.png","../../images/peakCalling_ClusteredOverlap.png","../../images/peakCalling_IterativeOverlap.png","../../images/peakCalling_Comparison.png"))
+```
 
 We first introduced a strategy for iterative peak merging in 2018 [(Corces* & Granja* et al. Science 2018 - See Supplementary Methods)](https://science.sciencemag.org/content/362/6413/eaav1898). Other peak merging strategies suffer from a few key issues that we outline below.
 
@@ -18,25 +17,25 @@ Below, we use the same toy example of a few cell types with a few different peak
 
 Raw peak overlap involves taking any peaks that overlap each other and merging these into a single larger peak. In this scheme, daisy-chaining becomes a large problem because peaks that dont directly overlap each other get included in the same larger peak because they are bridged by a shared internal peak. Another problem with this type of approach is that, if you want to keep track of peak summits, you are forced to pick a single summit for this each new merged peak.
 
-![](peakCalling_RawOverlap.png){width=350px}
+![](../../images/peakCalling_RawOverlap.png){width=350px}
 
 #### Clustered Overlap Using _bedtools cluster_
 
 Clustered overlap takes peaks that cluster together and picks a single winner. This is often done by using _bedtools cluster_ and then keeping the most significant peak in each cluster. In our experience, this ends up under-calling and misses smaller peaks located nearby.
 
-![](peakCalling_ClusteredOverlap.png){width=350px}
+![](../../images/peakCalling_ClusteredOverlap.png){width=350px}
 
 #### Iterative Overlap In ArchR
 
 Iterative overlap removal avoids the issues mentioned above. Peaks are first ranked by their significance. The most significant peak is retained and any peak that directly overlaps with the most significant peak is removed from further analysis. Then, of the remaining peaks, this process is repeated until no more peaks exist. This avoids daisy-chaining and still allows for use of fixed-width peaks. It is important to note that we use a normalized metric of significance for peaks because the reported MACS2 significance is proportional to the sequencing depth.
 
-![](peakCalling_IterativeOverlap.png){width=350px}
+![](../../images/peakCalling_IterativeOverlap.png){width=350px}
 
 ### Comparison of Peak Calling Methods
 
 Comparing the peak calls resulting from all of these methods directly shows clear differences in the final peak sets. It is our opinion that the iterative overlap peak merging process yields the best peak set with the fewest caveats.
 
-![](peakCalling_Comparison.png){width=350px}
+![](../../images/peakCalling_Comparison.png){width=350px}
 
 ### What if I don't like this iterative overlap peak merging process?
 

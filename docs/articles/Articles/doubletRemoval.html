@@ -45,7 +45,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../articles/ArchR.html">Tutorial</a>
+  <a href="../../articles/Articles/tutorial.html">Tutorial</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -67,7 +67,10 @@
       <a href="../../articles/Articles/dimReduction.html">Dimensionality Reduction</a>
     </li>
     <li>
-      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores and Marker Genes</a>
+      <a href="../../articles/Articles/geneScores.html">Gene Activity Scores</a>
+    </li>
+    <li>
+      <a href="../../articles/Articles/markerFeatures.html">Marker Feature Identification</a>
     </li>
     <li>
       <a href="../../articles/Articles/signalTracks.html">Signal Track Ploting</a>
@@ -87,7 +90,7 @@
   </ul>
 </li>
 <li>
-  <a href="../../articles/faq.html">FAQ</a>
+  <a href="../../articles/Articles/faq.html">FAQ</a>
 </li>
 <li>
   <a href="../../reference/index.html">Reference</a>
@@ -129,7 +132,7 @@
 <p>INSERT PRE-DOUBLET REMOVAL UMAP HERE</p>
 <p>To predict which “cells” are actually doublets, we synthesize in silico doublets from the data by mixing the reads from thousands of combinations of individual cells. We then project these synthetic doublets into the UMAP embedding and identify their nearest neighbor. By iterating this procedure thousands of times, we can identify “cells” in our data whose signal looks very similar to synthetic doublets.</p>
 <div class="figure">
-<img src="doubletRemoval.png" width="450">
+<img src="../../images/doubletRemoval.png" width="450">
 </div>
 <p><span class="math inline">\(~\)</span></p>
 <p>In real world data, this allows us to score each of our “cells” by a doublet likelihood score, identifying “cells” that are statistically likely to be doublets.</p>

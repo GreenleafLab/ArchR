@@ -1,8 +1,10 @@
 ---
 title: "Pseudo-bulk Replicate Generation"
-resource_files:
-  - images/pseudobulkReplicate_DecisionTree.png
 ---
+
+```{r image, include=FALSE}
+knitr::include_graphics(c("../../images/pseudobulkReplicate_DecisionTree.png"))
+```
 
 Many of the analyses we would like to perform require replicates to obtain measurements of statistical significance. In single-cell data, this is done by forming _pseudo-bulk replicates_. The term _pseudo-bulk_ refers to a grouping of single cells where the data from each single cell is combined into a single pseudo-sample that resembles a bulk ATAC-seq experiment. ArchR makes multiple such pseudo-bulk sapmles for each cell grouping, hence the term _pseudo-bulk replicates_.
 
@@ -80,4 +82,4 @@ Rep2 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overla
 Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep2]
 ```
 
-![](pseudobulkReplicate_DecisionTree.png){width=1000px}
+![](../../images/pseudobulkReplicate_DecisionTree.png){width=1000px}
