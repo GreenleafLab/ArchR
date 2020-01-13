@@ -27,11 +27,11 @@ knitr::include_graphics(
   )
 ```
 
-The following tutorial shows the basics of setting up and interacting with an ArchR Project using a gold-standard dataset of hematopoietic cells ( CITATION ). This tutorial and all of the accompanying vignettes assume that you are running ArchR __locally__. Once all of these steps work for you, feel free to [set up ArchR to work in a cluster environment](articles/Articles/clusterComputing.html). This tutorial does not explain every detail of every step. Please see the [Vignettes section](articles/index.html) for more details on each major analytical step and all of the major features of ArchR.
+The following tutorial shows the basics of setting up and interacting with an ArchR Project using a gold-standard downsampled dataset of hematopoietic cells [Granja* et al. Nature Biotechnology 2019](https://www.ncbi.nlm.nih.gov/pubmed/31792411). This tutorial and all of the accompanying vignettes assume that you are running ArchR __locally__. Once all of these steps work for you, feel free to [set up ArchR to work in a cluster environment](articles/Articles/clusterComputing.html). This tutorial does not explain every detail of every step. Please see the [Vignettes section](articles/index.html) for more details on each major analytical step and all of the major features of ArchR.
 
 # What is an `ArrowFile` / `ArchRProject`?
 
-The base unit of an analytical project in ArchR is called an `ArrowFile`. Each `ArrowFile`, stores all of the data associated with an individual sample. Here, a sample would be the most detailed unit of analysis desired (for ex. a single replicate of a particular condition). During creation and as additional analyses are performed, ArchR updates and edits each `ArrowFile` to contain additional layers of information.
+The base unit of an analytical project in ArchR is called an `ArrowFile`. Each `ArrowFile`, stores all of the data associated with an individual sample (i.e. metadata, accessible fragments and data matrices). Here, a sample would be the most detailed unit of analysis desired (for ex. a single replicate of a particular condition). During creation and as additional analyses are performed, ArchR updates and edits each `ArrowFile` to contain additional layers of information.
 Then, an `ArchRProject` allows you to associate these `ArrowFiles` together into a single analytical framework.
 
 ![](../../images/ArchRProject_Schematic.png){width=700px}
@@ -42,14 +42,14 @@ Certain actions can be taken directly on `ArrowFiles` while other actions are ta
 
 # Getting Set Up
 
-The first thing we do is set up our working directory, load our genome annotations, and set the number of threads we would like to use. Depending on the configuration of your local environment, you may need to modify the number of `threads` used below.
+The first thing we do is set up our working directory, load our genome annotations, and set the number of threads we would like to use. Depending on the configuration of your local environment, you may need to modify the number of `threads` used below in `addArchRThreads`.
 
 ```{r eval=FALSE}
 #Load R Libraries
 library(ArchR)
 
 #Set/Create Working Directory to Folder for Analysis
-wd <- ""
+wd <- "/Volumes/JG_SSD_2/Data/Analysis/Tutorial/Heme_Tutorial3"
 dir.create(wd, showWarnings = FALSE, recursive = TRUE)
 setwd(wd)
 
@@ -61,27 +61,30 @@ geneAnno <- geneAnnoHg19
 genomeAnno <- genomeAnnoHg19
 
 #Set Default Threads for ArchR Functions
-#By default ArchR uses the total number of cores / 2.
+#By default ArchR uses the total number of cores available / 2. If windows this will be set to 1.
 addArchRThreads()
 ```
 
 # Creating Arrow Files
 
-For this tutorial, we will download a collection of fragment files. Fragment files are one of the base file types of the 10x Genomics analytical platform and can be easily created from any bam file. See [the ArchR input types vignette](articles/Articles/inputFiles.html) for information on making your own fragment files. Once we have our fragment files, we provide their names as a vector to `createArrowFiles`. During creation, some basic matrices and data is added to each `ArrowFile` including a `TileMatrix` containing insertion counts across genome-wide 500-bp bins.
+For this tutorial, we will download a collection of fragment files. Fragment files are one of the base file types of the 10x Genomics analytical platform (and others) and can be easily created from any bam file. See [the ArchR input types vignette](articles/Articles/inputFiles.html) for information on making your own fragment files. Once we have our fragment files, we provide their names as a character vector to `createArrowFiles`. During creation, some basic matrices and data is added to each `ArrowFile` including a `TileMatrix` containing insertion counts across genome-wide 500-bp bins (see `addTileMatrix`) and a `GeneScoreMatrix` that is determined based on weighting insertion counts in tiles nearby a gene promoter (see `addGeneScoreMatrix`).
 
 ```{r eval=FALSE}
-#Get Tutorial Data ~2.2GB To Download (if downloaded already ArchR will bypass downloading)
+#Get Tutorial Data ~2.2GB To Download (if downloaded already ArchR will bypass downloading).
 inputFiles <- getTutorialData("Hematopoiesis")
 
-#Create Arrow Files (~10-15 minutes)
-#It is important
+#Create Arrow Files (~10-15 minutes) w/ helpful messages displaying progress.
+#This step will for each sample :
+# 1. Read Accessible Fragments.
+# 2. Identify Cells QC Information (TSS Enrichment, Nucleosome info).
+# 3. Filter Cells based on QC parameters.
+# 4. Create a TileMatrix 500-bp genome-wide.
+# 5. Create a GeneScoreMatrix.
 ArrowFiles <- createArrowFiles(
   inputFiles = inputFiles,
   sampleNames = names(inputFiles),
   geneAnno = geneAnno,
-  genomeAnno = genomeAnno,
-  threads = threads,
-  force = FALSE
+  genomeAnno = genomeAnno
 )
 ```
 
@@ -91,9 +94,10 @@ One major source of trouble in single-cell data is the contribution of "doublets
 
 ```{r eval=FALSE}
 #Add Infered Doublet Scores to each Arrow File (~5-10 minutes)
-doubScores <- addDoubletScores(ArrowFiles, threads = threads)
+doubScores <- addDoubletScores(ArrowFiles)
 
 #Create ArchRProject
+#The outputDirectory here describes where all downstream analyses and plots go.
 proj <- ArchRProject(
   ArrowFiles = ArrowFiles, 
   geneAnnotation = geneAnno,
@@ -102,6 +106,9 @@ proj <- ArchRProject(
 )
 
 #Filter Doublets
+#The automatic filtering rate will be based on how many cells are in the sample, if there
+#are 5,000 cells ArchR will remove up to 250 (~5%) of the cells. If you believe more cells
+#should be excluded change the filterRatio argument apropriately.
 proj <- filterDoublets(proj)
 ```
 
@@ -114,8 +121,7 @@ At this point, we have an ArchR project that is ready to be used in downstream v
 proj <- addIterativeLSI(
   ArchRProj = proj, 
   useMatrix = "TileMatrix", 
-  reducedDimsOut = "IterativeLSI",
-  threads = threads
+  reducedDimsOut = "IterativeLSI"
 )
 
 #Identify Clusters from Iterative LSI
@@ -151,6 +157,22 @@ This [plot](../../images/tutorial_1_UMAP-Clusters.pdf) shows gene experimental s
 <center>
 ![Alt](../../images/tutorial_1_UMAP-Clusters.pdf){width=450 height=450}
 <center>
+
+## UMAP w/ Custom ColData
+To add your own information for plotting ontop of UMAP embedding we will show an example here.
+
+```{r eval=FALSE}
+
+proj <- addCellColData(ArchRProj = proj, data = , cellNames = )
+
+#Plot the UMAP Embedding with Metadata Overlayed such as Experimental Sample and Clusters.
+#To change plotting aesthetics see ?plotEmbedding parameters.
+plotList <- list()
+plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Sample")
+plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters", plotParams = list(labelMeans=TRUE))
+plotPDF(plotList = plotList, name = "UMAP-Samples-Clusters", width = 6, height = 6, ArchRProj = proj)
+
+```
 
 # Identifying Cluster Cell Types Using Marker Genes {.tabset .tabset-fade .tabset-pills}
 

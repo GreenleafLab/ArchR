@@ -220,7 +220,7 @@ addDoubletScores <- function(
     uwotUmap = uwotUmap,
     knnMethod = knnMethod,
     seed = 1, 
-    threads = threads
+    threads = subThreads
   )
 
   #################################################
