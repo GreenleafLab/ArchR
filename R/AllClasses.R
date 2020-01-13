@@ -45,14 +45,14 @@ setMethod("show", "ArchRProject",
 
 #' Create ArchRProject from ArrowFiles
 #' 
-#' This function will create an ArchRProject with given ArrowFiles.
+#' This function will create an ArchRProject from the provided ArrowFiles.
 #'
 #' @param ArrowFiles A character vector containing the names of ArrowFiles to be used.
-#' @param outputDirectory A name for the relative path of the outputDirectory for ArchR results 
-#' @param copyArrows A boolean indicating whether ArrowFiles should be copied into outputDirectory
-#' @param geneAnno The geneAnnotation (see createGeneAnnotation) is used for downstream analyses such as calculate TSS Enrichment Scores, Gene Scores, etc.
-#' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information or chromosome sizes.
-#' @param showLogo A boolean indicating whether to show ArchR Logo after successful creation of an ArchRProject.
+#' @param outputDirectory QQQ WHAT IS THIS RELATIVE TO? THE CURRENT WORKING DIR? A name for the relative path of the outputDirectory for ArchR results. Relative to the current working directory.
+#' @param copyArrows A boolean value indicating whether ArrowFiles should be copied into `outputDirectory`.
+#' @param geneAnnotation The `geneAnnotation` object (see `createGeneAnnotation()`) to be used for downstream analyses such as calculating TSS Enrichment Scores, Gene Scores, etc.
+#' @param genomeAnnotation The `genomeAnnotation` object (see `createGenomeAnnotation()`) to be used for downstream analyses requiring genome information such as nucleotide information or chromosome sizes.
+#' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an ArchRProject.
 #' @export
 ArchRProject <- function(
   ArrowFiles = NULL, 
@@ -139,7 +139,7 @@ ArchRProject <- function(
 #' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param copyArrows A boolean indicating whether to copy or copy + remove original ArrowFiles prior to saving ArchRProject.
+#' @param copyArrows A boolean value indicating whether to copy (`TRUE`) or copy + remove (`FALSE`) the original ArrowFiles prior to saving the `ArchRProject`.
 #' @export
 saveArchRProject <- function(
   ArchRProj = NULL, 
@@ -173,9 +173,9 @@ saveArchRProject <- function(
 #' 
 #' This function will load a previously saved ArchRProject and re-normalize paths for usage.
 #' 
-#' @param path A character path to an ArchRProject directory that was previously saved.
-#' @param force A boolean indicating when re-normalizing paths if an annotation/bdgPeaks is not found ignore and continue
-#' @param showLogo show ArchRLogo upon completion.
+#' @param path QQQ The full or QQQrelative path to an `ArchRProject` directory that was previously saved using `saveArchRProject()`.
+#' @param force A boolean value indicating whether non-essential objects not found during path re-normalization (i.e. peak annotations or bgdPeaks) should be ignored and loading of the `ArchRProject` should continue without throwing an error. These non-essential objects can be added to the `ArchRProject` later.
+#' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an ArchRProject.
 #' @export
 loadArchRProject <- function(
   path = "./", 
@@ -257,10 +257,10 @@ loadArchRProject <- function(
       if(!all(file.exists(bgdPeaksNew))){
         
         if(force){
-          message("BackgroundPeaks do not exist in saved ArchRProject!")
+          message("Background peaks (bgdPeaks) do not exist in saved ArchRProject!")
           metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
         }else{
-          stop("BackgroundPeaks do not exist in saved ArchRProject!")
+          stop("Background peaks (bgdPeaks) do not exist in saved ArchRProject!")
         }
 
       }else{
