@@ -5,7 +5,7 @@
 \title{Add a feature matrix to an ArchRProject or a set of ArrowFiles}
 \usage{
 addFeatureMatrix(input, features = NULL, matrixName = "FeatureMatrix",
-  ceiling = Inf, binarize = FALSE, threads = 1,
+  ceiling = Inf, binarize = FALSE, threads = getArchRThreads(),
   parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{

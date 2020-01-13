@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRBrowser.R
 \name{ArchRRegionTrack}
 \alias{ArchRRegionTrack}
-\title{Plot ArchR Region Track}
+\title{Plot an ArchR Region Track}
 \usage{
 ArchRRegionTrack(ArchRProj = NULL, region = NULL,
   groupBy = "Clusters", useGroups = NULL, useCoverages = FALSE,
@@ -10,8 +10,8 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
   sizes = c(10, 2, 4), features = getPeakSet(ArchRProj),
   geneSymbol = NULL, upstream = 50000, downstream = 50000,
   tileSize = 100, minCells = 25, normMethod = "ReadsInTSS",
-  threads = 1, ylim = NULL, baseSize = 7, borderWidth = 0.4,
-  tickWidth = 0.4, facetbaseSize = 7,
+  threads = getArchRThreads(), ylim = NULL, baseSize = 7,
+  borderWidth = 0.4, tickWidth = 0.4, facetbaseSize = 7,
   geneAnno = getGeneAnnotation(ArchRProj), title = "", ...)
 }
 \arguments{
@@ -19,19 +19,19 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{region}{A \code{GRanges} region that indicates the region to be plotted. If more than one region exists in the \code{GRanges} object, all will be plotted. If no region is supplied, then the \code{geneSymbol} argument can be used to center the plot window at the transcription start site of the supplied gene.}
 
-\item{groupBy}{A string that indicates how cells should be grouped. This string corresponds to one of the standard or user-supplied \code{cellColData} metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be used.}
+\item{groupBy}{A string that indicates how cells should be grouped. This string corresponds to one of the standard or user-supplied \code{cellColData} metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be plotted.}
 
 \item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups to be plotted.}
 
-\item{useCoverages}{A boolean indicating whether to use group coverages of pseudobulks (see createGroupCoverages) for track plotting instead of ArrowFiles}
+\item{useCoverages}{A boolean indicating whether to use group coverages instead of ArrowFiles for track plotting. See \code{addGroupCoverages()} for information on plotting ArrowFiles without the use of pseudo-bulk replicates.}
 
-\item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak bed regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).}
+\item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).}
 
-\item{sizes}{A numeric vector containing 3 values that indicate the sizes of the individual components passed in \code{plotSummary}. The order must be the same as \code{plotSummary}.}
+\item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}. The order must be the same as \code{plotSummary}.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted (This should be thought of as a bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
 
-\item{geneSymbol}{If "region" is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
+\item{geneSymbol}{If \code{region} is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
 
 \item{upstream}{The number of basepairs upstream of the transcription start site of \code{geneSymbol} to extend the plotting window. If \code{region} is supplied, this argument is ignored.}
 
@@ -39,11 +39,13 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{tileSize}{The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.}
 
-\item{normMethod}{The name of the column in \code{cellColData} object by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
+\item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}
+
+\item{normMethod}{The name of the column in \code{cellColData} by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
 
 \item{threads}{The number of threads to use for parallel execution.}
 
-\item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
+\item{ylim}{QQQ IS THIS TRUE? The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
 
 \item{baseSize}{The numeric font size to be used in the plot. This applies to all plot labels.}
 
@@ -51,11 +53,11 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{tickWidth}{The numeric line width to be used for axis tick marks.}
 
-\item{facetbaseSize}{The numeric font size to be used in the facets (gray boxes) of the plot.}
+\item{facetbaseSize}{The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.}
 
-\item{geneAnno}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.}
+\item{geneAnno}{QQQ GENE ANNO VS GENE ANNOTATION NEEDS TO BE STANDARDIZED The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.}
 
-\item{title}{The title to add at the top of the plot next to the plot genomic coordinates.}
+\item{title}{The title to add at the top of the plot next to the plot's genomic coordinates.}
 
 \item{...}{additional args}
 }

@@ -2,24 +2,24 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{createGeneAnnnotation}
 \alias{createGeneAnnnotation}
-\title{Create Gene Annotation for ArchR}
+\title{Create a gene annotation object for ArchR}
 \usage{
 createGeneAnnnotation(genome = NULL, TxDb = NULL, OrgDb = NULL,
   genes = NULL, exons = NULL, TSS = NULL)
 }
 \arguments{
-\item{genome}{A string that specifies the genome (ie hg38, hg19, mm10, mm9).}
+\item{genome}{A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If \code{genome} is not supplied, \code{TxDb} and \code{OrgDb} are required. If genome is supplied, \code{TxDb} and \code{OrgDb} will be ignored.}
 
-\item{TxDb}{A transcript database from Bioconductor which contains information for gene/transcript coordinates.}
+\item{TxDb}{QQQ A \code{TxDb} object (transcript database) from Bioconductor which contains information for gene/transcript coordinates. For example, from \code{txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene}.}
 
-\item{OrgDb}{An organism database from Bioconductor which contains information for gene/transcript symbols from ids.}
+\item{OrgDb}{QQQ An \code{OrgDb} object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids. For example, from QQQ.}
 
-\item{genes}{A GRanges of gene coordinates (start to end). Needs to have a symbols column matching the exons symbols column.}
+\item{genes}{A \code{GRanges} object containing gene coordinates (start to end). Must have a symbols column matching the symbols column of \code{exons}.}
 
-\item{exons}{A GRanges of gene exon coordinates. Needs to have a symbols column matching the genes symbols column}
+\item{exons}{A \code{GRanges} object containing gene exon coordinates. Must have a symbols column matching the symbols column of \code{genes}.}
 
-\item{TSS}{A GRanges of transcription start sites (stranded) for computing TSS enrichment scores downstream.}
+\item{TSS}{A \code{GRanges} object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.}
 }
 \description{
-This function will create a gene annotation that can be used for createArrowFiles, ArchRProject, etc.
+This function will create a gene annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
 }

@@ -12,5 +12,5 @@ nCells(input, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets number of cells in ArchRProject/ArrowFile
+This function gets number of cells from an ArchRProject or ArrowFile
 }

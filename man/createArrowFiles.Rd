@@ -13,8 +13,8 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
   gsubExpression = NULL, bamFlag = NULL, offsetPlus = 4,
   offsetMinus = -5, addTileMat = TRUE, TileMatParams = list(),
   addGeneScoreMat = TRUE, GeneScoreMatParams = list(), force = FALSE,
-  threads = 1, parallelParam = NULL, verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+  threads = getArchRThreads(), parallelParam = NULL,
+  verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{inputFiles}{The names of the input files to use to generate the arrow files. These files can be in any of the following formats: scATAC tabix fragment files or a bam file).}
@@ -63,7 +63,7 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
 
 \item{addGeneScoreMat}{A boolean value indicating whether to add a Gene-Score Matrix to each Arrow file. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.}
 
-\item{GeneScoreMatParams}{A list of parameters to pass to the \code{addGeneScoreMatrix()} function. See \code{ArchR::addGeneScoreMatrix()} for options.}
+\item{GeneScoreMatParams}{A list of parameters to pass to the \code{\link[=addGeneScoreMatrix]{addGeneScoreMatrix()}} function. See \code{ArchR::addGeneScoreMatrix()} for options.}
 
 \item{force}{A boolean value indicating whether to force arrow files to be overwritten if they already exist in \code{outDir}.}
 

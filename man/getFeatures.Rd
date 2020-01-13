@@ -12,9 +12,9 @@ getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix", select = NULL,
 
 \item{useMatrix}{The name of the data matrix as stored in the ArrowFiles of the \code{ArchRProject}. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
-\item{select}{A string specifying a specific featureName (or rowname) found with grep}
+\item{select}{A string specifying a specific feature name (or rowname) to be found with \code{grep}.}
 
-\item{ignore.case}{A boolean value indicating whether or not to ignore the case (upper-case / lower-case) when searching via grep for the string passed to \code{select}.}
+\item{ignore.case}{A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to \code{select}.}
 
 \item{...}{additional args}
 }

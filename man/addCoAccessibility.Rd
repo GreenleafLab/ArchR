@@ -7,12 +7,12 @@
 addCoAccessibility(ArchRProj, reducedDims = "IterativeLSI", k = 100,
   knnIteration = 5000, overlapCutoff = 0.8, maxDist = 250000,
   scaleTo = 10^4, log2Norm = TRUE, seed = 1, knnMethod = "nabor",
-  threads = 1, ...)
+  threads = getArchRThreads(), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to retrieve from the designated \code{ArchRProject}.}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
 
 \item{k}{The number of k-nearest neighbors to use for creating single cell groups for correlation.}
 

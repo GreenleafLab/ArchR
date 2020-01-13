@@ -6,8 +6,8 @@
 \usage{
 addDeviationsMatrix(ArchRProj, peakAnnotation = NULL, matches = NULL,
   bgdPeaks = getBgdPeaks(ArchRProj), matrixName = NULL, out = c("z",
-  "deviations"), binarize = FALSE, threads = 1, parallelParam = NULL,
-  force = FALSE, ...)
+  "deviations"), binarize = FALSE, threads = getArchRThreads(),
+  parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

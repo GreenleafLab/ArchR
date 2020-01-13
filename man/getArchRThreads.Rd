@@ -2,10 +2,10 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getArchRThreads}
 \alias{getArchRThreads}
-\title{Get global number of threads for default parallel computing.}
+\title{Get globally-applied number of threads to use for parallel computing.}
 \usage{
 getArchRThreads()
 }
 \description{
-This function will get the global number of threads to be used for ArchR functions.
+This function will get the number of threads to be used for parallel execution across all ArchR functions.
 }

@@ -8,9 +8,9 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
   useGroups = NULL, bgdGroups = NULL, useMatrix = "GeneScoreMatrix",
   bias = c("TSSEnrichment", "log10(nFrags)"), normBy = NULL,
   testMethod = "wilcoxon", maxCells = 500, scaleTo = 10^4,
-  threads = 1, k = 100, bufferRatio = 0.8, binarize = FALSE,
-  useSeqnames = NULL, method = "ArchR", verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+  threads = getArchRThreads(), k = 100, bufferRatio = 0.8,
+  binarize = FALSE, useSeqnames = NULL, method = "ArchR",
+  verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

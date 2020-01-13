@@ -2,20 +2,20 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{createGenomeAnnotation}
 \alias{createGenomeAnnotation}
-\title{Create Genome Annotation for ArchR}
+\title{Create a genome annotation object for ArchR}
 \usage{
 createGenomeAnnotation(genome = NULL, chromSizes = NULL,
   blacklist = NULL, filter = TRUE)
 }
 \arguments{
-\item{genome}{A string that points to a BSgenome or a BSgenome object (ie hg38, BSgenome.Hsapiens.UCSC.hg38).}
+\item{genome}{Either (i) a string that is a valid \code{BSgenome} or (ii) a \code{BSgenome} object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").}
 
-\item{chromSizes}{A GRanges of chromosome start and end coordinates.}
+\item{chromSizes}{A \code{GRanges} object containing chromosome start and end coordinates.}
 
-\item{blacklist}{A GRanges of regions that should be excluded from analyses due to unwanted biases.}
+\item{blacklist}{A \code{GRanges} object containing regions that should be excluded from analyses due to unwanted biases.}
 
-\item{filter}{A boolean indicating whether non-normal chromosome scaffolds should be excluded.}
+\item{filter}{QQQ A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by QQQ.}
 }
 \description{
-This function will create a genome annotation that can be used for createArrowFiles, ArchRProject, etc.
+This function will create a genome annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
 }

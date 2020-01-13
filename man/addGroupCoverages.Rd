@@ -7,7 +7,7 @@
 addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
   useLabels = TRUE, minCells = 40, maxCells = 500,
   maxFragments = 25 * 10^6, minReplicates = 2, maxReplicates = 5,
-  sampleRatio = 0.8, kmerLength = 6, threads = 1,
+  sampleRatio = 0.8, kmerLength = 6, threads = getArchRThreads(),
   parallelParam = "mclapply", force = FALSE, verboseHeader = TRUE,
   verboseAll = FALSE, ...)
 }

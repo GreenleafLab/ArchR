@@ -7,7 +7,7 @@
 addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
   embedding = "UMAP", embeddingOut = NULL, dimsToUse = NULL,
   corCutOff = 0.75, saveModel = TRUE, seed = 1, force = FALSE,
-  threads = 1, embeddingParams = list(), ...)
+  threads = getArchRThreads(), embeddingParams = list(), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

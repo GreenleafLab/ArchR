@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getProjectSummary}
 \alias{getProjectSummary}
-\title{Get projectSummary from ArchRProject}
+\title{Get projectSummary from an ArchRProject}
 \usage{
 getProjectSummary(ArchRProj, returnSummary = FALSE, ...)
 }

@@ -11,16 +11,16 @@ ArchRProject(ArrowFiles = NULL, outputDirectory = "ArchR_Output",
 \arguments{
 \item{ArrowFiles}{A character vector containing the names of ArrowFiles to be used.}
 
-\item{outputDirectory}{A name for the relative path of the outputDirectory for ArchR results}
+\item{outputDirectory}{A name for the relative path of the outputDirectory for ArchR results. Relative to the current working directory.}
 
-\item{copyArrows}{A boolean indicating whether ArrowFiles should be copied into outputDirectory}
+\item{copyArrows}{A boolean value indicating whether ArrowFiles should be copied into \code{outputDirectory}.}
 
-\item{showLogo}{A boolean indicating whether to show ArchR Logo after successful creation of an ArchRProject.}
+\item{geneAnnotation}{The \code{geneAnnotation} object (see \code{createGeneAnnotation()}) to be used for downstream analyses such as calculating TSS Enrichment Scores, Gene Scores, etc.}
 
-\item{geneAnno}{The geneAnnotation (see createGeneAnnotation) is used for downstream analyses such as calculate TSS Enrichment Scores, Gene Scores, etc.}
+\item{genomeAnnotation}{The \code{genomeAnnotation} object (see \code{createGenomeAnnotation()}) to be used for downstream analyses requiring genome information such as nucleotide information or chromosome sizes.}
 
-\item{genomeAnno}{The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information or chromosome sizes.}
+\item{showLogo}{A boolean value indicating whether to show the ascii ArchR logo after successful creation of an ArchRProject.}
 }
 \description{
-This function will create an ArchRProject with given ArrowFiles.
+This function will create an ArchRProject from the provided ArrowFiles.
 }

@@ -12,8 +12,8 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
   totalFeatures = 5e+05, filterQuantile = 0.99,
   saveIterations = TRUE, outDir = getOutputDirectory(ArchRProj),
   clusterParams = list(), runHarmony = FALSE, harmonyParams = list(),
-  threads = 1, seed = 1, verboseHeader = TRUE, verboseAll = FALSE,
-  force = FALSE, ...)
+  threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
+  verboseAll = FALSE, force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

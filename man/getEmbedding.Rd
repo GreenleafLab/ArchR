@@ -9,7 +9,7 @@ getEmbedding(ArchRProj, embedding = "UMAP", returnDF = TRUE, ...)
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{embedding}{The name of the \code{embeddings} object (i.e. UMAP, TSNE see embeddingOut of addEmbeddings) to retrieve from the designated \code{ArchRProject}.}
+\item{embedding}{The name of the \code{embeddings} object (i.e. UMAP, TSNE see \code{embeddingOut} of the \code{addEmbeddings()} function) to retrieve from the designated \code{ArchRProject}.}
 
 \item{returnDF}{A boolean value indicating whether to return the embedding object as a \code{data.frame}. Otherwise, it will return the full embedding object.}
 

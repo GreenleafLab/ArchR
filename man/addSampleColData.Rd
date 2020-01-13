@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{addSampleColData}
 \alias{addSampleColData}
-\title{Add information to sampleColData to an ArchRProject}
+\title{Add information to sampleColData in an ArchRProject}
 \usage{
 addSampleColData(ArchRProj, data = NULL, name = NULL, samples = NULL,
   force = FALSE)
@@ -10,9 +10,9 @@ addSampleColData(ArchRProj, data = NULL, name = NULL, samples = NULL,
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{data}{The data to add to \code{sampleColData}.}
+\item{data}{The data as a vector to add to \code{sampleColData}.}
 
-\item{name}{The column header name to be used for this new data in \code{sampleColData}. If a column with this name already exists, you may set \code{force} equal to TRUE to overwrite the data in this column.}
+\item{name}{The column header name to be used for this new data in \code{sampleColData}. If a column with this name already exists, you may set \code{force} equal to \code{TRUE} to overwrite the data in this column.}
 
 \item{samples}{The names of the samples corresponding to \code{data}. Typically new data is added to all samples but you may use this argument to only add data to a subset of samples. Samples where \code{data} is not added are set to \code{NA}.}
 
@@ -21,5 +21,5 @@ addSampleColData(ArchRProj, data = NULL, name = NULL, samples = NULL,
 \item{...}{additional args}
 }
 \description{
-This function adds new data to sampleColData in ArchRProject.
+This function adds new data to sampleColData in an ArchRProject.
 }

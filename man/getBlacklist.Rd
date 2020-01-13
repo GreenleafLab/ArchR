@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getBlacklist}
 \alias{getBlacklist}
-\title{Get blacklist from an ArchRProject}
+\title{Get the blacklist from an ArchRProject}
 \usage{
 getBlacklist(ArchRProj, ...)
 }
@@ -12,5 +12,5 @@ getBlacklist(ArchRProj, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets the blacklist (the regions to be excluded from analysis) as a GRanges from the genomeAnnotation of a given ArchRProject.
+This function gets the blacklist (the regions to be excluded from analysis) as a GRanges object from the genomeAnnotation of a given ArchRProject.
 }

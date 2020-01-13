@@ -11,9 +11,9 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
   extsize = 150, method = "q", cutOff = 0.1, extendSummits = 250,
   promoterDist = 500, genomeAnno = getGenomeAnnotation(ArchRProj),
   geneAnno = getGeneAnnotation(ArchRProj),
-  additionalParams = "--nomodel --nolambda", threads = 1,
-  parallelParam = "mclapply", force = FALSE, verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+  additionalParams = "--nomodel --nolambda",
+  threads = getArchRThreads(), parallelParam = "mclapply",
+  force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

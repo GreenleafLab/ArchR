@@ -8,8 +8,8 @@ addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
   nTrials = 5, dimsToUse = 1:25, corCutOff = 0.75,
   knnMethod = "UMAP", UMAPParams = list(),
   LSIParams = list(sampleCells = NULL), outDir = "QualityControl",
-  threads = 1, parallelParam = NULL, verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+  threads = getArchRThreads(), parallelParam = NULL,
+  verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or a character vector containing the names of ArrowFiles to be used.}

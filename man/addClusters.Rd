@@ -21,7 +21,7 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 
 \item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{method}{A string indicated the clustering method to be used. Supported methods are "Seurat" and "Scran".}
+\item{method}{A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{addProjectSummary}
 \alias{addProjectSummary}
-\title{Add projectSummary tp ArchRProject}
+\title{Add projectSummary to an ArchRProject}
 \usage{
 addProjectSummary(ArchRProj, name, summary, ...)
 }
@@ -16,5 +16,5 @@ addProjectSummary(ArchRProj, name, summary, ...)
 \item{...}{additional args}
 }
 \description{
-This function adds info to the projectSummary from an ArchRProject
+This function adds info to the projectSummary of an ArchRProject
 }

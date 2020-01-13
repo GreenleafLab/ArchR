@@ -9,8 +9,8 @@ plotFootprints(ArchRProj = NULL, positions = NULL,
   useGroups = NULL, pal = NULL, flank = 250, flankNorm = 50,
   smoothWindow = 10, minCells = 25, nTop = NULL,
   normMethod = "none", inputSE = NULL, height = 6, width = 4,
-  addDOC = TRUE, useSink = TRUE, threads = 1, verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+  addDOC = TRUE, useSink = TRUE, threads = getArchRThreads(),
+  verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object}

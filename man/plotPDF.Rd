@@ -17,16 +17,16 @@ plotPDF(..., name = "Plot", width = 6, height = 6,
 
 \item{height}{The height in inches to be used for the output PDF.}
 
-\item{ArchRProj}{An \code{ArchRProject} object to be used for getting plotDirectory in outputDirectory.}
+\item{ArchRProj}{QQQ WHAT IS PLOT DIRECTORY? An \code{ArchRProject} object to be used for getting plotDirectory in outputDirectory.}
 
-\item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.}
+\item{addDOC}{A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful for preventing overwritting of old plots.}
 
 \item{useDingbats}{A boolean variable that determines wheter to use dingbats characters for plotting points.}
 
 \item{plotList}{A \code{list} of plots to be printed to the output PDF file. Each element of \code{plotList} should be a printable plot formatted object (ggplot2, plot, heatmap, etc).}
 
-\item{useSink}{use sink to hide messages from plotting}
+\item{useSink}{QQQ A boolean value indicating whether sink should be used to hide output messages that result from plotting.}
 }
 \description{
-This function will save a plot or set of plots as a PDF file in the output directory of a given ArchRProject.
+This function will save a plot or set of plots as a PDF file in the outputDirectory of a given ArchRProject.
 }

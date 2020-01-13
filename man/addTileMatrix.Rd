@@ -8,8 +8,8 @@ addTileMatrix(input = NULL, chromSizes = ifelse(inherits(input,
   "ArchRProject"), chromSizes(input), NULL),
   blacklist = ifelse(inherits(input, "ArchRProject"),
   getBlacklist(input), NULL), tileSize = 500, binarize = TRUE,
-  excludeChr = c("chrM", "chrY"), threads = 1, parallelParam = NULL,
-  force = FALSE, ...)
+  excludeChr = c("chrM", "chrY"), threads = getArchRThreads(),
+  parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}

@@ -11,8 +11,8 @@ addGeneScoreMatrix(input = NULL, genes = ifelse(inherits(input,
   downstream = c(5000, 1e+05), tileSize = 500, ceiling = 4,
   useGeneBoundaries = TRUE, scaleTo = 10000, excludeChr = c("chrY",
   "chrM"), blacklist = ifelse(inherits(input, "ArchRProject"),
-  getBlacklist(input), NULL), threads = 1, parallelParam = NULL,
-  force = FALSE, ...)
+  getBlacklist(input), NULL), threads = getArchRThreads(),
+  parallelParam = NULL, force = FALSE, ...)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}

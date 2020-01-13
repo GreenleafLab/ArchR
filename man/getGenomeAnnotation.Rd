@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getGenomeAnnotation}
 \alias{getGenomeAnnotation}
-\title{Get genomeAnnotation from an ArchRProject}
+\title{Get the genomeAnnotation from an ArchRProject}
 \usage{
 getGenomeAnnotation(ArchRProj, ...)
 }
@@ -12,5 +12,5 @@ getGenomeAnnotation(ArchRProj, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets the genomeAnnotation (see createGenomeAnnotation) from a given ArchRProject.
+This function gets the genomeAnnotation from a given ArchRProject.
 }
