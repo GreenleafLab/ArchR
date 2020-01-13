@@ -45,14 +45,14 @@ setMethod("show", "ArchRProject",
 
 #' Create ArchRProject from ArrowFiles
 #' 
-#' This function will create an ArchRProject with given ArrowFiles.
+#' This function will create an ArchRProject from the provided ArrowFiles.
 #'
 #' @param ArrowFiles A character vector containing the names of ArrowFiles to be used.
-#' @param outputDirectory A name for the relative path of the outputDirectory for ArchR results 
-#' @param copyArrows A boolean indicating whether ArrowFiles should be copied into outputDirectory
-#' @param geneAnno The geneAnnotation (see createGeneAnnotation) is used for downstream analyses such as calculate TSS Enrichment Scores, Gene Scores, etc.
-#' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information or chromosome sizes.
-#' @param showLogo A boolean indicating whether to show ArchR Logo after successful creation of an ArchRProject.
+#' @param outputDirectory A name for the relative path of the outputDirectory for ArchR results. Relative to the current working directory.
+#' @param copyArrows A boolean value indicating whether ArrowFiles should be copied into `outputDirectory`.
+#' @param geneAnnotation The `geneAnnotation` object (see `createGeneAnnotation()`) to be used for downstream analyses such as calculating TSS Enrichment Scores, Gene Scores, etc.
+#' @param genomeAnnotation The `genomeAnnotation` object (see `createGenomeAnnotation()`) to be used for downstream analyses requiring genome information such as nucleotide information or chromosome sizes.
+#' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an ArchRProject.
 #' @export
 ArchRProject <- function(
   ArrowFiles = NULL, 
