@@ -24,7 +24,7 @@ addTileMatrix <- function(
   tileSize = 500, 
   binarize = TRUE, 
   excludeChr = c("chrM","chrY"),
-  threads = 1,
+  threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
   ...

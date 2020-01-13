@@ -30,7 +30,7 @@ addGroupCoverages <- function(
   maxReplicates = 5,
   sampleRatio = 0.8,
   kmerLength = 6,
-  threads = 1,
+  threads = getArchRThreads(),
   parallelParam = "mclapply",
   force = FALSE,
   verboseHeader = TRUE,
@@ -149,7 +149,8 @@ addGroupCoverages <- function(
   args$covDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy)
   args$parallelParam <- parallelParam
   args$threads <- threads
-  args$verbose <- verboseAll
+  args$verboseHeader <- verboseHeader
+  args$verboseAll <- verboseAll
   args$tstart <- tstart
   args$registryDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", "batchRegistry")
 
@@ -213,9 +214,12 @@ addGroupCoverages <- function(
   chromLengths, 
   covDir, 
   tstart, 
-  verbose = TRUE,
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
   ...
   ){
+
+  .messageDiffTime(sprintf("Creating Group Coverage %s of %s", i, length(cellGroups)), tstart, verbose = verboseHeader)
 
   #Cells
   cellGroupi <- cellGroups[[i]]
@@ -243,7 +247,7 @@ addGroupCoverages <- function(
     
     if(k %% 3 == 0){
       .messageDiffTime(sprintf("Group %s of %s, Read Fragments %s of %s!", i, 
-        length(cellGroups), k, length(availableChr)), tstart, verbose = verbose)
+        length(cellGroups), k, length(availableChr)), tstart, verbose = verboseAll)
     }
     
     it <- 0

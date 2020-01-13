@@ -25,7 +25,7 @@ addCNVMatrix <- function(
   windowSize = 10e6, 
   stepSize = 2e6,
   excludeChr = c("chrM","chrY"),
-  threads = 1,
+  threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
   ...

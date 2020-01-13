@@ -60,7 +60,7 @@ createArrowFiles <- function(
   addGeneScoreMat = TRUE,
   GeneScoreMatParams = list(),
   force = FALSE,
-  threads = 1,
+  threads = getArchRThreads(),
   parallelParam = NULL,
   verboseHeader = TRUE,
   verboseAll = FALSE,

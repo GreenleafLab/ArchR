@@ -54,7 +54,7 @@ addIterativeLSI <- function(
   clusterParams = list(),
   runHarmony = FALSE,
   harmonyParams = list(),
-  threads = 1,
+  threads = getArchRThreads(),
   seed = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,

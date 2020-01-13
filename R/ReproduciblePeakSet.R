@@ -51,7 +51,7 @@ addReproduciblePeakSet <- function(
 	genomeAnno = getGenomeAnnotation(ArchRProj),
 	geneAnno = getGeneAnnotation(ArchRProj),
 	additionalParams = "--nomodel --nolambda",
-	threads = 1,
+	threads = getArchRThreads(),
 	parallelParam = "mclapply",
 	force = FALSE,
 	verboseHeader = TRUE,

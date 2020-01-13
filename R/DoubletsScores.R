@@ -35,7 +35,7 @@ addDoubletScores <- function(
   UMAPParams = list(),
   LSIParams = list(sampleCells = NULL),
   outDir = "QualityControl",  
-  threads = 1,
+  threads = getArchRThreads(),
   parallelParam = NULL,
   verboseHeader = TRUE,
   verboseAll = FALSE,

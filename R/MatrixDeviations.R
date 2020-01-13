@@ -23,7 +23,7 @@ addDeviationsMatrix <- function(
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,
-  threads = 1,
+  threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
   ...

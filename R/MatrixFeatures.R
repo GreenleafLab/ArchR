@@ -21,7 +21,7 @@ addFeatureMatrix <- function(
   matrixName = "FeatureMatrix",
   ceiling = Inf, 
   binarize = FALSE,
-  threads = 1,
+  threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
   ...
@@ -80,7 +80,7 @@ addPeakMatrix <- function(
   ceiling = 4, 
   binarize = FALSE,
   parallelParam = NULL,
-  threads = 1,
+  threads = getArchRThreads(),
   force = FALSE,
   ...
 ){

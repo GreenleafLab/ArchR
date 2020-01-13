@@ -45,7 +45,7 @@ ArchRRegionTrack <- function(
   tileSize = 100, 
   minCells = 25,
   normMethod = "ReadsInTSS",
-  threads = 1, 
+  threads = getArchRThreads(), 
   ylim = NULL,
   baseSize = 7,
   borderWidth = 0.4,

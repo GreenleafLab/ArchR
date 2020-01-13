@@ -37,7 +37,7 @@ markerFeatures <- function(
   testMethod = "wilcoxon",
   maxCells = 500,
   scaleTo = 10^4,
-  threads = 1,
+  threads = getArchRThreads(),
   k = 100,
   bufferRatio = 0.8,
   binarize = FALSE,

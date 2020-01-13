@@ -36,7 +36,7 @@ addGeneScoreMatrix <- function(
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
   blacklist = ifelse(inherits(input, "ArchRProject"), getBlacklist(input), NULL),
-  threads = 1,
+  threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
   ...

@@ -205,7 +205,7 @@ getTrajectory <- function(
   varCutOff = 0.1,
   maxFeatures = 25000,
   groupEvery = 2,
-  threads = 1,
+  threads = getArchRThreads(),
   scaleTo = 10000,
   log2Norm = TRUE,
   smooth = TRUE,

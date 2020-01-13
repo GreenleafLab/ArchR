@@ -46,7 +46,7 @@ plotFootprints <- function(
   width = 4,
   addDOC = TRUE,
   useSink = TRUE,
-  threads = 1,
+  threads = getArchRThreads(),
   verboseHeader = TRUE,
   verboseAll = FALSE,
   ...

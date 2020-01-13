@@ -1,14 +1,35 @@
 ---
 title: "Getting Started With ArchR"
+output:
+  html_document:
+    toc: true # table of content true
+    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
+    number_sections: true  ## if you want number sections at each table header
+    #theme: cosmo  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+    code_download: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
 ---
 
+
 ```{r image, include=FALSE}
-knitr::include_graphics(c("../../images/ArchRProject_Schematic.png", "../../images/ArchR_FunctionSchematic.png", "../../images/tutorial_1_UMAP-Clusters.pdf", "../../images/tutorial_2_tracks.pdf", "../../images/tutorial_3_MarkerGeneScores.pdf", "../../images/tutorial_4_MarkerGeneHeatmap.pdf"))
+knitr::include_graphics(
+  c(
+    "../../images/ArchRProject_Schematic.png", 
+    "../../images/ArchR_FunctionSchematic.png", 
+    "../../images/tutorial_1_UMAP-Clusters.pdf", 
+    "../../images/tutorial_2_tracks.pdf", 
+    "../../images/tutorial_3_MarkerGeneScores.pdf", 
+    "../../images/tutorial_4_MarkerGeneHeatmap.pdf"
+    )
+  )
 ```
 
 The following tutorial shows the basics of setting up and interacting with an ArchR Project using a gold-standard dataset of hematopoietic cells ( CITATION ). This tutorial and all of the accompanying vignettes assume that you are running ArchR __locally__. Once all of these steps work for you, feel free to [set up ArchR to work in a cluster environment](articles/Articles/clusterComputing.html). This tutorial does not explain every detail of every step. Please see the [Vignettes section](articles/index.html) for more details on each major analytical step and all of the major features of ArchR.
 
-### What is an `ArrowFile` / `ArchRProject`?
+# What is an `ArrowFile` / `ArchRProject`?
 
 The base unit of an analytical project in ArchR is called an `ArrowFile`. Each `ArrowFile`, stores all of the data associated with an individual sample. Here, a sample would be the most detailed unit of analysis desired (for ex. a single replicate of a particular condition). During creation and as additional analyses are performed, ArchR updates and edits each `ArrowFile` to contain additional layers of information.
 Then, an `ArchRProject` allows you to associate these `ArrowFiles` together into a single analytical framework.
@@ -19,7 +40,7 @@ Certain actions can be taken directly on `ArrowFiles` while other actions are ta
 
 ![](../../images/ArchR_FunctionSchematic.png){width=400px}
 
-### Getting Set Up
+# Getting Set Up
 
 The first thing we do is set up our working directory, load our genome annotations, and set the number of threads we would like to use. Depending on the configuration of your local environment, you may need to modify the number of `threads` used below.
 
@@ -44,7 +65,7 @@ genomeAnno <- genomeAnnoHg19
 addArchRThreads()
 ```
 
-### Creating Arrow Files
+# Creating Arrow Files
 
 For this tutorial, we will download a collection of fragment files. Fragment files are one of the base file types of the 10x Genomics analytical platform and can be easily created from any bam file. See [the ArchR input types vignette](articles/Articles/inputFiles.html) for information on making your own fragment files. Once we have our fragment files, we provide their names as a vector to `createArrowFiles`. During creation, some basic matrices and data is added to each `ArrowFile` including a `TileMatrix` containing insertion counts across genome-wide 500-bp bins.
 
@@ -64,7 +85,7 @@ ArrowFiles <- createArrowFiles(
 )
 ```
 
-### Tidying up our data and creating an `ArchRProject`
+# Tidying up our data and creating an `ArchRProject`
 
 One major source of trouble in single-cell data is the contribution of "doublets" to the analysis. A doublet refers to a single droplet that received a single barcoded bead and more than one nucleus. This causes the reads from more than one cell to appear as a single cell. We remove these computationally and describe this doublet removal process in more depth in the [doublet removal vignette](articles/Articles/doubletRemoval.html).
 
@@ -84,7 +105,7 @@ proj <- ArchRProject(
 proj <- filterDoublets(proj)
 ```
 
-### Dimensionality Reduction
+# Dimensionality Reduction {.tabset .tabset-fade .tabset-pills}
 
 At this point, we have an ArchR project that is ready to be used in downstream visualizations and analyses. The first thing we will do is use an iterative latent semantic indexing (LSI) approach to define clusters in our data. Once we have identified clusters in our data, we can plot a UMAP embedding. For more details, see the [dimensionality reduction vignette](articles/Articles/dimReduction.html).
 
@@ -98,12 +119,15 @@ proj <- addIterativeLSI(
 )
 
 #Identify Clusters from Iterative LSI
-proj <- addClusters(input = proj, reducedDims = "IterativeLSI", resolution = 1.2)
+#The larger the resolution the more clusters will be called. The lower the resolution hte less clusters will be called.
+#It is recommended to compare the results from your clusters and your embeddings and find params that best agree across
+#both analyses for clarity.
+proj <- addClusters(input = proj, reducedDims = "IterativeLSI", resolution = 0.6)
 
-#Add Imputation Weights for Visualization
+#Add Imputation Weights for imputing numerical values based on Magic (see van Dijk et. al. 2018).
 proj <- addImputeWeights(ArchRProj = proj)
 
-#Compute a UMAP embedding to visualize our tiled matrix
+#Compute a UMAP embedding to visualize our tiled accessibility matrix in a 2-d setting.
 proj <- addEmbedding(
   ArchRProj = proj, 
   reducedDims = "IterativeLSI", 
@@ -112,19 +136,23 @@ proj <- addEmbedding(
   force = TRUE
 )
 
-#Plot the UMAP Embedding with Metadata Overlayed
+#Plot the UMAP Embedding with Metadata Overlayed such as Experimental Sample and Clusters.
+#To change plotting aesthetics see ?plotEmbedding parameters.
 plotList <- list()
 plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Sample")
 plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters", plotParams = list(labelMeans=TRUE))
 plotPDF(plotList = plotList, name = "UMAP-Samples-Clusters", width = 6, height = 6, ArchRProj = proj)
 ```
 
-Using our tutorial data, your UMAP plots should look like [this](../../images/tutorial_1_UMAP-Clusters.pdf). (Note if you see a blank space below try firefox or safari)
+***
+
+## UMAP w/ Clusters
+This [plot](../../images/tutorial_1_UMAP-Clusters.pdf) shows gene experimental samples and clusters described above overlayed onto the UMAP embedding. (Note if you see a blank space below try firefox or safari)<br/><br/>
 <center>
-![Alt](../../images/tutorial_1_UMAP-Clusters.pdf){width=600 height=600}
+![Alt](../../images/tutorial_1_UMAP-Clusters.pdf){width=450 height=450}
 <center>
 
-### Identifying Cluster Cell Types Using Marker Genes
+# Identifying Cluster Cell Types Using Marker Genes {.tabset .tabset-fade .tabset-pills}
 
 In order to understand which clusters correspond to which cell types, we use a supervised approach based on prior knowledge of the genes that are active in specific cell types. We determine _gene activity scores_ for each putative marker gene based on chromatin accessibility signal in the region surrounding the gene's promoter. We can then overlay these _gene activity scores_ on our UMAP embedding to visualize the relationship between gene activity and cluster. For more details, see the [marker genes vignette](articles/Articles/geneScores.html).
 
@@ -156,16 +184,31 @@ heatmapGS <- markerHeatmap(
 plotPDF(heatmapGS, name = "GS-Marker-Heatmap", width = 8, height = 12, ArchRProj = proj)
 ```
 
-Using our tutorial data, your gene activity score UMAP plots should look like [this](articles/Articles/Tutorial_geneScores_UMAP.pdf). (Note if you see a blank space below try firefox or safari)
+***
+
+## UMAP GeneScores
+This [plot](../../images/tutorial_3_MarkerGeneScores.pdf) shows gene activity scores of the marker genes described above overlayed onto the UMAP embedding. The gene scores are imputed using Magic when running addImupteWeights. (Note if you see a blank space below try firefox or safari)<br/><br/>
 <center>
-![Alt](../../images/tutorial_3_MarkerGeneScores.pdf){width=450 height=600} ![Alt](../../images/tutorial_2_tracks.pdf){width=450 height=600}
+![Alt](../../images/tutorial_3_MarkerGeneScores.pdf){width=450 height=450}
 <center>
 
-### Creating a Reproducible Peak Set
+## Track-Plots
+<br/><br/>
+<center>
+![Alt](../../images/tutorial_2_tracks.pdf){width=450 height=600}
+<center>
+
+## Marker GeneScores Heatmap
+<br/><br/>
+<center>
+![Alt](../../images/tutorial_4_MarkerGeneHeatmap.pdf){width=450 height=600}
+<center>
+
+# Creating a Reproducible Peak Set {.tabset .tabset-fade .tabset-pills}
 
 One of the most complicated aspects about ATAC-seq and scATAC-seq analysis is the generation of a reproducible and robust peak set. In ArchR, we use an iterative overlap removal process that we first described in [Corces* & Granja* et al. Science 2018](https://www.ncbi.nlm.nih.gov/pubmed/30361341). This process is described in detail in the [peak calling vignette](articles/Articles/peakCalling.html).
 
-To robustly call peaks, we first merge the sparse single-cell data into pseudo-bulk replicates by aggregating the insertions from many individual cells into a single group. We make multiple pseudo-bulk replicates for each cluster to enable an assessment of peak reproducibility. This process of pseudo-bulk generation is described in detail in the [pseudo-bulk generation vignette](articles/Articles/pseudobulkGeneration.html). We than call peaks using [MACS2 v???](https://github.com/taoliu/MACS) and perform our iterative overlap removal. Once we obtain a finalized peak set, we collect insertion counts in each peak for each single cell and associate this with the corresponding `ArrowFile` via the `ArchRProject`.
+To robustly call peaks, we first merge the sparse single-cell data into pseudo-bulk replicates by aggregating the insertions from many individual cells into a single group. We make multiple pseudo-bulk replicates for each cluster to enable an assessment of peak reproducibility. This process of pseudo-bulk generation is described in detail in the [pseudo-bulk generation vignette](articles/Articles/pseudobulkGeneration.html). We than call peaks using [MACS2](https://github.com/taoliu/MACS) and perform our iterative overlap removal. Once we obtain a finalized peak set, we collect insertion counts in each peak for each single cell and associate this with the corresponding `ArrowFile` via the `ArchRProject`.
 
 ```{r eval=FALSE}
 #Create Group Coverage Files that can be used for downstream analysis (~5-10 minutes)
@@ -178,7 +221,7 @@ proj <- addReproduciblePeakSet(ArchRProj = proj, groupBy = "Clusters", threads =
 proj <- addPeakMatrix(ArchRProj = proj, threads = threads, force = TRUE)
 ```
 
-### Identifying Marker Peaks
+# Identifying Marker Peaks
 
 Often times, we are interested to know which peaks are unique to an individual cluster or a small group of clusters. We can do this in an unsupervised fashion in ArchR:
 
@@ -194,7 +237,7 @@ plotPDF(heatmapPeaks, name = "Peak-Marker-Heatmap", width = 8, height = 12, Arch
 
 Using our tutorial data, your marker peak heatmap should look like [this](articles/Articles/Tutorial_markerPeaks_HEATMAP.pdf).
 
-### Performing Motif Enrichments
+# Performing Motif Enrichments
 
 QQQQQQQ - I think the concept of TF deviations is still abstract to most people. Does ArchR do motif enrichment with hypergeometric test as well??
 
@@ -226,7 +269,7 @@ plotPDF(plotList = plotList, name = "Plot-UMAP-TileLSI-MotifMatrix", width = 6, 
 
 Using our tutorial data, your marker peak heatmap should look like [this](articles/Articles/Tutorial_motifEnrichment_UMAP.pdf).
 
-### Performing TF Footprinting
+# Performing TF Footprinting
 
 Transcription factor footprinting can also be done in ArchR with a single command. We note that the footprints generated by the tutorial data are not as clean as would be desired but this is because of the small size of the tutorial dataset.
 
@@ -236,9 +279,6 @@ Transcription factor footprinting can also be done in ArchR with a single comman
 seFoot <- plotFootprints(proj, positions = getPositions(proj)[motifs])
 ```
 
-
-click here: [link2](#tips)
-### Additional Tips {#tips}
 
 
 

@@ -29,7 +29,7 @@ addEmbedding <- function(
   saveModel = TRUE,
   seed = 1,
   force = FALSE,
-  threads = 1,
+  threads = getArchRThreads(),
   embeddingParams = list(),
   ...
   ){
