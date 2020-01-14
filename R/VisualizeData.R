@@ -35,7 +35,7 @@ plotEmbedding <- function(
   colorBy = "colData",
   name = "Sample",
   log2Norm = NULL,
-  imputeWeights = getImputeWeights(ArchRProj),
+  imputeWeights = NULL,
   pal = NULL,
   size = 0.5,
   rastr = TRUE,
@@ -83,7 +83,7 @@ plotEmbedding <- function(
       if(!is.null(continuousSet)){
         colorParams$continuousSet <- continuousSet
       }
-      if(!is.null(continuousSet)){
+      if(!is.null(discreteSet)){
         colorParams$discreteSet <- discreteSet
       }
       colorParams
@@ -110,7 +110,7 @@ plotEmbedding <- function(
       if(!is.null(continuousSet)){
         colorParams$continuousSet <- continuousSet
       }
-      if(!is.null(continuousSet)){
+      if(!is.null(discreteSet)){
         colorParams$discreteSet <- discreteSet
       }
       colorParams
@@ -197,7 +197,7 @@ plotEmbedding <- function(
 #' @param size The numeric size of the points to be plotted.
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param points A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`
+#' @param addPoints A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`
 #' @param ... additional args
 #' @export
 plotGroups <- function(
@@ -205,14 +205,14 @@ plotGroups <- function(
   groupBy = "Sample", 
   colorBy = "colData", 
   name = "TSSEnrichment",
-  imputeWeights = getImputeWeights(ArchRProj), 
+  imputeWeights = NULL, 
   log2Norm = NULL,
   pal = NULL,
   ylim = NULL, 
   size = 0.5, 
   baseSize = 6, 
   ratioYX = 0.5, 
-  points = FALSE, 
+  addPoints = FALSE, 
   ...
   ){
   
@@ -250,7 +250,7 @@ plotGroups <- function(
     baseSize = baseSize, 
     ratioYX = ratioYX,
     size = size,
-    points = points
+    addPoints = addPoints
     )
 
   p
@@ -295,6 +295,10 @@ plotGroups <- function(
       ix
     }) %>% unlist
 
+  }
+
+  if(is.na(idx)){
+    stop("name is not in featureNames!")
   }
 
   featureDF <- featureDF[idx, ,drop=FALSE]

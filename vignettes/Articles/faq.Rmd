@@ -1,9 +1,26 @@
 ---
 title: "Frequently Asked Questions"
+output:
+  html_document:
+    toc: true # table of content true
+    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
+    number_sections: true  ## if you want number sections at each table header
+    #theme: cosmo  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+    code_download: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
 ---
 
-Under construction...
+# Quick macs2 installation (MAC/Linux)
+Macs2 is needed for calling peaks in ArchR as its the gold standard universally used. I have not been able to think of a way for windows users to get this installed at this time (would love help with this). Install python (https://www.python.org/downloads/), recommended Python3 as Python2 support is being discontinued. Then use terminal to pip install macs2.
+```{bash eval=FALSE}
+#python3 in terminal
+pip3 install --user numpy
+pip3 install --user macs2
 
-How do I know if my data is good quality?
-
-How do I know if I should sequence my data deeper?
+#python2 in terminal
+pip install --user numpy
+pip install --user macs2
+```

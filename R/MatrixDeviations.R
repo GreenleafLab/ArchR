@@ -246,11 +246,12 @@ addDeviationsMatrix <- function(
   norm_expectation <- expectation / sum(expectation) #Double check this sums to 1!
   countsPerSample <- Matrix::colSums(countsMatrix)
 
+  d <- max(floor(ncol(annotationsMatrix)/20), 1)
   results <- lapply(seq_len(ncol(annotationsMatrix)), function(x){
-    if(x %% floor(ncol(annotationsMatrix)/20) == 0){
+    if(x %% d == 0){
       .messageDiffTime(sprintf("%s : Deviations for Annotation %s of %s", prefix, x, ncol(annotationsMatrix)), tstart)
     }
-    if(x %% max(floor(ncol(annotationsMatrix)/20), 10) == 0){
+    if(x %% max(c(d, 10)) == 0){
       gc()
     }
     .customDeviationsSingle(

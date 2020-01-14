@@ -18,6 +18,9 @@ devtools::install_github("GreenleafLab/ArchR",
 )
 ```
 
+### Additional things to install
+You will need a current version gfortran for mac or else you will have issues downstream. See https://github.com/fxcoudert/gfortran-for-macOS/releases.
+
 ### Additional packages that are used from github
 To complete installation, you also must maually install the following packages using these devtools commands:
 

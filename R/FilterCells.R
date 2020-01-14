@@ -156,6 +156,11 @@ filterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
 #' @param ... additional params
 #' @export
 filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1, ...){
+
+  if(any(grepl("filterDoublets", names(ArchRProj@projectSummary)))){
+    stop("Already ran filterDoublets on ArchRProject! Cannot be re-ran on an ArchRProject!")
+  }
+
   df <- getCellColData(ArchRProj, c("Sample", "DoubletEnrichment", "DoubletScore"))
   splitDF <- split(seq_len(nrow(df)), as.character(df$Sample))
 
@@ -183,12 +188,27 @@ filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRati
 
   }) %>% unlist(use.names=FALSE)
 
+  message("Filtering ", length(cellsFilter), " cells from ArchRProject!")
+  tabRemove <- table(df[cellsFilter,]$Sample)
+  tabAll <- table(df$Sample)
+  samples <- unique(df$Sample)
+  for(i in seq_along(samples)){
+    if(!is.na(tabRemove[samples[i]])){
+      message("\t", samples[i], " : ", tabRemove[samples[i]], " of ", tabAll[samples[i]], " (", round(100 * tabRemove[samples[i]] / tabAll[samples[i]], 1),"%)")
+    }else{
+      message("\t", samples[i], " : ", 0, " of ", tabAll[samples[i]], " (0%)")
+    }
+  }
+
   if(length(cellsFilter) > 0){
     
     ArchRProj@cellColData <- ArchRProj@cellColData[rownames(ArchRProj@cellColData) %ni% cellsFilter,,drop=FALSE]
 
   }
   
+  ArchRProj <- addProjectSummary(ArchRProj = ArchRProj, name = "filterDoublets", 
+    summary = c("Date" = Sys.time(), cutEnrich = cutEnrich, cutScore = cutScore, filterRatio = filterRatio))
+
   ArchRProj
 
 }

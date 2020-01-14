@@ -345,7 +345,7 @@ trajectoryHeatmap <- function(
     idxLabel2 <- NULL
   }
 
-  idxLabel <- c(idxLabel, idxLabel2)
+  idxLabel <- c(idxLabel, rownames(mat)[idxLabel2])
 
   if(scaleRows){
     mat <- sweep(mat - rowMeans(mat), 1, matrixStats::rowSds(mat), `/`)
@@ -391,6 +391,7 @@ trajectoryHeatmap <- function(
   }
 
 }
+
 
 #' Visualize a Trajectory from ArchR Project
 #' 
@@ -468,7 +469,7 @@ plotTrajectory <- function(
   ##############################
   # Get Embedding
   ##############################
-  df <- getEmbedding(ArchRProj, embedding = embedding, return = "df")
+  df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
   dfT <- cbind(df, dfT[rownames(df),])
   colnames(dfT) <- c("x", "y", "PseudoTime")
 
@@ -498,7 +499,7 @@ plotTrajectory <- function(
     }else{
       plotParams$continuousSet <- "solar_extra"
     }
-    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)
+    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[1,]
     plotParams$discrete <- FALSE
     plotParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name)
     if(is.null(plotAs)){

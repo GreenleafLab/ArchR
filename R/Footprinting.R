@@ -53,6 +53,7 @@ plotFootprints <- function(
   ){
 
   tstart <- Sys.time()
+
   if(is.null(inputSE)){
     
     #Validate Positions
@@ -90,8 +91,6 @@ plotFootprints <- function(
 
   }else{
     
-    ArchRProj <- NULL
-
     if(inherits(inputSE, "SummarizedExperiment")){
       seFoot <- inputSE
       rm(inputSE)
@@ -111,6 +110,8 @@ plotFootprints <- function(
   ############################################################################################
   # Plot Helper
   ############################################################################################
+
+  .messageDiffTime("Plotting Footprints", tstart, addHeader = verboseAll)
 
   o <- tryCatch({
     if(useSink){
@@ -145,7 +146,7 @@ plotFootprints <- function(
           smoothWindow = smoothWindow, 
           flank = flank, 
           flankNorm = flankNorm, 
-          normMethod=normMethod
+          normMethod = normMethod
         )
       ))
       if(i != length(seFoot@assays)){

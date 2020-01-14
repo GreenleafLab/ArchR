@@ -422,7 +422,7 @@ ggViolin <- function(
     p <- p + coord_fixed(ratioYX, expand = TRUE)
   }
 
-  if(points){
+  if(addPoints){
 
     if(requireNamespace("ggrastr", quietly = TRUE)){
       .requirePackage("ggrastr")

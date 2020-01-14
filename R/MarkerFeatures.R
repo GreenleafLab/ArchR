@@ -1112,137 +1112,6 @@ markerHeatmap <- function(
 
 }
 
-#' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
-#' 
-#' This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
-#' 
-#' @param seMarker  A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
-#' @param ArchRProj An `ArchRProject` object.
-#' @param peakAnnotation A peakAnnotation in an `ArchRProject` to be used for hypergeometric test.
-#' @param matches A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
-#' @param background Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).
-#' @param ... additional args
-#' @export
-markerAnnoEnrich <- function(
-  seMarker = NULL,
-  ArchRProj = NULL,
-  peakAnnotation = NULL,
-  matches = NULL,
-  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
-  background = "bgdPeaks",
-  ...
-  ){
-
-  tstart <- Sys.time()
-  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
-    stop("Only markers identified from PeakMatrix can be used!")
-  }
-
-  if(is.null(matches)){
-    matches <- getMatches(ArchRProj, peakAnnotation)
-  }
-  
-  r1 <- SummarizedExperiment::rowRanges(matches)
-  mcols(r1) <- NULL
-
-  r2 <- getPeakSet(ArchRProj)
-  mcols(r2) <- NULL
-
-  if(length(which(paste0(seqnames(r1),start(r1),end(r1), sep = "_") %ni% paste0(seqnames(r2),start(r2),end(r2),sep="_"))) != 0){
-    stop("Peaks from matches do not match peakSet in ArchRProj!")
-  }
-
-  r3 <- GRanges(rowData(seMarker)$seqnames,IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
-  mcols(r3) <- NULL
-  rownames(matches) <- paste0(seqnames(matches),start(matches),end(matches),sep="_")
-  matches <- matches[paste0(seqnames(r3),start(r3),end(r3), sep = "_"), ]
-
-  #Evaluate AssayNames
-  assayNames <- names(SummarizedExperiment::assays(seMarker))
-  for(an in assayNames){
-    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
-  }
-  passMat <- eval(parse(text=cutOff))
-  for(an in assayNames){
-    eval(parse(text=paste0("rm(",an,")")))
-  }
-
-  if(tolower(background) %in% c("backgroundpeaks", "bgdpeaks", "background", "bgd")){
-    method <- "bgd"
-    bgdPeaks <- SummarizedExperiment::assay(getBgdPeaks(ArchRProj))
-  }else{
-    method <- "all"
-  }
-
-  enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
-    .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
-    idx <- which(passMat[, x])
-    if(method == "bgd"){
-      .computeEnrichment(matches, idx, c(idx, as.vector(bgdPeaks[idx,])))
-    }else{
-      .computeEnrichment(matches, idx, seq_len(nrow(matches)))
-    }
-  }) %>% SimpleList
-  names(enrichList) <- colnames(seMarker)
-
-  assays <- lapply(seq_len(ncol(enrichList[[1]])), function(x){
-    d <- lapply(seq_along(enrichList), function(y){
-      enrichList[[y]][colnames(matches),x,drop=FALSE]
-    }) %>% Reduce("cbind",.)
-    colnames(d) <- names(enrichList)
-    d
-  }) %>% SimpleList
-  names(assays) <- colnames(enrichList[[1]])
-  assays <- rev(assays)
-  out <- SummarizedExperiment::SummarizedExperiment(assays=assays)
-
-  out
-
-}
-
-.computeEnrichment <- function(matches, compare, background){
-
-  matches <- .getAssay(matches,  grep("matches", names(assays(matches)), value = TRUE, ignore.case = TRUE))
-  
-  #Compute Totals
-  matchCompare <- matches[compare, ,drop=FALSE]
-  matchBackground <- matches[background, ,drop=FALSE]
-  matchCompareTotal <- Matrix::colSums(matchCompare)
-  matchBackgroundTotal <- Matrix::colSums(matchBackground)
-
-  #Create Summary DF
-  pOut <- data.frame(
-    feature = colnames(matches),
-    CompareFrequency = matchCompareTotal,
-    nCompare = nrow(matchCompare),
-    CompareProportion = matchCompareTotal/nrow(matchCompare),
-    BackgroundFrequency = matchBackgroundTotal,
-    nBackground = nrow(matchBackground),
-    BackgroundProporition = matchBackgroundTotal/nrow(matchBackground)
-  )
-  
-  #Enrichment
-  pOut$Enrichment <- pOut$CompareProportion / pOut$BackgroundProporition
-  
-  #Get P-Values with Hyper Geometric Test
-  pOut$mlog10p <- lapply(seq_len(nrow(pOut)), function(x){
-    p <- -phyper(pOut$CompareFrequency[x] - 1, # Number of Successes the -1 is due to cdf integration
-     pOut$BackgroundFrequency[x], # Number of all successes in background
-     pOut$nBackground[x] - pOut$BackgroundFrequency[x], # Number of non successes in background
-     pOut$nCompare[x], # Number that were drawn
-     lower.tail = FALSE, log.p = TRUE)# P[X > x] Returns LN must convert to log10
-    return(p/log(10))
-  }) %>% unlist %>% round(4)
-
-  #Minus Log10 FDR
-  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
-  pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
-
-  pOut
-
-}
-
 #' Identify Marker Feature Ranges
 #' 
 #' This function will identify Markers and return a GRangesList for each group of significant marker regions.
@@ -1326,6 +1195,7 @@ markerPlot <- function(
   
   LFC <- assays(seMarker[,name])$Log2FC
   LFC <- as.vector(as.matrix(LFC))
+  qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4)
 
   FDR <- assays(seMarker[,name])$FDR
   FDR <- as.vector(as.matrix(FDR))
@@ -1357,7 +1227,7 @@ markerPlot <- function(
       xlabel = "Log2 Mean",
       ylabel = "Log2 Fold Change",
       title = title
-    ) + geom_hline(yintercept = 0, lty = "dashed")
+    ) + geom_hline(yintercept = 0, lty = "dashed") + scale_y_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC))
   }else if(tolower(plotAs) == "volcano"){
     ggPoint(
       x = LFC[idx],
@@ -1368,7 +1238,7 @@ markerPlot <- function(
       xlabel = "Log2 Fold Change",
       ylabel = "-Log10 FDR",
       title = title
-    ) + geom_vline(xintercept = 0, lty = "dashed")
+    ) + geom_vline(xintercept = 0, lty = "dashed") + scale_x_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC))
   }else{
     stop("plotAs not recognized")
   }

@@ -91,6 +91,106 @@ getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
   matches
 }
 
+#' Add peakAnnotations to an ArchRProject
+#' 
+#' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param regions The name of peakAnnotations to be stored as in `ArchRProject`
+#' @param name The name of peakAnnotations to be stored as in `ArchRProject`
+#' @param ... additional args
+#' @export
+addPeakAnnotations <- function(
+  ArchRProj = NULL,
+  regions = NULL,
+  name = "Region",
+  ...
+  ){
+
+  tstart <- Sys.time()
+  ArchRProj <- .validArchRProject(ArchRProj)
+
+  if(inherits(regions, "GRanges")){
+
+    regionPositions <- GRangesList(region = regions)
+
+  }else{
+
+    regionPositions <- lapply(seq_along(regions), function(x){
+      
+      if(inherits(regions[x], "GRanges")){
+
+          gr <- .validGRanges(regions[x])
+
+      }else if(is.character(regions[x])){
+        
+        gr <- tryCatch({
+          .validGRanges(makeGRangesFromDataFrame(
+            df = data.frame(data.table::fread(regions[x])), 
+            keep.extra.columns = TRUE,
+            seqnames.field = "V1",
+            start.field = "V2",
+            end.field = "V3"
+          ))
+        }, error = function(y){
+
+          print(paste0("Could not successfully get region : ", regions[x]))
+
+        })
+
+      }else{
+        
+        stop("Unrecognized input in regions please input GRanges, GRangesList, or Paths to bed files!")
+      
+      }
+
+      gr
+
+    }) %>% GRangesList
+
+    names(regionPositions) <- names(regions)
+
+  }
+
+  #############################################################
+  # Peak Overlap Matrix
+  #############################################################
+  peakSet <- getPeakSet(ArchRProj)
+  allPositions <- unlist(regionPositions)
+
+  .messageDiffTime("Creating Peak Overlap Matrix", tstart)
+  overlapRegions <- findOverlaps(peakSet, allPositions, ignore.strand=TRUE)
+  regionMat <- Matrix::sparseMatrix(
+    i = queryHits(overlapRegions),
+    j = match(names(allPositions),names(regionPositions))[subjectHits(overlapRegions)],
+    x = rep(TRUE, length(overlapRegions)),
+    dims = c(length(peakSet), length(regionPositions))
+  )
+  colnames(regionMat) <- names(regionPositions)
+  regionMat <- SummarizedExperiment::SummarizedExperiment(assays=SimpleList(matches = regionMat), rowRanges = peakSet)
+
+  dir.create(file.path(getOutputDirectory(ArchRProj), "Annotations"), showWarnings=FALSE)
+  savePositions <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Positions-In-Peaks.rds"))
+  saveMatches <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Matches-In-Peaks.rds"))
+
+  out <- SimpleList(
+      regionMatches = regionMat,
+      regionPositions = regionPositions,
+      date = Sys.Date()
+    )
+
+  ArchRProj@peakAnnotation[[name]]$Name <- name
+  ArchRProj@peakAnnotation[[name]]$Positions <- savePositions
+  ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
+
+  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  saveRDS(out$regionPositions, savePositions, compress = FALSE)
+  saveRDS(out$regionMatches, saveMatches, compress = FALSE)
+
+  return(ArchRProj)
+
+}
+
 #' Add motif annotations to an ArchRProject
 #' 
 #' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.
@@ -334,5 +434,203 @@ addMotifAnnotations <- function(
   return(out)
 
 }
+
+#' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
+#' 
+#' This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
+#' 
+#' @param seMarker  A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param peakAnnotation A peakAnnotation in an `ArchRProject` to be used for hypergeometric test.
+#' @param matches A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param background Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).
+#' @param ... additional args
+#' @export
+peakAnnoEnrichment <- function(
+  seMarker = NULL,
+  ArchRProj = NULL,
+  peakAnnotation = NULL,
+  matches = NULL,
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
+  background = "all",
+  ...
+  ){
+
+  tstart <- Sys.time()
+  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+    stop("Only markers identified from PeakMatrix can be used!")
+  }
+
+  if(is.null(matches)){
+    matches <- getMatches(ArchRProj, peakAnnotation)
+  }
+  
+  r1 <- SummarizedExperiment::rowRanges(matches)
+  mcols(r1) <- NULL
+
+  r2 <- getPeakSet(ArchRProj)
+  mcols(r2) <- NULL
+
+  if(length(which(paste0(seqnames(r1),start(r1),end(r1), sep = "_") %ni% paste0(seqnames(r2),start(r2),end(r2),sep="_"))) != 0){
+    stop("Peaks from matches do not match peakSet in ArchRProj!")
+  }
+
+  r3 <- GRanges(rowData(seMarker)$seqnames,IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
+  mcols(r3) <- NULL
+  rownames(matches) <- paste0(seqnames(matches),start(matches),end(matches),sep="_")
+  matches <- matches[paste0(seqnames(r3),start(r3),end(r3), sep = "_"), ]
+
+  #Evaluate AssayNames
+  assayNames <- names(SummarizedExperiment::assays(seMarker))
+  for(an in assayNames){
+    eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
+  }
+  passMat <- eval(parse(text=cutOff))
+  for(an in assayNames){
+    eval(parse(text=paste0("rm(",an,")")))
+  }
+
+  if(tolower(background) %in% c("backgroundpeaks", "bgdpeaks", "background", "bgd")){
+    method <- "bgd"
+    bgdPeaks <- SummarizedExperiment::assay(getBgdPeaks(ArchRProj))
+  }else{
+    method <- "all"
+  }
+
+  enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
+    .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
+    idx <- which(passMat[, x])
+    if(method == "bgd"){
+      .computeEnrichment(matches, idx, c(idx, as.vector(bgdPeaks[idx,])))
+    }else{
+      .computeEnrichment(matches, idx, seq_len(nrow(matches)))
+    }
+  }) %>% SimpleList
+  names(enrichList) <- colnames(seMarker)
+
+  assays <- lapply(seq_len(ncol(enrichList[[1]])), function(x){
+    d <- lapply(seq_along(enrichList), function(y){
+      enrichList[[y]][colnames(matches),x,drop=FALSE]
+    }) %>% Reduce("cbind",.)
+    colnames(d) <- names(enrichList)
+    d
+  }) %>% SimpleList
+  names(assays) <- colnames(enrichList[[1]])
+  assays <- rev(assays)
+  out <- SummarizedExperiment::SummarizedExperiment(assays=assays)
+
+  out
+
+}
+
+.computeEnrichment <- function(matches, compare, background){
+
+  matches <- .getAssay(matches,  grep("matches", names(assays(matches)), value = TRUE, ignore.case = TRUE))
+  
+  #Compute Totals
+  matchCompare <- matches[compare, ,drop=FALSE]
+  matchBackground <- matches[background, ,drop=FALSE]
+  matchCompareTotal <- Matrix::colSums(matchCompare)
+  matchBackgroundTotal <- Matrix::colSums(matchBackground)
+
+  #Create Summary DF
+  pOut <- data.frame(
+    feature = colnames(matches),
+    CompareFrequency = matchCompareTotal,
+    nCompare = nrow(matchCompare),
+    CompareProportion = matchCompareTotal/nrow(matchCompare),
+    BackgroundFrequency = matchBackgroundTotal,
+    nBackground = nrow(matchBackground),
+    BackgroundProporition = matchBackgroundTotal/nrow(matchBackground)
+  )
+  
+  #Enrichment
+  pOut$Enrichment <- pOut$CompareProportion / pOut$BackgroundProporition
+  
+  #Get P-Values with Hyper Geometric Test
+  pOut$mlog10p <- lapply(seq_len(nrow(pOut)), function(x){
+    p <- -phyper(pOut$CompareFrequency[x] - 1, # Number of Successes the -1 is due to cdf integration
+     pOut$BackgroundFrequency[x], # Number of all successes in background
+     pOut$nBackground[x] - pOut$BackgroundFrequency[x], # Number of non successes in background
+     pOut$nCompare[x], # Number that were drawn
+     lower.tail = FALSE, log.p = TRUE)# P[X > x] Returns LN must convert to log10
+    return(p/log(10))
+  }) %>% unlist %>% round(4)
+
+  #Minus Log10 FDR
+  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
+  pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
+
+  pOut
+
+}
+
+#' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
+#' 
+#' This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
+#' 
+#' @param seMarker  A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param peakAnnotation A peakAnnotation in an `ArchRProject` to be used for hypergeometric test.
+#' @param matches A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param background Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).
+#' @param ... additional args
+#' @export
+enrichHeatmap <- function(
+  seEnrich = NULL,
+  pal = paletteContinuous(set = "white_blue_purple", n = 100),
+  limits = c(0, 60),
+  n = 10,
+  clusterCols = TRUE,
+  clusterRows = TRUE,
+  labelRows = TRUE,
+  ...
+  ){
+
+  mat <- assays(seEnrich)[["mlog10FDR"]]
+  mat[mat < min(limits)] <- min(limits)
+  mat[mat > max(limits)] <- max(max(limits), 25)
+
+  keep <- lapply(seq_len(ncol(mat)), function(x){
+    rownames(mat)[head(order(mat[, x], decreasing = TRUE), n)]
+  }) %>% unlist %>% unique
+
+  ht <- .ArchRHeatmap(
+    mat = as.matrix(mat[keep, ,drop = FALSE]),
+    scale = FALSE,
+    limits = c(min(mat), max(mat)),
+    color = pal, 
+    clusterCols = clusterCols, 
+    clusterRows = clusterRows,
+    labelRows = labelRows,
+    labelCols = TRUE,
+    showColDendrogram = TRUE,
+    draw = FALSE,
+    name = "Enrichment -log10(FDR)",
+    ...
+  )
+
+  return(ht)
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

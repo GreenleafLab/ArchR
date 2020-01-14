@@ -18,14 +18,12 @@ output:
 knitr::include_graphics(
   c(
     "../../images/ArchRProject_Schematic.png", 
-    "../../images/ArchR_FunctionSchematic.png", 
-    "../../images/tutorial_1_UMAP-Clusters.pdf", 
-    "../../images/tutorial_2_tracks.pdf", 
-    "../../images/tutorial_3_MarkerGeneScores.pdf", 
-    "../../images/tutorial_4_MarkerGeneHeatmap.pdf"
+    "../../images/ArchR_FunctionSchematic.png"
     )
   )
 ```
+
+## Please view the tutorial in safari, firefox or internet explorer (chrome's pdf viewer doesnt load all of the pdf's in the tutorial).
 
 The following tutorial shows the basics of setting up and interacting with an ArchR Project using a gold-standard downsampled dataset of hematopoietic cells [Granja* et al. Nature Biotechnology 2019](https://www.ncbi.nlm.nih.gov/pubmed/31792411). This tutorial and all of the accompanying vignettes assume that you are running ArchR __locally__. Once all of these steps work for you, feel free to [set up ArchR to work in a cluster environment](articles/Articles/clusterComputing.html). This tutorial does not explain every detail of every step. Please see the [Vignettes section](articles/index.html) for more details on each major analytical step and all of the major features of ArchR.
 
@@ -34,11 +32,15 @@ The following tutorial shows the basics of setting up and interacting with an Ar
 The base unit of an analytical project in ArchR is called an `ArrowFile`. Each `ArrowFile`, stores all of the data associated with an individual sample (i.e. metadata, accessible fragments and data matrices). Here, a sample would be the most detailed unit of analysis desired (for ex. a single replicate of a particular condition). During creation and as additional analyses are performed, ArchR updates and edits each `ArrowFile` to contain additional layers of information.
 Then, an `ArchRProject` allows you to associate these `ArrowFiles` together into a single analytical framework.
 
+<center>
 ![](../../images/ArchRProject_Schematic.png){width=700px}
+</center>
 
 Certain actions can be taken directly on `ArrowFiles` while other actions are taken on an `ArchRProject` which in turn updates each associated `ArrowFile`. Because `ArrowFiles` are stored as large HDF5-format files, "get-er" functions in ArchR retrieve data by interacting with the `ArchRProject`.
 
+<center>
 ![](../../images/ArchR_FunctionSchematic.png){width=400px}
+</center>
 
 # Getting Set Up
 
@@ -65,7 +67,7 @@ genomeAnno <- genomeAnnoHg19
 addArchRThreads()
 ```
 
-# Creating Arrow Files
+# Creating Arrow Files {.tabset .tabset-fade .tabset-pills}
 
 For this tutorial, we will download a collection of fragment files. Fragment files are one of the base file types of the 10x Genomics analytical platform (and others) and can be easily created from any bam file. See [the ArchR input types vignette](articles/Articles/inputFiles.html) for information on making your own fragment files. Once we have our fragment files, we provide their names as a character vector to `createArrowFiles`. During creation, some basic matrices and data is added to each `ArrowFile` including a `TileMatrix` containing insertion counts across genome-wide 500-bp bins (see `addTileMatrix`) and a `GeneScoreMatrix` that is determined based on weighting insertion counts in tiles nearby a gene promoter (see `addGeneScoreMatrix`).
 
@@ -87,13 +89,26 @@ ArrowFiles <- createArrowFiles(
   genomeAnno = genomeAnno
 )
 ```
+***
+## QC TSS Scores by Unique Fragments
+Since this was plotted prior to creation of an ArchRProject we go to QualityControl/scATAC_BMMC_R2/scATAC_BMMC_R2-TSS_by_Unique_Frags.pdf for the plot below.
+<center>
+![Alt](../../images/Tutorial/scATAC_BMMC_R2-TSS_by_Unique_Frags.pdf){width=450 height=450}
+</center>
 
-# Tidying up our data and creating an `ArchRProject`
+## QC Fragment Size Distribution
+Since this was plotted prior to creation of an ArchRProject we go to QualityControl/scATAC_BMMC_R2/scATAC_BMMC_R2-Fragment_Size_Distribution.pdf for the plot below.
+<center>
+![Alt](../../images/Tutorial/scATAC_BMMC_R2-Fragment_Size_Distribution.pdf){width=450 height=350}
+</center>
+
+
+# Tidying up our data and creating an `ArchRProject` {.tabset .tabset-fade .tabset-pills}
 
 One major source of trouble in single-cell data is the contribution of "doublets" to the analysis. A doublet refers to a single droplet that received a single barcoded bead and more than one nucleus. This causes the reads from more than one cell to appear as a single cell. We remove these computationally and describe this doublet removal process in more depth in the [doublet removal vignette](articles/Articles/doubletRemoval.html).
 
 ```{r eval=FALSE}
-#Add Infered Doublet Scores to each Arrow File (~5-10 minutes)
+#Add Infered Doublet Scores to each Arrow File (~2-5 min per sample)
 doubScores <- addDoubletScores(ArrowFiles)
 
 #Create ArchRProject
@@ -105,12 +120,44 @@ proj <- ArchRProject(
   outputDirectory = "Heme_Tutorial"
 )
 
+#To see information about ArchR Project created simply input
+proj
+
+#We can now visualize numeric metadata per grouping with a violin plot now that we have created an ArchR Project.
+#For example we will plot TSS / Doublet Enrichment Scores per sample.
+plotList <- list()
+plotList[[1]] <- plotGroups(ArchRProj = proj, 
+  groupBy = "Sample", 
+  colorBy = "colData", 
+  name = "TSSEnrichment",
+)
+plotList[[2]] <- plotGroups(ArchRProj = proj, 
+  groupBy = "Sample", 
+  colorBy = "colData", 
+  name = "DoubletEnrichment",
+)
+plotPDF(plotList = plotList, name = "TSS-Doublet-Enrichment", width = 4, height = 4,  ArchRProj = proj, addDOC = FALSE)
+
 #Filter Doublets
 #The automatic filtering rate will be based on how many cells are in the sample, if there
 #are 5,000 cells ArchR will remove up to 250 (~5%) of the cells. If you believe more cells
 #should be excluded change the filterRatio argument apropriately.
 proj <- filterDoublets(proj)
 ```
+***
+
+## Example Doublet Results
+Since this was plotted prior to creation of an ArchRProject we go to QualityControl/scATAC_BMMC_R2/scATAC_BMMC_R2-Doublet-Summary.pdf
+for the plot below.<br/><br/>
+<center>
+![Alt](../../images/Tutorial/scATAC_BMMC_R2-Doublet-Summary.pdf){width=450 height=450}
+</center>
+
+## TSS / Doublet Enrichment
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/TSS-Doublet-Enrichment.pdf){width=450 height=450}
+</center>
 
 # Dimensionality Reduction {.tabset .tabset-fade .tabset-pills}
 
@@ -125,21 +172,18 @@ proj <- addIterativeLSI(
 )
 
 #Identify Clusters from Iterative LSI
+#By default ArchR uses Seurat's FindClusters function because it is fast/robust producing reasonable clustering.
 #The larger the resolution the more clusters will be called. The lower the resolution hte less clusters will be called.
 #It is recommended to compare the results from your clusters and your embeddings and find params that best agree across
 #both analyses for clarity.
 proj <- addClusters(input = proj, reducedDims = "IterativeLSI", resolution = 0.6)
-
-#Add Imputation Weights for imputing numerical values based on Magic (see van Dijk et. al. 2018).
-proj <- addImputeWeights(ArchRProj = proj)
 
 #Compute a UMAP embedding to visualize our tiled accessibility matrix in a 2-d setting.
 proj <- addEmbedding(
   ArchRProj = proj, 
   reducedDims = "IterativeLSI", 
   embedding = "UMAP", 
-  embeddingParams = list(min_dist = 0.4),
-  force = TRUE
+  embeddingParams = list(min_dist = 0.4) #see uwot::umap for alternative params
 )
 
 #Plot the UMAP Embedding with Metadata Overlayed such as Experimental Sample and Clusters.
@@ -147,38 +191,81 @@ proj <- addEmbedding(
 plotList <- list()
 plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Sample")
 plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters", plotParams = list(labelMeans=TRUE))
-plotPDF(plotList = plotList, name = "UMAP-Samples-Clusters", width = 6, height = 6, ArchRProj = proj)
+#Different ArchRPalette "circus"
+plotList[[3]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters", discreteSet = "circus", plotParams = list(labelMeans=TRUE))
+plotPDF(plotList = plotList, name = "UMAP-Samples-Clusters", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
 ```
 
 ***
-
 ## UMAP w/ Clusters
-This [plot](../../images/tutorial_1_UMAP-Clusters.pdf) shows gene experimental samples and clusters described above overlayed onto the UMAP embedding. (Note if you see a blank space below try firefox or safari)<br/><br/>
+This [plot](../../images/Tutorial/UMAP-Samples-Clusters.pdf) shows gene experimental samples and clusters described above overlayed onto the UMAP embedding. (Note if you see a blank space below try firefox or safari)
+<br/><br/>
 <center>
-![Alt](../../images/tutorial_1_UMAP-Clusters.pdf){width=450 height=450}
+![Alt](../../images/Tutorial/UMAP-Samples-Clusters.pdf){width=450 height=450}
+</center>
+
+## TSNE w/ Clusters
+```{r eval=FALSE}
+#Compute a TSNE embedding to visualize our tiled accessibility matrix in a 2-d setting.
+proj <- addEmbedding(
+  ArchRProj = proj, 
+  reducedDims = "IterativeLSI", 
+  embedding = "Rtsne", 
+  embeddingParams = list(perplexity = 50)
+  )
+
+#Plot the TSNE Embedding with Metadata Overlayed such as Experimental Sample and Clusters.
+#To change plotting aesthetics see ?plotEmbedding parameters.
+plotList <- list()
+plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", embedding = "Rtsne", name = "Sample")
+plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", embedding = "Rtsne", name = "Clusters", plotParams = list(labelMeans=TRUE))
+#Different ArchRPalette "circus"
+plotList[[3]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", embedding = "Rtsne", name = "Clusters", discreteSet = "circus", plotParams = list(labelMeans=TRUE))
+plotPDF(plotList = plotList, name = "TSNE-Samples-Clusters", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+```
+<br/><br/>
 <center>
+![Alt](../../images/Tutorial/TSNE-Samples-Clusters.pdf){width=450 height=450}
+</center>
 
 ## UMAP w/ Custom ColData
 To add your own information for plotting ontop of UMAP embedding we will show an example here.
 
 ```{r eval=FALSE}
 
-proj <- addCellColData(ArchRProj = proj, data = , cellNames = )
+#Get Cell Names
+cellNames <- getCellNames(ArchRProj = proj)
+
+#Get Sample names
+sampleNames <- getCellColData(ArchRProj = proj, select = "Sample", drop = TRUE)
+
+#Remove Replicate Name
+sampleNames <- gsub("_R1", "", gsub("_R2", "", sampleNames))
+
+#Add Info to cellColData
+proj <- addCellColData(ArchRProj = proj, data = sampleNames, cellNames = cellNames, name = "Type")
 
 #Plot the UMAP Embedding with Metadata Overlayed such as Experimental Sample and Clusters.
 #To change plotting aesthetics see ?plotEmbedding parameters.
 plotList <- list()
-plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Sample")
-plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters", plotParams = list(labelMeans=TRUE))
-plotPDF(plotList = plotList, name = "UMAP-Samples-Clusters", width = 6, height = 6, ArchRProj = proj)
-
+plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Type", plotParams = list(labelMeans=TRUE))
+plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Type", discreteSet = "circus", plotParams = list(labelMeans=TRUE))
+plotPDF(plotList = plotList, name = "UMAP-Samples-Type", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
 ```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/UMAP-Samples-Type.pdf){width=450 height=450}
+</center>
 
 # Identifying Cluster Cell Types Using Marker Genes {.tabset .tabset-fade .tabset-pills}
 
 In order to understand which clusters correspond to which cell types, we use a supervised approach based on prior knowledge of the genes that are active in specific cell types. We determine _gene activity scores_ for each putative marker gene based on chromatin accessibility signal in the region surrounding the gene's promoter. We can then overlay these _gene activity scores_ on our UMAP embedding to visualize the relationship between gene activity and cluster. For more details, see the [marker genes vignette](articles/Articles/geneScores.html).
 
 ```{r eval=FALSE}
+
+#Add Imputation Weights for imputing numerical values based on Magic (see van Dijk et. al. 2018).
+proj <- addImputeWeights(ArchRProj = proj)
+
 markerGenes  <- c(
     "CD34", #Early Progenitor
     "GATA1", #Erythroid
@@ -187,133 +274,471 @@ markerGenes  <- c(
     "CD3D", "CD8A", "TBX21", "IL7R" #TCells
   )
 
-#Plot the UMAP Embedding with Marker Genes Overlayed
+#Plot the UMAP Embedding with Marker Genes Overlayed w/ Imputation
+plotList <- list()
+plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "GeneScoreMatrix", name = markerGenes, imputeWeights = getImputeWeights(proj))
+plotPDF(plotList = plotList, name = "UMAP-Marker-Gene-Scores-w-Imputation", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+
+#Plot the UMAP Embedding with Marker Genes Overlayed w/o Imputation
 plotList <- list()
 plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "GeneScoreMatrix", name = markerGenes)
-plotPDF(plotList = plotList, name = "UMAP-Marker-Gene-Scores", width = 6, height = 6, ArchRProj = proj)
+plotPDF(plotList = plotList, name = "UMAP-Marker-Gene-Scores-wo-Imputation", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
 
 #Plot Tracks at Marker Genes
-plotTracks <- ArchRRegionTrack(ArchRProj = proj, threads = threads, geneSymbol = markerGenes)
-plotPDF(plotList = plotTracks, name = "Tracks-Marker-Genes", width = 6, height = 8, ArchRProj = proj)
+plotTracks <- ArchRRegionTrack(ArchRProj = proj, geneSymbol = markerGenes)
+plotPDF(plotList = plotTracks, name = "Plot-Tracks-Marker-Genes", width = 6, height = 8, ArchRProj = proj, addDOC = FALSE)
 
-#Identify Marker Gene through Pairwise Test vs Null
-markersGS <- markerFeatures(ArchRProj = proj, threads = threads, useMatrix = "GeneScoreMatrix")
+#Identify Marker Gene through Pairwise Test vs Bias-Matched Background 
+markersGS <- markerFeatures(ArchRProj = proj, useMatrix = "GeneScoreMatrix")
 heatmapGS <- markerHeatmap(
   seMarker = markersGS, 
   cutOff = "FDR <= 0.01 & Log2FC >= 1", 
   labelMarkers = markerGenes
 )
-plotPDF(heatmapGS, name = "GS-Marker-Heatmap", width = 8, height = 12, ArchRProj = proj)
+plotPDF(heatmapGS, name = "GeneScores-Marker-Heatmap", width = 8, height = 12, ArchRProj = proj, addDOC = FALSE)
 ```
-
 ***
 
-## UMAP GeneScores
-This [plot](../../images/tutorial_3_MarkerGeneScores.pdf) shows gene activity scores of the marker genes described above overlayed onto the UMAP embedding. The gene scores are imputed using Magic when running addImupteWeights. (Note if you see a blank space below try firefox or safari)<br/><br/>
+## UMAP GeneScores w/ Imputation
+This [plot](../../images/Tutorial/UMAP-Marker-Gene-Scores-w-Imputation.pdf) shows gene activity scores of the marker genes described above overlayed onto the UMAP embedding. The gene scores are imputed using Magic when running addImupteWeights. (Note if you see a blank space below try firefox or safari)
+<br/><br/>
 <center>
-![Alt](../../images/tutorial_3_MarkerGeneScores.pdf){width=450 height=450}
+![Alt](../../images/Tutorial/UMAP-Marker-Gene-Scores-w-Imputation.pdf){width=450 height=450}
+</center>
+
+## UMAP GeneScores w/o Imputation
+This [plot](../../images/Tutorial/UMAP-Marker-Gene-Scores-wo-Imputation.pdf) shows gene activity scores of the marker genes described above overlayed onto the UMAP embedding. (Note if you see a blank space below try firefox or safari)
+<br/><br/>
 <center>
+![Alt](../../images/Tutorial/UMAP-Marker-Gene-Scores-wo-Imputation.pdf){width=450 height=450}
+</center>
 
 ## Track-Plots
 <br/><br/>
 <center>
-![Alt](../../images/tutorial_2_tracks.pdf){width=450 height=600}
-<center>
+![Alt](../../images/Tutorial/Plot-Tracks-Marker-Genes.pdf){width=450 height=600}
+</center>
 
 ## Marker GeneScores Heatmap
 <br/><br/>
 <center>
-![Alt](../../images/tutorial_4_MarkerGeneHeatmap.pdf){width=450 height=600}
-<center>
+![Alt](../../images/Tutorial/GeneScores-Marker-Heatmap.pdf){width=450 height=600}
+</center>
 
 # Creating a Reproducible Peak Set {.tabset .tabset-fade .tabset-pills}
 
 One of the most complicated aspects about ATAC-seq and scATAC-seq analysis is the generation of a reproducible and robust peak set. In ArchR, we use an iterative overlap removal process that we first described in [Corces* & Granja* et al. Science 2018](https://www.ncbi.nlm.nih.gov/pubmed/30361341). This process is described in detail in the [peak calling vignette](articles/Articles/peakCalling.html).
 
-To robustly call peaks, we first merge the sparse single-cell data into pseudo-bulk replicates by aggregating the insertions from many individual cells into a single group. We make multiple pseudo-bulk replicates for each cluster to enable an assessment of peak reproducibility. This process of pseudo-bulk generation is described in detail in the [pseudo-bulk generation vignette](articles/Articles/pseudobulkGeneration.html). We than call peaks using [MACS2](https://github.com/taoliu/MACS) and perform our iterative overlap removal. Once we obtain a finalized peak set, we collect insertion counts in each peak for each single cell and associate this with the corresponding `ArrowFile` via the `ArchRProject`.
+To robustly call peaks, we first merge the sparse single-cell data into pseudo-bulk replicates by aggregating the insertions from many individual cells into a single group. We make multiple pseudo-bulk replicates for each cluster to enable an assessment of peak reproducibility. This process of pseudo-bulk generation is described in detail in the [pseudo-bulk generation vignette](articles/Articles/pseudobulkGeneration.html). We than call peaks using [MACS2](https://github.com/taoliu/MACS) and perform our iterative overlap removal. Once we obtain a finalized non-overlapping peak set, we can then collect insertion counts in each peak for each single cell and associate this with the corresponding `ArrowFile` via the `ArchRProject`.
 
 ```{r eval=FALSE}
 #Create Group Coverage Files that can be used for downstream analysis (~5-10 minutes)
-proj <- addGroupCoverages(ArchRProj = proj, groupBy = "Clusters", threads = threads)
+proj <- addGroupCoverages(ArchRProj = proj, groupBy = "Clusters")
 
 #Call Reproducible Peaks w/ Macs2 (~5-10 minutes)
-proj <- addReproduciblePeakSet(ArchRProj = proj, groupBy = "Clusters", threads = threads)
+proj <- addReproduciblePeakSet(ArchRProj = proj, groupBy = "Clusters")
 
 #Add Peak Matrix
-proj <- addPeakMatrix(ArchRProj = proj, threads = threads, force = TRUE)
-```
+proj <- addPeakMatrix(ArchRProj = proj)
 
-# Identifying Marker Peaks
+#We can now plot the fraction of reads/insertions for each cell per sample and see how that compares to TSS Enrichment scores.
+plotList <- list()
+plotList[[1]] <- plotGroups(ArchRProj = proj, 
+  groupBy = "Sample", 
+  colorBy = "colData", 
+  name = "FRIP",
+)
+plotList[[2]] <- plotGroups(ArchRProj = proj, 
+  groupBy = "Sample", 
+  colorBy = "colData", 
+  name = "TSSEnrichment",
+)
+plotPDF(plotList = plotList, name = "FRIP-TSS-Enrichment", width = 4, height = 4,  ArchRProj = proj, addDOC = FALSE)
+```
+## Reproducible Peaks per Cluster
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Peak-Call-Summary.pdf){width=800 height=400}
+</center>
+
+## FRIP / TSS Enrichment Per Sample
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/FRIP-TSS-Enrichment.pdf){width=450 height=450}
+</center>
+
+
+# Identifying Marker Peaks {.tabset .tabset-fade .tabset-pills}
 
 Often times, we are interested to know which peaks are unique to an individual cluster or a small group of clusters. We can do this in an unsupervised fashion in ArchR:
 
 ```{r eval=FALSE}
 #Identify Marker Peaks
-markersPeaks <- markerFeatures(ArchRProj = proj, threads = threads, useMatrix = "PeakMatrix")
+markersPeaks <- markerFeatures(ArchRProj = proj, useMatrix = "PeakMatrix")
+
+#Visualize Markers as a heatmap
 heatmapPeaks <- markerHeatmap(
   seMarker = markersPeaks, 
-  cutOff = "FDR <= 0.01 & Log2FC >= 1"
+  cutOff = "FDR <= 0.1 & Log2FC >= 1"
 )
-plotPDF(heatmapPeaks, name = "Peak-Marker-Heatmap", width = 8, height = 12, ArchRProj = proj)
+plotPDF(heatmapPeaks, name = "Peak-Marker-Heatmap", width = 8, height = 12, ArchRProj = proj, addDOC = FALSE)
 ```
+
+## Markers Heatmap
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Peak-Marker-Heatmap.pdf){width=450 height=600}
+</center>
+
+## Markers MA/Volcano-Plot
+```{r eval=FALSE}
+plotList <- list()
+plotList[[1]] <- markerPlot(seMarker = markersPeaks, name = "Cluster6", cutOff = "FDR <= 0.1 & abs(Log2FC) >= 1", plotAs = "MA")
+plotList[[2]] <- markerPlot(seMarker = markersPeaks, name = "Cluster6", cutOff = "FDR <= 0.1 & abs(Log2FC) >= 1", plotAs = "Volcano")
+plotPDF(plotList = plotList, name = "Cluster6-Marker-Peaks", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Cluster6-Marker-Peaks.pdf){width=450 height=450}
+</center>
 
 Using our tutorial data, your marker peak heatmap should look like [this](articles/Articles/Tutorial_markerPeaks_HEATMAP.pdf).
 
-# Performing Motif Enrichments
-
-QQQQQQQ - I think the concept of TF deviations is still abstract to most people. Does ArchR do motif enrichment with hypergeometric test as well??
-
-Using the reproducible peak set that we defined above, we can use ArchR to calculate TF deviations on a single-cell basis for transcription factors in the peaks identified in each cluster. We can then overlay these deviations on on UMAP embedding. This effectively infers differences in TF activity across all single cells and is very useful in identifying regulatory factors governing cell fate.
+# Performing Peak Annotation Enrichments {.tabset .tabset-fade .tabset-pills}
 
 ```{r eval=FALSE}
-#Motif Search in PeakSet
-proj <- addMotifAnnotations(ArchRProj = proj, name = "Motif")
+#Motif Search in Peak Set and add to Peak Annotations
+proj <- addMotifAnnotations(ArchRProj = proj, motifSet = "cisbp", name = "Motif")
 
-#Add chromVAR Deviations (~20-25 min if using CisBP MotifSet)
-proj <- addDeviationsMatrix(ArchRProj = proj, threads = threads)
+#Identify Motif Enrichments
+enrichMotifs <- peakAnnoEnrichment(
+    seMarker = markersPeaks,
+    ArchRProj = proj,
+    peakAnnotation = "Motif",
+    cutOff = "FDR <= 0.1 & Log2FC >= 0.5"
+  )
+heatmapEM <- enrichHeatmap(enrichMotifs, n = 10)
+plotPDF(heatmapEM, name = "Motifs-Enrich-Heatmap", width = 8, height = 12, ArchRProj = proj, addDOC = FALSE)
 
-#Identify Variable TFs
-head(getVarDeviations(proj, plot = FALSE)$name, 25)
+#Custom Peak Annotations
+EncodePeaks <- c(
+  Encode_K562_GATA1 = "https://www.encodeproject.org/files/ENCFF632NQI/@@download/ENCFF632NQI.bed.gz",
+  Encode_GM12878_CEBPB = "https://www.encodeproject.org/files/ENCFF761MGJ/@@download/ENCFF761MGJ.bed.gz",
+  Encode_K562_Ebf1 = "https://www.encodeproject.org/files/ENCFF868VSY/@@download/ENCFF868VSY.bed.gz",
+  Encode_K562_Pax5 = "https://www.encodeproject.org/files/ENCFF339KUO/@@download/ENCFF339KUO.bed.gz"
+)
+proj <- addPeakAnnotations(ArchRProj = proj, regions = EncodePeaks, name = "ChIP")
 
+#Identify ChIP Enrichments
+enrichRegions <- peakAnnoEnrichment(
+    seMarker = markersPeaks,
+    ArchRProj = proj,
+    peakAnnotation = "ChIP",
+    cutOff = "FDR <= 0.1 & Log2FC >= 0.5"
+  )
+heatmapER <- enrichHeatmap(enrichRegions, n = 10)
+plotPDF(heatmapER, name = "Regions-Enrich-Heatmap", width = 8, height = 12, ArchRProj = proj, addDOC = FALSE)
+```
+## Motif Enrichment
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Motifs-Enrich-Heatmap.pdf){width=450 height=600}
+</center>
+
+## Region Enrichment
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Regions-Enrich-Heatmap.pdf){width=450 height=600}
+</center>
+
+# Computing chromVAR Deviations {.tabset .tabset-fade .tabset-pills}
+Using the reproducible peak set that we defined above, we can use ArchR to calculate TF/Annotation deviations on a single-cell basis for transcription factors/annotations in the peaks identified in each cluster. We can then overlay these deviations on on UMAP embedding. This effectively infers differences in TF activity across all single cells and is very useful in identifying regulatory factors governing cell fate.
+
+## Motif Deviations
+```{r eval=FALSE}
+#Add Background Peaks to ArchR Project
+proj <- addBgdPeaks(proj)
+
+#Add chromVAR Deviations (~20-25 min if using CisBP Motif Set)
+proj <- addDeviationsMatrix(ArchRProj = proj, peakAnnotation = "Motif")
+
+#Plot Variable TFs
+plotVarDev <- getVarDeviations(proj, plot = TRUE)
+plotPDF(plotVarDev, name = "Plot-Var-Deviations", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+```
+
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Plot-Var-Deviations.pdf){width=450 height=450}
+</center>
+
+```{r eval=FALSE}
 #To access motif need to specify deviations,z : motif_name
 #Try getFeatures with MotifMatrix to see available names
 getFeatures(proj, select = "PAX5", useMatrix = "MotifMatrix")
 
 #Define the list of motifs to plot
-motifs <- c("GATA1_383", "CEBPA_155", "EBF1_67","IRF4_632","TBX21_780","PAX5_709")
+markerMotifs <- c("GATA1_383", "CEBPA_155", "EBF1_67", "IRF4_632", "TBX21_780", "PAX5_709")
 
+#Plot Violins of motif deviations
+plotList <- list()
+plotList[[1]] <- plotGroups(ArchRProj = proj, 
+  groupBy = "Clusters", 
+  colorBy = "MotifMatrix", 
+  name = paste0("z:",markerMotifs[1]),
+  imputeWeights = getImputeWeights(proj)
+)
+plotList[[2]] <- plotGroups(ArchRProj = proj, 
+  groupBy = "Clusters", 
+  colorBy = "MotifMatrix", 
+  name = paste0("z:",markerMotifs[6]),
+  imputeWeights = getImputeWeights(proj)
+)
+plotPDF(plotList = plotList, name = "Groups-Marker-MotifDeviations-w-Imputation", width = 4, height = 3,  ArchRProj = proj, addDOC = FALSE)
+```
+
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Groups-Marker-MotifDeviations-w-Imputation.pdf){width=450 height=350}
+</center>
+
+```{r eval=FALSE}
 #Plot the UMAP Embedding with chromVAR Deviations Overlayed
 plotList <- list()
 plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters")
-plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "MotifMatrix", name = paste0("z:",motifs))
-plotPDF(plotList = plotList, name = "Plot-UMAP-TileLSI-MotifMatrix", width = 6, height = 6, ArchRProj = proj)
+plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "MotifMatrix", name = paste0("z:",markerMotifs), imputeWeights = getImputeWeights(proj))
+plotPDF(plotList = plotList, name = "UMAP-Marker-MotifDeviations-w-Imputation", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
 ```
 
-Using our tutorial data, your marker peak heatmap should look like [this](articles/Articles/Tutorial_motifEnrichment_UMAP.pdf).
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/UMAP-Marker-MotifDeviations-w-Imputation.pdf){width=450 height=450}
+</center>
 
-# Performing TF Footprinting
+## Region Deviations
+```{r eval=FALSE}
+
+#Add Background Peaks to ArchR Project
+proj <- addBgdPeaks(proj)
+
+#Add chromVAR Deviations
+proj <- addDeviationsMatrix(ArchRProj = proj, peakAnnotation = "ChIP")
+
+#To access motif need to specify deviations,z : motif_name
+#Try getFeatures with MotifMatrix to see available names
+getFeatures(proj, select = "PAX5", useMatrix = "ChIPMatrix")
+
+#Define the list of regions to plot
+markerRegions <- c("Encode_K562_GATA1", "Encode_GM12878_CEBPB", "Encode_K562_Ebf1", "Encode_K562_Pax5")
+
+#Plot Violins of ChIP-seq deviations
+plotList <- list()
+plotList[[1]] <- plotGroups(ArchRProj = proj, 
+  groupBy = "Clusters", 
+  colorBy = "ChIPMatrix", 
+  name = paste0("z:",markerRegions[1]),
+  imputeWeights = getImputeWeights(proj)
+)
+plotList[[2]] <- plotGroups(ArchRProj = proj, 
+  groupBy = "Clusters", 
+  colorBy = "ChIPMatrix", 
+  name = paste0("z:",markerRegions[4]),
+  imputeWeights = getImputeWeights(proj)
+)
+plotPDF(plotList = plotList, name = "Groups-Marker-ChIPDeviations-w-Imputation", width = 4, height = 3,  ArchRProj = proj, addDOC = FALSE)
+```
+
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Groups-Marker-ChIPDeviations-w-Imputation.pdf){width=450 height=350}
+</center>
+
+```{r eval=FALSE}
+#Plot the UMAP Embedding with chromVAR Deviations Overlayed
+plotList <- list()
+plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters")
+plotList[[2]] <- plotEmbedding(ArchRProj = proj, colorBy = "ChIPMatrix", name = paste0("z:",markerRegions), imputeWeights = getImputeWeights(proj))
+plotPDF(plotList = plotList, name = "UMAP-Marker-ChIPDeviations-w-Imputation", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+```
+
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/UMAP-Marker-ChIPDeviations-w-Imputation.pdf){width=450 height=450}
+</center>
+
+# Performing TF Footprinting {.tabset .tabset-fade .tabset-pills}
 
 Transcription factor footprinting can also be done in ArchR with a single command. We note that the footprints generated by the tutorial data are not as clean as would be desired but this is because of the small size of the tutorial dataset.
 
 ```{r eval=FALSE}
 #Plot Motif Footprints from positions list
 #Recommend doing a few motifs not entire motif set
-seFoot <- plotFootprints(proj, positions = getPositions(proj)[motifs])
+seFoot_None <- plotFootprints(
+  ArchRProj = proj, 
+  positions = getPositions(proj)[markerMotifs], 
+  groupBy = "Clusters",
+  normMethod = "none",
+  plotName = "Footprints-No-Normalization"
+)
 ```
+## No Normalization
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Footprints-No-Normalization.pdf){width=450 height=650}
+</center>
 
+## Subtract Bias
+```{r eval=FALSE}
+#Re-Plot with different normalization method
+seFoot_Subtract <- plotFootprints(
+  ArchRProj = proj, 
+  inputSE = seFoot_None, 
+  positions = getPositions(proj)[markerMotifs], 
+  groupBy = "Clusters",
+  normMethod = "subtract",
+  plotName = "Footprints-Subtract-Bias"
+)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Footprints-Subtract-Bias.pdf){width=450 height=650}
+</center>
 
+## Divide Bias
+```{r eval=FALSE}
+#Re-Plot with different normalization method
+seFoot_Divide <- plotFootprints(
+  ArchRProj = proj, 
+  inputSE = seFoot_None, 
+  positions = getPositions(proj)[markerMotifs], 
+  groupBy = "Clusters",
+  normMethod = "divide",
+  plotName = "Footprints-Divide-Bias"
+)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Footprints-Divide-Bias.pdf){width=450 height=650}
+</center>
 
+## TSS Enrichment
+```{r eval=FALSE}
 
+#Add Coverages for Samples prior to footprint
+proj <- addGroupCoverages(ArchRProj = proj, groupBy = "Sample")
 
+#TSS by sample
+TSS_Samples <- plotFootprints(
+  ArchRProj = proj, 
+  positions = GRangesList(TSS = getTSS(proj)), 
+  groupBy = "Sample",
+  normMethod = "none",
+  plotName = "TSS_Samples",
+  flank = 2000,
+  flankNorm = 100
+)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/TSS_Samples.pdf){width=450 height=650}
+</center>
 
+```{r eval=FALSE}
 
+#TSS by clusters
+TSS_Clusters <- plotFootprints(
+  ArchRProj = proj, 
+  positions = GRangesList(TSS = getTSS(proj)), 
+  groupBy = "Clusters",
+  normMethod = "none",
+  plotName = "TSS_Clusters",
+  flank = 2000,
+  flankNorm = 100
+)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/TSS_Clusters.pdf){width=450 height=650}
+</center>
 
+# Analyze Trajectories {.tabset .tabset-fade .tabset-pills}
 
+## Myeloid Trajectory
+```{r eval=FALSE}
+#First we need to create a Trajectory and add it to ArchRProj cellColData
+proj <- addTrajectory(ArchRProj = proj, name = "Myeloid", trajectory = c(paste0("Cluster", c(7,2,3,4,5))))
 
+#Additionally we can plot these features on top of the UMAP embedding
+plotList <- list()
+plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters", plotParams = list(labelMeans=TRUE))
+plotList[[2]] <- plotTrajectory(proj, trajectory = "Myeloid", colorBy = "colData", name = "Myeloid")
+plotList[[3]] <- plotTrajectory(proj, trajectory = "Myeloid", colorBy = "GeneScoreMatrix", name = "CEBPB")
+plotList[[4]] <- plotTrajectory(proj, trajectory = "Myeloid", colorBy = "MotifMatrix", name = "z:CEBPB_140")
+plotPDF(plotList = plotList, name = "Plot-UMAP-Myeloid-Trajectory", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Plot-UMAP-Myeloid-Trajectory.pdf){width=450 height=650}
+</center>
 
+```{r eval=FALSE}
+#Next we can access variable features across the trajectory and summarize
+TrajMyeloidMM <- getTrajectory(ArchRProj = proj, name = "Myeloid", useMatrix = "MotifMatrix", log2Norm = FALSE)
+TrajMyeloidGS <- getTrajectory(ArchRProj = proj, name = "Myeloid", useMatrix = "GeneScoreMatrix")
 
+#We can then plot a heatmap for this trajectory to see variable features
+plotList <- list()
+plotList[[1]] <- trajectoryHeatmap(TrajMyeloidMM)
+plotList[[2]] <- trajectoryHeatmap(TrajMyeloidGS)
+plotPDF(plotList = plotList, name = "Myeloid-Trajectory-Heatmap", width = 8, height = 12, ArchRProj = proj, addDOC = FALSE)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Myeloid-Trajectory-Heatmap.pdf){width=450 height=650}
+</center>
 
+## Lymphoid Trajectory
+```{r eval=FALSE}
+#First we need to create a Trajectory and add it to ArchRProj cellColData
+proj <- addTrajectory(ArchRProj = proj, name = "Lymphoid", trajectory = c(paste0("Cluster", c(7,8,9,10))))
 
+#Additionally we can plot these features on top of the UMAP embedding
+plotList <- list()
+plotList[[1]] <- plotEmbedding(ArchRProj = proj, colorBy = "colData", name = "Clusters", plotParams = list(labelMeans=TRUE))
+plotList[[2]] <- plotTrajectory(proj, trajectory = "Lymphoid", colorBy = "colData", name = "Lymphoid")
+plotList[[3]] <- plotTrajectory(proj, trajectory = "Lymphoid", colorBy = "GeneScoreMatrix", name = "PAX5")
+plotList[[4]] <- plotTrajectory(proj, trajectory = "Lymphoid", colorBy = "MotifMatrix", name = "z:PAX5_709")
+plotPDF(plotList = plotList, name = "Plot-UMAP-Lymphoid-Trajectory", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Plot-UMAP-Lymphoid-Trajectory.pdf){width=450 height=650}
+</center>
+
+```{r eval=FALSE}
+#Next we can access variable features across the trajectory and summarize
+TrajLymphoidMM <- getTrajectory(ArchRProj = proj, name = "Lymphoid", useMatrix = "MotifMatrix", log2Norm = FALSE)
+TrajLymphoidGS <- getTrajectory(ArchRProj = proj, name = "Lymphoid", useMatrix = "GeneScoreMatrix")
+
+#We can then plot a heatmap for this trajectory to see variable features
+plotList <- list()
+plotList[[1]] <- trajectoryHeatmap(TrajLymphoidMM, labelMarkers = "PAX5_709")
+plotList[[2]] <- trajectoryHeatmap(TrajLymphoidGS)
+plotPDF(plotList = plotList, name = "Lymphoid-Trajectory-Heatmap", width = 8, height = 12, ArchRProj = proj, addDOC = FALSE)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Lymphoid-Trajectory-Heatmap.pdf){width=450 height=650}
+</center>
+
+# Citation
+
+# References 
+1. 
+2. 
+3. 
+4.
+5.
 
 
 
