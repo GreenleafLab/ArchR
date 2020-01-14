@@ -5,7 +5,7 @@
 \title{Add PeakMatrix to Arrows in ArchRProject}
 \usage{
 addPeakMatrix(ArchRProj, ceiling = 4, binarize = FALSE,
-  parallelParam = NULL, threads = getArchRThreads(), force = FALSE,
+  parallelParam = NULL, threads = getArchRThreads(), force = TRUE,
   ...)
 }
 \arguments{

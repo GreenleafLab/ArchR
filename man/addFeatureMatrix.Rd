@@ -6,7 +6,7 @@
 \usage{
 addFeatureMatrix(input, features = NULL, matrixName = "FeatureMatrix",
   ceiling = Inf, binarize = FALSE, threads = getArchRThreads(),
-  parallelParam = NULL, force = FALSE, ...)
+  parallelParam = NULL, force = TRUE, ...)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}

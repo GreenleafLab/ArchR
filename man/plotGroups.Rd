@@ -5,9 +5,9 @@
 \title{Visualize Groups from ArchR Project}
 \usage{
 plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
-  name = "TSSEnrichment", imputeWeights = getImputeWeights(ArchRProj),
-  log2Norm = NULL, pal = NULL, ylim = NULL, size = 0.5,
-  baseSize = 6, ratioYX = 0.5, points = FALSE, ...)
+  name = "TSSEnrichment", imputeWeights = NULL, log2Norm = NULL,
+  pal = NULL, ylim = NULL, size = 0.5, baseSize = 6,
+  ratioYX = 0.5, addPoints = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -28,7 +28,7 @@ plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{points}{A boolean value that indicates whether points should be added to the plot using \code{geom_quasirandom()}}
+\item{addPoints}{A boolean value that indicates whether points should be added to the plot using \code{geom_quasirandom()}}
 
 \item{...}{additional args}
 }
