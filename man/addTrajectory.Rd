@@ -6,7 +6,7 @@
 \usage{
 addTrajectory(ArchRProj = NULL, name = "Trajectory",
   trajectory = NULL, groupBy = "Clusters",
-  reducedDims = "IterativeLSI", preQuantile = 0.1,
+  reducedDims = "IterativeLSI", embedding = NULL, preQuantile = 0.1,
   postQuantile = 0.1, dof = 250, spar = 1, force = FALSE, ...)
 }
 \arguments{

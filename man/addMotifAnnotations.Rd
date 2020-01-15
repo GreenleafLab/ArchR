@@ -6,7 +6,7 @@
 \usage{
 addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
   name = "Motif", species = NULL, collection = "CORE",
-  cutOff = 5e-05, w = 7, ...)
+  cutOff = 5e-05, w = 7, force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -22,6 +22,8 @@ addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
 \item{cutOff}{The  p-value cutoff to be used for motif search (see the \code{motimatchr} package for more information).}
 
 \item{w}{The width in basepairs to consider for motif matches (see the \code{motimatchr} package for more information).}
+
+\item{force}{force creation if peakAnnotation with same name already exists}
 
 \item{...}{additional args}
 }

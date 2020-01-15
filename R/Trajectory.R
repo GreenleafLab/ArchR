@@ -25,6 +25,7 @@ addTrajectory <- function(
   trajectory = NULL, 
   groupBy = "Clusters",
   reducedDims = "IterativeLSI",
+  embedding = NULL,
   preQuantile = 0.1, 
   postQuantile = 0.1, 
   dof = 250,
@@ -45,10 +46,15 @@ addTrajectory <- function(
     }else{
         stop("Computing KNN requires package nabor, RANN or FNN")
     }
-
-    mat <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
+    
     groupDF <- getCellColData(ArchRProj = ArchRProj, select = groupBy)
     groupDF <- groupDF[groupDF[,1] %in% trajectory,,drop=FALSE]
+
+    if(is.null(embedding)){
+      mat <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
+    }else{
+      mat <- getEmbedding(ArchRProj = ArchRProj, embedding = embedding)
+    }
     mat <- mat[rownames(groupDF),,drop = FALSE]
 
     ######################################################

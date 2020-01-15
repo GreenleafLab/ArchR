@@ -2,27 +2,29 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{enrichHeatmap}
 \alias{enrichHeatmap}
-\title{Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
+\title{Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
 enrichHeatmap(seEnrich = NULL, pal = paletteContinuous(set =
   "white_blue_purple", n = 100), limits = c(0, 60), n = 10,
   clusterCols = TRUE, clusterRows = TRUE, labelRows = TRUE, ...)
 }
 \arguments{
+\item{pal}{A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.}
+
+\item{limits}{A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.}
+
+\item{n}{number of top enriched peakAnnotations per column to keep for visibility purposes}
+
+\item{clusterCols}{A boolean indicating whether or not to cluster columns in heatmap.}
+
+\item{clusterRows}{A boolean indicating whether or not to cluster rows in heatmap.}
+
+\item{labelRows}{A boolean indicating whether or not to label rows in heatmap.}
+
 \item{...}{additional args}
 
-\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
-
-\item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{peakAnnotation}{A peakAnnotation in an \code{ArchRProject} to be used for hypergeometric test.}
-
-\item{matches}{A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).}
-
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker}. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
-
-\item{background}{Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).}
+\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::peakAnnoEnrichment()}.}
 }
 \description{
-This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
+This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see peakAnnoEnrichment).
 }

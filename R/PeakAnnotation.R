@@ -98,17 +98,27 @@ getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param regions The name of peakAnnotations to be stored as in `ArchRProject`
 #' @param name The name of peakAnnotations to be stored as in `ArchRProject`
+#' @param force force creation if peakAnnotation with same name already exists
 #' @param ... additional args
 #' @export
 addPeakAnnotations <- function(
   ArchRProj = NULL,
   regions = NULL,
   name = "Region",
+  force = FALSE,
   ...
   ){
 
   tstart <- Sys.time()
   ArchRProj <- .validArchRProject(ArchRProj)
+
+  if(name %in% names(ArchRProj@peakAnnotation)){
+    if(force){
+      message("peakAnnotation name already exists! Overriding.")
+    }else{
+      stop("peakAnnotation name already exists! set force = TRUE to override!")
+    }
+  }
 
   if(inherits(regions, "GRanges")){
 
@@ -202,6 +212,7 @@ addPeakAnnotations <- function(
 #' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", etc.
 #' @param cutOff The  p-value cutoff to be used for motif search (see the `motimatchr` package for more information).
 #' @param w The width in basepairs to consider for motif matches (see the `motimatchr` package for more information).
+#' @param force force creation if peakAnnotation with same name already exists
 #' @param ... additional args
 #' @export
 addMotifAnnotations <- function(
@@ -212,11 +223,20 @@ addMotifAnnotations <- function(
   collection = "CORE",
   cutOff = 5e-05, 
   w = 7,
+  force = FALSE,
   ...
   ){
 
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
   ArchRProj <- .validArchRProject(ArchRProj)
+
+  if(name %in% names(ArchRProj@peakAnnotation)){
+    if(force){
+      message("peakAnnotation name already exists! Overriding.")
+    }else{
+      stop("peakAnnotation name already exists! set force = TRUE to override!")
+    }
+  }
 
   if(grepl("JASPAR|CISBP", motifSet, ignore.case = TRUE) & is.null(species)){
     if(grepl("hg19",getGenomeAnnotation(ArchRProj)$genome, ignore.case = TRUE)){
@@ -566,16 +586,17 @@ peakAnnoEnrichment <- function(
 
 }
 
-#' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
+#' Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.
 #' 
-#' This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
+#' This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see peakAnnoEnrichment).
 #' 
-#' @param seMarker  A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
-#' @param ArchRProj An `ArchRProject` object.
-#' @param peakAnnotation A peakAnnotation in an `ArchRProject` to be used for hypergeometric test.
-#' @param matches A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
-#' @param background Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).
+#' @param seMarker  A `SummarizedExperiment` object returned by `ArchR::peakAnnoEnrichment()`.
+#' @param pal A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.
+#' @param limits A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.
+#' @param n number of top enriched peakAnnotations per column to keep for visibility purposes
+#' @param clusterCols A boolean indicating whether or not to cluster columns in heatmap.
+#' @param clusterRows A boolean indicating whether or not to cluster rows in heatmap.
+#' @param labelRows A boolean indicating whether or not to label rows in heatmap.
 #' @param ... additional args
 #' @export
 enrichHeatmap <- function(

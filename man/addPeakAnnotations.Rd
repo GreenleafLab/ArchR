@@ -5,7 +5,7 @@
 \title{Add peakAnnotations to an ArchRProject}
 \usage{
 addPeakAnnotations(ArchRProj = NULL, regions = NULL, name = "Region",
-  ...)
+  force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -13,6 +13,8 @@ addPeakAnnotations(ArchRProj = NULL, regions = NULL, name = "Region",
 \item{regions}{The name of peakAnnotations to be stored as in \code{ArchRProject}}
 
 \item{name}{The name of peakAnnotations to be stored as in \code{ArchRProject}}
+
+\item{force}{force creation if peakAnnotation with same name already exists}
 
 \item{...}{additional args}
 }

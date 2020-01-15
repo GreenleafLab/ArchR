@@ -15,6 +15,7 @@ output:
 
 
 ```{r image, include=FALSE}
+wd <- "/Volumes/JG_SSD_2/Data/Analysis/Tutorial/Heme_Tutorial3"
 knitr::include_graphics(
   c(
     "../../images/ArchRProject_Schematic.png", 
@@ -51,7 +52,7 @@ The first thing we do is set up our working directory, load our genome annotatio
 library(ArchR)
 
 #Set/Create Working Directory to Folder for Analysis
-wd <- "/Volumes/JG_SSD_2/Data/Analysis/Tutorial/Heme_Tutorial3"
+wd <- ""
 dir.create(wd, showWarnings = FALSE, recursive = TRUE)
 setwd(wd)
 
@@ -289,7 +290,7 @@ plotTracks <- ArchRRegionTrack(ArchRProj = proj, geneSymbol = markerGenes)
 plotPDF(plotList = plotTracks, name = "Plot-Tracks-Marker-Genes", width = 6, height = 8, ArchRProj = proj, addDOC = FALSE)
 
 #Identify Marker Gene through Pairwise Test vs Bias-Matched Background 
-markersGS <- markerFeatures(ArchRProj = proj, useMatrix = "GeneScoreMatrix")
+markersGS <- markerFeatures(ArchRProj = proj, useMatrix = "GeneScoreMatrix", groupBy = "Clusters")
 heatmapGS <- markerHeatmap(
   seMarker = markersGS, 
   cutOff = "FDR <= 0.01 & Log2FC >= 1", 
@@ -358,7 +359,7 @@ plotPDF(plotList = plotList, name = "FRIP-TSS-Enrichment", width = 4, height = 4
 ## Reproducible Peaks per Cluster
 <br/><br/>
 <center>
-![Alt](../../images/Tutorial/Peak-Call-Summary.pdf){width=800 height=400}
+![Alt](../../images/Tutorial/Peak-Call-Summary.pdf){width=600 height=400}
 </center>
 
 ## FRIP / TSS Enrichment Per Sample
@@ -374,7 +375,7 @@ Often times, we are interested to know which peaks are unique to an individual c
 
 ```{r eval=FALSE}
 #Identify Marker Peaks
-markersPeaks <- markerFeatures(ArchRProj = proj, useMatrix = "PeakMatrix")
+markersPeaks <- markerFeatures(ArchRProj = proj, useMatrix = "PeakMatrix", groupBy = "Clusters")
 
 #Visualize Markers as a heatmap
 heatmapPeaks <- markerHeatmap(
@@ -392,6 +393,7 @@ plotPDF(heatmapPeaks, name = "Peak-Marker-Heatmap", width = 8, height = 12, Arch
 
 ## Markers MA/Volcano-Plot
 ```{r eval=FALSE}
+#Marker Peaks for Cluster 6 (Erythroid)
 plotList <- list()
 plotList[[1]] <- markerPlot(seMarker = markersPeaks, name = "Cluster6", cutOff = "FDR <= 0.1 & abs(Log2FC) >= 1", plotAs = "MA")
 plotList[[2]] <- markerPlot(seMarker = markersPeaks, name = "Cluster6", cutOff = "FDR <= 0.1 & abs(Log2FC) >= 1", plotAs = "Volcano")
@@ -402,7 +404,92 @@ plotPDF(plotList = plotList, name = "Cluster6-Marker-Peaks", width = 6, height =
 ![Alt](../../images/Tutorial/Cluster6-Marker-Peaks.pdf){width=450 height=450}
 </center>
 
-Using our tutorial data, your marker peak heatmap should look like [this](articles/Articles/Tutorial_markerPeaks_HEATMAP.pdf).
+## Pairwise-Test
+```{r eval=FALSE}
+
+#Pairwise Test between Cluster 6 (Erythroid) and Cluster 10 (B-Cells)
+testClust6_10 <- markerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix",
+  groupBy = "Clusters",
+  testMethod = "wilcoxon",
+  bias = c("TSSEnrichment", "log10(nFrags)"),
+  useGroups = "Cluster6",
+  bgdGroups = "Cluster10"
+)
+
+#Plot Differential Plot
+plotList <- list()
+plotList[[1]] <- markerPlot(seMarker = testClust6_10, name = "Cluster6", cutOff = "FDR <= 0.1 & abs(Log2FC) >= 1", plotAs = "MA")
+plotList[[2]] <- markerPlot(seMarker = testClust6_10, name = "Cluster6", cutOff = "FDR <= 0.1 & abs(Log2FC) >= 1", plotAs = "Volcano")
+plotPDF(plotList = plotList, name = "Cluster6-Cluster10-Marker-Peaks", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Cluster6-Cluster10-Marker-Peaks.pdf){width=450 height=450}
+</center>
+
+```{r eval=FALSE}
+#Add Motif Peak Annotations if not already added!
+proj <- addMotifAnnotations(ArchRProj = proj, motifSet = "cisbp", name = "Motif")
+
+#Identify Motif Enrichments
+motifsUp <- peakAnnoEnrichment(
+    seMarker = testClust6_10,
+    ArchRProj = proj,
+    peakAnnotation = "Motif",
+    cutOff = "FDR <= 0.1 & Log2FC >= 0.5"
+  )
+
+#Create data.frame
+df <- data.frame(TF = rownames(motifsUp), mlog10FDR = assay(motifsUp)[,1])
+df <- df[order(df$mlog10FDR, decreasing = TRUE),]
+df$rank <- seq_len(nrow(df))
+
+#Ggplot
+ggUp <- ggplot(df, aes(rank, mlog10FDR)) + 
+  geom_point(size = 1) +
+  ggrepel::geom_label_repel(
+        data = df[rev(seq_len(30)), ], aes(x = rank, y = mlog10FDR, label = TF), 
+        size = 1.5,
+        nudge_x = 2
+  ) + theme_ArchR() + ylab("-log10(FDR) Motif Enrichment") + xlab("Rank Sorted TFs Enriched")
+plotPDF(ggUp, name = "Cluster6-Cluster10-Motifs-Up", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Cluster6-Cluster10-Motifs-Up.pdf){width=450 height=450}
+</center>
+
+```{r eval=FALSE}
+motifsDo <- peakAnnoEnrichment(
+    seMarker = testClust6_10,
+    ArchRProj = proj,
+    peakAnnotation = "Motif",
+    cutOff = "FDR <= 0.1 & Log2FC <= -0.5"
+  )
+
+#Create data.frame
+df <- data.frame(TF = rownames(motifsDo), mlog10FDR = assay(motifsDo)[,1])
+df <- df[order(df$mlog10FDR, decreasing = TRUE),]
+df$rank <- seq_len(nrow(df))
+
+#Ggplot
+ggDo <- ggplot(df, aes(rank, mlog10FDR)) + 
+  geom_point(size = 1) +
+  ggrepel::geom_label_repel(
+        data = df[rev(seq_len(30)), ], aes(x = rank, y = mlog10FDR, label = TF), 
+        size = 1.5,
+        nudge_x = 2
+  ) + theme_ArchR() + ylab("-log10(FDR) Motif Enrichment") + xlab("Rank Sorted TFs Enriched")
+plotPDF(ggDo, name = "Cluster6-Cluster10-Motifs-Down", width = 6, height = 6, ArchRProj = proj, addDOC = FALSE)
+
+```
+<br/><br/>
+<center>
+![Alt](../../images/Tutorial/Cluster6-Cluster10-Motifs-Down.pdf){width=450 height=450}
+</center>
 
 # Performing Peak Annotation Enrichments {.tabset .tabset-fade .tabset-pills}
 

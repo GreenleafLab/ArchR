@@ -199,7 +199,7 @@ addReproduciblePeakSet <- function(
 	#Add Peak Set
 	ArchRProj <- addPeakSet(ArchRProj, unionPeaks, force = TRUE)
 
-	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 8, height = 4, ArchRProj = ArchRProj)
+	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 6, height = 4, ArchRProj = ArchRProj)
 
 	.messageDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart)
 
@@ -222,17 +222,21 @@ addReproduciblePeakSet <- function(
 
   lengthMax <- split(peakDF$Freq, peakDF$Group) %>% lapply(sum) %>% unlist %>% max
 
-  p <- ggplot(peakDF, aes(x=Group, y=Freq, fill=Var1)) + 
+  colnames(peakDF)[colnames(peakDF)=="Var1"] <- "PeakAnno"
+
+  p <- ggplot(peakDF, aes(x=Group, y=Freq, fill=PeakAnno)) + 
     geom_bar(stat = "identity") + 
     theme_ArchR(xText90 = TRUE) +
     ylab("Number of Peaks (x10^3)") +
-    xlab("") +
+    xlab("") + theme(legend.position = "bottom", legend.key = element_rect(size = 2), legend.box.background = element_rect(color = NA)) +
     scale_fill_manual(values=pal) +
     scale_y_continuous(
       breaks = seq(0, lengthMax * 2,50), 
       limits = c(0, lengthMax * 1.1), 
       expand = c(0,0)
       )
+
+  attr(p, "ratioYX") <- 0.5
 
   return(p)
 
