@@ -68,10 +68,40 @@ ggPoint <- function(
     addFit = NULL, 
     rastr = FALSE, 
     dpi = 300,
-    ...){
-    
-    stopifnot(is.numeric(x))
-    stopifnot(is.numeric(y))
+    ...
+    ){
+
+    .validInput(input = x, name = "x", valid = c("numeric"))
+    .validInput(input = y, name = "y", valid = c("numeric"))
+    .validInput(input = color, name = "color", valid = c("numeric", "character", "null"))
+    .validInput(input = discrete, name = "discrete", valid = c("boolean"))
+    .validInput(input = discreteSet, name = "discreteSet", valid = c("character"))
+    .validInput(input = continuousSet, name = "continuousSet", valid = c("character"))
+    .validInput(input = labelMeans, name = "labelMeans", valid = c("boolean"))
+    .validInput(input = pal, name = "pal", valid = c("character"))
+    .validInput(input = defaultColor, name = "defaultColor", valid = c("character"))
+    .validInput(input = size, name = "size", valid = c("numeric"))
+    .validInput(input = xlim, name = "xlim", valid = c("numeric", "null"))
+    .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
+    .validInput(input = extend, name = "extend", valid = c("numeric"))
+    .validInput(input = xlabel, name = "xlabel", valid = c("character"))
+    .validInput(input = ylabel, name = "ylabel", valid = c("character"))
+    .validInput(input = title, name = "title", valid = c("character"))
+    .validInput(input = randomize, name = "randomize", valid = c("boolean"))
+    .validInput(input = seed, name = "seed", valid = c("integer"))
+    .validInput(input = colorTitle, name = "colorTitle", valid = c("character", "null"))
+    .validInput(input = colorOrder, name = "colorOrder", valid = c("character", "null"))
+    .validInput(input = alpha, name = "alpha", valid = c("numeric"))
+    .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+    .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
+    .validInput(input = labelType, name = "labelType", valid = c("character"))
+    .validInput(input = fgColor, name = "fgColor", valid = c("character", "null"))
+    .validInput(input = bgColor, name = "bgColor", valid = c("character", "null"))
+    .validInput(input = labelSize, name = "labelSize", valid = c("numeric"))
+    .validInput(input = addFit, name = "addFit", valid = c("character", "null"))
+    .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+    .validInput(input = dpi, name = "dpi", valid = c("numeric"))
+
     stopifnot(length(y) == length(x))
 
     if(randomize){
@@ -296,10 +326,23 @@ ggOneToOne <- function (
   pal = paletteContinuous(set = "blue_yellow"),
   ...
   ){
-  
-  #Check is Numeric
-  stopifnot(is.numeric(x))
-  stopifnot(is.numeric(y))
+
+  .validInput(input = x, name = "x", valid = c("numeric"))
+  .validInput(input = y, name = "y", valid = c("numeric"))
+  .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = alpha, name = "alpha", valid = c("numeric"))
+  .validInput(input = xlabel, name = "xlabel", valid = c("character"))
+  .validInput(input = ylabel, name = "ylabel", valid = c("character"))
+  .validInput(input = title, name = "title", valid = c("character"))
+  .validInput(input = min, name = "min", valid = c("numeric"))
+  .validInput(input = max, name = "max", valid = c("numeric"))
+  .validInput(input = nPlot, name = "nPlot", valid = c("integer"))
+  .validInput(input = nKernel, name = "nKernel", valid = c("numeric"))
+  .validInput(input = densityMax, name = "densityMax", valid = c("numeric"))
+  .validInput(input = extend, name = "extend", valid = c("numeric"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  .validInput(input = pal, name = "pal", valid = c("character"))
   
   #Check for NA
   idx <- which(!is.na(x) & !is.na(y) & !is.infinite(x) & !is.infinite(y))
@@ -390,8 +433,17 @@ ggViolin <- function(
   ...
   ){
 
-  stopifnot(!is.numeric(x))
-  stopifnot(is.numeric(y))
+  .validInput(input = x, name = "x", valid = c("character"))
+  .validInput(input = y, name = "y", valid = c("numeric"))
+  .validInput(input = xlabel, name = "xlabel", valid = c("character", "null"))
+  .validInput(input = ylabel, name = "ylabel", valid = c("character", "null"))
+  .validInput(input = xOrder, name = "xOrder", valid = c("character", "null"))
+  .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
+  .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
+  .validInput(input = sampleRatio, name = "sampleRatio", valid = c("numeric"))
+  .validInput(input = pal, name = "pal", valid = c("character"))
   
   names(y) <- x
   me = round(mean(stats::aggregate(y ~ names(y), FUN = mean)[, 2]), 2)
@@ -495,7 +547,25 @@ ggHex <- function(
   FUN = "mean", 
   quantCut = c(0.01, 0.99),
   addPoints = FALSE,
-  ...){
+  ...
+  ){
+
+    .validInput(input = x, name = "x", valid = c("numeric"))
+    .validInput(input = y, name = "y", valid = c("numeric"))
+    .validInput(input = color, name = "color", valid = c("numeric"))
+    .validInput(input = pal, name = "pal", valid = c("character"))
+    .validInput(input = bins, name = "bins", valid = c("integer"))
+    .validInput(input = xlim, name = "xlim", valid = c("numeric", "null"))
+    .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
+    .validInput(input = xlabel, name = "xlabel", valid = c("character"))
+    .validInput(input = ylabel, name = "ylabel", valid = c("character"))
+    .validInput(input = title, name = "title", valid = c("character"))
+    .validInput(input = colorTitle, name = "colorTitle", valid = c("character", "null"))
+    .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+    .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
+    .validInput(input = FUN, name = "FUN", valid = c("character"))
+    .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+    .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
     df <- data.frame(x = x, y = y)
     include <- which(is.finite(x) & is.finite(y))
@@ -567,8 +637,21 @@ ggHex <- function(
 #' @param draw A boolean value indicating whether to draw plot or return grob.
 #' @export
 ggAlignPlots <- function(
-  ..., plotList = NULL, sizes = NULL, type = "v",  draw = TRUE){
+  ..., 
+  plotList = NULL, 
+  sizes = NULL, 
+  type = "v",  
+  draw = TRUE
+  ){
   
+  .validInput(input = plotList, name = "plotList", valid = c("list", "null"))
+  .validInput(input = sizes, name = "sizes", valid = c("numeric"))
+  .validInput(input = type, name = "type", valid = c("character"))
+  .validInput(input = draw, name = "draw", valid = c("boolean"))
+  if(type %ni% c("v", "h")){
+    stop("type must be v (vertical) or h (horizontal)!")
+  }
+
   #http://stackoverflow.com/a/21503904
 
   .requirePackage("gtable")
@@ -665,7 +748,18 @@ theme_ArchR <- function(
   yText90 = FALSE,
   ...
   ){
-  
+
+  .validInput(input = color, name = "color", valid = c("character"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = baseLineSize, name = "baseLineSize", valid = c("numeric"))
+  .validInput(input = baseRectSize, name = "baseRectSize", valid = c("numeric"))
+  .validInput(input = plotMarginCm, name = "plotMarginCm", valid = c("numeric"))
+  .validInput(input = legendPosition, name = "legendPosition", valid = c("character"))
+  .validInput(input = legendTextSize, name = "legendTextSize", valid = c("numeric"))
+  .validInput(input = axisTickCm, name = "axisTickCm", valid = c("numeric"))
+  .validInput(input = xText90, name = "xText90", valid = c("boolean"))
+  .validInput(input = yText90, name = "yText90", valid = c("boolean"))
+
   theme <- theme_bw() + theme(
       axis.text = element_text(color = color, size = baseSize), 
       axis.title = element_text(color = color, size = baseSize),

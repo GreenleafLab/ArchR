@@ -25,7 +25,7 @@
 #' @param ... additional args
 #' @export
 addDoubletScores <- function(
-  input,
+  input = NULL,
   useMatrix = "TileMatrix",
   k = 10,
   nTrials = 5,
@@ -41,6 +41,21 @@ addDoubletScores <- function(
   verboseAll = FALSE,
   ...
   ){
+
+  .validInput(input = input, name = "input", valid = c("character", "ArchRProj"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .validInput(input = nTrials, name = "nTrials", valid = c("integer"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = knnMethod, name = "knnMethod", valid = c("character"))
+  .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
+  .validInput(input = LSIParams, name = "LSIParams", valid = c("list"))
+  .validInput(input = outDir, name = "outDir", valid = c("character"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
+  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
+  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
 
   if(tolower(useMatrix) %ni% c("peakmatrix","tilematrix")){
     stop(sprintf("Supported Matrix Names at the moment are PeakMatrix and TileMatrix : ", useMatrix))
@@ -537,8 +552,12 @@ addDoubletScores <- function(
 #' @param sampleNames The sample names corresponding to the .best files. These must match the sample names present in the `ArchRProject`.
 #' @param ... additional args
 #' @export
-addDemuxletResults <- function(ArchRProj, bestFiles, sampleNames, ...){
+addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames = NULL, ...){
   
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = bestFiles, name = "bestFiles", valid = c("character"))
+  .validInput(input = sampleNames, name = "sampleNames", valid = c("character"))
+
   .requirePackage("readr")
 
   if(!all(sampleNames %in% rownames(getSampleColData(ArchRProj)))){

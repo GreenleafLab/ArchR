@@ -95,6 +95,10 @@
 
       cv <- inherits(input, "BSgenome")
 
+    }else if(vi == "parallelparam"){
+
+      cv <- inherits(input, "BatchtoolsParam")
+
     }else if(vi == "archrproj" | vi == "archrproject"){
 
       cv <- inherits(input, "ArchRProject")

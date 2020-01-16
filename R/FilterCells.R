@@ -16,7 +16,15 @@
 #' apply to specific samples : list(TSSEnrichment = list("Sample1" = c(4, 25), "Sample2" = c(5, 25)))).
 #' @param ... additional params
 #' @export
-filterCells <- function(ArchRProj, filterList, ...){  
+filterCells <- function(
+  ArchRProj = NULL, 
+  filterList = NULL,
+  ...
+  ){  
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = filterList, name = "filterList", valid = c("list"))
+
   ccd <- getCellColData(ArchRProj)
 
   cellsPF <- lapply(seq_along(filterList), function(x){
@@ -95,7 +103,16 @@ filterCells <- function(ArchRProj, filterList, ...){
 #' @param sampleNames The sample names corresponding to the subset of samples to plot. If NULL, all samples are included.
 #' @param ... additional params
 #' @export
-filterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
+filterPlot <- function(
+  ArchRProj = NULL, 
+  filterList = NULL, 
+  sampleNames = NULL,
+  ...
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = filterList, name = "filterList", valid = c("list"))
+  .validInput(input = sampleNames, name = "sampleNames", valid = c("character", "null"))
 
   ccd <- getCellColData(ArchRProj, unique(c("Sample", names(filterList))))
   if(!is.null(sampleNames)){
@@ -156,6 +173,11 @@ filterPlot <- function(ArchRProj, filterList, sampleNames = NULL, ...){
 #' @param ... additional params
 #' @export
 filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1, ...){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = cutEnrich, name = "cutEnrich", valid = c("numeric"))
+  .validInput(input = cutScore, name = "cutScore", valid = c("numeric"))
+  .validInput(input = filterRatio, name = "filterRatio", valid = c("numeric"))
 
   if(any(grepl("filterDoublets", names(ArchRProj@projectSummary)))){
     stop("Already ran filterDoublets on ArchRProject! Cannot be re-ran on an ArchRProject!")

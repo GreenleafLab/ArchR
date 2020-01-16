@@ -52,6 +52,27 @@ plotFootprints <- function(
   ...
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = positions, name = "positions", valid = c("grangeslist"))
+  .validInput(input = plotName, name = "plotName", valid = c("character"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
+  .validInput(input = pal, name = "pal", valid = c("character"))
+  .validInput(input = flank, name = "flank", valid = c("integer"))
+  .validInput(input = flankNorm, name = "flankNorm", valid = c("integer"))
+  .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  .validInput(input = minCells, name = "minCells", valid = c("integer"))
+  .validInput(input = nTop, name = "nTop", valid = c("integer", "null"))
+  .validInput(input = normMethod, name = "normMethod", valid = c("character"))
+  .validInput(input = inputSE, name = "inputSE", valid = c("summarizedexperiment", "null"))
+  .validInput(input = height, name = "height", valid = "integer")
+  .validInput(input = width, name = "width", valid = "integer")
+  .validInput(input = addDOC, name = "addDOC", valid = "boolean")
+  .validInput(input = useSink, name = "useSink", valid = "boolean")
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
+  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+
   tstart <- Sys.time()
 
   if(is.null(inputSE)){

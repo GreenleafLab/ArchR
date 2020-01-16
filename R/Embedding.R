@@ -10,13 +10,13 @@
 #' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to use from the designated `ArchRProject`.
 #' @param embedding The type of the embedding to add to the `ArchRProject` object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".
 #' @param embeddingOut The name for the embedding to be stored as in the `ArchRProject` object.
+#' @param embeddingParams A list of extra parameters to pass to the designated `embedding` function.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.
 #' @param saveModel A boolean value indicating whether to save UMAP model for later usage such as projection. Only relevant for UMAP.
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if the given `embedding` already exists.
 #' @param threads The number of threads to use for embedding generation computations.
-#' @param embeddingParams A list of extra parameters to pass to the designated `embedding` function.
 #' @param ... additional args
 #' @export
 addEmbedding <- function(
@@ -24,15 +24,27 @@ addEmbedding <- function(
   reducedDims = "IterativeLSI", 
   embedding = "UMAP",
   embeddingOut = NULL,
+  embeddingParams = list(),
   dimsToUse = NULL,
   corCutOff = 0.75,
   saveModel = TRUE,
   seed = 1,
   force = FALSE,
   threads = getArchRThreads(),
-  embeddingParams = list(),
   ...
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = embedding, name = "embedding", valid = c("character"))
+  .validInput(input = embeddingOut, name = "embeddingOut", valid = c("character", "null"))
+  .validInput(input = embeddingParams, name = "embeddingParams", valid = c("list"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = saveModel, name = "saveModel", valid = c("boolean"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
   if(is.null(embeddingOut)){
     embeddingOut <- embedding
