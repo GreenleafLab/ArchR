@@ -60,12 +60,17 @@ createArrowFiles <- function(
   addGeneScoreMat = TRUE,
   GeneScoreMatParams = list(),
   force = FALSE,
-  threads = getArchRThreads(),
+  threads = 1,
   parallelParam = NULL,
   verboseHeader = TRUE,
   verboseAll = FALSE,
   ...
   ){
+
+  .validInput(input = inputFiles, name = "inputFiles", valid = c("character"))
+  .validInput(input = sampleNames, name = "sampleNames", valid = c("character"))
+  .validInput(input = outputNames, name = "outputNames", valid = c("character"))
+  .validInput(input = validBarcodes, name = "validBarcodes", valid = c("character"))
 
   dir.create(outDir, showWarnings = FALSE)
 
@@ -106,6 +111,7 @@ createArrowFiles <- function(
   inputFiles = NULL, 
   sampleNames = NULL, 
   outputNames = paste0("./", sampleName),
+  validBarcodes = NULL,
   nChunk = 3,
   offsetPlus = 4,
   offsetMinus = -5,
@@ -143,6 +149,25 @@ createArrowFiles <- function(
   sampleName <- sampleNames[i] 
   outputName <- outputNames[i]
   ArrowFile <- ArrowFiles[i]
+
+  if(!is.null(validBarcodes)){
+    if(length(inputFiles) == 1){
+      if(inherits(validBarcodes, "list") | inherits(validBarcodes, "SimpleList")){
+        if(length(validBarcodes) != length(inputFiles)){
+          stop("validBarcodes must be same length as inputFiles!")
+        }
+        validBC <- validBarcodes[[sampleName]]
+      }else{
+        validBC <- validBarcodes
+      }
+    }else{
+      if(length(validBarcodes) != length(inputFiles)){
+        stop("validBarcodes must be same length as inputFiles!")
+      }
+      validBC <- validBarcodes[[sampleName]]
+    }
+  }
+
   outDir <- file.path(outDir, sampleName)
   dir.create(outDir, showWarnings = FALSE)
 
@@ -190,14 +215,16 @@ createArrowFiles <- function(
 
   if(tolower(readMethod) == "tsv"){
 
-    out <- .tsvToArrow(tsvFile = inputFile, outArrow = ArrowFile, 
-            chromSizes = genomeAnno$chromSizes, genome = genomeAnno$genome, 
-            minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
-            verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
+    # Under development still
+    # out <- .tsvToArrow(tsvFile = inputFile, outArrow = ArrowFile, 
+    #        chromSizes = genomeAnno$chromSizes, genome = genomeAnno$genome, 
+    #        minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
+    #        verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
 
   }else if(tolower(readMethod)=="tabix"){
    
-    tmp <- .tabixToTmp(tabixFile = inputFile, sampleName = sampleName, chromSizes = genomeAnno$chromSizes, nChunk = nChunk,
+    tmp <- .tabixToTmp(tabixFile = inputFile, sampleName = sampleName, validBC = validBC,
+            chromSizes = genomeAnno$chromSizes, nChunk = nChunk,
             gsubExpression = gsubExpression, prefix = prefix, verboseHeader = verboseHeader, 
             verboseAll = verboseAll, tstart = tstart,  ...)
 
@@ -208,7 +235,7 @@ createArrowFiles <- function(
   
   }else if(tolower(readMethod)=="bam"){
 
-    tmp <- .bamToTmp(bamFile = inputFile, sampleName = sampleName, 
+    tmp <- .bamToTmp(bamFile = inputFile, sampleName = sampleName, validBC = validBC,
             chromSizes = genomeAnno$chromSizes, bamFlag = bamFlag, 
             bcTag = bcTag, gsubExpression = gsubExpression, nChunk = nChunk, 
             offsetPlus = offsetPlus, offsetMinus = offsetMinus, prefix = prefix, 
@@ -258,7 +285,6 @@ createArrowFiles <- function(
 
   }, error = function(x){
 
-      suppressWarnings(sink())
       .messageDiffTime("Continuing through after error ggplot for Fragment Size Distribution", tstart)
       print(x)
       message("\n")
@@ -289,7 +315,7 @@ createArrowFiles <- function(
     sink(tmpFile)
 
     ggtitle <- sprintf("%s\n%s\n%s",
-        paste0(sampleName, "\nnCells Pass Filter = ", sum(Metadata$Keep)),
+        paste0(sampleName, " : Number of Cells Pass Filter = ", sum(Metadata$Keep)),
         paste0("Median Frags = ", median(Metadata$nFrags[Metadata$Keep==1])),
         paste0("Median TSS Enrichment = ", median(Metadata$TSSEnrichment[Metadata$Keep==1]))
       )
@@ -314,7 +340,6 @@ createArrowFiles <- function(
 
   }, error = function(x) {
 
-      suppressWarnings(sink())
       .messageDiffTime("Continuing through after error ggplot for TSS by Frags", tstart)
       print(x)
       message("\n")
@@ -595,7 +620,7 @@ createArrowFiles <- function(
 }
 
 #########################################################################################################
-# Methods to turn input file into a temp file that can then be efficiently converted to an ArrowFile!
+# Methods to Turn Input File into a Temp File that can then be Efficiently converted to an Arrow!
 #########################################################################################################
 .isTabix <- function(file){
   tryCatch({
@@ -615,6 +640,7 @@ createArrowFiles <- function(
 .tabixToTmp <- function(
   tabixFile, 
   sampleName,
+  validBC = NULL,
   tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow"), fileext=".arrow"),
   chromSizes, 
   nChunk = 3,
@@ -654,6 +680,9 @@ createArrowFiles <- function(
 
   tileChromSizes <- unlist(GenomicRanges::tile(chromSizes, nChunk))
   mcols(tileChromSizes)$chunkName <- paste0(seqnames(tileChromSizes),"#chunk",seq_along(tileChromSizes))
+
+  errorCheck <- 0
+
   for(x in seq_along(tileChromSizes)){
 
     if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
@@ -674,10 +703,18 @@ createArrowFiles <- function(
     #Care for Break Points
     dt <- dt[dt$V2 >= start(tileChromSizes[x]),]
 
+    if(!is.null(gsubExpression)){
+      dt$V4 <- gsub(gsubExpression, "", dt$V4)
+    }
+
+    #Check for valid barcodes
+    if(!is.null(validBC)){
+      dt <- dt[dt$V4 %in% validBC, ]
+    }
+
     if(all(!is.null(dt), nrow(dt) > 0)){
-      if(!is.null(gsubExpression)){
-        scanChunk$V4 <- gsub(gsubExpression, "", scanChunk$V4)
-      }
+
+      errorCheck <- errorCheck + 1
 
       #Order by bc
       setkey(dt, V4)
@@ -703,6 +740,14 @@ createArrowFiles <- function(
     }
   }
 
+  if(errorCheck == 0){
+    if(!is.null(validBC)){
+      stop("No fragments found! Possible error with validBarcodes!")
+    }else{
+      stop("No fragments found!")
+    }
+  }
+
   return(tmpFile)
 
 }
@@ -711,6 +756,7 @@ createArrowFiles <- function(
   bamFile, 
   sampleName,
   tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow"), fileext=".arrow"), 
+  validBC = NULL,
   chromSizes, 
   bamFlag = NULL,
   nChunk = 3,
@@ -761,6 +807,9 @@ createArrowFiles <- function(
 
   tileChromSizes <- unlist(tile(chromSizes, nChunk))
   mcols(tileChromSizes)$chunkName <- paste0(seqnames(tileChromSizes),"#chunk",seq_along(tileChromSizes))
+
+  errorCheck <- 0
+
   for(x in seq_along(tileChromSizes)){
 
     if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
@@ -837,7 +886,14 @@ createArrowFiles <- function(
     #Care for Break Points
     dt <- dt[dt$start >= start(tileChromSizes[x]),]    
 
+    #Check for valid barcodes
+    if(!is.null(validBC)){
+      dt <- dt[dt$RG %in% validBC, ]
+    }
+
     if(all(!is.null(dt), nrow(dt) > 0)){
+
+      errorCheck <- errorCheck + 1
 
       #Order by bc
       setkey(dt, RG)
@@ -865,13 +921,21 @@ createArrowFiles <- function(
 
   }
 
+  if(errorCheck == 0){
+    if(!is.null(validBC)){
+      stop("No fragments found! Possible error with validBarcodes!")
+    }else{
+      stop("No fragments found!")
+    }
+  }
+
   return(tmpFile)
 
 }
 
 
 #########################################################################################################
-# Methods to convert temp file to an ArrowFile!
+# Methods to temp file to arrow!
 #########################################################################################################
 
 .tmpToArrow <- function(
@@ -1212,9 +1276,5 @@ createArrowFiles <- function(
   })
 
 }
-
-
-
-
 
 

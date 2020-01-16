@@ -20,7 +20,7 @@
 #' @param ... additional args
 #' @export
 addCoAccessibility <- function(
-  ArchRProj,
+  ArchRProj = NULL,
   reducedDims = "IterativeLSI",
   k = 100, 
   knnIteration = 5000, 
@@ -29,10 +29,21 @@ addCoAccessibility <- function(
   scaleTo = 10^4,
   log2Norm = TRUE,
   seed = 1, 
-  knnMethod = "nabor",
+  knnMethod = NULL,
   threads = getArchRThreads(),
   ...
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
+  .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
+  .validInput(input = maxDist, name = "maxDist", valid = c("integer"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
+  .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
 

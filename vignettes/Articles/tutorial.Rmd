@@ -4,7 +4,7 @@ output:
   html_document:
     toc: true # table of content true
     toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
-    number_sections: true  ## if you want number sections at each table header
+    number_sections: false  ## if you want number sections at each table header
     #theme: cosmo  # many options for theme, this one is my favorite.
     highlight: tango  # specifies the syntax highlighting style
     code_download: true
@@ -22,6 +22,14 @@ knitr::include_graphics(
     "../../images/ArchR_FunctionSchematic.png"
     )
   )
+```
+
+```{r, results='asis', echo = F}
+toc_depth <- rmarkdown::metadata$output$html_document$toc_depth
+sel <- paste0("h",(toc_depth+1):10, collapse = " > span, ")
+cat(paste0("<style>",
+           sel, 
+           " > .header-section-number { display: none; } </style>"))
 ```
 
 ## Please view the tutorial in safari, firefox or internet explorer (chrome's pdf viewer doesnt load all of the pdf's in the tutorial).
@@ -198,12 +206,17 @@ plotPDF(plotList = plotList, name = "UMAP-Samples-Clusters", width = 6, height =
 ```
 
 ***
-## UMAP w/ Clusters
+## UMAP w/ Clusters {.tabset .tabset-fade .tabset-pills}
 This [plot](../../images/Tutorial/UMAP-Samples-Clusters.pdf) shows gene experimental samples and clusters described above overlayed onto the UMAP embedding. (Note if you see a blank space below try firefox or safari)
-<br/><br/>
-<center>
-![Alt](../../images/Tutorial/UMAP-Samples-Clusters.pdf){width=450 height=450}
-</center>
+
+### 1
+![Alt](../../images/Tutorial/UMAP-Samples-Clusters_1.png){width=450 height=450}
+
+### 2
+![Alt](../../images/Tutorial/UMAP-Samples-Clusters_2.png){width=450 height=450}
+
+### 3
+![Alt](../../images/Tutorial/UMAP-Samples-Clusters_3.png){width=450 height=450}
 
 ## TSNE w/ Clusters
 ```{r eval=FALSE}

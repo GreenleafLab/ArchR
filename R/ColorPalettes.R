@@ -91,7 +91,7 @@ ArchRPalettes <- list(
 #'
 #' This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most possible color contrast from the designated color set.
 #'
-#' @param set The name or numeric index of a color palette provided in the `ArchRPalettes` list object.
+#' @param set The name of a color palette provided in the `ArchRPalettes` list object.
 #' @param values A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated palette set.
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
 #' @export
@@ -101,20 +101,11 @@ paletteDiscrete <- function(
   reverse = FALSE, 
   ...
   ){
-  
-  #check
-  if(is.numeric(set)){
-    stopifnot(set > 0 & set <= length(ArchRPalettes))
-    name <- names(ArchRPalettes)[set]
-  }else{
-    stopifnot(set %in% names(ArchRPalettes))
-    name <- set
-  }
-  
-  if(is.null(values)){
-    stop("Please provide values for discrete palette!")
-  }
 
+  .validInput(input = set, name = "set", valid = c("character"))
+  .validInput(input = values, name = "values", valid = c("character"))
+  .validInput(input = reverse, name = "reverse", valid = c("boolean"))
+  
   values <- gtools::mixedsort(values)
   n <- length(unique(values))
   pal <- ArchRPalettes[[set]]
@@ -139,7 +130,7 @@ paletteDiscrete <- function(
 
 #' Continuous Color Palette
 #'
-#' @param set The name or numeric index of a color palette provided in the `ArchRPalettes` list object.
+#' @param set The name of a color palette provided in the `ArchRPalettes` list object.
 #' @param n The number of unique colors to generate as part of this continuous color palette.
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
 #' @export
@@ -149,13 +140,10 @@ paletteContinuous <- function(
   reverse = FALSE,
   ...
   ){
-  
-  #check
-  if(is.numeric(set)){
-    stopifnot(set > 0 & set <= length(ArchRPalettes))
-  }else{
-    stopifnot(set %in% names(ArchRPalettes))
-  }
+
+  .validInput(input = set, name = "set", valid = c("character"))
+  .validInput(input = n, name = "n", valid = c("integer"))
+  .validInput(input = reverse, name = "reverse", valid = c("boolean"))
   
   pal <- ArchRPalettes[[set]]
   palOut <- colorRampPalette(pal)(n)

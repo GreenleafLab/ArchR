@@ -39,6 +39,20 @@ addClusters <- function(
     ...
     ){
 
+    .validInput(input = input, name = "input", valid = c("ArchRProj", "matrix"))
+    .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+    .validInput(input = name, name = "name", valid = c("character"))
+    .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
+    .validInput(input = seed, name = "seed", valid = c("integer"))
+    .validInput(input = method, name = "method", valid = c("character"))
+    .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
+    .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+    .validInput(input = knnAssign, name = "knnAssign", valid = c("integer"))
+    .validInput(input = nOutlier, name = "nOutlier", valid = c("integer"))
+    .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+    .validInput(input = tstart, name = "tstart", valid = c("timestamp","null"))
+    .validInput(input = force, name = "force", valid = c("boolean"))
+
     if(is.null(tstart)){
         tstart <- Sys.time()
     }
@@ -336,7 +350,13 @@ addClusters <- function(
 # }
 
 #' @export
-.computeKNN <- function(data, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
+.computeKNN <- function(data = NULL, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
+
+  .validInput(input = data, name = "data", valid = c("dataframe", "matrix"))
+  .validInput(input = query, name = "query", valid = c("dataframe", "matrix"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .validInput(input = method, name = "method", valid = c("character", "null"))
+  .validInput(input = includeSelf, name = "includeSelf", valid = c("boolean"))
 
   if(is.null(query)){
     query <- data

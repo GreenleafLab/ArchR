@@ -56,6 +56,29 @@ ArchRRegionTrack <- function(
   ...
   ){
   
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
+  .validInput(input = region, name = "region", valid = c("granges","null"))
+  .validInput(input = groupBy, name = "groupBy", valid = "character")
+  .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
+  .validInput(input = useCoverages, name = "useCoverages", valid = c("boolean"))
+  .validInput(input = plotSummary, name = "plotSummary", valid = "character")
+  .validInput(input = sizes, name = "sizes", valid = "numeric")
+  .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = geneSymbol, name = "geneSymbol", valid = c("character", "null"))
+  .validInput(input = upstream, name = "upstream", valid = c("integer"))
+  .validInput(input = downstream, name = "downstream", valid = c("integer"))
+  .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
+  .validInput(input = minCells, name = "minCells", valid = c("integer"))
+  .validInput(input = normMethod, name = "normMethod", valid = c("character"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
+  .validInput(input = baseSize, name = "baseSize", valid = "numeric")
+  .validInput(input = borderWidth, name = "borderWidth", valid = "numeric")
+  .validInput(input = tickWidth, name = "tickWidth", valid = "numeric")
+  .validInput(input = facetbaseSize, name = "facetbaseSize", valid = "numeric")
+  geneAnno <- .validGeneAnnotation(geneAnno)
+  .validInput(input = title, name = "title", valid = "character")
+
   tstart <- Sys.time()
 
   ##########################################################
@@ -155,7 +178,7 @@ ArchRRegionTrack <- function(
 #######################################################
 # Bulk Aggregated ATAC Track Methods
 #######################################################
-
+#' @export
 .bulkTracks <- function(
   ArchRProj, 
   region = NULL, 
@@ -257,6 +280,7 @@ ArchRRegionTrack <- function(
 ##############################################################################
 # Create Average Tracks from Coverages
 ##############################################################################
+#' @export
 .groupRegionSumCoverages <- function(ArchRProj, groupBy, useGroups = NULL, minCells = 25, region, tileSize, normMethod, verbose, threads){
 
   coverageMetadata <- .getCoverageMetadata(
@@ -321,6 +345,7 @@ ArchRRegionTrack <- function(
 
 }
 
+#' @export
 .groupRegionCoverages <- function(coverageMetadata, region, tileSize = 100, buffer = 1000, threads = 1){
   
   region <- .validGRanges(region[1])
@@ -336,6 +361,7 @@ ArchRRegionTrack <- function(
 
 }
 
+#' @export
 .getCoverageFromRegion <- function(coverageFile, region, tileSize, buffer){
   chr <- as.character(seqnames(region))
   cov <- Rle(
@@ -357,6 +383,7 @@ ArchRRegionTrack <- function(
 ##############################################################################
 # Create Average Tracks from Arrows
 ##############################################################################
+#' @export
 .groupRegionSumArrows <- function(ArchRProj, groupBy, region, tileSize, normMethod, verbose, minCells = 25, threads){
 
   #Group Info

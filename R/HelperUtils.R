@@ -1,6 +1,123 @@
 ##########################################################################################
 # Validation Methods
 ##########################################################################################
+#' @export
+.validInput <- function(input = NULL, name = NULL, valid = NULL){
+
+  if(is.character(valid)){
+    valid <- tolower(valid)
+  }else{
+    stop("Validator must be a character!")
+  }
+
+  if(!is.character(name)){
+    stop("name must be a character!")
+  }
+
+  av <- lapply(seq_along(valid), function(i){
+
+    vi <- valid[i]
+
+    if(vi == "integer" | vi == "wholenumber"){
+
+      if(all(is.numeric(input))){
+        #https://stackoverflow.com/questions/3476782/check-if-the-number-is-integer
+        cv <- min(abs(c(input%%1, input%%1-1))) < .Machine$double.eps^0.5
+      }else{
+        cv <- FALSE
+      }
+
+    }else if(vi == "null"){
+
+      cv <- is.null(input)
+
+    }else if(vi == "bool" | vi == "boolean" | vi == "logical"){
+
+      cv <- is.logical(input)
+
+    }else if(vi == "numeric"){
+
+      cv <- is.numeric(input)
+
+    }else if(vi == "matrix"){
+
+      cv <- is.matrix(input)
+
+    }else if(vi == "character"){
+
+      cv <- is.character(input)
+
+    }else if(vi == "timestamp"){
+
+      cv <- inherits(input, "POSIXct")
+
+    }else if(vi == "dataframe" | vi == "data.frame" | vi == "df"){
+
+      cv1 <- is.data.frame(input)
+      cv2 <- inherits(input, "DataFrame")
+      cv <- any(cv1, cv2)
+
+    }else if(vi == "fileexists"){
+
+      cv <- all(file.exists(input))
+
+    }else if(vi == "direxists"){
+
+      cv <- all(dir.exists(input))
+
+    }else if(vi == "granges" | vi == "gr"){
+
+      cv <- inherits(input, "GRanges")
+
+    }else if(vi == "grangeslist" | vi == "grlist"){
+
+      cv <- all(unlist(lapply(vi, function(x) inherits(x, "GRanges"))))
+
+    }else if(vi == "list" | vi == "simplelist"){
+
+      cv1 <- is.list(input)
+      cv2 <- inherits(input, "SimpleList")
+      cv <- any(cv1, cv2)
+
+    }else if(vi == "se" | vi == "summarizedexperiment"){
+
+      cv <- inherits(input, "SummarizedExperiment")
+
+    }else if(vi == "txdb"){
+
+      cv <- inherits(input, "TxDb")
+
+    }else if(vi == "orgdb"){
+
+      cv <- inherits(input, "OrgDb")
+
+    }else if(vi == "bsgenome"){
+
+      cv <- inherits(input, "BSgenome")
+
+    }else if(vi == "archrproj" | vi == "archrproject"){
+
+      cv <- inherits(input, "ArchRProject")
+
+    }else{
+
+      stop("Validator is not currently supported by ArchR!")
+
+    }
+
+  }) %>% Reduce("c", .) %>% any
+
+  if(av){
+
+    return(invisible(TRUE))
+  
+  }else{
+
+    stop("Input value for '", name,"' is not a ", paste(valid, collapse="," ), ", please supply valid input!")
+
+  }
+
+}
 
 #' @export
 .validBSgenome <- function(genome = NULL, masked = FALSE){
@@ -56,6 +173,73 @@
     return(gr)
   }else{
     stop("Error cannot validate genomic range!")
+  }
+}
+
+#' @export
+.validGeneAnnotation <- function(geneAnnotation, ...){
+  
+  if(!inherits(geneAnnotation, "SimpleList")){
+    if(inherits(geneAnnotation, "list")){
+      geneAnnotation <- as(geneAnnotation, "SimpleList")
+    }else{
+      stop("geneAnnotation must be a list/SimpleList of 3 GRanges for : Genes GRanges, Exons GRanges and TSS GRanges!")
+    }
+  }
+  if(identical(sort(tolower(names(geneAnnotation))), c("exons", "genes", "tss"))){
+
+    gA <- SimpleList()
+    gA$genes <- .validGRanges(geneAnnotation[[grep("genes", names(geneAnnotation), ignore.case = TRUE)]])
+    gA$exons <- .validGRanges(geneAnnotation[[grep("exons", names(geneAnnotation), ignore.case = TRUE)]])
+    gA$TSS <- .validGRanges(geneAnnotation[[grep("TSS", names(geneAnnotation), ignore.case = TRUE)]])
+
+  }else{
+    stop("geneAnnotation must be a list/SimpleList of 3 GRanges for : Genes GRanges, Exons GRanges and TSS GRanges!")
+  }
+
+  gA
+
+}
+
+#' @export
+.validGenomeAnnotation <- function(genomeAnnotation, ...){
+  
+  if(!inherits(genomeAnnotation, "SimpleList")){
+    if(inherits(genomeAnnotation, "list")){
+      genomeAnnotation <- as(genomeAnnotation, "SimpleList")
+    }else{
+      stop("genomeAnnotation must be a list/SimpleList of 3 GRanges for : blacklist GRanges, chromSizes GRanges and genome BSgenome package string (ie hg38 or BSgenome.Hsapiens.UCSC.hg38)!")
+    }
+  }
+  
+  if(identical(sort(tolower(names(genomeAnnotation))), c("blacklist", "chromsizes", "genome"))){
+
+    gA <- SimpleList()
+    gA$blacklist <- .validGRanges(genomeAnnotation[[grep("blacklist", names(genomeAnnotation), ignore.case = TRUE)]])
+    if(genomeAnnotation[[grep("genome", names(genomeAnnotation), ignore.case = TRUE)]]=="nullGenome"){
+      gA$genome <- "nullGenome"
+    }else{
+      bsg <- .validBSgenome(genomeAnnotation[[grep("genome", names(genomeAnnotation), ignore.case = TRUE)]])
+      gA$genome <- bsg@pkgname
+    }
+    gA$chromSizes <- .validGRanges(genomeAnnotation[[grep("chromsizes", names(genomeAnnotation), ignore.case = TRUE)]])
+
+  }else{
+
+    stop("genomeAnnotation must be a list/SimpleList of 3 GRanges for : blacklist GRanges, chromSizes GRanges and genome BSgenome package string (ie hg38 or BSgenome.Hsapiens.UCSC.hg38)!")
+  
+  }
+
+  gA
+
+}
+
+#' @export
+.validArchRProject <- function(ArchRProj, ...){
+  if(!inherits(ArchRProj, "ArchRProject")){
+    stop("Not a valid ArchRProject as input!")
+  }else{
+    ArchRProj
   }
 }
 
@@ -434,35 +618,6 @@
 ##########################################################################################
 # Miscellaneous Methods
 ##########################################################################################
-
-#' @export
-.loadAllHiddenFN <- function(package = "ArchR"){
-
-  #https://stackoverflow.com/questions/37832869/export-all-hidden-functions-from-a-package
-
-  # get all the function names of the given package "mypack"
-  r <- unclass(lsf.str(envir = asNamespace(package), all = T))
-
-  # filter weird names
-  if(length(which(grepl("\\[", r))) > 0){
-    r <- r[-which(grepl("\\[", r))]
-  }
-  if(length(which(grepl("<-", r))) > 0){
-    r <- r[-which(grepl("<-", r))]
-  }
-
-  # create functions in the Global Env. with the same name
-  for(name in r){
-    tryCatch({
-      eval(parse(text=paste0(name, "<-", package,":::", name)))
-    },error =function(x){
-
-    })
-  }
-
-  return(0)
-
-}
 
 #' @export
 .cleanParams <- function(params, maxSize = 0.05){

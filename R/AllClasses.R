@@ -63,6 +63,13 @@ ArchRProject <- function(
   showLogo = TRUE
   ){
 
+  .validInput(input = ArrowFiles, name = "ArrowFiles", valid = "character")
+  .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
+  .validInput(input = copyArrows, name = "copyArrows", valid = "boolean")
+  .validInput(input = geneAnnotation, name = "geneAnnotation", valid = c("list"))
+  .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = c("list"))
+  .validInput(input = showLogo, name = "showLogo", valid = "boolean")
+
   if(is.null(ArrowFiles)){
     stop("Need to Provide Arrow Files!")
   }
@@ -111,8 +118,8 @@ ArchRProject <- function(
     embeddings = SimpleList(),
     peakSet = NULL,
     peakAnnotation = SimpleList(),
-    geneAnnotation = geneAnnotation,
-    genomeAnnotation = genomeAnnotation
+    geneAnnotation = .validGeneAnnotation(geneAnnotation),
+    genomeAnnotation = .validGenomeAnnotation(genomeAnnotation)
   )
   
   if(showLogo){
@@ -123,15 +130,6 @@ ArchRProject <- function(
 
   proj
 
-}
-
-#Validity
-.validArchRProject <- function(ArchRProj, ...){
-  if(!inherits(ArchRProj, "ArchRProject")){
-    stop("Not a valid ArchRProject as input!")
-  }else{
-    ArchRProj
-  }
 }
 
 #' Save ArchRProject for Later Usage
@@ -145,6 +143,9 @@ saveArchRProject <- function(
   ArchRProj = NULL, 
   copyArrows = TRUE
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
+  .validInput(input = copyArrows, name = "copyArrows", valid = "boolean")
 
   outputDir <- getOutputDirectory(ArchRProj)
   
@@ -182,6 +183,10 @@ loadArchRProject <- function(
   force = FALSE, 
   showLogo = TRUE
   ){
+
+  .validInput(input = path, name = "path", valid = "character")
+  .validInput(input = force, name = "force", valid = "boolean")
+  .validInput(input = showLogo, name = "showLogo", valid = "boolean")
 
   path2Proj <- file.path(path, "Save-ArchR-Project.rds")
   

@@ -13,12 +13,17 @@
 #' @param ... additional params
 #' @export
 getFragmentsFromArrow <- function(
-  ArrowFile, 
+  ArrowFile = NULL, 
   chr = NULL, 
   cellNames = NULL, 
   verbose = TRUE,
   ...
   ){
+
+  .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
+  .validInput(input = chr, name = "chr", valid = c("character","null"))
+  .validInput(input = cellNames, name = "cellNames", valid = c("character","null"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
 
   ArrowFile <- .validArrow(ArrowFile)
 
@@ -165,6 +170,14 @@ getMatrixFromArrow <- function(
   binarize = FALSE,
   ...
   ){
+
+  .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
+  .validInput(input = useMatrix, name = "useMatrix", valid = "character")
+  .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = cellNames, name = "cellNames", valid = c("character","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj","null"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
 
   ArrowFile <- .validArrow(ArrowFile)
 
