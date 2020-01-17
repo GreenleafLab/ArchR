@@ -78,7 +78,7 @@ ArrowFiles <- createArrowFiles(
   sampleNames = names(inputFiles),
   geneAnnotation = geneAnno,
   genomeAnnotation = genomeAnno
-)
+  )
 ```
 ***
 ## QC TSS Scores by Unique Fragments

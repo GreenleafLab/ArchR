@@ -929,7 +929,6 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL, ...
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = name, name = "name", valid = "character")
-  .validInput(input = summary, name = "summary", valid = "character")
   #########
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
