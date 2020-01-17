@@ -35,7 +35,7 @@ ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
 
 \item{densityMax}{The quantile that should be represented by the maximum color on the continuous scale designated by \code{pal}. Above this value will be thresholded to the maximum color.}
 
-\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
+\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.}
 
 \item{baseSize}{The base font size to use in the plot.}
 
