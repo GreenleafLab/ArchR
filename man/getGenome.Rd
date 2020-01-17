@@ -4,7 +4,7 @@
 \alias{getGenome}
 \title{Get the genome used by an ArchRProject}
 \usage{
-getGenome(ArchRProj, ...)
+getGenome(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

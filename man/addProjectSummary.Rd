@@ -4,7 +4,7 @@
 \alias{addProjectSummary}
 \title{Add projectSummary to an ArchRProject}
 \usage{
-addProjectSummary(ArchRProj, name, summary, ...)
+addProjectSummary(ArchRProj = NULL, name = NULL, summary = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -43,7 +43,7 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
 
-\item{method}{The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the \code{Signac::VeniceMarker()} fucntion.}
+\item{method}{The name of the method to be used for marker feature identification. Valid options are "ArchR" for now.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

@@ -4,7 +4,8 @@
 \alias{filterPlot}
 \title{Filter plot for cells in an ArchRProject}
 \usage{
-filterPlot(ArchRProj, filterList, sampleNames = NULL, ...)
+filterPlot(ArchRProj = NULL, filterList = NULL, sampleNames = NULL,
+  ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object}

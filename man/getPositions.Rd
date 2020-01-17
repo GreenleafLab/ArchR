@@ -4,7 +4,7 @@
 \alias{getPositions}
 \title{Get peakAnnotation positions from an ArchRProject}
 \usage{
-getPositions(ArchRProj, name = NULL, annoName = NULL, ...)
+getPositions(ArchRProj = NULL, name = NULL, annoName = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -21,7 +21,7 @@
 #' @param bufferRatio The buffering ratio of cells to enable best biased-matched background while accounting for bgdGroups proportions.
 #' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing.
 #' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
-#' @param method The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the `Signac::VeniceMarker()` fucntion.
+#' @param method The name of the method to be used for marker feature identification. Valid options are "ArchR" for now.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param ... additional args
@@ -47,6 +47,25 @@ markerFeatures <- function(
   verboseAll = FALSE,
   ...
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
+  .validInput(input = bgdGroups, name = "bgdGroups", valid = c("character", "null"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = bias, name = "bias", valid = c("character"))
+  .validInput(input = normBy, name = "normBy", valid = c("character", "null"))
+  .validInput(input = testMethod, name = "testMethod", valid = c("character", "null"))
+  .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .validInput(input = bufferRatio, name = "bufferRatio", valid = c("numeric"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
+  .validInput(input = method, name = "method", valid = c("character"))
+  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
+  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
   
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
@@ -665,7 +684,7 @@ markerFeatures <- function(
 #' @param ... additional args
 #' @export
 markerHeatmap <- function(
-  seMarker,
+  seMarker = NULL,
   cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   log2Norm = TRUE,
   scaleTo = 10^4,
@@ -682,6 +701,22 @@ markerHeatmap <- function(
   invert = FALSE,
   ...
   ){
+
+  .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
+  .validInput(input = cutOff, name = "cutOff", valid = c("character"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = scaleRows, name = "scaleRows", valid = c("boolean"))
+  .validInput(input = plotLog2FC, name = "plotLog2FC", valid = c("boolean"))
+  .validInput(input = limits, name = "limits", valid = c("numeric"))
+  .validInput(input = grepExclude, name = "grepExclude", valid = c("character", "null"))
+  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
+  .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
+  .validInput(input = labelTop, name = "labelTop", valid = c("integer", "null"))
+  .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
+  .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
+  .validInput(input = invert, name = "invert", valid = c("boolean"))
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))
@@ -1121,10 +1156,13 @@ markerHeatmap <- function(
 #' @param ... additional args
 #' @export
 markerGR <- function(
-  seMarker,
+  seMarker = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
   ...
   ){
+
+  .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
+  .validInput(input = cutOff, name = "cutOff", valid = c("character"))
   
   if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
     stop("Only markers identified from PeakMatrix can be used!")
@@ -1170,13 +1208,19 @@ markerGR <- function(
 #' @param ... additional args
 #' @export
 markerPlot <- function(
-  seMarker,
+  seMarker = NULL,
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
   scaleTo = 10^4,
   ...
   ){
+
+  .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = cutOff, name = "cutOff", valid = c("character"))
+  .validInput(input = plotAs, name = "plotAs", valid = c("character"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))

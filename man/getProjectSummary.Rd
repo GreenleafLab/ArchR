@@ -4,7 +4,7 @@
 \alias{getProjectSummary}
 \title{Get projectSummary from an ArchRProject}
 \usage{
-getProjectSummary(ArchRProj, returnSummary = FALSE, ...)
+getProjectSummary(ArchRProj = NULL, returnSummary = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -50,6 +50,24 @@ plotEmbedding <- function(
   ...
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = embedding, name = "reducedDims", valid = c("character"))
+  .validInput(input = colorBy, name = "colorBy", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
+  .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
+  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+  .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
+  .validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
+  .validInput(input = randomize, name = "randomize", valid = c("boolean"))
+  .validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
+  .validInput(input = plotParams, name = "plotParams", valid = c("list"))
+
   .requirePackage("ggplot2")
 
   ##############################
@@ -201,7 +219,7 @@ plotEmbedding <- function(
 #' @param ... additional args
 #' @export
 plotGroups <- function(
-  ArchRProj, 
+  ArchRProj = NULL, 
   groupBy = "Sample", 
   colorBy = "colData", 
   name = "TSSEnrichment",
@@ -216,6 +234,19 @@ plotGroups <- function(
   ...
   ){
   
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = colorBy, name = "colorBy", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
+  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = ylim, name = "ylim", valid = c("numeric"))
+  .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
+  .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
+
   .requirePackage("ggplot2")
 
   groups <- getCellColData(ArchRProj, groupBy, drop = FALSE)

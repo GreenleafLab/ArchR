@@ -4,7 +4,7 @@
 \alias{getChromLengths}
 \title{Get chromLengths from ArchRProject}
 \usage{
-getChromLengths(ArchRProj, ...)
+getChromLengths(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -11,8 +11,9 @@
 #' @param name The name of the peakAnnotation object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param ... additional args
 #' @export
-getPeakAnnotation <- function(ArchRProj, name = NULL, ...){
-  ArchRProj <- .validArchRProject(ArchRProj)
+getPeakAnnotation <- function(ArchRProj = NULL, name = NULL, ...){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character", "null"))
   if(is.null(name)){
     name <- 1
   }else{
@@ -32,8 +33,10 @@ getPeakAnnotation <- function(ArchRProj, name = NULL, ...){
 #' @param annoName The name of a specific annotation to subset within the peakAnnotation.
 #' @param ... additional args
 #' @export
-getPositions <- function(ArchRProj, name = NULL, annoName = NULL, ...){
-  ArchRProj <- .validArchRProject(ArchRProj)
+getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character", "null"))
+  .validInput(input = annoName, name = "annoName", valid = c("character", "null"))
   if(is.null(name)){
     name <- 1
   }else{
@@ -66,8 +69,10 @@ getPositions <- function(ArchRProj, name = NULL, annoName = NULL, ...){
 #' @param annoName The name of a specific annotation to subset within the peakAnnotation.
 #' @param ... additional args
 #' @export
-getMatches <- function(ArchRProj, name = NULL, annoName = NULL, ...){
-  ArchRProj <- .validArchRProject(ArchRProj)
+getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character", "null"))
+  .validInput(input = annoName, name = "annoName", valid = c("character", "null"))
   if(is.null(name)){
     name <- 1
   }else{
@@ -109,8 +114,12 @@ addPeakAnnotations <- function(
   ...
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+
   tstart <- Sys.time()
-  ArchRProj <- .validArchRProject(ArchRProj)
 
   if(name %in% names(ArchRProj@peakAnnotation)){
     if(force){
@@ -227,8 +236,16 @@ addMotifAnnotations <- function(
   ...
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = motifSet, name = "motifSet", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = species, name = "species", valid = c("character", "null"))
+  .validInput(input = collection, name = "collection", valid = c("character", "null"))
+  .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
+  .validInput(input = w, name = "w", valid = c("integer"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
-  ArchRProj <- .validArchRProject(ArchRProj)
 
   if(name %in% names(ArchRProj@peakAnnotation)){
     if(force){
@@ -477,6 +494,13 @@ peakAnnoEnrichment <- function(
   ...
   ){
 
+  .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = peakAnnotation, name = "peakAnnotation", valid = c("character", "null"))
+  .validInput(input = matches, name = "matches", valid = c("SummarizedExperiment", "null"))
+  .validInput(input = cutOff, name = "cutOff", valid = c("character"))
+  .validInput(input = background, name = "background", valid = c("character"))
+
   tstart <- Sys.time()
   if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
     stop("Only markers identified from PeakMatrix can be used!")
@@ -609,6 +633,14 @@ enrichHeatmap <- function(
   labelRows = TRUE,
   ...
   ){
+
+  .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
+  .validInput(input = pal, name = "pal", valid = c("character"))
+  .validInput(input = limits, name = "limits", valid = c("numeric"))
+  .validInput(input = n, name = "n", valid = c("integer"))
+  .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
+  .validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
+  .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
 
   mat <- assays(seEnrich)[["mlog10FDR"]]
   mat[mat < min(limits)] <- min(limits)

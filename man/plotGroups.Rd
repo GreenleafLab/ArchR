@@ -4,7 +4,7 @@
 \alias{plotGroups}
 \title{Visualize Groups from ArchR Project}
 \usage{
-plotGroups(ArchRProj, groupBy = "Sample", colorBy = "colData",
+plotGroups(ArchRProj = NULL, groupBy = "Sample", colorBy = "colData",
   name = "TSSEnrichment", imputeWeights = NULL, log2Norm = NULL,
   pal = NULL, ylim = NULL, size = 0.5, baseSize = 6,
   ratioYX = 0.5, addPoints = FALSE, ...)

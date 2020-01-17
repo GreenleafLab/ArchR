@@ -20,6 +20,8 @@ addTrajectory(ArchRProj = NULL, name = "Trajectory",
 
 \item{reducedDims}{A string indicating the name of the \code{reducedDims} object from the \code{ArchRProject} that should be used for distance computation.}
 
+\item{embedding}{A string indicating the name of the \code{embedding} object from the \code{ArchRProject} that should be used for distance computation.}
+
 \item{preQuantile}{Prior to supervised trajectory fitting, the quantile for filtering cells that are far (by euclidean distance) from cluster centers.}
 
 \item{postQuantile}{Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.}

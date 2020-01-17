@@ -16,7 +16,7 @@
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArrowFiles`.
 #' @export
 addDeviationsMatrix <- function(
-  ArchRProj,
+  ArchRProj = NULL,
   peakAnnotation = NULL,
   matches = NULL,
   bgdPeaks = getBgdPeaks(ArchRProj),
@@ -29,7 +29,16 @@ addDeviationsMatrix <- function(
   ...
   ){
 
-  .requirePackage("SummarizedExperiment")
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = peakAnnotation, name = "peakAnnotation", valid = c("character", "null"))
+  .validInput(input = matches, name = "matches", valid = c("SummarizedExperiment", "null"))
+  .validInput(input = bgdPeaks, name = "bgdPeaks", valid = c("GRanges"))
+  .validInput(input = matrixName, name = "matrixName", valid = c("character"))
+  .validInput(input = out, name = "out", valid = c("character"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
   set.seed(1)
   tstart <- Sys.time()

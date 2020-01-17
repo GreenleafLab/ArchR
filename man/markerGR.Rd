@@ -4,7 +4,7 @@
 \alias{markerGR}
 \title{Identify Marker Feature Ranges}
 \usage{
-markerGR(seMarker, cutOff = "FDR <= 0.1 & Log2FC >= 0.5", ...)
+markerGR(seMarker = NULL, cutOff = "FDR <= 0.1 & Log2FC >= 0.5", ...)
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}

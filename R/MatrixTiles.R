@@ -30,6 +30,16 @@ addTileMatrix <- function(
   ...
   ){
 
+  .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
+  .validInput(input = chromSizes, name = "chromSizes", valid = c("GRanges"))
+  .validInput(input = blacklist, name = "blacklist", valid = c("GRanges", "null"))
+  .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+
   if(inherits(input, "ArchRProject")){
     ArrowFiles <- getArrowFiles(input)
     allCells <- rownames(getCellColData(input))
@@ -67,8 +77,8 @@ addTileMatrix <- function(
 }
 
 .addTileMat <- function(
-  i,
-  ArrowFiles, 
+  i = NULL,
+  ArrowFiles = NULL, 
   cellNames = NULL,
   allCells = NULL,
   tileSize = 500, 
@@ -79,6 +89,17 @@ addTileMatrix <- function(
   force = FALSE,
   ...
   ){
+
+  .validInput(input = i, name = "i", valid = c("integer"))
+  .validInput(input = ArrowFiles, name = "ArrowFiles", valid = c("character"))
+  .validInput(input = cellNames, name = "cellNames", valid = c("character", "null"))
+  .validInput(input = allCells, name = "allCells", valid = c("character", "null"))
+  .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
+  .validInput(input = blacklist, name = "blacklist", valid = c("GRanges", "null"))
+  .validInput(input = chromLengths, name = "chromLengths", valid = c("numeric"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)

@@ -6,11 +6,11 @@
 \usage{
 plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
   trajectory = "Trajectory", colorBy = "colData",
-  name = "Trajectory", log2Norm = NULL, pal = NULL, size = 0.5,
-  rastr = TRUE, quantCut = c(0.05, 0.95), quantHex = 0.5,
-  discreteSet = NULL, continuousSet = NULL, randomize = TRUE,
-  keepAxis = FALSE, baseSize = 6, addArrow = TRUE, plotAs = NULL,
-  plotParams = list(), ...)
+  name = "Trajectory", log2Norm = NULL, imputeWeights = NULL,
+  pal = NULL, size = 0.5, rastr = TRUE, quantCut = c(0.05, 0.95),
+  quantHex = 0.5, discreteSet = NULL, continuousSet = NULL,
+  randomize = TRUE, keepAxis = FALSE, baseSize = 6,
+  addArrow = TRUE, plotAs = NULL, plotParams = list(), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -24,6 +24,8 @@ plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
 \item{name}{The name of the trajectory as a column in \code{cellColData} to plot.}
 
 \item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values prior to plotting.}
+
+\item{imputeWeights}{imputation weights for imputing numerical values for each cell as a linear combination of other cells values (see add/getImutationWeights).}
 
 \item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for coloring cells.}
 

@@ -4,7 +4,7 @@
 \alias{filterCells}
 \title{Filter cells in an ArchRProject}
 \usage{
-filterCells(ArchRProj, filterList, ...)
+filterCells(ArchRProj = NULL, filterList = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object}

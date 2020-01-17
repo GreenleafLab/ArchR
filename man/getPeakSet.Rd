@@ -4,7 +4,7 @@
 \alias{getPeakSet}
 \title{Get the peak set from an ArchRProject}
 \usage{
-getPeakSet(ArchRProj, ...)
+getPeakSet(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

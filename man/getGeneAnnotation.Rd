@@ -4,7 +4,7 @@
 \alias{getGeneAnnotation}
 \title{Get geneAnnotation from an ArchRProject}
 \usage{
-getGeneAnnotation(ArchRProj, ...)
+getGeneAnnotation(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

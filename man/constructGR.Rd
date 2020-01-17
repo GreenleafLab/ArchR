@@ -4,7 +4,8 @@
 \alias{constructGR}
 \title{Construct a Genomic Ranges object taking into account strandedness}
 \usage{
-constructGR(seqnames, start, end, ignore.strand = TRUE)
+constructGR(seqnames = NULL, start = NULL, end = NULL,
+  ignore.strand = TRUE)
 }
 \arguments{
 \item{seqnames}{A character vector containing the seqnames to be added to the \code{GRanges} object.}

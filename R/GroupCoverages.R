@@ -38,6 +38,21 @@ addGroupCoverages <- function(
   ...
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = useLabels, name = "useLabels", valid = c("boolean"))
+  .validInput(input = minCells, name = "minCells", valid = c("integer"))
+  .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
+  .validInput(input = maxFragments, name = "maxFragments", valid = c("integer"))
+  .validInput(input = minReplicates, name = "minReplicates", valid = c("integer"))
+  .validInput(input = sampleRatio, name = "sampleRatio", valid = c("numeric"))
+  .validInput(input = kmerLength, name = "kmerLength", valid = c("integer"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
+  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+
   if(verboseAll){
     verboseHeader <- TRUE
   }

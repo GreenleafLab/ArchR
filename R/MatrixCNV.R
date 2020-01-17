@@ -18,7 +18,7 @@
 #' @param force A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for `input`.
 #' @export
 addCNVMatrix <- function(
-  input,
+  input = NULL,
   chromSizes = getChromSizes(input),
   blacklist = getBlacklist(input),
   genome = getGenome(input),
@@ -30,6 +30,17 @@ addCNVMatrix <- function(
   force = FALSE,
   ...
   ){
+
+  .validInput(input = input, name = "input", valid = c("character", "ArchRProj"))
+  .validInput(input = chromSizes, name = "chromSizes", valid = c("GRanges"))
+  .validInput(input = blacklist, name = "blacklist", valid = c("GRanges", "null"))
+  .validInput(input = genome, name = "genome", valid = c("character"))
+  .validInput(input = windowSize, name = "windowSize", valid = c("integer"))
+  .validInput(input = stepSize, name = "stepSize", valid = c("integer"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
   if(inherits(input, "ArchRProject")){
     ArrowFiles <- getArrowFiles(input)

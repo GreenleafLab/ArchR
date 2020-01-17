@@ -12,6 +12,7 @@
 #' @param trajectory Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )
 #' @param groupBy initial group column in cellColData to constrain supervised fit
 #' @param reducedDims A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.
+#' @param embedding A string indicating the name of the `embedding` object from the `ArchRProject` that should be used for distance computation.
 #' @param preQuantile Prior to supervised trajectory fitting, the quantile for filtering cells that are far (by euclidean distance) from cluster centers.
 #' @param postQuantile Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.
 #' @param dof The number of degrees of freedom to be used in spline fit (see smooth.spline)
@@ -33,6 +34,18 @@ addTrajectory <- function(
   force = FALSE,
   ...
   ){
+
+    .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+    .validInput(input = name, name = "name", valid = c("character"))
+    .validInput(input = trajectory, name = "trajectory", valid = c("character"))
+    .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+    .validInput(input = reducedDims, name = "reducedDims", valid = c("character", "null"))
+    .validInput(input = embedding, name = "reducedDims", valid = c("character", "null"))
+    .validInput(input = preQuantile, name = "preQuantile", valid = c("numeric"))
+    .validInput(input = postQuantile, name = "postQuantile", valid = c("numeric"))
+    .validInput(input = dof, name = "dof", valid = c("integer"))
+    .validInput(input = spar, name = "spar", valid = c("numeric"))
+    .validInput(input = force, name = "force", valid = c("boolean"))
 
     set.seed(1)
 
@@ -205,7 +218,7 @@ addTrajectory <- function(
 #' @param ... additional args
 #' @export
 getTrajectory <- function(
-  ArchRProj,
+  ArchRProj = NULL,
   name = "Trajectory",
   useMatrix = "GeneScoreMatrix",
   varCutOff = 0.1,
@@ -218,6 +231,19 @@ getTrajectory <- function(
   smoothFormula = "y ~ s(x, bs = 'cs')",
   ...
   ){
+
+    .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+    .validInput(input = name, name = "name", valid = c("character"))
+    .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+    .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+    .validInput(input = varCutOff, name = "varCutOff", valid = c("numeric"))
+    .validInput(input = maxFeatures, name = "maxFeatures", valid = c("numeric"))
+    .validInput(input = groupEvery, name = "groupEvery", valid = c("numeric"))
+    .validInput(input = threads, name = "threads", valid = c("integer"))
+    .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+    .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
+    .validInput(input = smooth, name = "smooth", valid = c("boolean"))
+    .validInput(input = smoothFormula, name = "smoothFormula", valid = c("character"))
 
     trajectory <- getCellColData(ArchRProj, name)
     trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
@@ -248,7 +274,11 @@ getTrajectory <- function(
     groupMat <- t(t(groupMat) / colSums(groupMat)) * scaleTo
 
     if(log2Norm){
-      groupMat <- log2(groupMat + 1)
+      if(any(groupMat) < 0){
+        message("Some values are below 0, this could be a DeviationsMatrix in which log2Norm should be set = FALSE.\nContinuing without log2 normalization!")
+      }else{
+        groupMat <- log2(groupMat + 1)
+      }
     }
 
     if(!is.null(varCutOff)){
@@ -335,6 +365,17 @@ trajectoryHeatmap <- function(
   ...
   ){
 
+  .validInput(input = seTrajectory, name = "seTrajectory", valid = c("SummarizedExperiment"))
+  .validInput(input = scaleRows, name = "scaleRows", valid = c("boolean"))
+  .validInput(input = limits, name = "limits", valid = c("numeric"))
+  .validInput(input = grepExclude, name = "grepExclude", valid = c("character", "null"))
+  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
+  .validInput(input = labelTop, name = "labelTop", valid = c("integer"))
+  .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
+  .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
+
+
   mat <- assay(seTrajectory)
   rownames(mat) <- rowData(seTrajectory)$name
   
@@ -409,6 +450,7 @@ trajectoryHeatmap <- function(
 #' @param colorBy A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").
 #' @param name The name of the trajectory as a column in `cellColData` to plot.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values prior to plotting.
+#' @param imputeWeights imputation weights for imputing numerical values for each cell as a linear combination of other cells values (see add/getImutationWeights).
 #' @param pal The name of a custom palette from `ArchRPalettes` to use for coloring cells.
 #' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
@@ -434,6 +476,7 @@ plotTrajectory <- function(
   colorBy = "colData",
   name = "Trajectory",
   log2Norm = NULL,
+  imputeWeights = NULL,
   pal = NULL,
   size = 0.5,
   rastr = TRUE,
@@ -449,6 +492,27 @@ plotTrajectory <- function(
   plotParams = list(),
   ...
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = embedding, name = "reducedDims", valid = c("character"))
+  .validInput(input = trajectory, name = "trajectory", valid = c("character"))
+  .validInput(input = colorBy, name = "colorBy", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
+  .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
+  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+  .validInput(input = quantHex, name = "quantHex", valid = c("numeric"))
+  .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
+  .validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
+  .validInput(input = randomize, name = "randomize", valid = c("boolean"))
+  .validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = addArrow, name = "addArrow", valid = c("boolean"))
+  .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
+  .validInput(input = plotParams, name = "plotParams", valid = c("list"))
 
   .requirePackage("ggplot2")
 
@@ -538,7 +602,12 @@ plotTrajectory <- function(
   plotParams$color[idxRemove] <- NA
 
   if(!plotParams$discrete){
-    plotParams$color <- .quantileCut0(plotParams$color, min(quantCut), max(quantCut))
+    if(!is.null(imputeWeights)){
+      imputeWeights <- imputeWeights$Weights[rownames(df), rownames(df)]
+      plotParams$color <- (imputeWeights %*% as(as.matrix(plotParams$color), "dgCMatrix"))[,1] 
+    }else{
+      plotParams$color <- .quantileCut0(plotParams$color, min(quantCut), max(quantCut))
+    }
     plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
     if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
       plotParams$addPoints <- TRUE

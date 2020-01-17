@@ -5,9 +5,9 @@
 \title{Add an embedding of a reduced dimensions object to an ArchRProject}
 \usage{
 addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  embedding = "UMAP", embeddingOut = NULL, dimsToUse = NULL,
-  corCutOff = 0.75, saveModel = TRUE, seed = 1, force = FALSE,
-  threads = getArchRThreads(), embeddingParams = list(), ...)
+  embedding = "UMAP", embeddingOut = NULL, embeddingParams = list(),
+  dimsToUse = NULL, corCutOff = 0.75, saveModel = TRUE, seed = 1,
+  force = FALSE, threads = getArchRThreads(), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -17,6 +17,8 @@ addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
 \item{embedding}{The type of the embedding to add to the \code{ArchRProject} object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".}
 
 \item{embeddingOut}{The name for the embedding to be stored as in the \code{ArchRProject} object.}
+
+\item{embeddingParams}{A list of extra parameters to pass to the designated \code{embedding} function.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
@@ -29,8 +31,6 @@ addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
 \item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if the given \code{embedding} already exists.}
 
 \item{threads}{The number of threads to use for embedding generation computations.}
-
-\item{embeddingParams}{A list of extra parameters to pass to the designated \code{embedding} function.}
 
 \item{...}{additional args}
 }

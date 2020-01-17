@@ -4,7 +4,7 @@
 \alias{getChromSizes}
 \title{Get chromSizes from ArchRProject}
 \usage{
-getChromSizes(ArchRProj, ...)
+getChromSizes(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -4,7 +4,7 @@
 \alias{addDoubletScores}
 \title{Add Doublet Scores to a collection of Arrow files or an ArchRProject}
 \usage{
-addDoubletScores(input, useMatrix = "TileMatrix", k = 10,
+addDoubletScores(input = NULL, useMatrix = "TileMatrix", k = 10,
   nTrials = 5, dimsToUse = 1:25, corCutOff = 0.75,
   knnMethod = "UMAP", UMAPParams = list(),
   LSIParams = list(sampleCells = NULL), outDir = "QualityControl",

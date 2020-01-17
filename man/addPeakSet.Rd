@@ -4,7 +4,7 @@
 \alias{addPeakSet}
 \title{Add a peak set to an ArchRProject}
 \usage{
-addPeakSet(ArchRProj, peakSet, force = FALSE, ...)
+addPeakSet(ArchRProj = NULL, peakSet = NULL, force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

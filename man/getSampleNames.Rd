@@ -4,7 +4,7 @@
 \alias{getSampleNames}
 \title{Get sampleNames from an ArchRProject}
 \usage{
-getSampleNames(ArchRProj, ...)
+getSampleNames(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

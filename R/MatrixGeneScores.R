@@ -42,6 +42,22 @@ addGeneScoreMatrix <- function(
   ...
   ){
 
+  .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
+  .validInput(input = genes, name = "genes", valid = c("GRanges"))
+  .validInput(input = geneModel, name = "geneModel", valid = c("character"))
+  .validInput(input = matrixName, name = "matrixName", valid = c("character"))
+  .validInput(input = upstream, name = "upstream", valid = c("integer"))
+  .validInput(input = downstream, name = "downstream", valid = c("integer"))
+  .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
+  .validInput(input = ceiling, name = "ceiling", valid = c("integer"))
+  .validInput(input = useGeneBoundaries, name = "useGeneBoundaries", valid = c("boolean"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
+  .validInput(input = blacklist, name = "blacklist", valid = c("GRanges", "null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+
   matrixName <- .isProtectedArray(matrixName, exclude = "GeneScoreMatrix")
 
   if(inherits(input, "ArchRProject")){
@@ -86,8 +102,8 @@ addGeneScoreMatrix <- function(
 }
 
 .addGeneScoreMat <- function(
-  i,
-  ArrowFiles,
+  i = NULL,
+  ArrowFiles = NULL,
   genes = NULL,
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
   matrixName = "GeneScoreMatrix",
@@ -105,6 +121,24 @@ addGeneScoreMatrix <- function(
   tmpFile = NULL,
   ...
   ){
+
+  .validInput(input = i, name = "i", valid = c("integer"))
+  .validInput(input = ArrowFiles, name = "ArrowFiles", valid = c("character"))
+  .validInput(input = genes, name = "genes", valid = c("GRanges"))
+  .validInput(input = geneModel, name = "geneModel", valid = c("character"))
+  .validInput(input = matrixName, name = "matrixName", valid = c("character"))
+  .validInput(input = upstream, name = "upstream", valid = c("integer"))
+  .validInput(input = downstream, name = "downstream", valid = c("integer"))
+  .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
+  .validInput(input = ceiling, name = "ceiling", valid = c("integer"))
+  .validInput(input = useGeneBoundaries, name = "useGeneBoundaries", valid = c("boolean"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
+  .validInput(input = blacklist, name = "blacklist", valid = c("GRanges", "null"))
+  .validInput(input = cellNames, name = "cellNames", valid = c("character", "null"))
+  .validInput(input = allCells, name = "allCells", valid = c("character", "null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = tmpFile, name = "tmpFile", valid = c("character", "null"))
 
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)

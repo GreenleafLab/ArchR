@@ -9,6 +9,7 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded.
 #' @param td diffusion time (number of iterations) for MAGIC
 #' @param ka kNN autotune parameter for MAGIC
 #' @param sampleCells number of cells to sample per block of estimated imputation matrix
@@ -20,6 +21,7 @@ addImputeWeights <- function(
   ArchRProj = NULL,
   reducedDims = "IterativeLSI", 
   dimsToUse = NULL, 
+  corCutOff = 0.75, 
   td = 3,
   ka = 4,
   sampleCells = max(5000, floor(nCells(ArchRProj) / 10)),
@@ -27,6 +29,15 @@ addImputeWeights <- function(
   epsilon = 1,
   ...
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
+  .validInput(input = td, name = "td", valid = c("integer"))
+  .validInput(input = ka, name = "ka", valid = c("integer"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .validInput(input = epsilon, name = "epsilon", valid = c("numeric"))
 
   #Adapted From
   #https://github.com/dpeerlab/magic/blob/master/R/R/run_magic.R
@@ -37,11 +48,7 @@ addImputeWeights <- function(
   .messageDiffTime("Computing Impute Weights Using Magic (Cell 2018)", tstart)
 
   #Get Reduced Dims
-  if(!is.null(dimsToUse)){
-      matDR <- getReducedDims(ArchRProj, reducedDims = reducedDims)[, dimsToUse, drop = FALSE]
-  }else{
-      matDR <- getReducedDims(ArchRProj, reducedDims = reducedDims)
-  }
+  matDR <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
   N <- nrow(matDR)
   rn <- rownames(matDR)
 
@@ -154,8 +161,8 @@ addImputeWeights <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
 #' @export
-getImputeWeights <- function(ArchRProj, ...){  
-  ArchRProj <- .validArchRProject(ArchRProj)
+getImputeWeights <- function(ArchRProj = NULL, ...){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   ArchRProj@imputeWeights
 }
 

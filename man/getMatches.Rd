@@ -4,7 +4,7 @@
 \alias{getMatches}
 \title{Get peakAnnotation matches from an ArchRProject}
 \usage{
-getMatches(ArchRProj, name = NULL, annoName = NULL, ...)
+getMatches(ArchRProj = NULL, name = NULL, annoName = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

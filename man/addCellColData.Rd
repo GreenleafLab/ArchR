@@ -4,8 +4,8 @@
 \alias{addCellColData}
 \title{Add information to cellColData in an ArchRProject}
 \usage{
-addCellColData(ArchRProj, data = NULL, name = NULL,
-  cells = getCellNames(ArchRProj), force = FALSE, ...)
+addCellColData(ArchRProj = NULL, data = NULL, name = NULL,
+  cells = NULL, force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

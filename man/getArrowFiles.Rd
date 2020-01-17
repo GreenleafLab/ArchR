@@ -4,7 +4,7 @@
 \alias{getArrowFiles}
 \title{Get ArrowFiles from an ArchRProject}
 \usage{
-getArrowFiles(ArchRProj, ...)
+getArrowFiles(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -4,9 +4,10 @@
 \alias{addFeatureMatrix}
 \title{Add a feature matrix to an ArchRProject or a set of ArrowFiles}
 \usage{
-addFeatureMatrix(input, features = NULL, matrixName = "FeatureMatrix",
-  ceiling = Inf, binarize = FALSE, threads = getArchRThreads(),
-  parallelParam = NULL, force = TRUE, ...)
+addFeatureMatrix(input = NULL, features = NULL,
+  matrixName = "FeatureMatrix", ceiling = 10^9, binarize = FALSE,
+  threads = getArchRThreads(), parallelParam = NULL, force = TRUE,
+  ...)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}

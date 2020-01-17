@@ -4,7 +4,7 @@
 \alias{getExons}
 \title{Get the exons from an ArchRProject}
 \usage{
-getExons(ArchRProj, symbols = NULL, ...)
+getExons(ArchRProj = NULL, symbols = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -4,7 +4,7 @@
 \alias{addCNVMatrix}
 \title{Add a CNV matrix to ArrowFiles or an ArchRProject}
 \usage{
-addCNVMatrix(input, chromSizes = getChromSizes(input),
+addCNVMatrix(input = NULL, chromSizes = getChromSizes(input),
   blacklist = getBlacklist(input), genome = getGenome(input),
   windowSize = 1e+07, stepSize = 2e+06, excludeChr = c("chrM",
   "chrY"), threads = getArchRThreads(), parallelParam = NULL,

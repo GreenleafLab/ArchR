@@ -4,7 +4,7 @@
 \alias{getFragmentsFromArrow}
 \title{Get the fragments from an ArrowFile}
 \usage{
-getFragmentsFromArrow(ArrowFile, chr = NULL, cellNames = NULL,
+getFragmentsFromArrow(ArrowFile = NULL, chr = NULL, cellNames = NULL,
   verbose = TRUE, ...)
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{getPeakAnnotation}
 \title{Get peakAnnotation from an ArchRProject}
 \usage{
-getPeakAnnotation(ArchRProj, name = NULL, ...)
+getPeakAnnotation(ArchRProj = NULL, name = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

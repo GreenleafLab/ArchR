@@ -20,6 +20,12 @@ filterChrGR <- function(
     pruning.mode="coarse"
   ){
 
+  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = remove, name = "remove", valid = c("character"))
+  .validInput(input = underscore, name = "underscore", valid = c("boolean"))
+  .validInput(input = standard, name = "standard", valid = c("boolean"))
+  .validInput(input = pruning.mode, name = "pruning.mode", valid = c("character"))
+
   #first we remove all non standard chromosomes
   if(standard){
     gr <- GenomeInfoDb::keepStandardChromosomes(gr, pruning.mode = pruning.mode)
@@ -61,9 +67,13 @@ nonOverlappingGR <- function(
 	verbose = FALSE
   ){
   
+  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = by, name = "by", valid = c("character"))
+  .validInput(input = decreasing, name = "decreasing", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+
   stopifnot(by %in% colnames(mcols(gr)))
-  gr <- .validGRanges(gr)
-  
+
   #-----------
   # Cluster GRanges into islands using reduce and then select based on input
   #-----------
@@ -128,7 +138,8 @@ nonOverlappingGR <- function(
 #' @param names A character vector containing the `seqnames` to keep from the provided `GRanges` object.
 #' @export
 subsetSeqnamesGR <- function(gr = NULL, names = NULL){
-  gr <- .validGRanges(gr)
+  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = names, name = "names", valid = c("character"))
   gr <- gr[which(as.character(seqnames(gr)) %in% names),]
   seqlevels(gr) <- as.character(unique(seqnames(gr)))
   return(gr)
@@ -139,11 +150,12 @@ subsetSeqnamesGR <- function(gr = NULL, names = NULL){
 #' This function adds seqlength information for each of the seqnames in the provided Genomic Ranges object.
 #'
 #' @param gr A `GRanges` object.
-#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR::validBSgenome()`.
+#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR:::validBSgenome()`.
 #' @export
 addSeqLengthsGR <- function(gr = NULL, genome = NULL){
-  gr <- .validGRanges(gr)
-  genome <- validBSgenome(genome)
+  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
+  genome <- .validBSgenome(genome)
   stopifnot(all(as.character(seqnames(gr)) %in% as.character(seqnames(genome))))
   seqlengths(gr) <- seqlengths(genome)[as.character(names(seqlengths(gr)))]
   return(gr)
@@ -159,6 +171,10 @@ addSeqLengthsGR <- function(gr = NULL, genome = NULL){
 #' @param shuffleChr A boolean value indicating whether to shuffle across chromosomes randomly based on length of chromosomes or use previous knowledge of chromosome distribution.
 #' @export
 shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
+  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
+  .validInput(input = n, name = "n", valid = c("integer"))
+  .validInput(input = shuffleChr, name = "shuffleChr", valid = c("boolean"))
   #adapted from ChIPseeker's shuffle
   cs <- getChromSizes(genome)
   seqL <- seqlengths(cs)
@@ -207,7 +223,8 @@ shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
 #' @param ignore.strand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
 mergeGR <- function(gr, ignore.strand = TRUE){
-  gr <- .validGRanges(gr)
+  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = ignore.strand, name = "ignore.strand", valid = c("boolean"))
   grR <- reduce(gr,min.gapwidth=0L,ignore.strand = ignore.strand)
   o <- DataFrame(findOverlaps(grR, gr,ignore.strand = ignore.strand))
   o$start <- start(gr[o$subjectHits])
@@ -230,6 +247,9 @@ mergeGR <- function(gr, ignore.strand = TRUE){
 #' @param downstream The number of basepairs downstream (3') to extend each region in `x`. Strand-aware.
 #' @export
 extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
+  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = upstream, name = "upstream", valid = c("integer"))
+  .validInput(input = downstream, name = "downstream", valid = c("integer"))
   #https://bioinformatics.stackexchange.com/questions/4390/expand-granges-object-different-amounts-upstream-vs-downstream
   isMinus <- BiocGenerics::which(strand(gr) == "-")
   isOther <- BiocGenerics::which(strand(gr) != "-")
@@ -251,8 +271,9 @@ extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
 #' @param ignore.strand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
 nOverlapGR <- function(query = NULL, subject = NULL, ignore.strand = TRUE){
-  query <- .validGRanges(query)
-  subject <- .validGRanges(subject)
+  .validInput(input = query, name = "query", valid = c("GRanges"))
+  .validInput(input = subject, name = "subject", valid = c("GRanges"))
+  .validInput(input = ignore.strand, name = "ignore.strand", valid = c("boolean"))
   o <- findOverlaps(query, subject, ignore.strand = ignore.strand)
   overlaps <- pintersect(query[queryHits(o)], subject[subjectHits(o)])
   percentOverlap <- width(overlaps) / width(subject[subjectHits(o)])
@@ -274,6 +295,10 @@ nOverlapGR <- function(query = NULL, subject = NULL, ignore.strand = TRUE){
 #' @param ignore.strand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
 overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignore.strand = TRUE){
+  .validInput(input = query, name = "query", valid = c("GRanges"))
+  .validInput(input = subject, name = "subject", valid = c("GRanges"))
+  .validInput(input = by, name = "by", valid = c("character"))
+  .validInput(input = ignore.strand, name = "ignore.strand", valid = c("boolean"))
   o <- DataFrame(findOverlaps(query, subject, ignore.strand = ignore.strand))
   o$name <- mcols(subject)[o$subjectHits, by]
   o$id <- match(o$name, unique(o$name))
@@ -296,7 +321,11 @@ overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignore.stran
 #' @param end A vector of end positions to be added to the `GRanges` object.
 #' @param ignore.strand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
-constructGR <- function(seqnames, start, end, ignore.strand = TRUE){
+constructGR <- function(seqnames = NULL, start = NULL, end = NULL, ignore.strand = TRUE){
+  .validInput(input = seqnames, name = "seqnames", valid = c("character"))
+  .validInput(input = start, name = "start", valid = c("integer"))
+  .validInput(input = end, name = "end", valid = c("integer"))
+  .validInput(input = ignore.strand, name = "ignore.strand", valid = c("boolean"))
   df <- data.frame(seqnames, start, end)
   idx <- which(df[,2] > df[,3])
   df[idx,2:3] <-  df[idx,3:2]

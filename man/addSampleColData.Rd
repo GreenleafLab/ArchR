@@ -4,8 +4,8 @@
 \alias{addSampleColData}
 \title{Add information to sampleColData in an ArchRProject}
 \usage{
-addSampleColData(ArchRProj, data = NULL, name = NULL, samples = NULL,
-  force = FALSE)
+addSampleColData(ArchRProj = NULL, data = NULL, name = NULL,
+  samples = NULL, force = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

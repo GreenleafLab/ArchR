@@ -4,8 +4,8 @@
 \alias{addPeakMatrix}
 \title{Add PeakMatrix to Arrows in ArchRProject}
 \usage{
-addPeakMatrix(ArchRProj, ceiling = 4, binarize = FALSE,
-  parallelParam = NULL, threads = getArchRThreads(), force = TRUE,
+addPeakMatrix(ArchRProj = NULL, ceiling = 4, binarize = FALSE,
+  threads = getArchRThreads(), parallelParam = NULL, force = TRUE,
   ...)
 }
 \arguments{
@@ -15,9 +15,9 @@ addPeakMatrix(ArchRProj, ceiling = 4, binarize = FALSE,
 
 \item{binarize}{A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.}
 
-\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
-
 \item{threads}{The number of threads to be used for parallel computing.}
+
+\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given ArrowFiles.}
 }

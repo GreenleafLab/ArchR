@@ -59,8 +59,33 @@ addIterativeLSI <- function(
   verboseHeader = TRUE,
   verboseAll = FALSE,
   force = FALSE,
-  ...){
+  ...
+  ){
   
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = iterations, name = "iterations", valid = c("integer"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer"))
+  .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer","null"))
+  .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
+  .validInput(input = selectionMethod, name = "selectionMethod", valid = c("character"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = totalFeatures, name = "totalFeatures", valid = c("integer"))
+  .validInput(input = filterQuantile, name = "filterQuantile", valid = c("numeric"))
+  .validInput(input = saveIterations, name = "saveIterations", valid = c("boolean"))
+  .validInput(input = outDir, name = "outDir", valid = c("character"))
+  .validInput(input = clusterParams, name = "clusterParams", valid = c("list"))
+  .validInput(input = runHarmony, name = "runHarmony", valid = c("boolean"))
+  .validInput(input = harmonyParams, name = "harmonyParams", valid = c("list"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
+  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+
+
   .requirePackage("Matrix")
   tstart <- Sys.time()
 

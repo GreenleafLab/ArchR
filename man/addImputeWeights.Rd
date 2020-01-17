@@ -5,8 +5,9 @@
 \title{Add Imputation Weights to ArchRProject}
 \usage{
 addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  dimsToUse = NULL, td = 3, ka = 4, sampleCells = max(5000,
-  floor(nCells(ArchRProj)/10)), k = 15, epsilon = 1, ...)
+  dimsToUse = NULL, corCutOff = 0.75, td = 3, ka = 4,
+  sampleCells = max(5000, floor(nCells(ArchRProj)/10)), k = 15,
+  epsilon = 1, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -14,6 +15,8 @@ addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to retrieve from the designated \code{ArchRProject}.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded.}
 
 \item{td}{diffusion time (number of iterations) for MAGIC}
 

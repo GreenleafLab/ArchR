@@ -4,7 +4,7 @@
 \alias{getCellColData}
 \title{Get cellColData from an ArchRProject}
 \usage{
-getCellColData(ArchRProj, select = NULL, drop = FALSE, ...)
+getCellColData(ArchRProj = NULL, select = NULL, drop = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

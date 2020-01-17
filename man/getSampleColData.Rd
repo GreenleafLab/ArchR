@@ -4,7 +4,7 @@
 \alias{getSampleColData}
 \title{Get sampleColData from an ArchRProject}
 \usage{
-getSampleColData(ArchRProj, select = NULL, drop = FALSE, ...)
+getSampleColData(ArchRProj = NULL, select = NULL, drop = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

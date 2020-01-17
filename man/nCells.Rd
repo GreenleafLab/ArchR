@@ -4,7 +4,7 @@
 \alias{nCells}
 \title{Get number of cells from ArchRProject/ArrowFile}
 \usage{
-nCells(input, ...)
+nCells(input = NULL, ...)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or ArrowFile.}

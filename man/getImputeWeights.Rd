@@ -4,7 +4,7 @@
 \alias{getImputeWeights}
 \title{Get Imputation Weights from ArchRProject}
 \usage{
-getImputeWeights(ArchRProj, ...)
+getImputeWeights(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

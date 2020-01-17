@@ -20,11 +20,11 @@
 #' @param extsize The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
 #' @param method The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with `cutOff` this gives the method and significance threshold for peak calling (see MACS2 documentation).
 #' @param cutOff The numeric significance cutoff for the testing method indicated by `method` (see MACS2 documentation).
+#' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
 #' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
 #' @param promoterDist The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.
 #' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.
 #' @param geneAnno The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.
-#' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
@@ -46,11 +46,11 @@ addReproduciblePeakSet <- function(
 	extsize = 150, 
 	method = "q",
 	cutOff = 0.1, 
+	additionalParams = "--nomodel --nolambda",
 	extendSummits = 250,
 	promoterDist = 500,
 	genomeAnno = getGenomeAnnotation(ArchRProj),
 	geneAnno = getGeneAnnotation(ArchRProj),
-	additionalParams = "--nomodel --nolambda",
 	threads = getArchRThreads(),
 	parallelParam = "mclapply",
 	force = FALSE,
@@ -58,6 +58,30 @@ addReproduciblePeakSet <- function(
 	verboseAll = FALSE,
 	...
 	){
+
+	.validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+	.validInput(input = groupBy, name = "groupBy", valid = c("character"))
+	.validInput(input = reproducibility, name = "reproducibility", valid = c("character"))
+	.validInput(input = peaksPerCell, name = "peaksPerCell", valid = c("integer"))
+	.validInput(input = maxPeaks, name = "maxPeaks", valid = c("integer"))
+	.validInput(input = minCells, name = "minCells", valid = c("integer"))
+	.validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
+	.validInput(input = pathToMacs2, name = "pathToMacs2", valid = c("character"))
+	.validInput(input = genomeSize, name = "genomeSize", valid = c("character", "numeric", "null"))
+	.validInput(input = shift, name = "shift", valid = c("integer"))
+	.validInput(input = extsize, name = "extsize", valid = c("integer"))
+	.validInput(input = method, name = "method", valid = c("character"))
+	.validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
+	.validInput(input = additionalParams, name = "additionalParams", valid = c("character"))
+	.validInput(input = extendSummits, name = "extendSummits", valid = c("integer"))
+	.validInput(input = promoterDist, name = "promoterDist", valid = c("integer"))
+	geneAnno <- .validGeneAnnotation(geneAnno)
+	genomeAnno <- .validGeneAnnotation(genomeAnno)
+	.validInput(input = threads, name = "threads", valid = c("integer"))
+	.validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
+	.validInput(input = force, name = "force", valid = c("boolean"))
+	.validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
+	.validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
 
 	tstart <- Sys.time()
 	utility <- .checkPath(pathToMacs2)

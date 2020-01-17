@@ -16,16 +16,25 @@
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given ArrowFiles.
 #' @export
 addFeatureMatrix <- function(
-  input,
+  input = NULL,
   features = NULL,
   matrixName = "FeatureMatrix",
-  ceiling = Inf, 
+  ceiling = 10^9, 
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
   force = TRUE,
   ...
 ){
+
+  .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
+  .validInput(input = features, name = "features", valid = c("GRanges"))
+  .validInput(input = matrixName, name = "matrixName", valid = c("character"))
+  .validInput(input = ceiling, name = "ceiling", valid = c("integer"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
   matrixName <- .isProtectedArray(matrixName)
 
@@ -76,18 +85,21 @@ addFeatureMatrix <- function(
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given ArrowFiles.
 #' @export
 addPeakMatrix <- function(
-  ArchRProj,
+  ArchRProj = NULL,
   ceiling = 4, 
   binarize = FALSE,
-  parallelParam = NULL,
   threads = getArchRThreads(),
+  parallelParam = NULL,
   force = TRUE,
   ...
 ){
 
-  if(!inherits(ArchRProj, "ArchRProject")){
-    stop("Adding a PeakMatrix is only for ArchRProject!")
-  }
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = ceiling, name = "ceiling", valid = c("numeric"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
   if(is.null(ArchRProj@peakSet)){
     stop("No peakSet found in ArchRProject!")

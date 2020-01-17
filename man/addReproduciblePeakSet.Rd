@@ -8,12 +8,12 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
   reproducibility = "2", peaksPerCell = 500, maxPeaks = 150000,
   minCells = 25, excludeChr = c("chrM", "chrY"),
   pathToMacs2 = findMacs2(), genomeSize = NULL, shift = -75,
-  extsize = 150, method = "q", cutOff = 0.1, extendSummits = 250,
+  extsize = 150, method = "q", cutOff = 0.1,
+  additionalParams = "--nomodel --nolambda", extendSummits = 250,
   promoterDist = 500, genomeAnno = getGenomeAnnotation(ArchRProj),
-  geneAnno = getGeneAnnotation(ArchRProj),
-  additionalParams = "--nomodel --nolambda",
-  threads = getArchRThreads(), parallelParam = "mclapply",
-  force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
+  geneAnno = getGeneAnnotation(ArchRProj), threads = getArchRThreads(),
+  parallelParam = "mclapply", force = FALSE, verboseHeader = TRUE,
+  verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -42,6 +42,8 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{cutOff}{The numeric significance cutoff for the testing method indicated by \code{method} (see MACS2 documentation).}
 
+\item{additionalParams}{A string of additional parameters to pass to MACS2 (see MACS2 documentation).}
+
 \item{extendSummits}{The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, \code{extendSummits = 250} will create 501-bp fixed-width peaks from the 1-bp summits.}
 
 \item{promoterDist}{The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.}
@@ -49,8 +51,6 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 \item{genomeAnno}{The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.}
 
 \item{geneAnno}{The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.}
-
-\item{additionalParams}{A string of additional parameters to pass to MACS2 (see MACS2 documentation).}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

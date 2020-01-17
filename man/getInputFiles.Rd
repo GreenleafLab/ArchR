@@ -4,7 +4,7 @@
 \alias{getInputFiles}
 \title{Get Input Files from paths to create arrows}
 \usage{
-getInputFiles(paths, ...)
+getInputFiles(paths = NULL, ...)
 }
 \arguments{
 \item{paths}{A character vector of paths to search for usable input files.}

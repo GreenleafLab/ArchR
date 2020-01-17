@@ -7,7 +7,7 @@
 paletteContinuous(set = "solar_extra", n = 256, reverse = FALSE, ...)
 }
 \arguments{
-\item{set}{The name or numeric index of a color palette provided in the \code{ArchRPalettes} list object.}
+\item{set}{The name of a color palette provided in the \code{ArchRPalettes} list object.}
 
 \item{n}{The number of unique colors to generate as part of this continuous color palette.}
 

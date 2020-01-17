@@ -4,7 +4,7 @@
 \alias{getBlacklist}
 \title{Get the blacklist from an ArchRProject}
 \usage{
-getBlacklist(ArchRProj, ...)
+getBlacklist(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

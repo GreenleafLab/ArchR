@@ -4,7 +4,7 @@
 \alias{getTSS}
 \title{Get the transcription start sites of all genes in an ArchRProject}
 \usage{
-getTSS(ArchRProj, ...)
+getTSS(ArchRProj = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

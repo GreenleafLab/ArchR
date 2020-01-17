@@ -4,10 +4,10 @@
 \alias{addCoAccessibility}
 \title{Add Peak Co-Accessibility to an ArchRProject}
 \usage{
-addCoAccessibility(ArchRProj, reducedDims = "IterativeLSI", k = 100,
-  knnIteration = 5000, overlapCutoff = 0.8, maxDist = 250000,
-  scaleTo = 10^4, log2Norm = TRUE, seed = 1, knnMethod = "nabor",
-  threads = getArchRThreads(), ...)
+addCoAccessibility(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  k = 100, knnIteration = 5000, overlapCutoff = 0.8,
+  maxDist = 250000, scaleTo = 10^4, log2Norm = TRUE, seed = 1,
+  knnMethod = NULL, threads = getArchRThreads(), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
