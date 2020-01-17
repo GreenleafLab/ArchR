@@ -6,8 +6,8 @@
 #' @param sampleNames The names to assign to the samples that correspond to the "inputFiles". Each input file should receive a unique sample name. This list should be in the same order as "inputFiles".
 #' @param outputNames The prefix to use for output files. Each input file should receive a unique output file name. This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"
 #' @param validBarcodes A list of validBarcode strings to be used for filtering cells read from each input file (see getValidBarcodes for 10x fragment files).
-#' @param geneAnno The geneAnnotation (see createGeneAnnotation) to associate with these arrow files. This is used downstream to calculate TSS Enrichment Scores etc.
-#' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.
+#' @param geneAnnotation The geneAnnotation (see createGeneAnnotation) to associate with these arrow files. This is used downstream to calculate TSS Enrichment Scores etc.
+#' @param genomeAnnotation The genomeAnnotation (see createGenomeAnnotation) format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.
 #' @param filterFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
 #' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use in downstream analyses. TSS enrichment score is a measurement of signal-to-background in ATAC-seq.
 #' @param removeFilteredCells A boolean value that determines whether to remove fragments corresponding to cells that do not pass filterFrags and filterTSS.
@@ -39,8 +39,8 @@ createArrowFiles <- function(
   sampleNames = NULL, 
   outputNames = paste0("./", sampleNames),
   validBarcodes = NULL,
-  geneAnno = NULL,
-  genomeAnno = NULL,
+  geneAnnotation = NULL,
+  genomeAnnotation = NULL,
   filterFrags = 1000,
   filterTSS = 4,
   removeFilteredCells = TRUE,
@@ -71,8 +71,8 @@ createArrowFiles <- function(
   .validInput(input = sampleNames, name = "sampleNames", valid = c("character"))
   .validInput(input = outputNames, name = "outputNames", valid = c("character"))
   .validInput(input = validBarcodes, name = "validBarcodes", valid = c("list", "character", "null"))
-  geneAnno <- .validGeneAnnotation(geneAnno)
-  genomeAnno <- .validGeneAnnotation(genomeAnno)
+  geneAnnotation <- .validGeneAnnotation(geneAnnotation)
+  genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
   .validInput(input = filterFrags, name = "filterFrags", valid = c("numeric"))
   .validInput(input = filterTSS, name = "filterTSS", valid = c("numeric"))
   .validInput(input = removeFilteredCells, name = "removeFilteredCells", valid = c("boolean"))
@@ -139,8 +139,8 @@ createArrowFiles <- function(
   nChunk = 3,
   offsetPlus = 4,
   offsetMinus = -5,
-  geneAnno = NULL,
-  genomeAnno = NULL,
+  geneAnnotation = NULL,
+  genomeAnnotation = NULL,
   minFrags = 500, 
   removeFilteredCells = TRUE,
   filterFrags = 1000,
@@ -241,34 +241,34 @@ createArrowFiles <- function(
 
     # Under development still
     # out <- .tsvToArrow(tsvFile = inputFile, outArrow = ArrowFile, 
-    #        chromSizes = genomeAnno$chromSizes, genome = genomeAnno$genome, 
+    #        chromSizes = genomeAnnotation$chromSizes, genome = genomeAnnotation$genome, 
     #        minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
     #        verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
 
   }else if(tolower(readMethod)=="tabix"){
    
     tmp <- .tabixToTmp(tabixFile = inputFile, sampleName = sampleName, validBC = validBC,
-            chromSizes = genomeAnno$chromSizes, nChunk = nChunk,
+            chromSizes = genomeAnnotation$chromSizes, nChunk = nChunk,
             gsubExpression = gsubExpression, prefix = prefix, verboseHeader = verboseHeader, 
             verboseAll = verboseAll, tstart = tstart,  ...)
 
-    out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnno$genome, 
+    out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnnotation$genome, 
             minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, 
-            chromSizes = genomeAnno$chromSizes, ...)
+            chromSizes = genomeAnnotation$chromSizes, ...)
   
   }else if(tolower(readMethod)=="bam"){
 
     tmp <- .bamToTmp(bamFile = inputFile, sampleName = sampleName, validBC = validBC,
-            chromSizes = genomeAnno$chromSizes, bamFlag = bamFlag, 
+            chromSizes = genomeAnnotation$chromSizes, bamFlag = bamFlag, 
             bcTag = bcTag, gsubExpression = gsubExpression, nChunk = nChunk, 
             offsetPlus = offsetPlus, offsetMinus = offsetMinus, prefix = prefix, 
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
 
-    out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnno$genome, 
+    out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnnotation$genome, 
             minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, 
-            chromSizes = genomeAnno$chromSizes, ...)
+            chromSizes = genomeAnnotation$chromSizes, ...)
 
   }else{
     
@@ -320,7 +320,7 @@ createArrowFiles <- function(
   #Compute TSS Enrichment Scores Information!
   #############################################################
   .messageDiffTime(sprintf("%s Computing TSS Enrichment Scores", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
-  TSSParams$TSS <- geneAnno$TSS
+  TSSParams$TSS <- geneAnnotation$TSS
   TSSParams$ArrowFile <- ArrowFile
   TSSParams$cellNames <- Metadata$cellNames
   TSSOut <- do.call(.fastTSSEnrichment, TSSParams)
@@ -415,10 +415,10 @@ createArrowFiles <- function(
     TileMatParams$i <- i
     TileMatParams$ArrowFiles <- ArrowFiles
     TileMatParams$cellNames <- Metadata$cellNames[idx]
-    chromLengths <- end(genomeAnno$chromSizes)
-    names(chromLengths) <- paste0(seqnames(genomeAnno$chromSizes))
+    chromLengths <- end(genomeAnnotation$chromSizes)
+    names(chromLengths) <- paste0(seqnames(genomeAnnotation$chromSizes))
     TileMatParams$chromLengths <- chromLengths
-    TileMatParams$blacklist <- genomeAnno$blacklist
+    TileMatParams$blacklist <- genomeAnnotation$blacklist
     TileMatParams$force <- TRUE
     TileMatParams$excludeChr <- excludeChr
     tileMat <- suppressMessages(do.call(.addTileMat, TileMatParams))
@@ -432,9 +432,9 @@ createArrowFiles <- function(
     .messageDiffTime(sprintf("%s Adding GeneScoreMatrix", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
     GeneScoreMatParams$i <- i
     GeneScoreMatParams$ArrowFiles <- ArrowFiles
-    GeneScoreMatParams$genes <- geneAnno$genes
+    GeneScoreMatParams$genes <- geneAnnotation$genes
     GeneScoreMatParams$cellNames <- Metadata$cellNames[which(Metadata$Keep==1)]
-    GeneScoreMatParams$blacklist <- genomeAnno$blacklist
+    GeneScoreMatParams$blacklist <- genomeAnnotation$blacklist
     GeneScoreMatParams$force <- TRUE
     GeneScoreMatParams$excludeChr <- excludeChr
     geneScoreMat <- suppressMessages(do.call(.addGeneScoreMat, GeneScoreMatParams))

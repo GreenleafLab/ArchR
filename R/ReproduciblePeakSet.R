@@ -23,8 +23,8 @@
 #' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
 #' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
 #' @param promoterDist The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.
-#' @param genomeAnno The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.
-#' @param geneAnno The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.
+#' @param genomeAnnotation The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.
+#' @param geneAnnotation The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
@@ -49,8 +49,8 @@ addReproduciblePeakSet <- function(
 	additionalParams = "--nomodel --nolambda",
 	extendSummits = 250,
 	promoterDist = 500,
-	genomeAnno = getGenomeAnnotation(ArchRProj),
-	geneAnno = getGeneAnnotation(ArchRProj),
+	genomeAnnotation = getGenomeAnnotation(ArchRProj),
+	geneAnnotation = getGeneAnnotation(ArchRProj),
 	threads = getArchRThreads(),
 	parallelParam = "mclapply",
 	force = FALSE,
@@ -75,8 +75,8 @@ addReproduciblePeakSet <- function(
 	.validInput(input = additionalParams, name = "additionalParams", valid = c("character"))
 	.validInput(input = extendSummits, name = "extendSummits", valid = c("integer"))
 	.validInput(input = promoterDist, name = "promoterDist", valid = c("integer"))
-	geneAnno <- .validGeneAnnotation(geneAnno)
-	genomeAnno <- .validGeneAnnotation(genomeAnno)
+	geneAnnotation <- .validGeneAnnotation(geneAnnotation)
+	genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
 	.validInput(input = threads, name = "threads", valid = c("integer"))
 	.validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
 	.validInput(input = force, name = "force", valid = c("boolean"))
@@ -176,9 +176,9 @@ addReproduciblePeakSet <- function(
 	#####################################################
 	# BSgenome for Add Nucleotide Frequencies!
 	#####################################################
-	.requirePackage(genomeAnno$genome)
+	.requirePackage(genomeAnnotation$genome)
 	.requirePackage("Biostrings")
-	BSgenome <- eval(parse(text = genomeAnno$genome))
+	BSgenome <- eval(parse(text = genomeAnnotation$genome))
 	BSgenome <- .validBSgenome(BSgenome)
 
 	#####################################################
@@ -192,11 +192,11 @@ addReproduciblePeakSet <- function(
 			summitNames = summitNamesList[[i]],
 			reproducibility = reproducibility,
 	    	extendSummits = extendSummits,
-	    	blacklist = genomeAnno$blacklist
+	    	blacklist = genomeAnnotation$blacklist
 		))
 		peaks <- sort(sortSeqlevels(peaks))
-		peaks <- subsetByOverlaps(peaks, genomeAnno$chromSizes, type = "within")
-		peaks <- .fastAnnoPeaks(peaks, BSgenome = BSgenome, geneAnno = geneAnno, promoterDist = promoterDist)
+		peaks <- subsetByOverlaps(peaks, genomeAnnotation$chromSizes, type = "within")
+		peaks <- .fastAnnoPeaks(peaks, BSgenome = BSgenome, geneAnnotation = geneAnnotation, promoterDist = promoterDist)
 		peaks <- peaks[which(mcols(peaks)$N < 0.001)] #Remove N Containing Peaks
 		peaks <- peaks[order(peaks$groupScoreQuantile, decreasing = TRUE)]
 		peaks <- head(peaks, groupSummary[names(outSummitList)[i],"maxPeaks"])
@@ -270,22 +270,22 @@ addReproduciblePeakSet <- function(
 # Utility Functions
 #####################
 
-.fastAnnoPeaks <- function(peaks, BSgenome, geneAnno, promoterDist = 1000){
+.fastAnnoPeaks <- function(peaks, BSgenome, geneAnnotation, promoterDist = 1000){
 
 	#Validate
 	peaks <- .validGRanges(peaks)
 	peakSummits <- resize(peaks,1,"center")
-	geneAnno$genes <- .validGRanges(geneAnno$genes)
-	geneAnno$exons <- .validGRanges(geneAnno$exons)
-	geneAnno$TSS <- .validGRanges(geneAnno$TSS)
+	geneAnnotation$genes <- .validGRanges(geneAnnotation$genes)
+	geneAnnotation$exons <- .validGRanges(geneAnnotation$exons)
+	geneAnnotation$TSS <- .validGRanges(geneAnnotation$TSS)
 	BSgenome <- .validBSgenome(BSgenome)
 
 	#First Lets Get Distance to Nearest Gene Start
-	distPeaks <- distanceToNearest(peakSummits, resize(geneAnno$genes, 1, "start"), ignore.strand = TRUE)
+	distPeaks <- distanceToNearest(peakSummits, resize(geneAnnotation$genes, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToGeneStart <- mcols(distPeaks)$distance
-	mcols(peaks)$nearestGene <- mcols(geneAnno$genes)$symbol[subjectHits(distPeaks)]
-	og <- overlapsAny(peakSummits, geneAnno$genes, ignore.strand = TRUE)
-	oe <- overlapsAny(peakSummits, geneAnno$exons, ignore.strand = TRUE)
+	mcols(peaks)$nearestGene <- mcols(geneAnnotation$genes)$symbol[subjectHits(distPeaks)]
+	og <- overlapsAny(peakSummits, geneAnnotation$genes, ignore.strand = TRUE)
+	oe <- overlapsAny(peakSummits, geneAnnotation$exons, ignore.strand = TRUE)
 	type <- rep("Distal", length(peaks))
 	type[which(og & oe)] <- "Exon"
 	type[which(og & !oe)] <- "Intron"
@@ -293,12 +293,12 @@ addReproduciblePeakSet <- function(
 	mcols(peaks)$peakType <- type
 
 	#First Lets Get Distance to Nearest TSS's
-	distTSS <- distanceToNearest(peakSummits, resize(geneAnno$TSS, 1, "start"), ignore.strand = TRUE)
+	distTSS <- distanceToNearest(peakSummits, resize(geneAnnotation$TSS, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToTSS <- mcols(distTSS)$distance
-	if("symbol" %in% colnames(mcols(geneAnno$TSS))){
-		mcols(peaks)$nearestTSS <- mcols(geneAnno$TSS)$symbol[subjectHits(distPeaks)]
-	}else if("tx_name" %in% colnames(mcols(geneAnno$TSS))){
-		mcols(peaks)$nearestTSS <- mcols(geneAnno$TSS)$tx_name[subjectHits(distPeaks)]
+	if("symbol" %in% colnames(mcols(geneAnnotation$TSS))){
+		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$symbol[subjectHits(distPeaks)]
+	}else if("tx_name" %in% colnames(mcols(geneAnnotation$TSS))){
+		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$tx_name[subjectHits(distPeaks)]
 	}
 
 	#Get NucleoTide Content

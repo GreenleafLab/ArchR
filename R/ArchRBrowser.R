@@ -26,7 +26,7 @@
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
-#' @param geneAnno QQQ GENE ANNO VS GENE ANNOTATION NEEDS TO BE STANDARDIZED The `geneAnnotation` object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.
+#' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
 #' @param ... additional args
 #' @export
@@ -51,7 +51,7 @@ ArchRRegionTrack <- function(
   borderWidth = 0.4,
   tickWidth = 0.4,
   facetbaseSize = 7,
-  geneAnno = getGeneAnnotation(ArchRProj),
+  geneAnnotation = getGeneAnnotation(ArchRProj),
   title = "",
   ...
   ){
@@ -76,7 +76,7 @@ ArchRRegionTrack <- function(
   .validInput(input = borderWidth, name = "borderWidth", valid = "numeric")
   .validInput(input = tickWidth, name = "tickWidth", valid = "numeric")
   .validInput(input = facetbaseSize, name = "facetbaseSize", valid = "numeric")
-  geneAnno <- .validGeneAnnotation(geneAnno)
+  geneAnnotation <- .validGeneAnnotation(geneAnnotation)
   .validInput(input = title, name = "title", valid = "character")
 
   tstart <- Sys.time()
@@ -87,7 +87,7 @@ ArchRRegionTrack <- function(
   .messageDiffTime("Validating Region", tstart)
   if(is.null(region)){
     if(!is.null(geneSymbol)){
-      region <- geneAnno$genes
+      region <- geneAnnotation$genes
       region <- region[which(tolower(mcols(region)$symbol) %in% tolower(geneSymbol))]
       region <- resize(region, 1, "start")
       strand(region) <- "*"
@@ -118,7 +118,7 @@ ArchRRegionTrack <- function(
         tickWidth = tickWidth,
         facetbaseSize = facetbaseSize,
         normMethod = normMethod,
-        geneAnno = geneAnno,
+        geneAnnotation = geneAnnotation,
         title = title,
         useGroups = useGroups,
         useCoverages = useCoverages,
@@ -145,7 +145,7 @@ ArchRRegionTrack <- function(
     if("genetrack" %in% tolower(plotSummary)){
       .messageDiffTime("Adding Gene Tracks", tstart)
       plotList$genetrack <- .geneTracks(
-        geneAnnotation = geneAnno, 
+        geneAnnotation = geneAnnotation, 
         region = region[x], 
         title = "Genes") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
     }
@@ -193,7 +193,7 @@ ArchRRegionTrack <- function(
   borderWidth = 0.4,
   tickWidth = 0.4,
   facetbaseSize = 7,
-  geneAnno = getGeneAnnotation(ArchRProj),
+  geneAnnotation = getGeneAnnotation(ArchRProj),
   title = "",
   useCoverages = TRUE,
   tstart = NULL,
