@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,12 +41,12 @@
 
 
 
+
 <meta property="og:title" content="Identify Marker Features for each cell grouping — markerFeatures" />
-
 <meta property="og:description" content="This function will identify features that are definitional of each provided cell grouping where possible" />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -130,7 +132,6 @@
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -158,19 +159,17 @@
     </div>
 
     <div class="ref-description">
-    
     <p>This function will identify features that are definitional of each provided cell grouping where possible</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>markerFeatures</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
   <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bgdGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"GeneScoreMatrix"</span>,
   <span class='kw'>bias</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"TSSEnrichment"</span>, <span class='st'>"log10(nFrags)"</span>), <span class='kw'>normBy</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>testMethod</span> <span class='kw'>=</span> <span class='st'>"wilcoxon"</span>, <span class='kw'>maxCells</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>4</span>,
-  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>bufferRatio</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>useSeqnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"ArchR"</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
-    
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(), <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>bufferRatio</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
+  <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>useSeqnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"ArchR"</span>,
+  <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -236,7 +235,7 @@
     </tr>
     <tr>
       <th>method</th>
-      <td><p>The name of the method to be used for marker feature identification. Valid options are "ArchR" which will use the default ArchR method or "Venice" which will use the <code>Signac::VeniceMarker()</code> fucntion.</p></td>
+      <td><p>The name of the method to be used for marker feature identification. Valid options are "ArchR" for now.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>
@@ -251,14 +250,14 @@
       <td><p>additional args</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

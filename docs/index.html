@@ -132,11 +132,16 @@ devtools::install_github("GreenleafLab/ArchR",
     auth_token = token, #Need a token to download (see personalized access tokens)
     repos = BiocManager::repositories()
 )</code></pre>
+<div id="additional-things-to-install" class="section level3">
+<h3 class="hasAnchor">
+<a href="#additional-things-to-install" class="anchor"></a>Additional things to install</h3>
+<p>You will need a current version gfortran for mac or else you will have issues downstream. See <a href="https://github.com/fxcoudert/gfortran-for-macOS/releases" class="uri">https://github.com/fxcoudert/gfortran-for-macOS/releases</a>.</p>
+</div>
 <div id="additional-packages-that-are-used-from-github" class="section level3">
 <h3 class="hasAnchor">
 <a href="#additional-packages-that-are-used-from-github" class="anchor"></a>Additional packages that are used from github</h3>
 <p>To complete installation, you also must maually install the following packages using these devtools commands:</p>
-<pre class="{r}"><code># ggrastr is a package for plotting ggplots with rastr'd points which is super helpful for large UMAPs etc
+<pre class="{r}"><code><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html"># ggrastr is a package for plotting ggplots with rastr'd points which is super helpful for large UMAPs etc
 # # You need to have Cairo installed for ggrastr to work
 # # On Mac OSx you need to have XQuartz (https://www.xquartz.org/)
 devtools::install_github('VPetukhov/ggrastr')
@@ -145,7 +150,7 @@ devtools::install_github('VPetukhov/ggrastr')
 devtools::install_github("immunogenomics/harmony")
 
 # presto is a package that has efficient tools for wilcoxon tests on sparseMatrices
-devtools::install_github('immunogenomics/presto')</code></pre>
+devtools::install_github('immunogenomics/presto')</a></code></pre>
 </div>
 </div>
 <div id="archr-workflow" class="section level1">

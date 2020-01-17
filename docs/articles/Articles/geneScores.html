@@ -130,9 +130,7 @@
 <p>While ArchR is able to robustly call clusters, it is not possible to know <em>a priori</em> which cell type is represented by each cluster. This task is often left to manual annotation because every application is different.</p>
 <p>To do this cell type annotation, we use prior knowledge of cell type-specific marker genes and we estimate <em>gene activity scores</em> for these genes. A gene activity score is essentially a prediction of how highly expressed a gene will be based on the accessibility of regulatory elements in the vicinity of the gene promoter.</p>
 <p>Specifically, the 200-kb region centered on the given TSS is tiled into 1000-bp bins and the insertions per bin are counted. Each of these bins is then weighted proportional to the distance from the TSS because regulatory elements closer to the promoter are more likely to affect the promoter.</p>
-<div class="figure">
-<img src="../../images/GeneActivityScore_Schematic.png" width="500">
-</div>
+<p><img src="../../images/GeneActivityScore_Schematic.png" width="500"></p>
 <p><span class="math inline">\(~\)</span></p>
 <p>These gene activity scores are calculated for each <code>ArrowFile</code> at the time of creation if the parameter <code>addGeneScoreMat</code> is set to <code>TRUE</code> (the default) or at any time by using the <code><a href="../../reference/addGeneScoreMatrix.html">addGeneScoreMatrix()</a></code> function. Once caluclated, individual cells of a UMAP projection can be colored by their gene activity scores to help with the identification of various cell types. For example, in the plot below from the tutorial, <strong>QQQ</strong> cells are highlighted based on their gene activity scores for <strong>QQQ</strong>.</p>
 <p>[INSERT UMAP GENE SCORE PLOT FROM PBMCs]</p>
@@ -141,6 +139,7 @@
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
       </div>
 
 </div>

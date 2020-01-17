@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Load Previous ArchRProject into R — loadArchRProject • ArchR</title>
+<title>Add peakAnnotations to an ArchRProject — addPeakAnnotations • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Load Previous ArchRProject into R — loadArchRProject" />
-<meta property="og:description" content="This function will load a previously saved ArchRProject and re-normalize paths for usage." />
+<meta property="og:title" content="Add peakAnnotations to an ArchRProject — addPeakAnnotations" />
+<meta property="og:description" content="This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -153,31 +153,40 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Load Previous ArchRProject into R</h1>
+    <h1>Add peakAnnotations to an ArchRProject</h1>
     
-    <div class="hidden name"><code>loadArchRProject.Rd</code></div>
+    <div class="hidden name"><code>addPeakAnnotations.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function will load a previously saved ArchRProject and re-normalize paths for usage.</p>
+    <p>This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>loadArchRProject</span>(<span class='kw'>path</span> <span class='kw'>=</span> <span class='st'>"./"</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>showLogo</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>addPeakAnnotations</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>regions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Region"</span>,
+  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>path</th>
-      <td><p>A character path to an ArchRProject directory that was previously saved.</p></td>
+      <th>ArchRProj</th>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>regions</th>
+      <td><p>The name of peakAnnotations to be stored as in <code>ArchRProject</code></p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>The name of peakAnnotations to be stored as in <code>ArchRProject</code></p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean indicating when re-normalizing paths if an annotation/bdgPeaks is not found ignore and continue</p></td>
+      <td><p>force creation if peakAnnotation with same name already exists</p></td>
     </tr>
     <tr>
-      <th>showLogo</th>
-      <td><p>show ArchRLogo upon completion.</p></td>
+      <th>...</th>
+      <td><p>additional args</p></td>
     </tr>
     </table>
 

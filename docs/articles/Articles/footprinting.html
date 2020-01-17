@@ -125,21 +125,18 @@
     
     
 <p>Transcription factor (TF) footprinting allows for the prediction of the precise binding location of a TF at a particular locus. This is because the DNA bases that are bound by the TF are actually protected from transposition while the DNA bases immediately adjacent to TF binding are accessible.</p>
-<div class="figure">
-<img src="../../images/footprintingSchematic.png" width="250">
-</div>
+<p><img src="../../images/footprintingSchematic.png" width="250"></p>
 <p>Ideally, TF footprinting is performed at a single site to determine the precise binding location of the TF. However, in practice, this requires very high sequencing depth, often much higher depth than what most users would obtain from either bulk or single-cell ATAC-seq. To get around this problem, we can combine Tn5 insertion locations across many instances of predicted TF binding. For example, we can take all peaks that harbor a CTCF motif and make an aggregate TF footprint for CTCF across the whole genome.</p>
 <p>[INSERT CTCF FOOTPRINT EXAMPLE]</p>
 <p>The accuracy of this footprint relies on generating a reliable curated list of predicted binding sites for the TF of interest. ArchR does this in a naive way via the <code><a href="../../reference/addMotifAnnotations.html">addMotifAnnotations()</a></code> functions by searching the peak region for any DNA sequence matching a motif. Depending on the degeneracy of the motif of interest, this may or may not be sufficient. These motif annotations get added to the <strong>QQQArchRProject???</strong> as a binary representation on a per peak basis (0 = no motif, 1 = motif present). Once you have these motif annotations, ArchR performs footprinting using the <code><a href="../../reference/plotFootprints.html">plotFootprints()</a></code> function which takes as input an <code>ArchRProject</code> object and a <code>GenomicRanges</code> object that contains the positions of the motifs. These positions can be accessed from the <code>ArchRProject</code> via the <code><a href="../../reference/getPositions.html">getPositions()</a></code> function.</p>
 <p>Perhaps most importantly, the footprinting analyses in ArchR account for known Tn5 insertion sequence bias.To do this, ArchR uses a matrix of hexamer position frequencies and a matrix of k-mer frequencies at Tn5 insertion sites:</p>
-<div class="figure">
-<img src="../../images/footprintingMethods.png" width="1000">
-</div>
+<p><img src="../../images/footprintingMethods.png" width="1000"></p>
 <p>All put together, the <code><a href="../../reference/plotFootprints.html">plotFootprints()</a></code> function generates footprint plots that take into account Tn5 insertion bias.</p>
 <p>[INSERT EXAMPLE FOOTPRINT PLOT]</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
       </div>
 
 </div>

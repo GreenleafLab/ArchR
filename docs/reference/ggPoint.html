@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,10 +41,12 @@
 
 
 
-<meta property="og:title" content="A ggplot-based dot plot wrapper function — ggPoint" />
 
+<meta property="og:title" content="A ggplot-based dot plot wrapper function — ggPoint" />
+<meta property="og:description" content="This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -128,7 +132,6 @@
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -156,7 +159,7 @@
     </div>
 
     <div class="ref-description">
-
+    <p>This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.</p>
     </div>
 
     <pre class="usage"><span class='fu'>ggPoint</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>discrete</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
@@ -168,7 +171,7 @@
   <span class='kw'>colorOrder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>labelType</span> <span class='kw'>=</span> <span class='st'>"ggrepel"</span>, <span class='kw'>fgColor</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bgColor</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>labelSize</span> <span class='kw'>=</span> <span class='fl'>1.5</span>, <span class='kw'>addFit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>dpi</span> <span class='kw'>=</span> <span class='fl'>300</span>, <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -226,32 +229,77 @@
     </tr>
     <tr>
       <th>extend</th>
-      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
-<p>xlabelThe label to plot for the x-axis.</p>
-<p>ylabelThe label to plot for the y-axis.</p>
-<p>titleThe title of the plot.</p>
-<p>randomizeA boolean value indicating whether to randomize the order of the points when plotting.</p>
-<p>seedA numeric seed number for use in randomization.</p>
-<p>alphaA number indicating the transparency to use for each point. See <code>ggplot2</code> for more details.</p>
-<p>baseSizeThe base font size to use in the plot.</p>
-<p>ratioYXThe aspect ratio of the x and y axes on the plot.</p>
-<p>labelTypeA string indicating how to label the points on the plot. Options include "ggrepel", "shadowtext".</p>
-<p>fgColorThe foreground color of the plot.</p>
-<p>bgColorThe background color of the plot.</p>
-<p>labelSizeThe numeric font size of labels.</p>
-<p>addFitA string indicating if a fit/regression line (see geom_smooth methods) should be included in the plot and what method to use for this fit.</p>
-<p>rastrA boolean value that indicates whether the plot should be rasterized using ggrastr. This does not rasterize lines and labels, just the internal portions of the plot.</p>
-<p>dpiThe resolution in dots per inch to use for the plot.</p></td>
+      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.</p></td>
+    </tr>
+    <tr>
+      <th>xlabel</th>
+      <td><p>The label to plot for the x-axis.</p></td>
+    </tr>
+    <tr>
+      <th>ylabel</th>
+      <td><p>The label to plot for the y-axis.</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>The title of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>randomize</th>
+      <td><p>A boolean value indicating whether to randomize the order of the points when plotting.</p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p>A numeric seed number for use in randomization.</p></td>
+    </tr>
+    <tr>
+      <th>alpha</th>
+      <td><p>A number indicating the transparency to use for each point. See <code>ggplot2</code> for more details.</p></td>
+    </tr>
+    <tr>
+      <th>baseSize</th>
+      <td><p>The base font size to use in the plot.</p></td>
+    </tr>
+    <tr>
+      <th>ratioYX</th>
+      <td><p>The aspect ratio of the x and y axes on the plot.</p></td>
+    </tr>
+    <tr>
+      <th>labelType</th>
+      <td><p>A string indicating how to label the points on the plot. Options include "ggrepel", "shadowtext".</p></td>
+    </tr>
+    <tr>
+      <th>fgColor</th>
+      <td><p>The foreground color of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>bgColor</th>
+      <td><p>The background color of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>labelSize</th>
+      <td><p>The numeric font size of labels.</p></td>
+    </tr>
+    <tr>
+      <th>addFit</th>
+      <td><p>A string indicating if a fit/regression line (see geom_smooth methods) should be included in the plot and what method to use for this fit.</p></td>
+    </tr>
+    <tr>
+      <th>rastr</th>
+      <td><p>A boolean value that indicates whether the plot should be rasterized using ggrastr. This does not rasterize lines and labels, just the internal portions of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>dpi</th>
+      <td><p>The resolution in dots per inch to use for the plot.</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

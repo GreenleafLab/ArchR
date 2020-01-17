@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,13 +41,13 @@
 
 
 
-<meta property="og:title" content="Add a Reproducible Peak Set to an ArchRProject — addReproduciblePeakSet" />
 
+<meta property="og:title" content="Add a Reproducible Peak Set to an ArchRProject — addReproduciblePeakSet" />
 <meta property="og:description" content="This function will get insertions from coverage files, call peaks,
 and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -131,7 +133,6 @@ and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -159,23 +160,22 @@ and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
     </div>
 
     <div class="ref-description">
-    
     <p>This function will get insertions from coverage files, call peaks,
 and merge peaks to get a "Union Reproducible Peak Set"</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>addReproduciblePeakSet</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
   <span class='kw'>reproducibility</span> <span class='kw'>=</span> <span class='st'>"2"</span>, <span class='kw'>peaksPerCell</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>maxPeaks</span> <span class='kw'>=</span> <span class='fl'>150000</span>,
   <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>excludeChr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrM"</span>, <span class='st'>"chrY"</span>),
   <span class='kw'>pathToMacs2</span> <span class='kw'>=</span> <span class='fu'><a href='findMacs2.html'>findMacs2</a></span>(), <span class='kw'>genomeSize</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>shift</span> <span class='kw'>=</span> -<span class='fl'>75</span>,
-  <span class='kw'>extsize</span> <span class='kw'>=</span> <span class='fl'>150</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"q"</span>, <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>extendSummits</span> <span class='kw'>=</span> <span class='fl'>250</span>,
-  <span class='kw'>promoterDist</span> <span class='kw'>=</span> <span class='fl'>500</span>, <span class='kw'>genomeAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGenomeAnnotation.html'>getGenomeAnnotation</a></span>(<span class='no'>ArchRProj</span>),
-  <span class='kw'>geneAnno</span> <span class='kw'>=</span> <span class='fu'><a href='getGeneAnnotation.html'>getGeneAnnotation</a></span>(<span class='no'>ArchRProj</span>),
-  <span class='kw'>additionalParams</span> <span class='kw'>=</span> <span class='st'>"--nomodel --nolambda"</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='st'>"mclapply"</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
-    
+  <span class='kw'>extsize</span> <span class='kw'>=</span> <span class='fl'>150</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"q"</span>, <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>additionalParams</span> <span class='kw'>=</span> <span class='st'>"--nomodel --nolambda"</span>, <span class='kw'>extendSummits</span> <span class='kw'>=</span> <span class='fl'>250</span>,
+  <span class='kw'>promoterDist</span> <span class='kw'>=</span> <span class='fl'>500</span>,
+  <span class='kw'>genomeAnnotation</span> <span class='kw'>=</span> <span class='fu'><a href='getGenomeAnnotation.html'>getGenomeAnnotation</a></span>(<span class='no'>ArchRProj</span>),
+  <span class='kw'>geneAnnotation</span> <span class='kw'>=</span> <span class='fu'><a href='getGeneAnnotation.html'>getGeneAnnotation</a></span>(<span class='no'>ArchRProj</span>),
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(), <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='st'>"mclapply"</span>,
+  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -232,6 +232,10 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
       <td><p>The numeric significance cutoff for the testing method indicated by <code>method</code> (see MACS2 documentation).</p></td>
     </tr>
     <tr>
+      <th>additionalParams</th>
+      <td><p>A string of additional parameters to pass to MACS2 (see MACS2 documentation).</p></td>
+    </tr>
+    <tr>
       <th>extendSummits</th>
       <td><p>The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, <code>extendSummits = 250</code> will create 501-bp fixed-width peaks from the 1-bp summits.</p></td>
     </tr>
@@ -240,16 +244,12 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
       <td><p>The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.</p></td>
     </tr>
     <tr>
-      <th>genomeAnno</th>
+      <th>genomeAnnotation</th>
       <td><p>The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.</p></td>
     </tr>
     <tr>
-      <th>geneAnno</th>
+      <th>geneAnnotation</th>
       <td><p>The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.</p></td>
-    </tr>
-    <tr>
-      <th>additionalParams</th>
-      <td><p>A string of additional parameters to pass to MACS2 (see MACS2 documentation).</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -276,14 +276,14 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
       <td><p>additional args</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Load Previous ArchRProject into R — loadArchRProject • ArchR</title>
+<title>Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks. — enrichHeatmap • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Load Previous ArchRProject into R — loadArchRProject" />
-<meta property="og:description" content="This function will load a previously saved ArchRProject and re-normalize paths for usage." />
+<meta property="og:title" content="Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks. — enrichHeatmap" />
+<meta property="og:description" content="This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see peakAnnoEnrichment)." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -153,31 +153,53 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Load Previous ArchRProject into R</h1>
+    <h1>Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.</h1>
     
-    <div class="hidden name"><code>loadArchRProject.Rd</code></div>
+    <div class="hidden name"><code>enrichHeatmap.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function will load a previously saved ArchRProject and re-normalize paths for usage.</p>
+    <p>This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see peakAnnoEnrichment).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>loadArchRProject</span>(<span class='kw'>path</span> <span class='kw'>=</span> <span class='st'>"./"</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>showLogo</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>enrichHeatmap</span>(<span class='kw'>seEnrich</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteContinuous.html'>paletteContinuous</a></span>(<span class='kw'>set</span> <span class='kw'>=</span>
+  <span class='st'>"white_blue_purple"</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>), <span class='kw'>limits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>60</span>), <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>clusterCols</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>clusterRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>labelRows</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>path</th>
-      <td><p>A character path to an ArchRProject directory that was previously saved.</p></td>
+      <th>pal</th>
+      <td><p>A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.</p></td>
     </tr>
     <tr>
-      <th>force</th>
-      <td><p>A boolean indicating when re-normalizing paths if an annotation/bdgPeaks is not found ignore and continue</p></td>
+      <th>limits</th>
+      <td><p>A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.</p></td>
     </tr>
     <tr>
-      <th>showLogo</th>
-      <td><p>show ArchRLogo upon completion.</p></td>
+      <th>n</th>
+      <td><p>number of top enriched peakAnnotations per column to keep for visibility purposes</p></td>
+    </tr>
+    <tr>
+      <th>clusterCols</th>
+      <td><p>A boolean indicating whether or not to cluster columns in heatmap.</p></td>
+    </tr>
+    <tr>
+      <th>clusterRows</th>
+      <td><p>A boolean indicating whether or not to cluster rows in heatmap.</p></td>
+    </tr>
+    <tr>
+      <th>labelRows</th>
+      <td><p>A boolean indicating whether or not to label rows in heatmap.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional args</p></td>
+    </tr>
+    <tr>
+      <th>seMarker</th>
+      <td><p>A <code>SummarizedExperiment</code> object returned by <code><a href='peakAnnoEnrichment.html'>ArchR::peakAnnoEnrichment()</a></code>.</p></td>
     </tr>
     </table>
 

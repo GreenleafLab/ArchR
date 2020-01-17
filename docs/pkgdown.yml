@@ -1,21 +1,21 @@
-pandoc: 1.17.2
+pandoc: 2.3.1
 pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
   annotations: Articles/annotations.html
+  clusterComputing: Articles/clusterComputing.html
+  cnvIdentification: Articles/cnvIdentification.html
   dimReduction: Articles/dimReduction.html
   doubletRemoval: Articles/doubletRemoval.html
+  faq: Articles/faq.html
   footprinting: Articles/footprinting.html
   geneScores: Articles/geneScores.html
+  inputFiles: Articles/inputFiles.html
+  markerFeatures: Articles/markerFeatures.html
   peakCalling: Articles/peakCalling.html
+  pseudobulkGeneration: Articles/pseudobulkGeneration.html
   qcFilters: Articles/qcFilters.html
   signalTracks: Articles/signalTracks.html
-  faq: Articles/faq.html
-  clusterComputing: Articles/clusterComputing.html
-  inputFiles: Articles/inputFiles.html
-  pseudobulkGeneration: Articles/pseudobulkGeneration.html
-  markerFeatures: Articles/markerFeatures.html
-  tutorial: Articles/tutorial.html
-  cnvIdentification: Articles/cnvIdentification.html
   trajectories: Articles/trajectories.html
+  tutorial: Articles/tutorial.html
 

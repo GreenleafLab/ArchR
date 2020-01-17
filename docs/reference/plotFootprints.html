@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,12 +41,12 @@
 
 
 
+
 <meta property="og:title" content="Plot footprints for an ArchRProject — plotFootprints" />
-
 <meta property="og:description" content="This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment" />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -130,7 +132,6 @@
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -158,9 +159,7 @@
     </div>
 
     <div class="ref-description">
-    
     <p>This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>plotFootprints</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>positions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -168,9 +167,9 @@
   <span class='kw'>useGroups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>flank</span> <span class='kw'>=</span> <span class='fl'>250</span>, <span class='kw'>flankNorm</span> <span class='kw'>=</span> <span class='fl'>50</span>,
   <span class='kw'>smoothWindow</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>minCells</span> <span class='kw'>=</span> <span class='fl'>25</span>, <span class='kw'>nTop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>normMethod</span> <span class='kw'>=</span> <span class='st'>"none"</span>, <span class='kw'>inputSE</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>height</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>4</span>,
-  <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
-    
+  <span class='kw'>addDOC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>useSink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(),
+  <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -259,14 +258,14 @@
       <td><p>additional args</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

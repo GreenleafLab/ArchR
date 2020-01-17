@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,10 +41,12 @@
 
 
 
-<meta property="og:title" content="A ggplot-based Hexplot wrapper function summary of points in a standardized manner — ggHex" />
 
+<meta property="og:title" content="A ggplot-based Hexplot wrapper function summary of points in a standardized manner — ggHex" />
+<meta property="og:description" content="This function will plot x,y coordinates values summarized in hexagons in a standardized manner" />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -128,7 +132,6 @@
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -156,7 +159,7 @@
     </div>
 
     <div class="ref-description">
-
+    <p>This function will plot x,y coordinates values summarized in hexagons in a standardized manner</p>
     </div>
 
     <pre class="usage"><span class='fu'>ggHex</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='fu'><a href='paletteContinuous.html'>paletteContinuous</a></span>(<span class='kw'>set</span>
@@ -164,7 +167,7 @@
   <span class='kw'>extend</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='st'>"x"</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='st'>"y"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>,
   <span class='kw'>colorTitle</span> <span class='kw'>=</span> <span class='st'>"values"</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>ratioYX</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>FUN</span> <span class='kw'>=</span> <span class='st'>"mean"</span>,
   <span class='kw'>quantCut</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.01</span>, <span class='fl'>0.99</span>), <span class='kw'>addPoints</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -198,28 +201,57 @@
     </tr>
     <tr>
       <th>extend</th>
-      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5<!-- % on each end.} --></p>
-<p>xlabelThe label to plot for the x-axis.</p>
-<p>ylabelThe label to plot for the y-axis.</p>
-<p>titleThe title of the plot.</p>
-<p>colorTitleThe label to use for the legend corresponding to <code>color</code>.</p>
-<p>baseSizeThe base font size to use in the plot.</p>
-<p>ratioYXThe aspect ratio of the x and y axes on the plot.</p>
-<p>FUNThe function to use for summarizing data into hexagons. Typically "mean" or something similar.</p>
-<p>quantCutIf this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of the 97.5th and 2.5th percentile values respectively.} -->addPointsA boolean value indicating whether individual points should be shown on the hexplot....additional params to pass
-
-
-This function will plot x,y coordinates values summarized in hexagons in a standardized manner</p></td>
+      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.</p></td>
+    </tr>
+    <tr>
+      <th>xlabel</th>
+      <td><p>The label to plot for the x-axis.</p></td>
+    </tr>
+    <tr>
+      <th>ylabel</th>
+      <td><p>The label to plot for the y-axis.</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>The title of the plot.</p></td>
+    </tr>
+    <tr>
+      <th>colorTitle</th>
+      <td><p>The label to use for the legend corresponding to <code>color</code>.</p></td>
+    </tr>
+    <tr>
+      <th>baseSize</th>
+      <td><p>The base font size to use in the plot.</p></td>
+    </tr>
+    <tr>
+      <th>ratioYX</th>
+      <td><p>The aspect ratio of the x and y axes on the plot.</p></td>
+    </tr>
+    <tr>
+      <th>FUN</th>
+      <td><p>The function to use for summarizing data into hexagons. Typically "mean" or something similar.</p></td>
+    </tr>
+    <tr>
+      <th>quantCut</th>
+      <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.</p></td>
+    </tr>
+    <tr>
+      <th>addPoints</th>
+      <td><p>A boolean value indicating whether individual points should be shown on the hexplot.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional params to pass</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,13 +41,13 @@
 
 
 
-<meta property="og:title" content="Add PeakMatrix to Arrows in ArchRProject — addPeakMatrix" />
 
+<meta property="og:title" content="Add PeakMatrix to Arrows in ArchRProject — addPeakMatrix" />
 <meta property="og:description" content="This function for each sample will independently compute counts for each peak
 per cell in the provided ArchRProject using the &quot;PeakMatrix&quot;." />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -131,7 +133,6 @@ per cell in the provided ArchRProject using the &quot;PeakMatrix&quot;." />
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -159,15 +160,14 @@ per cell in the provided ArchRProject using the &quot;PeakMatrix&quot;." />
     </div>
 
     <div class="ref-description">
-    
     <p>This function for each sample will independently compute counts for each peak
 per cell in the provided ArchRProject using the "PeakMatrix".</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>addPeakMatrix</span>(<span class='no'>ArchRProj</span>, <span class='kw'>ceiling</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>addPeakMatrix</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ceiling</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(), <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='no'>...</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -184,26 +184,26 @@ per cell in the provided ArchRProject using the "PeakMatrix".</p>
       <td><p>A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.</p></td>
     </tr>
     <tr>
-      <th>parallelParam</th>
-      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
-    </tr>
-    <tr>
       <th>threads</th>
       <td><p>The number of threads to be used for parallel computing.</p></td>
+    </tr>
+    <tr>
+      <th>parallelParam</th>
+      <td><p>A list of parameters to be passed for biocparallel/batchtools parallel computing.</p></td>
     </tr>
     <tr>
       <th>force</th>
       <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

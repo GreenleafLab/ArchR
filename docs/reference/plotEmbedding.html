@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,13 +41,13 @@
 
 
 
-<meta property="og:title" content="Visualize Embedding from ArchR Project — plotEmbedding" />
 
+<meta property="og:title" content="Visualize Embedding from ArchR Project — plotEmbedding" />
 <meta property="og:description" content="This function will plot an embedding that was created from
 computeEmbedding" />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -131,7 +133,6 @@ computeEmbedding" />
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -159,20 +160,17 @@ computeEmbedding" />
     </div>
 
     <div class="ref-description">
-    
     <p>This function will plot an embedding that was created from
 computeEmbedding</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>plotEmbedding</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>embedding</span> <span class='kw'>=</span> <span class='st'>"UMAP"</span>,
   <span class='kw'>colorBy</span> <span class='kw'>=</span> <span class='st'>"colData"</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Sample"</span>, <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>imputeWeights</span> <span class='kw'>=</span> <span class='fu'><a href='getImputeWeights.html'>getImputeWeights</a></span>(<span class='no'>ArchRProj</span>), <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>quantCut</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.01</span>, <span class='fl'>0.99</span>),
-  <span class='kw'>discreteSet</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>continuousSet</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>randomize</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>keepAxis</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>plotAs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>imputeWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>quantCut</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.01</span>, <span class='fl'>0.99</span>), <span class='kw'>discreteSet</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>continuousSet</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>randomize</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>keepAxis</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>plotAs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>plotParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -252,14 +250,14 @@ the 97.5th and 2.5th percentile values respectively.</p></td>
       <td><p>additional args</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

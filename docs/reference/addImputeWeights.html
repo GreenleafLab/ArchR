@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,12 +41,12 @@
 
 
 
+
 <meta property="og:title" content="Add Imputation Weights to ArchRProject — addImputeWeights" />
-
 <meta property="og:description" content="This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix." />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -130,7 +132,6 @@
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -158,15 +159,14 @@
     </div>
 
     <div class="ref-description">
-    
     <p>This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>addImputeWeights</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>,
-  <span class='kw'>dimsToUse</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>td</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ka</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>sampleCells</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>5000</span>,
-  <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>floor</a></span>(<span class='fu'><a href='nCells.html'>nCells</a></span>(<span class='no'>ArchRProj</span>)/<span class='fl'>10</span>)), <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>epsilon</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>...</span>)</pre>
-    
+  <span class='kw'>dimsToUse</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>corCutOff</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='kw'>td</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ka</span> <span class='kw'>=</span> <span class='fl'>4</span>,
+  <span class='kw'>sampleCells</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>5000</span>, <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>floor</a></span>(<span class='fu'><a href='nCells.html'>nCells</a></span>(<span class='no'>ArchRProj</span>)/<span class='fl'>10</span>)), <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>15</span>,
+  <span class='kw'>epsilon</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>...</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -181,6 +181,10 @@
     <tr>
       <th>dimsToUse</th>
       <td><p>A vector containing the dimensions from the <code>reducedDims</code> object to use in clustering.</p></td>
+    </tr>
+    <tr>
+      <th>corCutOff</th>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the <code>corCutOff</code>, it will be excluded.</p></td>
     </tr>
     <tr>
       <th>td</th>
@@ -207,14 +211,14 @@
       <td><p>additional params</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

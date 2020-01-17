@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,13 +41,13 @@
 
 
 
-<meta property="og:title" content="Add Supervised Trajectory to an ArchR Project — addTrajectory" />
 
+<meta property="og:title" content="Add Supervised Trajectory to an ArchR Project — addTrajectory" />
 <meta property="og:description" content="This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses." />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -131,7 +133,6 @@ can then be used for downstream analyses." />
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/GreenleafLab/ArchR">
@@ -159,17 +160,15 @@ can then be used for downstream analyses." />
     </div>
 
     <div class="ref-description">
-    
     <p>This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>addTrajectory</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Trajectory"</span>,
   <span class='kw'>trajectory</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
-  <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>, <span class='kw'>preQuantile</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>, <span class='kw'>embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>preQuantile</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>postQuantile</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>dof</span> <span class='kw'>=</span> <span class='fl'>250</span>, <span class='kw'>spar</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -192,6 +191,10 @@ can then be used for downstream analyses.</p>
     <tr>
       <th>reducedDims</th>
       <td><p>A string indicating the name of the <code>reducedDims</code> object from the <code>ArchRProject</code> that should be used for distance computation.</p></td>
+    </tr>
+    <tr>
+      <th>embedding</th>
+      <td><p>A string indicating the name of the <code>embedding</code> object from the <code>ArchRProject</code> that should be used for distance computation.</p></td>
     </tr>
     <tr>
       <th>preQuantile</th>
@@ -218,14 +221,14 @@ can then be used for downstream analyses.</p>
       <td><p>additional args</p></td>
     </tr>
     </table>
-    
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+    </ul>
 
   </div>
 </div>

@@ -128,9 +128,7 @@
 <p>To illustrate this problem, we will use 10x scATAC-seq data from <strong>QQQ</strong> cells. These cells should be very discrete yet we see many “strands” of cells that connect two distinct clusters.</p>
 <p>INSERT PRE-DOUBLET REMOVAL UMAP HERE</p>
 <p>To predict which “cells” are actually doublets, we synthesize in silico doublets from the data by mixing the reads from thousands of combinations of individual cells. We then project these synthetic doublets into the UMAP embedding and identify their nearest neighbor. By iterating this procedure thousands of times, we can identify “cells” in our data whose signal looks very similar to synthetic doublets.</p>
-<div class="figure">
-<img src="../../images/doubletRemoval.png" width="450">
-</div>
+<p><img src="../../images/doubletRemoval.png" width="450"></p>
 <p><span class="math inline">\(~\)</span></p>
 <p>In real world data, this allows us to score each of our “cells” by a doublet likelihood score, identifying “cells” that are statistically likely to be doublets.</p>
 <p>INSERT DOUBLET COLORED UMAP HERE</p>
@@ -139,6 +137,7 @@
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
       </div>
 
 </div>
