@@ -2,15 +2,7 @@
 title: "Getting Started With ArchR"
 output:
   html_document:
-    toc: true # table of content true
-    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
-    number_sections: false  ## if you want number sections at each table header
-    #theme: cosmo  # many options for theme, this one is my favorite.
-    highlight: tango  # specifies the syntax highlighting style
-    code_download: true
-    toc_float:
-      collapsed: false
-      smooth_scroll: false
+    theme: yeti  # many options for theme, this one is my favorite.
 ---
 
 
