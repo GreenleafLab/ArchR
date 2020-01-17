@@ -10,10 +10,11 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
   pathToMacs2 = findMacs2(), genomeSize = NULL, shift = -75,
   extsize = 150, method = "q", cutOff = 0.1,
   additionalParams = "--nomodel --nolambda", extendSummits = 250,
-  promoterDist = 500, genomeAnno = getGenomeAnnotation(ArchRProj),
-  geneAnno = getGeneAnnotation(ArchRProj), threads = getArchRThreads(),
-  parallelParam = "mclapply", force = FALSE, verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+  promoterDist = 500,
+  genomeAnnotation = getGenomeAnnotation(ArchRProj),
+  geneAnnotation = getGeneAnnotation(ArchRProj),
+  threads = getArchRThreads(), parallelParam = "mclapply",
+  force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -48,9 +49,9 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{promoterDist}{The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.}
 
-\item{genomeAnno}{The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.}
+\item{genomeAnnotation}{The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.}
 
-\item{geneAnno}{The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.}
+\item{geneAnnotation}{The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

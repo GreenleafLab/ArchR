@@ -12,7 +12,7 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
   tileSize = 100, minCells = 25, normMethod = "ReadsInTSS",
   threads = getArchRThreads(), ylim = NULL, baseSize = 7,
   borderWidth = 0.4, tickWidth = 0.4, facetbaseSize = 7,
-  geneAnno = getGeneAnnotation(ArchRProj), title = "", ...)
+  geneAnnotation = getGeneAnnotation(ArchRProj), title = "", ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -55,7 +55,7 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{facetbaseSize}{The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.}
 
-\item{geneAnno}{QQQ GENE ANNO VS GENE ANNOTATION NEEDS TO BE STANDARDIZED The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.}
+\item{geneAnnotation}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.}
 
 \item{title}{The title to add at the top of the plot next to the plot's genomic coordinates.}
 

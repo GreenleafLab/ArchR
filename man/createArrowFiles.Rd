@@ -6,7 +6,7 @@
 \usage{
 createArrowFiles(inputFiles = NULL, sampleNames = NULL,
   outputNames = paste0("./", sampleNames), validBarcodes = NULL,
-  geneAnno = NULL, genomeAnno = NULL, filterFrags = 1000,
+  geneAnnotation = NULL, genomeAnnotation = NULL, filterFrags = 1000,
   filterTSS = 4, removeFilteredCells = TRUE, minFrags = 500,
   outDir = "QualityControl", nucLength = 147, TSSParams = list(),
   excludeChr = c("chrM", "chrY"), nChunk = 5, bcTag = "qname",
@@ -25,9 +25,9 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
 
 \item{validBarcodes}{A list of validBarcode strings to be used for filtering cells read from each input file (see getValidBarcodes for 10x fragment files).}
 
-\item{geneAnno}{The geneAnnotation (see createGeneAnnotation) to associate with these arrow files. This is used downstream to calculate TSS Enrichment Scores etc.}
+\item{geneAnnotation}{The geneAnnotation (see createGeneAnnotation) to associate with these arrow files. This is used downstream to calculate TSS Enrichment Scores etc.}
 
-\item{genomeAnno}{The genomeAnnotation (see createGenomeAnnotation) format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.}
+\item{genomeAnnotation}{The genomeAnnotation (see createGenomeAnnotation) format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.}
 
 \item{filterFrags}{The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.}
 
