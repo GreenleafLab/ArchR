@@ -41,7 +41,7 @@ ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
 
 \item{FUN}{The function to use for summarizing data into hexagons. Typically "mean" or something similar.}
 
-\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
+\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
 
 \item{addPoints}{A boolean value indicating whether individual points should be shown on the hexplot.}
 
