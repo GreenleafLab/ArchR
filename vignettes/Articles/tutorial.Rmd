@@ -76,8 +76,8 @@ inputFiles <- getTutorialData("Hematopoiesis")
 ArrowFiles <- createArrowFiles(
   inputFiles = inputFiles,
   sampleNames = names(inputFiles),
-  geneAnno = geneAnno,
-  genomeAnno = genomeAnno
+  geneAnnotation = geneAnno,
+  genomeAnnotation = genomeAnno
 )
 ```
 ***
