@@ -2,7 +2,7 @@ Package: ArchR
 Type: Package
 Date: 2019-10-17
 Title: Analyzing regulatory chromatin in R
-Version: 0.1.4
+Version: 0.1.5
 Authors@R: c(
     person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
