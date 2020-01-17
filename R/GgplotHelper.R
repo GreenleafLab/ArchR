@@ -301,7 +301,7 @@ ggPoint <- function(
 #' @param nPlot The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.
 #' @param nKernel The value of n to use the kde2d from the MASS package.
 #' @param densityMax The quantile that should be represented by the maximum color on the continuous scale designated by `pal`. Above this value will be thresholded to the maximum color.
-#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
+#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.
 #' @param baseSize The base font size to use in the plot.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
 #' @param pal A custom palette used to override continuousSet for coloring vector.
