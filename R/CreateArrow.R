@@ -190,6 +190,8 @@ createArrowFiles <- function(
       }
       validBC <- validBarcodes[[sampleName]]
     }
+  }else{
+    validBC <- NULL
   }
 
   outDir <- file.path(outDir, sampleName)
