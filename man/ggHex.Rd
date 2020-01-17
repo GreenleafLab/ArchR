@@ -25,7 +25,7 @@ ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
 
 \item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.}
+\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.}
 
 \item{xlabel}{The label to plot for the x-axis.}
 

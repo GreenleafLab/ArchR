@@ -19,7 +19,7 @@
 #' @param size The numeric size of the points to be plotted.
 #' @param xlim A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
-#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
+#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.
@@ -517,7 +517,7 @@ ggViolin <- function(
 #' @param bins The number of bins to be used for plotting the hexplot. `bins` indicates the total number of hexagons that will fit within the surface area of the plot. 
 #' @param xlim A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
-#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5% on each end.
+#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.

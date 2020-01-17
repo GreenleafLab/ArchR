@@ -114,11 +114,11 @@ createGeneAnnnotation <- function(
   ){
 
   .validInput(input = genome, name = "genome", valid = c("character", "null"))
-  .validInput(TxDb = genome, name = "TxDb", valid = c("txdb", "character", "null"))
-  .validInput(OrgDb = genome, name = "OrgDb", valid = c("orgdb", "character", "null"))
-  .validInput(genes = genome, name = "genes", valid = c("GRanges", "null"))
-  .validInput(exons = genome, name = "exons", valid = c("GRanges", "null"))
-  .validInput(TSS = genome, name = "TSS", valid = c("GRanges", "null"))
+  .validInput(input = TxDb, name = "TxDb", valid = c("txdb", "character", "null"))
+  .validInput(input = OrgDb, name = "OrgDb", valid = c("orgdb", "character", "null"))
+  .validInput(input = genes, name = "genes", valid = c("GRanges", "null"))
+  .validInput(input = exons, name = "exons", valid = c("GRanges", "null"))
+  .validInput(input = TSS, name = "TSS", valid = c("GRanges", "null"))
 
   if(is.null(genes) | is.null(exons) | is.null(TSS)){
 
