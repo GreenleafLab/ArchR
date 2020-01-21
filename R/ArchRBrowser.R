@@ -211,6 +211,7 @@ ArchRRegionTrack <- function(
         ArchRProj = ArchRProj, 
         groupBy = groupBy, 
         normMethod = normMethod,
+        useGroups = useGroups,
         region = region, 
         minCells = minCells,
         tileSize = tileSize, 
@@ -222,6 +223,7 @@ ArchRRegionTrack <- function(
       ArchRProj = ArchRProj, 
       groupBy = groupBy, 
       normMethod = normMethod,
+      useGroups = useGroups,
       minCells = minCells,
       region = region, 
       tileSize = tileSize, 
@@ -384,12 +386,16 @@ ArchRRegionTrack <- function(
 # Create Average Tracks from Arrows
 ##############################################################################
 #' @export
-.groupRegionSumArrows <- function(ArchRProj, groupBy, region, tileSize, normMethod, verbose, minCells = 25, threads){
+.groupRegionSumArrows <- function(ArchRProj, useGroups, groupBy, region, tileSize, normMethod, verbose, minCells = 25, threads){
 
   #Group Info
   cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
   if(!is.null(minCells)){
     ArchRProj@cellColData <- ArchRProj@cellColData[cellGroups %bcin% names(table(cellGroups)[table(cellGroups) >= minCells]),,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  }
+  if(!is.null(useGroups)){
+    ArchRProj@cellColData <- ArchRProj@cellColData[cellGroups %bcin% useGroups,,drop=FALSE]
     cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
   }
   tabGroups <- table(cellGroups)

@@ -103,7 +103,7 @@ paletteDiscrete <- function(
   ){
 
   .validInput(input = set, name = "set", valid = c("character"))
-  .validInput(input = values, name = "values", valid = c("character"))
+  #.validInput(input = values, name = "values", valid = c("character", ""))
   .validInput(input = reverse, name = "reverse", valid = c("boolean"))
   
   values <- gtools::mixedsort(values)

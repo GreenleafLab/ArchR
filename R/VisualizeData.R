@@ -241,7 +241,7 @@ plotGroups <- function(
   .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
-  .validInput(input = ylim, name = "ylim", valid = c("numeric"))
+  .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
@@ -328,7 +328,7 @@ plotGroups <- function(
 
   }
 
-  if(is.na(idx)){
+  if(any(is.na(idx))){
     stop("name is not in featureNames!")
   }
 

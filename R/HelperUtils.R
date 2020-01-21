@@ -43,6 +43,10 @@
 
       cv <- is.matrix(input)
 
+    }else if(vi == "sparsematrix"){
+
+      cv <- inherits(input, "dgCMatrix")
+
     }else if(vi == "character"){
 
       cv <- is.character(input)
@@ -71,7 +75,7 @@
 
     }else if(vi == "grangeslist" | vi == "grlist"){
 
-      cv <- all(unlist(lapply(vi, function(x) inherits(x, "GRanges"))))
+      cv <- all(unlist(lapply(input, function(x) inherits(x, "GRanges"))))
 
     }else if(vi == "list" | vi == "simplelist"){
 
@@ -117,7 +121,7 @@
   
   }else{
 
-    stop("Input value for '", name,"' is not a ", paste(valid, collapse="," ), ", please supply valid input!")
+    stop("Input value for '", name,"' is not a ", paste(valid, collapse="," ), ", (class = ",class(input),") please supply valid input!")
 
   }
 

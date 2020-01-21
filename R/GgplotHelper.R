@@ -78,7 +78,7 @@ ggPoint <- function(
     .validInput(input = discreteSet, name = "discreteSet", valid = c("character"))
     .validInput(input = continuousSet, name = "continuousSet", valid = c("character"))
     .validInput(input = labelMeans, name = "labelMeans", valid = c("boolean"))
-    .validInput(input = pal, name = "pal", valid = c("character"))
+    .validInput(input = pal, name = "pal", valid = c("character", "null"))
     .validInput(input = defaultColor, name = "defaultColor", valid = c("character"))
     .validInput(input = size, name = "size", valid = c("numeric"))
     .validInput(input = xlim, name = "xlim", valid = c("numeric", "null"))

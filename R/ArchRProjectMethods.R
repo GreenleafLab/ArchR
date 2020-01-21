@@ -560,7 +560,7 @@ addCellColData <- function(ArchRProj = NULL, data = NULL, name = NULL, cells =  
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = data, name = "data", valid = c("character", "integer", "numeric", "boolean"))
   .validInput(input = name, name = "name", valid = c("character"))
-  .validInput(input = cells, name = "name", valid = c("character"))
+  .validInput(input = cells, name = "cells", valid = c("character"))
   .validInput(input = force, name = "force", valid = "boolean")
 
   if(is.null(cells)){

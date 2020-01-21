@@ -235,7 +235,6 @@ getTrajectory <- function(
     .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
     .validInput(input = name, name = "name", valid = c("character"))
     .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
-    .validInput(input = groupBy, name = "groupBy", valid = c("character"))
     .validInput(input = varCutOff, name = "varCutOff", valid = c("numeric"))
     .validInput(input = maxFeatures, name = "maxFeatures", valid = c("numeric"))
     .validInput(input = groupEvery, name = "groupEvery", valid = c("numeric"))

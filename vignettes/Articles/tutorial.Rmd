@@ -105,7 +105,7 @@ proj <- ArchRProject(
   ArrowFiles = ArrowFiles, 
   geneAnnotation = geneAnno,
   genomeAnnotation = genomeAnno,
-  outputDirectory = "Heme_Tutorial"
+  outputDirectory = "Heme_Tutorial2"
 )
 
 #To see information about ArchR Project created simply input
@@ -252,7 +252,7 @@ sampleNames <- getCellColData(ArchRProj = proj, select = "Sample", drop = TRUE)
 sampleNames <- gsub("_R1", "", gsub("_R2", "", sampleNames))
 
 #Add Info to cellColData
-proj <- addCellColData(ArchRProj = proj, data = sampleNames, cellNames = cellNames, name = "Type")
+proj <- addCellColData(ArchRProj = proj, data = sampleNames, cells = cellNames, name = "Type")
 
 #Plot the UMAP Embedding with Metadata Overlayed such as Experimental Sample and Clusters.
 #To change plotting aesthetics see ?plotEmbedding parameters.

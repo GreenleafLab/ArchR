@@ -59,7 +59,7 @@ addClusters <- function(
 
     if(inherits(input, "ArchRProject")){
         #Check
-        input <- addCellColData(ArchRProj = input, data = rep(NA, nCells(input)), name = name, force = force)
+        input <- addCellColData(ArchRProj = input, data = rep(NA, nCells(input)), name = name, cells = getCellNames(input), force = force)
         if(reducedDims %ni% names(input@reducedDims)){
             stop("Error reducedDims not available!")
         }

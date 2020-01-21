@@ -31,7 +31,7 @@ addGroupCoverages <- function(
   sampleRatio = 0.8,
   kmerLength = 6,
   threads = getArchRThreads(),
-  parallelParam = "mclapply",
+  parallelParam = NULL,
   force = FALSE,
   verboseHeader = TRUE,
   verboseAll = FALSE,

@@ -57,7 +57,7 @@ plotFootprints <- function(
   .validInput(input = plotName, name = "plotName", valid = c("character"))
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
-  .validInput(input = pal, name = "pal", valid = c("character"))
+  .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = flank, name = "flank", valid = c("integer"))
   .validInput(input = flankNorm, name = "flankNorm", valid = c("integer"))
   .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))

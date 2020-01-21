@@ -13,8 +13,8 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
   gsubExpression = NULL, bamFlag = NULL, offsetPlus = 4,
   offsetMinus = -5, addTileMat = TRUE, TileMatParams = list(),
   addGeneScoreMat = TRUE, GeneScoreMatParams = list(), force = FALSE,
-  threads = 1, parallelParam = NULL, verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+  threads = getArchRThreads(), parallelParam = NULL,
+  verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{inputFiles}{The names of the input files to use to generate the arrow files. These files can be in any of the following formats: scATAC tabix fragment files or a bam file).}
