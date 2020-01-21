@@ -7,10 +7,10 @@
 #' This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object
 #'
 #' @param gr A `GRanges` object or another object containing seqlevels.
-#' @param remove A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
-#' @param underscore A boolean value indicating whether to remove all seqlevels whose name contains an underscore (for example "chr11_KI270721v1_random").
+#' @param remove QQQ YOU SURE YOU WANT TO DEFAULT TO chrM? SEEMS BAD. A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. QQQ If no manual removal is desired, `remove` should be set to `NULL`.
+#' @param underscore A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").
 #' @param standard A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.
-#' @param pruning.mode See ?seqinfo for a description of the pruning modes.
+#' @param pruning.mode QQQ ADD MORE INFO ON WHAT THIS IS AND WHAT IT DOES. ALSO, FOR CONSISTENCY, THIS SHOULD BE "pruningMode" (I KNOW THE SEQINFO FUNCTION USES "pruning.mode" BUT ARCHR DOESNT USE THAT VARIABLE NAME STYLE). See ?seqinfo for a description of the pruning modes.
 #' @export
 filterChrGR <- function(
     gr = NULL, 
@@ -58,7 +58,7 @@ filterChrGR <- function(
 #' @param gr A `GRanges` object.
 #' @param by The name of a column in `mcols(gr)` that should be used to determine how overlapping regions should be resolved. The resolution of overlapping regions also depends on `decreasing`. For example, if a column named "score" is used for `by`, `decreasing = TRUE` means that the highest "score" in the overlap will be retained and `decreasing = FALSE` means that the lowest "score" in the overlap will be retained.
 #' @param decreasing A boolean value indicating whether the values in the column indicated via `by` should be ordered in decreasing order. If `TRUE`, the higher value in `by` will be retained.
-#' @param verbose A boolean value that determines whether the output should include extra reporting.
+#' @param verbose A boolean value indicating whether the output should include extra reporting.
 #' @export
 nonOverlappingGR <- function(
 	gr = NULL, 
@@ -150,7 +150,7 @@ subsetSeqnamesGR <- function(gr = NULL, names = NULL){
 #' This function adds seqlength information for each of the seqnames in the provided Genomic Ranges object.
 #'
 #' @param gr A `GRanges` object.
-#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR:::validBSgenome()`.
+#' @param genome QQQ CANT DO THIS UNLESS WE EXPORT AND ANNOTATE validBSgenome! The name of a valid genome (for example "hg38", "hg19", or "mm10"). QQQ See `ArchR:::validBSgenome()`.
 #' @export
 addSeqLengthsGR <- function(gr = NULL, genome = NULL){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
@@ -166,9 +166,9 @@ addSeqLengthsGR <- function(gr = NULL, genome = NULL){
 #' This function randomly shuffles a Genomic Ranges object.
 #'
 #' @param gr A `GRanges` object.
-#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR::validBSgenome()`.
+#' @param genome QQQ CANT DO THIS UNLESS WE EXPORT AND ANNOTATE validBSgenome! The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR:::validBSgenome()`.
 #' @param n The number of permutations to perform during shuffling.
-#' @param shuffleChr A boolean value indicating whether to shuffle across chromosomes randomly based on length of chromosomes or use previous knowledge of chromosome distribution.
+#' @param shuffleChr QQQ STILL NOT CLEAR WHAT "CHROMOSOME DISTRIBUTION" MEANS HERE. A boolean value indicating whether to shuffle across chromosomes randomly based on the length of chromosomes (`TRUE`) or to use prior knowledge of the QQQ distribution of ranges across the various chromosomes to create a shuffled set of ranges that is similarly distributed (`FALSE`).
 #' @export
 shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
@@ -220,7 +220,7 @@ shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
 #' This function merges overlapping regions within a single Genomic Ranges object
 #'
 #' @param gr A `GRanges` object.
-#' @param ignore.strand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
+#' @param ignore.strand QQQ THIS SHOULD BE "ignoreStrand" FOR CONSISTENCY. A boolean value indicating whether strandedness should be ignored in `GenomicRanges::findOverlaps()`.
 #' @export
 mergeGR <- function(gr, ignore.strand = TRUE){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
@@ -243,8 +243,8 @@ mergeGR <- function(gr, ignore.strand = TRUE){
 #' This function extends each region in a Genomic Ranges object by a designated upstream and downstream extension in a strand-aware fashion
 #'
 #' @param gr A `GRanges` object.
-#' @param upstream The number of basepairs upstream (5') to extend each region in `x`. Strand-aware.
-#' @param downstream The number of basepairs downstream (3') to extend each region in `x`. Strand-aware.
+#' @param upstream The number of basepairs upstream (5') to extend each region in `gr`. Strand-aware.
+#' @param downstream The number of basepairs downstream (3') to extend each region in `gr`. Strand-aware.
 #' @export
 extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
@@ -266,9 +266,9 @@ extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
 #'
 #' This function returns a data.frame describing how many basepairs overlap the provided query and subject Genomic Ranges objects
 #'
-#' @param query A `GRanges` object to be used as the query in `findOverlaps()`.
-#' @param subject A `GRanges` object to be used as the subject in `findOverlaps()`.
-#' @param ignore.strand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
+#' @param query A `GRanges` object to be used as the query in `GenomicRanges::findOverlaps()`.
+#' @param subject A `GRanges` object to be used as the subject in `GenomicRanges::findOverlaps()`.
+#' @param ignore.strand QQQ THIS SHOULD BE "ignoreStrand" FOR CONSISTENCY. A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
 nOverlapGR <- function(query = NULL, subject = NULL, ignore.strand = TRUE){
   .validInput(input = query, name = "query", valid = c("GRanges"))
@@ -285,14 +285,14 @@ nOverlapGR <- function(query = NULL, subject = NULL, ignore.strand = TRUE){
   return(data.frame(type = type, bp = nBases))
 }
 
-#' Overlap with many genomic regions
+#' QQQ UNCLEAR WHAT THIS FUNCTION IS DOING AND WHY ITS USEFUL. Overlap with many genomic regions
 #'
 #' This function returns a sparse matrix that describes the overlap with each sub-grouped genomic region as specified in the "by" column.
 #'
-#' @param query A `GRanges` object to be used as the query in `findOverlaps()`.
-#' @param subject A `GRanges` object with a column sub-grouping to be used as the subject in `findOverlaps()`.
-#' @param by The name of a column in `mcols(gr)` that should be used to determine how overlapping regions should be sub-grouped.
-#' @param ignore.strand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
+#' @param query A `GRanges` object to be used as the query in `GenomicRanges::findOverlaps()`.
+#' @param subject QQQ UNCLEAR A `GRanges` object containing a column sub-grouping to be used as the subject in `GenomicRanges::findOverlaps()`.
+#' @param by QQQ The name of a column in `mcols(subject)` that should be used to determine how overlapping regions should be sub-grouped.
+#' @param ignore.strand QQQ THIS SHOULD BE "ignoreStrand" FOR CONSISTENCY. A boolean value indicating whether strandedness should be ignored in `GenomicRanges::findOverlaps()`.
 #' @export
 overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignore.strand = TRUE){
   .validInput(input = query, name = "query", valid = c("GRanges"))
@@ -319,7 +319,7 @@ overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignore.stran
 #' @param seqnames A character vector containing the seqnames to be added to the `GRanges` object.
 #' @param start A vector of start positions to be added to the `GRanges` object.
 #' @param end A vector of end positions to be added to the `GRanges` object.
-#' @param ignore.strand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
+#' @param ignore.strand QQQ THIS SHOULD BE "ignoreStrand" FOR CONSISTENCY. A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
 constructGR <- function(seqnames = NULL, start = NULL, end = NULL, ignore.strand = TRUE){
   .validInput(input = seqnames, name = "seqnames", valid = c("character"))

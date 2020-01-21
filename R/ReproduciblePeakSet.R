@@ -5,14 +5,14 @@
 #' Add a Reproducible Peak Set to an ArchRProject
 #' 
 #' This function will get insertions from coverage files, call peaks,
-#' and merge peaks to get a "Union Reproducible Peak Set"
+#' and merge peaks to get a "Union Reproducible Peak Set".
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy The name of the column in `cellColData` to use for grouping cells together for peak calling.
 #' @param reproducibility A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of `n` where `n` is the number of samples being assessed. For example, `reproducibility = "2"` means at least 2 samples must have a peak call at this locus and `reproducibility = "(n+1)/2"` means that the majority of samples must have a peak call at this locus.
-#' @param peaksPerCell The limit of number of peaks that can be identified per cell (this is useful for controlling how many peaks can be called from low cell groups).
-#' @param maxPeaks A numeric threshold for the maximum peaks to retain per group in `groupBy` in the union reproducible peak set.
-#' @param minCells The minimum number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.
+#' @param peaksPerCell QQQ The upper limit of the number of peaks that can be identified per QQQ cell group. This is useful for controlling how many peaks can be called from cell groups with low cell numbers.
+#' @param maxPeaks A numeric threshold for the maximum peaks to retain per group from `groupBy` in the union reproducible peak set.
+#' @param minCells The minimum allowable number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.
 #' @param pathToMacs2 The full path to the MACS2 executable.
 #' @param genomeSize The genome size to be used for MACS2 peak calling (see MACS2 documentation).
@@ -23,8 +23,8 @@
 #' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
 #' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
 #' @param promoterDist The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.
-#' @param genomeAnnotation The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.
-#' @param geneAnnotation The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.
+#' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to be used for generating peak metadata such as nucleotide information (GC content) or chromosome sizes.
+#' @param geneAnnotation QQQ The geneAnnotation (see `createGeneAnnotation()`) to be used for labeling peaks as "promoter", "exonic", etc.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.

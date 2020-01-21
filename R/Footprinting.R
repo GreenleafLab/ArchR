@@ -6,23 +6,23 @@
 #' 
 #' This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 #'
-#' @param ArchRProj An `ArchRProject` object
-#' @param positions A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be stranded.
-#' @param plotName The prefix to add to the file name for the output PDF file.
-#' @param groupBy The name of the column in `cellColData` to use for grouping multiple samples together prior to footprinting.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param positions QQQ ARE LIST AND SIMPLELIST LISTS OF GRANGES?? A `GenomicRangesList`, a `list`, or a `SimpleList` object containing the positions to incorporate into the footprint. Each position should be stranded.
+#' @param plotName The prefix to add to the file name for the output PDF file containing the footprint plots.
+#' @param groupBy QQQ The name of the column in `cellColData` to use for grouping multiple QQQ cells together prior to footprinting.
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform footprinting.
 #' @param pal The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
 #' @param flank The number of basepairs from the position center (+/-) to consider as the flank.
 #' @param flankNorm The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.
 #' @param smoothWindow The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
 #' @param minCells The minimum number of cells required in a given cell group to permit footprint generation.
-#' @param nTop The number of genomic regions to consider. Only the top `nTop` genomic regions based on the "score" column in the GRanges will be considered for the footprint.
-#' @param normMethod The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "None", "Subtract", "Divide".
-#' @param inputSE Input a previous footprint Summarized Experiment to be plotted instead of being regenerated.
+#' @param nTop QQQ WHAT IF POSITIONS IS NOT A GRANGE? The number of genomic regions to consider. Only the top `nTop` genomic regions based on the "score" column in the `GRanges` object will be considered for the footprint.
+#' @param normMethod QQQ The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "none", "subtract", "divide". QQQ "Subtract" means QQQ. "Divide" means QQQ.
+#' @param inputSE QQQ IS THIS STORED IN THE ARCHRPROJECT SOMEWHERE OR AS AN RDS FILE? WHERE WOULD A USER GET THIS? Input a previous footprint Summarized Experiment to be plotted instead of regenerating the footprinting information.
 #' @param height The height in inches to be used for the output PDF.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.
-#' @param useSink Use sink to hide messages during plotting.
+#' @param useSink QQQ PLEASE CORRECT EVERYWHERE A boolean value that indicates whether the `sink` function from the QQQ package should be used to hide messages during plotting.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.

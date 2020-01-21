@@ -26,7 +26,7 @@
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
-#' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.
+#' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
 #' @param ... additional args
 #' @export

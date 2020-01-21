@@ -7,13 +7,13 @@
 #' This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param peakAnnotation The name of the peakAnnotation name stored in the `ArchRProject`.
+#' @param peakAnnotation The name of the `peakAnnotation` stored in the `ArchRProject`.
 #' @param matrixName The name to be used for storage of the deviations matrix in the provided `ArchRProject`.
 #' @param out A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).
 #' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `ArrowFiles`.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the ArrowFiles asociated with the given `ArchRProject`.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj = NULL,
@@ -428,9 +428,9 @@ addDeviationsMatrix <- function(
 #' This function will rank the variability of the deviations computed by ArchR and label the top variable annotations.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param name name of DeviationsMatrix see addDeviationsMatrix
-#' @param plot plot ranked variability for each annotation
-#' @param n number of annotations to label with ggrepel
+#' @param name The name of the `DeviationsMatrix` object stored in the `ArchRProject`. See `addDeviationsMatrix()`.
+#' @param plot QQQ WHAT IS AN "ANNOTATION" HERE? A boolean value indicating whether the ranked variability should be plotted for each QQQ annotation.
+#' @param n The number of annotations to label with `ggrepel`.
 #' @export
 getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 25){
 
@@ -455,17 +455,17 @@ getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 2
 
 }
 
-#' Add backgroundPeaks to ArchRProject
+#' Add Background Peaks to an ArchRProject
 #' 
-#' This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject.
+#' This function will compute background peaks controlling for total accessibility and GC-content and add this information to an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param niterations The number of background peaks to sample (see chromVAR::getBackgroundPeaks).
-#' @param w The parameter controlling similarity of background peaks (see chromVAR::getBackgroundPeaks).
-#' @param binSize the precision with which the similarity is computed (see chromVAR::getBackgroundPeaks).
+#' @param niterations QQQ SHOULD THIS BE "nIterations" FOR CONSISTENCY? The number of background peaks to sample. See `chromVAR::getBackgroundPeaks()`.
+#' @param w QQQ I FEEL LIKE THESE PARAMETERS FOR CHROMVAR NEED TO BE BETTER DESCRIBED. The parameter controlling similarity of background peaks. See `chromVAR::getBackgroundPeaks()`.
+#' @param binSize QQQ I FEEL LIKE THESE PARAMETERS FOR CHROMVAR NEED TO BE BETTER DESCRIBED. The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param outFile Path to save backgroundPeaks object to for ArchRProject.
-#' @param force Force creation of backgroundPeaks even if file exists.
+#' @param outFile QQQ The path to save the backgroundPeaks object as a `.RDS` file for the given `ArchRProject`. The default action is to save this file in the `outDir` of the `ArchRProject`.
+#' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 addBgdPeaks <- function(
   ArchRProj, 
@@ -514,6 +514,7 @@ addBgdPeaks <- function(
 
 }
 
+#' QQQ NEEDS PARAM DEFINITIONS OR NEEDS TO BE HIDDEN. IF YOU MAKE IT HIDDEN, MAKE SURE TO CHANGE THE FUNCTION CALL ABOVE
 #' @export
 getBgdPeaks <- function(
   ArchRProj, 

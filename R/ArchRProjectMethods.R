@@ -375,9 +375,9 @@ getArrowFiles <- function(ArchRProj = NULL, ...){
 
 }
 
-#' Get sampleNames from an ArchRProject
+#' Get the sample names from an ArchRProject
 #' 
-#' This function gets the sampleNames from a given ArchRProject.
+#' This function gets the names of all samples from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
@@ -392,11 +392,11 @@ getSampleNames <- function(ArchRProj = NULL, ...){
 
 }
 
-#' Get number of cells from ArchRProject/ArrowFile
+#' Get the number of cells from an ArchRProject/ArrowFile
 #' 
 #' This function gets number of cells from an ArchRProject or ArrowFile
 #' 
-#' @param input An `ArchRProject` object or ArrowFile.
+#' @param input An `ArchRProject` object or the path to an ArrowFile.
 #' @param ... additional args
 #' @export
 nCells <- function(input = NULL, ...){
@@ -451,11 +451,10 @@ getSampleColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE, ...)
 #' This function adds new data to sampleColData in an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param data The data as a vector to add to `sampleColData`.
+#' @param data A vector containing the data to be added to `sampleColData`.
 #' @param name The column header name to be used for this new data in `sampleColData`. If a column with this name already exists, you may set `force` equal to `TRUE` to overwrite the data in this column.
 #' @param samples The names of the samples corresponding to `data`. Typically new data is added to all samples but you may use this argument to only add data to a subset of samples. Samples where `data` is not added are set to `NA`.
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
-#' @param ... additional args
 #' @export
 addSampleColData <- function(ArchRProj = NULL, data = NULL, name = NULL, samples = NULL, force = FALSE){
   
@@ -1112,7 +1111,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
 }
 
-#' Get Tutorial Data For ArchR
+#' Get Relevant Data For ArchR Tutorials
 #' 
 #' This function will download data for a given tutorial and return the input files required for ArchR
 #' 

@@ -262,9 +262,9 @@
 
 #' Generic matching function for S4Vector objects
 #'
-#' This function provides a general matching function for S4Vector objects primarily to avoid ambiguity.
+#' This function provides a generic matching function for S4Vector objects primarily to avoid ambiguity.
 #'
-#' @param x An `S4Vector` object search for in `table`.
+#' @param x An `S4Vector` object to search for in `table`.
 #' @param table The set of `S4Vector` objects to serve as the base for the match function.
 #' @export
 '%bcin%' <- function(x, table) S4Vectors::match(x, table, nomatch = 0) > 0
@@ -273,7 +273,7 @@
 #'
 #' This function provides the reciprocal of %bcin% for S4Vector objects primarily to avoid ambiguity.
 #'
-#' @param x An `S4Vector` object search for in `table`.
+#' @param x An `S4Vector` object to search for in `table`.
 #' @param table The set of `S4Vector` objects to serve as the base for the match function.
 #' @export
 '%bcni%' <- function(x, table) !(S4Vectors::match(x, table, nomatch = 0) > 0)

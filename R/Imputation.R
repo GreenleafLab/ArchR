@@ -2,19 +2,19 @@
 # Imputation Methods
 ##########################################################################################
 
-#' Add Imputation Weights to ArchRProject
+#' Add Imputation Weights to an ArchRProject
 #' 
-#' This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix.
+#' This function computes imputations weights that describe each cell as a linear combination of many cells based on a MAGIC diffusion matrix.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param reducedDims The name of the `reducedDims` object (i.e. IterativeLSI) to retrieve from the designated `ArchRProject`.
-#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded.
-#' @param td diffusion time (number of iterations) for MAGIC
-#' @param ka kNN autotune parameter for MAGIC
-#' @param sampleCells number of cells to sample per block of estimated imputation matrix
-#' @param k number of nearest neighbors to use for MAGIC
-#' @param epsilon a value for the standard deviation of the kernel for MAGIC
+#' @param td QQQ IN GENERAL, I FIND THE MAGIC PARAM EXPLANATIONS USELESS. NOBODY COULD INTERPRET THESE WITHOUT GOING TO MAGIC FIRST. The diffusion time (number of iterations) for MAGIC.
+#' @param ka The k-nearest neighbors autotune parameter for MAGIC.
+#' @param sampleCells QQQ UNCLEAR WHAT A BLOCK IS. The number of cells to sample per block of the estimated imputation matrix.
+#' @param k The number of nearest neighbors to use for MAGIC.
+#' @param epsilon QQQ UNCLEAR. IS THIS LIKE A MINIMUM STD DEV FOR A FILTER? The value for the standard deviation of the kernel for MAGIC.
 #' @param ... additional params
 #' @export
 addImputeWeights <- function(

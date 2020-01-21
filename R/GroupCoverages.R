@@ -4,14 +4,14 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy The name of the column in `cellColData` to use for grouping multiple cells together prior to generation of the insertion coverage file.
-#' @param useLabels A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.
+#' @param useLabels A boolean value indicating whether to use sample labels to create sample-aware subgroupings during as pseudo-bulk replicate generation. 
 #' @param minCells The minimum number of cells required in a given cell group to permit insertion coverage file generation.
 #' @param maxCells The maximum number of cells to use during insertion coverage file generation.
 #' @param maxFragments The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.
 #' @param minReplicates The minimum number of pseudo-bulk replicates to be generated.
 #' @param maxReplicates The maximum number of pseudo-bulk replicates to be generated.
 #' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
-#' @param kmerLength The length of the kmer used for estimating Tn5 bias.
+#' @param kmerLength The length of the k-mer used for estimating Tn5 bias.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.
