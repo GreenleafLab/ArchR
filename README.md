@@ -6,7 +6,7 @@ ArchR is a full-featured R package for processing and analyzing single-cell ATAC
 
 # Documentation
 
-Please visit [the ArchR website](https://web.stanford.edu/~mcorces/ArchR/) for detailed installation and usage instructions.
+Please visit [the ArchR website](https://greenleaflab.github.io/ArchR/) for detailed installation and usage instructions.
 
 # Issues using ArchR?
 If you find a bug, please report it on [Github](https://github.com/GreenleafLab/ArchR/issues). If you have questions about ArchR usage, please refer to the [publication](https://greenleaf.stanford.edu/assets/pdf/), the [vignettes](articles/index.html), or the [FAQ section](articles/faq.html).
