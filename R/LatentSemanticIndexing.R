@@ -16,7 +16,7 @@
 #' @param LSIMethod A numeric/character indicating the order of operations in the TF-IDF normalization.
 #' The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd option is 3 or "logtf-logidf".
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
-#' @param sampleCells An integer specifying number of cells to subset perform estimatedLSI and clustering.
+#' @param sampleCells An integer specifying number of cells to subset perform estimatedLSI and clustering. Default this will be NULL.
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.
 #' @param scaleTo scaleTo normalization depth for Cluster Averages for variance calculation
@@ -43,7 +43,7 @@ addIterativeLSI <- function(
   corCutOff = 0.75,
   LSIMethod = 1,
   binarize = TRUE,
-  sampleCells = max(c(floor(nCells(ArchRProj) / 4), 5000)),
+  sampleCells = NULL,
   varFeatures = 50000,
   selectionMethod = "var",
   scaleTo = 10000,

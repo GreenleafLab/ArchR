@@ -101,7 +101,7 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
 #' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param regions The name of peakAnnotations to be stored as in `ArchRProject`
+#' @param regions GRanges of peakAnnotations to be overlapped and stored as in `ArchRProject`
 #' @param name The name of peakAnnotations to be stored as in `ArchRProject`
 #' @param force force creation if peakAnnotation with same name already exists
 #' @param ... additional args

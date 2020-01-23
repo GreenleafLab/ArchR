@@ -84,10 +84,7 @@ addEmbedding <- function(
     )
   }else if(tolower(embedding)=="fit-tsne" | toupper(embedding)=="fftrtsne"){
     defaultEmbeddingParams <- list(
-      perplexity = 50,
-      pca = FALSE,
-      num_threads = threads, 
-      verbose = TRUE
+      perplexity = 50
     )
   }else{
     defaultEmbeddingParams <- list()
@@ -154,11 +151,14 @@ addEmbedding <- function(
 
   }else if(tolower(embedding)=="fftrtsne" | tolower(embedding)=="fit-tsne"){
 
-    #Seurat::RunTSNE(dims = , tsne.method = "FIt-SNE", nthreads = 4, max_iter = 2000)
-    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
-    embeddingParams$pca <- FALSE
-    fftrtsne_tsne <- do.call(.fftRtsne, embeddingParams)
-    dfEmbedding <- data.frame(fftrtsne_tsne)   
+    .requirePackage("Seurat")
+    embeddingParams$object <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
+    embeddingParams$assay <- NULL
+    embeddingParams$dim.embed <- 2
+    embeddingParams$tsne.method <- "FIt-SNE"
+    fftrtsne_tsne <- do.call(RunTSNE, embeddingParams)
+
+    dfEmbedding <- data.frame(fftrtsne_tsne@cell.embeddings)   
     colnames(dfEmbedding) <- paste0(reducedDims,"#FITTSNE_Dimension_",seq_len(ncol(dfEmbedding)))
     rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
 

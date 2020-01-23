@@ -93,7 +93,7 @@ plotEmbedding <- function(
       
     colorList <- lapply(seq_along(name), function(x){
       colorParams <- list()
-      colorParams$color <- as.vector(getCellColData(ArchRProj)[,name[x]])
+      colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = TRUE))
       colorParams$discrete <- .isDiscrete(colorParams$color)
       colorParams$continuousSet <- "solar_extra"
       colorParams$discreteSet <- "stallion"

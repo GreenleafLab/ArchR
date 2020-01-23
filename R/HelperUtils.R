@@ -121,7 +121,7 @@
   
   }else{
 
-    stop("Input value for '", name,"' is not a ", paste(valid, collapse="," ), ", (class = ",class(input),") please supply valid input!")
+    stop("Input value for '", name,"' is not a ", paste(valid, collapse="," ), ", (",name," = ",class(input),") please supply valid input!")
 
   }
 
