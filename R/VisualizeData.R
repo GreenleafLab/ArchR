@@ -229,7 +229,7 @@ plotGroups <- function(
   pal = NULL,
   ylim = NULL, 
   size = 0.5, 
-  baseSize = , 
+  baseSize = 6, 
   ratioYX = 0.5, 
   addPoints = FALSE, 
   ...
