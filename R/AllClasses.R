@@ -47,7 +47,7 @@ setMethod("show", "ArchRProject",
 #' 
 #' This function will create an ArchRProject from the provided ArrowFiles.
 #'
-#' @param ArrowFiles QQQ ARROWFILES ARE JUST RELATIVE PATHS RIGHT? IF NOT THEN I'LL NEED TO UPDATE THROUGHOUT. A character vector containing the relative paths to the ArrowFiles to be used.
+#' @param ArrowFiles A character vector containing the relative paths to the ArrowFiles to be used.
 #' @param outputDirectory A name for the relative path of the outputDirectory for ArchR results. Relative to the current working directory.
 #' @param copyArrows A boolean value indicating whether ArrowFiles should be copied into `outputDirectory`.
 #' @param geneAnnotation The `geneAnnotation` object (see `createGeneAnnotation()`) to be used for downstream analyses such as calculating TSS Enrichment Scores, Gene Scores, etc.
@@ -175,7 +175,7 @@ saveArchRProject <- function(
 #' This function will load a previously saved ArchRProject and re-normalize paths for usage.
 #' 
 #' @param path A character path to an `ArchRProject` directory that was previously saved using `saveArchRProject()`.
-#' @param force QQQ A boolean value indicating whether missing optional `ArchRProject` components (i.e. peak annotations / background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject` will fail unless all components can be found.
+#' @param force A boolean value indicating whether missing optional `ArchRProject` components (i.e. peak annotations / background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject` will fail unless all components can be found.
 #' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
 #' @export
 loadArchRProject <- function(

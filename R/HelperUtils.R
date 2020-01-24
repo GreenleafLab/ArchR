@@ -47,6 +47,14 @@
 
       cv <- is.character(input)
 
+    }else if(vi == "palette"){
+
+      #https://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation
+      isColor <- function(x){
+       unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), error = function(e) FALSE)))
+      }
+      cv <- all(isColor(input))
+
     }else if(vi == "timestamp"){
 
       cv <- inherits(input, "POSIXct")
