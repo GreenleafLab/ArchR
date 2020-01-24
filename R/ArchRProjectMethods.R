@@ -50,27 +50,31 @@ getArchRThreads <- function(){
 #' @param genome Either (i) a string that is a valid `BSgenome` or (ii) a `BSgenome` object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").
 #' @param chromSizes A `GRanges` object containing chromosome start and end coordinates.
 #' @param blacklist A `GRanges` object containing regions that should be excluded from analyses due to unwanted biases.
-#' @param filter QQQ A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by QQQ.
+#' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by filterChrGR.
+#' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `filterChr` should be set to `NULL`.
 #' @export
 createGenomeAnnotation <- function(
   genome = NULL,
   chromSizes = NULL,
   blacklist = NULL,
-  filter = TRUE
+  filter = TRUE,
+  filterChr = c("chrM")
   ){
+
+  .validInput(input = filterChr, name = "filterChr", valid = c("character", "null"))
 
   if(is.null(genome) | is.null(blacklist) | is.null(chromSizes)){
 
     ##################
     message("Getting genome...")
-    bsg <- .validBSgenome(genome)
+    bsg <- validBSgenome(genome)
     genome <- bsg@pkgname
 
     ##################
     message("Getting chromSizes...")
     chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
     if(filter){
-        chromSizes <- filterChrGR(chromSizes)
+        chromSizes <- filterChrGR(chromSizes, remove = filterChr)
     }
     seqlengths(chromSizes) <- end(chromSizes)
 
@@ -80,7 +84,7 @@ createGenomeAnnotation <- function(
 
   }else{
 
-    bsg <- .validBSgenome(genome)
+    bsg <- validBSgenome(genome)
     genome <- bsg@pkgname
     
     chromSizes <- .validGRanges(chromSizes)
@@ -98,8 +102,8 @@ createGenomeAnnotation <- function(
 #' This function will create a gene annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
 #' 
 #' @param genome A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If `genome` is not supplied, `TxDb` and `OrgDb` are required. If genome is supplied, `TxDb` and `OrgDb` will be ignored.
-#' @param TxDb QQQ A `TxDb` object (transcript database) from Bioconductor which contains information for gene/transcript coordinates. For example, from `txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene`.
-#' @param OrgDb QQQ An `OrgDb` object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids. For example, from QQQ.
+#' @param TxDb A `TxDb` object (transcript database) from Bioconductor which contains information for gene/transcript coordinates. For example, from `txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene`.
+#' @param OrgDb An `OrgDb` object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids. For example, from `orgdb <- org.Hs.eg.db`
 #' @param genes A `GRanges` object containing gene coordinates (start to end). Must have a symbols column matching the symbols column of `exons`.
 #' @param exons A `GRanges` object containing gene exon coordinates. Must have a symbols column matching the symbols column of `genes`.
 #' @param TSS A `GRanges` object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.
@@ -375,9 +379,9 @@ getArrowFiles <- function(ArchRProj = NULL, ...){
 
 }
 
-#' Get sampleNames from an ArchRProject
+#' Get the sample names from an ArchRProject
 #' 
-#' This function gets the sampleNames from a given ArchRProject.
+#' This function gets the names of all samples from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param ... additional args
@@ -392,11 +396,11 @@ getSampleNames <- function(ArchRProj = NULL, ...){
 
 }
 
-#' Get number of cells from ArchRProject/ArrowFile
+#' Get the number of cells from an ArchRProject/ArrowFile
 #' 
 #' This function gets number of cells from an ArchRProject or ArrowFile
 #' 
-#' @param input An `ArchRProject` object or ArrowFile.
+#' @param input An `ArchRProject` object or the path to an ArrowFile.
 #' @param ... additional args
 #' @export
 nCells <- function(input = NULL, ...){
@@ -451,11 +455,10 @@ getSampleColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE, ...)
 #' This function adds new data to sampleColData in an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param data The data as a vector to add to `sampleColData`.
+#' @param data A vector containing the data to be added to `sampleColData`.
 #' @param name The column header name to be used for this new data in `sampleColData`. If a column with this name already exists, you may set `force` equal to `TRUE` to overwrite the data in this column.
 #' @param samples The names of the samples corresponding to `data`. Typically new data is added to all samples but you may use this argument to only add data to a subset of samples. Samples where `data` is not added are set to `NA`.
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
-#' @param ... additional args
 #' @export
 addSampleColData <- function(ArchRProj = NULL, data = NULL, name = NULL, samples = NULL, force = FALSE){
   
@@ -992,11 +995,11 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
 #' @param name The file name to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param height The height in inches to be used for the output PDF.
-#' @param ArchRProj QQQ WHAT IS PLOT DIRECTORY? An `ArchRProject` object to be used for getting plotDirectory in outputDirectory.
+#' @param ArchRProj An `ArchRProject` object to be used for getting the outputDirectory and plotting in a folder within called "plots".
 #' @param addDOC A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful for preventing overwritting of old plots.
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
 #' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted object (ggplot2, plot, heatmap, etc).
-#' @param useSink QQQ A boolean value indicating whether sink should be used to hide output messages that result from plotting.
+#' @param useSink A boolean value indicating whether sink should be used to hide output messages that result from plotting.
 #' @export
 plotPDF <- function(..., name = "Plot", width = 6, 
   height = 6, ArchRProj = NULL, addDOC = TRUE, 
@@ -1112,7 +1115,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
 }
 
-#' Get Tutorial Data For ArchR
+#' Get Relevant Data For ArchR Tutorials
 #' 
 #' This function will download data for a given tutorial and return the input files required for ArchR
 #' 

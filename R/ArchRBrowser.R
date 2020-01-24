@@ -21,12 +21,12 @@
 #' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.
 #' @param normMethod The name of the column in `cellColData` by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
 #' @param threads The number of threads to use for parallel execution.
-#' @param ylim QQQ IS THIS TRUE? The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
+#' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
-#' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.
+#' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
 #' @param ... additional args
 #' @export

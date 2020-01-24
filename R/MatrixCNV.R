@@ -7,15 +7,15 @@
 #' This function for each sample will predict copy number variation from accessibility
 #'
 #' @param input An `ArchRProject` object or character vector of ArrowFiles.
-#' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getChromSizes()`.
-#' @param blacklist A `GRanges` object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getBlacklist()`.
-#' @param genome The genome used by the `input`. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getGenome()`.
+#' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `getChromSizes()`.
+#' @param blacklist A `GRanges` object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the `ArchRProject` using `getBlacklist()`.
+#' @param genome The name of the genome used by the `input`. The default behavior is to retrieve this from the `ArchRProject` using `getGenome()`.
 #' @param windowSize The size in basepairs for the sliding window used to break up each chromosome to look for CNVs.
 #' @param stepSize The size in basepairs for the step used to create sliding window bins across each chromosome.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for `input`.
+#' @param force A boolean value indicating whether to force the CNV matrix to be overwritten if it already exists for `input`.
 #' @export
 addCNVMatrix <- function(
   input = NULL,
@@ -287,7 +287,7 @@ addCNVMatrix <- function(
 
 .makeWindows <- function(genome, chromSizes, blacklist, windowSize = 10e6, stepSize = 2e6, threads = 1){
   
-  genome <- ArchR:::.validBSgenome(genome)
+  genome <- validBSgenome(genome)
 
   #Sliding Windows
   windows <- slidingWindows(x = chromSizes, width = windowSize, step = stepSize) %>% 

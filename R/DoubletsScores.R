@@ -4,20 +4,20 @@
 
 #' Add Doublet Scores to a collection of Arrow files or an ArchRProject
 #' 
-#' For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
+#' For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information
 #' to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 #' contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell. 
 #'
 #' @param input An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.
-#' @param useMatrix The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", "PeakMatrix".
+#' @param useMatrix The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix" and "PeakMatrix".
 #' @param k The number of cells neighboring a simulated doublet to be considered as putative doublets.
-#' @param nTrials The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.
+#' @param nTrials The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".
-#' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function umap in the uwot package.
-#' @param LSIParams The list of parameters to pass to the IterativeLSI function. See IterativeLSI.
-#' @param outDir The name or path for the output directory for plot/result information on doublet identification,
+#' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function `umap` in the uwot package.
+#' @param LSIParams The list of parameters to pass to the `IterativeLSI()` function. See `IterativeLSI()`.
+#' @param outDir The relative path to the output directory for relevant plots/results from doublet identification.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.

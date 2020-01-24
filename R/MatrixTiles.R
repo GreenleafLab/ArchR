@@ -2,20 +2,20 @@
 # Tile Matrix Methods
 ####################################################################
 
-#' Add TileMatrix to Arrows/ArchRProject
+#' Add TileMatrix to ArrowFiles or an ArchRProject
 #' 
-#' This function for each sample will independently compute counts for each tile
-#' per cell in the Arrow File
+#' This function, for each sample, will independently compute counts for each tile
+#' per cell in the ArrowFile
 #'
 #' @param input An `ArchRProject` object or character vector of ArrowFiles.
-#' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getChromSizes()`.
-#' @param blacklist A `GRanges` object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the `ArchRProject` using `ArchR::getBlacklist()`.
-#' @param tileSize The size of the tiles used for binning counts in the `TileMatrix`.
-#' @param binarize A boolean value indicating whether the `TileMatrix` should be binarized prior to storage.
-#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from CNV analysis.
+#' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `getChromSizes()`.
+#' @param blacklist A `GRanges` object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the `ArchRProject` using `getBlacklist()`.
+#' @param tileSize The size of the tiles used for binning counts in the "TileMatrix".
+#' @param binarize A boolean value indicating whether the "TileMatrix" should be binarized prior to storage.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from the "TileMatrix".
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the `TileMatrix` to be overwritten if it already exist in the given ArrowFiles.
+#' @param force A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given `input`.
 #' @export
 addTileMatrix <- function(
   input = NULL,

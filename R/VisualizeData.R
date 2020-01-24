@@ -2,37 +2,37 @@
 # Visualization Methods
 ####################################################################
 
-#' Visualize Embedding from ArchR Project
+#' Visualize an Embedding from ArchR Project
 #' 
-#' This function will plot an embedding that was created from
-#' computeEmbedding
+#' This function will plot an embedding stored in an ArchRProject
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param embedding The name of the embedding to plot. See `ArchR::computeEmbedding()` for more information.
-#' @param colorBy A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").
-#' @param name The name of the column in `cellColData` or the featureName in the data matrix.
+#' @param embedding The name of the embedding stored in the `ArchRProject` to be plotted. See `computeEmbedding()` for more information.
+#' @param colorBy A string indicating whether points in the plot should be colored by a column in `cellColData` ("cellColData") or by a data matrix in the corresponding ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").
+#' @param name The name of the column in `cellColData` or the featureName/rowname of the data matrix to be used for plotting. 
+#' For example if colorBy is `cellColData` then name refers to a column name in the cellcoldata (see `getCellcoldata()`), if colorBy is `GeneScoreMatrix` then name refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values (if continuous) in plotting.
-#' @param imputeWeights imputation weights for imputing numerical values for each cell as a linear combination of other cells values (see add/getImutationWeights).
-#' @param pal A custom palette used to override discreteSet/continuousSet for coloring vector.
+#' @param imputeWeights The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See `addImputationWeights()` and `getImutationWeights()` for more information.
+#' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
 #' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
-#' @param rastr A boolean value that indicates whether the plot should be rasterized with ggrastr. This does not rasterize lines and labels, just the internal portions of the plot.
-#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values. 
-#' This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is 
-#' the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of 
-#' the 97.5th and 2.5th percentile values respectively.
-#' @param discreteSet The name of a discrete palette from `ArchRPalettes` for visualizing colorBy in the embedding.
-#' @param continuousSet The name of a continuous palette from `ArchRPalettes` for visualizing colorBy in the embedding.
+#' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param quantCut If this is not `NULL`, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values. 
+#' This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the lower threshold and y is 
+#' the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and set values below/above to the value of 
+#' the 2.5th and 97.5th percentile values respectively.
+#' @param discreteSet The name of a discrete palette from `ArchRPalettes` for visualizing `colorBy` in the embedding if a discrete color set is desired.
+#' @param continuousSet The name of a continuous palette from `ArchRPalettes` for visualizing `colorBy` in the embedding if a continuous color set is desired.
 #' @param randomize A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.
 #' @param keepAxis A boolean value that indicates whether the x and y axis ticks and labels should be plotted.
 #' @param baseSize The base font size to use in the plot.
-#' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.
+#' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default if `colorBy` is numeric this is "hex".
 #' @param plotParams Additional parameters to pass to `ggPoint()` or `ggHex()`.
 #' @param ... additional args
 #' @export
 plotEmbedding <- function(
   ArchRProj = NULL,
   embedding = "UMAP",
-  colorBy = "colData",
+  colorBy = "cellColData",
   name = "Sample",
   log2Norm = NULL,
   imputeWeights = NULL,
@@ -204,18 +204,19 @@ plotEmbedding <- function(
 
 #' Visualize Groups from ArchR Project
 #' 
-#' This function will plot an embedding that was created from computeEmbedding
+#' This function will group, summarize and then plot data from an ArchRProject for visual comparison.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param groupBy use groupings in cellColData for summarizing and plotting
-#' @param colorBy A string indicating whether numeric values in violin plot should be from a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").
-#' @param name The name of the column in `cellColData` or the featureName in the data matrix.
-#' @param pal A custom palette used to override discreteSet/continuousSet for coloring vector.
+#' @param groupBy The name of the column in `cellColData` to use for grouping cells together for summarizing and plotting.
+#' @param colorBy A string indicating whether the numeric values to be used in the violin plot should be from a column in `cellColData` ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").
+#' @param name The name of the column in `cellColData` or the featureName/rowname of the data matrix to be used for plotting. 
+#' For example if colorBy is `cellColData` then name refers to a column name in the cellcoldata (see `getCellcoldata()`), if colorBy is `GeneScoreMatrix` then name refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
+#' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
 #' @param size The numeric size of the points to be plotted.
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param addPoints A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`
+#' @param addPoints A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`.
 #' @param ... additional args
 #' @export
 plotGroups <- function(
@@ -529,15 +530,5 @@ plotGroups <- function(
 .isDiscrete <- function(x){
   is.factor(x) || is.character(x) || is.logical(x)
 }
-
-
-
-
-
-
-
-
-
-
 
 

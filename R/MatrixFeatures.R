@@ -13,7 +13,7 @@
 #' @param binarize A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given ArrowFiles.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the `input`.
 #' @export
 addFeatureMatrix <- function(
   input = NULL,
@@ -72,17 +72,17 @@ addFeatureMatrix <- function(
 
 }
 
-#' Add PeakMatrix to Arrows in ArchRProject
+#' Add a Peak Matrix to the ArrowFiles of an ArchRProject
 #' 
-#' This function for each sample will independently compute counts for each peak
+#' This function, for each sample, will independently compute counts for each peak
 #' per cell in the provided ArchRProject using the "PeakMatrix".
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param ceiling The maximum counts per feature allowed. This is used to prevent large biases in peak counts.
-#' @param binarize A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.
+#' @param binarize A boolean value indicating whether the peak matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given ArrowFiles.
+#' @param force A boolean value indicating whether to force the "PeakMatrix" to be overwritten if it already exist in the given `ArchRProject`.
 #' @export
 addPeakMatrix <- function(
   ArchRProj = NULL,

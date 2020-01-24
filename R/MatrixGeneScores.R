@@ -2,26 +2,26 @@
 # Gene Activity Score Methods
 ####################################################################
 
-#' Add GeneScoreMatrix to Arrows/ArchRProject
+#' Add GeneScoreMatrix to ArrowFiles or an ArchRProject
 #' 
-#' This function for each sample will independently compute counts for each tile
+#' This function, for each sample, will independently compute counts for each tile
 #' per cell and then infer gene activity scores.
 #'
 #' @param input An `ArchRProject` object or character vector of ArrowFiles.
-#' @param genes A `GRanges` of all genes coordinates start to end (stranded). 
-#' @param geneModel A gene model function (function of x describing stranded distance from gene promoter f(x)) as a string for weighting peaks for gene score calculation.
+#' @param genes A stranded `GRanges` object containing the ranges associated with all gene start and end coordinates. 
+#' @param geneModel A string giving a "gene model function" used for weighting peaks for gene score calculation. This string should be a function of `x`, where `x` is the stranded distance from the transcription start site of the gene. 
 #' @param matrixName The name to be used for storage of the gene activity score matrix in the provided `ArchRProject` or ArrowFiles.
 #' @param upstream The number of basepairs upstream of the transcription start site to consider for gene activity score calculation.
 #' @param downstream The number of basepairs downstream of the transcription start site to consider for gene activity score calculation.
 #' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
 #' @param ceiling The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
 #' @param useGeneBoundaries A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.
-#' @param scaleTo A numeric value indicating what to scale the computed geneScores to across all cells.
+#' @param scaleTo A numeric value indicating what depth-normalize the computed geneScores to across all cells. This normalization is useful for direct comparison.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
-#' @param blacklist A `GRanges` object containing genomic regions to blacklist for geneScore biases.
+#' @param blacklist A `GRanges` object containing genomic regions to blacklist that may be extremeley over-represented and thus biasing the geneScores for genes nearby that locus.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given ArrowFiles.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
