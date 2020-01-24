@@ -44,7 +44,7 @@ plotEmbedding <- function(
   continuousSet = NULL,
   randomize = TRUE,
   keepAxis = FALSE,
-  baseSize = 6,
+  baseSize = 10,
   plotAs = NULL,
   plotParams = list(),
   ...
@@ -229,7 +229,7 @@ plotGroups <- function(
   pal = NULL,
   ylim = NULL, 
   size = 0.5, 
-  baseSize = 6, 
+  baseSize = , 
   ratioYX = 0.5, 
   addPoints = FALSE, 
   ...
