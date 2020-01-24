@@ -669,8 +669,3 @@ enrichHeatmap <- function(
 
 }
 
-
-
-
-
-
