@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add PeakMatrix to Arrows in ArchRProject — addPeakMatrix • ArchR</title>
+<title>Add a Peak Matrix to the ArrowFiles of an ArchRProject — addPeakMatrix • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Add PeakMatrix to Arrows in ArchRProject — addPeakMatrix" />
-<meta property="og:description" content="This function for each sample will independently compute counts for each peak
+<meta property="og:title" content="Add a Peak Matrix to the ArrowFiles of an ArchRProject — addPeakMatrix" />
+<meta property="og:description" content="This function, for each sample, will independently compute counts for each peak
 per cell in the provided ArchRProject using the &quot;PeakMatrix&quot;." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -78,7 +78,7 @@ per cell in the provided ArchRProject using the &quot;PeakMatrix&quot;." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -154,13 +154,13 @@ per cell in the provided ArchRProject using the &quot;PeakMatrix&quot;." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add PeakMatrix to Arrows in ArchRProject</h1>
+    <h1>Add a Peak Matrix to the ArrowFiles of an ArchRProject</h1>
     
     <div class="hidden name"><code>addPeakMatrix.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function for each sample will independently compute counts for each peak
+    <p>This function, for each sample, will independently compute counts for each peak
 per cell in the provided ArchRProject using the "PeakMatrix".</p>
     </div>
 
@@ -181,7 +181,7 @@ per cell in the provided ArchRProject using the "PeakMatrix".</p>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.</p></td>
+      <td><p>A boolean value indicating whether the peak matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -193,7 +193,7 @@ per cell in the provided ArchRProject using the "PeakMatrix".</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
+      <td><p>A boolean value indicating whether to force the "PeakMatrix" to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
     </tr>
     </table>
 

@@ -37,7 +37,7 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{k}{The number of nearby cells to use for selecting a biased-matched background while accounting for \code{bgdGroups} proportions.}
 
-\item{bufferRatio}{The buffering ratio of cells to enable optimal biased-matched background while accounting for \code{bgdGroups} proportions. For example when set to 0.8, the biased-matching will take the first matched 80% of the cell group to ensure outlier exclusion.}
+\item{bufferRatio}{The buffering ratio of cells to enable optimal biased-matched background while accounting for \code{bgdGroups} proportions. For example when set to 0.8, the biased-matching will take the first matched 80th percentile of the cell group to ensure outlier exclusion.}
 
 \item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when \code{useMatrix} is an insertion counts-based matrix.}
 

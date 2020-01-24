@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -201,27 +201,27 @@
     </tr>
     <tr>
       <th>min</th>
-      <td><p>x-limits min quantile 0,1</p></td>
+      <td><p>x and y-limits min as a numeric quantile between 0 and 1.</p></td>
     </tr>
     <tr>
       <th>max</th>
-      <td><p>x-limits max quantile 0,1</p></td>
+      <td><p>x and y-limits max as a numeric quantile between 0 and 1.</p></td>
     </tr>
     <tr>
       <th>nPlot</th>
-      <td><p>The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.</p></td>
+      <td><p>The number of points to plot. When this value is less than the total points, the <code>sample</code> function is used to extract random data points to be plotted.</p></td>
     </tr>
     <tr>
       <th>nKernel</th>
-      <td><p>The value of n to use the kde2d from the MASS package.</p></td>
+      <td><p>The number of grid points in each direction to use when computing the kernel with <code>kde2d</code> from the <code>MASS</code> package.</p></td>
     </tr>
     <tr>
       <th>densityMax</th>
-      <td><p>The quantile that should be represented by the maximum color on the continuous scale designated by <code>pal</code>. Above this value will be thresholded to the maximum color.</p></td>
+      <td><p>The quantile that should be represented by the maximum color on the continuous scale designated by <code>pal</code>. Values above <code>densityMax</code> will be thresholded to the maximum color on the color scale.</p></td>
     </tr>
     <tr>
       <th>extend</th>
-      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if <code>xlim</code> and <code>ylim</code> are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.</p></td>
+      <td><p>A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum value on either axis. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end beyond <code><a href='https://rdrr.io/r/stats/quantile.html'>quantile(c(x,y), max)</a></code> and <code><a href='https://rdrr.io/r/stats/quantile.html'>quantile(c(x,y), min)</a></code>.</p></td>
     </tr>
     <tr>
       <th>baseSize</th>
@@ -233,7 +233,7 @@
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>A custom palette used to override continuousSet for coloring vector.</p></td>
+      <td><p>A custom palette from <code>ArchRPalettes</code> used to display the density of points on the plot.</p></td>
     </tr>
     <tr>
       <th>...</th>

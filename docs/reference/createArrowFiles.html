@@ -43,7 +43,7 @@
 
 
 <meta property="og:title" content="Create Arrow Files — createArrowFiles" />
-<meta property="og:description" content="This function will create Arrow Files from input files. These Arrow Files are the main constituent for downstream analysis in ArchR." />
+<meta property="og:description" content="This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -159,7 +159,7 @@
     </div>
 
     <div class="ref-description">
-    <p>This function will create Arrow Files from input files. These Arrow Files are the main constituent for downstream analysis in ArchR.</p>
+    <p>This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.</p>
     </div>
 
     <pre class="usage"><span class='fu'>createArrowFiles</span>(<span class='kw'>inputFiles</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sampleNames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -171,19 +171,19 @@
   <span class='kw'>gsubExpression</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bamFlag</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>offsetPlus</span> <span class='kw'>=</span> <span class='fl'>4</span>,
   <span class='kw'>offsetMinus</span> <span class='kw'>=</span> -<span class='fl'>5</span>, <span class='kw'>addTileMat</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>TileMatParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>addGeneScoreMat</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>GeneScoreMatParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(), <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>inputFiles</th>
-      <td><p>The names of the input files to use to generate the arrow files. These files can be in any of the following formats: scATAC tabix fragment files or a bam file).</p></td>
+      <td><p>A character vector containing the names of the input files to use to generate the Arrowfiles. These files can be  either scATAC tabix fragment files or a bam file.</p></td>
     </tr>
     <tr>
       <th>sampleNames</th>
-      <td><p>The names to assign to the samples that correspond to the "inputFiles". Each input file should receive a unique sample name. This list should be in the same order as "inputFiles".</p></td>
+      <td><p>A character vector containing the names to assign to the samples that correspond to the <code>inputFiles</code>. Each input file should receive a unique sample name. This list should be in the same order as <code>inputFiles</code>.</p></td>
     </tr>
     <tr>
       <th>outputNames</th>
@@ -191,63 +191,67 @@
     </tr>
     <tr>
       <th>validBarcodes</th>
-      <td><p>A list of validBarcode strings to be used for filtering cells read from each input file (see getValidBarcodes for 10x fragment files).</p></td>
+      <td><p>A list of valid barcode strings to be used for filtering cells read from each input file (see <code><a href='getValidBarcodes.html'>getValidBarcodes()</a></code> for 10x fragment files).</p></td>
     </tr>
     <tr>
       <th>geneAnnotation</th>
-      <td><p>The geneAnnotation (see createGeneAnnotation) to associate with these arrow files. This is used downstream to calculate TSS Enrichment Scores etc.</p></td>
+      <td><p>The geneAnnotation (see <code>createGeneAnnotation()</code>) to associate with the ArrowFiles. This is used downstream to calculate TSS Enrichment Scores etc.</p></td>
     </tr>
     <tr>
       <th>genomeAnnotation</th>
-      <td><p>The genomeAnnotation (see createGenomeAnnotation) format to associate with these arrow files. This is used downstream to collect chromosome sizes and nucleotide information etc.</p></td>
+      <td><p>The genomeAnnotation (see <code><a href='createGenomeAnnotation.html'>createGenomeAnnotation()</a></code>) to associate with the ArrowFiles. This is used downstream to collect chromosome sizes and nucleotide information etc.</p></td>
     </tr>
     <tr>
       <th>filterFrags</th>
-      <td><p>The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.</p></td>
+      <td><p>The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses. Cells containing greater than or equal to <code>filterFrags</code> total fragments wll be retained.</p></td>
     </tr>
     <tr>
       <th>filterTSS</th>
-      <td><p>The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use in downstream analyses. TSS enrichment score is a measurement of signal-to-background in ATAC-seq.</p></td>
+      <td><p>The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use in downstream analyses. Cells with a TSS enrichment score greater than or equal to <code>filterTSS</code> will be retained. TSS enrichment score is a measurement of signal-to-background in ATAC-seq.</p></td>
     </tr>
     <tr>
       <th>removeFilteredCells</th>
-      <td><p>A boolean value that determines whether to remove fragments corresponding to cells that do not pass filterFrags and filterTSS.</p></td>
+      <td><p>A boolean value that determines whether cells that do not pass <code>filterFrags</code> and <code>filterTSS</code> should be excluded entirely from the ArrowFiles. If <code>FALSE</code> cells that do not pass QC filters will be included in the ArrowFile but will be marked as not passing QC and excluded from downstream analyses.</p></td>
     </tr>
     <tr>
       <th>minFrags</th>
-      <td><p>The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment).</p></td>
+      <td><p>The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score). This is useful for limiting the number of barcodes analyzed.</p></td>
     </tr>
     <tr>
       <th>outDir</th>
-      <td><p>The name or path for the output directory for QC-level information and plots for each sample/arrow.</p></td>
+      <td><p>The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.</p></td>
     </tr>
     <tr>
       <th>nucLength</th>
-      <td><p>The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as sub-nucleosome, mono-nucleosome, or multi-nucleosome spanning</p></td>
+      <td><p>The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.</p></td>
     </tr>
     <tr>
       <th>TSSParams</th>
-      <td><p>TSS parameters for computing TSS Enrichment scores. This includes <code>window</code> which describes the window centered at each TSS (default 101), the <code>flank</code> which describes the +/- window size to compute TSS enrichment (default 2000) , the <code>norm</code> which describes the normalization window size at the flanks to compute TSS enrichment (default 100 i.e. -2000:-1901 and 1901:2000).</p></td>
+      <td><p>A list of parameters for computing TSS Enrichment scores.
+This includes the <code>window</code> which is the size in basepairs of the window centered at each TSS (default 101),
+the <code>flank</code> which is the size in basepairs of the flanking window (default 2000),
+and the <code>norm</code> which describes the size in basepairs of the flank window to be used for normalization of the TSS enrichment score (default 100).
+For example, given <code>window = 101, flank = 2000, norm = 100</code>, the accessibility within the 101-bp surrounding the TSS will be normalized to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
-      <td><p>The names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the .arrow file.</p></td>
+      <td><p>A character vector containing the names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the ArrowFile.</p></td>
     </tr>
     <tr>
       <th>nChunk</th>
-      <td><p>The number of chunks to divide each chromosome into reading in input files. Higher numbers reduce memory usage but increase compute time.</p></td>
+      <td><p>The number of chunks to divide each chromosome into to allow for low-memory parallelized reading of the <code>inputFiles</code>. Higher numbers reduce memory usage but increase compute time.</p></td>
     </tr>
     <tr>
       <th>bcTag</th>
-      <td><p>The name of the field in the input bam file containing the barcode tag information. See ScanBam in Rsamtools.</p></td>
+      <td><p>The name of the field in the input bam file containing the barcode tag information. See <code>ScanBam</code> in Rsamtools.</p></td>
     </tr>
     <tr>
       <th>gsubExpression</th>
-      <td><p>A regular expression to clean up the barcode tag read in from a bam file. For example if the barcode is appended to the qname (read name) like for Shendure mouse data the gsubExpression would be ":.*" for getting the string after the colon in the qname.</p></td>
+      <td><p>A regular expression used to clean up the barcode tag string read in from a bam file. For example, if the barcode is appended to the readname or qname field like for the mouse atlas data from Cusanovic* and Hill* et al. (2018), the gsubExpression would be ":.*". This would retrieve the string after the colon as the barcode.</p></td>
     </tr>
     <tr>
       <th>bamFlag</th>
-      <td><p>A list of bam flags to be used for reading in fragments from input bam files. Format should be scanBamFlag for ScanBam in Rsamtools.</p></td>
+      <td><p>A vector of bam flags to be used for reading in fragments from input bam files. Should be in the format of a <code>scanBamFlag</code> passed to <code>ScanBam</code> in Rsamtools.</p></td>
     </tr>
     <tr>
       <th>offsetPlus</th>
@@ -259,7 +263,7 @@
     </tr>
     <tr>
       <th>addTileMat</th>
-      <td><p>A boolean value indicating whether to add a "Tile Matrix" to each Arrow file. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome.</p></td>
+      <td><p>A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome. This matrix can be used in many downstream ArchR operations.</p></td>
     </tr>
     <tr>
       <th>TileMatParams</th>
@@ -267,15 +271,15 @@
     </tr>
     <tr>
       <th>addGeneScoreMat</th>
-      <td><p>A boolean value indicating whether to add a Gene-Score Matrix to each Arrow file. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.</p></td>
+      <td><p>A boolean value indicating whether to add a Gene-Score Matrix to each ArrowFile. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.</p></td>
     </tr>
     <tr>
       <th>GeneScoreMatParams</th>
-      <td><p>A list of parameters to pass to the <code><a href='addGeneScoreMatrix.html'>addGeneScoreMatrix()</a></code> function. See <code><a href='addGeneScoreMatrix.html'>ArchR::addGeneScoreMatrix()</a></code> for options.</p></td>
+      <td><p>A list of parameters to pass to the <code><a href='addGeneScoreMatrix.html'>addGeneScoreMatrix()</a></code> function. See <code><a href='addGeneScoreMatrix.html'>addGeneScoreMatrix()</a></code> for options.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value indicating whether to force arrow files to be overwritten if they already exist in <code>outDir</code>.</p></td>
+      <td><p>A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist in <code>outDir</code>.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -287,11 +291,11 @@
     </tr>
     <tr>
       <th>verboseHeader</th>
-      <td><p>A boolean value that determines whether standard output includes verbose sections.</p></td>
+      <td><p>A boolean value that determines whether standard output should include verbose sections.</p></td>
     </tr>
     <tr>
       <th>verboseAll</th>
-      <td><p>A boolean value that determines whether standard output includes verbose subsections.</p></td>
+      <td><p>A boolean value that determines whether standard output should include verbose subsections.</p></td>
     </tr>
     <tr>
       <th>...</th>

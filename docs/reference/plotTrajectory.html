@@ -43,7 +43,7 @@
 
 
 <meta property="og:title" content="Visualize a Trajectory from ArchR Project — plotTrajectory" />
-<meta property="og:description" content="This function will plot a trajectory that was created from addTrajectory onto an embedding." />
+<meta property="og:description" content="This function will plot a trajectory that was created onto an embedding." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -159,7 +159,7 @@
     </div>
 
     <div class="ref-description">
-    <p>This function will plot a trajectory that was created from addTrajectory onto an embedding.</p>
+    <p>This function will plot a trajectory that was created onto an embedding.</p>
     </div>
 
     <pre class="usage"><span class='fu'>plotTrajectory</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>embedding</span> <span class='kw'>=</span> <span class='st'>"UMAP"</span>,
@@ -179,27 +179,28 @@
     </tr>
     <tr>
       <th>embedding</th>
-      <td><p>The name of the embedding to use to visualize the given <code>trajectory</code>. See <code><a href='addEmbedding.html'>ArchR::addEmbedding()</a></code> for more information.</p></td>
+      <td><p>The name of the embedding to use to visualize the given <code>trajectory</code>. See <code><a href='addEmbedding.html'>addEmbedding()</a></code> for more information.</p></td>
     </tr>
     <tr>
       <th>trajectory</th>
-      <td><p>The name of the trajectory as a column in <code>cellColData</code> to plot.</p></td>
+      <td><p>The column name in <code>cellColData</code> that refers the trajectory to be plotted. See <code><a href='addTrajectory.html'>addTrajectory()</a></code> for more information.</p></td>
     </tr>
     <tr>
       <th>colorBy</th>
-      <td><p>A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").</p></td>
+      <td><p>A string indicating whether points in the plot should be colored by a column in <code>cellColData</code> ("cellColData") or by a data matrix in the associated ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The name of the trajectory as a column in <code>cellColData</code> to plot.</p></td>
+      <td><p>The name of the column in <code>cellColData</code> or the featureName/rowname of the data matrix to be used for plotting.
+For example if colorBy is <code>cellColData</code> then name refers to a column name in the cellcoldata (see <code>getCellcoldata()</code>), if colorBy is <code>GeneScoreMatrix</code> then name refers to a gene name which can be listed by <code><a href='getFeatures.html'>getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")</a></code>.</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>A boolean value indicating whether a log2 transformation should be performed on the values prior to plotting.</p></td>
+      <td><p>A boolean value indicating whether a log2 transformation should be performed on the values from <code>colorBy</code>.</p></td>
     </tr>
     <tr>
       <th>imputeWeights</th>
-      <td><p>imputation weights for imputing numerical values for each cell as a linear combination of other cells values (see add/getImutationWeights).</p></td>
+      <td><p>The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See <code>addImputationWeights()</code> and <code>getImutationWeights()</code> for more information.</p></td>
     </tr>
     <tr>
       <th>pal</th>
@@ -215,22 +216,22 @@
     </tr>
     <tr>
       <th>quantCut</th>
-      <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values.
-This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is
-the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of -->
-the 97.5th and 2.5th percentile values respectively.</p></td>
+      <td><p>If this is not <code>NULL</code>, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values.
+This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the lower threshold and y is
+the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and set values below/above to the value of
+the 2.5th and 97.5th percentile values respectively.</p></td>
     </tr>
     <tr>
       <th>quantHex</th>
-      <td><p>The quantile to</p></td>
+      <td><p>The xth quantile of all dots within each individual hexagon will determine the the numerical value for coloring to be displayed. This occurs when <code>plotAs</code> = "hex" or NULL (if numerical values by default).</p></td>
     </tr>
     <tr>
       <th>discreteSet</th>
-      <td><p>The name of a discrete palette from <code>ArchRPalettes</code> for visualizing colorBy in the embedding.</p></td>
+      <td><p>The name of a discrete palette from <code>ArchRPalettes</code> for visualizing <code>colorBy</code> in the embedding if a discrete color set is desired.</p></td>
     </tr>
     <tr>
       <th>continuousSet</th>
-      <td><p>The name of a continuous palette from <code>ArchRPalettes</code> for visualizing colorBy in the embedding.</p></td>
+      <td><p>The name of a continuous palette from <code>ArchRPalettes</code> for visualizing <code>colorBy</code> in the embedding if a continuous color set is desired.</p></td>
     </tr>
     <tr>
       <th>randomize</th>
@@ -250,7 +251,7 @@ the 97.5th and 2.5th percentile values respectively.</p></td>
     </tr>
     <tr>
       <th>plotAs</th>
-      <td><p>A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.</p></td>
+      <td><p>A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default if <code>colorBy</code> is numeric this is "hex".</p></td>
     </tr>
     <tr>
       <th>plotParams</th>

@@ -44,7 +44,7 @@
 
 <meta property="og:title" content="Add a Reproducible Peak Set to an ArchRProject — addReproduciblePeakSet" />
 <meta property="og:description" content="This function will get insertions from coverage files, call peaks,
-and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
+and merge peaks to get a &quot;Union Reproducible Peak Set&quot;." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -78,7 +78,7 @@ and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -161,7 +161,7 @@ and merge peaks to get a &quot;Union Reproducible Peak Set&quot;" />
 
     <div class="ref-description">
     <p>This function will get insertions from coverage files, call peaks,
-and merge peaks to get a "Union Reproducible Peak Set"</p>
+and merge peaks to get a "Union Reproducible Peak Set".</p>
     </div>
 
     <pre class="usage"><span class='fu'>addReproduciblePeakSet</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
@@ -173,8 +173,8 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
   <span class='kw'>promoterDist</span> <span class='kw'>=</span> <span class='fl'>500</span>,
   <span class='kw'>genomeAnnotation</span> <span class='kw'>=</span> <span class='fu'><a href='getGenomeAnnotation.html'>getGenomeAnnotation</a></span>(<span class='no'>ArchRProj</span>),
   <span class='kw'>geneAnnotation</span> <span class='kw'>=</span> <span class='fu'><a href='getGeneAnnotation.html'>getGeneAnnotation</a></span>(<span class='no'>ArchRProj</span>),
-  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(), <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='st'>"mclapply"</span>,
-  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(), <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>verboseAll</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -193,15 +193,15 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>peaksPerCell</th>
-      <td><p>The limit of number of peaks that can be identified per cell (this is useful for controlling how many peaks can be called from low cell groups).</p></td>
+      <td><p>The upper limit of the number of peaks that can be identified per cell-grouping in <code>groupBy</code>. This is useful for controlling how many peaks can be called from cell groups with low cell numbers.</p></td>
     </tr>
     <tr>
       <th>maxPeaks</th>
-      <td><p>A numeric threshold for the maximum peaks to retain per group in <code>groupBy</code> in the union reproducible peak set.</p></td>
+      <td><p>A numeric threshold for the maximum peaks to retain per group from <code>groupBy</code> in the union reproducible peak set.</p></td>
     </tr>
     <tr>
       <th>minCells</th>
-      <td><p>The minimum number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.</p></td>
+      <td><p>The minimum allowable number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
@@ -245,11 +245,11 @@ and merge peaks to get a "Union Reproducible Peak Set"</p>
     </tr>
     <tr>
       <th>genomeAnnotation</th>
-      <td><p>The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.</p></td>
+      <td><p>The genomeAnnotation (see <code><a href='createGenomeAnnotation.html'>createGenomeAnnotation()</a></code>) to be used for generating peak metadata such as nucleotide information (GC content) or chromosome sizes.</p></td>
     </tr>
     <tr>
       <th>geneAnnotation</th>
-      <td><p>The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.</p></td>
+      <td><p>The geneAnnotation (see <code>createGeneAnnotation()</code>) to be used for labeling peaks as "promoter", "exonic", etc.</p></td>
     </tr>
     <tr>
       <th>threads</th>

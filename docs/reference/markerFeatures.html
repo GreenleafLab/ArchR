@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -195,7 +195,7 @@
     </tr>
     <tr>
       <th>bias</th>
-      <td><p>A character vector indicating the potential bias variables as a function (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from <code>cellColData</code>.</p></td>
+      <td><p>A character vector indicating the potential bias variables (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from <code>cellColData</code>.</p></td>
     </tr>
     <tr>
       <th>normBy</th>
@@ -207,11 +207,11 @@
     </tr>
     <tr>
       <th>maxCells</th>
-      <td><p>The maximum number of cells to consider from a single cell group when performing marker feature identification.</p></td>
+      <td><p>The maximum number of cells to consider from a single-cell group when performing marker feature identification.</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>Normalization depth to center normalization to in normBy (default is 10,000).</p></td>
+      <td><p>The normalization depth to center normalization to in normBy (default is 10,000).</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -219,15 +219,15 @@
     </tr>
     <tr>
       <th>k</th>
-      <td><p>The number of nearby cells to use for selecting biased-matched background while accounting for bgdGroups proportions.</p></td>
+      <td><p>The number of nearby cells to use for selecting a biased-matched background while accounting for <code>bgdGroups</code> proportions.</p></td>
     </tr>
     <tr>
       <th>bufferRatio</th>
-      <td><p>The buffering ratio of cells to enable best biased-matched background while accounting for bgdGroups proportions.</p></td>
+      <td><p>The buffering ratio of cells to enable optimal biased-matched background while accounting for <code>bgdGroups</code> proportions. For example when set to 0.8, the biased-matching will take the first matched 80th percentile of the cell group to ensure outlier exclusion.</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>A boolean value indicating whether to binarize the matrix prior to differential testing.</p></td>
+      <td><p>A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when <code>useMatrix</code> is an insertion counts-based matrix.</p></td>
     </tr>
     <tr>
       <th>useSeqnames</th>
@@ -235,7 +235,7 @@
     </tr>
     <tr>
       <th>method</th>
-      <td><p>The name of the method to be used for marker feature identification. Valid options are "ArchR" for now.</p></td>
+      <td><p>The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>

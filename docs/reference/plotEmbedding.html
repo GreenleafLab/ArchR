@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Visualize Embedding from ArchR Project — plotEmbedding • ArchR</title>
+<title>Visualize an Embedding from ArchR Project — plotEmbedding • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,9 +42,8 @@
 
 
 
-<meta property="og:title" content="Visualize Embedding from ArchR Project — plotEmbedding" />
-<meta property="og:description" content="This function will plot an embedding that was created from
-computeEmbedding" />
+<meta property="og:title" content="Visualize an Embedding from ArchR Project — plotEmbedding" />
+<meta property="og:description" content="This function will plot an embedding stored in an ArchRProject" />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -78,7 +77,7 @@ computeEmbedding" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -154,18 +153,17 @@ computeEmbedding" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Visualize Embedding from ArchR Project</h1>
+    <h1>Visualize an Embedding from ArchR Project</h1>
     
     <div class="hidden name"><code>plotEmbedding.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function will plot an embedding that was created from
-computeEmbedding</p>
+    <p>This function will plot an embedding stored in an ArchRProject</p>
     </div>
 
     <pre class="usage"><span class='fu'>plotEmbedding</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>embedding</span> <span class='kw'>=</span> <span class='st'>"UMAP"</span>,
-  <span class='kw'>colorBy</span> <span class='kw'>=</span> <span class='st'>"colData"</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Sample"</span>, <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>colorBy</span> <span class='kw'>=</span> <span class='st'>"cellColData"</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Sample"</span>, <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>imputeWeights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pal</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>, <span class='kw'>rastr</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>quantCut</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.01</span>, <span class='fl'>0.99</span>), <span class='kw'>discreteSet</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>continuousSet</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>randomize</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>keepAxis</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>baseSize</span> <span class='kw'>=</span> <span class='fl'>6</span>, <span class='kw'>plotAs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -180,15 +178,16 @@ computeEmbedding</p>
     </tr>
     <tr>
       <th>embedding</th>
-      <td><p>The name of the embedding to plot. See <code>ArchR::computeEmbedding()</code> for more information.</p></td>
+      <td><p>The name of the embedding stored in the <code>ArchRProject</code> to be plotted. See <code>computeEmbedding()</code> for more information.</p></td>
     </tr>
     <tr>
       <th>colorBy</th>
-      <td><p>A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").</p></td>
+      <td><p>A string indicating whether points in the plot should be colored by a column in <code>cellColData</code> ("cellColData") or by a data matrix in the corresponding ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The name of the column in <code>cellColData</code> or the featureName in the data matrix.</p></td>
+      <td><p>The name of the column in <code>cellColData</code> or the featureName/rowname of the data matrix to be used for plotting.
+For example if colorBy is <code>cellColData</code> then name refers to a column name in the cellcoldata (see <code>getCellcoldata()</code>), if colorBy is <code>GeneScoreMatrix</code> then name refers to a gene name which can be listed by <code><a href='getFeatures.html'>getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")</a></code>.</p></td>
     </tr>
     <tr>
       <th>log2Norm</th>
@@ -196,11 +195,11 @@ computeEmbedding</p>
     </tr>
     <tr>
       <th>imputeWeights</th>
-      <td><p>imputation weights for imputing numerical values for each cell as a linear combination of other cells values (see add/getImutationWeights).</p></td>
+      <td><p>The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See <code>addImputationWeights()</code> and <code>getImutationWeights()</code> for more information.</p></td>
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>A custom palette used to override discreteSet/continuousSet for coloring vector.</p></td>
+      <td><p>A custom palette (see <code>paletteDiscrete</code> or <code>ArchRPalettes</code>) used to override discreteSet/continuousSet for coloring vector.</p></td>
     </tr>
     <tr>
       <th>size</th>
@@ -208,22 +207,22 @@ computeEmbedding</p>
     </tr>
     <tr>
       <th>rastr</th>
-      <td><p>A boolean value that indicates whether the plot should be rasterized with ggrastr. This does not rasterize lines and labels, just the internal portions of the plot.</p></td>
+      <td><p>A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.</p></td>
     </tr>
     <tr>
       <th>quantCut</th>
-      <td><p>If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values.
-This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is
-the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5<!-- % of values and set them to the value of -->
-the 97.5th and 2.5th percentile values respectively.</p></td>
+      <td><p>If this is not <code>NULL</code>, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values.
+This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the lower threshold and y is
+the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and set values below/above to the value of
+the 2.5th and 97.5th percentile values respectively.</p></td>
     </tr>
     <tr>
       <th>discreteSet</th>
-      <td><p>The name of a discrete palette from <code>ArchRPalettes</code> for visualizing colorBy in the embedding.</p></td>
+      <td><p>The name of a discrete palette from <code>ArchRPalettes</code> for visualizing <code>colorBy</code> in the embedding if a discrete color set is desired.</p></td>
     </tr>
     <tr>
       <th>continuousSet</th>
-      <td><p>The name of a continuous palette from <code>ArchRPalettes</code> for visualizing colorBy in the embedding.</p></td>
+      <td><p>The name of a continuous palette from <code>ArchRPalettes</code> for visualizing <code>colorBy</code> in the embedding if a continuous color set is desired.</p></td>
     </tr>
     <tr>
       <th>randomize</th>
@@ -239,7 +238,7 @@ the 97.5th and 2.5th percentile values respectively.</p></td>
     </tr>
     <tr>
       <th>plotAs</th>
-      <td><p>A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.</p></td>
+      <td><p>A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default if <code>colorBy</code> is numeric this is "hex".</p></td>
     </tr>
     <tr>
       <th>plotParams</th>

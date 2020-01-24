@@ -43,7 +43,7 @@
 
 
 <meta property="og:title" content="Add Doublet Scores to a collection of Arrow files or an ArchRProject — addDoubletScores" />
-<meta property="og:description" content="For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
+<meta property="og:description" content="For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information
 to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell." />
 <meta property="og:image" content="/logo.png" />
@@ -79,7 +79,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -161,7 +161,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </div>
 
     <div class="ref-description">
-    <p>For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
+    <p>For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information
 to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell.</p>
     </div>
@@ -182,7 +182,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", "PeakMatrix".</p></td>
+      <td><p>The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix" and "PeakMatrix".</p></td>
     </tr>
     <tr>
       <th>k</th>
@@ -190,7 +190,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>nTrials</th>
-      <td><p>The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.</p></td>
+      <td><p>The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.</p></td>
     </tr>
     <tr>
       <th>dimsToUse</th>
@@ -198,7 +198,7 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the <code>corCutOff</code>, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>knnMethod</th>
@@ -206,15 +206,15 @@ contained two cells, causing the ATAC-seq data to be a mixture of the signal fro
     </tr>
     <tr>
       <th>UMAPParams</th>
-      <td><p>The list of parameters to pass to the UMAP function if "UMAP" is designated to <code>knnMethod</code>. See the function umap in the uwot package.</p></td>
+      <td><p>The list of parameters to pass to the UMAP function if "UMAP" is designated to <code>knnMethod</code>. See the function <code>umap</code> in the uwot package.</p></td>
     </tr>
     <tr>
       <th>LSIParams</th>
-      <td><p>The list of parameters to pass to the IterativeLSI function. See IterativeLSI.</p></td>
+      <td><p>The list of parameters to pass to the <code>IterativeLSI()</code> function. See <code>IterativeLSI()</code>.</p></td>
     </tr>
     <tr>
       <th>outDir</th>
-      <td><p>The name or path for the output directory for plot/result information on doublet identification,</p></td>
+      <td><p>The relative path to the output directory for relevant plots/results from doublet identification.</p></td>
     </tr>
     <tr>
       <th>threads</th>

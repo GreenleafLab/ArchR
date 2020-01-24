@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>List of color palettes that can be used in plots — ArchRPalettes • ArchR</title>
+<title>Get Background Peaks from an ArchRProject — getBgdPeaks • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="List of color palettes that can be used in plots — ArchRPalettes" />
-<meta property="og:description" content="A collection of some original and some borrowed color palettes to provide appealing color aesthetics for plots in ArchR" />
+<meta property="og:title" content="Get Background Peaks from an ArchRProject — getBgdPeaks" />
+<meta property="og:description" content="This function will get/compute background peaks controlling for total accessibility and GC-content from an ArchRProject." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -153,27 +153,57 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>List of color palettes that can be used in plots</h1>
+    <h1>Get Background Peaks from an ArchRProject</h1>
     
-    <div class="hidden name"><code>ArchRPalettes.Rd</code></div>
+    <div class="hidden name"><code>getBgdPeaks.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A collection of some original and some borrowed color palettes to provide appealing color aesthetics for plots in ArchR</p>
+    <p>This function will get/compute background peaks controlling for total accessibility and GC-content from an ArchRProject.</p>
     </div>
 
-    <pre class="usage"><span class='no'>ArchRPalettes</span></pre>
+    <pre class="usage"><span class='fu'>getBgdPeaks</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nIterations</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>w</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>binSize</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>ArchRProj</th>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>nIterations</th>
+      <td><p>The number of background peaks to sample. See <code><a href='https://rdrr.io/pkg/chromVAR/man/getBackgroundPeaks.html'>chromVAR::getBackgroundPeaks()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>w</th>
+      <td><p>The parameter controlling similarity measure of background peaks. See <code><a href='https://rdrr.io/pkg/chromVAR/man/getBackgroundPeaks.html'>chromVAR::getBackgroundPeaks()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>binSize</th>
+      <td><p>The precision with which the similarity is computed. See <code><a href='https://rdrr.io/pkg/chromVAR/man/getBackgroundPeaks.html'>chromVAR::getBackgroundPeaks()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p>A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
+    </tr>
+    <tr>
+      <th>force</th>
+      <td><p>A boolean value indicating whether to force the file indicated by <code>outFile</code> to be overwritten if it already exists.</p></td>
+    </tr>
+    <tr>
+      <th>outFile</th>
+      <td><p>The path to save the backgroundPeaks object as a <code>.rds</code> file for the given <code>ArchRProject</code>. The default action is to save this file in the <code>outputDirectory</code> of the <code>ArchRProject</code>.</p></td>
+    </tr>
+    </table>
 
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
-
-    <p>An object of class <code>list</code> of length 26.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#format">Format</a></li>
+      <li><a href="#arguments">Arguments</a></li>
     </ul>
 
   </div>

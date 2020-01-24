@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -174,7 +174,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seMarker</th>
-      <td><p>A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>ArchR::markerFeatures()</a></code>.</p></td>
+      <td><p>A <code>SummarizedExperiment</code> object returned by <code><a href='markerFeatures.html'>markerFeatures()</a></code>.</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
@@ -182,11 +182,11 @@
     </tr>
     <tr>
       <th>log2Norm</th>
-      <td><p>A boolean value indicating whether a log2 transformation whould be performed on the values in <code>seMarker</code> prior to plotting. Should be set to <code>TRUE</code> for counts-based assays (but not assays like <code>DeviationsMatrix</code>).</p></td>
+      <td><p>A boolean value indicating whether a log2 transformation should be performed on the values in <code>seMarker</code> prior to plotting. Should be set to <code>TRUE</code> for counts-based assays (but not assays like "DeviationsMatrix").</p></td>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>scale to prior to log2 Normalization, if log2Norm is FALSE this does nothing</p></td>
+      <td><p>This numerical value to depth-normalize to prior to log2 Normalization, if log2Norm is FALSE this does nothing</p></td>
     </tr>
     <tr>
       <th>scaleRows</th>
@@ -194,7 +194,7 @@
     </tr>
     <tr>
       <th>limits</th>
-      <td><p>A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.</p></td>
+      <td><p>A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.</p></td>
     </tr>
     <tr>
       <th>grepExclude</th>
@@ -202,7 +202,7 @@
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.</p></td>
+      <td><p>A custom continuous palette from <code>ArchRPalettes</code> (see <code><a href='paletteContinuous.html'>paletteContinuous()</a></code>) used to override the default continuous palette for the heatmap.</p></td>
     </tr>
     <tr>
       <th>binaryClusterRows</th>
@@ -214,7 +214,7 @@
     </tr>
     <tr>
       <th>labelTop</th>
-      <td><p>A boolean value that indicates whether the top features for each column in <code>seMarker</code> should be labeled on the side of the heatmap.</p></td>
+      <td><p>An integer value that indicates whether the top <code>n</code> features for each column in <code>seMarker</code> should be labeled on the side of the heatmap.</p></td>
     </tr>
     <tr>
       <th>labelRows</th>
@@ -226,7 +226,7 @@
     </tr>
     <tr>
       <th>invert</th>
-      <td><p>A boolean value that indicates whether the heatmap will be inverted ie when looking for down-regulated markers (Log2FC &lt; 0) instead of up-regulated markers (Log2FC &gt; 0).</p></td>
+      <td><p>A boolean value that indicates whether the heatmap will be inverted when sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC &lt; 0) instead of up-regulated markers (Log2FC &gt; 0).</p></td>
     </tr>
     <tr>
       <th>...</th>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add TileMatrix to Arrows/ArchRProject — addTileMatrix • ArchR</title>
+<title>Add TileMatrix to ArrowFiles or an ArchRProject — addTileMatrix • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,9 +42,9 @@
 
 
 
-<meta property="og:title" content="Add TileMatrix to Arrows/ArchRProject — addTileMatrix" />
-<meta property="og:description" content="This function for each sample will independently compute counts for each tile
-per cell in the Arrow File" />
+<meta property="og:title" content="Add TileMatrix to ArrowFiles or an ArchRProject — addTileMatrix" />
+<meta property="og:description" content="This function, for each sample, will independently compute counts for each tile
+per cell in the ArrowFile" />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -78,7 +78,7 @@ per cell in the Arrow File" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -154,14 +154,14 @@ per cell in the Arrow File" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add TileMatrix to Arrows/ArchRProject</h1>
+    <h1>Add TileMatrix to ArrowFiles or an ArchRProject</h1>
     
     <div class="hidden name"><code>addTileMatrix.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function for each sample will independently compute counts for each tile
-per cell in the Arrow File</p>
+    <p>This function, for each sample, will independently compute counts for each tile
+per cell in the ArrowFile</p>
     </div>
 
     <pre class="usage"><span class='fu'>addTileMatrix</span>(<span class='kw'>input</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>chromSizes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>input</span>,
@@ -180,23 +180,23 @@ per cell in the Arrow File</p>
     </tr>
     <tr>
       <th>chromSizes</th>
-      <td><p>A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getChromSizes.html'>ArchR::getChromSizes()</a></code>.</p></td>
+      <td><p>A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getChromSizes.html'>getChromSizes()</a></code>.</p></td>
     </tr>
     <tr>
       <th>blacklist</th>
-      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getBlacklist.html'>ArchR::getBlacklist()</a></code>.</p></td>
+      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the <code>ArchRProject</code> using <code><a href='getBlacklist.html'>getBlacklist()</a></code>.</p></td>
     </tr>
     <tr>
       <th>tileSize</th>
-      <td><p>The size of the tiles used for binning counts in the <code>TileMatrix</code>.</p></td>
+      <td><p>The size of the tiles used for binning counts in the "TileMatrix".</p></td>
     </tr>
     <tr>
       <th>binarize</th>
-      <td><p>A boolean value indicating whether the <code>TileMatrix</code> should be binarized prior to storage.</p></td>
+      <td><p>A boolean value indicating whether the "TileMatrix" should be binarized prior to storage.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
-      <td><p>A character vector containing the <code>seqnames</code> of the chromosomes that should be excluded from CNV analysis.</p></td>
+      <td><p>A character vector containing the <code>seqnames</code> of the chromosomes that should be excluded from the "TileMatrix".</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -208,7 +208,7 @@ per cell in the Arrow File</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value indicating whether to force the <code>TileMatrix</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
+      <td><p>A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given <code>input</code>.</p></td>
     </tr>
     </table>
 

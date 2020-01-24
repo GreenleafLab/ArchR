@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add Supervised Trajectory to an ArchR Project — addTrajectory • ArchR</title>
+<title>Add a Supervised Trajectory to an ArchR Project — addTrajectory • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,7 +42,7 @@
 
 
 
-<meta property="og:title" content="Add Supervised Trajectory to an ArchR Project — addTrajectory" />
+<meta property="og:title" content="Add a Supervised Trajectory to an ArchR Project — addTrajectory" />
 <meta property="og:description" content="This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses." />
 <meta property="og:image" content="/logo.png" />
@@ -78,7 +78,7 @@ can then be used for downstream analyses." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -154,7 +154,7 @@ can then be used for downstream analyses." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add Supervised Trajectory to an ArchR Project</h1>
+    <h1>Add a Supervised Trajectory to an ArchR Project</h1>
     
     <div class="hidden name"><code>addTrajectory.Rd</code></div>
     </div>
@@ -166,8 +166,8 @@ can then be used for downstream analyses.</p>
 
     <pre class="usage"><span class='fu'>addTrajectory</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Trajectory"</span>,
   <span class='kw'>trajectory</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>groupBy</span> <span class='kw'>=</span> <span class='st'>"Clusters"</span>,
-  <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>, <span class='kw'>embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>preQuantile</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>postQuantile</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>dof</span> <span class='kw'>=</span> <span class='fl'>250</span>, <span class='kw'>spar</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>, <span class='kw'>embedding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>preFilterQ</span> <span class='kw'>=</span> <span class='fl'>0.9</span>,
+  <span class='kw'>postFilterQ</span> <span class='kw'>=</span> <span class='fl'>0.9</span>, <span class='kw'>dof</span> <span class='kw'>=</span> <span class='fl'>250</span>, <span class='kw'>spar</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -182,11 +182,11 @@ can then be used for downstream analyses.</p>
     </tr>
     <tr>
       <th>trajectory</th>
-      <td><p>Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )</p></td>
+      <td><p>The order of cell groups to be used for constraining the initial supervised fitting procedure. For example, to get a trajectory from Cluster1 to Cluster2 to Cluster3, input should be c("Cluster1", "Cluster2", "Cluster3"). Cells will then be used from these 3 groups to constrain an initial fit in the group order.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>initial group column in cellColData to constrain supervised fit</p></td>
+      <td><p>A string indicating the grouping column for <code>trajectory</code> in cellColData to constrain the initial supervised fitting procedure.</p></td>
     </tr>
     <tr>
       <th>reducedDims</th>
@@ -197,20 +197,20 @@ can then be used for downstream analyses.</p>
       <td><p>A string indicating the name of the <code>embedding</code> object from the <code>ArchRProject</code> that should be used for distance computation.</p></td>
     </tr>
     <tr>
-      <th>preQuantile</th>
-      <td><p>Prior to supervised trajectory fitting, the quantile for filtering cells that are far (by euclidean distance) from cluster centers.</p></td>
+      <th>preFilterQ</th>
+      <td><p>Prior to the initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center is above the provided quantile will be excluded.</p></td>
     </tr>
     <tr>
-      <th>postQuantile</th>
-      <td><p>Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.</p></td>
+      <th>postFilterQ</th>
+      <td><p>After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center is above the provided quantile will be excluded.</p></td>
     </tr>
     <tr>
       <th>dof</th>
-      <td><p>The number of degrees of freedom to be used in spline fit (see smooth.spline)</p></td>
+      <td><p>The number of degrees of freedom to be used in the spline fit. See <code><a href='https://rdrr.io/r/stats/smooth.spline.html'>stats::smooth.spline()</a></code> for more information.</p></td>
     </tr>
     <tr>
       <th>spar</th>
-      <td><p>The sparsity to be used in spline fit (see smooth.spline)</p></td>
+      <td><p>The sparsity to be used in the spline fit. See <code><a href='https://rdrr.io/r/stats/smooth.spline.html'>stats::smooth.spline()</a></code> for more information.</p></td>
     </tr>
     <tr>
       <th>force</th>

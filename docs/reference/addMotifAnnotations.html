@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -164,7 +164,7 @@
 
     <pre class="usage"><span class='fu'>addMotifAnnotations</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>motifSet</span> <span class='kw'>=</span> <span class='st'>"cisbp"</span>,
   <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Motif"</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>collection</span> <span class='kw'>=</span> <span class='st'>"CORE"</span>,
-  <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='fl'>5e-05</span>, <span class='kw'>w</span> <span class='kw'>=</span> <span class='fl'>7</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>cutOff</span> <span class='kw'>=</span> <span class='fl'>5e-05</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='fl'>7</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -175,11 +175,11 @@
     </tr>
     <tr>
       <th>motifSet</th>
-      <td><p>The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020" which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.</p></td>
+      <td><p>The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020" which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the corresponding motif sets from the <code>chromVAR</code> package.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The name of peakAnnotations to be stored as in <code>ArchRProject</code></p></td>
+      <td><p>The name of the <code>peakAnnotation</code> object to be stored in the provided <code>ArchRProject</code></p></td>
     </tr>
     <tr>
       <th>species</th>
@@ -187,19 +187,19 @@
     </tr>
     <tr>
       <th>collection</th>
-      <td><p>If one of the JASPAR motif sets is used via <code>motifSet</code>, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", etc.</p></td>
+      <td><p>If one of the JASPAR motif sets is used via <code>motifSet</code>, this parameter allows you to indicate the JASPAR collection to be used. See <code>getMatrixSet()</code> from <code>TFBSTools</code> for all options to supply for collection.</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
-      <td><p>The  p-value cutoff to be used for motif search (see the <code>motimatchr</code> package for more information).</p></td>
+      <td><p>The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences (see <code>MOODS</code> for more details on this determination).</p></td>
     </tr>
     <tr>
-      <th>w</th>
-      <td><p>The width in basepairs to consider for motif matches (see the <code>motimatchr</code> package for more information).</p></td>
+      <th>width</th>
+      <td><p>The width in basepairs to consider for motif matches. See the <code>motimatchr</code> package for more information.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>force creation if peakAnnotation with same name already exists</p></td>
+      <td><p>A boolean value indicating whether to force the <code>peakAnnotation</code> object indicated by <code>name</code> to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>

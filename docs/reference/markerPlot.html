@@ -43,7 +43,7 @@
 
 
 <meta property="og:title" content="Plot Differential Markers — markerPlot" />
-<meta property="og:description" content="This function will plot one group/column of a differential markers se as a MA or Volcano plot." />
+<meta property="og:description" content="This function will plot one group/column of a differential markers as an MA or Volcano plot." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -159,7 +159,7 @@
     </div>
 
     <div class="ref-description">
-    <p>This function will plot one group/column of a differential markers se as a MA or Volcano plot.</p>
+    <p>This function will plot one group/column of a differential markers as an MA or Volcano plot.</p>
     </div>
 
     <pre class="usage"><span class='fu'>markerPlot</span>(<span class='kw'>seMarker</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -175,7 +175,7 @@
     </tr>
     <tr>
       <th>name</th>
-      <td><p>column/group name of seMarker to be plotted.</p></td>
+      <td><p>The name of a column (ie cell grouping in <code>groupBy</code>/<code>useGroups</code> for <code>markerFeatures</code>) in <code>seMarker</code> to be plotted. To see available options try <code><a href='https://rdrr.io/r/base/colnames.html'>colnames(seMarker)</a></code>.</p></td>
     </tr>
     <tr>
       <th>cutOff</th>
@@ -183,7 +183,7 @@
     </tr>
     <tr>
       <th>plotAs</th>
-      <td><p>plot as "Volcano" or "MA" plot.</p></td>
+      <td><p>A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").</p></td>
     </tr>
     <tr>
       <th>...</th>

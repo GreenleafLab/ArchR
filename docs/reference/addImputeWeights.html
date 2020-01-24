@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add Imputation Weights to ArchRProject — addImputeWeights • ArchR</title>
+<title>Add Imputation Weights to an ArchRProject — addImputeWeights • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Add Imputation Weights to ArchRProject — addImputeWeights" />
-<meta property="og:description" content="This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix." />
+<meta property="og:title" content="Add Imputation Weights to an ArchRProject — addImputeWeights" />
+<meta property="og:description" content="This function computes imputations weights that describe each cell as a linear combination of many cells based on a MAGIC diffusion matrix." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -153,13 +153,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add Imputation Weights to ArchRProject</h1>
+    <h1>Add Imputation Weights to an ArchRProject</h1>
     
     <div class="hidden name"><code>addImputeWeights.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix.</p>
+    <p>This function computes imputations weights that describe each cell as a linear combination of many cells based on a MAGIC diffusion matrix.</p>
     </div>
 
     <pre class="usage"><span class='fu'>addImputeWeights</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>reducedDims</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>,
@@ -176,11 +176,11 @@
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>The name of the <code>reducedDims</code> object (i.e. IterativeLSI) to retrieve from the designated <code>ArchRProject</code>.</p></td>
+      <td><p>The name of the <code>reducedDims</code> object (i.e. "IterativeLSI") to retrieve from the designated <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>dimsToUse</th>
-      <td><p>A vector containing the dimensions from the <code>reducedDims</code> object to use in clustering.</p></td>
+      <td><p>A vector containing the dimensions from the <code>reducedDims</code> object to use.</p></td>
     </tr>
     <tr>
       <th>corCutOff</th>
@@ -188,23 +188,24 @@
     </tr>
     <tr>
       <th>td</th>
-      <td><p>diffusion time (number of iterations) for MAGIC</p></td>
+      <td><p>The diffusion time parameter determines the number of smoothing iterations to be performed (see MAGIC from van Dijk et al Cell 2018).</p></td>
     </tr>
     <tr>
       <th>ka</th>
-      <td><p>kNN autotune parameter for MAGIC</p></td>
+      <td><p>The k-nearest neighbors autotune parameter to equalize the effective number of neighbors for each cell, thereby diminishing the effect of differences in density. (see MAGIC from van Dijk et al Cell 2018).</p></td>
     </tr>
     <tr>
       <th>sampleCells</th>
-      <td><p>number of cells to sample per block of estimated imputation matrix</p></td>
+      <td><p>The number of cells to sub-sample to compute an imputation block. An imputation block is a cell x cell matrix that describes the linear combination for
+imputation for numerical values within these cells. ArchR creates many blocks to keep this cell x cell matrix sparse for memory concerns.</p></td>
     </tr>
     <tr>
       <th>k</th>
-      <td><p>number of nearest neighbors to use for MAGIC</p></td>
+      <td><p>The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).</p></td>
     </tr>
     <tr>
       <th>epsilon</th>
-      <td><p>a value for the standard deviation of the kernel for MAGIC</p></td>
+      <td><p>The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).</p></td>
     </tr>
     <tr>
       <th>...</th>

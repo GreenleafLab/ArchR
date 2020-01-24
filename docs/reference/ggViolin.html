@@ -43,7 +43,7 @@
 
 
 <meta property="og:title" content="A ggplot-based violin plot wrapper function — ggViolin" />
-<meta property="og:description" content="A ggplot-based violin plot wrapper function" />
+<meta property="og:description" content="This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -159,7 +159,7 @@
     </div>
 
     <div class="ref-description">
-    <p>A ggplot-based violin plot wrapper function</p>
+    <p>This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.</p>
     </div>
 
     <pre class="usage"><span class='fu'>ggViolin</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>xlabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ylabel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -188,7 +188,7 @@
     </tr>
     <tr>
       <th>xOrder</th>
-      <td><p>A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of <code>x</code> in the desired order.</p></td>
+      <td><p>A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible values of <code>x</code> in the desired order.</p></td>
     </tr>
     <tr>
       <th>addPoints</th>
@@ -196,7 +196,7 @@
     </tr>
     <tr>
       <th>size</th>
-      <td><p>The line width for boxplot lines.</p></td>
+      <td><p>The line width for boxplot/summary lines.</p></td>
     </tr>
     <tr>
       <th>baseSize</th>
@@ -208,7 +208,7 @@
     </tr>
     <tr>
       <th>sampleRatio</th>
-      <td><p>sampling ratio for number of dots to be shown from original data over violins to prevent over-crowding. Default is set to 0.1.</p></td>
+      <td><p>The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.</p></td>
     </tr>
     <tr>
       <th>title</th>
@@ -216,7 +216,7 @@
     </tr>
     <tr>
       <th>pal</th>
-      <td><p>A custom palette for discrete coloring.</p></td>
+      <td><p>A named custom palette (see <code>paletteDiscrete</code> and <code>ArchRPalettes</code>) for discrete coloring.</p></td>
     </tr>
     </table>
 

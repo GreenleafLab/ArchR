@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add backgroundPeaks to ArchRProject — addBgdPeaks • ArchR</title>
+<title>Add Background Peaks to an ArchRProject — addBgdPeaks • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Add backgroundPeaks to ArchRProject — addBgdPeaks" />
-<meta property="og:description" content="This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject." />
+<meta property="og:title" content="Add Background Peaks to an ArchRProject — addBgdPeaks" />
+<meta property="og:description" content="This function will compute background peaks controlling for total accessibility and GC-content and add this information to an ArchRProject." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -153,17 +153,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add backgroundPeaks to ArchRProject</h1>
+    <h1>Add Background Peaks to an ArchRProject</h1>
     
     <div class="hidden name"><code>addBgdPeaks.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject.</p>
+    <p>This function will compute background peaks controlling for total accessibility and GC-content and add this information to an ArchRProject.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>addBgdPeaks</span>(<span class='no'>ArchRProj</span>, <span class='kw'>niterations</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>w</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>binSize</span> <span class='kw'>=</span> <span class='fl'>50</span>,
-  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>outFile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='fu'><a href='getOutputDirectory.html'>getOutputDirectory</a></span>(<span class='no'>ArchRProj</span>),
+    <pre class="usage"><span class='fu'>addBgdPeaks</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nIterations</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>w</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>binSize</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>outFile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='fu'><a href='getOutputDirectory.html'>getOutputDirectory</a></span>(<span class='no'>ArchRProj</span>),
   <span class='st'>"Background-Peaks.rds"</span>), <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -174,16 +175,16 @@
       <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
-      <th>niterations</th>
-      <td><p>The number of background peaks to sample (see chromVAR::getBackgroundPeaks).</p></td>
+      <th>nIterations</th>
+      <td><p>The number of background peaks to sample. See <code><a href='https://rdrr.io/pkg/chromVAR/man/getBackgroundPeaks.html'>chromVAR::getBackgroundPeaks()</a></code>.</p></td>
     </tr>
     <tr>
       <th>w</th>
-      <td><p>The parameter controlling similarity of background peaks (see chromVAR::getBackgroundPeaks).</p></td>
+      <td><p>The parameter controlling similarity of background peaks. See <code><a href='https://rdrr.io/pkg/chromVAR/man/getBackgroundPeaks.html'>chromVAR::getBackgroundPeaks()</a></code>.</p></td>
     </tr>
     <tr>
       <th>binSize</th>
-      <td><p>the precision with which the similarity is computed (see chromVAR::getBackgroundPeaks).</p></td>
+      <td><p>The precision with which the similarity is computed. See <code><a href='https://rdrr.io/pkg/chromVAR/man/getBackgroundPeaks.html'>chromVAR::getBackgroundPeaks()</a></code>.</p></td>
     </tr>
     <tr>
       <th>seed</th>
@@ -191,11 +192,11 @@
     </tr>
     <tr>
       <th>outFile</th>
-      <td><p>Path to save backgroundPeaks object to for ArchRProject.</p></td>
+      <td><p>The path to save the backgroundPeaks object as a <code>.rds</code> file for the given <code>ArchRProject</code>. The default action is to save this file in the <code>outputDirectory</code> of the <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>Force creation of backgroundPeaks even if file exists.</p></td>
+      <td><p>A boolean value indicating whether to force the file indicated by <code>outFile</code> to be overwritten if it already exists.</p></td>
     </tr>
     </table>
 

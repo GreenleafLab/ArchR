@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -170,7 +170,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An <code>ArchRProject</code> object</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>cutEnrich</th>
@@ -182,7 +182,11 @@
     </tr>
     <tr>
       <th>filterRatio</th>
-      <td><p>JJJ The maximum ratio of predicted doublets to filter based on the number of pass-filter cells. If there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (100,000).</p></td>
+      <td><p>The maximum ratio of predicted doublets to filter based on the number of pass-filter cells.
+For example, if there are 5,000 cells the maximum would be filterRatio * 5,000^2 / (100,000) (which simplifies to filterRatio * 5000 * 0.05).
+This <code>filterRatio</code> allows you to apply a consistent filter across multiple different samples that
+may have different percentages of doublets because they were run with different cell loading concentrations.
+The higher the <code>filterRatio</code>, the greater the number of cells potentially removed as doublets.</p></td>
     </tr>
     <tr>
       <th>...</th>

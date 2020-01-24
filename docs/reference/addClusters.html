@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -177,15 +177,15 @@
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>The name of the <code>reducedDims</code> object (i.e. IterativeLSI) to retrieve from the designated <code>ArchRProject</code>. Not required if input is a matrix.</p></td>
+      <td><p>The name of the <code>reducedDims</code> object (i.e. "IterativeLSI") to retrieve from the designated <code>ArchRProject</code>. Not required if input is a matrix.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The column name of the column to be added to <code>cellColData</code> if <code>input</code> is an <code>ArchRProject</code> object.</p></td>
+      <td><p>The column name of the cluster label column to be added to <code>cellColData</code> if <code>input</code> is an <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>sampleCells</th>
-      <td><p>An integer specifying number of cells to subset perform clustering and assign the remainder cells by euclidean distance.</p></td>
+      <td><p>UNCLEAR. FIX AND ADD LEAVE JJJ FOR ME TO CHECK. An integer specifying the number of cells to subsample and perform clustering on. The remaining cells will be assigned to the cluster of the nearest subsampled cell.</p></td>
     </tr>
     <tr>
       <th>seed</th>
@@ -201,7 +201,7 @@
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the <code>corCutOff</code>, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>knnAssign</th>
@@ -217,7 +217,7 @@
     </tr>
     <tr>
       <th>tstart</th>
-      <td><p>The time at which the function run was started. Useful for keeping track of how long clustering takes relative to a start time.</p></td>
+      <td><p>A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering when running things like IterativeLSI.</p></td>
     </tr>
     <tr>
       <th>force</th>

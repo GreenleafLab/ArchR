@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -169,15 +169,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>path</th>
-      <td><p>A character path to an ArchRProject directory that was previously saved.</p></td>
+      <td><p>A character path to an <code>ArchRProject</code> directory that was previously saved using <code><a href='saveArchRProject.html'>saveArchRProject()</a></code>.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean indicating when re-normalizing paths if an annotation/bdgPeaks is not found ignore and continue</p></td>
+      <td><p>A boolean value indicating whether missing optional <code>ArchRProject</code> components (i.e. peak annotations / background peaks) should be ignored when re-normalizing file paths. If set to <code>FALSE</code> loading of the <code>ArchRProject</code> will fail unless all components can be found.</p></td>
     </tr>
     <tr>
       <th>showLogo</th>
-      <td><p>show ArchRLogo upon completion.</p></td>
+      <td><p>A boolean value indicating whether to show the ascii ArchR logo after successful creation of an <code>ArchRProject</code>.</p></td>
     </tr>
     </table>
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add peakAnnotations to an ArchRProject — addPeakAnnotations • ArchR</title>
+<title>Add peak annotations to an ArchRProject — addPeakAnnotations • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Add peakAnnotations to an ArchRProject — addPeakAnnotations" />
-<meta property="og:description" content="This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region." />
+<meta property="og:title" content="Add peak annotations to an ArchRProject — addPeakAnnotations" />
+<meta property="og:description" content="This function adds information about which peaks contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -153,13 +153,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add peakAnnotations to an ArchRProject</h1>
+    <h1>Add peak annotations to an ArchRProject</h1>
     
     <div class="hidden name"><code>addPeakAnnotations.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.</p>
+    <p>This function adds information about which peaks contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.</p>
     </div>
 
     <pre class="usage"><span class='fu'>addPeakAnnotations</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>regions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Region"</span>,
@@ -174,15 +174,15 @@
     </tr>
     <tr>
       <th>regions</th>
-      <td><p>The name of peakAnnotations to be stored as in <code>ArchRProject</code></p></td>
+      <td><p>A <code>list</code> of <code>GRanges</code> that are to be overlapped with the <code>peakSet</code> in the <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The name of peakAnnotations to be stored as in <code>ArchRProject</code></p></td>
+      <td><p>The name of <code>peakAnnotation</code> object to be stored as in <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>force creation if peakAnnotation with same name already exists</p></td>
+      <td><p>A boolean value indicating whether to force the <code>peakAnnotation</code> object indicated by <code>name</code> to be overwritten if it already exist in the given <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>

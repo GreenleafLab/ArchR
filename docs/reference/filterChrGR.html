@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -162,7 +162,7 @@
     <p>This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object</p>
     </div>
 
-    <pre class="usage"><span class='fu'>filterChrGR</span>(<span class='kw'>gr</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remove</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"chrM"</span>), <span class='kw'>underscore</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+    <pre class="usage"><span class='fu'>filterChrGR</span>(<span class='kw'>gr</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remove</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>underscore</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>standard</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pruning.mode</span> <span class='kw'>=</span> <span class='st'>"coarse"</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -174,19 +174,19 @@
     </tr>
     <tr>
       <th>remove</th>
-      <td><p>A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.</p></td>
+      <td><p>A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, <code>remove</code> should be set to <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>underscore</th>
-      <td><p>A boolean value indicating whether to remove all seqlevels whose name contains an underscore (for example "chr11_KI270721v1_random").</p></td>
+      <td><p>A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").</p></td>
     </tr>
     <tr>
       <th>standard</th>
       <td><p>A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by <code><a href='https://rdrr.io/pkg/GenomeInfoDb/man/seqlevels-wrappers.html'>GenomeInfoDb::keepStandardChromosomes()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>pruning.mode</th>
-      <td><p>See ?seqinfo for a description of the pruning modes.</p></td>
+      <th>pruningMode</th>
+      <td><p>From <code>seqinfo</code>, when some of the seqlevels to drop from x are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".</p></td>
     </tr>
     </table>
 

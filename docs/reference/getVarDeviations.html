@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -162,7 +162,7 @@
     <p>This function will rank the variability of the deviations computed by ArchR and label the top variable annotations.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getVarDeviations</span>(<span class='no'>ArchRProj</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"MotifMatrix"</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+    <pre class="usage"><span class='fu'>getVarDeviations</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"MotifMatrix"</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>25</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -174,15 +174,15 @@
     </tr>
     <tr>
       <th>name</th>
-      <td><p>name of DeviationsMatrix see addDeviationsMatrix</p></td>
+      <td><p>The name of the <code>DeviationsMatrix</code> object stored in the <code>ArchRProject</code>. See <code><a href='addDeviationsMatrix.html'>addDeviationsMatrix()</a></code>.</p></td>
     </tr>
     <tr>
       <th>plot</th>
-      <td><p>plot ranked variability for each annotation</p></td>
+      <td><p>A boolean value indicating whether the ranked variability should be plotted for each peakAnnotation in <code>DeviationsMatrix</code>.</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>number of annotations to label with ggrepel</p></td>
+      <td><p>The number of annotations to label with <code>ggrepel</code>.</p></td>
     </tr>
     </table>
 

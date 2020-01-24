@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Add GeneScoreMatrix to Arrows/ArchRProject — addGeneScoreMatrix • ArchR</title>
+<title>Add GeneScoreMatrix to ArrowFiles or an ArchRProject — addGeneScoreMatrix • ArchR</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -42,8 +42,8 @@
 
 
 
-<meta property="og:title" content="Add GeneScoreMatrix to Arrows/ArchRProject — addGeneScoreMatrix" />
-<meta property="og:description" content="This function for each sample will independently compute counts for each tile
+<meta property="og:title" content="Add GeneScoreMatrix to ArrowFiles or an ArchRProject — addGeneScoreMatrix" />
+<meta property="og:description" content="This function, for each sample, will independently compute counts for each tile
 per cell and then infer gene activity scores." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -78,7 +78,7 @@ per cell and then infer gene activity scores." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -154,13 +154,13 @@ per cell and then infer gene activity scores." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Add GeneScoreMatrix to Arrows/ArchRProject</h1>
+    <h1>Add GeneScoreMatrix to ArrowFiles or an ArchRProject</h1>
     
     <div class="hidden name"><code>addGeneScoreMatrix.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function for each sample will independently compute counts for each tile
+    <p>This function, for each sample, will independently compute counts for each tile
 per cell and then infer gene activity scores.</p>
     </div>
 
@@ -183,11 +183,11 @@ per cell and then infer gene activity scores.</p>
     </tr>
     <tr>
       <th>genes</th>
-      <td><p>A <code>GRanges</code> of all genes coordinates start to end (stranded).</p></td>
+      <td><p>A stranded <code>GRanges</code> object containing the ranges associated with all gene start and end coordinates.</p></td>
     </tr>
     <tr>
       <th>geneModel</th>
-      <td><p>A gene model function (function of x describing stranded distance from gene promoter f(x)) as a string for weighting peaks for gene score calculation.</p></td>
+      <td><p>A string giving a "gene model function" used for weighting peaks for gene score calculation. This string should be a function of <code>x</code>, where <code>x</code> is the stranded distance from the transcription start site of the gene.</p></td>
     </tr>
     <tr>
       <th>matrixName</th>
@@ -215,7 +215,7 @@ per cell and then infer gene activity scores.</p>
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>A numeric value indicating what to scale the computed geneScores to across all cells.</p></td>
+      <td><p>A numeric value indicating what depth-normalize the computed geneScores to across all cells. This normalization is useful for direct comparison.</p></td>
     </tr>
     <tr>
       <th>excludeChr</th>
@@ -223,7 +223,7 @@ per cell and then infer gene activity scores.</p>
     </tr>
     <tr>
       <th>blacklist</th>
-      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist for geneScore biases.</p></td>
+      <td><p>A <code>GRanges</code> object containing genomic regions to blacklist that may be extremeley over-represented and thus biasing the geneScores for genes nearby that locus.</p></td>
     </tr>
     <tr>
       <th>threads</th>
@@ -235,7 +235,7 @@ per cell and then infer gene activity scores.</p>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given ArrowFiles.</p></td>
+      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given <code>input</code>.</p></td>
     </tr>
     </table>
 

@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -163,7 +163,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>addDeviationsMatrix</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>peakAnnotation</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>matches</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bgdPeaks</span> <span class='kw'>=</span> <span class='fu'>getBgdPeaks</span>(<span class='no'>ArchRProj</span>),
+  <span class='kw'>matches</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bgdPeaks</span> <span class='kw'>=</span> <span class='fu'><a href='getBgdPeaks.html'>getBgdPeaks</a></span>(<span class='no'>ArchRProj</span>),
   <span class='kw'>matrixName</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>out</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"z"</span>, <span class='st'>"deviations"</span>), <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(), <span class='kw'>parallelParam</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='no'>...</span>)</pre>
@@ -177,7 +177,7 @@
     </tr>
     <tr>
       <th>peakAnnotation</th>
-      <td><p>The name of the peakAnnotation name stored in the <code>ArchRProject</code>.</p></td>
+      <td><p>The name of the <code>peakAnnotation</code> stored in the <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>matrixName</th>
@@ -201,7 +201,7 @@
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exist in the given <code>ArrowFiles</code>.</p></td>
+      <td><p>A boolean value indicating whether to force the matrix indicated by <code>matrixName</code> to be overwritten if it already exists in the ArrowFiles asociated with the given <code>ArchRProject</code>.</p></td>
     </tr>
     </table>
 

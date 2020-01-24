@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -175,19 +175,19 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An <code>ArchRProject</code> object</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>positions</th>
-      <td><p>A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be stranded.</p></td>
+      <td><p>A <code>list</code> or <code>GenomicRangesList</code> of <code>GRanges</code> containing the positions to incorporate into the footprint. Each position should be stranded.</p></td>
     </tr>
     <tr>
       <th>plotName</th>
-      <td><p>The prefix to add to the file name for the output PDF file.</p></td>
+      <td><p>The prefix to add to the file name for the output PDF file containing the footprint plots.</p></td>
     </tr>
     <tr>
       <th>groupBy</th>
-      <td><p>The name of the column in <code>cellColData</code> to use for grouping multiple samples together prior to footprinting.</p></td>
+      <td><p>The name of the column in <code>cellColData</code> used in <code>addGroupCoverages</code> for grouping multiple cells together (see <code>addGroupCoverages</code>).</p></td>
     </tr>
     <tr>
       <th>useGroups</th>
@@ -215,15 +215,15 @@
     </tr>
     <tr>
       <th>nTop</th>
-      <td><p>The number of genomic regions to consider. Only the top <code>nTop</code> genomic regions based on the "score" column in the GRanges will be considered for the footprint.</p></td>
+      <td><p>The number of genomic regions to consider. Only the top <code>nTop</code> genomic regions based on the "score" column in the <code>GRanges</code> object will be considered for the footprint.</p></td>
     </tr>
     <tr>
       <th>normMethod</th>
-      <td><p>The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "None", "Subtract", "Divide".</p></td>
+      <td><p>The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.</p></td>
     </tr>
     <tr>
       <th>inputSE</th>
-      <td><p>Input a previous footprint Summarized Experiment to be plotted instead of being regenerated.</p></td>
+      <td><p>Input a previous footprint Summarized Experiment (returned after running <code>plotFootprints</code>) to be plotted instead of regenerating the footprinting information.</p></td>
     </tr>
     <tr>
       <th>height</th>
@@ -239,7 +239,7 @@
     </tr>
     <tr>
       <th>useSink</th>
-      <td><p>Use sink to hide messages during plotting.</p></td>
+      <td><p>A boolean value that indicates whether the <code>sink</code> function from base R should be used to hide messages during plotting.</p></td>
     </tr>
     <tr>
       <th>threads</th>

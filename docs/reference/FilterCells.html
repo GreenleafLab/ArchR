@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -169,17 +169,17 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An <code>ArchRProject</code> object</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>filterList</th>
-      <td><p>A list of filters based on cellColData to apply when filtering cells.
-Format should be a named list where the name corresponds to a column name in cellColData and the value corresponds to the filter criteria.
-If numeric, a lower threshold is expected, below which cells are filtered (a higher threshold is optional).
-If a chatacter vector, rows in cellColData corresponding to the supplied character values are kept.
-If a list or simpleList, the user can additionally supply filters that are specific to each sample
-(i.e. apply to all samples : list("TSSEnrichment" = c(4,25)),
-apply to specific samples : list(TSSEnrichment = list("Sample1" = c(4, 25), "Sample2" = c(5, 25)))).</p></td>
+      <td><p>A list of filters based on <code>cellColData</code> to apply when filtering cells.
+Format should be a named list where the name corresponds to a column name in <code>cellColData</code> and the value corresponds to the filter criteria.
+If numeric, a lower threshold is expected, below which cells are filtered (a higher threshold is optional and can be included using a numeric vector).
+If a chatacter vector, only the rows in <code>cellColData</code> with <code>rownames</code> corresponding to the supplied character values are kept.
+If a list or simpleList, the user can additionally supply filters that are applied to all samples or a subset of specified samples.
+For example, to apply a filter to all samples: list("TSSEnrichment" = c(4,25)).
+Similarly, to aply a filter only to specific samples: list("TSSEnrichment" = list("Sample1" = c(4, 25), "Sample2" = c(5, 25))).</p></td>
     </tr>
     <tr>
       <th>...</th>

@@ -43,8 +43,7 @@
 
 
 <meta property="og:title" content="Add an Iterative LSI-based dimensionality reduction to an ArchRProject — addIterativeLSI" />
-<meta property="og:description" content="This function will compute an iterative LSI dimensionality reduction
-on an ArchRProject." />
+<meta property="og:description" content="This function will compute an iterative LSI dimensionality reduction on an ArchRProject." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -78,7 +77,7 @@ on an ArchRProject." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -160,16 +159,14 @@ on an ArchRProject." />
     </div>
 
     <div class="ref-description">
-    <p>This function will compute an iterative LSI dimensionality reduction
-on an ArchRProject.</p>
+    <p>This function will compute an iterative LSI dimensionality reduction on an ArchRProject.</p>
     </div>
 
     <pre class="usage"><span class='fu'>addIterativeLSI</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"TileMatrix"</span>,
   <span class='kw'>reducedDimsOut</span> <span class='kw'>=</span> <span class='st'>"IterativeLSI"</span>, <span class='kw'>iterations</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>dimsToUse</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>25</span>,
   <span class='kw'>corCutOff</span> <span class='kw'>=</span> <span class='fl'>0.75</span>, <span class='kw'>LSIMethod</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>binarize</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>sampleCells</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/Round.html'>floor</a></span>(<span class='fu'><a href='nCells.html'>nCells</a></span>(<span class='no'>ArchRProj</span>)/<span class='fl'>4</span>), <span class='fl'>5000</span>)),
-  <span class='kw'>varFeatures</span> <span class='kw'>=</span> <span class='fl'>50000</span>, <span class='kw'>selectionMethod</span> <span class='kw'>=</span> <span class='st'>"var"</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10000</span>,
-  <span class='kw'>totalFeatures</span> <span class='kw'>=</span> <span class='fl'>5e+05</span>, <span class='kw'>filterQuantile</span> <span class='kw'>=</span> <span class='fl'>0.99</span>,
+  <span class='kw'>sampleCells</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>varFeatures</span> <span class='kw'>=</span> <span class='fl'>50000</span>, <span class='kw'>selectionMethod</span> <span class='kw'>=</span> <span class='st'>"var"</span>,
+  <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10000</span>, <span class='kw'>totalFeatures</span> <span class='kw'>=</span> <span class='fl'>5e+05</span>, <span class='kw'>filterQuantile</span> <span class='kw'>=</span> <span class='fl'>0.99</span>,
   <span class='kw'>saveIterations</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>outDir</span> <span class='kw'>=</span> <span class='fu'><a href='getOutputDirectory.html'>getOutputDirectory</a></span>(<span class='no'>ArchRProj</span>),
   <span class='kw'>clusterParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='kw'>runHarmony</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>harmonyParams</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(), <span class='kw'>seed</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>verboseHeader</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
@@ -184,7 +181,7 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".</p></td>
+      <td><p>The name of the data matrix to retrieve from the ArrowFiles associated with the <code>ArchRProject</code>. Valid options are "TileMatrix" or "PeakMatrix".</p></td>
     </tr>
     <tr>
       <th>reducedDimsOut</th>
@@ -200,12 +197,12 @@ on an ArchRProject.</p>
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the <code>corCutOff</code>, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>LSIMethod</th>
-      <td><p>A numeric/character indicating the order of operations in the TF-IDF normalization.
-The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd option is 3 or "logtf-logidf".</p></td>
+      <td><p>A number or string indicating the order of operations in the TF-IDF normalization.
+Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".</p></td>
     </tr>
     <tr>
       <th>binarize</th>
@@ -213,7 +210,7 @@ The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd optio
     </tr>
     <tr>
       <th>sampleCells</th>
-      <td><p>An integer specifying number of cells to subset perform estimatedLSI and clustering.</p></td>
+      <td><p>An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.</p></td>
     </tr>
     <tr>
       <th>varFeatures</th>
@@ -225,27 +222,27 @@ The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd optio
     </tr>
     <tr>
       <th>scaleTo</th>
-      <td><p>scaleTo normalization depth for Cluster Averages for variance calculation</p></td>
+      <td><p>A numeric value indicating the normalization depth for Cluster Averages prior to variance calculation</p></td>
     </tr>
     <tr>
       <th>totalFeatures</th>
-      <td><p>The number of features to consider for use in LSI ranked by the total number of insertion counts.</p></td>
+      <td><p>The number of features to consider for use in LSI after ranking the features by the total number of insertions. These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a <code>TileMatrix</code> to a defined peakSet.</p></td>
     </tr>
     <tr>
       <th>filterQuantile</th>
-      <td><p>Remove features that are above this quantile based on insertion counts prior to initial (1st iteration) LSI.</p></td>
+      <td><p>A number 0,1 that indicates the quantile above which features should be removed based on insertion counts prior to the first iteration of the iterative LSI paradigm. For example, if <code>filterQuantile = 0.99</code>, any features above the 99th percentile in insertion counts will be ignored for the first LSI iteration.</p></td>
     </tr>
     <tr>
       <th>saveIterations</th>
-      <td><p>A boolean value indicating whether the different LSI iterations should be saved as compressed <code>.rds</code> files in the designated <code>outDir</code>.</p></td>
+      <td><p>A boolean value indicating whether the results of each LSI iterations should be saved as compressed <code>.rds</code> files in the designated <code>outDir</code>.</p></td>
     </tr>
     <tr>
       <th>outDir</th>
-      <td><p>The output directory for saving LSI iterations if desired. Default is in outputDirectory of ArchRProject.</p></td>
+      <td><p>The output directory for saving LSI iterations if desired. Default is in the <code>outputDirectory</code> of the <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>clusterParams</th>
-      <td><p>Additional parameters to be passed to <code><a href='addClusters.html'>ArchR::addClusters()</a></code>.</p></td>
+      <td><p>Additional parameters to be passed to <code><a href='addClusters.html'>addClusters()</a></code>.</p></td>
     </tr>
     <tr>
       <th>runHarmony</th>
@@ -261,7 +258,7 @@ The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd optio
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
+      <td><p>A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>verboseHeader</th>

@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -170,14 +170,15 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An <code>ArchRProject</code> object</p></td>
+      <td><p>An <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>filterList</th>
       <td><p>A list of filters based on <code>cellColData</code> to apply when filtering cells.
-Format should be a named numeric list where the name corresponds to a column name in cellColData
+Format should be a named numeric list where the name corresponds to a column name in <code>cellColData</code>
 and the value corresponds to the filter criteria. A lower threshold is expected, below which
-cells are filtered (a higher threshold is optional). Only the first 2 filters will be plotted.</p></td>
+cells are filtered (a higher threshold is optional and can be passed as a numeric vector along with the lower threshold).
+Only the first 2 filters will be plotted.</p></td>
     </tr>
     <tr>
       <th>sampleNames</th>

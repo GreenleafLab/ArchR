@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -176,15 +176,15 @@
     </tr>
     <tr>
       <th>reducedDims</th>
-      <td><p>The name of the <code>reducedDims</code> object (i.e. IterativeLSI) to use from the designated <code>ArchRProject</code>.</p></td>
+      <td><p>The name of the <code>reducedDims</code> object (i.e. "IterativeLSI") to use from the designated <code>ArchRProject</code>.</p></td>
     </tr>
     <tr>
       <th>embedding</th>
-      <td><p>The type of the embedding to add to the <code>ArchRProject</code> object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".</p></td>
+      <td><p>The type of embedding to add to the <code>ArchRProject</code> object. Possible options include "UMAP", "TUMAP", "RTSNE", and "FFRTSNE".</p></td>
     </tr>
     <tr>
       <th>embeddingOut</th>
-      <td><p>The name for the embedding to be stored as in the <code>ArchRProject</code> object.</p></td>
+      <td><p>The name for the embedding to be stored in the given <code>ArchRProject</code> object.</p></td>
     </tr>
     <tr>
       <th>embeddingParams</th>
@@ -196,23 +196,23 @@
     </tr>
     <tr>
       <th>corCutOff</th>
-      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.</p></td>
+      <td><p>A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the <code>corCutOff</code>, it will be excluded from analysis.</p></td>
     </tr>
     <tr>
       <th>saveModel</th>
-      <td><p>A boolean value indicating whether to save UMAP model for later usage such as projection. Only relevant for UMAP.</p></td>
+      <td><p>A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding. Only relevant if <code>embedding</code> is "UMAP".</p></td>
     </tr>
     <tr>
       <th>seed</th>
-      <td><p>A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
+      <td><p>A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>A boolean value that indicates whether or not to overwrite the relevant data in the <code>ArchRProject</code> object if the given <code>embedding</code> already exists.</p></td>
+      <td><p>A boolean value that indicates whether or not to overwrite the relevant data in the <code>ArchRProject</code> object if the given <code>embeddingOut</code> already exists.</p></td>
     </tr>
     <tr>
       <th>threads</th>
-      <td><p>The number of threads to use for embedding generation computations.</p></td>
+      <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
       <th>...</th>

@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -171,7 +171,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ArrowFile</th>
-      <td><p>The ArrowFile object from which the selected data matrix should be obtained.</p></td>
+      <td><p>The path to an ArrowFile from which the selected data matrix should be obtained.</p></td>
     </tr>
     <tr>
       <th>useMatrix</th>
@@ -183,11 +183,11 @@
     </tr>
     <tr>
       <th>cellNames</th>
-      <td><p>A string vector of cell names to extract the matrix for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.</p></td>
+      <td><p>A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using <code><a href='getCellNames.html'>getCellNames()</a></code>.</p></td>
     </tr>
     <tr>
       <th>ArchRProj</th>
-      <td><p>An ArchRProject object to be used for getting additional information for cells in cellColData.</p></td>
+      <td><p>An <code>ArchRProject</code> object to be used for getting additional information for cells in <code>cellColData</code>. This is useful when you want to keep information created while analyzing an ArchRProject.</p></td>
     </tr>
     <tr>
       <th>verbose</th>

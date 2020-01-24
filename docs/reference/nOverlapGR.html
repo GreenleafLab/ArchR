@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -162,21 +162,21 @@
     <p>This function returns a data.frame describing how many basepairs overlap the provided query and subject Genomic Ranges objects</p>
     </div>
 
-    <pre class="usage"><span class='fu'>nOverlapGR</span>(<span class='kw'>query</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>subject</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ignore.strand</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>nOverlapGR</span>(<span class='kw'>query</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>subject</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ignoreStrand</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>query</th>
-      <td><p>A <code>GRanges</code> object to be used as the query in <code>findOverlaps()</code>.</p></td>
+      <td><p>A <code>GRanges</code> object to be used as the query in <code><a href='https://rdrr.io/pkg/GenomicRanges/man/findOverlaps-methods.html'>GenomicRanges::findOverlaps()</a></code>.</p></td>
     </tr>
     <tr>
       <th>subject</th>
-      <td><p>A <code>GRanges</code> object to be used as the subject in <code>findOverlaps()</code>.</p></td>
+      <td><p>A <code>GRanges</code> object to be used as the subject in <code><a href='https://rdrr.io/pkg/GenomicRanges/man/findOverlaps-methods.html'>GenomicRanges::findOverlaps()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>ignore.strand</th>
+      <th>ignoreStrand</th>
       <td><p>A boolean value indicating whether strandedness should be ignored in <code>findOverlaps()</code>.</p></td>
     </tr>
     </table>

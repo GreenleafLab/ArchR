@@ -43,8 +43,8 @@
 
 
 <meta property="og:title" content="Get Supervised Trajectory from an ArchR Project — getTrajectory" />
-<meta property="og:description" content="This function will fit get a supervised trajectory from an ArchRProject and aggregate signal
-from a matrix and smooth across the trajectory" />
+<meta property="og:description" content="This function will get a supervised trajectory from an ArchRProject (see addTrajectory), get data
+from a desired matrix, and smooth each value across the input trajectory." />
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -78,7 +78,7 @@ from a matrix and smooth across the trajectory" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ArchR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.5</span>
       </span>
     </div>
 
@@ -160,14 +160,14 @@ from a matrix and smooth across the trajectory" />
     </div>
 
     <div class="ref-description">
-    <p>This function will fit get a supervised trajectory from an ArchRProject and aggregate signal
-from a matrix and smooth across the trajectory</p>
+    <p>This function will get a supervised trajectory from an <code>ArchRProject</code> (see <code>addTrajectory</code>), get data
+from a desired matrix, and smooth each value across the input trajectory.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getTrajectory</span>(<span class='kw'>ArchRProj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Trajectory"</span>,
-  <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"GeneScoreMatrix"</span>, <span class='kw'>varCutOff</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>useMatrix</span> <span class='kw'>=</span> <span class='st'>"GeneScoreMatrix"</span>, <span class='kw'>varCutOff</span> <span class='kw'>=</span> <span class='fl'>0.9</span>,
   <span class='kw'>maxFeatures</span> <span class='kw'>=</span> <span class='fl'>25000</span>, <span class='kw'>groupEvery</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>threads</span> <span class='kw'>=</span> <span class='fu'><a href='getArchRThreads.html'>getArchRThreads</a></span>(),
-  <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10000</span>, <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>smooth</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>log2Norm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>scaleTo</span> <span class='kw'>=</span> <span class='fl'>10000</span>, <span class='kw'>smooth</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>smoothFormula</span> <span class='kw'>=</span> <span class='st'>"y ~ s(x, bs = 'cs')"</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -183,39 +183,39 @@ from a matrix and smooth across the trajectory</p>
     </tr>
     <tr>
       <th>useMatrix</th>
-      <td><p>The name of the data matrix from the <code>ArrowFiles</code> to get numerical values for each cell from.</p></td>
+      <td><p>The name of the data matrix from the <code>ArrowFiles</code> to get numerical values for each cell from. Recommended matrices are "GeneScoreMatrix", "PeakMatrix", or "MotifMatrix".</p></td>
     </tr>
     <tr>
       <th>varCutOff</th>
-      <td><p>Variance Quantile Cutoff for identifying top variable features across trajectory.</p></td>
+      <td><p>The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory. Values above this quantile will be selected only.</p></td>
     </tr>
     <tr>
       <th>maxFeatures</th>
-      <td><p>The maximum number of features (ordered by variance) to consider from <code>useMatrix</code> when generating a trajectory.</p></td>
+      <td><p>The maximum number of features, ordered by variance, to consider from <code>useMatrix</code> when generating a trajectory. This prevents smoothing a large number number of features which can be very time consuming.</p></td>
     </tr>
     <tr>
       <th>groupEvery</th>
-      <td><p>The number of sequential percentiles (0-100 every x percentile) to group together when generating a trajectory (similar to smoothing).</p></td>
+      <td><p>The number of sequential percentiles to group together when generating a trajectory. This is similar to smoothing via a non-overlapping sliding window across pseudo-time. If <code>groupEvery = 2</code>, the values for percentiles 1 and 2, 3 and 4, 5 and 6, etc. will be grouped together.</p></td>
     </tr>
     <tr>
       <th>threads</th>
       <td><p>The number of threads to be used for parallel computing.</p></td>
     </tr>
     <tr>
-      <th>scaleTo</th>
-      <td><p>Scale group data matrix to this value for normalizaiton.</p></td>
+      <th>log2Norm</th>
+      <td><p>A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed. If you are using a "MotifMatrix" set to FALSE.</p></td>
     </tr>
     <tr>
-      <th>log2Norm</th>
-      <td><p>A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed.</p></td>
+      <th>scaleTo</th>
+      <td><p>Once the sequential trajectory matrix is created depth-normalize to this value to control biaes. Set to NULL to prevent this normalization. If you are using a "MotifMatrix" set to NULL.</p></td>
     </tr>
     <tr>
       <th>smooth</th>
-      <td><p>A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.</p></td>
+      <td><p>A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.</p></td>
     </tr>
     <tr>
       <th>smoothFormula</th>
-      <td><p>The smoothing formula to use in the generalized additive model. See the <code>formula</code> parameter in <code><a href='https://rdrr.io/pkg/mgcv/man/gam.html'>mgcv::gam()</a></code>.</p></td>
+      <td><p>The smoothing formula to use in the generalized additive model. See the <code>formula</code> parameter in <code><a href='https://rdrr.io/pkg/mgcv/man/gam.html'>mgcv::gam()</a></code> for additional information.</p></td>
     </tr>
     <tr>
       <th>...</th>

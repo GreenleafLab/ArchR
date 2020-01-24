@@ -18,7 +18,7 @@
 #' @param scaleTo The normalization depth to center normalization to in normBy (default is 10,000).
 #' @param threads The number of threads to be used for parallel computing.
 #' @param k The number of nearby cells to use for selecting a biased-matched background while accounting for `bgdGroups` proportions.
-#' @param bufferRatio The buffering ratio of cells to enable optimal biased-matched background while accounting for `bgdGroups` proportions. For example when set to 0.8, the biased-matching will take the first matched 80% of the cell group to ensure outlier exclusion.
+#' @param bufferRatio The buffering ratio of cells to enable optimal biased-matched background while accounting for `bgdGroups` proportions. For example when set to 0.8, the biased-matching will take the first matched 80th percentile of the cell group to ensure outlier exclusion.
 #' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when `useMatrix` is an insertion counts-based matrix.
 #' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
 #' @param method The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.
