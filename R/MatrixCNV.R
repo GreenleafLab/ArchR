@@ -287,7 +287,7 @@ addCNVMatrix <- function(
 
 .makeWindows <- function(genome, chromSizes, blacklist, windowSize = 10e6, stepSize = 2e6, threads = 1){
   
-  genome <- ArchR:::.validBSgenome(genome)
+  genome <- validBSgenome(genome)
 
   #Sliding Windows
   windows <- slidingWindows(x = chromSizes, width = windowSize, step = stepSize) %>% 

@@ -131,8 +131,14 @@
 
 }
 
+#' Get/Validate BSgenome
+#' 
+#' This function will attempt to get or validate an input as a BSgenome.
+#' 
+#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"), name of a BSgenome package (BSgenome.Hsapiens.UCSC.hg19) or a BSgenome object.
+#' @param masked A boolean describing whether or not to access the masked genome versino. See `BSgenome::getBSgenome()`.
 #' @export
-.validBSgenome <- function(genome = NULL, masked = FALSE){
+validBSgenome <- function(genome = NULL, masked = FALSE){
   stopifnot(!is.null(genome))
   if(inherits(genome, "BSgenome")){
     return(genome)
@@ -231,7 +237,7 @@
     if(genomeAnnotation[[grep("genome", names(genomeAnnotation), ignore.case = TRUE)]]=="nullGenome"){
       gA$genome <- "nullGenome"
     }else{
-      bsg <- .validBSgenome(genomeAnnotation[[grep("genome", names(genomeAnnotation), ignore.case = TRUE)]])
+      bsg <- validBSgenome(genomeAnnotation[[grep("genome", names(genomeAnnotation), ignore.case = TRUE)]])
       gA$genome <- bsg@pkgname
     }
     gA$chromSizes <- .validGRanges(genomeAnnotation[[grep("chromsizes", names(genomeAnnotation), ignore.case = TRUE)]])

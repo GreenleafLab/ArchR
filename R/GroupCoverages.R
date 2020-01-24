@@ -454,7 +454,7 @@ addGroupCoverages <- function(
   .requirePackage(genome)
   .requirePackage("Biostrings")
   BSgenome <- eval(parse(text = genome))
-  BSgenome <- .validBSgenome(BSgenome)
+  BSgenome <- validBSgenome(BSgenome)
 
   if(is.null(tstart)){
     tstart <- Sys.time()

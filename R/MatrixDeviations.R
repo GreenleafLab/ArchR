@@ -429,10 +429,15 @@ addDeviationsMatrix <- function(
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `DeviationsMatrix` object stored in the `ArchRProject`. See `addDeviationsMatrix()`.
-#' @param plot QQQ WHAT IS AN "ANNOTATION" HERE? A boolean value indicating whether the ranked variability should be plotted for each QQQ annotation.
+#' @param plot A boolean value indicating whether the ranked variability should be plotted for each peakAnnotation in `DeviationsMatrix`.
 #' @param n The number of annotations to label with `ggrepel`.
 #' @export
-getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 25){
+getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE, n = 25){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = plot, name = "plot", valid = c("boolean"))
+  .validInput(input = n, name = "n", valid = c("integer"))
 
   rowV <- .getRowVars(getArrowFiles(ArchRProj), useMatrix = name, seqnames = "z")
   rowV <- rowV[order(rowV$combinedVars, decreasing=TRUE), ]
@@ -460,22 +465,31 @@ getVarDeviations <- function(ArchRProj, name = "MotifMatrix", plot = TRUE, n = 2
 #' This function will compute background peaks controlling for total accessibility and GC-content and add this information to an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param niterations QQQ SHOULD THIS BE "nIterations" FOR CONSISTENCY? The number of background peaks to sample. See `chromVAR::getBackgroundPeaks()`.
-#' @param w QQQ I FEEL LIKE THESE PARAMETERS FOR CHROMVAR NEED TO BE BETTER DESCRIBED. The parameter controlling similarity of background peaks. See `chromVAR::getBackgroundPeaks()`.
-#' @param binSize QQQ I FEEL LIKE THESE PARAMETERS FOR CHROMVAR NEED TO BE BETTER DESCRIBED. The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
+#' @param nIterations The number of background peaks to sample. See `chromVAR::getBackgroundPeaks()`.
+#' @param w The parameter controlling similarity of background peaks. See `chromVAR::getBackgroundPeaks()`.
+#' @param binSize The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param outFile QQQ The path to save the backgroundPeaks object as a `.RDS` file for the given `ArchRProject`. The default action is to save this file in the `outDir` of the `ArchRProject`.
+#' @param outFile The path to save the backgroundPeaks object as a `.rds` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 addBgdPeaks <- function(
-  ArchRProj, 
-  niterations = 50, 
+  ArchRProj = NULL, 
+  nIterations = 50, 
   w = 0.1, 
   binSize = 50, 
   seed = 1,
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
   force = FALSE,
-  ...){
+  ...
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = nIterations, name = "nIterations", valid = c("integer"))
+  .validInput(input = w, name = "w", valid = c("numeric"))
+  .validInput(input = binSize, name = "binSize", valid = c("integer"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = outFile, name = "outFile", valid = c("character"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
   if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
     
@@ -488,7 +502,7 @@ addBgdPeaks <- function(
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
       
       }else{
       
@@ -501,7 +515,7 @@ addBgdPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
 
   }
 
@@ -514,17 +528,36 @@ addBgdPeaks <- function(
 
 }
 
-#' QQQ NEEDS PARAM DEFINITIONS OR NEEDS TO BE HIDDEN. IF YOU MAKE IT HIDDEN, MAKE SURE TO CHANGE THE FUNCTION CALL ABOVE
+
+#' Get Background Peaks from an ArchRProject
+#' 
+#' This function will get/compute background peaks controlling for total accessibility and GC-content from an ArchRProject.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param nIterations The number of background peaks to sample. See `chromVAR::getBackgroundPeaks()`.
+#' @param w The parameter controlling similarity measure of background peaks. See `chromVAR::getBackgroundPeaks()`.
+#' @param binSize The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param outFile The path to save the backgroundPeaks object as a `.rds` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
+#' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 getBgdPeaks <- function(
-  ArchRProj, 
-  niterations = 50, 
+  ArchRProj = NULL, 
+  nIterations = 50, 
   w = 0.1, 
   binSize = 50, 
   seed = 1,
   force = FALSE,
   ...
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = nIterations, name = "nIterations", valid = c("integer"))
+  .validInput(input = w, name = "w", valid = c("numeric"))
+  .validInput(input = binSize, name = "binSize", valid = c("integer"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = outFile, name = "outFile", valid = c("character"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
   if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
     
@@ -538,7 +571,7 @@ getBgdPeaks <- function(
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
       
       }else{
       
@@ -551,7 +584,7 @@ getBgdPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, niterations=niterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
 
   }
 
@@ -564,8 +597,8 @@ getBgdPeaks <- function(
 }
 
 .computeBgdPeaks <- function(
-  ArchRProj, 
-  niterations = 50,
+  ArchRProj = NULL, 
+  nIterations = 50,
   w = 0.1, 
   binSize = 50, 
   seed = 1, 
@@ -603,7 +636,7 @@ getBgdPeaks <- function(
   bgdPeaks <- chromVAR::getBackgroundPeaks(
     object = se,
     bias = rowData(se)$bias, 
-    niterations = niterations, 
+    niterations = nIterations, 
     w = w, 
     bs = binSize
   )

@@ -7,28 +7,28 @@
 #' This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object
 #'
 #' @param gr A `GRanges` object or another object containing seqlevels.
-#' @param remove QQQ YOU SURE YOU WANT TO DEFAULT TO chrM? SEEMS BAD. A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. QQQ If no manual removal is desired, `remove` should be set to `NULL`.
+#' @param remove A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `remove` should be set to `NULL`.
 #' @param underscore A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").
 #' @param standard A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.
-#' @param pruning.mode QQQ ADD MORE INFO ON WHAT THIS IS AND WHAT IT DOES. ALSO, FOR CONSISTENCY, THIS SHOULD BE "pruningMode" (I KNOW THE SEQINFO FUNCTION USES "pruning.mode" BUT ARCHR DOESNT USE THAT VARIABLE NAME STYLE). See ?seqinfo for a description of the pruning modes.
+#' @param pruningMode From `seqinfo`, when some of the seqlevels to drop from x are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
 #' @export
 filterChrGR <- function(
     gr = NULL, 
-    remove = c("chrM"), 
+    remove = NULL, 
     underscore = TRUE, 
     standard = TRUE, 
     pruning.mode="coarse"
   ){
 
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
-  .validInput(input = remove, name = "remove", valid = c("character"))
+  .validInput(input = remove, name = "remove", valid = c("character", "null"))
   .validInput(input = underscore, name = "underscore", valid = c("boolean"))
   .validInput(input = standard, name = "standard", valid = c("boolean"))
-  .validInput(input = pruning.mode, name = "pruning.mode", valid = c("character"))
+  .validInput(input = pruningMode, name = "pruningMode", valid = c("character"))
 
   #first we remove all non standard chromosomes
   if(standard){
-    gr <- GenomeInfoDb::keepStandardChromosomes(gr, pruning.mode = pruning.mode)
+    gr <- GenomeInfoDb::keepStandardChromosomes(gr, pruning.mode = pruningMode)
   }
   #Then check for underscores or specified remove
   seqNames <- seqlevels(gr)
@@ -38,7 +38,9 @@ filterChrGR <- function(
     chrRemove <- c(chrRemove, which(grepl("_", seqNames)))
   }
   #next we remove all chr specified in remove
-  chrRemove <- c(chrRemove, which(seqNames %in% remove))
+  if(!is.null(remove)){
+    chrRemove <- c(chrRemove, which(seqNames %in% remove))
+  }
   if(length(chrRemove) > 0){
     chrKeep <- seqNames[-chrRemove]
   }else{
@@ -150,12 +152,12 @@ subsetSeqnamesGR <- function(gr = NULL, names = NULL){
 #' This function adds seqlength information for each of the seqnames in the provided Genomic Ranges object.
 #'
 #' @param gr A `GRanges` object.
-#' @param genome QQQ CANT DO THIS UNLESS WE EXPORT AND ANNOTATE validBSgenome! The name of a valid genome (for example "hg38", "hg19", or "mm10"). QQQ See `ArchR:::validBSgenome()`.
+#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `validBSgenome()`.
 #' @export
 addSeqLengthsGR <- function(gr = NULL, genome = NULL){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
   .validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
-  genome <- .validBSgenome(genome)
+  genome <- validBSgenome(genome)
   stopifnot(all(as.character(seqnames(gr)) %in% as.character(seqnames(genome))))
   seqlengths(gr) <- seqlengths(genome)[as.character(names(seqlengths(gr)))]
   return(gr)
@@ -166,9 +168,9 @@ addSeqLengthsGR <- function(gr = NULL, genome = NULL){
 #' This function randomly shuffles a Genomic Ranges object.
 #'
 #' @param gr A `GRanges` object.
-#' @param genome QQQ CANT DO THIS UNLESS WE EXPORT AND ANNOTATE validBSgenome! The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `ArchR:::validBSgenome()`.
+#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `validBSgenome()`.
 #' @param n The number of permutations to perform during shuffling.
-#' @param shuffleChr QQQ STILL NOT CLEAR WHAT "CHROMOSOME DISTRIBUTION" MEANS HERE. A boolean value indicating whether to shuffle across chromosomes randomly based on the length of chromosomes (`TRUE`) or to use prior knowledge of the QQQ distribution of ranges across the various chromosomes to create a shuffled set of ranges that is similarly distributed (`FALSE`).
+#' @param shuffleChr A boolean value indicating whether to shuffle number of regions across chromosomes randomly based on the length of chromosomes (`TRUE`) or to use prior knowledge of the distribution of regions across the various chromosomes to create a shuffled set of ranges that is similarly distributed (`FALSE`).
 #' @export
 shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
@@ -220,13 +222,13 @@ shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
 #' This function merges overlapping regions within a single Genomic Ranges object
 #'
 #' @param gr A `GRanges` object.
-#' @param ignore.strand QQQ THIS SHOULD BE "ignoreStrand" FOR CONSISTENCY. A boolean value indicating whether strandedness should be ignored in `GenomicRanges::findOverlaps()`.
+#' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `GenomicRanges::findOverlaps()`.
 #' @export
-mergeGR <- function(gr, ignore.strand = TRUE){
+mergeGR <- function(gr, ignoreStrand = TRUE){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
-  .validInput(input = ignore.strand, name = "ignore.strand", valid = c("boolean"))
-  grR <- reduce(gr,min.gapwidth=0L,ignore.strand = ignore.strand)
-  o <- DataFrame(findOverlaps(grR, gr,ignore.strand = ignore.strand))
+  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
+  grR <- reduce(gr,min.gapwidth=0L,ignore.strand = ignoreStrand)
+  o <- DataFrame(findOverlaps(grR, gr,ignore.strand = ignoreStrand))
   o$start <- start(gr[o$subjectHits])
   o$end <- end(gr[o$subjectHits])
   o$chr <- seqnames(gr[o$subjectHits])
@@ -268,13 +270,13 @@ extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
 #'
 #' @param query A `GRanges` object to be used as the query in `GenomicRanges::findOverlaps()`.
 #' @param subject A `GRanges` object to be used as the subject in `GenomicRanges::findOverlaps()`.
-#' @param ignore.strand QQQ THIS SHOULD BE "ignoreStrand" FOR CONSISTENCY. A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
+#' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
-nOverlapGR <- function(query = NULL, subject = NULL, ignore.strand = TRUE){
+nOverlapGR <- function(query = NULL, subject = NULL, ignoreStrand = TRUE){
   .validInput(input = query, name = "query", valid = c("GRanges"))
   .validInput(input = subject, name = "subject", valid = c("GRanges"))
-  .validInput(input = ignore.strand, name = "ignore.strand", valid = c("boolean"))
-  o <- findOverlaps(query, subject, ignore.strand = ignore.strand)
+  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
+  o <- findOverlaps(query, subject, ignore.strand = ignoreStrand)
   overlaps <- pintersect(query[queryHits(o)], subject[subjectHits(o)])
   percentOverlap <- width(overlaps) / width(subject[subjectHits(o)])
   l <- unlist(lapply(split(percentOverlap, subjectHits(o)),function(x)sum(x)))
@@ -285,21 +287,21 @@ nOverlapGR <- function(query = NULL, subject = NULL, ignore.strand = TRUE){
   return(data.frame(type = type, bp = nBases))
 }
 
-#' QQQ UNCLEAR WHAT THIS FUNCTION IS DOING AND WHY ITS USEFUL. Overlap with many genomic regions
+#' Overlap with many genomic regions.
 #'
 #' This function returns a sparse matrix that describes the overlap with each sub-grouped genomic region as specified in the "by" column.
 #'
 #' @param query A `GRanges` object to be used as the query in `GenomicRanges::findOverlaps()`.
-#' @param subject QQQ UNCLEAR A `GRanges` object containing a column sub-grouping to be used as the subject in `GenomicRanges::findOverlaps()`.
-#' @param by QQQ The name of a column in `mcols(subject)` that should be used to determine how overlapping regions should be sub-grouped.
-#' @param ignore.strand QQQ THIS SHOULD BE "ignoreStrand" FOR CONSISTENCY. A boolean value indicating whether strandedness should be ignored in `GenomicRanges::findOverlaps()`.
+#' @param subject A `GRanges` object containing a column in `mcols(subject)` sub-grouping to be used as the subject in `GenomicRanges::findOverlaps()`.
+#' @param by The name of a column in `mcols(subject)` that should be used to determine how overlapping regions should be sub-grouped.
+#' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `GenomicRanges::findOverlaps()`.
 #' @export
-overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignore.strand = TRUE){
+overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignoreStrand = TRUE){
   .validInput(input = query, name = "query", valid = c("GRanges"))
   .validInput(input = subject, name = "subject", valid = c("GRanges"))
   .validInput(input = by, name = "by", valid = c("character"))
-  .validInput(input = ignore.strand, name = "ignore.strand", valid = c("boolean"))
-  o <- DataFrame(findOverlaps(query, subject, ignore.strand = ignore.strand))
+  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
+  o <- DataFrame(findOverlaps(query, subject, ignore.strand = ignoreStrand))
   o$name <- mcols(subject)[o$subjectHits, by]
   o$id <- match(o$name, unique(o$name))
   sparse <- Matrix::sparseMatrix(
@@ -319,17 +321,17 @@ overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignore.stran
 #' @param seqnames A character vector containing the seqnames to be added to the `GRanges` object.
 #' @param start A vector of start positions to be added to the `GRanges` object.
 #' @param end A vector of end positions to be added to the `GRanges` object.
-#' @param ignore.strand QQQ THIS SHOULD BE "ignoreStrand" FOR CONSISTENCY. A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
+#' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
-constructGR <- function(seqnames = NULL, start = NULL, end = NULL, ignore.strand = TRUE){
+constructGR <- function(seqnames = NULL, start = NULL, end = NULL, ignoreStrand = TRUE){
   .validInput(input = seqnames, name = "seqnames", valid = c("character"))
   .validInput(input = start, name = "start", valid = c("integer"))
   .validInput(input = end, name = "end", valid = c("integer"))
-  .validInput(input = ignore.strand, name = "ignore.strand", valid = c("boolean"))
+  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
   df <- data.frame(seqnames, start, end)
   idx <- which(df[,2] > df[,3])
   df[idx,2:3] <-  df[idx,3:2]
-  if(!ignore.strand){
+  if(!ignoreStrand){
     strand <- rep("+",nrow(df))
     strand[idx] <- "-" 
   }else{

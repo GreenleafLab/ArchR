@@ -10,11 +10,12 @@
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded.
-#' @param td QQQ IN GENERAL, I FIND THE MAGIC PARAM EXPLANATIONS USELESS. NOBODY COULD INTERPRET THESE WITHOUT GOING TO MAGIC FIRST. The diffusion time (number of iterations) for MAGIC.
-#' @param ka The k-nearest neighbors autotune parameter for MAGIC.
-#' @param sampleCells QQQ UNCLEAR WHAT A BLOCK IS. The number of cells to sample per block of the estimated imputation matrix.
-#' @param k The number of nearest neighbors to use for MAGIC.
-#' @param epsilon QQQ UNCLEAR. IS THIS LIKE A MINIMUM STD DEV FOR A FILTER? The value for the standard deviation of the kernel for MAGIC.
+#' @param td The diffusion time parameter determines the number of smoothing iterations to be performed (see MAGIC from van Dijk et al Cell 2018).
+#' @param ka The k-nearest neighbors autotune parameter to equalize the effective number of neighbors for each cell, thereby diminishing the effect of differences in density. (see MAGIC from van Dijk et al Cell 2018).
+#' @param sampleCells The number of cells to sub-sample to compute an imputation block. An imputation block is a cell x cell matrix that describes the linear combination for 
+#' imputation for numerical values within these cells. ArchR creates many blocks to keep this cell x cell matrix sparse for memory concerns.
+#' @param k The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).
+#' @param epsilon The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).
 #' @param ... additional params
 #' @export
 addImputeWeights <- function(

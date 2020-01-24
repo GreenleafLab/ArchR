@@ -11,7 +11,7 @@
 #' @param input An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.
 #' @param useMatrix The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix" and "PeakMatrix".
 #' @param k The number of cells neighboring a simulated doublet to be considered as putative doublets.
-#' @param nTrials QQQ WHAT IS A TRIAL? The number of trials to use for doublet simulation when calculating doublet scores. A single trial is QQQ.
+#' @param nTrials The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".

@@ -51,26 +51,30 @@ getArchRThreads <- function(){
 #' @param chromSizes A `GRanges` object containing chromosome start and end coordinates.
 #' @param blacklist A `GRanges` object containing regions that should be excluded from analyses due to unwanted biases.
 #' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by filterChrGR.
+#' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `filterChr` should be set to `NULL`.
 #' @export
 createGenomeAnnotation <- function(
   genome = NULL,
   chromSizes = NULL,
   blacklist = NULL,
-  filter = TRUE
+  filter = TRUE,
+  filterChr = c("chrM")
   ){
+
+  .validInput(input = filterChr, name = "filterChr", valid = c("character", "null"))
 
   if(is.null(genome) | is.null(blacklist) | is.null(chromSizes)){
 
     ##################
     message("Getting genome...")
-    bsg <- .validBSgenome(genome)
+    bsg <- validBSgenome(genome)
     genome <- bsg@pkgname
 
     ##################
     message("Getting chromSizes...")
     chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
     if(filter){
-        chromSizes <- filterChrGR(chromSizes)
+        chromSizes <- filterChrGR(chromSizes, remove = filterChr)
     }
     seqlengths(chromSizes) <- end(chromSizes)
 
@@ -80,7 +84,7 @@ createGenomeAnnotation <- function(
 
   }else{
 
-    bsg <- .validBSgenome(genome)
+    bsg <- validBSgenome(genome)
     genome <- bsg@pkgname
     
     chromSizes <- .validGRanges(chromSizes)

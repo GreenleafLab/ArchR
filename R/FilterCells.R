@@ -13,7 +13,7 @@
 #' If a chatacter vector, only the rows in `cellColData` with `rownames` corresponding to the supplied character values are kept. 
 #' If a list or simpleList, the user can additionally supply filters that are applied to all samples or a subset of specified samples. 
 #' For example, to apply a filter to all samples: list("TSSEnrichment" = c(4,25)).
-#' QQQ SHOULDNT TSSEnrichment HAVE QUOTES AROUND IT HERE? Similarly, to aply a filter only to specific samples: list(TSSEnrichment = list("Sample1" = c(4, 25), "Sample2" = c(5, 25))).
+#' Similarly, to aply a filter only to specific samples: list("TSSEnrichment" = list("Sample1" = c(4, 25), "Sample2" = c(5, 25))).
 #' @param ... additional params
 #' @export
 filterCells <- function(
@@ -170,11 +170,11 @@ filterPlot <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param cutEnrich The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.
 #' @param cutScore The minimum numeric cutoff for `DoubletScore` which represents the -log10(binomial adjusted p-value) for the `DoubletEnrichment`.
-#' @param filterRatio QQQ The maximum ratio of predicted doublets to filter based on the number of pass-filter cells.
-#' For example, if there are 10,000 cells the maximum would be filterRatio * 10,000^2 / (100,000).
+#' @param filterRatio The maximum ratio of predicted doublets to filter based on the number of pass-filter cells.
+#' For example, if there are 5,000 cells the maximum would be filterRatio * 5,000^2 / (100,000) (which simplifies to filterRatio * 5000 * 0.05).
 #' This `filterRatio` allows you to apply a consistent filter across multiple different samples that
 #' may have different percentages of doublets because they were run with different cell loading concentrations.
-#' QQQ The higher the `filterRatio`, the greater the number of cells potentially removed as doublets.
+#' The higher the `filterRatio`, the greater the number of cells potentially removed as doublets.
 #' @param ... additional params
 #' @export
 filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1, ...){
