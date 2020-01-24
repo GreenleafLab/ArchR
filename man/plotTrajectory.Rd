@@ -15,17 +15,18 @@ plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{embedding}{The name of the embedding to use to visualize the given \code{trajectory}. See \code{ArchR::addEmbedding()} for more information.}
+\item{embedding}{The name of the embedding to use to visualize the given \code{trajectory}. See \code{addEmbedding()} for more information.}
 
-\item{trajectory}{The name of the trajectory as a column in \code{cellColData} to plot.}
+\item{trajectory}{The column name in \code{cellColData} that refers the trajectory to be plotted. See \code{addTrajectory()} for more information.}
 
-\item{colorBy}{A string indicating whether points in the plot should be colored by a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").}
+\item{colorBy}{A string indicating whether points in the plot should be colored by a column in \code{cellColData} ("cellColData") or by a data matrix in the associated ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").}
 
-\item{name}{The name of the trajectory as a column in \code{cellColData} to plot.}
+\item{name}{The name of the column in \code{cellColData} or the featureName/rowname of the data matrix to be used for plotting.
+For example if colorBy is \code{cellColData} then name refers to a column name in the cellcoldata (see \code{getCellcoldata()}), if colorBy is \code{GeneScoreMatrix} then name refers to a gene name which can be listed by \code{getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")}.}
 
-\item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values prior to plotting.}
+\item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values from \code{colorBy}.}
 
-\item{imputeWeights}{imputation weights for imputing numerical values for each cell as a linear combination of other cells values (see add/getImutationWeights).}
+\item{imputeWeights}{The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See \code{addImputationWeights()} and \code{getImutationWeights()} for more information.}
 
 \item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for coloring cells.}
 
@@ -33,16 +34,16 @@ plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
-\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values.
-This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is
-the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5% of values and set them to the value of
-the 97.5th and 2.5th percentile values respectively.}
+\item{quantCut}{If this is not \code{NULL}, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values.
+This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the lower threshold and y is
+the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and set values below/above to the value of
+the 2.5th and 97.5th percentile values respectively.}
 
-\item{quantHex}{The quantile to}
+\item{quantHex}{The xth quantile of all dots within each individual hexagon will determine the the numerical value for coloring to be displayed. This occurs when \code{plotAs} = "hex" or NULL (if numerical values by default).}
 
-\item{discreteSet}{The name of a discrete palette from \code{ArchRPalettes} for visualizing colorBy in the embedding.}
+\item{discreteSet}{The name of a discrete palette from \code{ArchRPalettes} for visualizing \code{colorBy} in the embedding if a discrete color set is desired.}
 
-\item{continuousSet}{The name of a continuous palette from \code{ArchRPalettes} for visualizing colorBy in the embedding.}
+\item{continuousSet}{The name of a continuous palette from \code{ArchRPalettes} for visualizing \code{colorBy} in the embedding if a continuous color set is desired.}
 
 \item{randomize}{A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.}
 
@@ -52,12 +53,12 @@ the 97.5th and 2.5th percentile values respectively.}
 
 \item{addArrow}{A boolean value that indicates whether to add a smoothed arrow in the embedding based on the aligned trajectory.}
 
-\item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted.}
+\item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default if \code{colorBy} is numeric this is "hex".}
 
 \item{plotParams}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 
 \item{...}{additional args}
 }
 \description{
-This function will plot a trajectory that was created from addTrajectory onto an embedding.
+This function will plot a trajectory that was created onto an embedding.
 }

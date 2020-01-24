@@ -9,7 +9,7 @@ saveArchRProject(ArchRProj = NULL, copyArrows = TRUE)
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{copyArrows}{A boolean indicating whether to copy or copy + remove original ArrowFiles prior to saving ArchRProject.}
+\item{copyArrows}{A boolean indicating whether to copy (\code{TRUE}) or copy + remove (\code{FALSE}) original ArrowFiles prior to saving the \code{ArchRProject}.}
 }
 \description{
 This function will organize arrows and project output into a directory and save the ArchRProject for later usage.

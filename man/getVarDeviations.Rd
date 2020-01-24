@@ -4,17 +4,17 @@
 \alias{getVarDeviations}
 \title{Get Variable Deviations across cells in ArchRProject.}
 \usage{
-getVarDeviations(ArchRProj, name = "MotifMatrix", plot = TRUE,
+getVarDeviations(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE,
   n = 25)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{name of DeviationsMatrix see addDeviationsMatrix}
+\item{name}{The name of the \code{DeviationsMatrix} object stored in the \code{ArchRProject}. See \code{addDeviationsMatrix()}.}
 
-\item{plot}{plot ranked variability for each annotation}
+\item{plot}{A boolean value indicating whether the ranked variability should be plotted for each peakAnnotation in \code{DeviationsMatrix}.}
 
-\item{n}{number of annotations to label with ggrepel}
+\item{n}{The number of annotations to label with \code{ggrepel}.}
 }
 \description{
 This function will rank the variability of the deviations computed by ArchR and label the top variable annotations.

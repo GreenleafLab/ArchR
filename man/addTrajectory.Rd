@@ -2,33 +2,33 @@
 % Please edit documentation in R/Trajectory.R
 \name{addTrajectory}
 \alias{addTrajectory}
-\title{Add Supervised Trajectory to an ArchR Project}
+\title{Add a Supervised Trajectory to an ArchR Project}
 \usage{
 addTrajectory(ArchRProj = NULL, name = "Trajectory",
   trajectory = NULL, groupBy = "Clusters",
-  reducedDims = "IterativeLSI", embedding = NULL, preQuantile = 0.1,
-  postQuantile = 0.1, dof = 250, spar = 1, force = FALSE, ...)
+  reducedDims = "IterativeLSI", embedding = NULL, preFilterQ = 0.9,
+  postFilterQ = 0.9, dof = 250, spar = 1, force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{name}{A string indicating the name of the fitted trajectory to be added in \code{cellColData}.}
 
-\item{trajectory}{Supervised order of groups to constrain supervised fitting (ie c("Cluster1", "Cluster2", "Cluster3") )}
+\item{trajectory}{The order of cell groups to be used for constraining the initial supervised fitting procedure. For example, to get a trajectory from Cluster1 to Cluster2 to Cluster3, input should be c("Cluster1", "Cluster2", "Cluster3"). Cells will then be used from these 3 groups to constrain an initial fit in the group order.}
 
-\item{groupBy}{initial group column in cellColData to constrain supervised fit}
+\item{groupBy}{A string indicating the grouping column for \code{trajectory} in cellColData to constrain the initial supervised fitting procedure.}
 
 \item{reducedDims}{A string indicating the name of the \code{reducedDims} object from the \code{ArchRProject} that should be used for distance computation.}
 
 \item{embedding}{A string indicating the name of the \code{embedding} object from the \code{ArchRProject} that should be used for distance computation.}
 
-\item{preQuantile}{Prior to supervised trajectory fitting, the quantile for filtering cells that are far (by euclidean distance) from cluster centers.}
+\item{preFilterQ}{Prior to the initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center is above the provided quantile will be excluded.}
 
-\item{postQuantile}{Post supervised trajectory fitting, the quantile for determining the cutoff for cells not in the groups to be aligned to the trajectory.}
+\item{postFilterQ}{After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center is above the provided quantile will be excluded.}
 
-\item{dof}{The number of degrees of freedom to be used in spline fit (see smooth.spline)}
+\item{dof}{The number of degrees of freedom to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
-\item{spar}{The sparsity to be used in spline fit (see smooth.spline)}
+\item{spar}{The sparsity to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
 \item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getTutorialData}
 \alias{getTutorialData}
-\title{Get Tutorial Data For ArchR}
+\title{Get Relevant Data For ArchR Tutorials}
 \usage{
 getTutorialData(tutorial = "hematopoiesis", ...)
 }

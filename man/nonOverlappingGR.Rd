@@ -14,7 +14,7 @@ nonOverlappingGR(gr = NULL, by = "score", decreasing = TRUE,
 
 \item{decreasing}{A boolean value indicating whether the values in the column indicated via \code{by} should be ordered in decreasing order. If \code{TRUE}, the higher value in \code{by} will be retained.}
 
-\item{verbose}{A boolean value that determines whether the output should include extra reporting.}
+\item{verbose}{A boolean value indicating whether the output should include extra reporting.}
 }
 \description{
 This function returns a GRanges object containing a non-overlapping set regions derived from a supplied Genomic Ranges object.

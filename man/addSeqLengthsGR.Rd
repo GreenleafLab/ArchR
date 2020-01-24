@@ -9,7 +9,7 @@ addSeqLengthsGR(gr = NULL, genome = NULL)
 \arguments{
 \item{gr}{A \code{GRanges} object.}
 
-\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"). See \code{ArchR:::validBSgenome()}.}
+\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"). See \code{validBSgenome()}.}
 }
 \description{
 This function adds seqlength information for each of the seqnames in the provided Genomic Ranges object.

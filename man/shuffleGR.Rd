@@ -9,11 +9,11 @@ shuffleGR(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE)
 \arguments{
 \item{gr}{A \code{GRanges} object.}
 
-\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"). See \code{ArchR::validBSgenome()}.}
+\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"). See \code{validBSgenome()}.}
 
 \item{n}{The number of permutations to perform during shuffling.}
 
-\item{shuffleChr}{A boolean value indicating whether to shuffle across chromosomes randomly based on length of chromosomes or use previous knowledge of chromosome distribution.}
+\item{shuffleChr}{A boolean value indicating whether to shuffle number of regions across chromosomes randomly based on the length of chromosomes (\code{TRUE}) or to use prior knowledge of the distribution of regions across the various chromosomes to create a shuffled set of ranges that is similarly distributed (\code{FALSE}).}
 }
 \description{
 This function randomly shuffles a Genomic Ranges object.

@@ -13,7 +13,7 @@ addDeviationsMatrix(ArchRProj = NULL, peakAnnotation = NULL,
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{peakAnnotation}{The name of the peakAnnotation name stored in the \code{ArchRProject}.}
+\item{peakAnnotation}{The name of the \code{peakAnnotation} stored in the \code{ArchRProject}.}
 
 \item{matrixName}{The name to be used for storage of the deviations matrix in the provided \code{ArchRProject}.}
 
@@ -25,7 +25,7 @@ addDeviationsMatrix(ArchRProj = NULL, peakAnnotation = NULL,
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{ArrowFiles}.}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the ArrowFiles asociated with the given \code{ArchRProject}.}
 }
 \description{
 This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).

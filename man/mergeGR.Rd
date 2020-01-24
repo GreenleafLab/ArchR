@@ -4,12 +4,12 @@
 \alias{mergeGR}
 \title{Merge genomic regions within a single Genomic Ranges object}
 \usage{
-mergeGR(gr, ignore.strand = TRUE)
+mergeGR(gr, ignoreStrand = TRUE)
 }
 \arguments{
 \item{gr}{A \code{GRanges} object.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
+\item{ignoreStrand}{A boolean value indicating whether strandedness should be ignored in \code{GenomicRanges::findOverlaps()}.}
 }
 \description{
 This function merges overlapping regions within a single Genomic Ranges object

@@ -9,20 +9,20 @@ peakAnnoEnrichment(seMarker = NULL, ArchRProj = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5", background = "all", ...)
 }
 \arguments{
-\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
+\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{markerFeatures()}.}
 
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{peakAnnotation}{A peakAnnotation in an \code{ArchRProject} to be used for hypergeometric test.}
+\item{peakAnnotation}{A \code{peakAnnotation} object in the provided \code{ArchRProject} to be used for hypergeometric testing.}
 
-\item{matches}{A custom peakAnnotations matches object used as input (see motifmatchr::matchmotifs).}
+\item{matches}{A custom \code{peakAnnotation} matches object used as input for the hypergeometric test. See \code{motifmatchr::matchmotifs()} for additional information.}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker}. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} to use. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
-\item{background}{Whether to use background matched peaks "bgdPeaks" to compare against or all peaks "all" (see addBgdPeaks).}
+\item{background}{A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").}
 
 \item{...}{additional args}
 }
 \description{
-This function will perform hypergeometric enrichment of peakAnnotation within the defined Marker Peaks (see markerFeatures).
+This function will perform hypergeometric enrichment of a given peak annotation within the defined marker peaks.
 }

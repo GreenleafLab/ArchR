@@ -45,7 +45,7 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{threads}{The number of threads to use for parallel execution.}
 
-\item{ylim}{QQQ IS THIS TRUE? The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
+\item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
 
 \item{baseSize}{The numeric font size to be used in the plot. This applies to all plot labels.}
 
@@ -55,7 +55,7 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{facetbaseSize}{The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.}
 
-\item{geneAnnotation}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See createGeneAnnotation() for more info.}
+\item{geneAnnotation}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See \code{createGeneAnnotation()} for more info.}
 
 \item{title}{The title to add at the top of the plot next to the plot's genomic coordinates.}
 

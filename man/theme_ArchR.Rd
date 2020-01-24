@@ -22,9 +22,9 @@ theme_ArchR(color = "black", baseSize = 6, baseLineSize = 0.5,
 
 \item{legendPosition}{The location to put the legend. Valid options are "bottom", "top", "left", and "right.}
 
-\item{legendTextSize}{0.75 times the base_size}
+\item{legendTextSize}{The base text size (in points) for the legend text.}
 
-\item{axisTickCm}{The length in centimeters to make the axis ticks.}
+\item{axisTickCm}{The length in centimeters to be used for the axis ticks.}
 
 \item{xText90}{A boolean value indicating whether the x-axis text should be rotated 90 degrees counterclockwise.}
 

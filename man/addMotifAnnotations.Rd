@@ -6,24 +6,24 @@
 \usage{
 addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
   name = "Motif", species = NULL, collection = "CORE",
-  cutOff = 5e-05, w = 7, force = FALSE, ...)
+  cutOff = 5e-05, width = 7, force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{motifSet}{The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020" which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the corresponding motif sets from the chromVAR package.}
+\item{motifSet}{The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020" which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the corresponding motif sets from the \code{chromVAR} package.}
 
-\item{name}{The name of peakAnnotations to be stored as in \code{ArchRProject}}
+\item{name}{The name of the \code{peakAnnotation} object to be stored in the provided \code{ArchRProject}}
 
 \item{species}{The name of the species relevant to the supplied \code{ArchRProject}. This is used for identifying which motif to be used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from \code{getGenome()}.}
 
-\item{collection}{If one of the JASPAR motif sets is used via \code{motifSet}, this parameter allows you to indicate the JASPAR collection to be used. Possible options include "CORE", etc.}
+\item{collection}{If one of the JASPAR motif sets is used via \code{motifSet}, this parameter allows you to indicate the JASPAR collection to be used. See \code{getMatrixSet()} from \code{TFBSTools} for all options to supply for collection.}
 
-\item{cutOff}{The  p-value cutoff to be used for motif search (see the \code{motimatchr} package for more information).}
+\item{cutOff}{The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences (see \code{MOODS} for more details on this determination).}
 
-\item{w}{The width in basepairs to consider for motif matches (see the \code{motimatchr} package for more information).}
+\item{width}{The width in basepairs to consider for motif matches. See the \code{motimatchr} package for more information.}
 
-\item{force}{force creation if peakAnnotation with same name already exists}
+\item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 
 \item{...}{additional args}
 }

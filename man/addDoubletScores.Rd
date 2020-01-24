@@ -14,23 +14,23 @@ addDoubletScores(input = NULL, useMatrix = "TileMatrix", k = 10,
 \arguments{
 \item{input}{An \code{ArchRProject} object or a character vector containing the names of ArrowFiles to be used.}
 
-\item{useMatrix}{The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix", "PeakMatrix".}
+\item{useMatrix}{The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix" and "PeakMatrix".}
 
 \item{k}{The number of cells neighboring a simulated doublet to be considered as putative doublets.}
 
-\item{nTrials}{The number of trials (in terms of the number of input cells) to simulate doublets when calculating doublet scores. A value of 5 would utilize 5 trials.}
+\item{nTrials}{The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{knnMethod}{The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".}
 
-\item{UMAPParams}{The list of parameters to pass to the UMAP function if "UMAP" is designated to \code{knnMethod}. See the function umap in the uwot package.}
+\item{UMAPParams}{The list of parameters to pass to the UMAP function if "UMAP" is designated to \code{knnMethod}. See the function \code{umap} in the uwot package.}
 
-\item{LSIParams}{The list of parameters to pass to the IterativeLSI function. See IterativeLSI.}
+\item{LSIParams}{The list of parameters to pass to the \code{IterativeLSI()} function. See \code{IterativeLSI()}.}
 
-\item{outDir}{The name or path for the output directory for plot/result information on doublet identification,}
+\item{outDir}{The relative path to the output directory for relevant plots/results from doublet identification.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
@@ -43,7 +43,7 @@ addDoubletScores(input = NULL, useMatrix = "TileMatrix", k = 10,
 \item{...}{additional args}
 }
 \description{
-For each sample in the Arrow files or ArchRProject provided, this function will independently assign inferred doublet information
+For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information
 to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell.
 }

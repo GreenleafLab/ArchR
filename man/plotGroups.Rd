@@ -12,13 +12,14 @@ plotGroups(ArchRProj = NULL, groupBy = "Sample", colorBy = "colData",
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{use groupings in cellColData for summarizing and plotting}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for summarizing and plotting.}
 
-\item{colorBy}{A string indicating whether numeric values in violin plot should be from a column in cellColData ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrx", "PeakMatrix").}
+\item{colorBy}{A string indicating whether the numeric values to be used in the violin plot should be from a column in \code{cellColData} ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").}
 
-\item{name}{The name of the column in \code{cellColData} or the featureName in the data matrix.}
+\item{name}{The name of the column in \code{cellColData} or the featureName/rowname of the data matrix to be used for plotting.
+For example if colorBy is \code{cellColData} then name refers to a column name in the cellcoldata (see \code{getCellcoldata()}), if colorBy is \code{GeneScoreMatrix} then name refers to a gene name which can be listed by \code{getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")}.}
 
-\item{pal}{A custom palette used to override discreteSet/continuousSet for coloring vector.}
+\item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override discreteSet/continuousSet for coloring vector.}
 
 \item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
@@ -28,10 +29,10 @@ plotGroups(ArchRProj = NULL, groupBy = "Sample", colorBy = "colData",
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{addPoints}{A boolean value that indicates whether points should be added to the plot using \code{geom_quasirandom()}}
+\item{addPoints}{A boolean value that indicates whether points should be added to the plot using \code{geom_quasirandom()}.}
 
 \item{...}{additional args}
 }
 \description{
-This function will plot an embedding that was created from computeEmbedding
+This function will group, summarize and then plot data from an ArchRProject for visual comparison.
 }

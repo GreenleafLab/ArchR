@@ -16,7 +16,7 @@ addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{groupBy}{The name of the column in \code{cellColData} to use for grouping multiple cells together prior to generation of the insertion coverage file.}
 
-\item{useLabels}{A boolean value indicating whether to use sample labels to create sample-aware subgrouping during as pseudo-bulk replicate generation.}
+\item{useLabels}{A boolean value indicating whether to use sample labels to create sample-aware subgroupings during as pseudo-bulk replicate generation.}
 
 \item{minCells}{The minimum number of cells required in a given cell group to permit insertion coverage file generation.}
 
@@ -30,7 +30,7 @@ addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{sampleRatio}{The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.}
 
-\item{kmerLength}{The length of the kmer used for estimating Tn5 bias.}
+\item{kmerLength}{The length of the k-mer used for estimating Tn5 bias.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

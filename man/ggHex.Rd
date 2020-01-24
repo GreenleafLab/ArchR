@@ -17,13 +17,13 @@ ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
 
 \item{color}{A numeric/categorical vector containing coloring information for each point.}
 
-\item{pal}{A custom palette for continuous coloring.}
+\item{pal}{A custom continuous palette from \code{ArchRPalettes} for coloration of hexes.}
 
 \item{bins}{The number of bins to be used for plotting the hexplot. \code{bins} indicates the total number of hexagons that will fit within the surface area of the plot.}
 
-\item{xlim}{A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.}
+\item{xlim}{A numeric vector of two values indicating the lower and upper bounds of the x-axis on the plot.}
 
-\item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
+\item{ylim}{A numeric vector of two values indicating the lower and upper bounds of the y-axis on the plot.}
 
 \item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.}
 
@@ -41,12 +41,12 @@ ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
 
 \item{FUN}{The function to use for summarizing data into hexagons. Typically "mean" or something similar.}
 
-\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the upper threshold and y is the lower threshold. For example, quantileCut = c(0.975,0.025) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
+\item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where a is the upper threshold and b is the lower threshold. For example, quantileCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
 
 \item{addPoints}{A boolean value indicating whether individual points should be shown on the hexplot.}
 
 \item{...}{additional params to pass}
 }
 \description{
-This function will plot x,y coordinates values summarized in hexagons in a standardized manner
+This function will plot x,y coordinate values summarized in hexagons in a standardized manner
 }

@@ -9,7 +9,7 @@ getPeakAnnotation(ArchRProj = NULL, name = NULL, ...)
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{The name of the peakAnnotation object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
+\item{name}{The name of the \code{peakAnnotation} object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
 
 \item{...}{additional args}
 }

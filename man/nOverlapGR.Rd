@@ -4,14 +4,14 @@
 \alias{nOverlapGR}
 \title{Identify the number of bases that overlap two Genomic Ranges objects}
 \usage{
-nOverlapGR(query = NULL, subject = NULL, ignore.strand = TRUE)
+nOverlapGR(query = NULL, subject = NULL, ignoreStrand = TRUE)
 }
 \arguments{
-\item{query}{A \code{GRanges} object to be used as the query in \code{findOverlaps()}.}
+\item{query}{A \code{GRanges} object to be used as the query in \code{GenomicRanges::findOverlaps()}.}
 
-\item{subject}{A \code{GRanges} object to be used as the subject in \code{findOverlaps()}.}
+\item{subject}{A \code{GRanges} object to be used as the subject in \code{GenomicRanges::findOverlaps()}.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
+\item{ignoreStrand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
 }
 \description{
 This function returns a data.frame describing how many basepairs overlap the provided query and subject Genomic Ranges objects

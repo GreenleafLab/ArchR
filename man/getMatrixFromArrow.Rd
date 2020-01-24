@@ -9,15 +9,15 @@ getMatrixFromArrow(ArrowFile = NULL, useMatrix = "GeneScoreMatrix",
   verbose = TRUE, binarize = FALSE, ...)
 }
 \arguments{
-\item{ArrowFile}{The ArrowFile object from which the selected data matrix should be obtained.}
+\item{ArrowFile}{The path to an ArrowFile from which the selected data matrix should be obtained.}
 
 \item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
 \item{useSeqnames}{A character vector of chromosome names to be used to subset the data matrix being obtained.}
 
-\item{cellNames}{A string vector of cell names to extract the matrix for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.}
+\item{cellNames}{A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using \code{getCellNames()}.}
 
-\item{ArchRProj}{An ArchRProject object to be used for getting additional information for cells in cellColData.}
+\item{ArchRProj}{An \code{ArchRProject} object to be used for getting additional information for cells in \code{cellColData}. This is useful when you want to keep information created while analyzing an ArchRProject.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 

@@ -5,7 +5,7 @@
 \title{Create a genome annotation object for ArchR}
 \usage{
 createGenomeAnnotation(genome = NULL, chromSizes = NULL,
-  blacklist = NULL, filter = TRUE)
+  blacklist = NULL, filter = TRUE, filterChr = c("chrM"))
 }
 \arguments{
 \item{genome}{Either (i) a string that is a valid \code{BSgenome} or (ii) a \code{BSgenome} object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").}
@@ -14,7 +14,9 @@ createGenomeAnnotation(genome = NULL, chromSizes = NULL,
 
 \item{blacklist}{A \code{GRanges} object containing regions that should be excluded from analyses due to unwanted biases.}
 
-\item{filter}{QQQ A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by QQQ.}
+\item{filter}{A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by filterChrGR.}
+
+\item{filterChr}{A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, \code{filterChr} should be set to \code{NULL}.}
 }
 \description{
 This function will create a genome annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.

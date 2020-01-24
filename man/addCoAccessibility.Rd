@@ -14,17 +14,17 @@ addCoAccessibility(ArchRProj = NULL, reducedDims = "IterativeLSI",
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
 
-\item{k}{The number of k-nearest neighbors to use for creating single cell groups for correlation.}
+\item{k}{The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.}
 
-\item{knnIteration}{The number of KNN groupings to test for passing the supplied \code{overlapCutoff}.}
+\item{knnIteration}{The number of k-nearest neighbor groupings to test for passing the supplied \code{overlapCutoff}.}
 
 \item{overlapCutoff}{The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.}
 
 \item{maxDist}{The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.}
 
-\item{scaleTo}{A numeric value indicating how to scale the accessibility of a single cell group prior to computing co-accessibility correlations.}
+\item{scaleTo}{A numeric value indicating what to depth-normalize the accessibility of a single-cell group prior to computing co-accessibility correlations.}
 
-\item{log2Norm}{A boolean value indicating whether to log2 transform the single cell groups prior to computing co-accessibility correlations.}
+\item{log2Norm}{A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.}
 
 \item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 

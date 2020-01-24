@@ -7,9 +7,8 @@
 addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
   reducedDimsOut = "IterativeLSI", iterations = 3, dimsToUse = 1:25,
   corCutOff = 0.75, LSIMethod = 1, binarize = TRUE,
-  sampleCells = max(c(floor(nCells(ArchRProj)/4), 5000)),
-  varFeatures = 50000, selectionMethod = "var", scaleTo = 10000,
-  totalFeatures = 5e+05, filterQuantile = 0.99,
+  sampleCells = NULL, varFeatures = 50000, selectionMethod = "var",
+  scaleTo = 10000, totalFeatures = 5e+05, filterQuantile = 0.99,
   saveIterations = TRUE, outDir = getOutputDirectory(ArchRProj),
   clusterParams = list(), runHarmony = FALSE, harmonyParams = list(),
   threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
@@ -18,7 +17,7 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Valid options are "TileMatrix" or "PeakMatrix".}
+\item{useMatrix}{The name of the data matrix to retrieve from the ArrowFiles associated with the \code{ArchRProject}. Valid options are "TileMatrix" or "PeakMatrix".}
 
 \item{reducedDimsOut}{The name to use for storage of the IterativeLSI dimensionality reduction in the \code{ArchRProject} as a \code{reducedDims} object.}
 
@@ -26,30 +25,30 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{LSIMethod}{A numeric/character indicating the order of operations in the TF-IDF normalization.
-The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd option is 3 or "logtf-logidf".}
+\item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
+Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 
-\item{sampleCells}{An integer specifying number of cells to subset perform estimatedLSI and clustering.}
+\item{sampleCells}{An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.}
 
 \item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
 
 \item{selectionMethod}{The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.}
 
-\item{scaleTo}{scaleTo normalization depth for Cluster Averages for variance calculation}
+\item{scaleTo}{A numeric value indicating the normalization depth for Cluster Averages prior to variance calculation}
 
-\item{totalFeatures}{The number of features to consider for use in LSI ranked by the total number of insertion counts.}
+\item{totalFeatures}{The number of features to consider for use in LSI after ranking the features by the total number of insertions. These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
 
-\item{filterQuantile}{Remove features that are above this quantile based on insertion counts prior to initial (1st iteration) LSI.}
+\item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior to the first iteration of the iterative LSI paradigm. For example, if \code{filterQuantile = 0.99}, any features above the 99th percentile in insertion counts will be ignored for the first LSI iteration.}
 
-\item{saveIterations}{A boolean value indicating whether the different LSI iterations should be saved as compressed \code{.rds} files in the designated \code{outDir}.}
+\item{saveIterations}{A boolean value indicating whether the results of each LSI iterations should be saved as compressed \code{.rds} files in the designated \code{outDir}.}
 
-\item{outDir}{The output directory for saving LSI iterations if desired. Default is in outputDirectory of ArchRProject.}
+\item{outDir}{The output directory for saving LSI iterations if desired. Default is in the \code{outputDirectory} of the \code{ArchRProject}.}
 
-\item{clusterParams}{Additional parameters to be passed to \code{ArchR::addClusters()}.}
+\item{clusterParams}{Additional parameters to be passed to \code{addClusters()}.}
 
 \item{runHarmony}{A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.}
 
@@ -57,7 +56,7 @@ The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd optio
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
@@ -68,6 +67,5 @@ The 1st option is 1 or "tf-logidf", 2nd is 2 or "log(tf-idf)", and the 3rd optio
 \item{...}{additional args}
 }
 \description{
-This function will compute an iterative LSI dimensionality reduction
-on an ArchRProject.
+This function will compute an iterative LSI dimensionality reduction on an ArchRProject.
 }

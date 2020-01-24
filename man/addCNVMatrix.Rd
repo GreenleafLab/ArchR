@@ -13,11 +13,11 @@ addCNVMatrix(input = NULL, chromSizes = getChromSizes(input),
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getChromSizes()}.}
+\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the \code{ArchRProject} using \code{getChromSizes()}.}
 
-\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getBlacklist()}.}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist from calling CNVs. The default behavior is to retrieve this from the \code{ArchRProject} using \code{getBlacklist()}.}
 
-\item{genome}{The genome used by the \code{input}. The default behavior is to retrieve this from the \code{ArchRProject} using \code{ArchR::getGenome()}.}
+\item{genome}{The name of the genome used by the \code{input}. The default behavior is to retrieve this from the \code{ArchRProject} using \code{getGenome()}.}
 
 \item{windowSize}{The size in basepairs for the sliding window used to break up each chromosome to look for CNVs.}
 
@@ -29,7 +29,7 @@ addCNVMatrix(input = NULL, chromSizes = getChromSizes(input),
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value indicating whether to force the CNV matrix to be overwritten if it already exist for \code{input}.}
+\item{force}{A boolean value indicating whether to force the CNV matrix to be overwritten if it already exists for \code{input}.}
 }
 \description{
 This function for each sample will predict copy number variation from accessibility

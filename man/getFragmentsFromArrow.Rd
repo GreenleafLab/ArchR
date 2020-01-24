@@ -8,11 +8,11 @@ getFragmentsFromArrow(ArrowFile = NULL, chr = NULL, cellNames = NULL,
   verbose = TRUE, ...)
 }
 \arguments{
-\item{ArrowFile}{The ArrowFile object from which fragments should be obtained.}
+\item{ArrowFile}{The path to the ArrowFile from which fragments should be obtained.}
 
 \item{chr}{A name of a chromosome to be used to subset the fragments \code{GRanges} object to a specific chromsome if desired.}
 
-\item{cellNames}{A string vector of cell names to extract fragments for. By default will extract all cells getCellNames(ArchRProject) for cells only in current project.}
+\item{cellNames}{A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using \code{getCellNames()}.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 

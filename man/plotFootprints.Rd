@@ -13,13 +13,13 @@ plotFootprints(ArchRProj = NULL, positions = NULL,
   verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
-\item{ArchRProj}{An \code{ArchRProject} object}
+\item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{positions}{A GenomicRangesList, a list, or a SimpleList object containing the positions to incorporate into the footprint. Each position should be stranded.}
+\item{positions}{A \code{list} or \code{GenomicRangesList} of \code{GRanges} containing the positions to incorporate into the footprint. Each position should be stranded.}
 
-\item{plotName}{The prefix to add to the file name for the output PDF file.}
+\item{plotName}{The prefix to add to the file name for the output PDF file containing the footprint plots.}
 
-\item{groupBy}{The name of the column in \code{cellColData} to use for grouping multiple samples together prior to footprinting.}
+\item{groupBy}{The name of the column in \code{cellColData} used in \code{addGroupCoverages} for grouping multiple cells together (see \code{addGroupCoverages}).}
 
 \item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform footprinting.}
 
@@ -33,11 +33,11 @@ plotFootprints(ArchRProj = NULL, positions = NULL,
 
 \item{minCells}{The minimum number of cells required in a given cell group to permit footprint generation.}
 
-\item{nTop}{The number of genomic regions to consider. Only the top \code{nTop} genomic regions based on the "score" column in the GRanges will be considered for the footprint.}
+\item{nTop}{The number of genomic regions to consider. Only the top \code{nTop} genomic regions based on the "score" column in the \code{GRanges} object will be considered for the footprint.}
 
-\item{normMethod}{The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "None", "Subtract", "Divide".}
+\item{normMethod}{The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.}
 
-\item{inputSE}{Input a previous footprint Summarized Experiment to be plotted instead of being regenerated.}
+\item{inputSE}{Input a previous footprint Summarized Experiment (returned after running \code{plotFootprints}) to be plotted instead of regenerating the footprinting information.}
 
 \item{height}{The height in inches to be used for the output PDF.}
 
@@ -45,7 +45,7 @@ plotFootprints(ArchRProj = NULL, positions = NULL,
 
 \item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.}
 
-\item{useSink}{Use sink to hide messages during plotting.}
+\item{useSink}{A boolean value that indicates whether the \code{sink} function from base R should be used to hide messages during plotting.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

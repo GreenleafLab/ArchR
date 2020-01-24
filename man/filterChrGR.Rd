@@ -4,19 +4,19 @@
 \alias{filterChrGR}
 \title{Filters unwanted seqlevels from a Genomic Ranges object or similar object}
 \usage{
-filterChrGR(gr = NULL, remove = c("chrM"), underscore = TRUE,
+filterChrGR(gr = NULL, remove = NULL, underscore = TRUE,
   standard = TRUE, pruning.mode = "coarse")
 }
 \arguments{
 \item{gr}{A \code{GRanges} object or another object containing seqlevels.}
 
-\item{remove}{A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.}
+\item{remove}{A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, \code{remove} should be set to \code{NULL}.}
 
-\item{underscore}{A boolean value indicating whether to remove all seqlevels whose name contains an underscore (for example "chr11_KI270721v1_random").}
+\item{underscore}{A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").}
 
 \item{standard}{A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by \code{GenomeInfoDb::keepStandardChromosomes()}.}
 
-\item{pruning.mode}{See ?seqinfo for a description of the pruning modes.}
+\item{pruningMode}{From \code{seqinfo}, when some of the seqlevels to drop from x are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".}
 }
 \description{
 This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object

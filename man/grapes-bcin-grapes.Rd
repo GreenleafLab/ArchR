@@ -7,10 +7,10 @@
 x \%bcin\% table
 }
 \arguments{
-\item{x}{An \code{S4Vector} object search for in \code{table}.}
+\item{x}{An \code{S4Vector} object to search for in \code{table}.}
 
 \item{table}{The set of \code{S4Vector} objects to serve as the base for the match function.}
 }
 \description{
-This function provides a general matching function for S4Vector objects primarily to avoid ambiguity.
+This function provides a generic matching function for S4Vector objects primarily to avoid ambiguity.
 }

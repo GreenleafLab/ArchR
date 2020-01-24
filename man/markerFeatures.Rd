@@ -23,27 +23,27 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{useMatrix}{The name of the matrix to be used for performing differential analyses. Options include "GeneScoreMatrix", "PeakMatrix", etc.}
 
-\item{bias}{A character vector indicating the potential bias variables as a function (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from \code{cellColData}.}
+\item{bias}{A character vector indicating the potential bias variables (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from \code{cellColData}.}
 
 \item{normBy}{The name of a numeric column in \code{cellColData} that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.}
 
 \item{testMethod}{The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".}
 
-\item{maxCells}{The maximum number of cells to consider from a single cell group when performing marker feature identification.}
+\item{maxCells}{The maximum number of cells to consider from a single-cell group when performing marker feature identification.}
 
-\item{scaleTo}{Normalization depth to center normalization to in normBy (default is 10,000).}
+\item{scaleTo}{The normalization depth to center normalization to in normBy (default is 10,000).}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{k}{The number of nearby cells to use for selecting biased-matched background while accounting for bgdGroups proportions.}
+\item{k}{The number of nearby cells to use for selecting a biased-matched background while accounting for \code{bgdGroups} proportions.}
 
-\item{bufferRatio}{The buffering ratio of cells to enable best biased-matched background while accounting for bgdGroups proportions.}
+\item{bufferRatio}{The buffering ratio of cells to enable optimal biased-matched background while accounting for \code{bgdGroups} proportions. For example when set to 0.8, the biased-matching will take the first matched 80% of the cell group to ensure outlier exclusion.}
 
-\item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing.}
+\item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when \code{useMatrix} is an insertion counts-based matrix.}
 
 \item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
 
-\item{method}{The name of the method to be used for marker feature identification. Valid options are "ArchR" for now.}
+\item{method}{The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/MatrixFeatures.R
 \name{addPeakMatrix}
 \alias{addPeakMatrix}
-\title{Add PeakMatrix to Arrows in ArchRProject}
+\title{Add a Peak Matrix to the ArrowFiles of an ArchRProject}
 \usage{
 addPeakMatrix(ArchRProj = NULL, ceiling = 4, binarize = FALSE,
   threads = getArchRThreads(), parallelParam = NULL, force = TRUE,
@@ -13,15 +13,15 @@ addPeakMatrix(ArchRProj = NULL, ceiling = 4, binarize = FALSE,
 
 \item{ceiling}{The maximum counts per feature allowed. This is used to prevent large biases in peak counts.}
 
-\item{binarize}{A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.}
+\item{binarize}{A boolean value indicating whether the peak matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given ArrowFiles.}
+\item{force}{A boolean value indicating whether to force the "PeakMatrix" to be overwritten if it already exist in the given \code{ArchRProject}.}
 }
 \description{
-This function for each sample will independently compute counts for each peak
+This function, for each sample, will independently compute counts for each peak
 per cell in the provided ArchRProject using the "PeakMatrix".
 }

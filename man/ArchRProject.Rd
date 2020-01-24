@@ -9,7 +9,7 @@ ArchRProject(ArrowFiles = NULL, outputDirectory = "ArchR_Output",
   showLogo = TRUE)
 }
 \arguments{
-\item{ArrowFiles}{A character vector containing the names of ArrowFiles to be used.}
+\item{ArrowFiles}{A character vector containing the relative paths to the ArrowFiles to be used.}
 
 \item{outputDirectory}{A name for the relative path of the outputDirectory for ArchR results. Relative to the current working directory.}
 
@@ -19,7 +19,7 @@ ArchRProject(ArrowFiles = NULL, outputDirectory = "ArchR_Output",
 
 \item{genomeAnnotation}{The \code{genomeAnnotation} object (see \code{createGenomeAnnotation()}) to be used for downstream analyses requiring genome information such as nucleotide information or chromosome sizes.}
 
-\item{showLogo}{A boolean value indicating whether to show the ascii ArchR logo after successful creation of an ArchRProject.}
+\item{showLogo}{A boolean value indicating whether to show the ascii ArchR logo after successful creation of an \code{ArchRProject}.}
 }
 \description{
 This function will create an ArchRProject from the provided ArrowFiles.

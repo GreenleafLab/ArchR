@@ -7,11 +7,11 @@
 loadArchRProject(path = "./", force = FALSE, showLogo = TRUE)
 }
 \arguments{
-\item{path}{A character path to an ArchRProject directory that was previously saved.}
+\item{path}{A character path to an \code{ArchRProject} directory that was previously saved using \code{saveArchRProject()}.}
 
-\item{force}{A boolean indicating when re-normalizing paths if an annotation/bdgPeaks is not found ignore and continue}
+\item{force}{A boolean value indicating whether missing optional \code{ArchRProject} components (i.e. peak annotations / background peaks) should be ignored when re-normalizing file paths. If set to \code{FALSE} loading of the \code{ArchRProject} will fail unless all components can be found.}
 
-\item{showLogo}{show ArchRLogo upon completion.}
+\item{showLogo}{A boolean value indicating whether to show the ascii ArchR logo after successful creation of an \code{ArchRProject}.}
 }
 \description{
 This function will load a previously saved ArchRProject and re-normalize paths for usage.

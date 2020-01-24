@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getSampleNames}
 \alias{getSampleNames}
-\title{Get sampleNames from an ArchRProject}
+\title{Get the sample names from an ArchRProject}
 \usage{
 getSampleNames(ArchRProj = NULL, ...)
 }
@@ -12,5 +12,5 @@ getSampleNames(ArchRProj = NULL, ...)
 \item{...}{additional args}
 }
 \description{
-This function gets the sampleNames from a given ArchRProject.
+This function gets the names of all samples from a given ArchRProject.
 }

@@ -2,19 +2,19 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{overlapsManyGR}
 \alias{overlapsManyGR}
-\title{Overlap with many genomic regions}
+\title{Overlap with many genomic regions.}
 \usage{
 overlapsManyGR(query = NULL, subject = NULL, by = NULL,
-  ignore.strand = TRUE)
+  ignoreStrand = TRUE)
 }
 \arguments{
-\item{query}{A \code{GRanges} object to be used as the query in \code{findOverlaps()}.}
+\item{query}{A \code{GRanges} object to be used as the query in \code{GenomicRanges::findOverlaps()}.}
 
-\item{subject}{A \code{GRanges} object with a column sub-grouping to be used as the subject in \code{findOverlaps()}.}
+\item{subject}{A \code{GRanges} object containing a column in \code{mcols(subject)} sub-grouping to be used as the subject in \code{GenomicRanges::findOverlaps()}.}
 
-\item{by}{The name of a column in \code{mcols(gr)} that should be used to determine how overlapping regions should be sub-grouped.}
+\item{by}{The name of a column in \code{mcols(subject)} that should be used to determine how overlapping regions should be sub-grouped.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
+\item{ignoreStrand}{A boolean value indicating whether strandedness should be ignored in \code{GenomicRanges::findOverlaps()}.}
 }
 \description{
 This function returns a sparse matrix that describes the overlap with each sub-grouped genomic region as specified in the "by" column.

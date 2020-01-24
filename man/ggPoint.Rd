@@ -21,7 +21,7 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{color}{A numeric/categorical vector containing coloring information for each point.}
 
-\item{discrete}{A boolean value indicating whether the supplied data is discrete (TRUE) or continuous (FALSE).}
+\item{discrete}{A boolean value indicating whether the supplied data is discrete (\code{TRUE}) or continuous (\code{FALSE}).}
 
 \item{discreteSet}{The name of a custom palette from \code{ArchRPalettes} to use for categorical/discrete color.}
 
@@ -33,13 +33,13 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{defaultColor}{The default color for points that do not have another color applied (i.e. \code{NA} values).}
 
-\item{colorDensity}{A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If TRUE, continuousSet is used as the color palette.}
+\item{colorDensity}{A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If \code{TRUE}, continuousSet is used as the color palette.}
 
 \item{size}{The numeric size of the points to be plotted.}
 
-\item{xlim}{A vector of two numeric values indicating the lower and upper bounds of the x-axis on the plot.}
+\item{xlim}{A numeric vector of two values indicating the lower and upper bounds of the x-axis on the plot.}
 
-\item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
+\item{ylim}{A numeric vector of two values indicating the lower and upper bounds of the y-axis on the plot.}
 
 \item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.}
 
@@ -52,6 +52,10 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 \item{randomize}{A boolean value indicating whether to randomize the order of the points when plotting.}
 
 \item{seed}{A numeric seed number for use in randomization.}
+
+\item{colorTitle}{A title to be added to the legend if color is supplied.}
+
+\item{colorOrder}{If you want to control the order of \code{color} supplied as a factor to \code{ggplot2}. For example if you have \code{color} as c("a","b","c") and want to have the first color selected from the palette be for "c" then "b" and then "a", you would supply the \code{colorOrder} as c("c", "b", "a").}
 
 \item{alpha}{A number indicating the transparency to use for each point. See \code{ggplot2} for more details.}
 
@@ -67,9 +71,9 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{labelSize}{The numeric font size of labels.}
 
-\item{addFit}{A string indicating if a fit/regression line (see geom_smooth methods) should be included in the plot and what method to use for this fit.}
+\item{addFit}{A string indicating if a fit/regression line (see \code{geom_smooth} methods) should be included in the plot and what method to use for this fit.}
 
-\item{rastr}{A boolean value that indicates whether the plot should be rasterized using ggrastr. This does not rasterize lines and labels, just the internal portions of the plot.}
+\item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize lines and labels, just the internal portions of the plot.}
 
 \item{dpi}{The resolution in dots per inch to use for the plot.}
 }

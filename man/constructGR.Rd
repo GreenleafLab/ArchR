@@ -5,7 +5,7 @@
 \title{Construct a Genomic Ranges object taking into account strandedness}
 \usage{
 constructGR(seqnames = NULL, start = NULL, end = NULL,
-  ignore.strand = TRUE)
+  ignoreStrand = TRUE)
 }
 \arguments{
 \item{seqnames}{A character vector containing the seqnames to be added to the \code{GRanges} object.}
@@ -14,7 +14,7 @@ constructGR(seqnames = NULL, start = NULL, end = NULL,
 
 \item{end}{A vector of end positions to be added to the \code{GRanges} object.}
 
-\item{ignore.strand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
+\item{ignoreStrand}{A boolean value indicating whether strandedness should be ignored in \code{findOverlaps()}.}
 }
 \description{
 This function creates a Genomic Ranges object accounting for strandedness indicated by the relative orientation of the provided start and end positions

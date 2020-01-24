@@ -5,9 +5,9 @@
 \title{Get Supervised Trajectory from an ArchR Project}
 \usage{
 getTrajectory(ArchRProj = NULL, name = "Trajectory",
-  useMatrix = "GeneScoreMatrix", varCutOff = 0.1,
+  useMatrix = "GeneScoreMatrix", varCutOff = 0.9,
   maxFeatures = 25000, groupEvery = 2, threads = getArchRThreads(),
-  scaleTo = 10000, log2Norm = TRUE, smooth = TRUE,
+  log2Norm = TRUE, scaleTo = 10000, smooth = TRUE,
   smoothFormula = "y ~ s(x, bs = 'cs')", ...)
 }
 \arguments{
@@ -15,27 +15,27 @@ getTrajectory(ArchRProj = NULL, name = "Trajectory",
 
 \item{name}{A string indicating the name of the fitted trajectory in \code{cellColData} to retrieve from the given \code{ArchRProject}.}
 
-\item{useMatrix}{The name of the data matrix from the \code{ArrowFiles} to get numerical values for each cell from.}
+\item{useMatrix}{The name of the data matrix from the \code{ArrowFiles} to get numerical values for each cell from. Recommended matrices are "GeneScoreMatrix", "PeakMatrix", or "MotifMatrix".}
 
-\item{varCutOff}{Variance Quantile Cutoff for identifying top variable features across trajectory.}
+\item{varCutOff}{The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory. Values above this quantile will be selected only.}
 
-\item{maxFeatures}{The maximum number of features (ordered by variance) to consider from \code{useMatrix} when generating a trajectory.}
+\item{maxFeatures}{The maximum number of features, ordered by variance, to consider from \code{useMatrix} when generating a trajectory. This prevents smoothing a large number number of features which can be very time consuming.}
 
-\item{groupEvery}{The number of sequential percentiles (0-100 every x percentile) to group together when generating a trajectory (similar to smoothing).}
+\item{groupEvery}{The number of sequential percentiles to group together when generating a trajectory. This is similar to smoothing via a non-overlapping sliding window across pseudo-time. If \code{groupEvery = 2}, the values for percentiles \link{1 and 2}, \link{3 and 4}, \link{5 and 6}, etc. will be grouped together.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{scaleTo}{Scale group data matrix to this value for normalizaiton.}
+\item{log2Norm}{A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed. If you are using a "MotifMatrix" set to FALSE.}
 
-\item{log2Norm}{A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed.}
+\item{scaleTo}{Once the sequential trajectory matrix is created depth-normalize to this value to control biaes. Set to NULL to prevent this normalization. If you are using a "MotifMatrix" set to NULL.}
 
-\item{smooth}{A boolean value indicating whether the summarized trajectory matrix should be smoothed in a row-wise fashion.}
+\item{smooth}{A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.}
 
-\item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the \code{formula} parameter in \code{mgcv::gam()}.}
+\item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the \code{formula} parameter in \code{mgcv::gam()} for additional information.}
 
 \item{...}{additional args}
 }
 \description{
-This function will fit get a supervised trajectory from an ArchRProject and aggregate signal
-from a matrix and smooth across the trajectory
+This function will get a supervised trajectory from an \code{ArchRProject} (see \code{addTrajectory}), get data
+from a desired matrix, and smooth each value across the input trajectory.
 }

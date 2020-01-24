@@ -7,7 +7,7 @@
 x \%bcni\% table
 }
 \arguments{
-\item{x}{An \code{S4Vector} object search for in \code{table}.}
+\item{x}{An \code{S4Vector} object to search for in \code{table}.}
 
 \item{table}{The set of \code{S4Vector} objects to serve as the base for the match function.}
 }

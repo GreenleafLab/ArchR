@@ -11,14 +11,14 @@ markerPlot(seMarker = NULL, name = NULL,
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
-\item{name}{column/group name of seMarker to be plotted.}
+\item{name}{The name of a column (ie cell grouping in \code{groupBy}/\code{useGroups} for \code{markerFeatures}) in \code{seMarker} to be plotted. To see available options try \code{colnames(seMarker)}.}
 
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
-\item{plotAs}{plot as "Volcano" or "MA" plot.}
+\item{plotAs}{A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").}
 
 \item{...}{additional args}
 }
 \description{
-This function will plot one group/column of a differential markers se as a MA or Volcano plot.
+This function will plot one group/column of a differential markers as an MA or Volcano plot.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Imputation.R
 \name{addImputeWeights}
 \alias{addImputeWeights}
-\title{Add Imputation Weights to ArchRProject}
+\title{Add Imputation Weights to an ArchRProject}
 \usage{
 addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
   dimsToUse = NULL, corCutOff = 0.75, td = 3, ka = 4,
@@ -12,24 +12,25 @@ addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to retrieve from the designated \code{ArchRProject}.}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
 
-\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded.}
 
-\item{td}{diffusion time (number of iterations) for MAGIC}
+\item{td}{The diffusion time parameter determines the number of smoothing iterations to be performed (see MAGIC from van Dijk et al Cell 2018).}
 
-\item{ka}{kNN autotune parameter for MAGIC}
+\item{ka}{The k-nearest neighbors autotune parameter to equalize the effective number of neighbors for each cell, thereby diminishing the effect of differences in density. (see MAGIC from van Dijk et al Cell 2018).}
 
-\item{sampleCells}{number of cells to sample per block of estimated imputation matrix}
+\item{sampleCells}{The number of cells to sub-sample to compute an imputation block. An imputation block is a cell x cell matrix that describes the linear combination for
+imputation for numerical values within these cells. ArchR creates many blocks to keep this cell x cell matrix sparse for memory concerns.}
 
-\item{k}{number of nearest neighbors to use for MAGIC}
+\item{k}{The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).}
 
-\item{epsilon}{a value for the standard deviation of the kernel for MAGIC}
+\item{epsilon}{The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).}
 
 \item{...}{additional params}
 }
 \description{
-This function computes imputations weights that describe each cell as a linear combination of many cells based on MAGIC diffusion matrix.
+This function computes imputations weights that describe each cell as a linear combination of many cells based on a MAGIC diffusion matrix.
 }

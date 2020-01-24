@@ -25,23 +25,23 @@ ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
 
 \item{title}{The title of the plot.}
 
-\item{min}{x-limits min quantile \link{0,1}}
+\item{min}{x and y-limits min as a numeric quantile between 0 and 1.}
 
-\item{max}{x-limits max quantile \link{0,1}}
+\item{max}{x and y-limits max as a numeric quantile between 0 and 1.}
 
-\item{nPlot}{The number of points to plot. When this value is less than the total points, sample is used to extract random data points to plot.}
+\item{nPlot}{The number of points to plot. When this value is less than the total points, the \code{sample} function is used to extract random data points to be plotted.}
 
-\item{nKernel}{The value of n to use the kde2d from the MASS package.}
+\item{nKernel}{The number of grid points in each direction to use when computing the kernel with \code{kde2d} from the \code{MASS} package.}
 
-\item{densityMax}{The quantile that should be represented by the maximum color on the continuous scale designated by \code{pal}. Above this value will be thresholded to the maximum color.}
+\item{densityMax}{The quantile that should be represented by the maximum color on the continuous scale designated by \code{pal}. Values above \code{densityMax} will be thresholded to the maximum color on the color scale.}
 
-\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.}
+\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum value on either axis. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end beyond \code{quantile(c(x,y), max)} and \code{quantile(c(x,y), min)}.}
 
 \item{baseSize}{The base font size to use in the plot.}
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 
-\item{pal}{A custom palette used to override continuousSet for coloring vector.}
+\item{pal}{A custom palette from \code{ArchRPalettes} used to display the density of points on the plot.}
 
 \item{...}{Additional params to be supplied to ggPoint}
 }

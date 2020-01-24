@@ -23,11 +23,11 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{reproducibility}{A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of \code{n} where \code{n} is the number of samples being assessed. For example, \code{reproducibility = "2"} means at least 2 samples must have a peak call at this locus and \code{reproducibility = "(n+1)/2"} means that the majority of samples must have a peak call at this locus.}
 
-\item{peaksPerCell}{The limit of number of peaks that can be identified per cell (this is useful for controlling how many peaks can be called from low cell groups).}
+\item{peaksPerCell}{The upper limit of the number of peaks that can be identified per cell-grouping in \code{groupBy}. This is useful for controlling how many peaks can be called from cell groups with low cell numbers.}
 
-\item{maxPeaks}{A numeric threshold for the maximum peaks to retain per group in \code{groupBy} in the union reproducible peak set.}
+\item{maxPeaks}{A numeric threshold for the maximum peaks to retain per group from \code{groupBy} in the union reproducible peak set.}
 
-\item{minCells}{The minimum number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.}
+\item{minCells}{The minimum allowable number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.}
 
 \item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from peak calling.}
 
@@ -49,9 +49,9 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{promoterDist}{The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.}
 
-\item{genomeAnnotation}{The genomeAnnotation (see createGenomeAnnotation) is used for downstream analyses for genome information such as nucleotide information (GC info) or chromosome sizes.}
+\item{genomeAnnotation}{The genomeAnnotation (see \code{createGenomeAnnotation()}) to be used for generating peak metadata such as nucleotide information (GC content) or chromosome sizes.}
 
-\item{geneAnnotation}{The geneAnnotation (see createGeneAnnotation) is used for peak labeling as promoter etc.}
+\item{geneAnnotation}{The geneAnnotation (see \code{createGeneAnnotation()}) to be used for labeling peaks as "promoter", "exonic", etc.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
@@ -67,5 +67,5 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 }
 \description{
 This function will get insertions from coverage files, call peaks,
-and merge peaks to get a "Union Reproducible Peak Set"
+and merge peaks to get a "Union Reproducible Peak Set".
 }

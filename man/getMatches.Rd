@@ -2,19 +2,19 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{getMatches}
 \alias{getMatches}
-\title{Get peakAnnotation matches from an ArchRProject}
+\title{Get peak annotation matches from an ArchRProject}
 \usage{
 getMatches(ArchRProj = NULL, name = NULL, annoName = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{The name of the annotation object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
+\item{name}{The name of the \code{peakAnnotation} object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
 
-\item{annoName}{The name of a specific annotation to subset within the peakAnnotation.}
+\item{annoName}{The name of a specific annotation to subset within the \code{peakAnnotation}.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets peakAnnotation matches from a given ArchRProject.
+This function gets peak annotation matches from a given ArchRProject.
 }

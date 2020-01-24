@@ -12,11 +12,11 @@ ggAlignPlots(..., plotList = NULL, sizes = NULL, type = "v",
 
 \item{plotList}{A list of \code{ggplot2} plot objects to be aligned.}
 
-\item{sizes}{A numeric vector or list of values indicating the relative size for each of the objects in \code{plotList} or supplied in \code{...}.}
+\item{sizes}{A numeric vector or list of values indicating the relative size for each of the objects in \code{plotList} or supplied in \code{...}. If the plot is supplied in \code{...} the order is the same as the input in this function.}
 
 \item{type}{A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.}
 
-\item{draw}{A boolean value indicating whether to draw plot or return grob.}
+\item{draw}{A boolean value indicating whether to draw the plot(s) (\code{TRUE}) or return a graphical object (\code{FALSE}).}
 }
 \description{
 This function aligns ggplots vertically or horizontally

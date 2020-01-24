@@ -2,12 +2,12 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{nCells}
 \alias{nCells}
-\title{Get number of cells from ArchRProject/ArrowFile}
+\title{Get the number of cells from an ArchRProject/ArrowFile}
 \usage{
 nCells(input = NULL, ...)
 }
 \arguments{
-\item{input}{An \code{ArchRProject} object or ArrowFile.}
+\item{input}{An \code{ArchRProject} object or the path to an ArrowFile.}
 
 \item{...}{additional args}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{addPeakAnnotations}
 \alias{addPeakAnnotations}
-\title{Add peakAnnotations to an ArchRProject}
+\title{Add peak annotations to an ArchRProject}
 \usage{
 addPeakAnnotations(ArchRProj = NULL, regions = NULL, name = "Region",
   force = FALSE, ...)
@@ -10,14 +10,14 @@ addPeakAnnotations(ArchRProj = NULL, regions = NULL, name = "Region",
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{regions}{The name of peakAnnotations to be stored as in \code{ArchRProject}}
+\item{regions}{A \code{list} of \code{GRanges} that are to be overlapped with the \code{peakSet} in the \code{ArchRProject}.}
 
-\item{name}{The name of peakAnnotations to be stored as in \code{ArchRProject}}
+\item{name}{The name of \code{peakAnnotation} object to be stored as in \code{ArchRProject}.}
 
-\item{force}{force creation if peakAnnotation with same name already exists}
+\item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 
 \item{...}{additional args}
 }
 \description{
-This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.
+This function adds information about which peaks contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.
 }

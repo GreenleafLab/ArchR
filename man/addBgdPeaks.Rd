@@ -2,27 +2,28 @@
 % Please edit documentation in R/MatrixDeviations.R
 \name{addBgdPeaks}
 \alias{addBgdPeaks}
-\title{Add backgroundPeaks to ArchRProject}
+\title{Add Background Peaks to an ArchRProject}
 \usage{
-addBgdPeaks(ArchRProj, niterations = 50, w = 0.1, binSize = 50,
-  seed = 1, outFile = file.path(getOutputDirectory(ArchRProj),
+addBgdPeaks(ArchRProj = NULL, nIterations = 50, w = 0.1,
+  binSize = 50, seed = 1,
+  outFile = file.path(getOutputDirectory(ArchRProj),
   "Background-Peaks.rds"), force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{niterations}{The number of background peaks to sample (see chromVAR::getBackgroundPeaks).}
+\item{nIterations}{The number of background peaks to sample. See \code{chromVAR::getBackgroundPeaks()}.}
 
-\item{w}{The parameter controlling similarity of background peaks (see chromVAR::getBackgroundPeaks).}
+\item{w}{The parameter controlling similarity of background peaks. See \code{chromVAR::getBackgroundPeaks()}.}
 
-\item{binSize}{the precision with which the similarity is computed (see chromVAR::getBackgroundPeaks).}
+\item{binSize}{The precision with which the similarity is computed. See \code{chromVAR::getBackgroundPeaks()}.}
 
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{outFile}{Path to save backgroundPeaks object to for ArchRProject.}
+\item{outFile}{The path to save the backgroundPeaks object as a \code{.rds} file for the given \code{ArchRProject}. The default action is to save this file in the \code{outputDirectory} of the \code{ArchRProject}.}
 
-\item{force}{Force creation of backgroundPeaks even if file exists.}
+\item{force}{A boolean value indicating whether to force the file indicated by \code{outFile} to be overwritten if it already exists.}
 }
 \description{
-This function will compute backgroundPeaks controlling for total accessibility and GC and add this to an ArchRProject.
+This function will compute background peaks controlling for total accessibility and GC-content and add this information to an ArchRProject.
 }

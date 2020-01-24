@@ -10,9 +10,9 @@ createGeneAnnnotation(genome = NULL, TxDb = NULL, OrgDb = NULL,
 \arguments{
 \item{genome}{A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If \code{genome} is not supplied, \code{TxDb} and \code{OrgDb} are required. If genome is supplied, \code{TxDb} and \code{OrgDb} will be ignored.}
 
-\item{TxDb}{QQQ A \code{TxDb} object (transcript database) from Bioconductor which contains information for gene/transcript coordinates. For example, from \code{txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene}.}
+\item{TxDb}{A \code{TxDb} object (transcript database) from Bioconductor which contains information for gene/transcript coordinates. For example, from \code{txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene}.}
 
-\item{OrgDb}{QQQ An \code{OrgDb} object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids. For example, from QQQ.}
+\item{OrgDb}{An \code{OrgDb} object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids. For example, from \code{orgdb <- org.Hs.eg.db}}
 
 \item{genes}{A \code{GRanges} object containing gene coordinates (start to end). Must have a symbols column matching the symbols column of \code{exons}.}
 

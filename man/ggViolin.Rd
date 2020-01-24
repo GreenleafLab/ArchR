@@ -18,22 +18,22 @@ ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
 
 \item{ylabel}{The label to plot for the y-axis.}
 
-\item{xOrder}{A character vector indicating a custom order for plotting x-axis categorical values for plotting. Should contain all possible values of \code{x} in the desired order.}
+\item{xOrder}{A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible values of \code{x} in the desired order.}
 
 \item{addPoints}{A boolean value indicating whether individual points should be added to the plot using \code{geom_quasirandom}.}
 
-\item{size}{The line width for boxplot lines.}
+\item{size}{The line width for boxplot/summary lines.}
 
 \item{baseSize}{The base font size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{sampleRatio}{sampling ratio for number of dots to be shown from original data over violins to prevent over-crowding. Default is set to 0.1.}
+\item{sampleRatio}{The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.}
 
 \item{title}{The title of the plot.}
 
-\item{pal}{A custom palette for discrete coloring.}
+\item{pal}{A named custom palette (see \code{paletteDiscrete} and \code{ArchRPalettes}) for discrete coloring.}
 }
 \description{
-A ggplot-based violin plot wrapper function
+This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.
 }

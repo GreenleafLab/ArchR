@@ -2,19 +2,19 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{getPositions}
 \alias{getPositions}
-\title{Get peakAnnotation positions from an ArchRProject}
+\title{Get peak annotation positions from an ArchRProject}
 \usage{
 getPositions(ArchRProj = NULL, name = NULL, annoName = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{name}{The name of the peakAnnotation object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
+\item{name}{The name of the \code{peakAnnotation} object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
 
-\item{annoName}{The name of a specific annotation to subset within the peakAnnotation.}
+\item{annoName}{The name of a specific annotation to subset within the \code{peakAnnotation}.}
 
 \item{...}{additional args}
 }
 \description{
-This function gets the peakAnnotation positions (i.e. Motifs) from a given ArchRProject.
+This function gets the peak annotation positions (i.e. Motifs) from a given ArchRProject.
 }

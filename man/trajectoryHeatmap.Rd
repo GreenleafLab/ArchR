@@ -10,19 +10,19 @@ trajectoryHeatmap(seTrajectory = NULL, scaleRows = TRUE,
   returnMat = FALSE, ...)
 }
 \arguments{
-\item{seTrajectory}{A \code{SummarizedExperiment} object that results from \code{markerFeatures()}.}
+\item{seTrajectory}{A \code{SummarizedExperiment} object that results from calling \code{markerFeatures()}.}
 
-\item{scaleRows}{A boolean value that indicates whether row-wise z-scores should be computed on matrix in \code{seTrajectory}.}
+\item{scaleRows}{A boolean value that indicates whether row-wise z-scores should be computed on the matrix provided by \code{seTrajectory}.}
 
-\item{limits}{A numeric vector of two numbers that represent the lower and upper color limits of the heatmap color scheme.}
+\item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
 
 \item{grepExclude}{A character vector or string that indicates the \code{rownames} or a specific pattern that identifies rownames from \code{seTrajectory} to be excluded from the heatmap.}
 
-\item{pal}{A custom continuous palette (see paletteContinuous) used to override the continuous palette for the heatmap.}
+\item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}
 
 \item{labelMarkers}{A character vector listing the \code{rownames} of \code{seTrajectory} that should be labeled on the side of the heatmap.}
 
-\item{labelTop}{A boolean value that indicates whether the top features for each column in \code{seTrajectory} should be labeled on the side of the heatmap.}
+\item{labelTop}{A number indicating how many of the top N features based on variance in \code{seTrajectory} should be labeled on the side of the heatmap.}
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 

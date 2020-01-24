@@ -13,11 +13,11 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 \arguments{
 \item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims} or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.}
 
-\item{reducedDims}{The name of the \code{reducedDims} object (i.e. IterativeLSI) to retrieve from the designated \code{ArchRProject}. Not required if input is a matrix.}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}. Not required if input is a matrix.}
 
-\item{name}{The column name of the column to be added to \code{cellColData} if \code{input} is an \code{ArchRProject} object.}
+\item{name}{The column name of the cluster label column to be added to \code{cellColData} if \code{input} is an \code{ArchRProject} object.}
 
-\item{sampleCells}{An integer specifying number of cells to subset perform clustering and assign the remainder cells by euclidean distance.}
+\item{sampleCells}{UNCLEAR. FIX AND ADD LEAVE JJJ FOR ME TO CHECK. An integer specifying the number of cells to subsample and perform clustering on. The remaining cells will be assigned to the cluster of the nearest subsampled cell.}
 
 \item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
@@ -25,7 +25,7 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the corCutOff, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{knnAssign}{The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).}
 
@@ -33,7 +33,7 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
-\item{tstart}{The time at which the function run was started. Useful for keeping track of how long clustering takes relative to a start time.}
+\item{tstart}{A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering when running things like IterativeLSI.}
 
 \item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already exists as a column name in \code{cellColData}.}
 

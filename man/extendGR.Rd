@@ -9,9 +9,9 @@ extendGR(gr = NULL, upstream = NULL, downstream = NULL)
 \arguments{
 \item{gr}{A \code{GRanges} object.}
 
-\item{upstream}{The number of basepairs upstream (5') to extend each region in \code{x}. Strand-aware.}
+\item{upstream}{The number of basepairs upstream (5') to extend each region in \code{gr}. Strand-aware.}
 
-\item{downstream}{The number of basepairs downstream (3') to extend each region in \code{x}. Strand-aware.}
+\item{downstream}{The number of basepairs downstream (3') to extend each region in \code{gr}. Strand-aware.}
 }
 \description{
 This function extends each region in a Genomic Ranges object by a designated upstream and downstream extension in a strand-aware fashion
