@@ -472,6 +472,261 @@ addMotifAnnotations <- function(
 
 }
 
+#' Add ArchR annotations to an ArchRProject
+#' 
+#' This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param db A character indicating which database or a path to a database to use for peak annotation. Options include ArchR, LOLA, and a valid path to a file of class `ArchRAnno`.
+#' @param collection A character indicating which collection within the database to collect for annotation. 
+#' For ArchR, options JJJ include to be added.
+#' For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
+#' If supplying a custom ArchRAnno please use a valid collection.
+#' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
+#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
+#' @param ... additional args
+#' @export
+addArchRAnnotations <- function(
+  ArchRProj = NULL,
+  db = "LOLA",
+  collection = "EncodeTFBS",
+  name = collection,
+  force = FALSE,
+  ...
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = db, name = "db", valid = c("character"))
+  .validInput(input = collection, name = "collection", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+
+  tstart <- Sys.time()
+
+  if(name %in% names(ArchRProj@peakAnnotation)){
+    if(force){
+      message("peakAnnotation name already exists! Overriding.")
+    }else{
+      stop("peakAnnotation name already exists! set force = TRUE to override!")
+    }
+  }
+
+
+  annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
+  dir.create(annoPath, showWarnings = FALSE)
+  
+  if(tolower(db) == "lola"){
+  
+    if(genome == "hg19"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/LOLA-Hg19-v1.Anno"
+    }else if(genome == "hg38"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/LOLA-Hg38-v1.Anno"
+    }else if(genome == "mm9"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/LOLA-Mm9-v1.Anno"
+    }else if(genome == "mm10"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/LOLA-Mm10-v1.Anno"
+    }
+    
+    #Download
+    if(!file.exists(file.path(annoPath, basename(url)))){
+      message("Annotation ", basename(url)," does not exist! Downloading...")
+      download.file(
+        url = url, 
+        destfile = file.path(annoPath, basename(url)),
+        quiet = FALSE
+      )
+    }
+    AnnoFile <- file.path(annoPath, basename(url))
+
+  }else if(tolower(db) == "archr"){
+
+    if(genome == "hg19"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Hg19-v1.Anno"
+    }else if(genome == "hg38"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Hg38-v1.Anno"
+    }else if(genome == "mm9"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm9-v1.Anno"
+    }else if(genome == "mm10"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm10-v1.Anno"
+    }
+
+    #Download
+    if(!file.exists(file.path(annoPath, basename(url)))){
+      message("Annotation ", basename(url)," does not exist! Downloading...")
+      download.file(
+        url = url, 
+        destfile = file.path(annoPath, basename(url)),
+        quiet = FALSE
+      )
+    }
+    AnnoFile <- file.path(annoPath, basename(url))
+
+  }else if(tolower(db) %ni% c("archr", "lola")){
+
+    if(!file.exists(db)){
+      stop("Database path does not exist! Please supply valid database for Annotations!")
+    }
+    AnnoFile <- db
+
+  }else{
+
+    stop("Please supply valid database for Annotations!")
+
+  }
+
+  #Check AnnoFile is ArchRAnno
+  if (h5read(AnnoFile, "Class") != "ArchRAnno") {
+    stop("Not Valid ArchRAnno!")
+  }
+
+  #Check if Collection is Valid
+  h5d <- h5ls(AnnoFile)
+  collections <- h5d[h5d$group == "/" & h5d$otype == "H5I_GROUP",]$name
+  if(any(tolower(collections) == tolower(collection))){
+    collection <- collections[tolower(collections) %in% tolower(collection)]
+  }else{
+    stop("Not Valid Collection in ArchRAnno Database!")
+  }
+
+  #############################################################
+  # Peak Overlap Matrix
+  #############################################################
+  peakSet <- getPeakSet(ArchRProj)
+  chr <- paste0(unique(seqnames(peakSet)))
+
+  message("Annotating Chr: ", appendLF = FALSE)
+  regionMat <- lapply(seq_along(chr), function(i){
+    message(gsub("chr", " ", chr[i]), appendLF = FALSE)
+    regions <- .getRegionsFromAnno(AnnoFile = AnnoFile, Group = collection, chr = chr[i])
+    o <- DataFrame(findOverlaps(query = peakSet, subject = regions, ignore.strand = TRUE))
+    o$ID <- as.integer(mcols(regions)[o$subjectHits, "ID"])
+    o$subjectHits <- NULL
+    o
+  }) %>% Reduce("rbind", .)
+  message("\n")
+
+  regionMat <- Matrix::sparseMatrix(
+    i = regionMat[, 1], 
+    j = regionMat[, 2], 
+    x = rep(TRUE, nrow(regionMat)), 
+    dims = c(length(peakSet), length(unique(regionMat$ID)))
+  )
+
+  #Get Region Metadata
+  regionMetadata <- DataFrame(h5read(AnnoFile, paste0(collection,"/Info")))
+  rownames(regionMetadata) <- regionMetadata$name
+  colnames(regionMat) <- rownames(regionMetadata)
+  regionMetadata$name <- NULL
+
+  #Matches Summarized Experiment
+  regionMat <- SummarizedExperiment::SummarizedExperiment(
+    assays=SimpleList(matches = regionMat), 
+    rowRanges = peakSet, 
+    colData = regionMetadata
+  )
+
+  dir.create(file.path(getOutputDirectory(ArchRProj), "Annotations"), showWarnings=FALSE)
+  saveMatches <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Matches-In-Peaks.rds"))
+
+  out <- SimpleList(
+      regionMatches = regionMat,
+      regionPositions = "None",
+      date = Sys.Date()
+    )
+
+  ArchRProj@peakAnnotation[[name]]$Name <- name
+  ArchRProj@peakAnnotation[[name]]$Positions <- "None"
+  ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
+
+  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  saveRDS(out$regionMatches, saveMatches, compress = FALSE)
+
+  return(ArchRProj)
+
+}
+
+.getRegionsFromAnno <- function(
+  AnnoFile = NULL, 
+  Group = NULL,
+  chr = NULL, 
+  out = "GRanges", 
+  method = "fast",
+  ...
+  ){
+
+  if(is.null(chr)){
+    stop("Need to provide chromosome to read!")
+  }
+
+  o <- h5closeAll()
+  if (h5read(AnnoFile, "Class") != "ArchRAnno") {
+  stop("Not Valid ArchRAnno!")
+  }
+  
+  if(chr %ni% .availableSeqnames(AnnoFile, Group)){
+    stop("Error Chromosome not in AnnoFile!")
+  }
+
+  o <- h5closeAll()
+  nRegions <- h5ls(AnnoFile, recursive = TRUE) %>% 
+    {.[.$group==paste0("/",Group,"/",chr) & .$name == "Ranges",]$dim} %>% 
+    {gsub(" x 2","",.)} %>% as.integer
+
+  if(nRegions==0){
+    if(tolower(out)=="granges"){
+      output <- GRanges(seqnames = chr, IRanges(start = 1, end = 1), ID = "tmp")
+      output <- output[-1,]
+    }else{
+      output <- IRanges(start = 1, end = 1)
+      mcols(output)$ID <- c("tmp")
+      output <- output[-1,]
+    }
+    return(output)
+  }
+
+
+  if(tolower(method) == "fast"){
+    
+    output <- .h5read(AnnoFile, paste0(Group,"/",chr,"/Ranges"), method = method) %>% 
+      {IRanges(start = .[,1], width = .[,2])}
+    mcols(output)$ID <- Rle(
+      values =  .h5read(AnnoFile, paste0(Group,"/",chr,"/IDValues"), method = method), 
+      lengths = .h5read(AnnoFile, paste0(Group,"/",chr,"/IDLengths"), method = method)
+    )
+
+  }else{
+    o <- h5closeAll()
+  idRle <- Rle(h5read(AnnoFile, paste0(Group,"/",chr,"/IDValues")), h5read(AnnoFile, paste0(Group,"/",chr,"/IDLengths")))
+  idx <- seq_along(idRle)
+  if(length(idx) > 0){
+    output <- h5read(AnnoFile, paste0(Group,"/",chr,"/Ranges"), index = list(idx, 1:2)) %>% 
+      {IRanges(start = .[,1], width = .[,2])}
+    mcols(output)$ID <- idRle[idx]
+  }else{
+    output <- IRanges(start = 1, end = 1)
+    mcols(output)$ID <- c("tmp")
+    output <- output[-1,]
+  }
+
+  }
+  
+  o <- h5closeAll()
+
+  if(tolower(out)=="granges"){
+    if(length(output) > 0){
+      output <- GRanges(seqnames = chr, ranges(output), ID = mcols(output)$ID)    
+    }else{
+      output <- IRanges(start = 1, end = 1)
+      mcols(output)$ID <- c("tmp")
+      output <- GRanges(seqnames = chr, ranges(output), ID = mcols(output)$ID)
+      output <- output[-1,]
+    }
+  }
+
+  return(output)
+
+}
+
 #' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
 #' 
 #' This function will perform hypergeometric enrichment of a given peak annotation within the defined marker peaks.

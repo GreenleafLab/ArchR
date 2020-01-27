@@ -677,7 +677,7 @@ markerFeatures <- function(
 #' @param pal A custom continuous palette from `ArchRPalettes` (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
-#' @param labelTop An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
+#' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param invert A boolean value that indicates whether the heatmap will be inverted when sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
@@ -695,7 +695,8 @@ markerHeatmap <- function(
   pal = NULL,
   binaryClusterRows = TRUE,
   labelMarkers = NULL,
-  labelTop = NULL,
+  nLabel = NULL,
+  nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
   invert = FALSE,
@@ -713,7 +714,8 @@ markerHeatmap <- function(
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
-  .validInput(input = labelTop, name = "labelTop", valid = c("integer", "null"))
+  .validInput(input = nLabel, name = "nLabel", valid = c("integer", "null"))
+  .validInput(input = nLabel, name = "nPrint", valid = c("integer", "null"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
   .validInput(input = invert, name = "invert", valid = c("boolean"))
@@ -774,13 +776,14 @@ markerHeatmap <- function(
     stop("No Makers Found!")
   }
 
-  if(!is.null(labelTop)){
+  if(metadata(markersGS)$Params$useMatrix == "GeneScoreMatrix"){
+    message("Printing Top Marker Genes:")
     spmat <- passMat / rowSums(passMat)
-    idx2 <- lapply(seq_len(ncol(spmat)), function(x){
-      head(order(spmat[,x], decreasing = TRUE), labelTop)
-    }) %>% unlist %>% unique %>% sort
-    mat <- mat[idx2,]
-    labelRows <- TRUE
+    for(x in seq_len(ncol(spmat))){
+      genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
+      message(colnames(spmat)[x], ":")
+      message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
+    }
   }
 
   if(binaryClusterRows){
@@ -837,7 +840,7 @@ markerHeatmap <- function(
     customRowLabel = mn,
     showColDendrogram = TRUE,
     draw = FALSE,
-    ...
+    name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(markersGS)$Params$useMatrix)
   )
 
   if(returnMat){
@@ -866,7 +869,7 @@ markerHeatmap <- function(
   useRaster = TRUE,
   rasterQuality = 5,
   split = NULL,
-  fontsize = 6,
+  fontsize = 10,
   colAnnoPerRow = 4,
   showRowDendrogram = FALSE,
   showColDendrogram = FALSE,

@@ -9,7 +9,7 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
   plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
   sizes = c(10, 2, 4), features = getPeakSet(ArchRProj),
   geneSymbol = NULL, upstream = 50000, downstream = 50000,
-  tileSize = 100, minCells = 25, normMethod = "ReadsInTSS",
+  tileSize = 250, minCells = 25, normMethod = "ReadsInTSS",
   threads = getArchRThreads(), ylim = NULL, baseSize = 7,
   borderWidth = 0.4, tickWidth = 0.4, facetbaseSize = 7,
   geneAnnotation = getGeneAnnotation(ArchRProj), title = "", ...)

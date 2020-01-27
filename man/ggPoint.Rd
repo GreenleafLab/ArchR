@@ -10,9 +10,10 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
   colorDensity = FALSE, size = 1, xlim = NULL, ylim = NULL,
   extend = 0.05, xlabel = "x", ylabel = "y", title = "",
   randomize = FALSE, seed = 1, colorTitle = NULL,
-  colorOrder = NULL, alpha = 1, baseSize = 6, ratioYX = 1,
-  labelType = "ggrepel", fgColor = NULL, bgColor = "white",
-  labelSize = 1.5, addFit = NULL, rastr = FALSE, dpi = 300, ...)
+  colorOrder = NULL, colorLimits = NULL, alpha = 1, baseSize = 6,
+  ratioYX = 1, labelType = "ggrepel", fgColor = NULL,
+  bgColor = "white", labelSize = 1.5, addFit = NULL, rastr = FALSE,
+  dpi = 300, ...)
 }
 \arguments{
 \item{x}{A numeric vector containing the x-axis values for each point.}
@@ -56,6 +57,8 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 \item{colorTitle}{A title to be added to the legend if color is supplied.}
 
 \item{colorOrder}{If you want to control the order of \code{color} supplied as a factor to \code{ggplot2}. For example if you have \code{color} as c("a","b","c") and want to have the first color selected from the palette be for "c" then "b" and then "a", you would supply the \code{colorOrder} as c("c", "b", "a").}
+
+\item{colorLimits}{A numeric vector of two values indicating the lower and upper bounds of colors if numeric.}
 
 \item{alpha}{A number indicating the transparency to use for each point. See \code{ggplot2} for more details.}
 

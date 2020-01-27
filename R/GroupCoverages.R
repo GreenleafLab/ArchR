@@ -13,6 +13,7 @@
 #' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
 #' @param kmerLength The length of the k-mer used for estimating Tn5 bias.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param returnGroups A boolean whether to just return sample-guided cell-groupings without creating coverages. This is used mainly in addReproduciblePeakSet when calling peaks with TileMatrix.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
@@ -31,6 +32,7 @@ addGroupCoverages <- function(
   sampleRatio = 0.8,
   kmerLength = 6,
   threads = getArchRThreads(),
+  returnGroups = FALSE,
   parallelParam = NULL,
   force = FALSE,
   verboseHeader = TRUE,
@@ -71,10 +73,19 @@ addGroupCoverages <- function(
     ArchRProj@projectMetadata$GroupCoverages <- SimpleList()
   }
 
-  if(!is.null(ArchRProj@projectMetadata$GroupCoverages[[groupBy]])){
-    if(!force){
-      stop("Group Coverages Already Computed, Set force = TRUE to continue!")
+  if(!returnGroups){
+    if(!is.null(ArchRProj@projectMetadata$GroupCoverages[[groupBy]])){
+      if(!force){
+        stop("Group Coverages Already Computed, Set force = TRUE to continue!")
+      }
     }
+  }else{
+    if(!is.null(ArchRProj@projectMetadata$GroupCoverages[[groupBy]])){
+      if(!force){
+        message("Group Coverages Already Computed Returning Groups, Set force = TRUE to Recompute!")
+        return(ArchRProj@projectMetadata$GroupCoverages[[groupBy]])
+      }
+    }      
   }
 
   #####################################################
@@ -110,6 +121,7 @@ addGroupCoverages <- function(
         minCells = minCells, 
         maxCells = maxCells,
         minReplicates = minReplicates, 
+        maxReplicates = maxReplicates,
         sampleRatio = sampleRatio
         )
       if(is.null(outListx)){
@@ -144,6 +156,10 @@ addGroupCoverages <- function(
     .messageDiffTime(sprintf("Further Sampled %s Groups above the Max Fragments!", it), tstart)
   }
 
+  if(returnGroups){
+    return(cellGroups)
+  }
+
   #####################################################
   # Arguments for Coverages
   #####################################################
@@ -151,10 +167,15 @@ addGroupCoverages <- function(
   dir.create(file.path(getOutputDirectory(ArchRProj), "GroupCoverages"), showWarnings = FALSE)
   dir.create(file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy), showWarnings = FALSE)
 
+  unlistGroups <- lapply(seq_along(cellGroups), function(x){
+    names(cellGroups[[x]]) <- paste0(names(cellGroups)[x], "._.", names(cellGroups[[x]]))
+    cellGroups[[x]]
+  }) %>% SimpleList %>%unlist()
+
   args <- list()
-  args$X <- seq_along(unlist(cellGroups))
+  args$X <- seq_along(unlistGroups)
   args$FUN <- .createCoverages
-  args$cellGroups <- unlist(cellGroups)
+  args$cellGroups <- unlistGroups
   args$genome <- getGenome(ArchRProj)
   args$kmerLength <- kmerLength
   args$ArrowFiles <- getArrowFiles(ArchRProj)
@@ -188,8 +209,8 @@ addGroupCoverages <- function(
 
   #Add To Project
   coverageMetadata <- DataFrame(
-    Group = stringr::str_split(names(unlist(cellGroups)), pattern = "\\.", simplify=TRUE)[,1],
-    Name = names(unlist(cellGroups)), 
+    Group = stringr::str_split(names(unlistGroups), pattern = "\\._.", simplify=TRUE)[,1],
+    Name = names(unlistGroups), 
     File = coverageFiles,
     nCells = nCells,
     nInsertions = nFragments * 2
@@ -436,6 +457,13 @@ addGroupCoverages <- function(
             cellGroupsPass[[i]] <- sample(cellGroupsPass[[i]], maxCells)
         }
     }
+
+    #Rank Group by Unique # of Cells
+    nUnique <- lapply(cellGroupsPass, function(x){
+      length(unique(x))
+    })
+    cellsGroupPass <- cellsGroupPass[order(nUnique, decreasing = TRUE)]
+
     if(!is.null(maxReplicates)){
       if(length(cellsGroupPass) > maxReplicates){
         cellsGroupPass <- cellsGroupPass[seq_len(maxReplicates)]

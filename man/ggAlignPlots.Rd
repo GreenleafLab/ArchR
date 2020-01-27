@@ -12,7 +12,7 @@ ggAlignPlots(..., plotList = NULL, sizes = NULL, type = "v",
 
 \item{plotList}{A list of \code{ggplot2} plot objects to be aligned.}
 
-\item{sizes}{A numeric vector or list of values indicating the relative size for each of the objects in \code{plotList} or supplied in \code{...}. If the plot is supplied in \code{...} the order is the same as the input in this function.}
+\item{sizes}{A numeric vector or list of values indicating the relative size for each of the objects in \code{plotList} or supplied in \code{...}. If the plot is supplied in \code{...} the order is the same as the input in this function. If set to NULL all plots will be evenly distributed.}
 
 \item{type}{A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.}
 

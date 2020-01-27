@@ -8,8 +8,8 @@ addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
   useLabels = TRUE, minCells = 40, maxCells = 500,
   maxFragments = 25 * 10^6, minReplicates = 2, maxReplicates = 5,
   sampleRatio = 0.8, kmerLength = 6, threads = getArchRThreads(),
-  parallelParam = NULL, force = FALSE, verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+  returnGroups = FALSE, parallelParam = NULL, force = FALSE,
+  verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -33,6 +33,8 @@ addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
 \item{kmerLength}{The length of the k-mer used for estimating Tn5 bias.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
+
+\item{returnGroups}{A boolean whether to just return sample-guided cell-groupings without creating coverages. This is used mainly in addReproduciblePeakSet when calling peaks with TileMatrix.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 

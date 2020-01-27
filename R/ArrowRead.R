@@ -362,6 +362,7 @@ getMatrixFromArrow <- function(
   useIndex = FALSE, 
   verbose = TRUE, 
   useMatrix = "TileMatrix",
+  asSparse = FALSE,
   tstart = NULL,
   ...
   ){
@@ -417,6 +418,10 @@ getMatrixFromArrow <- function(
 
     }
 
+    if(asSparse){
+      matChr <- as(matChr, "dgCMatrix")
+    }
+    
     matChr
 
   }, threads = threads) %>% Reduce("rbind", .)

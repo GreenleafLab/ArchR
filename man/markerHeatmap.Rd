@@ -8,7 +8,7 @@ markerHeatmap(seMarker = NULL, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   log2Norm = TRUE, scaleTo = 10^4, scaleRows = TRUE,
   plotLog2FC = FALSE, limits = c(-2, 2), grepExclude = NULL,
   pal = NULL, binaryClusterRows = TRUE, labelMarkers = NULL,
-  labelTop = NULL, labelRows = FALSE, returnMat = FALSE,
+  nLabel = NULL, nPrint = 20, labelRows = FALSE, returnMat = FALSE,
   invert = FALSE, ...)
 }
 \arguments{
@@ -32,7 +32,7 @@ markerHeatmap(seMarker = NULL, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
 
 \item{labelMarkers}{A character vector listing the \code{rownames} of \code{seMarker} that should be labeled on the side of the heatmap.}
 
-\item{labelTop}{An integer value that indicates whether the top \code{n} features for each column in \code{seMarker} should be labeled on the side of the heatmap.}
+\item{nLabel}{An integer value that indicates whether the top \code{n} features for each column in \code{seMarker} should be labeled on the side of the heatmap.}
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 

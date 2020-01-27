@@ -27,6 +27,7 @@
 #' @param seed A numeric seed number for use in randomization.
 #' @param colorTitle A title to be added to the legend if color is supplied.
 #' @param colorOrder If you want to control the order of `color` supplied as a factor to `ggplot2`. For example if you have `color` as c("a","b","c") and want to have the first color selected from the palette be for "c" then "b" and then "a", you would supply the `colorOrder` as c("c", "b", "a").
+#' @param colorLimits A numeric vector of two values indicating the lower and upper bounds of colors if numeric.
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
@@ -60,6 +61,7 @@ ggPoint <- function(
     seed = 1,
     colorTitle = NULL, 
     colorOrder = NULL, 
+    colorLimits = NULL,
     alpha = 1, 
     baseSize = 6, 
     ratioYX = 1, 
@@ -192,6 +194,10 @@ ggPoint <- function(
           
         }else{
           stopifnot(length(color) == nrow(df))
+          if(!is.null(colorLimits)){
+            color[color < min(colorLimits)] <- min(colorLimits)
+            color[color > max(colorLimits)] <- max(colorLimits)
+          }
           df$color <- color
         }
 
@@ -264,9 +270,17 @@ ggPoint <- function(
       }else{
 
           if (!is.null(pal)) {
-              p <- p + scale_colour_gradientn(colors = pal)
+              if(!is.null(colorLimits)){
+                p <- p + scale_colour_gradientn(colors = pal, limits=colorLimits)
+              }else{
+                p <- p + scale_colour_gradientn(colors = pal)
+              }
           }else {
+            if(!is.null(colorLimits)){
+              p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet), limits=colorLimits)
+            }else{
               p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet))
+            }
           }
       }
 
@@ -636,7 +650,7 @@ ggHex <- function(
 #'
 #' @param ... All additional arguments will be interpreted as `ggplot2` plot objects and used if and only if `plotList` is `NULL`
 #' @param plotList A list of `ggplot2` plot objects to be aligned.
-#' @param sizes A numeric vector or list of values indicating the relative size for each of the objects in `plotList` or supplied in `...`. If the plot is supplied in `...` the order is the same as the input in this function.
+#' @param sizes A numeric vector or list of values indicating the relative size for each of the objects in `plotList` or supplied in `...`. If the plot is supplied in `...` the order is the same as the input in this function. If set to NULL all plots will be evenly distributed.
 #' @param type A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.
 #' @param draw A boolean value indicating whether to draw the plot(s) (`TRUE`) or return a graphical object (`FALSE`).
 #' @export
@@ -649,7 +663,7 @@ ggAlignPlots <- function(
   ){
   
   .validInput(input = plotList, name = "plotList", valid = c("list", "null"))
-  .validInput(input = sizes, name = "sizes", valid = c("numeric"))
+  .validInput(input = sizes, name = "sizes", valid = c("numeric", "null"))
   .validInput(input = type, name = "type", valid = c("character"))
   .validInput(input = draw, name = "draw", valid = c("boolean"))
   if(type %ni% c("v", "h")){

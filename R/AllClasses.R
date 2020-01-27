@@ -93,7 +93,7 @@ ArchRProject <- function(
 
   if(copyArrows){
     message("Copying ArrowFiles to Ouptut Directory!")
-    cf <- file.copy(ArrowFiles, file.path(sampleDirectory, paste0(sampleNames, ".arrow")))
+    cf <- file.copy(ArrowFiles, file.path(sampleDirectory, paste0(sampleNames, ".arrow")), overwrite = TRUE)
     ArrowFiles <- file.path(sampleDirectory, paste0(sampleNames, ".arrow"))
   }
 
