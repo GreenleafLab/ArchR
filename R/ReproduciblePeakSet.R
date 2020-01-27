@@ -337,7 +337,7 @@ addReproduciblePeakSet <- function(
 		    }) %>% Reduce("cbind", .)
 
 		    n <- ncol(pMat)
-		    passPeaks <- rowSums(pMat >= -log10(cutOff)) >= eval(parse(text=reproducibility))
+		    passPeaks <- Matrix::rowSums(pMat >= -log10(cutOff)) >= eval(parse(text=reproducibility))
 		    mlogp <- Matrix::rowSums(Matrix::t(Matrix::t(pMat) / Matrix::colSums(pMat)) * 10^6) / ncol(pMat)
 
 		    rm(pMat)

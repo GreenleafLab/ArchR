@@ -114,7 +114,7 @@ ArchRBrowser <- function(
           numericInput("range_max", "Distance (+) (kb):", min = -250, max = 250, value = 50)
         ),
         numericInput("tile_size", "Tile Size (Resolution):", min = 10, max = 5000, value = 250),
-        numericInput("ymax", "Y-Max (Quantile Normalized Reads):", min = 0, max = 1, value = 0.999),
+        numericInput("ymax", "Y-Max (Quantile Normalized Reads):", min = 0, max = 1, value = 0.99),
         br(),
         downloadButton(outputId = "down", label = "Download the Track"),
         br(),
