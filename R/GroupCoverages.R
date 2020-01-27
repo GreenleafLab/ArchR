@@ -55,6 +55,10 @@ addGroupCoverages <- function(
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
 
+  if(minReplicates < 2){
+    stop("minReplicates must be at least 2!")
+  }
+
   if(verboseAll){
     verboseHeader <- TRUE
   }
