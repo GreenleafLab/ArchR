@@ -107,8 +107,9 @@ createArrowFiles <- function(
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe()))) #as.list(match.call())
   args$X <- seq_along(inputFiles)
   args$FUN <- .createArrow
-  args$threads <- min(args$threads, length(inputFiles))
   args$registryDir <- file.path(outDir, "CreateArrowsRegistry")
+
+  h5disableFileLocking()
 
   #Run With Parallel or lapply
   outArrows <- tryCatch({
@@ -128,6 +129,8 @@ createArrowFiles <- function(
     print(paste0("Error Received : ", x))
     paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
   })
+
+  h5enableFileLocking()
 
   return(outArrows)
 
@@ -164,6 +167,7 @@ createArrowFiles <- function(
   verboseHeader = TRUE,
   verboseAll = FALSE,
   tstart = NULL,
+  subThreads = 1,
   ...
   ){
 
@@ -254,7 +258,7 @@ createArrowFiles <- function(
   }else if(tolower(readMethod)=="tabix"){
    
     tmp <- .tabixToTmp(tabixFile = inputFile, sampleName = sampleName, validBC = validBC,
-            chromSizes = genomeAnnotation$chromSizes, nChunk = nChunk,
+            chromSizes = genomeAnnotation$chromSizes, nChunk = nChunk, threads = subThreads,
             gsubExpression = gsubExpression, prefix = prefix, verboseHeader = verboseHeader, 
             verboseAll = verboseAll, tstart = tstart,  ...)
 
@@ -267,7 +271,7 @@ createArrowFiles <- function(
 
     tmp <- .bamToTmp(bamFile = inputFile, sampleName = sampleName, validBC = validBC,
             chromSizes = genomeAnnotation$chromSizes, bamFlag = bamFlag, 
-            bcTag = bcTag, gsubExpression = gsubExpression, nChunk = nChunk, 
+            bcTag = bcTag, gsubExpression = gsubExpression, nChunk = nChunk, threads = subThreads,
             offsetPlus = offsetPlus, offsetMinus = offsetMinus, prefix = prefix, 
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
 
@@ -329,6 +333,7 @@ createArrowFiles <- function(
   TSSParams$TSS <- geneAnnotation$TSS
   TSSParams$ArrowFile <- ArrowFile
   TSSParams$cellNames <- Metadata$cellNames
+  TSSParams$threads <- subThreads
   TSSOut <- do.call(.fastTSSEnrichment, TSSParams)
   Metadata$TSSEnrichment <- TSSOut$tssScores
   Metadata$ReadsInTSS <- TSSOut$tssReads
@@ -463,10 +468,11 @@ createArrowFiles <- function(
 #########################################################################################################
 
 .fastFragmentInfo <- function(
-  ArrowFile,
+  ArrowFile = NULL,
   cellNames = .availableCells(ArrowFile),
-  nucLength = 147, 
-  ...){
+  nucLength = 147,
+  ...
+  ){
 
   #Info to get
   matNuc <- matrix(0, nrow = length(cellNames), ncol = 3)
@@ -511,14 +517,16 @@ createArrowFiles <- function(
 }
 
 .fastTSSEnrichment <- function(
-  TSS, 
-  ArrowFile, 
+  TSS = NULL, 
+  ArrowFile = NULL, 
   cellNames = NULL, 
   window = 101, 
   norm = 100, 
   flank = 2000, 
   minNorm = 1, 
-  ...){
+  threads = 1,
+  ...
+  ){
 
   tstart <- Sys.time()
 
@@ -548,7 +556,7 @@ createArrowFiles <- function(
   #Count
   #.messageDiffTime("Counting Around TSS!", tstart)
   
-  countList <- .fastFeatureCounts(feature = tssFeatures, ArrowFile = ArrowFile, cellNames = cellNames)
+  countList <- .fastFeatureCounts(feature = tssFeatures, ArrowFile = ArrowFile, cellNames = cellNames, threads = threads)
 
   #Normalize per BP
   cWn <- countList$nWindow / window
@@ -565,7 +573,7 @@ createArrowFiles <- function(
 
 }
 
-.fastFeatureCounts <- function(feature, ArrowFile, cellNames){
+.fastFeatureCounts <- function(feature = NULL, ArrowFile = NULL, cellNames = NULL, threads = 1){
   
   tstart1 <- Sys.time()
   featureList <- split(feature, seqnames(feature))
@@ -575,20 +583,15 @@ createArrowFiles <- function(
     stop("Error No Overlap in Chromosomes and TSS Chromosomes!")
   }
 
-  #Count Vector
-  nWindow <- rep(0, length(cellNames))
-  names(nWindow) <- cellNames
-
-  nFlank <- rep(0, length(cellNames))
-  names(nFlank) <- cellNames
-
   #Count
-  #message(sprintf("Counting Insertions, %s minutes elapsed...", round(difftime(Sys.time(), tstart1, units = "mins"),3)))
-  #pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-  
-  for(x in seq_along(featureList)){
+  countDF <- .safelapply(seq_along(featureList), function(x){
 
-    #setTxtProgressBar(pb,round(x*100/length(featureList),0))
+    #Count Vector
+    nWindow <- rep(0, length(cellNames))
+    names(nWindow) <- cellNames
+
+    nFlank <- rep(0, length(cellNames))
+    names(nFlank) <- cellNames
 
     ###############################################################################
     # Get Fragments
@@ -636,14 +639,13 @@ createArrowFiles <- function(
       rm(fragments)
       gc()
 
+      as.matrix(data.frame(row.names = cellNames, nWindow = nWindow, nFlank = nFlank))
+
     }
 
-  }
+  }, threads = threads) %>% Reduce("+", .)
 
-  #message("\n")
-  #.messageDiffTime("Finished Counting Insertions", tstart1)
-
-  out <- list(nWindow = nWindow, nFlank = nFlank)
+  out <- list(nWindow = countDF[,1] , nFlank = countDF[, 2])
 
   return(out)
 
@@ -668,11 +670,11 @@ createArrowFiles <- function(
 }
 
 .tabixToTmp <- function(
-  tabixFile, 
-  sampleName,
+  tabixFile = NULL, 
+  sampleName = NULL,
   validBC = NULL,
   tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow"), fileext=".arrow"),
-  chromSizes, 
+  chromSizes = NULL, 
   nChunk = 3,
   gsubExpression = NULL, 
   printEvery = 1,
@@ -680,6 +682,7 @@ createArrowFiles <- function(
   verboseAll = FALSE,
   prefix = "",
   tstart = NULL,
+  threads = 1,
   ...
   ){
 
@@ -701,6 +704,7 @@ createArrowFiles <- function(
   }
 
   nextPrint <- printEvery
+
   o <- h5closeAll()
   o <- h5createFile(tmpFile)
   o <- h5createGroup(tmpFile, paste0("Fragments"))
@@ -711,14 +715,21 @@ createArrowFiles <- function(
   tileChromSizes <- unlist(GenomicRanges::tile(chromSizes, nChunk))
   mcols(tileChromSizes)$chunkName <- paste0(seqnames(tileChromSizes),"#chunk",seq_along(tileChromSizes))
 
-  errorCheck <- 0
+  readTiledChrom <- .safelapply(seq_along(tileChromSizes), function(x){
 
-  for(x in seq_along(tileChromSizes)){
+    errorCheck <- 0
 
-    if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
-      .messageDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
-        verbose = verboseHeader, addHeader = verboseAll)
-      nextPrint <- nextPrint + printEvery
+    if(threads == 1){
+      if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
+        .messageDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
+          verbose = verboseHeader, addHeader = verboseAll)
+        nextPrint <- nextPrint + printEvery
+      }
+    }else{
+      if(x == 1 || x %% (threads + 1) == 0){
+        .messageDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
+                  verbose = verboseHeader, addHeader = verboseAll)
+      }
     }
 
     dt <- tryCatch({
@@ -746,29 +757,121 @@ createArrowFiles <- function(
 
       errorCheck <- errorCheck + 1
 
-      #Order by bc
-      setkey(dt, V4)
-      dt <- dt[order(V4)]
-      RG <- Rle(paste0(dt$V4))
+      if(threads == 1){
 
-      chrTmp <- mcols(tileChromSizes)$chunkName[x]
-      chrPos <- paste0("Fragments/",chrTmp,"/Ranges")
-      chrRGLengths <- paste0("Fragments/",chrTmp,"/RGLengths")
-      chrRGValues <- paste0("Fragments/",chrTmp,"/RGValues")
-      lengthRG <- length(RG@lengths)
-      o <- h5createGroup(tmpFile, paste0("Fragments/",chrTmp))
-      o <- .suppressAll(h5createDataset(tmpFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
-      o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-      o <- .suppressAll(h5createDataset(tmpFile, chrRGValues, storage.mode = "character", 
-        dims = c(lengthRG, 1), level = 0, size = nchar(RG@values[1]) + 1))
-      o <- h5write(obj = cbind(dt$V2,dt$V3-dt$V2), file = tmpFile, name = chrPos)
-      o <- h5write(obj = RG@lengths, file = tmpFile, name = chrRGLengths)
-      o <- h5write(obj = RG@values, file = tmpFile, name = chrRGValues)
+        #Order by bc
+        setkey(dt, V4)
+        dt <- dt[order(V4)]
+        RG <- Rle(paste0(dt$V4))
 
-      rm(dt, RG)
-      gc()
+        chrTmp <- mcols(tileChromSizes)$chunkName[x]
+        chrPos <- paste0("Fragments/",chrTmp,"/Ranges")
+        chrRGLengths <- paste0("Fragments/",chrTmp,"/RGLengths")
+        chrRGValues <- paste0("Fragments/",chrTmp,"/RGValues")
+        lengthRG <- length(RG@lengths)
+        o <- h5createGroup(tmpFile, paste0("Fragments/",chrTmp))
+        o <- .suppressAll(h5createDataset(tmpFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
+        o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+        o <- .suppressAll(h5createDataset(tmpFile, chrRGValues, storage.mode = "character", 
+          dims = c(lengthRG, 1), level = 0, size = nchar(RG@values[1]) + 1))
+        o <- h5write(obj = cbind(dt$V2,dt$V3-dt$V2), file = tmpFile, name = chrPos)
+        o <- h5write(obj = RG@lengths, file = tmpFile, name = chrRGLengths)
+        o <- h5write(obj = RG@values, file = tmpFile, name = chrRGValues)
+
+        rm(dt, RG)
+        gc()
+
+        return(list(tmpChrFile = NULL, errorCheck = errorCheck))
+
+      }else{
+
+        chrTmp <- mcols(tileChromSizes)$chunkName[x]
+
+        #Temporary File
+        tmpChrFile <- paste0(gsub(".arrow", "", tmpFile), ".", chrTmp, ".arrow")
+        if(file.exists(tmpChrFile)){
+          file.remove(tmpChrFile)
+        }
+
+        o <- h5createFile(tmpChrFile)
+
+        #Order by bc
+        setkey(dt, V4)
+        dt <- dt[order(V4)]
+        RG <- Rle(paste0(dt$V4))
+
+        chrPos <- paste0(chrTmp, "._.Ranges")
+        chrRGLengths <- paste0(chrTmp, "._.RGLengths")
+        chrRGValues <- paste0(chrTmp, "._.RGValues")
+        lengthRG <- length(RG@lengths)
+
+        o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
+        o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+        o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", 
+          dims = c(lengthRG, 1), level = 0, size = nchar(RG@values[1]) + 1))
+        
+        o <- h5write(obj = cbind(dt$V2,dt$V3-dt$V2), file = tmpChrFile, name = chrPos)
+        o <- h5write(obj = RG@lengths, file = tmpChrFile, name = chrRGLengths)
+        o <- h5write(obj = RG@values, file = tmpChrFile, name = chrRGValues)
+
+
+        rm(dt, RG)
+        gc()
+
+        return(list(tmpChrFile = tmpChrFile, errorCheck = errorCheck))
+
+      }
+
     }
+
+  }, threads = threads)
+
+  if(threads > 1){
+
+    #Parallel Linkage Hdf5
+
+    file.remove(tmpFile)
+    o <- h5closeAll()
+    fid <- H5Fcreate(tmpFile)
+
+    o <- h5createGroup(fid, paste0("Fragments"))
+    o <- h5createGroup(fid, paste0("Metadata"))
+    o <- h5write(obj = "Arrow", file = fid, name = "Class")
+    o <- h5write(obj = "tmp", file = fid, name = "Metadata/Sample")
+
+    tmpChrFiles <- lapply(readTiledChrom, function(x) x$tmpChrFile) %>% unlist
+
+    for(i in seq_along(tmpChrFiles)){
+
+      tmpChrFilei <- tmpChrFiles[i]
+      splitNames <- stringr::str_split(h5ls(tmpChrFilei)$name, "._.", simplify=TRUE)
+      chunkName <- splitNames[,1]
+      group <- splitNames[,2]
+
+      o <- h5createGroup(fid, paste0("Fragments/", chunkName[1]))
+
+      H5Lcreate_external(target_file_name = tmpChrFilei, 
+                         target_obj_name = h5ls(tmpChrFilei)$name[1],
+                         link_loc = fid,
+                         link_name = paste0("Fragments/", chunkName[1], "/", group[1]))
+
+      H5Lcreate_external(target_file_name = tmpChrFilei, 
+                         target_obj_name = h5ls(tmpChrFilei)$name[2],
+                         link_loc = fid,
+                         link_name = paste0("Fragments/", chunkName[1], "/", group[2]))
+
+      H5Lcreate_external(target_file_name = tmpChrFilei, 
+                         target_obj_name = h5ls(tmpChrFilei)$name[3],
+                         link_loc = fid,
+                         link_name = paste0("Fragments/", chunkName[1], "/", group[3]))
+
+    }
+
+    H5Fclose(fid)
+
   }
+
+  errorCheck <- sum(lapply(readTiledChrom, function(x) x$errorCheck) %>% unlist)
 
   if(errorCheck == 0){
     if(!is.null(validBC)){
@@ -783,11 +886,11 @@ createArrowFiles <- function(
 }
 
 .bamToTmp <- function(
-  bamFile, 
-  sampleName,
+  bamFile = NULL, 
+  sampleName = NULL,
   tmpFile = .tempfile(pattern = paste0("tmp-",sampleName,"-arrow"), fileext=".arrow"), 
   validBC = NULL,
-  chromSizes, 
+  chromSizes = NULL, 
   bamFlag = NULL,
   nChunk = 3,
   bcTag = "qname",
@@ -798,7 +901,9 @@ createArrowFiles <- function(
   verboseAll = FALSE,
   prefix = "",
   tstart = NULL,
-  ...){
+  threads = 1,
+  ...
+  ){
 
   .requirePackage("Rsamtools")
 
@@ -838,14 +943,21 @@ createArrowFiles <- function(
   tileChromSizes <- unlist(tile(chromSizes, nChunk))
   mcols(tileChromSizes)$chunkName <- paste0(seqnames(tileChromSizes),"#chunk",seq_along(tileChromSizes))
 
-  errorCheck <- 0
+  readTiledChrom <- .safelapply(seq_along(tileChromSizes), function(x){
 
-  for(x in seq_along(tileChromSizes)){
+    errorCheck <- 0
 
-    if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
-      .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
-        verbose = verboseHeader, addHeader = verboseAll)
-      nextPrint <- nextPrint + printEvery
+    if(threads == 1){
+      if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
+        .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
+          verbose = verboseHeader, addHeader = verboseAll)
+        nextPrint <- nextPrint + printEvery
+      }
+    }else{
+      if(x == 1 || x %% (threads + 1) == 0){
+        .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
+                  verbose = verboseHeader, addHeader = verboseAll)
+      }
     }
 
     #If barcode is stored in read name use qname
@@ -925,31 +1037,122 @@ createArrowFiles <- function(
 
       errorCheck <- errorCheck + 1
 
-      #Order by bc
-      setkey(dt, RG)
-      dt <- dt[order(RG)]
-      RG <- Rle(dt$RG)
+      if(threads == 1){
 
-      chrTmp <- mcols(tileChromSizes)$chunkName[x]
-      chrPos <- paste0("Fragments/",chrTmp,"/Ranges")
-      chrRGLengths <- paste0("Fragments/",chrTmp,"/RGLengths")
-      chrRGValues <- paste0("Fragments/",chrTmp,"/RGValues")
-      lengthRG <- length(RG@lengths)
-      o <- h5createGroup(tmpFile, paste0("Fragments/",chrTmp))
-      o <- .suppressAll(h5createDataset(tmpFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
-      o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-      o <- .suppressAll(h5createDataset(tmpFile, chrRGValues, storage.mode = "character", 
-                dims = c(lengthRG, 1), level = 0, size = nchar(RG@values[1]) + 1))
-      o <- h5write(obj = cbind(dt$start,dt$end-dt$start), file = tmpFile, name = chrPos)
-      o <- h5write(obj = RG@lengths, file = tmpFile, name = chrRGLengths)
-      o <- h5write(obj = RG@values, file = tmpFile, name = chrRGValues)
+        #Order by bc
+        setkey(dt, RG)
+        dt <- dt[order(RG)]
+        RG <- Rle(dt$RG)
 
-      rm(dt, RG)
-      gc()
+        chrTmp <- mcols(tileChromSizes)$chunkName[x]
+        chrPos <- paste0("Fragments/",chrTmp,"/Ranges")
+        chrRGLengths <- paste0("Fragments/",chrTmp,"/RGLengths")
+        chrRGValues <- paste0("Fragments/",chrTmp,"/RGValues")
+        lengthRG <- length(RG@lengths)
+        o <- h5createGroup(tmpFile, paste0("Fragments/",chrTmp))
+        o <- .suppressAll(h5createDataset(tmpFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
+        o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+        o <- .suppressAll(h5createDataset(tmpFile, chrRGValues, storage.mode = "character", 
+                  dims = c(lengthRG, 1), level = 0, size = nchar(RG@values[1]) + 1))
+
+        o <- h5write(obj = cbind(dt$start,dt$end-dt$start), file = tmpFile, name = chrPos)
+        o <- h5write(obj = RG@lengths, file = tmpFile, name = chrRGLengths)
+        o <- h5write(obj = RG@values, file = tmpFile, name = chrRGValues)
+
+        rm(dt, RG)
+        gc()
+
+        return(list(tmpChrFile = NULL, errorCheck = errorCheck))
+
+      }else{
+
+        chrTmp <- mcols(tileChromSizes)$chunkName[x]
+
+        #Temporary File
+        tmpChrFile <- paste0(gsub(".arrow", "", tmpFile), ".", chrTmp, ".arrow")
+        if(file.exists(tmpChrFile)){
+          file.remove(tmpChrFile)
+        }
+
+        o <- h5createFile(tmpChrFile)
+
+        #Order by bc
+        setkey(dt, RG)
+        dt <- dt[order(RG)]
+        RG <- Rle(dt$RG)
+
+        chrPos <- paste0(chrTmp, "._.Ranges")
+        chrRGLengths <- paste0(chrTmp, "._.RGLengths")
+        chrRGValues <- paste0(chrTmp, "._.RGValues")
+        lengthRG <- length(RG@lengths)
+
+        o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
+        o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+        o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", 
+                  dims = c(lengthRG, 1), level = 0, size = nchar(RG@values[1]) + 1))
+
+        o <- h5write(obj = cbind(dt$start,dt$end-dt$start), file = tmpChrFile, name = chrPos)
+        o <- h5write(obj = RG@lengths, file = tmpChrFile, name = chrRGLengths)
+        o <- h5write(obj = RG@values, file = tmpChrFile, name = chrRGValues)
+
+        rm(dt, RG)
+        gc()
+
+        return(list(tmpChrFile = tmpChrFile, errorCheck = errorCheck))
+
+      }
 
     }
 
+  }, threads = threads)
+
+  if(threads > 1){
+
+    #Parallel Linkage Hdf5
+
+    file.remove(tmpFile)
+    o <- h5closeAll()
+    fid <- H5Fcreate(tmpFile)
+
+    o <- h5createGroup(fid, paste0("Fragments"))
+    o <- h5createGroup(fid, paste0("Metadata"))
+    o <- h5write(obj = "Arrow", file = fid, name = "Class")
+    o <- h5write(obj = "tmp", file = fid, name = "Metadata/Sample")
+
+    tmpChrFiles <- lapply(readTiledChrom, function(x) x$tmpChrFile) %>% unlist
+
+    for(i in seq_along(tmpChrFiles)){
+
+      tmpChrFilei <- tmpChrFiles[i]
+      splitNames <- stringr::str_split(h5ls(tmpChrFilei)$name, "._.", simplify=TRUE)
+      chunkName <- splitNames[,1]
+      group <- splitNames[,2]
+
+      o <- h5createGroup(fid, paste0("Fragments/", chunkName[1]))
+
+      H5Lcreate_external(target_file_name = tmpChrFilei, 
+                         target_obj_name = h5ls(tmpChrFilei)$name[1],
+                         link_loc = fid,
+                         link_name = paste0("Fragments/", chunkName[1], "/", group[1]))
+
+      H5Lcreate_external(target_file_name = tmpChrFilei, 
+                         target_obj_name = h5ls(tmpChrFilei)$name[2],
+                         link_loc = fid,
+                         link_name = paste0("Fragments/", chunkName[1], "/", group[2]))
+
+      H5Lcreate_external(target_file_name = tmpChrFilei, 
+                         target_obj_name = h5ls(tmpChrFilei)$name[3],
+                         link_loc = fid,
+                         link_name = paste0("Fragments/", chunkName[1], "/", group[3]))
+
+    }
+
+    H5Fclose(fid)
+
   }
+
+  errorCheck <- sum(lapply(readTiledChrom, function(x) x$errorCheck) %>% unlist)
+
 
   if(errorCheck == 0){
     if(!is.null(validBC)){
@@ -969,12 +1172,12 @@ createArrowFiles <- function(
 #########################################################################################################
 
 .tmpToArrow <- function(
-  tmpFile, 
-  outArrow, 
-  genome, 
-  chromSizes,
+  tmpFile = NULL, 
+  outArrow = NULL, 
+  genome = NULL, 
+  chromSizes = NULL,
   minFrags = 500, 
-  sampleName, 
+  sampleName = NULL, 
   verboseHeader = TRUE,
   verboseAll = FALSE,
   tstart = NULL,
@@ -1096,8 +1299,8 @@ createArrowFiles <- function(
 
   }
 
-  #Remove Tmp
-  rmf <- file.remove(tmpFile)
+  #Remove Tmp and all sub-linked tmp files
+  rmf <- file.remove(list.files(dirname(tmpFile), pattern = gsub(".arrow", "", basename(tmpFile)), full.names=TRUE))
   .messageDiffTime(sprintf("%s Finished Constructing ArrowFile", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
 
   return(outArrow)
@@ -1109,13 +1312,14 @@ createArrowFiles <- function(
 #########################################################################################################
 
 .tsvToArrow <- function(
-  tsvFile,
-  outArrow,
-  chromSizes,
-  genome,
+  tsvFile = NULL,
+  outArrow = NULL,
+  chromSizes = NULL,
+  genome = NULL,
   minFrags = 500, 
-  sampleName, 
-  ...){
+  sampleName = NULL, 
+  ...
+  ){
 
   tstart <- Sys.time()
   o <- h5closeAll()
@@ -1210,7 +1414,7 @@ createArrowFiles <- function(
 # Filtering bad fragments!
 #########################################################################################################
 
-.filterCellsFromArrow <- function(inArrow, cellNames){
+.filterCellsFromArrow <- function(inArrow = NULL, cellNames  = NULL){
 
   tstart <- Sys.time()
   outArrow <- .tempfile(fileext = ".arrow")
@@ -1279,7 +1483,7 @@ createArrowFiles <- function(
 
 }
 
-.fileRename <- function(from, to){
+.fileRename <- function(from = NULL, to = NULL){
 
   if(!file.exists(from)){
     stop("Input file does not exist!")
