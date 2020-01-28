@@ -8,6 +8,8 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.
@@ -22,10 +24,12 @@
 addCoAccessibility <- function(
   ArchRProj = NULL,
   reducedDims = "IterativeLSI",
-  k = 100, 
-  knnIteration = 5000, 
+  dimsToUse = 1:25,
+  corCutOff = 0.75,
+  k = 200, 
+  knnIteration = 500, 
   overlapCutoff = 0.8, 
-  maxDist = 250000,
+  maxDist = 100000,
   scaleTo = 10^4,
   log2Norm = TRUE,
   seed = 1, 
@@ -36,6 +40,8 @@ addCoAccessibility <- function(
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
   .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
@@ -49,11 +55,14 @@ addCoAccessibility <- function(
 
   set.seed(seed)
 
+  #Get Peak Set
+  peakSet <- getPeakSet(ArchRProj)
+
   #Get Reduced Dims
-  rD <- getReducedDims(ArchRProj, reducedDims = reducedDims)
+  rD <- getReducedDims(ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
 
   #Subsample
-  idx <- sample(seq_len(nrow(rD)), knnIteration, replace = ifelse(nrow(rD) >= knnIteration, FALSE, TRUE))
+  idx <- sample(seq_len(nrow(rD)), knnIteration, replace = !nrow(rD) >= knnIteration)
 
   #KNN Matrix
   .messageDiffTime("Computing KNN", tstart)
@@ -78,7 +87,6 @@ addCoAccessibility <- function(
   stopifnot(identical(chri,chrj))
 
   #Create Ranges
-  peakSet <- getPeakSet(ArchRProj)
   peakSummits <- resize(peakSet, 1, "center")
   peakWindows <- resize(peakSummits, maxDist, "center")
 
@@ -92,7 +100,7 @@ addCoAccessibility <- function(
 
   #Peak Matrix ColSums
   cS <- .getColSums(getArrowFiles(ArchRProj), chri, verbose = FALSE, useMatrix = "PeakMatrix")
-  gS <- unlist(lapply(seq_along(knnObj), function(x) sum(cS[knnObj[[x]]])))
+  gS <- unlist(lapply(seq_along(knnObj), function(x) sum(cS[knnObj[[x]]], na.rm=TRUE)))
 
   for(x in seq_along(chri)){
   
@@ -128,6 +136,7 @@ addCoAccessibility <- function(
   o$idx1 <- NULL
   o$idx2 <- NULL
   o <- o[!is.na(o$correlation),]
+  mcols(peakSet) <- NULL
   o@metadata$peakSet <- peakSet
 
   metadata(ArchRProj@peakSet)$CoAccessibility <- o
@@ -136,8 +145,65 @@ addCoAccessibility <- function(
 
 }
 
+#' Get the peak coAccessibility from an ArchRProject
+#' 
+#' This function gets the peak set as a GRanges object from an ArchRProject.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
+#' @param corCutOff A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
+#' @param returnLoops A boolean indicating to regurn CoAccessibility as loops designed for `ArchRBrowser` or `ArchRRegionTrack`.
+#' @export
+getCoAccessibility <- function(ArchRProj = NULL, corCutOff = 0.5, resolution = 1000, returnLoops = TRUE){
+  
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+  .validInput(input = corCutOff, name = "corCutOff", valid = "numeric")
+  .validInput(input = resolution, name = "resolution", valid = "numeric")
+  .validInput(input = returnLoops, name = "returnLoops", valid = "boolean")
+  
+  if(is.null(ArchRProj@peakSet)){
 
+    return(NULL)
+  }
 
+  
+  if(is.null(metadata(ArchRProj@peakSet)$CoAccessibility)){
+  
+    return(NULL)
+  
+  }else{
+   
+    coA <- metadata(ArchRProj@peakSet)$CoAccessibility
+    coA <- coA[coA$correlation >= corCutOff,,drop=FALSE]
 
+    if(returnLoops){
+      
+      peakSummits <- resize(metadata(coA)$peakSet, 1, "center")
+      summitTiles <- floor(start(peakSummits) / resolution) * resolution + floor(resolution / 2)
+    
+      loops <- constructGR(
+        seqnames = seqnames(peakSummits[coA[,1]]),
+        start = summitTiles[coA[,1]],
+        end = summitTiles[coA[,2]]
+      )
+      mcols(loops)$value <- coA$correlation
 
+      loops <- loops[order(mcols(loops)$value, decreasing=TRUE)]
+      loops <- unique(loops)
+      loops <- loops[width(loops) >= resolution]
+      loops <- sort(sortSeqlevels(loops))
+
+      loops <- GenomicRangesList(CoAccessibility = loops)
+
+      return(loops)
+
+    }else{
+
+      return(coA)
+
+    }
+
+  }
+
+}
 

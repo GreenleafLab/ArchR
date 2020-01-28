@@ -324,7 +324,7 @@ overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignoreStrand
 #' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
 #' @export
 constructGR <- function(seqnames = NULL, start = NULL, end = NULL, ignoreStrand = TRUE){
-  .validInput(input = seqnames, name = "seqnames", valid = c("character"))
+  .validInput(input = seqnames, name = "seqnames", valid = c("character", "rleCharacter"))
   .validInput(input = start, name = "start", valid = c("integer"))
   .validInput(input = end, name = "end", valid = c("integer"))
   .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))

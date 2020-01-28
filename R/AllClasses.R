@@ -57,7 +57,7 @@ setMethod("show", "ArchRProject",
 ArchRProject <- function(
   ArrowFiles = NULL, 
   outputDirectory = "ArchR_Output", 
-  copyArrows = FALSE,
+  copyArrows = TRUE,
   geneAnnotation = NULL,
   genomeAnnotation = NULL,
   showLogo = TRUE

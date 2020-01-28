@@ -51,6 +51,15 @@
 
       cv <- is.character(input)
 
+    }else if(vi == "rlecharacter"){
+
+      cv1 <- is(input, "Rle")
+      if(cv1){
+        cv <- is(input@values, "factor") || is(input@values, "character")
+      }else{
+        cv <- FALSE
+      }
+
     }else if(vi == "palette"){
 
       #https://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation
