@@ -138,6 +138,7 @@ addDeviationsMatrix <- function(
   profileMemory = TRUE,
   debug = FALSE,
   tstart = NULL,
+  subThreads = 1,
   ...
   ){
 
@@ -170,7 +171,8 @@ addDeviationsMatrix <- function(
       prefix = prefix,
       backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
       expectation = featureDF$rowSums/sum(featureDF$rowSums),
-      out = out
+      out = out,
+      threads = subThreads
     )}
   gc()
 
@@ -242,7 +244,8 @@ addDeviationsMatrix <- function(
   backgroudPeaks,
   expectation,
   prefix = "",
-  out = c("deviations", "z")
+  out = c("deviations", "z"),
+  threads = 1
   ){
 
   tstart <- Sys.time()
@@ -256,7 +259,7 @@ addDeviationsMatrix <- function(
   countsPerSample <- Matrix::colSums(countsMatrix)
 
   d <- max(floor(ncol(annotationsMatrix)/20), 1)
-  results <- lapply(seq_len(ncol(annotationsMatrix)), function(x){
+  results <- .safelapply(seq_len(ncol(annotationsMatrix)), function(x){
     if(x %% d == 0){
       .messageDiffTime(sprintf("%s : Deviations for Annotation %s of %s", prefix, x, ncol(annotationsMatrix)), tstart)
     }
@@ -271,7 +274,7 @@ addDeviationsMatrix <- function(
       expectation = norm_expectation,
       out = out
     )
-  })
+  }, threads = threads)
   cn <- colnames(countsMatrix)
   rm(countsMatrix)
   gc()
@@ -316,10 +319,10 @@ addDeviationsMatrix <- function(
 }
 
 .customDeviationsSingle <- function(
-  annotationsVector,
-  countsMatrix,
-  countsPerSample,
-  backgroudPeaks,
+  annotationsVector = NULL,
+  countsMatrix = NULL,
+  countsPerSample = NULL,
+  backgroudPeaks = NULL,
   out = c("deviations", "z"),
   expectation = NULL,
   intermediate_results = FALSE,

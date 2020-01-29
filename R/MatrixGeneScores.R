@@ -86,8 +86,12 @@ addGeneScoreMatrix <- function(
   args$FUN <- .addGeneScoreMat
   args$registryDir <- file.path(outDir, "GeneScoresRegistry")
 
+  h5disableFileLocking()
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
+
+  h5enableFileLocking()
 
   if(inherits(input, "ArchRProject")){
 
@@ -119,6 +123,7 @@ addGeneScoreMatrix <- function(
   allCells = NULL,
   force = FALSE,
   tmpFile = NULL,
+  subThreads = 1,
   ...
   ){
 
@@ -193,7 +198,7 @@ addGeneScoreMatrix <- function(
   #########################################################################################################
   #First we will write gene scores to a temporary path! rhdf5 delete doesnt actually delete the memory!
   #########################################################################################################
-  for(z in seq_along(geneStart)){
+  GSChrList <- .safelapply(seq_along(geneStart), function(z){
 
     #Get Gene Starts
     geneStarti <- geneStart[[z]]
@@ -304,7 +309,9 @@ addGeneScoreMatrix <- function(
     rm(matGS, tmp)
     gc()
 
-  }
+    paste0(tmpFile, "-", chri, ".rds")
+
+  }, threads = subThreads)
 
 
   #########################################################################################################

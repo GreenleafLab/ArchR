@@ -448,6 +448,7 @@ createArrowFiles <- function(
     GeneScoreMatParams$blacklist <- genomeAnnotation$blacklist
     GeneScoreMatParams$force <- TRUE
     GeneScoreMatParams$excludeChr <- excludeChr
+    GeneScoreMatParams$subThreads <- subThreads
     geneScoreMat <- suppressMessages(do.call(.addGeneScoreMat, GeneScoreMatParams))
     gc()
   }

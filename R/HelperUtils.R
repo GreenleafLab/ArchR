@@ -437,7 +437,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
       args$threads <- 1
     }else{
       if(args$threads > length(args$X)){
-        args$subThreads <- floor( (args$threads - length(args$X) ) / length(args$X))
+        args$subThreads <- floor( args$threads / length(args$X) )
         args$threads <- length(args$X)
       }else{
         args$subThreads <- 1
