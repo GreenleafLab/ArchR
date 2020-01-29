@@ -30,8 +30,7 @@ addEmbedding <- function(
   saveModel = TRUE,
   seed = 1,
   force = FALSE,
-  threads = getArchRThreads(),
-  ...
+  threads = getArchRThreads()
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -63,15 +62,7 @@ addEmbedding <- function(
     defaultEmbeddingParams <- list(
       n_neighbors = 40,
       min_dist = 0.4,
-      metric = "euclidean",
-      n_threads = threads, 
-      verbose = TRUE
-    )
-  }else if(tolower(embedding)=="tumap"){
-    defaultEmbeddingParams <- list(
-      n_neighbors = 40,
-      min_dist = 0.4,
-      metric = "euclidean",
+      metric = "cosine",
       n_threads = threads, 
       verbose = TRUE
     )
@@ -117,26 +108,6 @@ addEmbedding <- function(
       dfEmbedding <- data.frame(uwot_umap)    
     }   
     colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
-    rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
-
-  }else if(tolower(embedding)=="tumap"){
-    
-    .requirePackage("uwot")
-    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
-    if(saveModel){
-      embeddingParams$ret_nn <- TRUE
-      embeddingParams$ret_model <- TRUE
-    }else{
-      embeddingParams$ret_nn <- FALSE
-      embeddingParams$ret_model <- FALSE      
-    }
-    uwot_umap <- do.call(uwot::umap, embeddingParams)
-    if(saveModel){
-      dfEmbedding <- data.frame(uwot_umap[[1]])
-    }else{
-      dfEmbedding <- data.frame(uwot_umap)    
-    }   
-    colnames(dfEmbedding) <- paste0(reducedDims,"#TUMAP_Dimension_",seq_len(ncol(dfEmbedding)))
     rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
 
   }else if(tolower(embedding)=="rtsne"){

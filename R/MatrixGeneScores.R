@@ -25,7 +25,7 @@
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
-  genes = ifelse(inherits(input, "ArchRProject"), getGenes(input), NULL),
+  genes = if(inherits(input, "ArchRProject")) getGenes(input) else NULL,
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
   matrixName = "GeneScoreMatrix",
   upstream = c(5000, 100000),
@@ -35,7 +35,7 @@ addGeneScoreMatrix <- function(
   useGeneBoundaries = TRUE,
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
-  blacklist = ifelse(inherits(input, "ArchRProject"), getBlacklist(input), NULL),
+  blacklist = if(inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
   threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
@@ -192,13 +192,11 @@ addGeneScoreMatrix <- function(
 
   tstart <- Sys.time()
 
-  totalGS <- rep(0, length(cellNames))
-  names(totalGS) <- cellNames
 
   #########################################################################################################
   #First we will write gene scores to a temporary path! rhdf5 delete doesnt actually delete the memory!
   #########################################################################################################
-  GSChrList <- .safelapply(seq_along(geneStart), function(z){
+  totalGS <- .safelapply(seq_along(geneStart), function(z){
 
     #Get Gene Starts
     geneStarti <- geneStart[[z]]
@@ -300,7 +298,7 @@ addGeneScoreMatrix <- function(
     #Calculate Gene Scores
     matGS <- tmp %*% matGS
     colnames(matGS) <- cellNames
-    totalGS <- totalGS + Matrix::colSums(matGS)
+    totalGSz <- Matrix::colSums(matGS)
 
     #Save tmp file
     saveRDS(matGS, file = paste0(tmpFile, "-", chri, ".rds"), compress = FALSE)
@@ -309,9 +307,9 @@ addGeneScoreMatrix <- function(
     rm(matGS, tmp)
     gc()
 
-    paste0(tmpFile, "-", chri, ".rds")
+    totalGSz
 
-  }, threads = subThreads)
+  }, threads = subThreads) %>% Reduce("+", .)
 
 
   #########################################################################################################
