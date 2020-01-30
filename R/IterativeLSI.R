@@ -335,13 +335,13 @@ addIterativeLSI <- function(
 }
 
 .LSIPartialMatrix <- function(
-  ArrowFiles, 
-  featureDF, 
-  useMatrix,
-  cellNames, 
-  cellDepth,
-  sampleNames, 
-  dimsToUse, 
+  ArrowFiles = NULL, 
+  featureDF = NULL, 
+  useMatrix = NULL,
+  cellNames = NULL, 
+  cellDepth = NULL,
+  sampleNames = NULL, 
+  dimsToUse = NULL, 
   binarize = TRUE, 
   LSIMethod = FALSE,
   scaleTo = 10^4,
@@ -451,7 +451,7 @@ addIterativeLSI <- function(
 }
 
 .computeLSI <- function(
-  mat, 
+  mat = NULL, 
   LSIMethod = 1,
   scaleTo = 10^4,
   nDimensions = 50, 
@@ -577,8 +577,8 @@ addIterativeLSI <- function(
 }
 
 .projectLSI <- function(
-  mat, 
-  LSI, 
+  mat = NULL, 
+  LSI = NULL, 
   returnModel = FALSE, 
   verbose = TRUE, 
   tstart = NULL, 

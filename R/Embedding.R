@@ -13,9 +13,9 @@
 #' @param embeddingParams A list of extra parameters to pass to the designated `embedding` function.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding. Only relevant if `embedding` is "UMAP".
+#' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding. Only relevant if `embedding` is set to "UMAP".
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if the given `embeddingOut` already exists.
+#' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding named by `embeddingOut` already exists.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param ... additional args
 #' @export

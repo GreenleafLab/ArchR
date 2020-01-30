@@ -9,7 +9,7 @@
 #' @param ArrowFile The path to the ArrowFile from which fragments should be obtained.
 #' @param chr A name of a chromosome to be used to subset the fragments `GRanges` object to a specific chromsome if desired.
 #' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using `getCellNames()`.
-#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
 #' @param ... additional params
 #' @export
 getFragmentsFromArrow <- function(
@@ -49,9 +49,8 @@ getFragmentsFromArrow <- function(
 
 }
 
-#' @export
 .getFragsFromArrow <- function(
-  ArrowFile, 
+  ArrowFile = NULL, 
   chr = NULL, 
   out = "GRanges", 
   cellNames = NULL, 
@@ -155,7 +154,7 @@ getFragmentsFromArrow <- function(
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
 #' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using `getCellNames()`.
-#' @param ArchRProj An `ArchRProject` object to be used for getting additional information for cells in `cellColData`. This is useful when you want to keep information created while analyzing an ArchRProject.
+#' @param ArchRProj An `ArchRProject` object to be used for getting additional information for cells in `cellColData`. This is useful when QQQ STILL DOESNT MAKE SENSE TO ME you want to keep information created while analyzing an ArchRProject.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @param ... additional params
@@ -240,9 +239,8 @@ getMatrixFromArrow <- function(
 
 }
 
-#' @export
 .getMatFromArrow <- function(
-  ArrowFile, 
+  ArrowFile = NULL, 
   featureDF = NULL, 
   binarize = NULL, 
   cellNames = NULL,
@@ -353,11 +351,10 @@ getMatrixFromArrow <- function(
 ####################################################################
 # Helper read functioning
 ####################################################################
-#' @export
 .getGroupMatrix <- function(
-  ArrowFiles, 
-  featureDF, 
-  groupList,
+  ArrowFiles = NULL, 
+  featureDF = NULL, 
+  groupList = NULL,
   threads = 1, 
   useIndex = FALSE, 
   verbose = TRUE, 
@@ -434,11 +431,10 @@ getMatrixFromArrow <- function(
   
 }
 
-#' @export
 .getPartialMatrix <- function(
-  ArrowFiles, 
-  featureDF, 
-  cellNames, 
+  ArrowFiles = NULL, 
+  featureDF = NULL, 
+  cellNames = NULL, 
   progress = TRUE, 
   threads = 1, 
   useMatrix = "TileMatrix",
@@ -523,9 +519,16 @@ getMatrixFromArrow <- function(
 # Compute Summary Statistics!
 ########################################################################
 
-#' @export 
-.getRowSums <- function(ArrowFiles, useMatrix, seqnames = NULL,
-  verbose = TRUE, tstart = NULL, filter0 = FALSE, threads = 1, addInfo = FALSE){
+.getRowSums <- function(
+  ArrowFiles = NULL,
+  useMatrix = NULL,
+  seqnames = NULL,
+  verbose = TRUE,
+  tstart = NULL,
+  filter0 = FALSE,
+  threads = 1,
+  addInfo = FALSE
+  ){
   
   if(is.null(tstart)){
     tstart <- Sys.time()
@@ -573,10 +576,14 @@ getMatrixFromArrow <- function(
 
 }
 
-#' @export 
-.getRowVars <- function(ArrowFiles, seqnames = NULL, useMatrix, threads = 1){
+.getRowVars <- function(
+  ArrowFiles = NULL,
+  seqnames = NULL,
+  useMatrix = NULL,
+  threads = 1
+  ){
   
-  .combineVariances <- function(dfMeans, dfVars, ns){
+  .combineVariances <- function(dfMeans = NULL, dfVars = NULL, ns = NULL){
 
   #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
 
@@ -630,8 +637,14 @@ getMatrixFromArrow <- function(
 
 }
 
-#' @export 
-.getColSums <- function(ArrowFiles, seqnames, useMatrix, verbose = TRUE, tstart = NULL, threads = 1){
+.getColSums <- function(
+  ArrowFiles = NULL,
+  seqnames = NULL,
+  useMatrix = NULL,
+  verbose = TRUE,
+  tstart = NULL,
+  threads = 1
+  ){
   
   if(is.null(tstart)){
     tstart <- Sys.time()
@@ -658,8 +671,17 @@ getMatrixFromArrow <- function(
 }
 
 # h5read implementation for optimal reading
-#' @export
-.h5read <- function(file, name, method = "fast", index = NULL, start = NULL, block = NULL, count = NULL, ...){
+.h5read <- function(
+  file = NULL,
+  name = NULL,
+  method = "fast",
+  index = NULL,
+  start = NULL,
+  block = NULL,
+  count = NULL,
+  ...
+  ){
+
   if(tolower(method) == "fast" & is.null(index) & is.null(start) & is.null(block) & is.null(count)){
     fid <- H5Fopen(file)
     dapl <- H5Pcreate("H5P_DATASET_ACCESS")

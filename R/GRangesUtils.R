@@ -10,14 +10,14 @@
 #' @param remove A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `remove` should be set to `NULL`.
 #' @param underscore A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").
 #' @param standard A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.
-#' @param pruningMode From `seqinfo`, when some of the seqlevels to drop from x are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
+#' @param pruningMode QQQ From `GenomeInfoDb::seqinfo()`, when some of the seqlevels to drop from QQQ the given `GRanges` object are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
 #' @export
 filterChrGR <- function(
     gr = NULL, 
     remove = NULL, 
     underscore = TRUE, 
     standard = TRUE, 
-    pruning.mode="coarse"
+    pruningMode="coarse"
   ){
 
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
@@ -79,7 +79,8 @@ nonOverlappingGR <- function(
   #-----------
   # Cluster GRanges into islands using reduce and then select based on input
   #-----------
-  clusterGRanges <- function(gr, filter = TRUE, by = "score", decreasing = TRUE){
+  # QQQ SHOULD THIS BE A HIDDEN FUNCTION??
+  clusterGRanges <- function(gr = NULL, filter = TRUE, by = "score", decreasing = TRUE){
     gr <- sort(sortSeqlevels(gr))
     r <- GenomicRanges::reduce(gr, min.gapwidth=0L, ignore.strand=TRUE)
     o <- findOverlaps(gr,r, ignore.strand = TRUE)
@@ -170,7 +171,7 @@ addSeqLengthsGR <- function(gr = NULL, genome = NULL){
 #' @param gr A `GRanges` object.
 #' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `validBSgenome()`.
 #' @param n The number of permutations to perform during shuffling.
-#' @param shuffleChr A boolean value indicating whether to shuffle number of regions across chromosomes randomly based on the length of chromosomes (`TRUE`) or to use prior knowledge of the distribution of regions across the various chromosomes to create a shuffled set of ranges that is similarly distributed (`FALSE`).
+#' @param shuffleChr QQQ DOUBLE CHECK A boolean value indicating whether to shuffle the regions across chromosomes randomly based on the distribution of chromosome lengths (`TRUE`) or to use prior knowledge of the distribution of regions in `gr` across the various chromosomes to create a shuffled set of ranges that is similarly distributed (`FALSE`).
 #' @export
 shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
@@ -245,8 +246,8 @@ mergeGR <- function(gr, ignoreStrand = TRUE){
 #' This function extends each region in a Genomic Ranges object by a designated upstream and downstream extension in a strand-aware fashion
 #'
 #' @param gr A `GRanges` object.
-#' @param upstream The number of basepairs upstream (5') to extend each region in `gr`. Strand-aware.
-#' @param downstream The number of basepairs downstream (3') to extend each region in `gr`. Strand-aware.
+#' @param upstream The number of basepairs upstream (5') to extend each region in `gr` in a strand-aware fashion.
+#' @param downstream The number of basepairs downstream (3') to extend each region in `gr` in a strand-aware fashion.
 #' @export
 extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
@@ -287,7 +288,7 @@ nOverlapGR <- function(query = NULL, subject = NULL, ignoreStrand = TRUE){
   return(data.frame(type = type, bp = nBases))
 }
 
-#' Overlap with many genomic regions.
+#' Overlap with many genomic regions
 #'
 #' This function returns a sparse matrix that describes the overlap with each sub-grouped genomic region as specified in the "by" column.
 #'

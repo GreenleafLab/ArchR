@@ -410,7 +410,7 @@ addMotifAnnotations <- function(
 
 }
 
-.summarizeJASPARMotifs <- function(motifs){
+.summarizeJASPARMotifs <- function(motifs = NULL){
 
   motifNames <- lapply(seq_along(motifs), function(x){
     namex <- make.names(motifs[[x]]@name)
@@ -442,7 +442,7 @@ addMotifAnnotations <- function(
   
 }
 
-.summarizeChromVARMotifs <- function(motifs){
+.summarizeChromVARMotifs <- function(motifs = NULL){
 
   motifNames <- lapply(seq_along(motifs), function(x){
     namex <- make.names(motifs[[x]]@name)
@@ -823,7 +823,7 @@ peakAnnoEnrichment <- function(
 
 }
 
-.computeEnrichment <- function(matches, compare, background){
+.computeEnrichment <- function(matches = NULL, compare = NULL, background = NULL){
 
   matches <- .getAssay(matches,  grep("matches", names(assays(matches)), value = TRUE, ignore.case = TRUE))
   

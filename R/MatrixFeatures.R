@@ -6,14 +6,14 @@
 #' 
 #' This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.
 #'
-#' @param input An `ArchRProject` object or character vector of ArrowFiles.
+#' @param input An `ArchRProject` object or character vector of paths to ArrowFiles.
 #' @param features A `GRanges` object containing the regions (aka features) to use for counting insertions for each cell.
 #' @param matrixName The name to be used for storage of the feature matrix in the provided `ArchRProject` or ArrowFiles.
 #' @param ceiling The maximum counts per feature allowed. This is used to prevent large biases in feature counts.
 #' @param binarize A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the `input`.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the `input`.
 #' @export
 addFeatureMatrix <- function(
   input = NULL,
@@ -135,9 +135,9 @@ addPeakMatrix <- function(
 }
 
 .addFeatureMatrix <- function(
-  i,
-  ArrowFiles, 
-  features,
+  i = NULL,
+  ArrowFiles = NULL, 
+  features = NULL,
   cellNames = NULL, 
   allCells = NULL,
   matrixName = "PeakMatrix", 

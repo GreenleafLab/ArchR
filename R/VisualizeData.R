@@ -210,13 +210,13 @@ plotEmbedding <- function(
 #' @param groupBy The name of the column in `cellColData` to use for grouping cells together for summarizing and plotting.
 #' @param colorBy A string indicating whether the numeric values to be used in the violin plot should be from a column in `cellColData` ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").
 #' @param name The name of the column in `cellColData` or the featureName/rowname of the data matrix to be used for plotting. 
-#' For example if colorBy is `cellColData` then name refers to a column name in the cellcoldata (see `getCellcoldata()`), if colorBy is `GeneScoreMatrix` then name refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
+#' For example if colorBy is `cellColData` then name refers to a column name in the cellcoldata (see `getCellcoldata()`), if colorBy is "GeneScoreMatrix" then name refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
 #' @param size The numeric size of the points to be plotted.
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param addPoints A boolean value that indicates whether points should be added to the plot using `geom_quasirandom()`.
+#' @param addPoints A boolean value that indicates whether points should be added to the plot using `ggplot2::geom_quasirandom()`.
 #' @param ... additional args
 #' @export
 plotGroups <- function(
@@ -289,8 +289,7 @@ plotGroups <- function(
 
 }
 
-#' @export
-.getMatrixValues <- function(ArchRProj, name, matrixName, log2Norm = TRUE){
+.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = TRUE){
   
   o <- h5closeAll()
 
@@ -367,7 +366,6 @@ plotGroups <- function(
 }
 
 
-#' @export
 .fixPlotSize <- function(
   p = NULL, 
   plotWidth = unit(6, "in"),
@@ -527,7 +525,7 @@ plotGroups <- function(
 
 }
 
-.isDiscrete <- function(x){
+.isDiscrete <- function(x = NULL){
   is.factor(x) || is.character(x) || is.logical(x)
 }
 

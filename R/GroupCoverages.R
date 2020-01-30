@@ -4,7 +4,7 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy The name of the column in `cellColData` to use for grouping multiple cells together prior to generation of the insertion coverage file.
-#' @param useLabels A boolean value indicating whether to use sample labels to create sample-aware subgroupings during as pseudo-bulk replicate generation. 
+#' @param useLabels A boolean value indicating whether to use sample labels to create sample-aware subgroupings during as pseudo-bulk replicate generation.
 #' @param minCells The minimum number of cells required in a given cell group to permit insertion coverage file generation.
 #' @param maxCells The maximum number of cells to use during insertion coverage file generation.
 #' @param maxFragments The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.
@@ -243,17 +243,17 @@ addGroupCoverages <- function(
 #####################################################################################################
 
 .createCoverages <- function(
-  i, 
+  i = NULL, 
   cellGroups,
   kmerBias = NULL, 
   kmerLength = 5, 
-  genome,
-  ArrowFiles, 
-  cellsInArrow, 
-  availableChr,
-  chromLengths, 
-  covDir, 
-  tstart, 
+  genome = NULL,
+  ArrowFiles = NULL, 
+  cellsInArrow = NULL, 
+  availableChr = NULL,
+  chromLengths = NULL, 
+  covDir = NULL, 
+  tstart = NULL, 
   verboseHeader = TRUE,
   verboseAll = FALSE,
   ...
@@ -342,11 +342,18 @@ addGroupCoverages <- function(
 #####################################################################################################
 
 .identifyGroupsForPseudoBulk <- function(
-  cells, sampleLabels = NULL, useLabels = TRUE,
-  minCells = 50, maxCells = 500, filterGroups = FALSE,
-  minReplicates = 2, maxReplicates = NULL, sampleRatio = 0.8){
+  cells = NULL,
+  sampleLabels = NULL,
+  useLabels = TRUE,
+  minCells = 50,
+  maxCells = 500,
+  filterGroups = FALSE,
+  minReplicates = 2,
+  maxReplicates = NULL,
+  sampleRatio = 0.8
+  ){
 
-    .leastOverlapCells <- function(x, n = 2, nSample = 0.8 * length(l), iterations = 100, replace = FALSE){   
+    .leastOverlapCells <- function(x = NULL, n = 2, nSample = 0.8 * length(l), iterations = 100, replace = FALSE){   
         set.seed(1)
         maxMat <- matrix(0, nrow = length(x), ncol = n)
         for(i in seq_len(iterations)){
@@ -481,7 +488,14 @@ addGroupCoverages <- function(
 #####################################################################################################
 # Add Kmer Tn5 Bias Values to Each Coverage File!
 #####################################################################################################
-.addKmerBiasToCoverage <- function(coverageMetadata, genome, kmerLength, threads, verbose = TRUE, tstart = NULL){
+.addKmerBiasToCoverage <- function(
+  coverageMetadata = NULL,
+  genome = NULL,
+  kmerLength = NULL,
+  threads = NULL,
+  verbose = TRUE,
+  tstart = NULL
+  ){
   
   .requirePackage(genome)
   .requirePackage("Biostrings")
@@ -549,7 +563,7 @@ addGroupCoverages <- function(
 # Get Coverage Metadata and Params from ArchR Project
 #####################################################################################################
 
-.getCoverageMetadata <- function(ArchRProj, groupBy, useGroups = NULL, minCells = NULL){
+.getCoverageMetadata <- function(ArchRProj = NULL, groupBy = NULL, useGroups = NULL, minCells = NULL){
   coverageMetadata <- ArchRProj@projectMetadata$GroupCoverages[[groupBy]]$coverageMetadata
   if(is.null(coverageMetadata)){
     stop("No Coverage Metadata found for : ", groupBy)
@@ -569,7 +583,7 @@ addGroupCoverages <- function(
   coverageMetadata
 }
 
-.getCoverageParams <- function(ArchRProj, groupBy, useGroups = NULL){
+.getCoverageParams <- function(ArchRProj = NULL, groupBy = NULL, useGroups = NULL){
   coverageParams <- ArchRProj@projectMetadata$GroupCoverages[[groupBy]]$Params
   if(is.null(coverageParams)){
     stop("No Coverage Metadata found for : ", groupBy)
@@ -581,7 +595,7 @@ addGroupCoverages <- function(
 # Create Coverage Rle List of all chr
 #####################################################################################################
 
-.getCoverageRle <- function(coverageFile, allChr){
+.getCoverageRle <- function(coverageFile = NULL, allChr = NULL){
   cov <- lapply(seq_along(allChr), function(x){
     Rle(
       lengths = h5read(coverageFile, paste0("Coverage/",allChr[x],"/Lengths")), 
@@ -596,7 +610,7 @@ addGroupCoverages <- function(
 # Get All Non-Zero Insertion Sites and N
 #####################################################################################################
 
-.getCoverageInsertionSites <- function(coverageFile, chr){
+.getCoverageInsertionSites <- function(coverageFile = NULL, chr = NULL){
     cov <- Rle(
       lengths = h5read(coverageFile, paste0("Coverage/", chr, "/Lengths")), 
       values = h5read(coverageFile, paste0("Coverage/", chr, "/Values"))
@@ -613,7 +627,7 @@ addGroupCoverages <- function(
 # Write Coverage To Bed File for MACS2
 #####################################################################################################
 
-.writeCoverageToBed <- function(coverageFile, out, excludeChr = NULL){
+.writeCoverageToBed <- function(coverageFile = NULL, out = NULL, excludeChr = NULL){
   rmf <- .suppressAll(file.remove(out))
   allChr <- .availableSeqnames(coverageFile, "Coverage")
   if(!is.null(excludeChr)){

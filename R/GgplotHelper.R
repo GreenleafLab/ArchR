@@ -25,17 +25,17 @@
 #' @param title The title of the plot.
 #' @param randomize A boolean value indicating whether to randomize the order of the points when plotting.
 #' @param seed A numeric seed number for use in randomization.
-#' @param colorTitle A title to be added to the legend if color is supplied.
+#' @param colorTitle A title to be added to the legend if `color` is supplied.
 #' @param colorOrder If you want to control the order of `color` supplied as a factor to `ggplot2`. For example if you have `color` as c("a","b","c") and want to have the first color selected from the palette be for "c" then "b" and then "a", you would supply the `colorOrder` as c("c", "b", "a").
 #' @param colorLimits A numeric vector of two values indicating the lower and upper bounds of colors if numeric.
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
-#' @param baseSize The base font size to use in the plot.
+#' @param baseSize The base font size (in points) to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param labelType A string indicating how to label the points on the plot. Options include "ggrepel", "shadowtext".
 #' @param fgColor The foreground color of the plot.
 #' @param bgColor The background color of the plot.
 #' @param labelSize The numeric font size of labels.
-#' @param addFit A string indicating if a fit/regression line (see `geom_smooth` methods) should be included in the plot and what method to use for this fit.
+#' @param addFit A string indicating if a fit/regression line (see `ggplot2::geom_smooth()` methods) should be included in the plot and what method to use for this fit.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize lines and labels, just the internal portions of the plot.
 #' @param dpi The resolution in dots per inch to use for the plot.
 #' @export
@@ -312,13 +312,13 @@ ggPoint <- function(
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.
-#' @param min x and y-limits min as a numeric quantile between 0 and 1.
-#' @param max x and y-limits max as a numeric quantile between 0 and 1.
+#' @param min QQQ DOUBLE CHECK The lower limit of the x and y axes as a numeric quantile between 0 and 1.
+#' @param max QQQ DOUBLE CHECK The upper limit of the x and y axes as a numeric quantile between 0 and 1.
 #' @param nPlot The number of points to plot. When this value is less than the total points, the `sample` function is used to extract random data points to be plotted.
-#' @param nKernel The number of grid points in each direction to use when computing the kernel with `kde2d` from the `MASS` package.
+#' @param nKernel The number of grid points in each direction to use when computing the kernel with `MASS::kde2d()`.
 #' @param densityMax The quantile that should be represented by the maximum color on the continuous scale designated by `pal`. Values above `densityMax` will be thresholded to the maximum color on the color scale.
 #' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum value on either axis. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end beyond `quantile(c(x,y), max)` and `quantile(c(x,y), min)`.
-#' @param baseSize The base font size to use in the plot.
+#' @param baseSize The base font size (in points) to use in the plot.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
 #' @param pal A custom palette from `ArchRPalettes` used to display the density of points on the plot.
 #' @param ... Additional params to be supplied to ggPoint
@@ -403,7 +403,7 @@ ggOneToOne <- function (
 
 }
 
-.getDensity <- function(x, y, n = 100, sample = NULL, densityMax = 0.95){
+.getDensity <- function(x = NULL, y = NULL, n = 100, sample = NULL, densityMax = 0.95){
   #modified from http://slowkow.com/notes/ggplot2-color-by-density/
   df <- data.frame(x=x,y=y)
   dens <- MASS::kde2d(x = x, y = y, n = n)
@@ -429,11 +429,11 @@ ggOneToOne <- function (
 #' @param xOrder A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible values of `x` in the desired order.
 #' @param addPoints A boolean value indicating whether individual points should be added to the plot using `geom_quasirandom`.
 #' @param size The line width for boxplot/summary lines.
-#' @param baseSize The base font size to use in the plot.
+#' @param baseSize The base font (in points) size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param sampleRatio The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.
 #' @param title The title of the plot.
-#' @param pal A named custom palette (see `paletteDiscrete` and `ArchRPalettes`) for discrete coloring.
+#' @param pal A named custom palette (see `paletteDiscrete()` and `ArchRPalettes`) for discrete coloring.
 #' @export
 ggViolin <- function(
   x = NULL, 

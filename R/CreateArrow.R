@@ -2,7 +2,7 @@
 #' 
 #' This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.
 #'
-#' @param inputFiles A character vector containing the names of the input files to use to generate the Arrowfiles. These files can be  either scATAC tabix fragment files or a bam file.
+#' @param inputFiles A character vector containing the paths to the input files to use to generate the ArrowFiles. These files can be in one of the following formats: (i) scATAC tabix files, (ii) fragment files, or (iii) bam files.
 #' @param sampleNames A character vector containing the names to assign to the samples that correspond to the `inputFiles`. Each input file should receive a unique sample name. This list should be in the same order as `inputFiles`.
 #' @param outputNames The prefix to use for output files. Each input file should receive a unique output file name. This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"
 #' @param validBarcodes A list of valid barcode strings to be used for filtering cells read from each input file (see `getValidBarcodes()` for 10x fragment files).
@@ -27,7 +27,7 @@
 #' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
 #' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
 #' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome. This matrix can be used in many downstream ArchR operations.
-#' @param TileMatParams A list of parameters to pass to the `addTileMatrix()` function. See `ArchR::addTileMatrix()` for options.
+#' @param TileMatParams A list of parameters to pass to the `addTileMatrix()` function. See `addTileMatrix()` for options.
 #' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each ArrowFile. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.
 #' @param GeneScoreMatParams A list of parameters to pass to the `addGeneScoreMatrix()` function. See `addGeneScoreMatrix()` for options.
 #' @param force A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist in `outDir`.
@@ -146,7 +146,7 @@ createArrowFiles <- function(
 
 #Main Function!
 .createArrow <- function(
-  i,
+  i = NULL,
   inputFiles = NULL, 
   sampleNames = NULL, 
   outputNames = paste0("./", sampleName),
@@ -663,7 +663,7 @@ createArrowFiles <- function(
 #########################################################################################################
 # Methods to Turn Input File into a Temp File that can then be Efficiently converted to an Arrow!
 #########################################################################################################
-.isTabix <- function(file){
+.isTabix <- function(file = NULL){
   tryCatch({
     TabixFile(file)
     TRUE
