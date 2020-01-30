@@ -11,6 +11,7 @@
 #' @param reducedDimsOut The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
@@ -23,7 +24,7 @@
 #' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts will be ignored for the first LSI iteration.
 #' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.
 #' @param outDir The output directory for saving LSI iterations if desired. Default is in the `outputDirectory` of the `ArchRProject`.
-#' @param clusterParams Additional parameters to be passed to `addClusters()`.
+#' @param clusterParams Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either length 1 or the total number of `iterations` - 1.
 #' @param runHarmony A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.
 #' @param harmonyParams Additional parameters to be passed to `harmony::HarmonyMatrix()`.
 #' @param threads The number of threads to be used for parallel computing.
@@ -37,17 +38,19 @@ addIterativeLSI <- function(
   ArchRProj = NULL, 
   useMatrix = "TileMatrix",
   reducedDimsOut = "IterativeLSI",
-  iterations = 3,
-  dimsToUse = 1:25,
+  iterations = 2,
+  clusterParams = list(resolution = 0.2, sampleCells = 10000, n.start = 25),
+  dimsToUse = 1:30,
+  scaleDims = TRUE,
   corCutOff = 0.75,
-  LSIMethod = 1,
+  LSIMethod = 2,
   binarize = TRUE,
   sampleCells = NULL,
   varFeatures = 50000,
   selectionMethod = "var",
   scaleTo = 10000,
   totalFeatures = 500000,
-  filterQuantile = 0.99,
+  filterQuantile = 0.995,
   saveIterations = TRUE,
   outDir = getOutputDirectory(ArchRProj),
   clusterParams = list(),
@@ -65,6 +68,8 @@ addIterativeLSI <- function(
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = iterations, name = "iterations", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("boolean"))
   .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = sampleCells, name = "sampleCells", valid = c("integer","null"))
@@ -94,15 +99,6 @@ addIterativeLSI <- function(
     }
   }
 
-  #What Parameters To Pass
-  defaultClustParams <- list(
-      method = "Seurat",
-      resolution = c(0.4, 0.6),
-      n.start = c(10, 10),
-      verbose = TRUE
-  )
-  clusterParams <- .mergeParams(clusterParams, defaultClustParams)
-
   #Set Seed
   set.seed(seed)
   outDir <- file.path(outDir, reducedDimsOut)
@@ -127,6 +123,7 @@ addIterativeLSI <- function(
 
   tstart <- Sys.time()
   .messageDiffTime(paste0("Computing IterativeLSI on ", useMatrix), tstart, addHeader = TRUE, verbose = verboseHeader)
+  .messageDiffTime(paste0("Running LSI (1 of ",iterations,") on Top Features"), tstart, addHeader = TRUE, verbose = verboseHeader)
 
   #MatrixFiles
   ArrowFiles <- getSampleColData(ArchRProj)[,"ArrowFiles"]
@@ -176,6 +173,7 @@ addIterativeLSI <- function(
     useIndex = FALSE,
     tstart = tstart
     )
+  outLSI$scaleDims <- scaleDims
   gc()
 
   if(runHarmony){
@@ -201,8 +199,11 @@ addIterativeLSI <- function(
     stop("Dimensions to use after filtering for correlation to depth lower than 2!")
   }
   parClust <- lapply(clusterParams, function(x) x[[1]])
-  parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
-  parClust$sampleCells <- sampleCells
+  if(scaleDims){
+      parClust$input <- .scaleDims(outLSI$matSVD)
+  }else{
+    parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
+  }
   parClust$verbose <- verboseAll
   clusters <- do.call(addClusters, parClust)
   
@@ -219,7 +220,7 @@ addIterativeLSI <- function(
     #Jth iteration
     j <- j + 1
     
-    .messageDiffTime(sprintf("Running LSI %s of %s on Variable Features", j, iterations), tstart, addHeader = TRUE, verbose = verboseHeader)
+    .messageDiffTime(sprintf("Running LSI (%s of %s) on Variable Features", j, iterations), tstart, addHeader = TRUE, verbose = verboseHeader)
     
     #Create Group Matrix
     .messageDiffTime("Creating Cluster Matrix on the total Group Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
@@ -279,6 +280,7 @@ addIterativeLSI <- function(
       useIndex = FALSE,
       tstart = tstart
       )
+    outLSI$scaleDims <- scaleDims
 
     if(runHarmony){
       .messageDiffTime("Harmonizing LSI output on the Variable Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
@@ -310,8 +312,12 @@ addIterativeLSI <- function(
           return(x[[1]])
         }
       })
-      parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
-      parClust$sampleCells <- sampleCells
+
+      if(scaleDims){
+          parClust$input <- .scaleDims(outLSI$matSVD)
+      }else{
+        parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
+      }
       parClust$verbose <- verboseAll
       clusters <- do.call(addClusters, parClust)
 
@@ -323,6 +329,8 @@ addIterativeLSI <- function(
       }
 
     }
+
+    gc()
 
   }
 
@@ -693,6 +701,19 @@ addIterativeLSI <- function(
 
     return(out)
 }
+
+.scaleDims <- function(x){
+  #Test
+  log2Vars <- sqrt(log2(matrixStats::colVars(x) + 1))
+  x <- t(.rowZscores(t(x)) * log2Vars)
+  x
+}
+
+
+
+
+
+
 
 
 

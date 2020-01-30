@@ -13,6 +13,7 @@
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param method A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.
@@ -29,7 +30,8 @@ addClusters <- function(
     sampleCells = NULL,
     seed = 1, 
     method = "Seurat", 
-    dimsToUse = NULL, 
+    dimsToUse = NULL,
+    scaleDims = NULL, 
     corCutOff = 0.75,
     knnAssign = 10, 
     nOutlier = 20, 
@@ -46,6 +48,7 @@ addClusters <- function(
     .validInput(input = seed, name = "seed", valid = c("integer"))
     .validInput(input = method, name = "method", valid = c("character"))
     .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
+    .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
     .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
     .validInput(input = knnAssign, name = "knnAssign", valid = c("integer"))
     .validInput(input = nOutlier, name = "nOutlier", valid = c("integer"))
@@ -63,7 +66,7 @@ addClusters <- function(
         if(reducedDims %ni% names(input@reducedDims)){
             stop("Error reducedDims not available!")
         }
-        matDR <- getReducedDims(ArchRProj = input, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
+        matDR <- getReducedDims(ArchRProj = input, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
     }else if(inherits(input, "matrix")){
         matDR <- input
     }else{
@@ -216,6 +219,7 @@ addClusters <- function(
     obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
     clustParams$object <- obj
     clustParams$reduction <- "pca"
+    clustParams$dims <- seq_len(ncol(mat))
 
     obj <- suppressWarnings(do.call(Seurat::FindNeighbors, clustParams))
     clustParams$object <- obj
@@ -241,6 +245,7 @@ addClusters <- function(
         obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
         clustParams$object <- obj
         clustParams$reduction <- "pca"
+        clustParams$dims <- seq_len(ncol(mat))
 
         obj <- .suppressAll(do.call(Seurat::FindNeighbors, clustParams))
         clustParams$object <- obj

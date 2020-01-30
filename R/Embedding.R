@@ -12,6 +12,7 @@
 #' @param embeddingOut The name for the embedding to be stored in the given `ArchRProject` object.
 #' @param embeddingParams A list of extra parameters to pass to the designated `embedding` function.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
+#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding. Only relevant if `embedding` is set to "UMAP".
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
@@ -26,8 +27,9 @@ addEmbedding <- function(
   embeddingOut = NULL,
   embeddingParams = list(),
   dimsToUse = NULL,
+  scaleDims = NULL,
   corCutOff = 0.75,
-  saveModel = TRUE,
+  saveModel = FALSE,
   seed = 1,
   force = FALSE,
   threads = getArchRThreads()
@@ -39,6 +41,7 @@ addEmbedding <- function(
   .validInput(input = embeddingOut, name = "embeddingOut", valid = c("character", "null"))
   .validInput(input = embeddingParams, name = "embeddingParams", valid = c("list"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = saveModel, name = "saveModel", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
@@ -93,10 +96,13 @@ addEmbedding <- function(
   if(tolower(embedding)=="umap"){
 
     .requirePackage("uwot")
-    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
+    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
     if(saveModel){
-      embeddingParams$ret_nn <- TRUE
-      embeddingParams$ret_model <- TRUE
+      message("Saving UMAP model not currently supported (will be shortly), running without model!")
+      #embeddingParams$ret_nn <- TRUE
+      #embeddingParams$ret_model <- TRUE
+      embeddingParams$ret_nn <- FALSE
+      embeddingParams$ret_model <- FALSE    
     }else{
       embeddingParams$ret_nn <- FALSE
       embeddingParams$ret_model <- FALSE      
@@ -113,7 +119,7 @@ addEmbedding <- function(
   }else if(tolower(embedding)=="rtsne"){
 
     .requirePackage("Rtsne")
-    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
+    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
     embeddingParams$pca <- FALSE
     Rtsne_tsne <- do.call(Rtsne::Rtsne, embeddingParams)
     dfEmbedding <- data.frame(Rtsne_tsne$Y)   
@@ -123,7 +129,7 @@ addEmbedding <- function(
   }else if(tolower(embedding)=="fftrtsne" | tolower(embedding)=="fit-tsne"){
 
     .requirePackage("Seurat")
-    embeddingParams$object <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
+    embeddingParams$object <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
     embeddingParams$assay <- NULL
     embeddingParams$dim.embed <- 2
     embeddingParams$tsne.method <- "FIt-SNE"

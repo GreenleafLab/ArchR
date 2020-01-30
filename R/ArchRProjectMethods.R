@@ -807,7 +807,8 @@ getExons <- function(ArchRProj = NULL, symbols = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param returnMatrix If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.
-#' @param dimsToUse A vector containing the dimensions (i.e. 1:25) to return from the `reducedDims` object.
+#' @param dimsToUse A vector containing the dimensions (i.e. 1:30) to return from the `reducedDims` object.
+#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded.
 #' @param ... additional args
 #' @export
@@ -816,6 +817,7 @@ getReducedDims <- function(
   reducedDims = "IterativeLSI", 
   returnMatrix = TRUE, 
   dimsToUse = NULL,
+  scaleDims = NULL,
   corCutOff = 0.75,
   ...
   ){
@@ -829,6 +831,9 @@ getReducedDims <- function(
   #########
 
   if(reducedDims %in% names(ArchRProj@reducedDims)){
+    if(is.null(scaleDims)){
+      scaleDims <- ArchRProj@reducedDims[[reducedDims]]$scaleDims
+    }
     corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth
     if(!is.null(dimsToUse)){
       corToUse <- dimsToUse
@@ -841,12 +846,19 @@ getReducedDims <- function(
     }
     if(returnMatrix){
       out <- ArchRProj@reducedDims[[reducedDims]][[1]][,corToUse[idx],drop=FALSE]
+      if(scaleDims){
+        out <- .scaleDims(out)
+      }
     }else{
       out <- ArchRProj@reducedDims[[reducedDims]]
-      out[[1]] <- out[[1]][,corToUse[idx],drop=FALSE]
+      out <- out[, corToUse[idx], drop=FALSE]
+      if(scaleDims){
+        out <- .scaleDims(out)
+      }
+      out[[1]] <- out[, corToUse[idx], drop=FALSE]
     }
   }else{
-    stop("reducedDims not in computed reduced dims!")
+    stop(paste0("Reduced dimensions not in computed reduceDims, Current ones are : ", paste0(names(ArchRProj@reducedDims), collapse=",")))
   }
   return(out)
 
