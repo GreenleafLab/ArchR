@@ -116,7 +116,7 @@ addDoubletScores <- function(
 }
 
 .addDoubScores <- function(
-  i,
+  i = NULL,
   ArrowFiles,
   useMatrix = "TileMatrix",
   allCells = NULL,
@@ -406,10 +406,10 @@ addDoubletScores <- function(
 }
 
 .simulateProjectDoublets <- function(
-  mat, 
-  LSI,
-  LSIDims,
-  uwotUmap,
+  mat = NULL, 
+  LSI = NULL,
+  LSIDims = NULL,
+  uwotUmap = NULL,
   clusters = NULL,
   sampleRatio1 = c(0.5), 
   sampleRatio2 = c(0.5), 
@@ -421,7 +421,7 @@ addDoubletScores <- function(
   threads = 16
   ){
 
-  .sampleSparseMat <- function(mat, sampleRatio = 0.5){
+  .sampleSparseMat <- function(mat = NULL, sampleRatio = 0.5){
     total <- length(mat@x)
     sampleTo <- floor(total * (1-sampleRatio))
     mat@x[sample(seq_len(total), sampleTo)] <- 0

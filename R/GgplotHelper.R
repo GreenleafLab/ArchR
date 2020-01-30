@@ -403,7 +403,7 @@ ggOneToOne <- function (
 
 }
 
-.getDensity <- function(x, y, n = 100, sample = NULL, densityMax = 0.95){
+.getDensity <- function(x = NULL, y = NULL, n = 100, sample = NULL, densityMax = 0.95){
   #modified from http://slowkow.com/notes/ggplot2-color-by-density/
   df <- data.frame(x=x,y=y)
   dens <- MASS::kde2d(x = x, y = y, n = n)

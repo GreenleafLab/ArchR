@@ -89,8 +89,8 @@ addCNVMatrix <- function(
 }
 
 .addCNVMatrix <- function(
-  i,
-  ArrowFiles, 
+  i = NULL,
+  ArrowFiles = NULL, 
   normByNeighbors = TRUE,
   cellNames = NULL, 
   allCells = NULL,
@@ -285,7 +285,14 @@ addCNVMatrix <- function(
 
 }
 
-.makeWindows <- function(genome, chromSizes, blacklist, windowSize = 10e6, stepSize = 2e6, threads = 1){
+.makeWindows <- function(
+  genome = NULL,
+  chromSizes = NULL,
+  blacklist = NULL,
+  windowSize = 10e6,
+  stepSize = 2e6,
+  threads = 1
+  ){
   
   genome <- validBSgenome(genome)
 

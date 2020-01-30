@@ -146,7 +146,7 @@ createArrowFiles <- function(
 
 #Main Function!
 .createArrow <- function(
-  i,
+  i = NULL,
   inputFiles = NULL, 
   sampleNames = NULL, 
   outputNames = paste0("./", sampleName),
@@ -663,7 +663,7 @@ createArrowFiles <- function(
 #########################################################################################################
 # Methods to Turn Input File into a Temp File that can then be Efficiently converted to an Arrow!
 #########################################################################################################
-.isTabix <- function(file){
+.isTabix <- function(file = NULL){
   tryCatch({
     TabixFile(file)
     TRUE

@@ -135,9 +135,9 @@ addPeakMatrix <- function(
 }
 
 .addFeatureMatrix <- function(
-  i,
-  ArrowFiles, 
-  features,
+  i = NULL,
+  ArrowFiles = NULL, 
+  features = NULL,
   cellNames = NULL, 
   allCells = NULL,
   matrixName = "PeakMatrix", 

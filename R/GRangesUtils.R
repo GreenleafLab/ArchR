@@ -79,7 +79,8 @@ nonOverlappingGR <- function(
   #-----------
   # Cluster GRanges into islands using reduce and then select based on input
   #-----------
-  clusterGRanges <- function(gr, filter = TRUE, by = "score", decreasing = TRUE){
+  # QQQ SHOULD THIS BE A HIDDEN FUNCTION??
+  clusterGRanges <- function(gr = NULL, filter = TRUE, by = "score", decreasing = TRUE){
     gr <- sort(sortSeqlevels(gr))
     r <- GenomicRanges::reduce(gr, min.gapwidth=0L, ignore.strand=TRUE)
     o <- findOverlaps(gr,r, ignore.strand = TRUE)

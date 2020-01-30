@@ -195,7 +195,7 @@ createGeneAnnnotation <- function(
 
 }
 
-.getBlacklist <- function(genome){
+.getBlacklist <- function(genome = NULL){
   
   .validInput(input = genome, name = "genome", valid = "character")
 
@@ -224,7 +224,7 @@ createGeneAnnnotation <- function(
 
 }
 
-.getTxDb <- function(genome, filter = TRUE, install = TRUE){
+.getTxDb <- function(genome = NULL, filter = TRUE, install = TRUE){
 
   .validInput(input = genome, name = "genome", valid = "character")
   .validInput(input = filter, name = "filter", valid = "boolean")
@@ -308,8 +308,7 @@ createGeneAnnnotation <- function(
 
 }
 
-#' @export
-.getOrgDb <- function(genome){
+.getOrgDb <- function(genome = NULL){
 
   .validInput(input = genome, name = "genome", valid = "character")
 
@@ -706,7 +705,6 @@ getChromLengths <- function(ArchRProj = NULL, ...){
   return(cL)
 }
 
-#' @export
 .nullGenomeAnnotation <- function(){
   genome <- "nullGenome"
   chromSizes <- GRanges()
@@ -790,7 +788,6 @@ getExons <- function(ArchRProj = NULL, symbols = NULL, ...){
 
 }
 
-#' @export
 .nullGeneAnnotation <- function(){
   genes <- GRanges("chr1", IRanges(1,1), symbol = "a")
   genes <- genes[-1]

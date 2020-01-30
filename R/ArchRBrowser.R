@@ -780,7 +780,6 @@ ArchRRegionTrack <- function(
 #######################################################
 # Bulk Aggregated ATAC Track Methods
 #######################################################
-#' @export
 .bulkTracks <- function(
   ArchRProj = NULL, 
   region = NULL, 
@@ -894,8 +893,17 @@ ArchRRegionTrack <- function(
 ##############################################################################
 # Create Average Tracks from Coverages
 ##############################################################################
-#' @export
-.groupRegionSumCoverages <- function(ArchRProj, groupBy, useGroups = NULL, minCells = 25, region, tileSize, normMethod, verbose, threads){
+.groupRegionSumCoverages <- function(
+  ArchRProj = NULL,
+  groupBy = NULL,
+  useGroups = NULL,
+  minCells = 25,
+  region = NULL,
+  tileSize = NULL,
+  normMethod = NULL,
+  verbose = NULL,
+  threads = NULL
+  ){
 
   coverageMetadata <- .getCoverageMetadata(
     ArchRProj = ArchRProj, 
@@ -959,8 +967,12 @@ ArchRRegionTrack <- function(
 
 }
 
-#' @export
-.groupRegionCoverages <- function(coverageMetadata, region, tileSize = 100, buffer = 1000, threads = 1){
+.groupRegionCoverages <- function(
+  coverageMetadata = NULL,
+  region = NULL,
+  tileSize = 100,
+  buffer = 1000,
+  threads = 1){
   
   region <- .validGRanges(region[1])
   coverageFiles <- coverageMetadata$File
@@ -975,8 +987,12 @@ ArchRRegionTrack <- function(
 
 }
 
-#' @export
-.getCoverageFromRegion <- function(coverageFile, region, tileSize, buffer){
+.getCoverageFromRegion <- function(
+  coverageFile = NULL,
+  region = NULL,
+  tileSize = NULL,
+  buffer = NULL
+  ){
   chr <- as.character(seqnames(region))
   cov <- Rle(
     lengths = h5read(coverageFile, paste0("Coverage/",chr,"/Lengths")), 
@@ -997,8 +1013,17 @@ ArchRRegionTrack <- function(
 ##############################################################################
 # Create Average Tracks from Arrows
 ##############################################################################
-#' @export
-.groupRegionSumArrows <- function(ArchRProj, useGroups, groupBy, region, tileSize, normMethod, verbose, minCells = 25, threads){
+.groupRegionSumArrows <- function(
+  ArchRProj = NULL,
+  useGroups = NULL,
+  groupBy = NULL,
+  region = NULL,
+  tileSize = NULL,
+  normMethod = NULL,
+  verbose = NULL,
+  minCells = 25,
+  threads = NULL
+  ){
 
   #Group Info
   cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
@@ -1098,7 +1123,15 @@ ArchRRegionTrack <- function(
 
 }
 
-.regionSumArrows <- function(ArrowFile, region, regionTiles, tileSize, cellNames, cellGroups, uniqueGroups){
+.regionSumArrows <- function(
+  ArrowFile = NULL,
+  region = NULL,
+  regionTiles = NULL,
+  tileSize = NULL,
+  cellNames = NULL,
+  cellGroups = NULL,
+  uniqueGroups = NULL
+  ){
   
   cellFragsRegion <- .getFragsFromArrow(
       ArrowFile = ArrowFile, 
@@ -1145,8 +1178,8 @@ ArchRRegionTrack <- function(
 # Gene Tracks
 #######################################################
 .geneTracks <- function(
-  geneAnnotation, 
-  region, 
+  geneAnnotation = NULL, 
+  region = NULL, 
   baseSize = 9, 
   borderWidth = 0.4, 
   title = "Genes",
@@ -1281,12 +1314,12 @@ ArchRRegionTrack <- function(
 # Feature Tracks
 #######################################################
 .featureTracks <- function(
-  features, 
-  region, 
+  features = NULL, 
+  region = NULL, 
   title = "FeatureTrack", 
   pal = NULL,
   baseSize = 9, 
-  facetbaseSize,
+  facetbaseSize = NULL,
   featureWidth = 2, 
   borderWidth = 0.4, 
   hideX = FALSE, 
@@ -1434,11 +1467,3 @@ ArchRRegionTrack <- function(
   return(p)
 
 }
-
-
-
-
-
-
-
-

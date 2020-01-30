@@ -2,8 +2,7 @@
 # Hidden Helper Utils for Arrow Files
 ####################################################################
 
-#' @export
-.validArrow <- function(ArrowFile){
+.validArrow <- function(ArrowFile = NULL){
   o <- h5closeAll()
   if(h5read(ArrowFile,"Class")!="Arrow"){
     stop("Not Valid Arrow!")
@@ -12,8 +11,7 @@
   return(ArrowFile)
 }
 
-#' @export
-.isProtectedArray <- function(matrixName, exclude = NULL){
+.isProtectedArray <- function(matrixName = NULL, exclude = NULL){
   protectedArrays <- tolower(c("peakmatrix", "tilematrix", "genescorematrix"))
   if(!is.null(exclude)){
     protectedArrays <- protectedArrays[protectedArrays %ni% tolower(exclude)]
@@ -24,8 +22,7 @@
   matrixName
 }
 
-#' @export
-.availableSeqnames <- function(ArrowFiles, subGroup = "Fragments"){
+.availableSeqnames <- function(ArrowFiles = NULL, subGroup = "Fragments"){
   o <- h5closeAll()
   seqList <- lapply(seq_along(ArrowFiles), function(x){
     seqnames <- h5ls(ArrowFiles[x]) %>% {.[.$group==paste0("/",subGroup),]$name}
@@ -39,8 +36,7 @@
   return(seqList[[1]])
 }
 
-#' @export
-.availableChr <- function(ArrowFiles, subGroup = "Fragments"){
+.availableChr <- function(ArrowFiles = NULL, subGroup = "Fragments"){
   seqnames <- .availableSeqnames(ArrowFiles, subGroup)
   seqnames <- seqnames[grep("chr", seqnames, ignore.case = TRUE)]
   if(length(seqnames) == 0){
@@ -49,8 +45,7 @@
   return(seqnames)
 }
 
-#' @export
-.availableCells <- function(ArrowFile, subGroup = NULL, passQC = TRUE){
+.availableCells <- function(ArrowFile = NULL, subGroup = NULL, passQC = TRUE){
   if(is.null(subGroup)){
     o <- h5closeAll()
     cellNames <- h5read(ArrowFile, "Metadata/CellNames")
@@ -73,16 +68,14 @@
   return(paste0(sampleName,"#",cellNames))
 }
 
-#' @export
-.sampleName <- function(ArrowFile){
+.sampleName <- function(ArrowFile = NULL){
   o <- h5closeAll()
   sampleName <- h5read(ArrowFile, paste0("Metadata/Sample"))
   o <- h5closeAll()
   return(sampleName)
 }
 
-#' @export
-.summarizeArrowContent <- function(ArrowFile){
+.summarizeArrowContent <- function(ArrowFile = NULL){
   
   o <- h5closeAll()
   
@@ -114,8 +107,7 @@
 
 }
 
-#' @export
-.getMetadata <- function(ArrowFile){
+.getMetadata <- function(ArrowFile = NULL){
   
   o <- h5closeAll()
   
@@ -145,10 +137,9 @@
   return(md)
 }
 
-#' @export
-.getFeatureDF <- function(ArrowFiles, subGroup = "TileMatrix"){
+.getFeatureDF <- function(ArrowFiles = NULL, subGroup = "TileMatrix"){
   
-  .helpFeatureDF <- function(ArrowFile, subGroup){
+  .helpFeatureDF <- function(ArrowFile = NULL, subGroup = NULL){
     o <- h5closeAll()
     featureDF <- DataFrame(h5read(ArrowFile, paste0(subGroup,"/Info/FeatureDF")))
     featureDF$seqnames <- Rle(as.character(featureDF$seqnames))

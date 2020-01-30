@@ -496,8 +496,7 @@ addReproduciblePeakSet <- function(
 
 }
 
-#' @export
-.plotPeakCallSummary <- function(ArchRProj, pal = NULL){
+.plotPeakCallSummary <- function(ArchRProj = NULL, pal = NULL){
 
   peakDF <- metadata(ArchRProj@peakSet)$PeakCallSummary
   
@@ -535,7 +534,7 @@ addReproduciblePeakSet <- function(
 # Utility Functions
 #####################
 
-.fastAnnoPeaks <- function(peaks, BSgenome, geneAnnotation, promoterDist = 1000){
+.fastAnnoPeaks <- function(peaks = NULL, BSgenome = NULL, geneAnnotation = NULL, promoterDist = 1000){
 
 	#Validate
 	peaks <- .validGRanges(peaks)
@@ -627,7 +626,16 @@ addReproduciblePeakSet <- function(
 
 }
 
-.callSummitsOnCoverages <- function(i, coverageFiles, outFiles, peakParams, bedDir, excludeChr, tstart, ...){
+.callSummitsOnCoverages <- function(
+	i = NULL,
+	coverageFiles = NULL,
+	outFiles = NULL,
+	peakParams = NULL,
+	bedDir = NULL,
+	excludeChr = NULL,
+	tstart = NULL,
+	...
+	){
 	
 	.messageDiffTime(sprintf("Group %s of %s, Calling Peaks with MACS2!", i, length(coverageFiles)), tstart)
 

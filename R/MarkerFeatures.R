@@ -257,8 +257,17 @@ markerFeatures <- function(
 
 }
 
-.testMarkerSC <- function(ArrowFiles, matchObj, group = NULL, testMethod = "ttest", useMatrix,
-  threads = 1, featureDF, binarize = FALSE, normFactors = NULL){
+.testMarkerSC <- function(
+  ArrowFiles = NULL,
+  matchObj = NULL,
+  group = NULL,
+  testMethod = "ttest",
+  useMatrix = NULL,
+  threads = 1,
+  featureDF,
+  binarize = FALSE,
+  normFactors = NULL
+  ){
 
   matchx <- matchObj[[1]][[group]]
   cellsx <- matchObj[[2]]$cells[matchx$cells]
@@ -337,7 +346,7 @@ markerFeatures <- function(
 }
 
 #Wilcoxon Row-wise two matrices
-.sparseMatWilcoxon <- function(mat1, mat2){
+.sparseMatWilcoxon <- function(mat1 = NULL, mat2 = NULL){
   
   .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
   df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
@@ -366,7 +375,7 @@ markerFeatures <- function(
 }
 
 #T-Test Row-wise two matrices
-.sparseMatTTest <- function(mat1, mat2, m0 = 0){
+.sparseMatTTest <- function(mat1 = NULL, mat2 = NULL, m0 = 0){
     
     #Get Population Values
     n1 <- ncol(mat1)
@@ -409,7 +418,7 @@ markerFeatures <- function(
 }
 
 #Binomial Test Row-wise two matrices
-.sparseMatBinomTest <- function(mat1, mat2){
+.sparseMatBinomTest <- function(mat1 = NULL, mat2 = NULL){
   
   #Get Population Values
   n1 <- ncol(mat1)
@@ -456,10 +465,19 @@ markerFeatures <- function(
 }
 
 
-.matchBiasCellGroups <- function(input, groups, useGroups, bgdGroups, bias, k = 100, n = 500, bufferRatio = 0.8){
+.matchBiasCellGroups <- function(
+  input = NULL,
+  groups = NULL,
+  useGroups = NULL,
+  bgdGroups = NULL,
+  bias = NULL,
+  k = 100,
+  n = 500,
+  bufferRatio = 0.8
+  ){
 
   #Summary Function
-  .summarizeColStats <- function(m, name = NULL){
+  .summarizeColStats <- function(m = NULL, name = NULL){
     med <- apply(m, 2, median)
     mean <- colMeans(m)
     sd <- apply(m, 2, sd)
@@ -856,7 +874,7 @@ markerHeatmap <- function(
 ########################################################################################################
 
 .ArchRHeatmap <- function(
-  mat, 
+  mat = NULL, 
   scale = FALSE,
   limits = c(min(mat), max(mat)),
   colData = NULL, 
@@ -1037,7 +1055,7 @@ markerHeatmap <- function(
 
 }
 
-.colorMapForCH <- function(colorMap, colData){
+.colorMapForCH <- function(colorMap = NULL, colData = NULL){
   colorMap <- colorMap[which(names(colorMap) %in% colnames(colData))]
   colorMapCH <- lapply(seq_along(colorMap), function(x){
     if(attr(colorMap[[x]],"discrete")){
@@ -1056,7 +1074,7 @@ markerHeatmap <- function(
   return(colorMapCH)
 }
 
-.checkShowLegend <- function(colorMap, max_discrete = 30){
+.checkShowLegend <- function(colorMap = NULL, max_discrete = 30){
   show <- lapply(seq_along(colorMap), function(x){
       if(attr(colorMap[[x]],"discrete") && length(unique(colorMap[[x]])) > max_discrete){
         sl <- FALSE
@@ -1069,7 +1087,7 @@ markerHeatmap <- function(
   return(show)
 }
 
-.colorMapAnno <- function(colData, customAnno = NULL, discreteSet = "stallion", continuousSet = "solar_extra"){
+.colorMapAnno <- function(colData = NULL, customAnno = NULL, discreteSet = "stallion", continuousSet = "solar_extra"){
   discreteCols <- sapply(colData,function(x) !is.numeric(x))
   if(!is.null(customAnno)){
     colorMap <- lapply(seq_along(discreteCols),function(x){
@@ -1109,7 +1127,7 @@ markerHeatmap <- function(
 
 }
 
-.binarySort <- function(m, scale = FALSE, cutOff = 1, lmat = NULL, clusterCols = TRUE){
+.binarySort <- function(m = NULL, scale = FALSE, cutOff = 1, lmat = NULL, clusterCols = TRUE){
 
   if(is.null(lmat)){
     #Compute Row-Zscores

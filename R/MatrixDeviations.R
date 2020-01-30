@@ -123,9 +123,9 @@ addDeviationsMatrix <- function(
 }
 
 .addDeviationsMatrix <- function(
-  i,
-  ArrowFiles, 
-  annotationsMatrix,
+  i = NULL,
+  ArrowFiles = NULL, 
+  annotationsMatrix = NULL,
   out = c("z", "deviations"),
   cellNames = NULL, 
   allCells = NULL,
@@ -239,10 +239,10 @@ addDeviationsMatrix <- function(
 # Adapted from chromVAR
 ############################################################################
 .customDeviations <- function(
-  countsMatrix,
-  annotationsMatrix,
-  backgroudPeaks,
-  expectation,
+  countsMatrix = NULL,
+  annotationsMatrix = NULL,
+  backgroudPeaks = NULL,
+  expectation = NULL,
   prefix = "",
   out = c("deviations", "z"),
   threads = 1
@@ -329,7 +329,8 @@ addDeviationsMatrix <- function(
   threshold = 1
   ){
 
-  binarizeMat <- function(mat){
+  #QQQ SHOULD THIS BE A HIDDEN FUNCTION?
+  binarizeMat <- function(mat = NULL){
     mat@x[mat@x > 0] <- 1
     mat
   }

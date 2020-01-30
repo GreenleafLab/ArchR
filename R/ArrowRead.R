@@ -49,9 +49,8 @@ getFragmentsFromArrow <- function(
 
 }
 
-#' @export
 .getFragsFromArrow <- function(
-  ArrowFile, 
+  ArrowFile = NULL, 
   chr = NULL, 
   out = "GRanges", 
   cellNames = NULL, 
@@ -240,9 +239,8 @@ getMatrixFromArrow <- function(
 
 }
 
-#' @export
 .getMatFromArrow <- function(
-  ArrowFile, 
+  ArrowFile = NULL, 
   featureDF = NULL, 
   binarize = NULL, 
   cellNames = NULL,
@@ -353,11 +351,10 @@ getMatrixFromArrow <- function(
 ####################################################################
 # Helper read functioning
 ####################################################################
-#' @export
 .getGroupMatrix <- function(
-  ArrowFiles, 
-  featureDF, 
-  groupList,
+  ArrowFiles = NULL, 
+  featureDF = NULL, 
+  groupList = NULL,
   threads = 1, 
   useIndex = FALSE, 
   verbose = TRUE, 
@@ -434,11 +431,10 @@ getMatrixFromArrow <- function(
   
 }
 
-#' @export
 .getPartialMatrix <- function(
-  ArrowFiles, 
-  featureDF, 
-  cellNames, 
+  ArrowFiles = NULL, 
+  featureDF = NULL, 
+  cellNames = NULL, 
   progress = TRUE, 
   threads = 1, 
   useMatrix = "TileMatrix",
@@ -523,9 +519,16 @@ getMatrixFromArrow <- function(
 # Compute Summary Statistics!
 ########################################################################
 
-#' @export 
-.getRowSums <- function(ArrowFiles, useMatrix, seqnames = NULL,
-  verbose = TRUE, tstart = NULL, filter0 = FALSE, threads = 1, addInfo = FALSE){
+.getRowSums <- function(
+  ArrowFiles = NULL,
+  useMatrix = NULL,
+  seqnames = NULL,
+  verbose = TRUE,
+  tstart = NULL,
+  filter0 = FALSE,
+  threads = 1,
+  addInfo = FALSE
+  ){
   
   if(is.null(tstart)){
     tstart <- Sys.time()
@@ -573,10 +576,14 @@ getMatrixFromArrow <- function(
 
 }
 
-#' @export 
-.getRowVars <- function(ArrowFiles, seqnames = NULL, useMatrix, threads = 1){
+.getRowVars <- function(
+  ArrowFiles = NULL,
+  seqnames = NULL,
+  useMatrix = NULL,
+  threads = 1
+  ){
   
-  .combineVariances <- function(dfMeans, dfVars, ns){
+  .combineVariances <- function(dfMeans = NULL, dfVars = NULL, ns = NULL){
 
   #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
 
@@ -630,8 +637,14 @@ getMatrixFromArrow <- function(
 
 }
 
-#' @export 
-.getColSums <- function(ArrowFiles, seqnames, useMatrix, verbose = TRUE, tstart = NULL, threads = 1){
+.getColSums <- function(
+  ArrowFiles = NULL,
+  seqnames = NULL,
+  useMatrix = NULL,
+  verbose = TRUE,
+  tstart = NULL,
+  threads = 1
+  ){
   
   if(is.null(tstart)){
     tstart <- Sys.time()
@@ -658,8 +671,17 @@ getMatrixFromArrow <- function(
 }
 
 # h5read implementation for optimal reading
-#' @export
-.h5read <- function(file, name, method = "fast", index = NULL, start = NULL, block = NULL, count = NULL, ...){
+.h5read <- function(
+  file = NULL,
+  name = NULL,
+  method = "fast",
+  index = NULL,
+  start = NULL,
+  block = NULL,
+  count = NULL,
+  ...
+  ){
+
   if(tolower(method) == "fast" & is.null(index) & is.null(start) & is.null(block) & is.null(count)){
     fid <- H5Fopen(file)
     dapl <- H5Pcreate("H5P_DATASET_ACCESS")

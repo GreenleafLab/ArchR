@@ -289,8 +289,7 @@ plotGroups <- function(
 
 }
 
-#' @export
-.getMatrixValues <- function(ArchRProj, name, matrixName, log2Norm = TRUE){
+.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = TRUE){
   
   o <- h5closeAll()
 
@@ -367,7 +366,6 @@ plotGroups <- function(
 }
 
 
-#' @export
 .fixPlotSize <- function(
   p = NULL, 
   plotWidth = unit(6, "in"),
@@ -527,7 +525,7 @@ plotGroups <- function(
 
 }
 
-.isDiscrete <- function(x){
+.isDiscrete <- function(x = NULL){
   is.factor(x) || is.character(x) || is.logical(x)
 }
 

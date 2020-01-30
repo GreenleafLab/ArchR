@@ -1,14 +1,14 @@
-#' @export
 .initializeMat <- function(
-  ArrowFile,
-  Group,
+  ArrowFile = NULL,
+  Group = NULL,
   Class = "Double",
-  cellNames,
-  featureDF,
-  params,
+  cellNames = NULL,
+  featureDF = NULL,
+  params = NULL,
   date = Sys.Date(),
   force = FALSE,
-  ...){
+  ...
+  ){
 
   #Add Group Entry of SparseMatrix Format
   #This Includes the following format
@@ -94,11 +94,10 @@
 
 }
 
-#' @export
 .addMatToArrow <- function(
-  mat, 
-  ArrowFile,
-  Group,
+  mat = NULL, 
+  ArrowFile = NULL,
+  Group = NULL,
   binarize = FALSE, 
   addRowSums = FALSE,
   addColSums = FALSE,

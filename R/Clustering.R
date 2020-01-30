@@ -161,7 +161,7 @@ addClusters <- function(
     #################################################################################
     # Renaming Clusters based on Proximity in Reduced Dimensions
     #################################################################################
-    .reLabel <- function(labels, oldLabels, newLabels){
+    .reLabel <- function(labels = NULL, oldLabels = NULL, newLabels = NULL){
         labels <- paste0(labels)
         oldLabels <- paste0(oldLabels)
         newLabels <- paste0(newLabels)
@@ -201,7 +201,7 @@ addClusters <- function(
 }
 
 #Simply a wrapper on Seurats FindClusters
-.clustSeurat <- function(mat, clustParams){
+.clustSeurat <- function(mat = NULL, clustParams = NULL){
 
     .requirePackage("Seurat")
     .messageDiffTime("Running Seurats FindClusters (Stuart et al. Cell 2019)", clustParams$tstart, verbose=clustParams$verbose)
@@ -268,7 +268,7 @@ addClusters <- function(
 
 }
 
-.clustScran <- function(clustParams){
+.clustScran <- function(clustParams = NULL){
     .requirePackage("scran")
     .requirePackage("igraph")
     #See Scran Vignette!
@@ -349,8 +349,14 @@ addClusters <- function(
 
 # }
 
-#' @export
-.computeKNN <- function(data = NULL, query = NULL, k = 50, method = NULL, includeSelf = FALSE, ...){
+.computeKNN <- function(
+    data = NULL,
+    query = NULL,
+    k = 50,
+    method = NULL,
+    includeSelf = FALSE,
+    ...
+    ){
 
   .validInput(input = data, name = "data", valid = c("dataframe", "matrix"))
   .validInput(input = query, name = "query", valid = c("dataframe", "matrix"))
