@@ -9,7 +9,7 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param positions A `list` or `GenomicRangesList` of `GRanges` containing the positions to incorporate into the footprint. Each position should be stranded.
 #' @param plotName The prefix to add to the file name for the output PDF file containing the footprint plots.
-#' @param groupBy The name of the column in `cellColData` used in `addGroupCoverages` for grouping multiple cells together (see `addGroupCoverages`).
+#' @param groupBy The name of the column in `cellColData` used in the `addGroupCoverages()` function for grouping multiple cells together.
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform footprinting.
 #' @param pal The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
 #' @param flank The number of basepairs from the position center (+/-) to consider as the flank.

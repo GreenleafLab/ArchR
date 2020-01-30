@@ -2,13 +2,13 @@
 # Doublet Identification Methods
 ##########################################################################################
 
-#' Add Doublet Scores to a collection of Arrow files or an ArchRProject
+#' Add Doublet Scores to a collection of ArrowFiles or an ArchRProject
 #' 
 #' For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information
 #' to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 #' contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell. 
 #'
-#' @param input An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.
+#' @param input An `ArchRProject` object or a character vector containing the paths to the ArrowFiles to be used.
 #' @param useMatrix The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix" and "PeakMatrix".
 #' @param k The number of cells neighboring a simulated doublet to be considered as putative doublets.
 #' @param nTrials The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.

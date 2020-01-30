@@ -50,7 +50,7 @@ getArchRThreads <- function(){
 #' @param genome Either (i) a string that is a valid `BSgenome` or (ii) a `BSgenome` object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").
 #' @param chromSizes A `GRanges` object containing chromosome start and end coordinates.
 #' @param blacklist A `GRanges` object containing regions that should be excluded from analyses due to unwanted biases.
-#' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by filterChrGR.
+#' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by `filterChrGR()`.
 #' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `filterChr` should be set to `NULL`.
 #' @export
 createGenomeAnnotation <- function(
@@ -103,7 +103,7 @@ createGenomeAnnotation <- function(
 #' 
 #' @param genome A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If `genome` is not supplied, `TxDb` and `OrgDb` are required. If genome is supplied, `TxDb` and `OrgDb` will be ignored.
 #' @param TxDb A `TxDb` object (transcript database) from Bioconductor which contains information for gene/transcript coordinates. For example, from `txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene`.
-#' @param OrgDb An `OrgDb` object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids. For example, from `orgdb <- org.Hs.eg.db`
+#' @param OrgDb An `OrgDb` object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids. For example, from `orgdb <- org.Hs.eg.db`.
 #' @param genes A `GRanges` object containing gene coordinates (start to end). Must have a symbols column matching the symbols column of `exons`.
 #' @param exons A `GRanges` object containing gene exon coordinates. Must have a symbols column matching the symbols column of `genes`.
 #' @param TSS A `GRanges` object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.
@@ -995,11 +995,11 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
 #' @param name The file name to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param height The height in inches to be used for the output PDF.
-#' @param ArchRProj An `ArchRProject` object to be used for getting the outputDirectory and plotting in a folder within called "plots".
+#' @param ArchRProj An `ArchRProject` object to be used for retrieving the desired `outputDirectory` which will be used to store the output plots in a subfolder called "plots".
 #' @param addDOC A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful for preventing overwritting of old plots.
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
 #' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted object (ggplot2, plot, heatmap, etc).
-#' @param useSink A boolean value indicating whether sink should be used to hide output messages that result from plotting.
+#' @param useSink A boolean value that indicates whether the `sink` function from base R should be used to hide messages during plotting.
 #' @export
 plotPDF <- function(..., name = "Plot", width = 6, 
   height = 6, ArchRProj = NULL, addDOC = TRUE, 

@@ -9,7 +9,7 @@
 #' @param input Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`. Not required if input is a matrix.
 #' @param name The column name of the cluster label column to be added to `cellColData` if `input` is an `ArchRProject` object.
-#' @param sampleCells  UNCLEAR. FIX AND ADD LEAVE JJJ FOR ME TO CHECK. An integer specifying the number of cells to subsample and perform clustering on. The remaining cells will be assigned to the cluster of the nearest subsampled cell.
+#' @param sampleCells QQQ An integer specifying the number of cells to subsample and perform clustering on. The remaining cells that were not subsampled will be assigned to the cluster of the nearest subsampled cell. QQQ This enables a decrease in run time but can sacrifice granularity of clusters.
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param method A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
@@ -17,7 +17,7 @@
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
-#' @param tstart A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering when running things like IterativeLSI. 
+#' @param tstart QQQ THIS STILL DOESNT MAKE SENSE TO ME. WHY WOULD YOU PROVIDE A MANUAL TIMESTAMP? WHY ISNT THIS CALCULATED AT RUNTIME? A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering when running things like "IterativeLSI". 
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
 #' @param ... Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)
 #' @export

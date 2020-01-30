@@ -13,7 +13,7 @@
 #' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the ArrowFiles asociated with the given `ArchRProject`.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the ArrowFiles associated with the given `ArchRProject`.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj = NULL,
@@ -472,7 +472,7 @@ getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE
 #' @param w The parameter controlling similarity of background peaks. See `chromVAR::getBackgroundPeaks()`.
 #' @param binSize The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param outFile The path to save the backgroundPeaks object as a `.rds` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
+#' @param outFile The path to save the `backgroundPeaks` object as a `.RDS` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 addBgdPeaks <- function(
@@ -541,7 +541,7 @@ addBgdPeaks <- function(
 #' @param w The parameter controlling similarity measure of background peaks. See `chromVAR::getBackgroundPeaks()`.
 #' @param binSize The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param outFile The path to save the backgroundPeaks object as a `.rds` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
+#' @param outFile QQQ I DONT THINK THIS PARAM SHOULD EXIST. ALSO PRESENT IN VALIDINPUT() DECLARATION. The path to save the backgroundPeaks object as a `.rds` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 getBgdPeaks <- function(

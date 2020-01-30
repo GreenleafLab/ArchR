@@ -14,7 +14,7 @@
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.
 #' @param maxDist The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.
-#' @param scaleTo A numeric value indicating what to depth-normalize the accessibility of a single-cell group prior to computing co-accessibility correlations.
+#' @param scaleTo The total insertion counts from the designated group of single cells is summed across all relevant peak regions from the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param knnMethod The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.

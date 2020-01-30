@@ -101,7 +101,7 @@ filterCells <- function(
 #' and the value corresponds to the filter criteria. A lower threshold is expected, below which 
 #' cells are filtered (a higher threshold is optional and can be passed as a numeric vector along with the lower threshold).
 #' Only the first 2 filters will be plotted.
-#' @param sampleNames The sample names corresponding to the subset of samples to plot. If NULL, all samples are included.
+#' @param sampleNames The sample names corresponding to the subset of samples to plot. If `NULL`, all samples are included.
 #' @param ... additional params
 #' @export
 filterPlot <- function(
