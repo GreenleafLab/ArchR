@@ -19,8 +19,8 @@
 #' @export
 addTileMatrix <- function(
   input = NULL,
-  chromSizes = getChromSizes(input, returnNull = TRUE),
-  blacklist = getBlacklist(input, returnNull = TRUE),
+  chromSizes = if(inherits(input, "ArchRProject")) getChromSizes(input) else NULL,
+  blacklist = if(inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
   tileSize = 500, 
   binarize = TRUE, 
   excludeChr = c("chrM","chrY"),

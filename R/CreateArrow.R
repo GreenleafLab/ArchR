@@ -33,6 +33,7 @@
 #' @param force A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist in `outDir`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param verboseHeader A boolean value that determines whether standard output should include verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output should include verbose subsections.
 #' @param ... additional args
@@ -66,6 +67,7 @@ createArrowFiles <- function(
   force = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
+  subThreading = TRUE,
   verboseHeader = TRUE,
   verboseAll = FALSE,
   ...
@@ -109,7 +111,11 @@ createArrowFiles <- function(
   args$FUN <- .createArrow
   args$registryDir <- file.path(outDir, "CreateArrowsRegistry")
 
-  h5disableFileLocking()
+  if(subThreading){
+    h5disableFileLocking()
+  }else{
+    args$threads <- length(inputFiles)
+  }
 
   #Run With Parallel or lapply
   outArrows <- tryCatch({
@@ -130,7 +136,9 @@ createArrowFiles <- function(
     paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
   })
 
-  h5enableFileLocking()
+  if(subThreading){
+    h5enableFileLocking()
+  }
 
   return(outArrows)
 
@@ -310,7 +318,7 @@ createArrowFiles <- function(
           coord_cartesian(xlim = c(1,750), ylim = c(0, max(plotDF$percent) * 1.1), expand = FALSE) + 
           xlab("Size of Fragments (bp) \n") + 
           ylab("Fragments (%)") + 
-          ggtitle("Fragment Size Distribution")
+          ggtitle(paste0(sampleName,"\nFragment Size Distribution"))
     print(.fixPlotSize(gg, plotWidth = 4.5, plotHeight = 3.5, height = 3/4))
     dev.off()
 
@@ -350,7 +358,7 @@ createArrowFiles <- function(
     sink(tmpFile)
 
     ggtitle <- sprintf("%s\n%s\n%s",
-        paste0(sampleName, " : Number of Cells Pass Filter = ", sum(Metadata$Keep)),
+        paste0(sampleName, "\nnCells Pass Filter = ", sum(Metadata$Keep)),
         paste0("Median Frags = ", median(Metadata$nFrags[Metadata$Keep==1])),
         paste0("Median TSS Enrichment = ", median(Metadata$TSSEnrichment[Metadata$Keep==1]))
       )

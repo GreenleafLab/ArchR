@@ -21,6 +21,7 @@
 #' @param blacklist A `GRanges` object containing genomic regions to blacklist that may be extremeley over-represented and thus biasing the geneScores for genes nearby that locus.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
 #' @export
 addGeneScoreMatrix <- function(
@@ -38,6 +39,7 @@ addGeneScoreMatrix <- function(
   blacklist = if(inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
   threads = getArchRThreads(),
   parallelParam = NULL,
+  subThreading = TRUE,
   force = FALSE,
   ...
   ){
@@ -85,13 +87,19 @@ addGeneScoreMatrix <- function(
   args$X <- seq_along(ArrowFiles)
   args$FUN <- .addGeneScoreMat
   args$registryDir <- file.path(outDir, "GeneScoresRegistry")
-
-  h5disableFileLocking()
+  
+  if(subThreading){
+    h5disableFileLocking()
+  }else{
+    args$threads <- length(inputFiles)
+  }
 
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
 
-  h5enableFileLocking()
+  if(subThreading){
+    h5enableFileLocking()
+  }
 
   if(inherits(input, "ArchRProject")){
 
