@@ -4,9 +4,16 @@
 \alias{enrichHeatmap}
 \title{Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
-enrichHeatmap(seEnrich = NULL, pal = paletteContinuous(set =
-  "white_blue_purple", n = 100), limits = c(0, 60), n = 10,
-  clusterCols = TRUE, clusterRows = TRUE, labelRows = TRUE, ...)
+enrichHeatmap(
+  seEnrich = NULL,
+  pal = paletteContinuous(set = "white_blue_purple", n = 100),
+  limits = c(0, 60),
+  n = 10,
+  clusterCols = TRUE,
+  clusterRows = TRUE,
+  labelRows = TRUE,
+  ...
+)
 }
 \arguments{
 \item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}

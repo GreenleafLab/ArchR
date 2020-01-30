@@ -7,9 +7,9 @@
 validBSgenome(genome = NULL, masked = FALSE)
 }
 \arguments{
-\item{genome}{The name of a valid genome (for example "hg38", "hg19", or "mm10"), name of a BSgenome package (BSgenome.Hsapiens.UCSC.hg19) or a BSgenome object.}
+\item{genome}{This option must be one of the following: (i) the name of a valid genome (for example "hg38", "hg19", or "mm10"), (ii) the name of a \code{BSgenome} package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a \code{BSgenome} object.}
 
-\item{masked}{A boolean describing whether or not to access the masked genome versino. See \code{BSgenome::getBSgenome()}.}
+\item{masked}{A boolean describing whether or not to access the masked version of the selected genome. See \code{BSgenome::getBSgenome()}.}
 }
 \description{
 This function will attempt to get or validate an input as a BSgenome.

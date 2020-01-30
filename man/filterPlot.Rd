@@ -4,8 +4,7 @@
 \alias{filterPlot}
 \title{Filter plot for cells in an ArchRProject}
 \usage{
-filterPlot(ArchRProj = NULL, filterList = NULL, sampleNames = NULL,
-  ...)
+filterPlot(ArchRProj = NULL, filterList = NULL, sampleNames = NULL, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -16,7 +15,7 @@ and the value corresponds to the filter criteria. A lower threshold is expected,
 cells are filtered (a higher threshold is optional and can be passed as a numeric vector along with the lower threshold).
 Only the first 2 filters will be plotted.}
 
-\item{sampleNames}{The sample names corresponding to the subset of samples to plot. If NULL, all samples are included.}
+\item{sampleNames}{The sample names corresponding to the subset of samples to plot. If \code{NULL}, all samples are included.}
 
 \item{...}{additional params}
 }

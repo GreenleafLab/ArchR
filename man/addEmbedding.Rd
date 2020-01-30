@@ -4,10 +4,20 @@
 \alias{addEmbedding}
 \title{Add an embedding of a reduced dimensions object to an ArchRProject}
 \usage{
-addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  embedding = "UMAP", embeddingOut = NULL, embeddingParams = list(),
-  dimsToUse = NULL, corCutOff = 0.75, saveModel = TRUE, seed = 1,
-  force = FALSE, threads = getArchRThreads(), ...)
+addEmbedding(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  embedding = "UMAP",
+  embeddingOut = NULL,
+  embeddingParams = list(),
+  dimsToUse = NULL,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  saveModel = FALSE,
+  seed = 1,
+  force = FALSE,
+  threads = getArchRThreads()
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -22,13 +32,15 @@ addEmbedding(ArchRProj = NULL, reducedDims = "IterativeLSI",
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
+\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by \code{addIterativeLSI}.}
+
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{saveModel}{A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding. Only relevant if \code{embedding} is "UMAP".}
+\item{saveModel}{A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding. Only relevant if \code{embedding} is set to "UMAP".}
 
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if the given \code{embeddingOut} already exists.}
+\item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding named by \code{embeddingOut} already exists.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

@@ -4,8 +4,7 @@
 \alias{paletteDiscrete}
 \title{Optimized discrete color palette generation}
 \usage{
-paletteDiscrete(set = "stallion", values = NULL, reverse = FALSE,
-  ...)
+paletteDiscrete(set = "stallion", values = NULL, reverse = FALSE, ...)
 }
 \arguments{
 \item{set}{The name of a color palette provided in the \code{ArchRPalettes} list object.}

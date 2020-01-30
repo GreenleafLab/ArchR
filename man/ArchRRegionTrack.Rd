@@ -4,15 +4,32 @@
 \alias{ArchRRegionTrack}
 \title{Plot an ArchR Region Track}
 \usage{
-ArchRRegionTrack(ArchRProj = NULL, region = NULL,
-  groupBy = "Clusters", useGroups = NULL, useCoverages = FALSE,
-  plotSummary = c("bulkTrack", "featureTrack", "geneTrack"),
-  sizes = c(10, 2, 4), features = getPeakSet(ArchRProj),
-  geneSymbol = NULL, upstream = 50000, downstream = 50000,
-  tileSize = 250, minCells = 25, normMethod = "ReadsInTSS",
-  threads = getArchRThreads(), ylim = NULL, baseSize = 7,
-  borderWidth = 0.4, tickWidth = 0.4, facetbaseSize = 7,
-  geneAnnotation = getGeneAnnotation(ArchRProj), title = "", ...)
+ArchRRegionTrack(
+  ArchRProj = NULL,
+  region = NULL,
+  groupBy = "Clusters",
+  useGroups = NULL,
+  useCoverages = FALSE,
+  plotSummary = c("bulkTrack", "featureTrack", "loopTrack", "geneTrack"),
+  sizes = c(10, 1.5, 3, 4),
+  features = getPeakSet(ArchRProj),
+  loops = getCoAccessibility(ArchRProj),
+  geneSymbol = NULL,
+  upstream = 50000,
+  downstream = 50000,
+  tileSize = 250,
+  minCells = 25,
+  normMethod = "ReadsInTSS",
+  threads = getArchRThreads(),
+  ylim = NULL,
+  baseSize = 7,
+  borderWidth = 0.4,
+  tickWidth = 0.4,
+  facetbaseSize = 7,
+  geneAnnotation = getGeneAnnotation(ArchRProj),
+  title = "",
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -29,7 +46,7 @@ ArchRRegionTrack(ArchRProj = NULL, region = NULL,
 
 \item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}. The order must be the same as \code{plotSummary}.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
 
 \item{geneSymbol}{If \code{region} is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
 

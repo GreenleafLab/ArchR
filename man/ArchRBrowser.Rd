@@ -4,16 +4,24 @@
 \alias{ArchRBrowser}
 \title{Launch ArchR Genome Browser}
 \usage{
-ArchRBrowser(ArchRProj = NULL, features = getPeakSet(ArchRProj),
-  minCells = 25, threads = getArchRThreads(), baseSize = 10,
-  borderWidth = 0.5, tickWidth = 0.5, facetbaseSize = 12,
+ArchRBrowser(
+  ArchRProj = NULL,
+  features = getPeakSet(ArchRProj),
+  loops = getCoAccessibility(ArchRProj),
+  minCells = 25,
+  threads = getArchRThreads(),
+  baseSize = 10,
+  borderWidth = 0.5,
+  tickWidth = 0.5,
+  facetbaseSize = 12,
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  browserTheme = "cosmo")
+  browserTheme = "cosmo"
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
 
 \item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}
 

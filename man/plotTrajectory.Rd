@@ -4,13 +4,29 @@
 \alias{plotTrajectory}
 \title{Visualize a Trajectory from ArchR Project}
 \usage{
-plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
-  trajectory = "Trajectory", colorBy = "colData",
-  name = "Trajectory", log2Norm = NULL, imputeWeights = NULL,
-  pal = NULL, size = 0.5, rastr = TRUE, quantCut = c(0.05, 0.95),
-  quantHex = 0.5, discreteSet = NULL, continuousSet = NULL,
-  randomize = TRUE, keepAxis = FALSE, baseSize = 6,
-  addArrow = TRUE, plotAs = NULL, plotParams = list(), ...)
+plotTrajectory(
+  ArchRProj = NULL,
+  embedding = "UMAP",
+  trajectory = "Trajectory",
+  colorBy = "colData",
+  name = "Trajectory",
+  log2Norm = NULL,
+  imputeWeights = NULL,
+  pal = NULL,
+  size = 0.5,
+  rastr = TRUE,
+  quantCut = c(0.05, 0.95),
+  quantHex = 0.5,
+  discreteSet = NULL,
+  continuousSet = NULL,
+  randomize = TRUE,
+  keepAxis = FALSE,
+  baseSize = 6,
+  addArrow = TRUE,
+  plotAs = NULL,
+  plotParams = list(),
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -26,7 +42,7 @@ For example if colorBy is \code{cellColData} then name refers to a column name i
 
 \item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values from \code{colorBy}.}
 
-\item{imputeWeights}{The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See \code{addImputationWeights()} and \code{getImutationWeights()} for more information.}
+\item{imputeWeights}{The weights to be used for imputing numerical values for each cell as a linear combination of other cells' values. See \code{addImputationWeights()} and \code{getImutationWeights()} for more information.}
 
 \item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for coloring cells.}
 
@@ -39,7 +55,7 @@ This prevents skewed color scales caused by strong outliers. The format of this 
 the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and set values below/above to the value of
 the 2.5th and 97.5th percentile values respectively.}
 
-\item{quantHex}{The xth quantile of all dots within each individual hexagon will determine the the numerical value for coloring to be displayed. This occurs when \code{plotAs} = "hex" or NULL (if numerical values by default).}
+\item{quantHex}{QQQ STILL UNCLEAR. The xth quantile of all dots within each individual hexagon will determine the the numerical value for coloring to be displayed. This occurs when \code{plotAs} = "hex" or \code{NULL} (if numerical values by default).}
 
 \item{discreteSet}{The name of a discrete palette from \code{ArchRPalettes} for visualizing \code{colorBy} in the embedding if a discrete color set is desired.}
 

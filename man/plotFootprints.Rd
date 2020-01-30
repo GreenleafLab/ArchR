@@ -4,13 +4,29 @@
 \alias{plotFootprints}
 \title{Plot footprints for an ArchRProject}
 \usage{
-plotFootprints(ArchRProj = NULL, positions = NULL,
-  plotName = "Plot-Footprints", groupBy = "Clusters",
-  useGroups = NULL, pal = NULL, flank = 250, flankNorm = 50,
-  smoothWindow = 10, minCells = 25, nTop = NULL,
-  normMethod = "none", inputSE = NULL, height = 6, width = 4,
-  addDOC = TRUE, useSink = TRUE, threads = getArchRThreads(),
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+plotFootprints(
+  ArchRProj = NULL,
+  positions = NULL,
+  plotName = "Plot-Footprints",
+  groupBy = "Clusters",
+  useGroups = NULL,
+  pal = NULL,
+  flank = 250,
+  flankNorm = 50,
+  smoothWindow = 10,
+  minCells = 25,
+  nTop = NULL,
+  normMethod = "none",
+  inputSE = NULL,
+  height = 6,
+  width = 4,
+  addDOC = TRUE,
+  useSink = TRUE,
+  threads = getArchRThreads(),
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -19,7 +35,7 @@ plotFootprints(ArchRProj = NULL, positions = NULL,
 
 \item{plotName}{The prefix to add to the file name for the output PDF file containing the footprint plots.}
 
-\item{groupBy}{The name of the column in \code{cellColData} used in \code{addGroupCoverages} for grouping multiple cells together (see \code{addGroupCoverages}).}
+\item{groupBy}{The name of the column in \code{cellColData} used in the \code{addGroupCoverages()} function for grouping multiple cells together.}
 
 \item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform footprinting.}
 

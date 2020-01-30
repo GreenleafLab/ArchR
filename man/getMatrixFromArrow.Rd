@@ -4,9 +4,16 @@
 \alias{getMatrixFromArrow}
 \title{Get a data matrix stored in an ArrowFile}
 \usage{
-getMatrixFromArrow(ArrowFile = NULL, useMatrix = "GeneScoreMatrix",
-  useSeqnames = NULL, cellNames = NULL, ArchRProj = NULL,
-  verbose = TRUE, binarize = FALSE, ...)
+getMatrixFromArrow(
+  ArrowFile = NULL,
+  useMatrix = "GeneScoreMatrix",
+  useSeqnames = NULL,
+  cellNames = NULL,
+  ArchRProj = NULL,
+  verbose = TRUE,
+  binarize = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ArrowFile}{The path to an ArrowFile from which the selected data matrix should be obtained.}
@@ -17,7 +24,7 @@ getMatrixFromArrow(ArrowFile = NULL, useMatrix = "GeneScoreMatrix",
 
 \item{cellNames}{A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using \code{getCellNames()}.}
 
-\item{ArchRProj}{An \code{ArchRProject} object to be used for getting additional information for cells in \code{cellColData}. This is useful when you want to keep information created while analyzing an ArchRProject.}
+\item{ArchRProj}{An \code{ArchRProject} object to be used for getting additional information for cells in \code{cellColData}. This is useful when QQQ STILL DOESNT MAKE SENSE TO ME you want to keep information created while analyzing an ArchRProject.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 

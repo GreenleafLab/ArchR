@@ -2,17 +2,31 @@
 % Please edit documentation in R/DoubletsScores.R
 \name{addDoubletScores}
 \alias{addDoubletScores}
-\title{Add Doublet Scores to a collection of Arrow files or an ArchRProject}
+\title{Add Doublet Scores to a collection of ArrowFiles or an ArchRProject}
 \usage{
-addDoubletScores(input = NULL, useMatrix = "TileMatrix", k = 10,
-  nTrials = 5, dimsToUse = 1:25, corCutOff = 0.75,
-  knnMethod = "UMAP", UMAPParams = list(),
-  LSIParams = list(sampleCells = NULL), outDir = "QualityControl",
-  threads = getArchRThreads(), parallelParam = NULL,
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+addDoubletScores(
+  input = NULL,
+  useMatrix = "TileMatrix",
+  k = 10,
+  nTrials = 5,
+  dimsToUse = 1:30,
+  scaleDims = TRUE,
+  LSIMethod = 2,
+  corCutOff = 0.75,
+  sampleCells = NULL,
+  knnMethod = "UMAP",
+  UMAPParams = list(),
+  LSIParams = list(),
+  outDir = "QualityControl",
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  ...
+)
 }
 \arguments{
-\item{input}{An \code{ArchRProject} object or a character vector containing the names of ArrowFiles to be used.}
+\item{input}{An \code{ArchRProject} object or a character vector containing the paths to the ArrowFiles to be used.}
 
 \item{useMatrix}{The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix" and "PeakMatrix".}
 
@@ -21,6 +35,8 @@ addDoubletScores(input = NULL, useMatrix = "TileMatrix", k = 10,
 \item{nTrials}{The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+
+\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 

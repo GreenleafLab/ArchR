@@ -4,11 +4,20 @@
 \alias{getTrajectory}
 \title{Get Supervised Trajectory from an ArchR Project}
 \usage{
-getTrajectory(ArchRProj = NULL, name = "Trajectory",
-  useMatrix = "GeneScoreMatrix", varCutOff = 0.9,
-  maxFeatures = 25000, groupEvery = 2, threads = getArchRThreads(),
-  log2Norm = TRUE, scaleTo = 10000, smooth = TRUE,
-  smoothFormula = "y ~ s(x, bs = 'cs')", ...)
+getTrajectory(
+  ArchRProj = NULL,
+  name = "Trajectory",
+  useMatrix = "GeneScoreMatrix",
+  varCutOff = 0.9,
+  maxFeatures = 25000,
+  groupEvery = 2,
+  threads = getArchRThreads(),
+  log2Norm = TRUE,
+  scaleTo = 10000,
+  smooth = TRUE,
+  smoothFormula = "y ~ s(x, bs = 'cs')",
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -17,7 +26,7 @@ getTrajectory(ArchRProj = NULL, name = "Trajectory",
 
 \item{useMatrix}{The name of the data matrix from the \code{ArrowFiles} to get numerical values for each cell from. Recommended matrices are "GeneScoreMatrix", "PeakMatrix", or "MotifMatrix".}
 
-\item{varCutOff}{The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory. Values above this quantile will be selected only.}
+\item{varCutOff}{QQQ DOUBLE CHECK The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory. QQQ Only features with a variance above the provided quantile will be retained.}
 
 \item{maxFeatures}{The maximum number of features, ordered by variance, to consider from \code{useMatrix} when generating a trajectory. This prevents smoothing a large number number of features which can be very time consuming.}
 
@@ -27,7 +36,7 @@ getTrajectory(ArchRProj = NULL, name = "Trajectory",
 
 \item{log2Norm}{A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed. If you are using a "MotifMatrix" set to FALSE.}
 
-\item{scaleTo}{Once the sequential trajectory matrix is created depth-normalize to this value to control biaes. Set to NULL to prevent this normalization. If you are using a "MotifMatrix" set to NULL.}
+\item{scaleTo}{Once the sequential trajectory matrix is created, each column in that matrix will be normalized to a column sum indicated by \code{scaleTo}. Setting this to \code{NULL} will prevent any normalization and should be done in certain circumstances (for ex. if you are using a "MotifMatrix").}
 
 \item{smooth}{A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.}
 

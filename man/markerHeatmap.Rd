@@ -4,12 +4,25 @@
 \alias{markerHeatmap}
 \title{Plot a Heatmap of Identified Marker Features}
 \usage{
-markerHeatmap(seMarker = NULL, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
-  log2Norm = TRUE, scaleTo = 10^4, scaleRows = TRUE,
-  plotLog2FC = FALSE, limits = c(-2, 2), grepExclude = NULL,
-  pal = NULL, binaryClusterRows = TRUE, labelMarkers = NULL,
-  nLabel = NULL, nPrint = 20, labelRows = FALSE, returnMat = FALSE,
-  invert = FALSE, ...)
+markerHeatmap(
+  seMarker = NULL,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  log2Norm = TRUE,
+  scaleTo = 10^4,
+  scaleRows = TRUE,
+  plotLog2FC = FALSE,
+  limits = c(-2, 2),
+  grepExclude = NULL,
+  pal = NULL,
+  binaryClusterRows = TRUE,
+  labelMarkers = NULL,
+  nLabel = NULL,
+  nPrint = 20,
+  labelRows = FALSE,
+  returnMat = FALSE,
+  invert = FALSE,
+  ...
+)
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{markerFeatures()}.}
@@ -18,7 +31,7 @@ markerHeatmap(seMarker = NULL, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
 
 \item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values in \code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like "DeviationsMatrix").}
 
-\item{scaleTo}{This numerical value to depth-normalize to prior to log2 Normalization, if log2Norm is FALSE this does nothing}
+\item{scaleTo}{QQQ DOUBLE CHECK Each column in the matrix from \code{seMarker} will be normalized to a column sum designated by \code{scaleTo} prior to log2 normalization. If log2Norm is \code{FALSE} this option has no effect.}
 
 \item{scaleRows}{A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.}
 
@@ -38,7 +51,7 @@ markerHeatmap(seMarker = NULL, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
 
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
-\item{invert}{A boolean value that indicates whether the heatmap will be inverted when sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).}
+\item{invert}{QQQ UNCLEAR. WHAT DO YOU MEAN BY SORTING FEATURES AND COLOR?? A boolean value that indicates whether the heatmap will be inverted when QQQ sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).}
 
 \item{...}{additional args}
 }

@@ -4,8 +4,7 @@
 \alias{filterDoublets}
 \title{Filter Doublets From an ArchRProject}
 \usage{
-filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf,
-  filterRatio = 1, ...)
+filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

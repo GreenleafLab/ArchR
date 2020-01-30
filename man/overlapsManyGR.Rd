@@ -2,10 +2,9 @@
 % Please edit documentation in R/GRangesUtils.R
 \name{overlapsManyGR}
 \alias{overlapsManyGR}
-\title{Overlap with many genomic regions.}
+\title{Overlap with many genomic regions}
 \usage{
-overlapsManyGR(query = NULL, subject = NULL, by = NULL,
-  ignoreStrand = TRUE)
+overlapsManyGR(query = NULL, subject = NULL, by = NULL, ignoreStrand = TRUE)
 }
 \arguments{
 \item{query}{A \code{GRanges} object to be used as the query in \code{GenomicRanges::findOverlaps()}.}

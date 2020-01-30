@@ -4,8 +4,7 @@
 \alias{getEmbedding}
 \title{Get embedding information stored in an ArchRProject}
 \usage{
-getEmbedding(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE,
-  ...)
+getEmbedding(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

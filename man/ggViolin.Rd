@@ -4,10 +4,21 @@
 \alias{ggViolin}
 \title{A ggplot-based violin plot wrapper function}
 \usage{
-ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
-  xOrder = NULL, addPoints = FALSE, size = 1, baseSize = 6,
-  ratioYX = NULL, sampleRatio = 0.1, title = "",
-  pal = paletteDiscrete(values = x, set = "stallion"), ...)
+ggViolin(
+  x = NULL,
+  y = NULL,
+  xlabel = NULL,
+  ylabel = NULL,
+  xOrder = NULL,
+  addPoints = FALSE,
+  size = 1,
+  baseSize = 6,
+  ratioYX = NULL,
+  sampleRatio = 0.1,
+  title = "",
+  pal = paletteDiscrete(values = x, set = "stallion"),
+  ...
+)
 }
 \arguments{
 \item{x}{A character vector containing the categorical x-axis values for each y-axis value.}
@@ -24,7 +35,7 @@ ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
 
 \item{size}{The line width for boxplot/summary lines.}
 
-\item{baseSize}{The base font size to use in the plot.}
+\item{baseSize}{The base font (in points) size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
@@ -32,7 +43,7 @@ ggViolin(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
 
 \item{title}{The title of the plot.}
 
-\item{pal}{A named custom palette (see \code{paletteDiscrete} and \code{ArchRPalettes}) for discrete coloring.}
+\item{pal}{A named custom palette (see \code{paletteDiscrete()} and \code{ArchRPalettes}) for discrete coloring.}
 }
 \description{
 This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.

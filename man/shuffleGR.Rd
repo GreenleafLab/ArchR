@@ -13,7 +13,7 @@ shuffleGR(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE)
 
 \item{n}{The number of permutations to perform during shuffling.}
 
-\item{shuffleChr}{A boolean value indicating whether to shuffle number of regions across chromosomes randomly based on the length of chromosomes (\code{TRUE}) or to use prior knowledge of the distribution of regions across the various chromosomes to create a shuffled set of ranges that is similarly distributed (\code{FALSE}).}
+\item{shuffleChr}{QQQ DOUBLE CHECK A boolean value indicating whether to shuffle the regions across chromosomes randomly based on the distribution of chromosome lengths (\code{TRUE}) or to use prior knowledge of the distribution of regions in \code{gr} across the various chromosomes to create a shuffled set of ranges that is similarly distributed (\code{FALSE}).}
 }
 \description{
 This function randomly shuffles a Genomic Ranges object.

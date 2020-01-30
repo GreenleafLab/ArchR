@@ -4,14 +4,19 @@
 \alias{markerPlot}
 \title{Plot Differential Markers}
 \usage{
-markerPlot(seMarker = NULL, name = NULL,
-  cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5", plotAs = "Volcano",
-  scaleTo = 10^4, ...)
+markerPlot(
+  seMarker = NULL,
+  name = NULL,
+  cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
+  plotAs = "Volcano",
+  scaleTo = 10^4,
+  ...
+)
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
-\item{name}{The name of a column (ie cell grouping in \code{groupBy}/\code{useGroups} for \code{markerFeatures}) in \code{seMarker} to be plotted. To see available options try \code{colnames(seMarker)}.}
+\item{name}{The name of a column (ie cell grouping in \code{groupBy}/\code{useGroups} for \code{markerFeatures()}) in \code{seMarker} to be plotted. To see available options try \code{colnames(seMarker)}.}
 
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 

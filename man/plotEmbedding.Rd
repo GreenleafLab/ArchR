@@ -4,12 +4,26 @@
 \alias{plotEmbedding}
 \title{Visualize an Embedding from ArchR Project}
 \usage{
-plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
-  colorBy = "cellColData", name = "Sample", log2Norm = NULL,
-  imputeWeights = NULL, pal = NULL, size = 0.5, rastr = TRUE,
-  quantCut = c(0.01, 0.99), discreteSet = NULL, continuousSet = NULL,
-  randomize = TRUE, keepAxis = FALSE, baseSize = 10, plotAs = NULL,
-  plotParams = list(), ...)
+plotEmbedding(
+  ArchRProj = NULL,
+  embedding = "UMAP",
+  colorBy = "cellColData",
+  name = "Sample",
+  log2Norm = NULL,
+  imputeWeights = NULL,
+  pal = NULL,
+  size = 0.5,
+  rastr = TRUE,
+  quantCut = c(0.01, 0.99),
+  discreteSet = NULL,
+  continuousSet = NULL,
+  randomize = TRUE,
+  keepAxis = FALSE,
+  baseSize = 10,
+  plotAs = NULL,
+  plotParams = list(),
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -53,7 +53,6 @@ addIterativeLSI <- function(
   filterQuantile = 0.995,
   saveIterations = TRUE,
   outDir = getOutputDirectory(ArchRProj),
-  clusterParams = list(),
   runHarmony = FALSE,
   harmonyParams = list(),
   threads = getArchRThreads(),

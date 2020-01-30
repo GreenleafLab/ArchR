@@ -4,13 +4,20 @@
 \alias{addFeatureMatrix}
 \title{Add a feature matrix to an ArchRProject or a set of ArrowFiles}
 \usage{
-addFeatureMatrix(input = NULL, features = NULL,
-  matrixName = "FeatureMatrix", ceiling = 10^9, binarize = FALSE,
-  threads = getArchRThreads(), parallelParam = NULL, force = TRUE,
-  ...)
+addFeatureMatrix(
+  input = NULL,
+  features = NULL,
+  matrixName = "FeatureMatrix",
+  ceiling = 10^9,
+  binarize = FALSE,
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  force = TRUE,
+  ...
+)
 }
 \arguments{
-\item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
+\item{input}{An \code{ArchRProject} object or character vector of paths to ArrowFiles.}
 
 \item{features}{A \code{GRanges} object containing the regions (aka features) to use for counting insertions for each cell.}
 
@@ -24,7 +31,7 @@ addFeatureMatrix(input = NULL, features = NULL,
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the \code{input}.}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the \code{input}.}
 }
 \description{
 This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.

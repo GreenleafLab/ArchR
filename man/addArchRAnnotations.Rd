@@ -4,8 +4,14 @@
 \alias{addArchRAnnotations}
 \title{Add ArchR annotations to an ArchRProject}
 \usage{
-addArchRAnnotations(ArchRProj = NULL, db = "LOLA",
-  collection = "EncodeTFBS", name = collection, force = FALSE, ...)
+addArchRAnnotations(
+  ArchRProj = NULL,
+  db = "LOLA",
+  collection = "EncodeTFBS",
+  name = collection,
+  force = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
