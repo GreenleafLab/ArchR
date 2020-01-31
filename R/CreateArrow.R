@@ -36,7 +36,7 @@
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param verboseHeader A boolean value that determines whether standard output should include verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output should include verbose subsections.
-#' @param ... additional args
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 #' 
 createArrowFiles <- function(
@@ -176,7 +176,7 @@ createArrowFiles <- function(
   verboseAll = FALSE,
   tstart = NULL,
   subThreads = 1,
-  ...
+  ... #QQQ
   ){
 
   if(is.null(tstart)){
@@ -478,8 +478,7 @@ createArrowFiles <- function(
 .fastFragmentInfo <- function(
   ArrowFile = NULL,
   cellNames = .availableCells(ArrowFile),
-  nucLength = 147,
-  ...
+  nucLength = 147
   ){
 
   #Info to get
@@ -532,8 +531,7 @@ createArrowFiles <- function(
   norm = 100, 
   flank = 2000, 
   minNorm = 1, 
-  threads = 1,
-  ...
+  threads = 1
   ){
 
   tstart <- Sys.time()
@@ -690,8 +688,7 @@ createArrowFiles <- function(
   verboseAll = FALSE,
   prefix = "",
   tstart = NULL,
-  threads = 1,
-  ...
+  threads = 1
   ){
 
   .requirePackage("Rsamtools")
@@ -909,8 +906,7 @@ createArrowFiles <- function(
   verboseAll = FALSE,
   prefix = "",
   tstart = NULL,
-  threads = 1,
-  ...
+  threads = 1
   ){
 
   .requirePackage("Rsamtools")
@@ -1189,8 +1185,7 @@ createArrowFiles <- function(
   verboseHeader = TRUE,
   verboseAll = FALSE,
   tstart = NULL,
-  prefix = "",
-  ...
+  prefix = ""
   ){
 
   if(is.null(tstart)){
@@ -1325,8 +1320,7 @@ createArrowFiles <- function(
   chromSizes = NULL,
   genome = NULL,
   minFrags = 500, 
-  sampleName = NULL, 
-  ...
+  sampleName = NULL
   ){
 
   tstart <- Sys.time()

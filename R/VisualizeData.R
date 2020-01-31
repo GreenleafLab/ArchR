@@ -27,7 +27,6 @@
 #' @param baseSize The base font size to use in the plot.
 #' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default if `colorBy` is numeric this is "hex".
 #' @param plotParams Additional parameters to pass to `ggPoint()` or `ggHex()`.
-#' @param ... additional args
 #' @export
 plotEmbedding <- function(
   ArchRProj = NULL,
@@ -46,8 +45,7 @@ plotEmbedding <- function(
   keepAxis = FALSE,
   baseSize = 10,
   plotAs = NULL,
-  plotParams = list(),
-  ...
+  plotParams = list()
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -217,7 +215,6 @@ plotEmbedding <- function(
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param addPoints A boolean value that indicates whether points should be added to the plot using `ggplot2::geom_quasirandom()`.
-#' @param ... additional args
 #' @export
 plotGroups <- function(
   ArchRProj = NULL, 
@@ -231,8 +228,7 @@ plotGroups <- function(
   size = 0.5, 
   baseSize = 6, 
   ratioYX = 0.5, 
-  addPoints = FALSE, 
-  ...
+  addPoints = FALSE
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -373,8 +369,7 @@ plotGroups <- function(
   margin = 0.25,
   height = 1,
   it = 0.05,
-  newPage = FALSE,
-  ...
+  newPage = FALSE
   ){
 
   .requirePackage("grid")

@@ -23,7 +23,7 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... additional args
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addDoubletScores <- function(
   input = NULL,
@@ -137,7 +137,7 @@ addDoubletScores <- function(
   subThreads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
-  ...
+  ...#QQQ
   ){
 
   tstart <- Sys.time()
@@ -608,9 +608,8 @@ addDoubletScores <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param bestFiles The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the `ArchRProject`.
 #' @param sampleNames The sample names corresponding to the .best files. These must match the sample names present in the `ArchRProject`.
-#' @param ... additional args
 #' @export
-addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames = NULL, ...){
+addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames = NULL){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = bestFiles, name = "bestFiles", valid = c("character"))

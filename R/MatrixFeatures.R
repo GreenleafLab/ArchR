@@ -14,6 +14,7 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the `input`.
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addFeatureMatrix <- function(
   input = NULL,
@@ -24,7 +25,7 @@ addFeatureMatrix <- function(
   threads = getArchRThreads(),
   parallelParam = NULL,
   force = TRUE,
-  ...
+  ...#QQQ
 ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -54,7 +55,7 @@ addFeatureMatrix <- function(
   }
 
   #Add args to list
-  args <- mget(names(formals()),sys.frame(sys.nframe()))
+  args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
   args$ArrowFiles <- ArrowFiles
   args$allCells <- allCells
   args$X <- seq_along(ArrowFiles)
@@ -83,6 +84,7 @@ addFeatureMatrix <- function(
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the "PeakMatrix" to be overwritten if it already exist in the given `ArchRProject`.
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addPeakMatrix <- function(
   ArchRProj = NULL,
@@ -91,7 +93,7 @@ addPeakMatrix <- function(
   threads = getArchRThreads(),
   parallelParam = NULL,
   force = TRUE,
-  ...
+  ...#QQQ
 ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -144,7 +146,7 @@ addPeakMatrix <- function(
   ceiling = 4, 
   binarize = FALSE,
   force = FALSE,
-  ...
+  ...#QQQ
   ){
 
   ArrowFile <- ArrowFiles[i]

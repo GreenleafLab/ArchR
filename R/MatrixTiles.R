@@ -16,6 +16,7 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given `input`.
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addTileMatrix <- function(
   input = NULL,
@@ -27,7 +28,7 @@ addTileMatrix <- function(
   threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
-  ...
+  ...#QQQ
   ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -87,7 +88,7 @@ addTileMatrix <- function(
   blacklist = NULL, 
   chromLengths = NULL, 
   force = FALSE,
-  ...
+  ...#QQQ
   ){
 
   .validInput(input = i, name = "i", valid = c("integer"))

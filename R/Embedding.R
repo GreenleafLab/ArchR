@@ -18,7 +18,6 @@
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding named by `embeddingOut` already exists.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param ... additional args
 #' @export
 addEmbedding <- function(
   ArchRProj = NULL,

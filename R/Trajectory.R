@@ -18,7 +18,6 @@
 #' @param dof The number of degrees of freedom to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param spar The sparsity to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... additional args
 #' @export
 addTrajectory <- function(
   ArchRProj = NULL,
@@ -31,8 +30,7 @@ addTrajectory <- function(
   postFilterQ = 0.9, 
   dof = 250,
   spar = 1,
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
     .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -191,8 +189,7 @@ addTrajectory <- function(
         data = dfTrajectory3$Trajectory,
         name = name,
         cells = rownames(dfTrajectory3),
-        force = force,
-        ...
+        force = force
     )
 
     ArchRProj
@@ -215,7 +212,6 @@ addTrajectory <- function(
 #' @param scaleTo Once the sequential trajectory matrix is created, each column in that matrix will be normalized to a column sum indicated by `scaleTo`. Setting this to `NULL` will prevent any normalization and should be done in certain circumstances (for ex. if you are using a "MotifMatrix").
 #' @param smooth A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.
 #' @param smoothFormula The smoothing formula to use in the generalized additive model. See the `formula` parameter in `mgcv::gam()` for additional information.
-#' @param ... additional args
 #' @export
 getTrajectory <- function(
   ArchRProj = NULL,
@@ -228,8 +224,7 @@ getTrajectory <- function(
   log2Norm = TRUE,
   scaleTo = 10000,
   smooth = TRUE,
-  smoothFormula = "y ~ s(x, bs = 'cs')",
-  ...
+  smoothFormula = "y ~ s(x, bs = 'cs')"
   ){
 
     .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -355,7 +350,7 @@ getTrajectory <- function(
 #' @param labelTop A number indicating how many of the top N features, based on variance, in `seTrajectory` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param ... additional args
+#' @param ... QQQ THIS IS A HIDDEN FUNCTION Additional parameters to be passed to .ArchRHeatmap.
 #' @export
 trajectoryHeatmap <- function(
   seTrajectory = NULL,
@@ -367,7 +362,7 @@ trajectoryHeatmap <- function(
   labelTop = 50,
   labelRows = FALSE,
   returnMat = FALSE,
-  ...
+  ... #QQQ
   ){
 
   .validInput(input = seTrajectory, name = "seTrajectory", valid = c("SummarizedExperiment"))
@@ -421,7 +416,7 @@ trajectoryHeatmap <- function(
 
   idx <- order(apply(mat, 1, which.max))
 
-  ht <- ArchR:::.ArchRHeatmap(
+  ht <- .ArchRHeatmap(
     mat = mat[idx, ],
     scale = FALSE,
     limits = c(min(mat), max(mat)),
@@ -432,8 +427,8 @@ trajectoryHeatmap <- function(
     labelCols = FALSE,
     customRowLabel = match(idxLabel, rownames(mat[idx,])),
     showColDendrogram = TRUE,
-    draw = FALSE,
-    ...
+    draw = FALSE
+    #...#QQQ
   )
 
   if(returnMat){
@@ -473,7 +468,6 @@ trajectoryHeatmap <- function(
 #' @param addArrow A boolean value that indicates whether to add a smoothed arrow in the embedding based on the aligned trajectory.
 #' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default if `colorBy` is numeric this is "hex".
 #' @param plotParams Additional parameters to pass to `ggPoint()` or `ggHex()`.
-#' @param ... additional args
 #' @export
 plotTrajectory <- function(
   ArchRProj = NULL,
@@ -495,8 +489,7 @@ plotTrajectory <- function(
   baseSize = 6,
   addArrow = TRUE,
   plotAs = NULL,
-  plotParams = list(),
-  ...
+  plotParams = list()
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))

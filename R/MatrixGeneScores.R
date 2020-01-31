@@ -23,6 +23,7 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
@@ -41,7 +42,7 @@ addGeneScoreMatrix <- function(
   parallelParam = NULL,
   subThreading = TRUE,
   force = FALSE,
-  ...
+  ...#QQQ
   ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -132,7 +133,7 @@ addGeneScoreMatrix <- function(
   force = FALSE,
   tmpFile = NULL,
   subThreads = 1,
-  ...
+  ...#QQQ
   ){
 
   .validInput(input = i, name = "i", valid = c("integer"))

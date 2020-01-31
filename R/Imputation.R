@@ -17,7 +17,6 @@
 #' imputation for numerical values within these cells. ArchR creates many blocks to keep this cell x cell matrix sparse for memory concerns.
 #' @param k The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).
 #' @param epsilon The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).
-#' @param ... additional params
 #' @export
 addImputeWeights <- function(
   ArchRProj = NULL,
@@ -29,8 +28,7 @@ addImputeWeights <- function(
   ka = 4,
   sampleCells = max(5000, floor(nCells(ArchRProj) / 10)),
   k = 15,
-  epsilon = 1,
-  ...
+  epsilon = 1
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -162,9 +160,8 @@ addImputeWeights <- function(
 #' This function gets imputation weights from an ArchRProject to impute numeric values.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getImputeWeights <- function(ArchRProj = NULL, ...){
+getImputeWeights <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   ArchRProj@imputeWeights
 }
