@@ -875,7 +875,7 @@ getReducedDims <- function(
   if(is.null(xm)){
     xm <- colMeans(x)
   }
-  if(is.null(xm)){
+  if(is.null(xs)){
     xs <- matrixStats::colSds(x)
   }
   log2Vars <- sqrt(log2(xs^2 + 1))
