@@ -296,45 +296,6 @@ createArrowFiles <- function(
   gc()
   
   #############################################################
-  #Compute Fragment Information!
-  #############################################################
-  .messageDiffTime(sprintf("%s Adding Fragment Summary", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
-
-  fragSummary <- .fastFragmentInfo(ArrowFile = ArrowFile, cellNames = .availableCells(ArrowFile), nucLength = nucLength)
-  Metadata <- fragSummary[[1]]
-  plot <- tryCatch({
-    
-    tmpFile <- .tempfile()
-    sink(tmpFile)
-
-    dir.create(outDir, showWarnings = FALSE)
-    pdf(file.path(outDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=4,height=3,onefile=FALSE)
-    plotDF <- data.frame(
-      x = seq_along(fragSummary[[2]]), 
-      percent = 100 * fragSummary[[2]]/sum(fragSummary[[2]])
-    )
-    gg <- ggplot(plotDF, aes(x = x, y = percent)) + theme_ArchR() + 
-          geom_line(col = "darkblue", size = 0.25) + 
-          coord_cartesian(xlim = c(1,750), ylim = c(0, max(plotDF$percent) * 1.1), expand = FALSE) + 
-          xlab("Size of Fragments (bp) \n") + 
-          ylab("Fragments (%)") + 
-          ggtitle(paste0(sampleName,"\nFragment Size Distribution"))
-    print(.fixPlotSize(gg, plotWidth = 4.5, plotHeight = 3.5, height = 3/4))
-    dev.off()
-
-    sink()
-    file.remove(tmpFile)
-
-  }, error = function(x){
-
-      .messageDiffTime("Continuing through after error ggplot for Fragment Size Distribution", tstart)
-      print(x)
-      message("\n")
-
-  })
-  gc()
-
-  #############################################################
   #Compute TSS Enrichment Scores Information!
   #############################################################
   .messageDiffTime(sprintf("%s Computing TSS Enrichment Scores", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
@@ -425,6 +386,44 @@ createArrowFiles <- function(
     o <- h5write(obj = Metadata$ReadsInTSS[idx], file = ArrowFile, name = "Metadata/ReadsInTSS")
   }
 
+  #############################################################
+  #Compute Fragment Information!
+  #############################################################
+  .messageDiffTime(sprintf("%s Adding Fragment Summary", prefix), tstart, verbose = verboseHeader, addHeader = verboseAll)
+
+  fragSummary <- .fastFragmentInfo(ArrowFile = ArrowFile, cellNames = .availableCells(ArrowFile), nucLength = nucLength)
+  Metadata <- fragSummary[[1]]
+  plot <- tryCatch({
+    
+    tmpFile <- .tempfile()
+    sink(tmpFile)
+
+    dir.create(outDir, showWarnings = FALSE)
+    pdf(file.path(outDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=4,height=3,onefile=FALSE)
+    plotDF <- data.frame(
+      x = seq_along(fragSummary[[2]]), 
+      percent = 100 * fragSummary[[2]]/sum(fragSummary[[2]])
+    )
+    gg <- ggplot(plotDF, aes(x = x, y = percent)) + theme_ArchR() + 
+          geom_line(col = "darkblue", size = 0.5) + 
+          coord_cartesian(xlim = c(1,750), ylim = c(0, max(plotDF$percent) * 1.1), expand = FALSE) + 
+          xlab("Size of Fragments (bp) \n") + 
+          ylab("Fragments (%)") + 
+          ggtitle(paste0(sampleName,"\nFragment Size Distribution"))
+    print(.fixPlotSize(gg, plotWidth = 4.5, plotHeight = 3.5, height = 3/4))
+    dev.off()
+
+    sink()
+    file.remove(tmpFile)
+
+  }, error = function(x){
+
+      .messageDiffTime("Continuing through after error ggplot for Fragment Size Distribution", tstart)
+      print(x)
+      message("\n")
+
+  })
+  gc()
 
   #############################################################
   # Create Tile Matrix

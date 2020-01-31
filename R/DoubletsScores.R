@@ -128,6 +128,8 @@ addDoubletScores <- function(
   nTrials = 5,
   dimsToUse = 1:25,
   corCutOff = 0.75,
+  LSIMethod = 1,
+  scaleDims = FALSE,
   k = 10,
   nSample = 1000,
   knnMethod = "UMAP",
@@ -140,7 +142,7 @@ addDoubletScores <- function(
 
   tstart <- Sys.time()
   ArrowFile <- ArrowFiles[i]
-  sampleName <- ArchR:::.sampleName(ArrowFile)
+  sampleName <- .sampleName(ArrowFile)
   outDir <- file.path(outDir, sampleName)
   dir.create(outDir, showWarnings = FALSE)
 
@@ -149,7 +151,7 @@ addDoubletScores <- function(
   #################################################
   # 1. Create ArchRProject For Iterative LSI
   #################################################
-  tmpDir <- ArchR:::.tempfile()
+  tmpDir <- .tempfile()
   dir.create(tmpDir)
   proj <- suppressMessages(ArchRProject(
     ArrowFiles = ArrowFile,
@@ -241,13 +243,13 @@ addDoubletScores <- function(
     simDoublets <- SimpleList(
       doubletUMAP=simDoubletsSave$doubletUMAP,
       doubletScore=simDoubletsSave$doubletScoreLSI,
-      doubletEnrich=simDoubletsSave$doubletEnrichLSI,
+      doubletEnrich=simDoubletsSave$doubletEnrichLSI
     )
   }else{
     simDoublets <- SimpleList(
       doubletUMAP=simDoubletsSave$doubletUMAP,
       doubletScore=simDoubletsSave$doubletScoreUMAP,
-      doubletEnrich=simDoubletsSave$doubletEnrichUMAP,
+      doubletEnrich=simDoubletsSave$doubletEnrichUMAP
     )    
   }
 
@@ -255,7 +257,8 @@ addDoubletScores <- function(
   # 5. Plot / Save Results
   #################################################
 
-  pal <- c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF") #grey magma
+  pal <- c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF") #grey_magma
+  #pal <- c("grey", "#3A97FF", "#8816A7", "black")
 
   #Create Plot DF
   df <- data.frame(row.names = rownames(LSI$matSVD), uwotUmap[[1]], type = "experiment")
@@ -267,7 +270,7 @@ addDoubletScores <- function(
   doubUMAP <- simDoublets$doubletUMAP
   dfDoub <- data.frame(
     row.names = paste0("doublet_", seq_len(nrow(doubUMAP))), 
-    ArchR:::.getDensity(doubUMAP[,1], doubUMAP[,2]), 
+    .getDensity(doubUMAP[,1], doubUMAP[,2]), 
     type = "simulated_doublet"
   )
   dfDoub <- dfDoub[order(dfDoub$density), , drop = FALSE]
@@ -346,8 +349,8 @@ addDoubletScores <- function(
       xlab = "UMAP Dimension 1",
       ylab = "UMAP Dimension 2",
       pal = pal,
-      title = "Doublet Scores -log10(FDR)",
-      colorTitle = "Doublet Scores -log10(FDR)",
+      title = "Doublet Scores -log10(P-adj.)",
+      colorTitle = "Doublet Scores -log10(P-adj.)",
       rastr = TRUE,
       baseSize = 10
       ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
@@ -446,6 +449,8 @@ addDoubletScores <- function(
 
   simLSI <- .safelapply(seq_len(nTrials), function(y){
 
+    message(".", appendLF = FALSE)
+
     if(y %% 5 == 0){
       gc()
     }
@@ -469,14 +474,15 @@ addDoubletScores <- function(
 
 
   }, threads = threads) %>% Reduce("rbind", .)
+  message("\n")
 
   #Compute original
   ogLSI <- suppressMessages(.projectLSI(mat, LSI))
 
   #Merge
   allLSI <- rbind(simLSI[, LSI$dimsKept, drop = FALSE], ogLSI[, LSI$dimsKept, drop = FALSE])
-  nSim <- nrow(simLSI)
-  if(nSim==0){
+  nSimLSI <- nrow(simLSI)
+  if(nSimLSI==0){
     stop("Simulations must be greater than 0! Please adjust nTrials!")
   }
   rm(simLSI)
@@ -497,28 +503,29 @@ addDoubletScores <- function(
   )
 
   corProjection <- list(
-    LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(allLSI[-seq_len(nSim), x], LSI$matSVD[, x]) )),
+    LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(allLSI[-seq_len(nSimLSI), x], LSI$matSVD[, x]) )),
     UMAP =  c(
-        dim1 = cor(uwotUmap[[1]][,1], umapProject[-seq_len(nSim), 1]),
-        dim2 = cor(uwotUmap[[1]][,2], umapProject[-seq_len(nSim), 2])
+        dim1 = cor(uwotUmap[[1]][,1], umapProject[-seq_len(nSimLSI), 1]),
+        dim2 = cor(uwotUmap[[1]][,2], umapProject[-seq_len(nSimLSI), 2])
       )
   )
   names(corProjection[[1]]) <- paste0("SVD", LSI$dimsKept)
 
   message("UMAP Projection R^2 = ", round(mean(corProjection[[2]])^2, 5))
 
-  if(min(unlist(corProjection)) < 0.9){
-    stop("Correlation of UMAP Projection is below 0.9 (normally this is ~0.99+), This means there is a bug with the projection code. Please immediately report this!")
+  if(mean(corProjection[[2]]) < 0.85){
+    stop("Correlation of UMAP Projection is below 0.85 (normally this is ~0.99+), This means there is a bug with the projection code. Please immediately report this!")
   }
 
   out <- SimpleList(
-    doubletUMAP = umapProject
+    doubletUMAP = umapProject[seq_len(nSimLSI), ],
+    projectionCorrelation = corProjection
   )
 
   ##############################################################################
   # Compute Doublet Scores from LSI (TF-IDF + SVD)
   ##############################################################################
-  knnDoub <- .computeKNN(allLSI[-seq_len(nSim),], allLSI[seq_len(nSim),], k)
+  knnDoub <- .computeKNN(allLSI[-seq_len(nSimLSI),], allLSI[seq_len(nSimLSI),], k)
   
   #Compile KNN Sums
   countKnn <- rep(0, nrow(LSI$matSVD))
@@ -549,12 +556,13 @@ addDoubletScores <- function(
 
   #Store Results
   out$doubletEnrichLSI <- doubletEnrich
-  out$doubletScoresLSI <- doubletScore
+  out$doubletScoreLSI <- doubletScore
+
 
   ##############################################################################
   # Compute Doublet Scores from LSI (TF-IDF + SVD) + UMAP Embedding
   ##############################################################################
-  knnDoub <- .computeKNN(allLSI[-seq_len(nSim),], allLSI[seq_len(nSim),], k)
+  knnDoub <- .computeKNN(umapProject[-seq_len(nSimLSI),], umapProject[seq_len(nSimLSI),], k)
   
   #Compile KNN Sums
   countKnn <- rep(0, nrow(LSI$matSVD))
@@ -585,7 +593,7 @@ addDoubletScores <- function(
 
   #Store Results
   out$doubletEnrichUMAP <- doubletEnrich
-  out$doubletScoresUMAP <- doubletScore
+  out$doubletScoreUMAP <- doubletScore
 
   #Save Output
   out
