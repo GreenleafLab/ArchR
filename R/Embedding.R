@@ -96,7 +96,9 @@ addEmbedding <- function(
   if(tolower(embedding)=="umap"){
 
     .requirePackage("uwot")
-    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
+    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, 
+      corCutOff = corCutOff, scaleDims = scaleDims)
+
     if(saveModel){
       message("Saving UMAP model not currently supported (will be shortly), running without model!")
       #embeddingParams$ret_nn <- TRUE
@@ -119,7 +121,9 @@ addEmbedding <- function(
   }else if(tolower(embedding)=="rtsne"){
 
     .requirePackage("Rtsne")
-    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
+    embeddingParams$X <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, 
+      corCutOff = corCutOff, scaleDims = scaleDims)
+
     embeddingParams$pca <- FALSE
     Rtsne_tsne <- do.call(Rtsne::Rtsne, embeddingParams)
     dfEmbedding <- data.frame(Rtsne_tsne$Y)   
@@ -129,7 +133,9 @@ addEmbedding <- function(
   }else if(tolower(embedding)=="fftrtsne" | tolower(embedding)=="fit-tsne"){
 
     .requirePackage("Seurat")
-    embeddingParams$object <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
+    embeddingParams$object <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, 
+      corCutOff = corCutOff, scaleDims = scaleDims)
+    
     embeddingParams$assay <- NULL
     embeddingParams$dim.embed <- 2
     embeddingParams$tsne.method <- "FIt-SNE"
