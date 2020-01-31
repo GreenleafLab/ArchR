@@ -16,7 +16,6 @@
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
 #' @param browserTheme A `shinytheme` from shinythemes for viewing the ArchR Browser. If not installed this will be NULL. To install try devtools::install_github("rstudio/shinythemes").
-#' @param ... additional args
 #' @export
 ArchRBrowser <- function(
   ArchRProj = NULL,
@@ -306,7 +305,7 @@ ArchRBrowser <- function(
 
             useGroups <- groupDF[groupDF[,"include"],"group"]
 
-            .isColor <- function(x) {
+            .isColor <- function(x = NULL) {
                 unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), 
                   error = function(e) FALSE)))
             }
@@ -444,7 +443,7 @@ ArchRBrowser <- function(
             groupDF <- isolate(hot_to_r(input$Metadata))
             useGroups <- groupDF[groupDF[,"include"],"group"]
 
-            .isColor <- function(x) {
+            .isColor <- function(x = NULL) {
                 unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), 
                   error = function(e) FALSE)))
             }
@@ -608,7 +607,6 @@ ArchRBrowser <- function(
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
-#' @param ... additional args
 #' @export
 ArchRRegionTrack <- function(
   ArchRProj = NULL, 
@@ -633,8 +631,7 @@ ArchRRegionTrack <- function(
   tickWidth = 0.4,
   facetbaseSize = 7,
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  title = "",
-  ...
+  title = ""
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
@@ -799,8 +796,7 @@ ArchRRegionTrack <- function(
   pal = NULL,
   useCoverages = TRUE,
   tstart = NULL,
-  verbose = FALSE,
-  ...
+  verbose = FALSE
   ){
 
   .requirePackage("ggplot2")
@@ -972,7 +968,8 @@ ArchRRegionTrack <- function(
   region = NULL,
   tileSize = 100,
   buffer = 1000,
-  threads = 1){
+  threads = 1
+  ){
   
   region <- .validGRanges(region[1])
   coverageFiles <- coverageMetadata$File
@@ -1188,8 +1185,7 @@ ArchRRegionTrack <- function(
   labelSize = 2,
   facetbaseSize,
   colorMinus = "dodgerblue2",
-  colorPlus = "red",
-  ...
+  colorPlus = "red"
   ){
 
   .requirePackage("ggplot2")
@@ -1323,8 +1319,7 @@ ArchRRegionTrack <- function(
   featureWidth = 2, 
   borderWidth = 0.4, 
   hideX = FALSE, 
-  hideY = FALSE,
-  ...
+  hideY = FALSE
   ){
 
   .requirePackage("ggplot2")

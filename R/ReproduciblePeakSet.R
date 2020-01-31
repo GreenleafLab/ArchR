@@ -31,7 +31,6 @@
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... additional args
 #' @export
 addReproduciblePeakSet <- function(
 	ArchRProj = NULL,
@@ -57,8 +56,7 @@ addReproduciblePeakSet <- function(
 	parallelParam = NULL,
 	force = FALSE,
 	verboseHeader = TRUE,
-	verboseAll = FALSE,
-	...
+	verboseAll = FALSE
 	){
 
 	.validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -242,7 +240,7 @@ addReproduciblePeakSet <- function(
 			groupBy = groupBy,
 			returnGroups = TRUE,
 			minCells = minCells,
-			...
+			...#QQQ
 		)[[1]]$cellGroups
 
 		#####################################################
@@ -633,8 +631,7 @@ addReproduciblePeakSet <- function(
 	peakParams = NULL,
 	bedDir = NULL,
 	excludeChr = NULL,
-	tstart = NULL,
-	...
+	tstart = NULL
 	){
 	
 	.messageDiffTime(sprintf("Group %s of %s, Calling Peaks with MACS2!", i, length(coverageFiles)), tstart)
@@ -671,8 +668,7 @@ addReproduciblePeakSet <- function(
 	extsize = 150, 
 	cutOff = 0.05, 
 	method = "q",
-	additionalParams = "--nomodel --nolambda",
-	...
+	additionalParams = "--nomodel --nolambda"
 	){
 
 	stopifnot(tolower(method) %in% c("p","q"))

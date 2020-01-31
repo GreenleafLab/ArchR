@@ -16,7 +16,7 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the CNV matrix to be overwritten if it already exists for `input`.
-#' @export
+#' @param ... QQQ Additional parameters to be passed to QQQ
 addCNVMatrix <- function(
   input = NULL,
   chromSizes = getChromSizes(input),
@@ -28,7 +28,7 @@ addCNVMatrix <- function(
   threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
-  ...
+  ...#QQQ
   ){
 
   .validInput(input = input, name = "input", valid = c("character", "ArchRProj"))
@@ -96,7 +96,7 @@ addCNVMatrix <- function(
   allCells = NULL,
   windows = NULL,
   force = FALSE,
-  ...
+  ...#QQQ
   ){
 
   ArrowFile <- ArrowFiles[i]

@@ -18,7 +18,6 @@
 #' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... additional args
 #' @export
 addGroupCoverages <- function(
   ArchRProj = NULL,
@@ -36,8 +35,7 @@ addGroupCoverages <- function(
   parallelParam = NULL,
   force = FALSE,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -255,8 +253,7 @@ addGroupCoverages <- function(
   covDir = NULL, 
   tstart = NULL, 
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   .messageDiffTime(sprintf("Creating Group Coverage %s of %s", i, length(cellGroups)), tstart, verbose = verboseHeader)

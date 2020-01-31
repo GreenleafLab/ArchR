@@ -6,8 +6,7 @@
   featureDF = NULL,
   params = NULL,
   date = Sys.Date(),
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   #Add Group Entry of SparseMatrix Format
@@ -102,8 +101,8 @@
   addRowSums = FALSE,
   addColSums = FALSE,
   addRowVars = FALSE,
-  addRowMeans = FALSE,
-  ...){
+  addRowMeans = FALSE
+  ){
 
   stopifnot(inherits(mat, "dgCMatrix"))
 

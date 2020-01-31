@@ -32,7 +32,6 @@
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
-#' @param ... additional args
 #' @export
 addIterativeLSI <- function(
   ArchRProj = NULL, 
@@ -59,8 +58,7 @@ addIterativeLSI <- function(
   seed = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
-  force = FALSE,
-  ...
+  force = FALSE
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -357,8 +355,7 @@ addIterativeLSI <- function(
   useIndex = FALSE, 
   tstart = NULL, 
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   if(is.null(tstart)){
@@ -465,8 +462,7 @@ addIterativeLSI <- function(
   binarize = TRUE, 
   seed = 1, 
   verbose = TRUE, 
-  tstart = NULL, 
-  ...
+  tstart = NULL
   ){
 
     set.seed(seed)
@@ -588,8 +584,7 @@ addIterativeLSI <- function(
   LSI = NULL, 
   returnModel = FALSE, 
   verbose = TRUE, 
-  tstart = NULL, 
-  ...
+  tstart = NULL
   ){   
     
     require(Matrix)

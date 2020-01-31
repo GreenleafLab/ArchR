@@ -24,7 +24,7 @@
 #' @param method The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... additional args
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 markerFeatures <- function(
   ArchRProj = NULL,
@@ -45,7 +45,7 @@ markerFeatures <- function(
   method = "ArchR",
   verboseHeader = TRUE,
   verboseAll = FALSE,
-  ...
+  ...#QQQ
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -111,8 +111,7 @@ markerFeatures <- function(
     useMatrix = "GeneScoreMatrix",
     markerParams = list(),
     verboseHeader = TRUE,
-    verboseAll = FALSE,
-    ...
+    verboseAll = FALSE
   ){
 
     tstart <- Sys.time()
@@ -699,7 +698,6 @@ markerFeatures <- function(
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param invert QQQ UNCLEAR. WHAT DO YOU MEAN BY SORTING FEATURES AND COLOR?? A boolean value that indicates whether the heatmap will be inverted when QQQ sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
-#' @param ... additional args
 #' @export
 markerHeatmap <- function(
   seMarker = NULL,
@@ -717,8 +715,7 @@ markerHeatmap <- function(
   nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
-  invert = FALSE,
-  ...
+  invert = FALSE
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -1174,12 +1171,10 @@ markerHeatmap <- function(
 #' 
 #' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
-#' @param ... additional args
 #' @export
 markerGR <- function(
   seMarker = NULL,
-  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
-  ...
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5"
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -1226,15 +1221,13 @@ markerGR <- function(
 #' @param name The name of a column (ie cell grouping in `groupBy`/`useGroups` for `markerFeatures()`) in `seMarker` to be plotted. To see available options try `colnames(seMarker)`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
-#' @param ... additional args
 #' @export
 markerPlot <- function(
   seMarker = NULL,
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
-  scaleTo = 10^4,
-  ...
+  scaleTo = 10^4
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))

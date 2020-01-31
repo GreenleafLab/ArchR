@@ -10,14 +10,12 @@
 #' @param chr A name of a chromosome to be used to subset the fragments `GRanges` object to a specific chromsome if desired.
 #' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using `getCellNames()`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
-#' @param ... additional params
 #' @export
 getFragmentsFromArrow <- function(
   ArrowFile = NULL, 
   chr = NULL, 
   cellNames = NULL, 
-  verbose = TRUE,
-  ...
+  verbose = TRUE
   ){
 
   .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
@@ -54,8 +52,7 @@ getFragmentsFromArrow <- function(
   chr = NULL, 
   out = "GRanges", 
   cellNames = NULL, 
-  method = "fast",
-  ...
+  method = "fast"
   ){
 
   if(is.null(chr)){
@@ -157,7 +154,6 @@ getFragmentsFromArrow <- function(
 #' @param ArchRProj An `ArchRProject` object to be used for getting additional information for cells in `cellColData`. This is useful when QQQ STILL DOESNT MAKE SENSE TO ME you want to keep information created while analyzing an ArchRProject.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
-#' @param ... additional params
 #' @export
 getMatrixFromArrow <- function(
   ArrowFile = NULL, 
@@ -166,8 +162,7 @@ getMatrixFromArrow <- function(
   cellNames = NULL, 
   ArchRProj = NULL,
   verbose = TRUE,
-  binarize = FALSE,
-  ...
+  binarize = FALSE
   ){
 
   .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
@@ -246,8 +241,7 @@ getMatrixFromArrow <- function(
   cellNames = NULL,
   useMatrix = "TileMatrix", 
   useIndex = FALSE,
-  threads = 1,
-  ...
+  threads = 1
   ){
 
   if(is.null(featureDF)){
@@ -360,8 +354,7 @@ getMatrixFromArrow <- function(
   verbose = TRUE, 
   useMatrix = "TileMatrix",
   asSparse = FALSE,
-  tstart = NULL,
-  ...
+  tstart = NULL
   ){
 
   #########################################
@@ -443,8 +436,7 @@ getMatrixFromArrow <- function(
   tmpPath = .tempfile(pattern = paste0("tmp-partial-mat")), 
   useIndex = FALSE,
   tstart = NULL,
-  verbose = TRUE,
-  ...
+  verbose = TRUE
   ){
 
   #########################################
@@ -678,8 +670,7 @@ getMatrixFromArrow <- function(
   index = NULL,
   start = NULL,
   block = NULL,
-  count = NULL,
-  ...
+  count = NULL
   ){
 
   if(tolower(method) == "fast" & is.null(index) & is.null(start) & is.null(block) & is.null(count)){
@@ -694,6 +685,4 @@ getMatrixFromArrow <- function(
   o <- h5closeAll()
   return(res)
 }
-
-
 

@@ -9,9 +9,8 @@
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
-#' @param ... additional args
 #' @export
-getPeakAnnotation <- function(ArchRProj = NULL, name = NULL, ...){
+getPeakAnnotation <- function(ArchRProj = NULL, name = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
   if(is.null(name)){
@@ -31,9 +30,8 @@ getPeakAnnotation <- function(ArchRProj = NULL, name = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param annoName The name of a specific annotation to subset within the `peakAnnotation`.
-#' @param ... additional args
 #' @export
-getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
+getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
   .validInput(input = annoName, name = "annoName", valid = c("character", "null"))
@@ -67,9 +65,8 @@ getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param annoName The name of a specific annotation to subset within the `peakAnnotation`.
-#' @param ... additional args
 #' @export
-getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
+getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
   .validInput(input = annoName, name = "annoName", valid = c("character", "null"))
@@ -104,14 +101,12 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
 #' @param regions A `list` of `GRanges` that are to be overlapped with the `peakSet` in the `ArchRProject`.
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... additional args
 #' @export
 addPeakAnnotations <- function(
   ArchRProj = NULL,
   regions = NULL,
   name = "Region",
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -222,7 +217,7 @@ addPeakAnnotations <- function(
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... additional args
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addMotifAnnotations <- function(
   ArchRProj = NULL,
@@ -233,7 +228,7 @@ addMotifAnnotations <- function(
   cutOff = 5e-05, 
   width = 7,
   force = FALSE,
-  ...
+  ...#QQQ
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -484,15 +479,13 @@ addMotifAnnotations <- function(
 #' If supplying a custom ArchRAnno please use a valid collection.
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... additional args
 #' @export
 addArchRAnnotations <- function(
   ArchRProj = NULL,
   db = "LOLA",
   collection = "EncodeTFBS",
   name = collection,
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -650,8 +643,7 @@ addArchRAnnotations <- function(
   Group = NULL,
   chr = NULL, 
   out = "GRanges", 
-  method = "fast",
-  ...
+  method = "fast"
   ){
 
   if(is.null(chr)){
@@ -737,7 +729,6 @@ addArchRAnnotations <- function(
 #' @param matches A custom `peakAnnotation` matches object used as input for the hypergeometric test. See `motifmatchr::matchmotifs()` for additional information.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` to use. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param background A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").
-#' @param ... additional args
 #' @export
 peakAnnoEnrichment <- function(
   seMarker = NULL,
@@ -745,8 +736,7 @@ peakAnnoEnrichment <- function(
   peakAnnotation = NULL,
   matches = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
-  background = "all",
-  ...
+  background = "all"
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -876,7 +866,6 @@ peakAnnoEnrichment <- function(
 #' @param clusterCols A boolean indicating whether or not to cluster columns in the heatmap.
 #' @param clusterRows A boolean indicating whether or not to cluster rows in the heatmap.
 #' @param labelRows A boolean indicating whether or not to label all rows in the heatmap.
-#' @param ... additional args
 #' @export
 enrichHeatmap <- function(
   seEnrich = NULL,
@@ -885,8 +874,7 @@ enrichHeatmap <- function(
   n = 10,
   clusterCols = TRUE,
   clusterRows = TRUE,
-  labelRows = TRUE,
-  ...
+  labelRows = TRUE
   ){
 
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
@@ -917,7 +905,7 @@ enrichHeatmap <- function(
     showColDendrogram = TRUE,
     draw = FALSE,
     name = "Enrichment -log10(FDR)",
-    ...
+    ...#QQQ
   )
 
   return(ht)
