@@ -204,7 +204,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }
 }
 
-.validGeneAnnotation <- function(geneAnnotation = NULL, ...){
+.validGeneAnnotation <- function(geneAnnotation = NULL){
   
   if(!inherits(geneAnnotation, "SimpleList")){
     if(inherits(geneAnnotation, "list")){
@@ -228,7 +228,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
 }
 
-.validGenomeAnnotation <- function(genomeAnnotation = NULL, ...){
+.validGenomeAnnotation <- function(genomeAnnotation = NULL){
   
   if(!inherits(genomeAnnotation, "SimpleList")){
     if(inherits(genomeAnnotation, "list")){
@@ -260,7 +260,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
 }
 
-.validArchRProject <- function(ArchRProj = NULL, ...){
+.validArchRProject <- function(ArchRProj = NULL){
   if(!inherits(ArchRProj, "ArchRProject")){
     stop("Not a valid ArchRProject as input!")
   }else{

@@ -14,12 +14,10 @@
 #' If a list or simpleList, the user can additionally supply filters that are applied to all samples or a subset of specified samples. 
 #' For example, to apply a filter to all samples: list("TSSEnrichment" = c(4,25)).
 #' Similarly, to aply a filter only to specific samples: list("TSSEnrichment" = list("Sample1" = c(4, 25), "Sample2" = c(5, 25))).
-#' @param ... additional params
 #' @export
 filterCells <- function(
   ArchRProj = NULL, 
-  filterList = NULL,
-  ...
+  filterList = NULL
   ){  
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -102,7 +100,7 @@ filterCells <- function(
 #' cells are filtered (a higher threshold is optional and can be passed as a numeric vector along with the lower threshold).
 #' Only the first 2 filters will be plotted.
 #' @param sampleNames The sample names corresponding to the subset of samples to plot. If `NULL`, all samples are included.
-#' @param ... additional params
+#' @param ... QQQ Additional parameters to be passed to QQQ
 #' @export
 filterPlot <- function(
   ArchRProj = NULL, 
@@ -175,9 +173,8 @@ filterPlot <- function(
 #' This `filterRatio` allows you to apply a consistent filter across multiple different samples that
 #' may have different percentages of doublets because they were run with different cell loading concentrations.
 #' The higher the `filterRatio`, the greater the number of cells potentially removed as doublets.
-#' @param ... additional params
 #' @export
-filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1, ...){
+filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = cutEnrich, name = "cutEnrich", valid = c("numeric"))

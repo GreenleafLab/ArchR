@@ -71,8 +71,7 @@ ggPoint <- function(
     labelSize = 1.5,
     addFit = NULL, 
     rastr = FALSE, 
-    dpi = 300,
-    ...
+    dpi = 300
     ){
 
     .validInput(input = x, name = "x", valid = c("numeric"))
@@ -321,7 +320,7 @@ ggPoint <- function(
 #' @param baseSize The base font size (in points) to use in the plot.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
 #' @param pal A custom palette from `ArchRPalettes` used to display the density of points on the plot.
-#' @param ... Additional params to be supplied to ggPoint
+#' @param ... QQQ I DONT THINK THIS IS USED. DELETE FROM FUNCTION IF YOU AGREE. Additional params to be supplied to ggPoint
 #' @export
 ggOneToOne <- function (
   x = NULL,
@@ -447,8 +446,7 @@ ggViolin <- function(
   ratioYX = NULL,
   sampleRatio = 0.1, 
   title = "", 
-  pal = paletteDiscrete(values=x, set = "stallion"),
-  ...
+  pal = paletteDiscrete(values=x, set = "stallion")
   ){
 
   .validInput(input = x, name = "x", valid = c("character"))
@@ -545,7 +543,6 @@ ggViolin <- function(
 #' @param FUN The function to use for summarizing data into hexagons. Typically "mean" or something similar.
 #' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where a is the upper threshold and b is the lower threshold. For example, quantileCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
 #' @param addPoints A boolean value indicating whether individual points should be shown on the hexplot.
-#' @param ... additional params to pass
 #' @export
 ggHex <- function(
   x = NULL, 
@@ -564,8 +561,7 @@ ggHex <- function(
   ratioYX = 1, 
   FUN = "mean", 
   quantCut = c(0.01, 0.99),
-  addPoints = FALSE,
-  ...
+  addPoints = FALSE
   ){
 
     .validInput(input = x, name = "x", valid = c("numeric"))
@@ -763,8 +759,7 @@ theme_ArchR <- function(
   legendTextSize = 5,
   axisTickCm = 0.1,
   xText90 = FALSE,
-  yText90 = FALSE,
-  ...
+  yText90 = FALSE
   ){
 
   .validInput(input = color, name = "color", valid = c("character"))

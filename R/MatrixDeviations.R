@@ -14,6 +14,7 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the ArrowFiles associated with the given `ArchRProject`.
+#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj = NULL,
@@ -26,7 +27,7 @@ addDeviationsMatrix <- function(
   threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
-  ...
+  ...#QQQ
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -139,7 +140,7 @@ addDeviationsMatrix <- function(
   debug = FALSE,
   tstart = NULL,
   subThreads = 1,
-  ...
+  ... #QQQ UNSURE HERE
   ){
 
   gc()
@@ -483,8 +484,7 @@ addBgdPeaks <- function(
   binSize = 50, 
   seed = 1,
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -551,8 +551,7 @@ getBgdPeaks <- function(
   w = 0.1, 
   binSize = 50, 
   seed = 1,
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -606,8 +605,7 @@ getBgdPeaks <- function(
   w = 0.1, 
   binSize = 50, 
   seed = 1, 
-  outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  ...
+  outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds")
   ){
 
   set.seed(1)

@@ -20,7 +20,6 @@
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param knnMethod The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param ... additional args
 #' @export
 addCoAccessibility <- function(
   ArchRProj = NULL,
@@ -36,8 +35,7 @@ addCoAccessibility <- function(
   log2Norm = TRUE,
   seed = 1, 
   knnMethod = NULL,
-  threads = getArchRThreads(),
-  ...
+  threads = getArchRThreads()
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))

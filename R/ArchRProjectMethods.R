@@ -343,9 +343,8 @@ createGeneAnnnotation <- function(
 #' This function gets the outputDirectory from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getOutputDirectory <- function(ArchRProj = NULL, ...){
+getOutputDirectory <- function(ArchRProj = NULL){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
 
@@ -364,9 +363,8 @@ getOutputDirectory <- function(ArchRProj = NULL, ...){
 #' This function gets the names of all ArrowFiles associated with a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getArrowFiles <- function(ArchRProj = NULL, ...){
+getArrowFiles <- function(ArchRProj = NULL){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   
@@ -383,9 +381,8 @@ getArrowFiles <- function(ArchRProj = NULL, ...){
 #' This function gets the names of all samples from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getSampleNames <- function(ArchRProj = NULL, ...){
+getSampleNames <- function(ArchRProj = NULL){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   
@@ -400,9 +397,8 @@ getSampleNames <- function(ArchRProj = NULL, ...){
 #' This function gets number of cells from an ArchRProject or ArrowFile
 #' 
 #' @param input An `ArchRProject` object or the path to an ArrowFile.
-#' @param ... additional args
 #' @export
-nCells <- function(input = NULL, ...){
+nCells <- function(input = NULL){
   
   .validInput(input = input, name = "input", valid = c("ArchRProject", "character"))
 
@@ -427,9 +423,8 @@ nCells <- function(input = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param select A character vector containing the column names to select from `sampleColData`.
 #' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
-#' @param ... additional args
 #' @export
-getSampleColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE, ...){
+getSampleColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = select, name = "select", valid = c("character", "null"))
@@ -503,9 +498,8 @@ addSampleColData <- function(ArchRProj = NULL, data = NULL, name = NULL, samples
 #' This function gets the cellNames from a given ArchRProject object.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getCellNames <- function(ArchRProj = NULL, ...){
+getCellNames <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   cnames <- rownames(ArchRProj@cellColData)
   return(cnames)
@@ -518,9 +512,8 @@ getCellNames <- function(ArchRProj = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param select A character vector of column names to select from `cellColData` if you would like to subset the returned data.
 #' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
-#' @param ... additional args
 #' @export
-getCellColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE, ...){
+getCellColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = select, name = "select", valid = c("character", "null"))
@@ -555,9 +548,8 @@ getCellColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE, ...){
 #' @param name The column header name to be used for this new data in `cellColData`. If a column with this name already exists, you may set `force` equal to `TRUE` to overwrite the data in this column.
 #' @param cells The names of the cells corresponding to `data`. Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where `data` is not added are set to `NA`.
 #' @param force A boolean value indicating whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
-#' @param ... additional args
 #' @export
-addCellColData <- function(ArchRProj = NULL, data = NULL, name = NULL, cells =  NULL, force = FALSE, ...){
+addCellColData <- function(ArchRProj = NULL, data = NULL, name = NULL, cells =  NULL, force = FALSE){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = data, name = "data", valid = c("character", "integer", "numeric", "boolean"))
@@ -604,9 +596,8 @@ addCellColData <- function(ArchRProj = NULL, data = NULL, name = NULL, cells =  
 #' This function gets the peak set as a GRanges object from an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getPeakSet <- function(ArchRProj = NULL, ...){
+getPeakSet <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@peakSet)
 }
@@ -618,9 +609,8 @@ getPeakSet <- function(ArchRProj = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param peakSet A `GRanges` object containing the set of regions that define all peaks in the desired peak set.
 #' @param force If a `peakSet` object has already been added to the given `ArchRProject`, the value of `force` determines whether or not to overwrite this `peakSet`.
-#' @param ... additional args
 #' @export
-addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE, ...){
+addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = peakSet, name = "peakSet", valid = c("GRanges"))
   .validInput(input = force, name = "force", valid = c("boolean"))
@@ -646,9 +636,8 @@ addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE, ...){
 #' This function gets the genomeAnnotation from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getGenomeAnnotation <- function(ArchRProj = NULL, ...){
+getGenomeAnnotation <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation)
 }
@@ -658,9 +647,8 @@ getGenomeAnnotation <- function(ArchRProj = NULL, ...){
 #' This function gets the blacklist (the regions to be excluded from analysis) as a GRanges object from the genomeAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getBlacklist <- function(ArchRProj = NULL, ...){
+getBlacklist <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$blacklist)
 }
@@ -670,9 +658,8 @@ getBlacklist <- function(ArchRProj = NULL, ...){
 #' This function gets the name of the genome from the genomeAnnotation used by a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getGenome <- function(ArchRProj = NULL, ...){
+getGenome <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$genome)
 }
@@ -682,9 +669,8 @@ getGenome <- function(ArchRProj = NULL, ...){
 #' This function gets the chromosome lengths as a GRanges object from the genomeAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getChromSizes <- function(ArchRProj = NULL, ...){
+getChromSizes <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$chromSizes)
 }
@@ -694,9 +680,8 @@ getChromSizes <- function(ArchRProj = NULL, ...){
 #' This function gets the chromosome lengths as a vector from the genomeAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getChromLengths <- function(ArchRProj = NULL, ...){
+getChromLengths <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   cS <- ArchRProj@genomeAnnotation$chromSizes
   cL <- end(cS)
@@ -721,9 +706,8 @@ getChromLengths <- function(ArchRProj = NULL, ...){
 #' This function gets the geneAnnotation from a given ArchRProject
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getGeneAnnotation <- function(ArchRProj = NULL, ...){
+getGeneAnnotation <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   ArchRProj@geneAnnotation
 }
@@ -733,9 +717,8 @@ getGeneAnnotation <- function(ArchRProj = NULL, ...){
 #' This function gets the transcription start sites (TSSs) as a GRanges object of all genes from the geneAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ... additional args
 #' @export
-getTSS <- function(ArchRProj = NULL, ...){
+getTSS <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   ArchRProj@geneAnnotation$TSS
 
@@ -747,9 +730,8 @@ getTSS <- function(ArchRProj = NULL, ...){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param symbols A character vector containing the gene symbols to subset from the `geneAnnotation`.
-#' @param ... additional args
 #' @export
-getGenes <- function(ArchRProj = NULL, symbols = NULL, ...){
+getGenes <- function(ArchRProj = NULL, symbols = NULL){
 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -772,9 +754,8 @@ getGenes <- function(ArchRProj = NULL, symbols = NULL, ...){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param symbols A character vector containing the gene symbols for the genes where exons should be extracted.
-#' @param ... additional args
 #' @export
-getExons <- function(ArchRProj = NULL, symbols = NULL, ...){
+getExons <- function(ArchRProj = NULL, symbols = NULL){
 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -810,7 +791,6 @@ getExons <- function(ArchRProj = NULL, symbols = NULL, ...){
 #' @param dimsToUse A vector containing the dimensions (i.e. 1:30) to return from the `reducedDims` object.
 #' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded.
-#' @param ... additional args
 #' @export
 getReducedDims <- function(
   ArchRProj = NULL, 
@@ -818,8 +798,7 @@ getReducedDims <- function(
   returnMatrix = TRUE, 
   dimsToUse = NULL,
   scaleDims = NULL,
-  corCutOff = 0.75,
-  ...
+  corCutOff = 0.75
   ){
 
   #Validate
@@ -894,9 +873,8 @@ getReducedDims <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param embedding The name of the `embeddings` object (i.e. UMAP, TSNE see `embeddingOut` of the `addEmbeddings()` function) to retrieve from the designated `ArchRProject`.
 #' @param returnDF A boolean value indicating whether to return the embedding object as a `data.frame`. Otherwise, it will return the full embedding object.
-#' @param ... additional args
 #' @export
-getEmbedding <- function(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE, ...){
+getEmbedding <- function(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE){
 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -926,9 +904,8 @@ getEmbedding <- function(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE, 
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param returnSummary A boolean value indicating whether to return a summary of the `ArchRProject` or to just print the summary.
-#' @param ... additional args
 #' @export
-getProjectSummary <- function(ArchRProj = NULL, returnSummary = FALSE, ...){
+getProjectSummary <- function(ArchRProj = NULL, returnSummary = FALSE){
 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -957,9 +934,8 @@ getProjectSummary <- function(ArchRProj = NULL, returnSummary = FALSE, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the summary information to add to the `ArchRProject` object.
 #' @param summary A vector to add as summary information to the `ArchRProject` object.
-#' @param ... additional args
 #' @export
-addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL, ...){
+addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -986,10 +962,9 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL, ...
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param select A string specifying a specific feature name (or rowname) to be found with `grep`.
-#' @param ignore.case A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.
-#' @param ... additional args
+#' @param ignore.case QQQ SHOULD BE ignoreCase FOR CONSISTENCY. A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.
 #' @export
-getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select = NULL, ignore.case = TRUE, ...){
+getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select = NULL, ignore.case = TRUE){
 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -1152,9 +1127,8 @@ plotPDF <- function(..., name = "Plot", width = 6,
 #' This function will download data for a given tutorial and return the input files required for ArchR
 #' 
 #' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to hematopoieitic scATAC hierarchy. "PBMC" refers to a small standard PBMC scATAC dataset. "FreshFrozen" refers to a PBMC fresh and frozen scATAC dataset.
-#' @param ... additional args
 #' @export
-getTutorialData <- function(tutorial = "hematopoiesis", ...){
+getTutorialData <- function(tutorial = "hematopoiesis"){
 
   #Validate
   .validInput(input = tutorial, name = "tutorial", valid = "character")
@@ -1226,9 +1200,8 @@ getTutorialData <- function(tutorial = "hematopoiesis", ...){
 #' This function will look for fragment files and bam files in the input paths and return the full path and sample names
 #' 
 #' @param paths A character vector of paths to search for usable input files.
-#' @param ... additional args
 #' @export
-getInputFiles <- function(paths = NULL, ...){ 
+getInputFiles <- function(paths = NULL){ 
 
   #Validate
   .validInput(input = paths, name = "paths", valid = "character")
@@ -1264,9 +1237,8 @@ getInputFiles <- function(paths = NULL, ...){
 #' 
 #' @param csvFiles A character vector of names from 10x CSV files to be read in for identification of valid cell barcodes.
 #' @param sampleNames A character vector containing the sample names to be associated with each individual entry in `csvFiles`.
-#' @param ... additional args
 #' @export
-getValidBarcodes <- function(csvFiles = NULL, sampleNames = NULL, ...){
+getValidBarcodes <- function(csvFiles = NULL, sampleNames = NULL){
 
   #Validate
   .validInput(input = csvFiles, name = "csvFiles", valid = "character")

@@ -26,7 +26,6 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... additional args
 #' @export
 plotFootprints <- function(
   ArchRProj = NULL,
@@ -48,8 +47,7 @@ plotFootprints <- function(
   useSink = TRUE,
   threads = getArchRThreads(),
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -200,8 +198,7 @@ plotFootprints <- function(
   flank = NULL,
   flankNorm = NULL,
   baseSize = 6,
-  normMethod = NULL,
-  ...
+  normMethod = NULL
   ){
 
   #Get Footprint Info
@@ -329,8 +326,7 @@ plotFootprints <- function(
   threads = 1,
   force = FALSE,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   if(verboseAll){

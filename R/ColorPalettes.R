@@ -99,8 +99,7 @@ ArchRPalettes <- list(
 paletteDiscrete <- function(
   set = "stallion", 
   values = NULL, 
-  reverse = FALSE, 
-  ...
+  reverse = FALSE
   ){
 
   .validInput(input = set, name = "set", valid = c("character"))
@@ -138,8 +137,7 @@ paletteDiscrete <- function(
 paletteContinuous <- function(
   set = "solar_extra", 
   n = 256, 
-  reverse = FALSE,
-  ...
+  reverse = FALSE
   ){
 
   .validInput(input = set, name = "set", valid = c("character"))
