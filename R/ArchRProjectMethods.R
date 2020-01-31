@@ -851,17 +851,40 @@ getReducedDims <- function(
       }
     }else{
       out <- ArchRProj@reducedDims[[reducedDims]]
-      out <- out[, corToUse[idx], drop=FALSE]
+      out$dimsKept <- corToUse[idx]
+      out1 <- out[[1]][, corToUse[idx], drop=FALSE]
       if(scaleDims){
-        out <- .scaleDims(out)
+        out$scaleDims <- TRUE
+        out1 <- .scaleDims(out1, returnInfo = TRUE)
+        out$dimsMean <- out1$dimsMean
+        out$dimsSd <- out1$dimsSd
+        out1 <- out1[[1]]
       }
-      out[[1]] <- out[, corToUse[idx], drop=FALSE]
+      out[[1]] <- out1
     }
   }else{
     stop(paste0("Reduced dimensions not in computed reduceDims, Current ones are : ", paste0(names(ArchRProj@reducedDims), collapse=",")))
   }
   return(out)
 
+}
+
+.scaleDims <- function(x, xm = NULL, xs = NULL, returnInfo = FALSE){
+  #Test
+  x <- as.matrix(x)
+  if(is.null(xm)){
+    xm <- colMeans(x)
+  }
+  if(is.null(xm)){
+    xs <- matrixStats::colSds(x)
+  }
+  log2Vars <- sqrt(log2(xs^2 + 1))
+  x <- t((t(x) - xm) * log2Vars / xs)
+  if(returnInfo){
+    list(dims=x,dimsMean=xm,dimsSd=xs)
+  }else{
+    x
+  }
 }
 
 #' Get embedding information stored in an ArchRProject

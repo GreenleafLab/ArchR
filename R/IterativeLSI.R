@@ -68,7 +68,7 @@ addIterativeLSI <- function(
   .validInput(input = iterations, name = "iterations", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
-  .validInput(input = corCutOff, name = "corCutOff", valid = c("boolean"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = sampleCells, name = "sampleCells", valid = c("integer","null"))
@@ -701,12 +701,6 @@ addIterativeLSI <- function(
     return(out)
 }
 
-.scaleDims <- function(x){
-  #Test
-  log2Vars <- sqrt(log2(matrixStats::colVars(x) + 1))
-  x <- t(.rowZscores(t(x)) * log2Vars)
-  x
-}
 
 
 
