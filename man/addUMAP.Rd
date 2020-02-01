@@ -7,7 +7,7 @@
 addUMAP(
   ArchRProj = NULL,
   reducedDims = "IterativeLSI",
-  embeddingOut = "UMAP",
+  name = "UMAP",
   nNeighbors = 40,
   minDist = 0.4,
   metric = "cosine",
@@ -27,7 +27,7 @@ addUMAP(
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to use from the designated \code{ArchRProject}.}
 
-\item{embeddingOut}{The name for the embedding to be stored in the given \code{ArchRProject} object.}
+\item{name}{The name for the UMAP embedding to be stored as in the given \code{ArchRProject} object.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
@@ -39,9 +39,11 @@ addUMAP(
 
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding named by \code{embeddingOut} already exists.}
+\item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding named by \code{name} already exists.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
+
+\item{...}{Additional Params to add to \code{uwot::umap}}
 }
 \description{
 This function will compute a UMAP embedding and add it to an ArchRProject.
