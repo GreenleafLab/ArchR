@@ -4,12 +4,12 @@
 \alias{paletteDiscrete}
 \title{Optimized discrete color palette generation}
 \usage{
-paletteDiscrete(set = "stallion", values = NULL, reverse = FALSE)
+paletteDiscrete(values = NULL, set = "stallion", reverse = FALSE)
 }
 \arguments{
-\item{set}{The name of a color palette provided in the \code{ArchRPalettes} list object.}
-
 \item{values}{A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated palette set.}
+
+\item{set}{The name of a color palette provided in the \code{ArchRPalettes} list object.}
 
 \item{reverse}{A boolean variable that indicates whether to return the palette colors in reverse order.}
 }

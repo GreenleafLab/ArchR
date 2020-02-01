@@ -97,8 +97,8 @@ ArchRPalettes <- list(
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
 #' @export
 paletteDiscrete <- function(
-  set = "stallion", 
-  values = NULL, 
+  values = NULL,
+  set = "stallion",  
   reverse = FALSE
   ){
 

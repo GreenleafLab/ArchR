@@ -1336,7 +1336,7 @@ ArchRBrowserTrack <- function(
   featureO$facet <- title
 
   if(is.null(pal)){
-    pal <- paletteDiscrete(set = "stallion", rev(unique(paste0(featureO$name))))
+    pal <- paletteDiscrete(set = "stallion", values = rev(unique(paste0(featureO$name))))
   }
 
   p <- ggplot(data = featureO, aes(color = name)) +
