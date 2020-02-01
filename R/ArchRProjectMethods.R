@@ -130,16 +130,18 @@ getArchRGenome <- function(
   supportedGenomes <- c("hg19","hg38","mm9","mm10")
 
   if(exists(".ArchRGenome")){
+
+    ag <- .ArchRGenome
     
-    if(!is.character(.ArchRGenome)){
+    if(!is.character(ag)){
     
       return(NULL)
     
     }else{
       
-      if(tolower(genome) %in% supportedGenomes){
+      if(tolower(ag) %in% supportedGenomes){
         
-        genome <- paste(toupper(substr(.ArchRGenome, 1, 1)), substr(.ArchRGenome, 2, nchar(.ArchRGenome)), sep="")
+        genome <- paste(toupper(substr(ag, 1, 1)), substr(ag, 2, nchar(ag)), sep="")
         
         if(geneAnnotation){
 
@@ -165,9 +167,8 @@ getArchRGenome <- function(
 
       }else{
         
-        AG <- .ArchRGenome
         rm(list=".ArchRGenome", envir = .GlobalEnv ) # Remove this.
-        stop(".ArchRGenome : ", AG, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
+        stop(".ArchRGenome : ", ag, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
       
       }
     }
