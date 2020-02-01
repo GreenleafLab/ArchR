@@ -686,7 +686,6 @@ createArrowFiles <- function(
   chromSizes = NULL, 
   nChunk = 3,
   gsubExpression = NULL, 
-  printEvery = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
   prefix = "",
@@ -705,14 +704,6 @@ createArrowFiles <- function(
   }
   tstart2 <- Sys.time()
   
-  if(verboseAll){
-    printEvery <- 0.25
-  }else{
-    printEvery <- 1
-  }
-
-  nextPrint <- printEvery
-
   o <- h5closeAll()
   o <- h5createFile(tmpFile)
   o <- h5createGroup(tmpFile, paste0("Fragments"))
@@ -728,13 +719,12 @@ createArrowFiles <- function(
     errorCheck <- 0
 
     if(threads == 1){
-      if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
+      if(x == 1 || x %% 10 == 0){
         .messageDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
           verbose = verboseHeader, addHeader = verboseAll)
-        nextPrint <- nextPrint + printEvery
       }
     }else{
-      if(x == 1 || x %% (threads + 1) == 0){
+      if(x == 1 || x %% (2 * threads + 1) == 0){
         .messageDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
                   verbose = verboseHeader, addHeader = verboseAll)
       }
@@ -932,14 +922,6 @@ createArrowFiles <- function(
   }
   tstart2 <- Sys.time()
  
-  if(verboseAll){
-    printEvery <- 0.25
-  }else{
-    printEvery <- 1
-  }
-
-  nextPrint <- printEvery
-
   o <- h5closeAll()
   o <- h5createFile(tmpFile)
   o <- h5createGroup(tmpFile, paste0("Fragments"))
@@ -955,13 +937,12 @@ createArrowFiles <- function(
     errorCheck <- 0
 
     if(threads == 1){
-      if(as.numeric(difftime(Sys.time(),tstart2,units="mins")) > nextPrint){
+      if(x == 1 || x %% 10 == 0){
         .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
           verbose = verboseHeader, addHeader = verboseAll)
-        nextPrint <- nextPrint + printEvery
       }
     }else{
-      if(x == 1 || x %% (threads + 1) == 0){
+      if(x == 1 || x %% (2 * threads + 1) == 0){
         .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
                   verbose = verboseHeader, addHeader = verboseAll)
       }
