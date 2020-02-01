@@ -762,3 +762,13 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   message(Ascii[[ascii]])
 }
 
+.devMode <- function(){
+  fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
+  for(i in seq_along(fn)){
+    tryCatch({
+      eval(parse(text=paste0(fn[i], '<-ArchR:::', fn[i])))
+    }, error = function(x){
+    })
+  }
+}
+
