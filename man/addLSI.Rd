@@ -7,11 +7,11 @@
 addLSI(
   ArchRProj = NULL,
   useMatrix = "TileMatrix",
-  reducedDimsOut = "LSI",
+  name = "LSI",
   dimsToUse = 1:30,
+  LSIMethod = 2,
   scaleDims = TRUE,
   corCutOff = 0.75,
-  LSIMethod = 2,
   binarize = TRUE,
   sampleCells = NULL,
   topFeatures = 50000,
@@ -31,16 +31,16 @@ addLSI(
 
 \item{useMatrix}{The name of the data matrix to retrieve from the ArrowFiles associated with the \code{ArchRProject}. Valid options are "TileMatrix" or "PeakMatrix".}
 
-\item{reducedDimsOut}{The name to use for storage of the LSI dimensionality reduction in the \code{ArchRProject} as a \code{reducedDims} object.}
+\item{name}{The name to use for storage of the LSI dimensionality reduction in the \code{ArchRProject} as a \code{reducedDims} object.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+
+\item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
+Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
 
 \item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
-
-\item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
-Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 

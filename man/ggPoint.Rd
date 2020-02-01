@@ -10,7 +10,7 @@ ggPoint(
   color = NULL,
   discrete = TRUE,
   discreteSet = "stallion",
-  continuousSet = "solar_extra",
+  continuousSet = "solarExtra",
   labelMeans = FALSE,
   pal = NULL,
   defaultColor = "lightGrey",

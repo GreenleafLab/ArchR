@@ -10,8 +10,8 @@ addDoubletScores(
   k = 10,
   nTrials = 5,
   dimsToUse = 1:30,
-  LSIMethod = 2,
-  scaleDims = TRUE,
+  LSIMethod = 1,
+  scaleDims = FALSE,
   corCutOff = 0.75,
   sampleCells = NULL,
   knnMethod = "UMAP",
@@ -36,6 +36,9 @@ addDoubletScores(
 \item{nTrials}{The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+
+\item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
+Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
 
 \item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.}
 

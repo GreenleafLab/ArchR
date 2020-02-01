@@ -4,7 +4,7 @@
 \alias{addArchRGenome}
 \title{Add a globally defined genome to all ArchR functions. JJJ}
 \usage{
-addArchRGenome(genome = NULL)
+addArchRGenome(genome = NULL, install = TRUE)
 }
 \arguments{
 \item{genome}{The default genome to be used for all ArchR functions. This value is stored as a global environment variable, not part of the \code{ArchRProject}. This can be overwritten on a per-function basis using the given function's \code{geneAnnotation} and  \code{genomeAnnotation} parameter.}

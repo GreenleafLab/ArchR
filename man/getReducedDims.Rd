@@ -10,8 +10,7 @@ getReducedDims(
   returnMatrix = TRUE,
   dimsToUse = NULL,
   scaleDims = NULL,
-  corCutOff = 0.75,
-  ...
+  corCutOff = 0.75
 )
 }
 \arguments{

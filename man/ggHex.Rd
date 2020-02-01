@@ -8,7 +8,7 @@ ggHex(
   x = NULL,
   y = NULL,
   color = NULL,
-  pal = paletteContinuous(set = "solar_extra"),
+  pal = paletteContinuous(set = "solarExtra"),
   bins = 200,
   xlim = NULL,
   ylim = NULL,

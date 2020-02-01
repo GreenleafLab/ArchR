@@ -6,7 +6,7 @@
 \usage{
 addArchRAnnotations(
   ArchRProj = NULL,
-  db = "LOLA",
+  db = "ArchR",
   collection = "EncodeTFBS",
   name = collection,
   force = FALSE
@@ -18,7 +18,7 @@ addArchRAnnotations(
 \item{db}{A character indicating which database or a path to a database to use for peak annotation. Options include ArchR, LOLA, and a valid path to a file of class \code{ArchRAnno}.}
 
 \item{collection}{A character indicating which collection within the database to collect for annotation.
-For ArchR, options JJJ include to be added.
+For ArchR, options "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
 For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
 If supplying a custom ArchRAnno please use a valid collection.}
 
