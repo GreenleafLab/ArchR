@@ -34,8 +34,7 @@ createArrowFiles(
   parallelParam = NULL,
   subThreading = TRUE,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
 )
 }
 \arguments{

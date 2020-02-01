@@ -3,6 +3,8 @@
 ##########################################################################################
 .validInput <- function(input = NULL, name = NULL, valid = NULL){
 
+  valid <- unique(valid)
+
   if(is.character(valid)){
     valid <- tolower(valid)
   }else{
@@ -13,7 +15,11 @@
     stop("name must be a character!")
   }
 
-  av <- lapply(seq_along(valid), function(i){
+  if("null" %in% tolower(valid)){
+    valid <- c("null", valid[which(tolower(valid) != "null")])
+  }
+
+  for(i in seq_along(valid)){
 
     vi <- valid[i]
 
@@ -125,7 +131,12 @@
 
     }
 
-  }) %>% Reduce("c", .) %>% any
+    if(cv){
+      av <- TRUE
+      break
+    }   
+     
+  }
 
   if(av){
 

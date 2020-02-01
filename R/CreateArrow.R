@@ -68,19 +68,18 @@ createArrowFiles <- function(
   parallelParam = NULL,
   subThreading = TRUE,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   .validInput(input = inputFiles, name = "inputFiles", valid = c("character"))
   .validInput(input = sampleNames, name = "sampleNames", valid = c("character"))
+  .validInput(input = outputNames, name = "outputNames", valid = c("character"))
   if(length(sampleNames) != length(inputFiles)){
     stop("sampleNames must be equal length to inputFiles")
   }
   if(length(outputNames) != length(inputFiles)){
     stop("outputNames must be equal length to inputFiles")
   }
-  .validInput(input = outputNames, name = "outputNames", valid = c("character"))
   .validInput(input = validBarcodes, name = "validBarcodes", valid = c("list", "character", "null"))
   geneAnnotation <- .validGeneAnnotation(geneAnnotation)
   genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
@@ -272,12 +271,12 @@ createArrowFiles <- function(
     tmp <- .tabixToTmp(tabixFile = inputFile, sampleName = sampleName, validBC = validBC,
             chromSizes = genomeAnnotation$chromSizes, nChunk = nChunk, threads = subThreads,
             gsubExpression = gsubExpression, prefix = prefix, verboseHeader = verboseHeader, 
-            verboseAll = verboseAll, tstart = tstart,  ...)
+            verboseAll = verboseAll, tstart = tstart)
 
     out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnnotation$genome, 
             minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, 
-            chromSizes = genomeAnnotation$chromSizes, ...)
+            chromSizes = genomeAnnotation$chromSizes)
   
   }else if(tolower(readMethod)=="bam"){
 
@@ -285,12 +284,12 @@ createArrowFiles <- function(
             chromSizes = genomeAnnotation$chromSizes, bamFlag = bamFlag, 
             bcTag = bcTag, gsubExpression = gsubExpression, nChunk = nChunk, threads = subThreads,
             offsetPlus = offsetPlus, offsetMinus = offsetMinus, prefix = prefix, 
-            verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, ...)
+            verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart)
 
     out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnnotation$genome, 
             minFrags = minFrags, sampleName = sampleName, prefix = prefix, 
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, 
-            chromSizes = genomeAnnotation$chromSizes, ...)
+            chromSizes = genomeAnnotation$chromSizes)
 
   }else{
     
