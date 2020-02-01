@@ -16,7 +16,6 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the CNV matrix to be overwritten if it already exists for `input`.
-#' @param ... QQQ Additional parameters to be passed to QQQ
 addCNVMatrix <- function(
   input = NULL,
   chromSizes = getChromSizes(input),
@@ -27,8 +26,7 @@ addCNVMatrix <- function(
   excludeChr = c("chrM","chrY"),
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE,
-  ...#QQQ
+  force = FALSE
   ){
 
   .validInput(input = input, name = "input", valid = c("character", "ArchRProj"))
@@ -69,13 +67,14 @@ addCNVMatrix <- function(
   windows <- windows[BiocGenerics::which(seqnames(windows) %bcni% excludeChr)]
 
   #Add args to list
-  args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
+  args <- list() #mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
+  args$FUN <- .addCNVMatrix
+  args$X <- seq_along(ArrowFiles)
   args$ArrowFiles <- ArrowFiles
   args$allCells <- allCells
-  args$X <- seq_along(ArrowFiles)
-  args$FUN <- .addCNVMatrix
   args$windows <- windows
   args$registryDir <- file.path(outDir, "CNVRegistry")
+  args$force <- force
 
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
@@ -95,8 +94,7 @@ addCNVMatrix <- function(
   cellNames = NULL, 
   allCells = NULL,
   windows = NULL,
-  force = FALSE,
-  ...#QQQ
+  force = FALSE
   ){
 
   ArrowFile <- ArrowFiles[i]

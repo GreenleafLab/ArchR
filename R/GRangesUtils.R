@@ -10,7 +10,7 @@
 #' @param remove A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `remove` should be set to `NULL`.
 #' @param underscore A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").
 #' @param standard A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.
-#' @param pruningMode QQQ From `GenomeInfoDb::seqinfo()`, when some of the seqlevels to drop from QQQ the given `GRanges` object are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
+#' @param pruningMode JJJ From `GenomeInfoDb::seqinfo()`, when some of the seqlevels to drop from the given `GRanges` object are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
 #' @export
 filterChrGR <- function(
     gr = NULL, 
@@ -170,7 +170,7 @@ addSeqLengthsGR <- function(gr = NULL, genome = NULL){
 #' @param gr A `GRanges` object.
 #' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `validBSgenome()`.
 #' @param n The number of permutations to perform during shuffling.
-#' @param shuffleChr QQQ DOUBLE CHECK A boolean value indicating whether to shuffle the regions across chromosomes randomly based on the distribution of chromosome lengths (`TRUE`) or to use prior knowledge of the distribution of regions in `gr` across the various chromosomes to create a shuffled set of ranges that is similarly distributed (`FALSE`).
+#' @param shuffleChr A boolean value indicating whether to shuffle the regions across chromosomes randomly based on the distribution of chromosome lengths (`TRUE`) or to use prior knowledge of the distribution of regions in `gr` across the various chromosomes to create a shuffled set of ranges that is similarly distributed (`FALSE`).
 #' @export
 shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))

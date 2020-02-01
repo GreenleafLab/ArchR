@@ -39,9 +39,9 @@ ggOneToOne(
 
 \item{title}{The title of the plot.}
 
-\item{min}{QQQ DOUBLE CHECK The lower limit of the x and y axes as a numeric quantile between 0 and 1.}
+\item{min}{The lower limit of the x and y axes as a numeric quantile between 0 and 1.}
 
-\item{max}{QQQ DOUBLE CHECK The upper limit of the x and y axes as a numeric quantile between 0 and 1.}
+\item{max}{The upper limit of the x and y axes as a numeric quantile between 0 and 1.}
 
 \item{nPlot}{The number of points to plot. When this value is less than the total points, the \code{sample} function is used to extract random data points to be plotted.}
 
@@ -57,7 +57,7 @@ ggOneToOne(
 
 \item{pal}{A custom palette from \code{ArchRPalettes} used to display the density of points on the plot.}
 
-\item{...}{QQQ I DONT THINK THIS IS USED. DELETE FROM FUNCTION IF YOU AGREE. Additional params to be supplied to ggPoint}
+\item{...}{Additional params to be supplied to ggPoint}
 }
 \description{
 This function is a wrapper around ggplot geom_point to allow for plotting one-to-one sample comparisons in ArchR.

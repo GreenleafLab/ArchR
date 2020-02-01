@@ -311,8 +311,8 @@ ggPoint <- function(
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.
-#' @param min QQQ DOUBLE CHECK The lower limit of the x and y axes as a numeric quantile between 0 and 1.
-#' @param max QQQ DOUBLE CHECK The upper limit of the x and y axes as a numeric quantile between 0 and 1.
+#' @param min The lower limit of the x and y axes as a numeric quantile between 0 and 1.
+#' @param max The upper limit of the x and y axes as a numeric quantile between 0 and 1.
 #' @param nPlot The number of points to plot. When this value is less than the total points, the `sample` function is used to extract random data points to be plotted.
 #' @param nKernel The number of grid points in each direction to use when computing the kernel with `MASS::kde2d()`.
 #' @param densityMax The quantile that should be represented by the maximum color on the continuous scale designated by `pal`. Values above `densityMax` will be thresholded to the maximum color on the color scale.
@@ -320,7 +320,7 @@ ggPoint <- function(
 #' @param baseSize The base font size (in points) to use in the plot.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
 #' @param pal A custom palette from `ArchRPalettes` used to display the density of points on the plot.
-#' @param ... QQQ I DONT THINK THIS IS USED. DELETE FROM FUNCTION IF YOU AGREE. Additional params to be supplied to ggPoint
+#' @param ... Additional params to be supplied to ggPoint
 #' @export
 ggOneToOne <- function (
   x = NULL,
@@ -395,7 +395,8 @@ ggOneToOne <- function (
       alpha = alpha, 
       title = title, 
       baseSize = baseSize,
-      rastr = rastr
+      rastr = rastr,
+      ...
     ) + geom_abline(slope = 1, intercept = 0, lty = "dashed")
 
   return(gg)

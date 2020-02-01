@@ -204,7 +204,7 @@ addTrajectory <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name A string indicating the name of the fitted trajectory in `cellColData` to retrieve from the given `ArchRProject`.
 #' @param useMatrix The name of the data matrix from the `ArrowFiles` to get numerical values for each cell from. Recommended matrices are "GeneScoreMatrix", "PeakMatrix", or "MotifMatrix".
-#' @param varCutOff QQQ DOUBLE CHECK The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory. QQQ Only features with a variance above the provided quantile will be retained.
+#' @param varCutOff The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory. Only features with a variance above the provided quantile will be retained.
 #' @param maxFeatures The maximum number of features, ordered by variance, to consider from `useMatrix` when generating a trajectory. This prevents smoothing a large number number of features which can be very time consuming.
 #' @param groupEvery The number of sequential percentiles to group together when generating a trajectory. This is similar to smoothing via a non-overlapping sliding window across pseudo-time. If `groupEvery = 2`, the values for percentiles [1 and 2], [3 and 4], [5 and 6], etc. will be grouped together.
 #' @param threads The number of threads to be used for parallel computing.
@@ -350,7 +350,6 @@ getTrajectory <- function(
 #' @param labelTop A number indicating how many of the top N features, based on variance, in `seTrajectory` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param ... QQQ THIS IS A HIDDEN FUNCTION Additional parameters to be passed to .ArchRHeatmap.
 #' @export
 trajectoryHeatmap <- function(
   seTrajectory = NULL,
@@ -361,8 +360,7 @@ trajectoryHeatmap <- function(
   labelMarkers = NULL,
   labelTop = 50,
   labelRows = FALSE,
-  returnMat = FALSE,
-  ... #QQQ
+  returnMat = FALSE
   ){
 
   .validInput(input = seTrajectory, name = "seTrajectory", valid = c("SummarizedExperiment"))
@@ -428,7 +426,6 @@ trajectoryHeatmap <- function(
     customRowLabel = match(idxLabel, rownames(mat[idx,])),
     showColDendrogram = TRUE,
     draw = FALSE
-    #...#QQQ
   )
 
   if(returnMat){
@@ -459,7 +456,7 @@ trajectoryHeatmap <- function(
 #' This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the lower threshold and y is 
 #' the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and set values below/above to the value of 
 #' the 2.5th and 97.5th percentile values respectively.
-#' @param quantHex QQQ STILL UNCLEAR. The xth quantile of all dots within each individual hexagon will determine the the numerical value for coloring to be displayed. This occurs when `plotAs` = "hex" or `NULL` (if numerical values by default).
+#' @param quantHex JJJ The numeric xth quantile of all dots within each individual hexagon will determine the the numerical value for coloring to be displayed. This occurs when `plotAs` = "hex" or `NULL` (if numerical values by default).
 #' @param discreteSet The name of a discrete palette from `ArchRPalettes` for visualizing `colorBy` in the embedding if a discrete color set is desired.
 #' @param continuousSet The name of a continuous palette from `ArchRPalettes` for visualizing `colorBy` in the embedding if a continuous color set is desired.
 #' @param randomize A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being present at the front of the plot.

@@ -25,7 +25,7 @@ getTrajectory(
 
 \item{useMatrix}{The name of the data matrix from the \code{ArrowFiles} to get numerical values for each cell from. Recommended matrices are "GeneScoreMatrix", "PeakMatrix", or "MotifMatrix".}
 
-\item{varCutOff}{QQQ DOUBLE CHECK The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory. QQQ Only features with a variance above the provided quantile will be retained.}
+\item{varCutOff}{The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory. Only features with a variance above the provided quantile will be retained.}
 
 \item{maxFeatures}{The maximum number of features, ordered by variance, to consider from \code{useMatrix} when generating a trajectory. This prevents smoothing a large number number of features which can be very time consuming.}
 

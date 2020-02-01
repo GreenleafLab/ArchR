@@ -36,7 +36,6 @@
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param verboseHeader A boolean value that determines whether standard output should include verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output should include verbose subsections.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 #' 
 createArrowFiles <- function(
@@ -181,8 +180,7 @@ createArrowFiles <- function(
   verboseHeader = TRUE,
   verboseAll = FALSE,
   tstart = NULL,
-  subThreads = 1,
-  ... #QQQ
+  subThreads = 1
   ){
 
   if(is.null(tstart)){

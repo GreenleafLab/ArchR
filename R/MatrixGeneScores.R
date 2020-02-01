@@ -16,14 +16,13 @@
 #' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
 #' @param ceiling The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
 #' @param useGeneBoundaries A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.
-#' @param scaleTo QQQ DOUBLE CHECK Each column in the calculated gene score matrix will be normalized to a column sum designated by `scaleTo`.
+#' @param scaleTo Each column in the calculated gene score matrix will be normalized to a column sum designated by `scaleTo`.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param blacklist A `GRanges` object containing genomic regions to blacklist that may be extremeley over-represented and thus biasing the geneScores for genes nearby that locus.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
@@ -41,8 +40,7 @@ addGeneScoreMatrix <- function(
   threads = getArchRThreads(),
   parallelParam = NULL,
   subThreading = TRUE,
-  force = FALSE,
-  ...#QQQ
+  force = FALSE
   ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -95,6 +93,9 @@ addGeneScoreMatrix <- function(
     args$threads <- length(inputFiles)
   }
 
+  #Remove Input from args
+  args$input <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
 
@@ -132,8 +133,7 @@ addGeneScoreMatrix <- function(
   allCells = NULL,
   force = FALSE,
   tmpFile = NULL,
-  subThreads = 1,
-  ...#QQQ
+  subThreads = 1
   ){
 
   .validInput(input = i, name = "i", valid = c("integer"))

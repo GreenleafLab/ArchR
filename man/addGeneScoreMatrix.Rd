@@ -20,8 +20,7 @@ addGeneScoreMatrix(
   threads = getArchRThreads(),
   parallelParam = NULL,
   subThreading = TRUE,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{
@@ -43,7 +42,7 @@ addGeneScoreMatrix(
 
 \item{useGeneBoundaries}{A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.}
 
-\item{scaleTo}{QQQ DOUBLE CHECK Each column in the calculated gene score matrix will be normalized to a column sum designated by \code{scaleTo}.}
+\item{scaleTo}{Each column in the calculated gene score matrix will be normalized to a column sum designated by \code{scaleTo}.}
 
 \item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
@@ -56,8 +55,6 @@ addGeneScoreMatrix(
 \item{subThreading}{A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{input}.}
-
-\item{...}{QQQ Additional parameters to be passed to QQQ.}
 }
 \description{
 This function, for each sample, will independently compute counts for each tile

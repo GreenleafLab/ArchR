@@ -14,8 +14,7 @@ addCNVMatrix(
   excludeChr = c("chrM", "chrY"),
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{
@@ -38,8 +37,6 @@ addCNVMatrix(
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the CNV matrix to be overwritten if it already exists for \code{input}.}
-
-\item{...}{QQQ Additional parameters to be passed to QQQ}
 }
 \description{
 This function for each sample will predict copy number variation from accessibility

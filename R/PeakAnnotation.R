@@ -217,7 +217,7 @@ addPeakAnnotations <- function(
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
+#' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a PWM object.
 #' @export
 addMotifAnnotations <- function(
   ArchRProj = NULL,
@@ -228,7 +228,7 @@ addMotifAnnotations <- function(
   cutOff = 5e-05, 
   width = 7,
   force = FALSE,
-  ...#QQQ
+  ...
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -904,8 +904,7 @@ enrichHeatmap <- function(
     labelCols = TRUE,
     showColDendrogram = TRUE,
     draw = FALSE,
-    name = "Enrichment -log10(FDR)",
-    ...#QQQ
+    name = "Enrichment -log10(FDR)"
   )
 
   return(ht)

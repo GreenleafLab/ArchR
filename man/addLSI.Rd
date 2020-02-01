@@ -66,7 +66,7 @@ Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logid
 
 \item{force}{A boolean value that indicates whether or not to overwrite relevant data in the \code{ArchRProject} object.}
 
-\item{scaleTo}{QQQ DOUBLE CHECK Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo} prior to variance calculation.}
+\item{scaleTo}{Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo} prior to TF-IDF normalization.}
 }
 \description{
 This function will compute an LSI dimensionality reduction on an ArchRProject.

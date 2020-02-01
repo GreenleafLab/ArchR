@@ -60,7 +60,7 @@ Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logid
 
 \item{selectionMethod}{The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.}
 
-\item{scaleTo}{QQQ DOUBLE CHECK Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo} prior to variance calculation.}
+\item{scaleTo}{Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo} prior to variance calculation and TF-IDF normalization.}
 
 \item{totalFeatures}{The number of features to consider for use in LSI after ranking the features by the total number of insertions. These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
 

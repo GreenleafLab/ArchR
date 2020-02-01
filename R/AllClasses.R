@@ -43,32 +43,6 @@ setMethod("show", "ArchRProject",
   }
 )
 
-#'Accessing cellColData directly from dollar.sign accessor
-#' 
-#' This function will allow direct access to cellColData with a `$` accessor.
-#'
-#' @export
-#'
-".DollarNames.ArchRProject" <- function(x, pattern = ''){
-  cn <- as.list(c("cellNames",colnames(x@cellColData)))
-  names(cn) <- c("cellNames",colnames(x@cellColData))
-  return(.DollarNames(x = cn, pattern = pattern))
-}
-
-#'Accessing cellColData directly from dollar.sign accessor
-#' 
-#' This function will allow direct access to cellColData with a `$` accessor.
-#'
-#' @export
-#'
-"$.ArchRProject" <- function(x, i, ...){
-  if(i=="cellNames"){
-    return(rownames(x@cellColData))
-  }else{
-    return(x@cellColData[[i, drop = TRUE]])
-  }
-}
-
 #' Create ArchRProject from ArrowFiles
 #' 
 #' This function will create an ArchRProject from the provided ArrowFiles.
@@ -133,7 +107,7 @@ ArchRProject <- function(
   intCols <- Reduce("intersect",lapply(metadataList,colnames))
   cellColData <- lapply(metadataList, function(x) x[,intCols]) %>% Reduce("rbind",.)
 
-  proj <- new("ArchRProject", 
+  AProj <- new("ArchRProject", 
     projectMetadata = SimpleList(outputDirectory = normalizePath(outputDirectory)),
     projectSummary = SimpleList(),
     sampleColData = sampleColData,
@@ -152,9 +126,9 @@ ArchRProject <- function(
     .ArchRLogo(ascii = "Logo") 
   }
 
-  proj <- addProjectSummary(proj, name = "DateOfCreation", summary = c("Date" = Sys.time()))
+  AProj <- addProjectSummary(AProj, name = "DateOfCreation", summary = c("Date" = Sys.time()))
 
-  proj
+  AProj
 
 }
 
@@ -316,3 +290,33 @@ loadArchRProject <- function(
   ArchRProj
 
 }
+
+
+
+
+#'Accessing cellColData directly from dollar.sign accessor
+#' 
+#' This function will allow direct access to cellColData with a `$` accessor.
+#'
+#' @export
+#'
+".DollarNames.ArchRProject" <- function(x, pattern = ''){
+  cn <- as.list(c("cellNames",colnames(x@cellColData)))
+  names(cn) <- c("cellNames",colnames(x@cellColData))
+  return(.DollarNames(x = cn, pattern = pattern))
+}
+
+#'Accessing cellColData directly from dollar.sign accessor
+#' 
+#' This function will allow direct access to cellColData with a `$` accessor.
+#'
+#' @export
+#'
+"$.ArchRProject" <- function(x, i, ...){
+  if(i=="cellNames"){
+    return(rownames(x@cellColData))
+  }else{
+    return(x@cellColData[[i, drop = TRUE]])
+  }
+}
+

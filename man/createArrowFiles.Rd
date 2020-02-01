@@ -102,8 +102,6 @@ For example, given \verb{window = 101, flank = 2000, norm = 100}, the accessibil
 \item{verboseHeader}{A boolean value that determines whether standard output should include verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output should include verbose subsections.}
-
-\item{...}{QQQ Additional parameters to be passed to QQQ.}
 }
 \description{
 This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.

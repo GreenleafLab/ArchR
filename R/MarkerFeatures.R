@@ -15,16 +15,14 @@
 #' @param normBy The name of a numeric column in `cellColData` that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.
 #' @param testMethod The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".
 #' @param maxCells The maximum number of cells to consider from a single-cell group when performing marker feature identification.
-#' @param scaleTo QQQ DOUBLE CHECK Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo`.
+#' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param k The number of nearby cells to use for selecting a biased-matched background while accounting for `bgdGroups` proportions.
 #' @param bufferRatio When generating optimal biased-matched background groups of cells to determine significance, it can be difficult to find sufficient numbers of well-matched cells to create a background group made up of an equal number of cells. The `bufferRatio` indicates the fraction of the total cells that must be obtained when creating the biased-matched group. For example to create a biased-matched background for a group of 100 cells, when `bufferRatio` is set to 0.8 the biased-matched background group will be composed of the 80 best-matched cells. This option provides flexibility in the generation of biased-matched background groups given the stringency of also maintaining the group proportions from `bgdGroups`.
 #' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when `useMatrix` is an insertion counts-based matrix.
 #' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
-#' @param method The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 markerFeatures <- function(
   ArchRProj = NULL,
@@ -42,10 +40,8 @@ markerFeatures <- function(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
-  method = "ArchR",
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...#QQQ
+  verboseAll = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -63,27 +59,12 @@ markerFeatures <- function(
   .validInput(input = bufferRatio, name = "bufferRatio", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
-  .validInput(input = method, name = "method", valid = c("character"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
   
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+  out <- do.call(.MarkersSC, args)
 
-  if(tolower(method) == "archr"){
- 
-    out <- do.call(.MarkersSC, args)
-    
-  }else if(tolower(method) == "venice"){
-
-    .requirePackage("signac", installInfo = 'devtools::install_github("bioturing/signac")')
-
-  }else{
-  
-    stop("Input Method Not Available!")
-  
-  }
-
-  args$ArchRProj <- NULL
   metadata(out)$Params <- args
 
   return(out)
@@ -687,7 +668,7 @@ markerFeatures <- function(
 #' @param seMarker A `SummarizedExperiment` object returned by `markerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like "DeviationsMatrix").
-#' @param scaleTo QQQ DOUBLE CHECK Each column in the matrix from `seMarker` will be normalized to a column sum designated by `scaleTo` prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
+#' @param scaleTo Each column in the assay Mean from `seMarker` will be normalized to a column sum designated by `scaleTo` prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
 #' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
 #' @param limits A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.
 #' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.
@@ -697,7 +678,8 @@ markerFeatures <- function(
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param invert QQQ UNCLEAR. WHAT DO YOU MEAN BY SORTING FEATURES AND COLOR?? A boolean value that indicates whether the heatmap will be inverted when QQQ sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
+#' @param invert JJJ A boolean value that indicates whether the heatmap will be sorted features by features that are Log2FC < 0 and the color palette is 
+#' inverted for visualization. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
 #' @export
 markerHeatmap <- function(
   seMarker = NULL,

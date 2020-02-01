@@ -54,7 +54,7 @@ This prevents skewed color scales caused by strong outliers. The format of this 
 the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and set values below/above to the value of
 the 2.5th and 97.5th percentile values respectively.}
 
-\item{quantHex}{QQQ STILL UNCLEAR. The xth quantile of all dots within each individual hexagon will determine the the numerical value for coloring to be displayed. This occurs when \code{plotAs} = "hex" or \code{NULL} (if numerical values by default).}
+\item{quantHex}{JJJ The numeric xth quantile of all dots within each individual hexagon will determine the the numerical value for coloring to be displayed. This occurs when \code{plotAs} = "hex" or \code{NULL} (if numerical values by default).}
 
 \item{discreteSet}{The name of a discrete palette from \code{ArchRPalettes} for visualizing \code{colorBy} in the embedding if a discrete color set is desired.}
 

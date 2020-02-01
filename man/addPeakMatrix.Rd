@@ -10,8 +10,7 @@ addPeakMatrix(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = TRUE,
-  ...
+  force = TRUE
 )
 }
 \arguments{
@@ -26,8 +25,6 @@ addPeakMatrix(
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the "PeakMatrix" to be overwritten if it already exist in the given \code{ArchRProject}.}
-
-\item{...}{QQQ Additional parameters to be passed to QQQ.}
 }
 \description{
 This function, for each sample, will independently compute counts for each peak

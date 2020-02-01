@@ -8,7 +8,7 @@ getFeatures(
   ArchRProj = NULL,
   useMatrix = "GeneScoreMatrix",
   select = NULL,
-  ignore.case = TRUE
+  ignoreCase = TRUE
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ getFeatures(
 
 \item{select}{A string specifying a specific feature name (or rowname) to be found with \code{grep}.}
 
-\item{ignore.case}{QQQ SHOULD BE ignoreCase FOR CONSISTENCY. A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to \code{select}.}
+\item{ignoreCase}{A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to \code{select}.}
 }
 \description{
 This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return them for downstream plotting utilities.

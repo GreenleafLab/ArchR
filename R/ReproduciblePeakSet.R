@@ -31,6 +31,7 @@
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param ... Additional params to be pass to `addGroupCoverages` to get sample-guided pseudobulk cell-groupings. Only used for `TileMatrix` peak calling. See `addGroupCoverages` for more info.
 #' @export
 addReproduciblePeakSet <- function(
 	ArchRProj = NULL,
@@ -56,7 +57,8 @@ addReproduciblePeakSet <- function(
 	parallelParam = NULL,
 	force = FALSE,
 	verboseHeader = TRUE,
-	verboseAll = FALSE
+	verboseAll = FALSE,
+	...
 	){
 
 	.validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -240,7 +242,7 @@ addReproduciblePeakSet <- function(
 			groupBy = groupBy,
 			returnGroups = TRUE,
 			minCells = minCells,
-			...#QQQ
+			...
 		)[[1]]$cellGroups
 
 		#####################################################

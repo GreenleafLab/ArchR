@@ -30,7 +30,7 @@ markerHeatmap(
 
 \item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values in \code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like "DeviationsMatrix").}
 
-\item{scaleTo}{QQQ DOUBLE CHECK Each column in the matrix from \code{seMarker} will be normalized to a column sum designated by \code{scaleTo} prior to log2 normalization. If log2Norm is \code{FALSE} this option has no effect.}
+\item{scaleTo}{Each column in the assay Mean from \code{seMarker} will be normalized to a column sum designated by \code{scaleTo} prior to log2 normalization. If log2Norm is \code{FALSE} this option has no effect.}
 
 \item{scaleRows}{A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.}
 
@@ -50,7 +50,8 @@ markerHeatmap(
 
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
-\item{invert}{QQQ UNCLEAR. WHAT DO YOU MEAN BY SORTING FEATURES AND COLOR?? A boolean value that indicates whether the heatmap will be inverted when QQQ sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).}
+\item{invert}{JJJ A boolean value that indicates whether the heatmap will be sorted features by features that are Log2FC < 0 and the color palette is
+inverted for visualization. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).}
 }
 \description{
 This function will plot a heatmap of the results from markerFeatures

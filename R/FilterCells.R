@@ -100,7 +100,7 @@ filterCells <- function(
 #' cells are filtered (a higher threshold is optional and can be passed as a numeric vector along with the lower threshold).
 #' Only the first 2 filters will be plotted.
 #' @param sampleNames The sample names corresponding to the subset of samples to plot. If `NULL`, all samples are included.
-#' @param ... QQQ Additional parameters to be passed to QQQ
+#' @param ... Additional params to be passed to ggPoint(if multiple filters) / ggViolin (if 1 filter).
 #' @export
 filterPlot <- function(
   ArchRProj = NULL, 

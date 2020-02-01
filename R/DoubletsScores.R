@@ -44,7 +44,7 @@ addDoubletScores <- function(
   verboseAll = FALSE
   ){
 
-  .validInput(input = input, name = "input", valid = c("character", "ArchRProj"))
+  .validInput(input = input, name = "input", valid = c("character", "ArchRProject"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = nTrials, name = "nTrials", valid = c("integer"))
@@ -91,6 +91,9 @@ addDoubletScores <- function(
   args$FUN <- .addDoubScores
   args$registryDir <- file.path(outDir, "AddDoubletsRegistry")
 
+  #Make Sure these Args are NULL
+  args$input <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args, sequential = TRUE)
   names(outList) <- names(ArrowFiles)
@@ -127,6 +130,7 @@ addDoubletScores <- function(
   dimsToUse = 1:30,
   corCutOff = 0.75,
   LSIMethod = 1,
+  sampleCells = NULL,
   scaleDims = FALSE,
   k = 10,
   nSample = 1000,
@@ -134,10 +138,14 @@ addDoubletScores <- function(
   outDir = "QualityControl",
   subThreads = 1,
   verboseHeader = TRUE,
-  verboseAll = FALSE
+  verboseAll = FALSE,
+  tstart = NULL
   ){
 
-  tstart <- Sys.time()
+  if(!is.null(tstart)){
+    tstart <- Sys.time()
+  }
+
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)
   outDir <- file.path(outDir, sampleName)

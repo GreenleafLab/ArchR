@@ -1127,15 +1127,15 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param select A string specifying a specific feature name (or rowname) to be found with `grep`.
-#' @param ignore.case QQQ SHOULD BE ignoreCase FOR CONSISTENCY. A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.
+#' @param ignoreCase A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.
 #' @export
-getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select = NULL, ignore.case = TRUE){
+getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select = NULL, ignoreCase = TRUE){
 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = useMatrix, name = "useMatrix", valid = "character")
   .validInput(input = select, name = "select", valid = c("character", "null"))
-  .validInput(input = ignore.case, name = "ignore.case", valid = "boolean")
+  .validInput(input = ignoreCase, name = "ignoreCase", valid = "boolean")
   #########
 
   fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
@@ -1147,9 +1147,9 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
       fdf$name
     }
   }else{
-    grepNames <- grep(select, fdf$name, value = TRUE, ignore.case = ignore.case)
+    grepNames <- grep(select, fdf$name, value = TRUE, ignore.case = ignoreCase)
     if(any(duplicated(grepNames))){
-      grepIdx <- grep(select, fdf$name, ignore.case = ignore.case)
+      grepIdx <- grep(select, fdf$name, ignore.case = ignoreCase)
       grepNames <- paste0(fdf$seqnames[grepIdx],":",fdf$name[grepIdx])
     }
     if(all(c("deviations", "z") %in% unique(paste0(fdf$seqnames)))){
