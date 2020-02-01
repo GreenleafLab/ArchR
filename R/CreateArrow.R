@@ -719,12 +719,12 @@ createArrowFiles <- function(
     errorCheck <- 0
 
     if(threads == 1){
-      if(x == 1 || x %% 10 == 0){
+      if(x %% 10 == 0){
         .messageDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
           verbose = verboseHeader, addHeader = verboseAll)
       }
     }else{
-      if(x == 1 || x %% (2 * threads + 1) == 0){
+      if(x %% (2 * threads + 1) == 0){
         .messageDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
                   verbose = verboseHeader, addHeader = verboseAll)
       }
@@ -937,12 +937,12 @@ createArrowFiles <- function(
     errorCheck <- 0
 
     if(threads == 1){
-      if(x == 1 || x %% 10 == 0){
+      if(x %% 10 == 0){
         .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
           verbose = verboseHeader, addHeader = verboseAll)
       }
     }else{
-      if(x == 1 || x %% (2 * threads + 1) == 0){
+      if(x %% (2 * threads + 1) == 0){
         .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
                   verbose = verboseHeader, addHeader = verboseAll)
       }
