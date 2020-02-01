@@ -1442,7 +1442,6 @@ ArchRBrowserTrack <- function(
 
 }
 
-
 .subsetSeqnamesGR <- function(gr = NULL, names = NULL){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))
   .validInput(input = names, name = "names", valid = c("character"))
