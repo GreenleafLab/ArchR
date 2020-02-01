@@ -8,7 +8,7 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options are "TileMatrix" or "PeakMatrix".
-#' @param reducedDimsOut The name to use for storage of the LSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
+#' @param name The name to use for storage of the LSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
@@ -31,7 +31,7 @@
 addLSI <- function(
   ArchRProj = NULL, 
   useMatrix = "TileMatrix",
-  reducedDimsOut = "LSI",
+  name = "LSI",
   dimsToUse = 1:30,
   scaleDims = TRUE,
   corCutOff = 0.75,
@@ -65,7 +65,7 @@ addLSI <- function(
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options are "TileMatrix" or "PeakMatrix".
-#' @param reducedDimsOut The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
+#' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
@@ -93,7 +93,7 @@ addLSI <- function(
 addIterativeLSI <- function(
   ArchRProj = NULL, 
   useMatrix = "TileMatrix",
-  reducedDimsOut = "IterativeLSI",
+  name = "IterativeLSI",
   iterations = 2,
   clusterParams = list(resolution = 0.2, sampleCells = 10000, n.start = 25),
   dimsToUse = 1:30,
@@ -147,15 +147,15 @@ addIterativeLSI <- function(
   .requirePackage("Matrix")
   tstart <- Sys.time()
 
-  if(!is.null(ArchRProj@reducedDims[[reducedDimsOut]])){
+  if(!is.null(ArchRProj@reducedDims[[name]])){
     if(!force){
-      stop("Error ReducedDimsOut Already Exists! Set force = TRUE or pick a different name!")
+      stop("Error name in reducedDims Already Exists! Set force = TRUE or pick a different name!")
     }
   }
 
   #Set Seed
   set.seed(seed)
-  outDir <- file.path(outDir, reducedDimsOut)
+  outDir <- file.path(outDir, name)
   dir.create(outDir, showWarnings = FALSE, recursive = TRUE)
 
   #All the Cell Names
@@ -397,7 +397,7 @@ addIterativeLSI <- function(
 
   #Organize Output
   .messageDiffTime("Finished Running IterativeLSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  ArchRProj@reducedDims[[reducedDimsOut]] <- outLSI
+  ArchRProj@reducedDims[[name]] <- outLSI
 
   return(ArchRProj)
 
