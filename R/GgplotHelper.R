@@ -106,6 +106,9 @@ ggPoint <- function(
     .validInput(input = dpi, name = "dpi", valid = c("numeric"))
 
     stopifnot(length(y) == length(x))
+    if(length(x) < 5){
+      stop("x must be at least length 5 to plot!")
+    }
 
     if(randomize){
       set.seed(seed)

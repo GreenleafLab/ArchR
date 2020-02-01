@@ -371,7 +371,7 @@ createArrowFiles <- function(
       x = log10(Metadata$nFrags),
       y = Metadata$TSSEnrichment, 
       colorDensity = TRUE,
-      continuousSet = "samba_night",
+      continuousSet = "sambaNight",
       xlabel = "Log 10 (Unique Fragments)",
       ylabel = "TSS Enrichment",
       title = ggtitle,
@@ -387,7 +387,7 @@ createArrowFiles <- function(
   }, error = function(x) {
 
       .messageDiffTime("Continuing through after error ggplot for TSS by Frags", tstart)
-      print(x)
+      message(x)
       message("\n")
 
   })
