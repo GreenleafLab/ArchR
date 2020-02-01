@@ -4,7 +4,7 @@
 \alias{$.ArchRProject}
 \title{Accessing cellColData directly from dollar.sign accessor}
 \usage{
-\method{$}{ArchRProject}(x, i, ...)
+\method{$}{ArchRProject}(x, i)
 }
 \description{
 This function will allow direct access to cellColData with a \code{$} accessor.

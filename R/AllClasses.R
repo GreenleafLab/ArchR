@@ -291,9 +291,6 @@ loadArchRProject <- function(
 
 }
 
-
-
-
 #'Accessing cellColData directly from dollar.sign accessor
 #' 
 #' This function will allow direct access to cellColData with a `$` accessor.
@@ -312,7 +309,7 @@ loadArchRProject <- function(
 #'
 #' @export
 #'
-"$.ArchRProject" <- function(x, i, ...){
+"$.ArchRProject" <- function(x, i){
   if(i=="cellNames"){
     return(rownames(x@cellColData))
   }else{
