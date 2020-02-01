@@ -888,7 +888,7 @@ markerHeatmap <- function(
   
   #Z-score
   if (scale) {
-    message("Scaling Matrix...")
+    message("Scaling Matrix..")
     mat <- .rowZscores(mat, limit = FALSE)
     name <- paste0(name," Z-Scores")
   }
@@ -927,7 +927,7 @@ markerHeatmap <- function(
 
   #Annotation Heatmap
   if(!is.null(colData) & !is.null(customColLabel)){
-    message("Adding Annotations...")
+    message("Adding Annotations..")
     if(is.null(customColLabelIDs)){
       customColLabelIDs <- colnames(mat)[customRowLabel]
     }
@@ -947,7 +947,7 @@ markerHeatmap <- function(
 
     )
   }else if(!is.null(colData)){
-    message("Adding Annotations...")
+    message("Adding Annotations..")
     ht1Anno <- HeatmapAnnotation(
       df = colData,
       col = colorMap, 
@@ -963,7 +963,7 @@ markerHeatmap <- function(
     if(is.null(customColLabelIDs)){
       customColLabelIDs <- colnames(mat)[customRowLabel]
     }
-    message("Adding Annotations...")
+    message("Adding Annotations..")
     ht1Anno <- HeatmapAnnotation(
       link = anno_check_version_cols(
         at = customColLabel, labels = customColLabelIDs),
@@ -973,7 +973,7 @@ markerHeatmap <- function(
     ht1Anno <- NULL
   }
 
-  message("Preparing Main Heatmap...")
+  message("Preparing Main Heatmap..")
   ht1 <- Heatmap(
     
     #Main Stuff

@@ -254,7 +254,7 @@ getTrajectory <- function(
 
     featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
 
-    message("Creating Trajectory Group Matrix...")
+    message("Creating Trajectory Group Matrix..")
     groupMat <- .getGroupMatrix(
         ArrowFiles = getArrowFiles(ArchRProj), 
         featureDF = featureDF,

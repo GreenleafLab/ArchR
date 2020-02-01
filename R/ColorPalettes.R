@@ -109,10 +109,10 @@ paletteDiscrete <- function(
   values <- gtools::mixedsort(values)
   n <- length(unique(values))
   pal <- ArchRPalettes[[set]]
-  palOrdered <- pal[gtools::mixedsort(names(pal))] #mixed sort gets 1,2,3,4...10,11,12
+  palOrdered <- pal[gtools::mixedsort(names(pal))] #mixed sort gets 1,2,3,4..10,11,12
 
   if(n > length(palOrdered)){
-    message("Length of unique values greater than palette, interpolating...")
+    message("Length of unique values greater than palette, interpolating..")
     palOut <- colorRampPalette(pal)(n)
   }else{
     palOut <- palOrdered[seq_len(n)]

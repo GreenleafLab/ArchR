@@ -374,12 +374,12 @@ ggOneToOne <- function (
   title <- sprintf("%s \nPearson = %s , Spearman = %s", title, pearson, spearman)
   
   #Get Density
-  message("adding denisty...")
+  message("adding denisty..")
   df <- .getDensity(x, y, n = nKernel, sample = nPlot) #change
   df <- df[order(df[, "density"]), ]
   
   #GGPlot
-  message("plotting...")
+  message("plotting..")
   gg <- ggPoint(
       x = df$x, 
       y = df$y, 

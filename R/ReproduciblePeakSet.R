@@ -717,7 +717,7 @@ addReproduciblePeakSet <- function(
 #' @export
 findMacs2 <- function(){
   
-  message("Searching For MACS2...")
+  message("Searching For MACS2..")
 
   #Check if in path
   if(.suppressAll(.checkPath("macs2", throwError = FALSE))){

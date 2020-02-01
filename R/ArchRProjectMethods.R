@@ -164,12 +164,12 @@ createGenomeAnnotation <- function(
   if(is.null(genome) | is.null(blacklist) | is.null(chromSizes)){
 
     ##################
-    message("Getting genome...")
+    message("Getting genome..")
     bsg <- validBSgenome(genome)
     genome <- bsg@pkgname
 
     ##################
-    message("Getting chromSizes...")
+    message("Getting chromSizes..")
     chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
     if(filter){
         chromSizes <- filterChrGR(chromSizes, remove = filterChr)
@@ -177,7 +177,7 @@ createGenomeAnnotation <- function(
     seqlengths(chromSizes) <- end(chromSizes)
 
     ##################
-    message("Getting blacklist...")
+    message("Getting blacklist..")
     blacklist <- .getBlacklist(genome = bsg@provider_version)
 
   }else{
@@ -242,7 +242,7 @@ createGeneAnnnotation <- function(
     }
 
     ###########################
-    message("Getting Genes...")
+    message("Getting Genes..")
     genes <- GenomicFeatures::genes(TxDb)
     mcols(genes)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, 
         column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
@@ -250,7 +250,7 @@ createGeneAnnnotation <- function(
     genes <- sort(sortSeqlevels(genes), ignore.strand = TRUE)
 
     ###########################
-    message("Getting Exons...")
+    message("Getting Exons..")
     exons <- unlist(GenomicFeatures::exonsBy(TxDb, by = "tx"))
     exons$tx_id <- names(exons)
     mcols(exons)$gene_id <- suppressMessages(AnnotationDbi::select(TxDb, keys = paste0(mcols(exons)$tx_id), 
@@ -266,7 +266,7 @@ createGeneAnnnotation <- function(
     exons <- sort(sortSeqlevels(exons), ignore.strand = TRUE)
 
     ###########################
-    message("Getting TSS...")
+    message("Getting TSS..")
     TSS <- unique(resize(GenomicFeatures::transcripts(TxDb), width = 1, fix = "start"))
 
     if(!is.null(inGenes)){
@@ -310,11 +310,11 @@ createGeneAnnnotation <- function(
     bl <- tryCatch({
       blacklist <- import.bed(encodeBL[tolower(genome)])
     }, error = function(x){
-      message("Blacklist not downloaded! Continuing without, be careful for downstream biases...")
+      message("Blacklist not downloaded! Continuing without, be careful for downstream biases..")
       GRanges()
     })
   }else{
-    message("Blacklist not downloaded! Continuing without, be careful for downstream biases...")
+    message("Blacklist not downloaded! Continuing without, be careful for downstream biases..")
     bl <- GRanges()
   }
 
@@ -331,7 +331,7 @@ createGeneAnnnotation <- function(
   if(toupper(genome) == "HG19"){
     if(suppressWarnings(!require(TxDb.Hsapiens.UCSC.hg19.knownGene))){
       if(install){
-        message("Package does not exist, now trying bioconductor...")
+        message("Package does not exist, now trying bioconductor..")
         BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene", update=FALSE)
       }else{
         stop("TxDb.Hsapiens.UCSC.hg19.knownGene is not installed!")
@@ -342,7 +342,7 @@ createGeneAnnnotation <- function(
   }else if(toupper(genome) == "HG38"){
     if(suppressWarnings(!require(TxDb.Hsapiens.UCSC.hg38.knownGene))){
       if(install){
-        message("Package does not exist, now trying bioconductor...")
+        message("Package does not exist, now trying bioconductor..")
         BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene", update=FALSE)
       }else{
         stop("TxDb.Hsapiens.UCSC.hg38.knownGene is not installed!")
@@ -353,7 +353,7 @@ createGeneAnnnotation <- function(
   }else if(toupper(genome) == "MM9"){
     if(suppressWarnings(!require(TxDb.Mmusculus.UCSC.mm9.knownGene))){
       if(install){
-        message("Package does not exist, now trying bioconductor...")
+        message("Package does not exist, now trying bioconductor..")
         BiocManager::install("TxDb.Mmusculus.UCSC.mm9.knownGene", update=FALSE)
       }else{
         stop("TxDb.Mmusculus.UCSC.mm9.knownGene is not installed!")
@@ -364,7 +364,7 @@ createGeneAnnnotation <- function(
   }else if(toupper(genome) == "MM10"){
     if(suppressWarnings(!require(TxDb.Mmusculus.UCSC.mm10.knownGene))){
       if(install){
-        message("Package does not exist, now trying bioconductor...")
+        message("Package does not exist, now trying bioconductor..")
         BiocManager::install("TxDb.Mmusculus.UCSC.mm10.knownGene", update=FALSE)
       }else{
         stop("TxDb.Mmusculus.UCSC.mm10.knownGene is not installed!")
@@ -375,7 +375,7 @@ createGeneAnnnotation <- function(
   }else if(toupper(genome) == "SACCER3"){
     if(suppressWarnings(!require(TxDb.Scerevisiae.UCSC.sacCer3.sgdGene))){
       if(install){
-        message("Package does not exist, now trying bioconductor...")
+        message("Package does not exist, now trying bioconductor..")
         BiocManager::install("TxDb.Scerevisiae.UCSC.sacCer3.sgdGene", update=FALSE)
       }else{
         stop("TxDb.Scerevisiae.UCSC.sacCer3.sgdGene is not installed!")
@@ -386,7 +386,7 @@ createGeneAnnnotation <- function(
   }else if(toupper(genome) == "RHEMAC8"){
     if(suppressWarnings(!require(TxDb.Mmulatta.UCSC.rheMac8.refGene))){
       if(install){
-        message("Package does not exist, now trying bioconductor...")
+        message("Package does not exist, now trying bioconductor..")
         BiocManager::install("TxDb.Mmulatta.UCSC.rheMac8.refGene", update=FALSE)
       }else{
         stop("TxDb.Mmulatta.UCSC.rheMac8.refGene is not installed!")
@@ -412,14 +412,14 @@ createGeneAnnnotation <- function(
 
   if(toupper(genome) == "HG19" | toupper(genome) == "HG38"){
     if(suppressWarnings(!require(org.Hs.eg.db))){
-      message("Package does not exist, now trying bioconductor...")
+      message("Package does not exist, now trying bioconductor..")
       BiocManager::install("org.Hs.eg.db", update=FALSE)
     }
     library(org.Hs.eg.db)
     annodb <- org.Hs.eg.db
   }else if(toupper(genome) == "MM9" | toupper(genome) == "MM10"){
     if(suppressWarnings(!require(org.Mm.eg.db))){
-      message("Package does not exist, now trying bioconductor...")
+      message("Package does not exist, now trying bioconductor..")
       BiocManager::install("org.Mm.eg.db", update=FALSE)
     }
     library(org.Mm.eg.db)
@@ -963,8 +963,7 @@ getReducedDims <- function(
   returnMatrix = TRUE, 
   dimsToUse = NULL,
   scaleDims = NULL,
-  corCutOff = 0.75,
-  ...
+  corCutOff = 0.75
   ){
 
   #Validate

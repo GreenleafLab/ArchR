@@ -680,7 +680,7 @@ getMatrixFromArrow <- function(
     res <- .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, fid@native, PACKAGE='rhdf5')
     invisible(.Call("_H5Dclose", did, PACKAGE='rhdf5'))   
   }else{
-    res <- h5read(file = file, name = name, index = index, start = start, block = block, count = count, ...)
+    res <- h5read(file = file, name = name, index = index, start = start, block = block, count = count)
   }
   o <- h5closeAll()
   return(res)

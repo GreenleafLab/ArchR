@@ -126,7 +126,7 @@ createArrowFiles <- function(
   outArrows <- tryCatch({
     unlist(.batchlapply(args))
   },error = function(x){
-    message("createArrowFiles has encountered an error, checking if any ArrowFiles completed...")
+    message("createArrowFiles has encountered an error, checking if any ArrowFiles completed..")
     for(i in seq_along(args$outputNames)){
       out <- paste0(args$outputNames[i],".arrow")
       if(file.exists(out)){
@@ -670,7 +670,7 @@ createArrowFiles <- function(
     TRUE
   }, error = function(x){
     tryCatch({
-      message("Attempting to index ", file," as tabix...")
+      message("Attempting to index ", file," as tabix..")
       indexTabix(file, format = "bed")
       TRUE
     }, error = function(y){
@@ -1337,7 +1337,7 @@ createArrowFiles <- function(
   o <- h5createGroup(outArrow, paste0("Fragments"))
 
   #############################################################
-  #Read in TSV File...
+  #Read in TSV File..
   #############################################################
   .messageDiffTime("Reading full inputTSV with data.table::fread", tstart, addHeader = TRUE)
   dt <- fread(tsvFile, sep = "\t", select = c(1,2,3,4))
@@ -1369,7 +1369,7 @@ createArrowFiles <- function(
   dt <- dt[BiocGenerics::which(dt$chr %bcin% paste0(seqnames(chromSizes))),]
 
   #############################################################
-  #Check all chromSizes represented...
+  #Check all chromSizes represented..
   #############################################################
   if(nrow(dt) == 0 | !all(paste0(seqnames(chromSizes)) %in% uniqueChr)){
     notIn <- paste0(seqnames(chromSizes)[BiocGenerics::which(seqnames(chromSizes) %bcni% uniqueChr)])

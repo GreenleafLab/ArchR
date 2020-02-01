@@ -62,7 +62,7 @@ ArchRBrowser <- function(
     #Reverse
     ed[isMinus] <- ed[isMinus] + upstream
     st[isMinus] <- st[isMinus] - downstream
-    #If Any extensions now need to be flipped...
+    #If Any extensions now need to be flipped.
     end(gr) <- pmax(st, ed)
     start(gr) <- pmin(st, ed)
     return(gr)

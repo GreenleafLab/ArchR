@@ -336,7 +336,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   t2 = Sys.time(),
   units = "mins",
   header = "###########",
-  tail = "elapsed...",
+  tail = "elapsed..",
   precision = 3
   ){
 

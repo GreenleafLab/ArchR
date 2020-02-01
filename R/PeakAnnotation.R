@@ -522,7 +522,7 @@ addArchRAnnotations <- function(
     
     #Download
     if(!file.exists(file.path(annoPath, basename(url)))){
-      message("Annotation ", basename(url)," does not exist! Downloading...")
+      message("Annotation ", basename(url)," does not exist! Downloading..")
       download.file(
         url = url, 
         destfile = file.path(annoPath, basename(url)),
@@ -547,7 +547,7 @@ addArchRAnnotations <- function(
 
     #Download
     if(!file.exists(file.path(annoPath, basename(url)))){
-      message("Annotation ", basename(url)," does not exist! Downloading...")
+      message("Annotation ", basename(url)," does not exist! Downloading..")
       download.file(
         url = url, 
         destfile = file.path(annoPath, basename(url)),
