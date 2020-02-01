@@ -15,8 +15,7 @@ getTrajectory(
   log2Norm = TRUE,
   scaleTo = 10000,
   smooth = TRUE,
-  smoothFormula = "y ~ s(x, bs = 'cs')",
-  ...
+  smoothFormula = "y ~ s(x, bs = 'cs')"
 )
 }
 \arguments{
@@ -41,8 +40,6 @@ getTrajectory(
 \item{smooth}{A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.}
 
 \item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the \code{formula} parameter in \code{mgcv::gam()} for additional information.}
-
-\item{...}{additional args}
 }
 \description{
 This function will get a supervised trajectory from an \code{ArchRProject} (see \code{addTrajectory}), get data

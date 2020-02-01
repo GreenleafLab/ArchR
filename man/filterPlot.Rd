@@ -17,7 +17,7 @@ Only the first 2 filters will be plotted.}
 
 \item{sampleNames}{The sample names corresponding to the subset of samples to plot. If \code{NULL}, all samples are included.}
 
-\item{...}{additional params}
+\item{...}{QQQ Additional parameters to be passed to QQQ}
 }
 \description{
 This function plots a list of attributes with filter criteria to visualize which cells would pass filter.

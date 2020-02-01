@@ -20,8 +20,7 @@ markerHeatmap(
   nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
-  invert = FALSE,
-  ...
+  invert = FALSE
 )
 }
 \arguments{
@@ -52,8 +51,6 @@ markerHeatmap(
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
 \item{invert}{QQQ UNCLEAR. WHAT DO YOU MEAN BY SORTING FEATURES AND COLOR?? A boolean value that indicates whether the heatmap will be inverted when QQQ sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).}
-
-\item{...}{additional args}
 }
 \description{
 This function will plot a heatmap of the results from markerFeatures

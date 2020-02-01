@@ -28,8 +28,7 @@ addReproduciblePeakSet(
   parallelParam = NULL,
   force = FALSE,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
 )
 }
 \arguments{
@@ -80,8 +79,6 @@ addReproduciblePeakSet(
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 This function will get insertions from coverage files, call peaks,

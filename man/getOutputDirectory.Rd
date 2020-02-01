@@ -4,12 +4,10 @@
 \alias{getOutputDirectory}
 \title{Get outputDirectory from an ArchRProject}
 \usage{
-getOutputDirectory(ArchRProj = NULL, ...)
+getOutputDirectory(ArchRProj = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the outputDirectory from a given ArchRProject.

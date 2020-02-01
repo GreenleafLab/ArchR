@@ -16,8 +16,7 @@ ggViolin(
   ratioYX = NULL,
   sampleRatio = 0.1,
   title = "",
-  pal = paletteDiscrete(values = x, set = "stallion"),
-  ...
+  pal = paletteDiscrete(values = x, set = "stallion")
 )
 }
 \arguments{

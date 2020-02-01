@@ -4,7 +4,7 @@
 \alias{getMatches}
 \title{Get peak annotation matches from an ArchRProject}
 \usage{
-getMatches(ArchRProj = NULL, name = NULL, annoName = NULL, ...)
+getMatches(ArchRProj = NULL, name = NULL, annoName = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -12,8 +12,6 @@ getMatches(ArchRProj = NULL, name = NULL, annoName = NULL, ...)
 \item{name}{The name of the \code{peakAnnotation} object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
 
 \item{annoName}{The name of a specific annotation to subset within the \code{peakAnnotation}.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets peak annotation matches from a given ArchRProject.

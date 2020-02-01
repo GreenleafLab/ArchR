@@ -36,8 +36,7 @@ ggPoint(
   labelSize = 1.5,
   addFit = NULL,
   rastr = FALSE,
-  dpi = 300,
-  ...
+  dpi = 300
 )
 }
 \arguments{

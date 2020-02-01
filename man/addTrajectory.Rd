@@ -15,8 +15,7 @@ addTrajectory(
   postFilterQ = 0.9,
   dof = 250,
   spar = 1,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{
@@ -41,8 +40,6 @@ addTrajectory(
 \item{spar}{The sparsity to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
 \item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
-
-\item{...}{additional args}
 }
 \description{
 This function will fit a supervised trajectory in a lower dimensional space that

@@ -41,8 +41,8 @@
 #' 
 createArrowFiles <- function(
   inputFiles = NULL, 
-  sampleNames = NULL, 
-  outputNames = paste0("./", sampleNames),
+  sampleNames = names(inputFiles), 
+  outputNames = sampleNames,
   validBarcodes = NULL,
   geneAnnotation = getGeneAnnotation(),
   genomeAnnotation = getGenomeAnnotation(),
@@ -75,6 +75,12 @@ createArrowFiles <- function(
 
   .validInput(input = inputFiles, name = "inputFiles", valid = c("character"))
   .validInput(input = sampleNames, name = "sampleNames", valid = c("character"))
+  if(length(sampleNames) != length(inputFiles)){
+    stop("sampleNames must be equal length to inputFiles")
+  }
+  if(length(outputNames) != length(inputFiles)){
+    stop("outputNames must be equal length to inputFiles")
+  }
   .validInput(input = outputNames, name = "outputNames", valid = c("character"))
   .validInput(input = validBarcodes, name = "validBarcodes", valid = c("list", "character", "null"))
   geneAnnotation <- .validGeneAnnotation(geneAnnotation)

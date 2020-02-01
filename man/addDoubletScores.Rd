@@ -10,19 +10,20 @@ addDoubletScores(
   k = 10,
   nTrials = 5,
   dimsToUse = 1:30,
-  scaleDims = TRUE,
   LSIMethod = 2,
+  scaleDims = TRUE,
   corCutOff = 0.75,
   sampleCells = NULL,
   knnMethod = "UMAP",
-  UMAPParams = list(),
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose =
+    FALSE),
   LSIParams = list(),
-  outDir = "QualityControl",
+  outDir = if (inherits(input, "ArchRProject")) getOutputDirectory(input) else
+    "QualityControl",
   threads = getArchRThreads(),
   parallelParam = NULL,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
 )
 }
 \arguments{
@@ -40,7 +41,7 @@ addDoubletScores(
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{knnMethod}{The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".}
+\item{knnMethod}{The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "LSI".}
 
 \item{UMAPParams}{The list of parameters to pass to the UMAP function if "UMAP" is designated to \code{knnMethod}. See the function \code{umap} in the uwot package.}
 
@@ -55,8 +56,6 @@ addDoubletScores(
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information

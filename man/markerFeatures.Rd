@@ -63,7 +63,7 @@ markerFeatures(
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
-\item{...}{additional args}
+\item{...}{QQQ Additional parameters to be passed to QQQ.}
 }
 \description{
 This function will identify features that are definitional of each provided cell grouping where possible

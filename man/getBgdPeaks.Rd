@@ -10,8 +10,7 @@ getBgdPeaks(
   w = 0.1,
   binSize = 50,
   seed = 1,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{

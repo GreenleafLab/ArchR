@@ -4,14 +4,12 @@
 \alias{getValidBarcodes}
 \title{Get Valid Barcodes from 10x Cell Ranger output to pre-filter barcodes}
 \usage{
-getValidBarcodes(csvFiles = NULL, sampleNames = NULL, ...)
+getValidBarcodes(csvFiles = NULL, sampleNames = NULL)
 }
 \arguments{
 \item{csvFiles}{A character vector of names from 10x CSV files to be read in for identification of valid cell barcodes.}
 
 \item{sampleNames}{A character vector containing the sample names to be associated with each individual entry in \code{csvFiles}.}
-
-\item{...}{additional args}
 }
 \description{
 This function will read in processed 10x cell ranger files and identify barcodes that are associated with a cell that passed QC.

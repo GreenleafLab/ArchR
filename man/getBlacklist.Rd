@@ -4,12 +4,10 @@
 \alias{getBlacklist}
 \title{Get the blacklist from an ArchRProject}
 \usage{
-getBlacklist(ArchRProj = NULL, ...)
+getBlacklist(ArchRProj = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the blacklist (the regions to be excluded from analysis) as a GRanges object from the genomeAnnotation of a given ArchRProject.

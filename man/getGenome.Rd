@@ -4,12 +4,10 @@
 \alias{getGenome}
 \title{Get the genome used by an ArchRProject}
 \usage{
-getGenome(ArchRProj = NULL, ...)
+getGenome(ArchRProj = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the name of the genome from the genomeAnnotation used by a given ArchRProject.

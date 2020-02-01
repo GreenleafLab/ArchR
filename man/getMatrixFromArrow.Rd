@@ -11,8 +11,7 @@ getMatrixFromArrow(
   cellNames = NULL,
   ArchRProj = NULL,
   verbose = TRUE,
-  binarize = FALSE,
-  ...
+  binarize = FALSE
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ getMatrixFromArrow(
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.}
-
-\item{...}{additional params}
 }
 \description{
 This function gets a given data matrix from an individual ArrowFile.

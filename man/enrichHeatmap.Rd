@@ -11,8 +11,7 @@ enrichHeatmap(
   n = 10,
   clusterCols = TRUE,
   clusterRows = TRUE,
-  labelRows = TRUE,
-  ...
+  labelRows = TRUE
 )
 }
 \arguments{
@@ -27,8 +26,6 @@ enrichHeatmap(
 \item{clusterRows}{A boolean indicating whether or not to cluster rows in the heatmap.}
 
 \item{labelRows}{A boolean indicating whether or not to label all rows in the heatmap.}
-
-\item{...}{additional args}
 
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{peakAnnoEnrichment()}.}
 }

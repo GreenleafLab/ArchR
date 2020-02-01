@@ -4,7 +4,7 @@
 \alias{addProjectSummary}
 \title{Add projectSummary to an ArchRProject}
 \usage{
-addProjectSummary(ArchRProj = NULL, name = NULL, summary = NULL, ...)
+addProjectSummary(ArchRProj = NULL, name = NULL, summary = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -12,8 +12,6 @@ addProjectSummary(ArchRProj = NULL, name = NULL, summary = NULL, ...)
 \item{name}{The name of the summary information to add to the \code{ArchRProject} object.}
 
 \item{summary}{A vector to add as summary information to the \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function adds info to the projectSummary of an ArchRProject

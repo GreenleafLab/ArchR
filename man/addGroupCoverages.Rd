@@ -20,8 +20,7 @@ addGroupCoverages(
   parallelParam = NULL,
   force = FALSE,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
 )
 }
 \arguments{
@@ -56,8 +55,6 @@ addGroupCoverages(
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file.

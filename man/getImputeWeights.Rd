@@ -4,12 +4,10 @@
 \alias{getImputeWeights}
 \title{Get Imputation Weights from ArchRProject}
 \usage{
-getImputeWeights(ArchRProj = NULL, ...)
+getImputeWeights(ArchRProj = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets imputation weights from an ArchRProject to impute numeric values.

@@ -4,7 +4,7 @@
 \alias{filterCells}
 \title{Filter cells in an ArchRProject}
 \usage{
-filterCells(ArchRProj = NULL, filterList = NULL, ...)
+filterCells(ArchRProj = NULL, filterList = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -16,8 +16,6 @@ If a chatacter vector, only the rows in \code{cellColData} with \code{rownames} 
 If a list or simpleList, the user can additionally supply filters that are applied to all samples or a subset of specified samples.
 For example, to apply a filter to all samples: list("TSSEnrichment" = c(4,25)).
 Similarly, to aply a filter only to specific samples: list("TSSEnrichment" = list("Sample1" = c(4, 25), "Sample2" = c(5, 25))).}
-
-\item{...}{additional params}
 }
 \description{
 This function returns an ArchRProject object that has been filtered to remove cells that do not pass the filter critera suppplied in filterList.

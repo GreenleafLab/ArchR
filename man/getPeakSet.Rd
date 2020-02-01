@@ -4,12 +4,10 @@
 \alias{getPeakSet}
 \title{Get the peak set from an ArchRProject}
 \usage{
-getPeakSet(ArchRProj = NULL, ...)
+getPeakSet(ArchRProj = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the peak set as a GRanges object from an ArchRProject.

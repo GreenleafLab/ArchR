@@ -11,8 +11,7 @@ addBgdPeaks(
   binSize = 50,
   seed = 1,
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{

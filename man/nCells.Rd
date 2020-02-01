@@ -4,12 +4,10 @@
 \alias{nCells}
 \title{Get the number of cells from an ArchRProject/ArrowFile}
 \usage{
-nCells(input = NULL, ...)
+nCells(input = NULL)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or the path to an ArrowFile.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets number of cells from an ArchRProject or ArrowFile

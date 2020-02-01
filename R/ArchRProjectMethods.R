@@ -1008,6 +1008,7 @@ getReducedDims <- function(
 
     }else{
       
+      out <- ArchRProj@reducedDims[[reducedDims]]
       out$dimsKept <- corToUse[idx]
       out[[1]] <- matDR
       return(out)

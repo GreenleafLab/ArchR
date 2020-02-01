@@ -23,7 +23,6 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addDoubletScores <- function(
   input = NULL,
@@ -31,19 +30,18 @@ addDoubletScores <- function(
   k = 10,
   nTrials = 5,
   dimsToUse = 1:30,
-  LSIMethod = 1,
-  scaleDims = FALSE,
+  LSIMethod = 2,
+  scaleDims = TRUE,
   corCutOff = 0.75,
   sampleCells = NULL,
   knnMethod = "UMAP",
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric= "euclidean", verbose=FALSE),
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose = FALSE),
   LSIParams = list(),
   outDir = if(inherits(input, "ArchRProject")) getOutputDirectory(input) else "QualityControl",  
   threads = getArchRThreads(),
   parallelParam = NULL,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   .validInput(input = input, name = "input", valid = c("character", "ArchRProj"))
@@ -126,7 +124,7 @@ addDoubletScores <- function(
   UMAPParams = list(),
   LSIParams = list(),
   nTrials = 5,
-  dimsToUse = 1:25,
+  dimsToUse = 1:30,
   corCutOff = 0.75,
   LSIMethod = 1,
   scaleDims = FALSE,
@@ -136,8 +134,7 @@ addDoubletScores <- function(
   outDir = "QualityControl",
   subThreads = 1,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...#QQQ
+  verboseAll = FALSE
   ){
 
   tstart <- Sys.time()
@@ -211,7 +208,7 @@ addDoubletScores <- function(
   cellNames <- rownames(getCellColData(proj))
 
   #################################################
-  # 2. Run UMAP for LSI-Projection
+  # 4. Run UMAP for LSI-Projection
   #################################################
   .messageDiffTime("Running LSI UMAP", tstart, addHeader = verboseHeader)
   set.seed(1) # Always do this prior to UMAP
@@ -223,7 +220,7 @@ addDoubletScores <- function(
   uwotUmap <- do.call(uwot::umap, UMAPParams)
 
   #################################################
-  # 4. Simulate and Project Doublets
+  # 5. Simulate and Project Doublets
   #################################################
   .messageDiffTime("Simulating and Projecting Doublets", tstart, addHeader = verboseHeader)
   simDoubletsSave <- .simulateProjectDoublets(
@@ -254,7 +251,7 @@ addDoubletScores <- function(
   }
 
   #################################################
-  # 5. Plot / Save Results
+  # 6. Plot / Save Results
   #################################################
 
   pal <- c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF") #grey_magma
@@ -400,7 +397,7 @@ addDoubletScores <- function(
   })
 
   #################################################
-  # 6. Add Info To Arrow!
+  # 7. Add Info To Arrow!
   #################################################
   allCells <- .availableCells(ArrowFile, passQC = FALSE)
   
@@ -465,7 +462,7 @@ addDoubletScores <- function(
                       .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
 
       #Project LSI
-      lsiProject <- suppressMessages(ArchR:::.projectLSI(simulatedMat, LSI))
+      lsiProject <- suppressMessages(.projectLSI(simulatedMat, LSI))
       rownames(lsiProject) <- NULL
 
       lsiProject
@@ -490,7 +487,7 @@ addDoubletScores <- function(
   gc()
 
   if(LSI$scaleDims){
-    allLSI <- .scaleDims(allLSI, xm = LSI$dimsMean, xs = LSI$dimsSd)
+    allLSI <- .scaleDims(allLSI)
   }
 
   #Project UMAP
@@ -557,7 +554,6 @@ addDoubletScores <- function(
   #Store Results
   out$doubletEnrichLSI <- doubletEnrich
   out$doubletScoreLSI <- doubletScore
-
 
   ##############################################################################
   # Compute Doublet Scores from LSI (TF-IDF + SVD) + UMAP Embedding
@@ -643,5 +639,7 @@ addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames =
   ArchRProj
   
 }
+
+
 
 

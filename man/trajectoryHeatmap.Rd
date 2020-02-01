@@ -36,7 +36,7 @@ trajectoryHeatmap(
 
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
-\item{...}{additional args}
+\item{...}{QQQ THIS IS A HIDDEN FUNCTION Additional parameters to be passed to .ArchRHeatmap.}
 }
 \description{
 This function will plot a heatmap of the results from getTrajectory

@@ -38,8 +38,6 @@ ArchRBrowser(
 \item{geneAnnotation}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See \code{createGeneAnnotation()} for more info.}
 
 \item{browserTheme}{A \code{shinytheme} from shinythemes for viewing the ArchR Browser. If not installed this will be NULL. To install try devtools::install_github("rstudio/shinythemes").}
-
-\item{...}{additional args}
 }
 \description{
 This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.

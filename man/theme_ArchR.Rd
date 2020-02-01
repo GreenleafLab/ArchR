@@ -14,8 +14,7 @@ theme_ArchR(
   legendTextSize = 5,
   axisTickCm = 0.1,
   xText90 = FALSE,
-  yText90 = FALSE,
-  ...
+  yText90 = FALSE
 )
 }
 \arguments{

@@ -34,6 +34,8 @@ addDeviationsMatrix(
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the ArrowFiles associated with the given \code{ArchRProject}.}
+
+\item{...}{QQQ Additional parameters to be passed to QQQ.}
 }
 \description{
 This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).

@@ -9,8 +9,7 @@ addArchRAnnotations(
   db = "LOLA",
   collection = "EncodeTFBS",
   name = collection,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{
@@ -26,8 +25,6 @@ If supplying a custom ArchRAnno please use a valid collection.}
 \item{name}{The name of \code{peakAnnotation} object to be stored as in \code{ArchRProject}.}
 
 \item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
-
-\item{...}{additional args}
 }
 \description{
 This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.

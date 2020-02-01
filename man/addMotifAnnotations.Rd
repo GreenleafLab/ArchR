@@ -33,7 +33,7 @@ addMotifAnnotations(
 
 \item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 
-\item{...}{additional args}
+\item{...}{QQQ Additional parameters to be passed to QQQ.}
 }
 \description{
 This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.

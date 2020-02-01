@@ -57,7 +57,7 @@ ggOneToOne(
 
 \item{pal}{A custom palette from \code{ArchRPalettes} used to display the density of points on the plot.}
 
-\item{...}{Additional params to be supplied to ggPoint}
+\item{...}{QQQ I DONT THINK THIS IS USED. DELETE FROM FUNCTION IF YOU AGREE. Additional params to be supplied to ggPoint}
 }
 \description{
 This function is a wrapper around ggplot geom_point to allow for plotting one-to-one sample comparisons in ArchR.

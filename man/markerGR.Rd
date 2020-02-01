@@ -4,14 +4,12 @@
 \alias{markerGR}
 \title{Identify Marker Feature Ranges}
 \usage{
-markerGR(seMarker = NULL, cutOff = "FDR <= 0.1 & Log2FC >= 0.5", ...)
+markerGR(seMarker = NULL, cutOff = "FDR <= 0.1 & Log2FC >= 0.5")
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker}. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
-
-\item{...}{additional args}
 }
 \description{
 This function will identify Markers and return a GRangesList for each group of significant marker regions.

@@ -14,8 +14,7 @@ addImputeWeights(
   ka = 4,
   sampleCells = max(5000, floor(nCells(ArchRProj)/10)),
   k = 15,
-  epsilon = 1,
-  ...
+  epsilon = 1
 )
 }
 \arguments{
@@ -39,8 +38,6 @@ imputation for numerical values within these cells. ArchR creates many blocks to
 \item{k}{The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).}
 
 \item{epsilon}{The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).}
-
-\item{...}{additional params}
 }
 \description{
 This function computes imputations weights that describe each cell as a linear combination of many cells based on a MAGIC diffusion matrix.

@@ -4,12 +4,10 @@
 \alias{getArrowFiles}
 \title{Get ArrowFiles from an ArchRProject}
 \usage{
-getArrowFiles(ArchRProj = NULL, ...)
+getArrowFiles(ArchRProj = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the names of all ArrowFiles associated with a given ArchRProject.

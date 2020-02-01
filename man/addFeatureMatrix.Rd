@@ -32,6 +32,8 @@ addFeatureMatrix(
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the \code{input}.}
+
+\item{...}{QQQ Additional parameters to be passed to QQQ.}
 }
 \description{
 This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.

@@ -24,8 +24,7 @@ plotFootprints(
   useSink = TRUE,
   threads = getArchRThreads(),
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
 )
 }
 \arguments{
@@ -68,8 +67,6 @@ plotFootprints(
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment

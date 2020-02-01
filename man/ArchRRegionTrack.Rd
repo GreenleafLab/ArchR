@@ -27,8 +27,7 @@ ArchRRegionTrack(
   tickWidth = 0.4,
   facetbaseSize = 7,
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  title = "",
-  ...
+  title = ""
 )
 }
 \arguments{
@@ -75,8 +74,6 @@ ArchRRegionTrack(
 \item{geneAnnotation}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See \code{createGeneAnnotation()} for more info.}
 
 \item{title}{The title to add at the top of the plot next to the plot's genomic coordinates.}
-
-\item{...}{additional args}
 }
 \description{
 This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.

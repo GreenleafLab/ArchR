@@ -4,12 +4,10 @@
 \alias{getSampleNames}
 \title{Get the sample names from an ArchRProject}
 \usage{
-getSampleNames(ArchRProj = NULL, ...)
+getSampleNames(ArchRProj = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the names of all samples from a given ArchRProject.
