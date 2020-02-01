@@ -22,6 +22,17 @@
   matrixName
 }
 
+.availableArrays <- function(ArrowFiles = NULL){
+  o <- h5closeAll()
+  availableArrays <- lapply(seq_along(ArrowFiles), function(x){
+    groups <- h5ls(ArrowFiles[x]) %>% {.[.$group=="/" & .$otype=="H5I_GROUP","name"]}
+    groups <- groups[!grepl("Fragments|Metadata", groups)]
+    groups
+  }) %>% Reduce("intersect", .)
+  o <- h5closeAll()
+  return(availableArrays)
+}
+
 .availableSeqnames <- function(ArrowFiles = NULL, subGroup = "Fragments"){
   o <- h5closeAll()
   seqList <- lapply(seq_along(ArrowFiles), function(x){

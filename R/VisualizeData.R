@@ -86,6 +86,15 @@ plotEmbedding <- function(
   plotParams$size <- size
   plotParams$randomize <- randomize
 
+  #Make Sure ColorBy is valid!
+  if(length(colorBy) > 1){
+    stop("colorBy must be of length 1!")
+  }
+  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)))
+  if(tolower(colorBy) %ni% tolower(allColorBy)){
+    stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
+  }
+  colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
 
   if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
       
@@ -245,6 +254,16 @@ plotGroups <- function(
   .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
   .requirePackage("ggplot2")
+
+  #Make Sure ColorBy is valid!
+  if(length(colorBy) > 1){
+    stop("colorBy must be of length 1!")
+  }
+  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)))
+  if(tolower(colorBy) %ni% tolower(allColorBy)){
+    stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
+  }
+  colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
 
   groups <- getCellColData(ArchRProj, groupBy, drop = FALSE)
   groupNames <- groups[,1]

@@ -1430,3 +1430,23 @@ getValidBarcodes <- function(csvFiles = NULL, sampleNames = NULL){
   barcodeList
 
 }
+
+
+#' Get a list available matrices in the ArrowFiles storted in an ArchRProject JJJ
+#' 
+#' This function gets the available matrices from the ArrowFiles in a given ArchRProject object.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @export
+getAvailableMatrices <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+  .availableArrays(getArrowFiles(ArchRProj=ArchRProj))
+}
+
+
+
+
+
+
+
+

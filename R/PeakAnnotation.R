@@ -474,7 +474,7 @@ addMotifAnnotations <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param db A character indicating which database or a path to a database to use for peak annotation. Options include ArchR, LOLA, and a valid path to a file of class `ArchRAnno`.
 #' @param collection A character indicating which collection within the database to collect for annotation. 
-#' For ArchR, options JJJ include to be added.
+#' For ArchR, options "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
 #' For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
 #' If supplying a custom ArchRAnno please use a valid collection.
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
@@ -482,7 +482,7 @@ addMotifAnnotations <- function(
 #' @export
 addArchRAnnotations <- function(
   ArchRProj = NULL,
-  db = "LOLA",
+  db = "ArchR",
   collection = "EncodeTFBS",
   name = collection,
   force = FALSE
@@ -538,10 +538,10 @@ addArchRAnnotations <- function(
     }else if(genome == "hg38"){
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Hg38-v1.Anno"
     }else if(genome == "mm9"){
-      stop("ArchR mm9 annotations not yet supported!")
+      stop("ArchR mm9 annotations not yet supported! Try LOLA for now!")
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm9-v1.Anno"
     }else if(genome == "mm10"){
-      stop("ArchR mm10 annotations not yet supported!")
+      stop("ArchR mm10 annotations not yet supported! Try LOLA for now!")
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm10-v1.Anno"
     }
 

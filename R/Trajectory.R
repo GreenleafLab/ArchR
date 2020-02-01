@@ -512,6 +512,16 @@ plotTrajectory <- function(
 
   .requirePackage("ggplot2")
 
+  #Make Sure ColorBy is valid!
+  if(length(colorBy) > 1){
+    stop("colorBy must be of length 1!")
+  }
+  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)))
+  if(tolower(colorBy) %ni% tolower(allColorBy)){
+    stop("colorBy (",colorBy,") must be one of the following :\n", paste0(allColorBy, sep=", "))
+  }
+  colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
+
   ##############################
   # Plot Helpers
   ##############################
