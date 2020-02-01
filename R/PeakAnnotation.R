@@ -538,8 +538,10 @@ addArchRAnnotations <- function(
     }else if(genome == "hg38"){
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Hg38-v1.Anno"
     }else if(genome == "mm9"){
+      stop("ArchR mm9 annotations not yet supported!")
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm9-v1.Anno"
     }else if(genome == "mm10"){
+      stop("ArchR mm10 annotations not yet supported!")
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm10-v1.Anno"
     }
 

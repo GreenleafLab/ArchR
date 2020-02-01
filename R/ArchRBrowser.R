@@ -348,7 +348,6 @@ ArchRBrowser <- function(
                 geneAnnotation = geneAnnotation,
                 title = "",
                 pal = pal, 
-                useCoverages = FALSE,
                 tstart = NULL
               ) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
 
@@ -486,7 +485,6 @@ ArchRBrowser <- function(
                 geneAnnotation = geneAnnotation,
                 title = "",
                 pal = pal, 
-                useCoverages = FALSE,
                 tstart = NULL
               ) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
 
@@ -589,7 +587,6 @@ ArchRBrowser <- function(
 #' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object, all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the transcription start site of the supplied gene.
 #' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be plotted.
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups to be plotted.
-#' @param useCoverages A boolean indicating whether to use group coverages instead of ArrowFiles for track plotting. See `addGroupCoverages()` for information on plotting ArrowFiles without the use of pseudo-bulk replicates.
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).
 #' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`. The order must be the same as `plotSummary`.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
@@ -608,12 +605,11 @@ ArchRBrowser <- function(
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
 #' @export
-ArchRRegionTrack <- function(
+ArchRBrowserTrack <- function(
   ArchRProj = NULL, 
   region = NULL, 
   groupBy = "Clusters",
   useGroups = NULL, 
-  useCoverages = FALSE,
   plotSummary = c("bulkTrack", "featureTrack", "loopTrack", "geneTrack"),
   sizes = c(10, 1.5, 3, 4),
   features = getPeakSet(ArchRProj),
@@ -638,7 +634,6 @@ ArchRRegionTrack <- function(
   .validInput(input = region, name = "region", valid = c("granges","null"))
   .validInput(input = groupBy, name = "groupBy", valid = "character")
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
-  .validInput(input = useCoverages, name = "useCoverages", valid = c("boolean"))
   .validInput(input = plotSummary, name = "plotSummary", valid = "character")
   .validInput(input = sizes, name = "sizes", valid = "numeric")
   #.validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
@@ -702,7 +697,6 @@ ArchRRegionTrack <- function(
         geneAnnotation = geneAnnotation,
         title = title,
         useGroups = useGroups,
-        useCoverages = useCoverages,
         tstart = tstart) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
     }
     
@@ -794,7 +788,6 @@ ArchRRegionTrack <- function(
   geneAnnotation = getGeneAnnotation(ArchRProj),
   title = "",
   pal = NULL,
-  useCoverages = TRUE,
   tstart = NULL,
   verbose = FALSE
   ){
@@ -804,32 +797,18 @@ ArchRRegionTrack <- function(
   if(is.null(tstart)){
     tstart <- Sys.time()
   }
-
-  if(useCoverages){
-    df <- .groupRegionSumCoverages(
-        ArchRProj = ArchRProj, 
-        groupBy = groupBy, 
-        normMethod = normMethod,
-        useGroups = useGroups,
-        region = region, 
-        minCells = minCells,
-        tileSize = tileSize, 
-        threads = threads,
-        verbose = verbose
-      )
-  }else{
-    df <- .groupRegionSumArrows(
-      ArchRProj = ArchRProj, 
-      groupBy = groupBy, 
-      normMethod = normMethod,
-      useGroups = useGroups,
-      minCells = minCells,
-      region = region, 
-      tileSize = tileSize, 
-      threads = threads,
-      verbose = verbose
-    )
-  }
+  
+  df <- .groupRegionSumArrows(
+    ArchRProj = ArchRProj, 
+    groupBy = groupBy, 
+    normMethod = normMethod,
+    useGroups = useGroups,
+    minCells = minCells,
+    region = region, 
+    tileSize = tileSize, 
+    threads = threads,
+    verbose = verbose
+  )
 
   ######################################################
   # Plot Track
@@ -1193,7 +1172,7 @@ ArchRRegionTrack <- function(
 
   #only take first region
   region <- ArchR::.validGRanges(region)
-  region <- subsetSeqnamesGR(region[1], as.character(seqnames(region[1])))
+  region <- .subsetSeqnamesGR(region[1], as.character(seqnames(region[1])))
 
   genes <- sort(sortSeqlevels(geneAnnotation$genes), ignore.strand = TRUE)
   exons <- sort(sortSeqlevels(geneAnnotation$exons), ignore.strand = TRUE)
@@ -1462,3 +1441,13 @@ ArchRRegionTrack <- function(
   return(p)
 
 }
+
+
+.subsetSeqnamesGR <- function(gr = NULL, names = NULL){
+  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = names, name = "names", valid = c("character"))
+  gr <- gr[which(as.character(seqnames(gr)) %in% names),]
+  seqlevels(gr) <- as.character(unique(seqnames(gr)))
+  return(gr)
+}
+

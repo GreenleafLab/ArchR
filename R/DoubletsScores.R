@@ -454,8 +454,6 @@ addDoubletScores <- function(
 
   simLSI <- .safelapply(seq_len(nTrials), function(y){
 
-    message(".", appendLF = FALSE)
-
     if(y %% 5 == 0){
       gc()
     }
@@ -479,7 +477,6 @@ addDoubletScores <- function(
 
 
   }, threads = threads) %>% Reduce("rbind", .)
-  message("\n")
 
   #Compute original
   ogLSI <- suppressMessages(.projectLSI(mat, LSI))
