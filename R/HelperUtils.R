@@ -19,6 +19,8 @@
     valid <- c("null", valid[which(tolower(valid) != "null")])
   }
 
+  av <- FALSE
+
   for(i in seq_along(valid)){
 
     vi <- valid[i]
