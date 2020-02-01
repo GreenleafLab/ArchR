@@ -93,7 +93,7 @@ plotEmbedding <- function(
       colorParams <- list()
       colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = TRUE))
       colorParams$discrete <- .isDiscrete(colorParams$color)
-      colorParams$continuousSet <- "solar_extra"
+      colorParams$continuousSet <- "solarExtra"
       colorParams$discreteSet <- "stallion"
       colorParams$title <- paste(plotParams$title, " colored by\ncolData : ", name[x])
       if(!is.null(continuousSet)){
@@ -119,9 +119,9 @@ plotEmbedding <- function(
       colorParams$discrete <- FALSE
       colorParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name[x])
       if(tolower(colorBy) == "genescorematrix"){
-        colorParams$continuousSet <- "horizon_extra"
+        colorParams$continuousSet <- "horizonExtra"
       }else{
-        colorParams$continuousSet <- "solar_extra"
+        colorParams$continuousSet <- "solarExtra"
       }
       if(!is.null(continuousSet)){
         colorParams$continuousSet <- continuousSet

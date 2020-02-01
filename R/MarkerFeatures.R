@@ -813,11 +813,11 @@ markerHeatmap <- function(
 
   if(is.null(pal)){
     if(is.null(metadata(seMarker)$Params$useMatrix)){
-      pal <- paletteContinuous(set = "solar_extra", n = 100)
+      pal <- paletteContinuous(set = "solarExtra", n = 100)
     }else if(tolower(metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
-      pal <- paletteContinuous(set = "blue_yellow", n = 100)
+      pal <- paletteContinuous(set = "blueYellow", n = 100)
     }else{
-      pal <- paletteContinuous(set = "solar_extra", n = 100)
+      pal <- paletteContinuous(set = "solarExtra", n = 100)
     }
   }
 
@@ -857,7 +857,7 @@ markerHeatmap <- function(
   scale = FALSE,
   limits = c(min(mat), max(mat)),
   colData = NULL, 
-  color = paletteContinuous(set = "solar_extra", n = 100),
+  color = paletteContinuous(set = "solarExtra", n = 100),
   clusterCols = TRUE,
   clusterRows = FALSE,
   labelCols = FALSE,
@@ -1066,7 +1066,7 @@ markerHeatmap <- function(
   return(show)
 }
 
-.colorMapAnno <- function(colData = NULL, customAnno = NULL, discreteSet = "stallion", continuousSet = "solar_extra"){
+.colorMapAnno <- function(colData = NULL, customAnno = NULL, discreteSet = "stallion", continuousSet = "solarExtra"){
   discreteCols <- sapply(colData,function(x) !is.numeric(x))
   if(!is.null(customAnno)){
     colorMap <- lapply(seq_along(discreteCols),function(x){

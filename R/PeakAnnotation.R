@@ -871,7 +871,7 @@ peakAnnoEnrichment <- function(
 #' @export
 enrichHeatmap <- function(
   seEnrich = NULL,
-  pal = paletteContinuous(set = "white_blue_purple", n = 100),
+  pal = paletteContinuous(set = "comet", n = 100),
   limits = c(0, 60),
   n = 10,
   clusterCols = TRUE,

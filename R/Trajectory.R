@@ -404,11 +404,11 @@ trajectoryHeatmap <- function(
 
   if(is.null(pal)){
     if(is.null(metadata(seTrajectory)$Params$useMatrix)){
-      pal <- paletteContinuous(set = "solar_extra", n = 100)
+      pal <- paletteContinuous(set = "solarExtra", n = 100)
     }else if(tolower(metadata(seTrajectory)$Params$useMatrix)=="genescorematrix"){
-      pal <- paletteContinuous(set = "blue_yellow", n = 100)
+      pal <- paletteContinuous(set = "blueYellow", n = 100)
     }else{
-      pal <- paletteContinuous(set = "solar_extra", n = 100)
+      pal <- paletteContinuous(set = "solarExtra", n = 100)
     }
   }
 
@@ -549,7 +549,7 @@ plotTrajectory <- function(
     
     plotParams$color <- as.vector(getCellColData(ArchRProj)[,name])
     plotParams$discrete <- .isDiscrete(plotParams$color)
-    plotParams$continuousSet <- "solar_extra"
+    plotParams$continuousSet <- "solarExtra"
     plotParams$discreteSet <- "stallion"
     plotParams$title <- paste(plotParams$title, " colored by\ncolData : ", name)
     if(is.null(plotAs)){
@@ -561,9 +561,9 @@ plotTrajectory <- function(
       if(is.null(log2Norm)){
         log2Norm <- TRUE
       }
-      plotParams$continuousSet <- "white_blue_purple"
+      plotParams$continuousSet <- "comet"
     }else{
-      plotParams$continuousSet <- "solar_extra"
+      plotParams$continuousSet <- "solarExtra"
     }
     plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[1,]
     plotParams$discrete <- FALSE

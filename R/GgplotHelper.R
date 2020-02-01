@@ -45,7 +45,7 @@ ggPoint <- function(
     color = NULL, 
     discrete = TRUE, 
     discreteSet = "stallion",
-    continuousSet = "solar_extra", 
+    continuousSet = "solarExtra", 
     labelMeans = FALSE,  
     pal = NULL, 
     defaultColor = "lightGrey",
@@ -338,7 +338,7 @@ ggOneToOne <- function (
   extend = 0.05, 
   baseSize = 6, 
   rastr = TRUE,
-  pal = paletteContinuous(set = "blue_yellow"),
+  pal = paletteContinuous(set = "blueYellow"),
   ...
   ){
 
@@ -549,7 +549,7 @@ ggHex <- function(
   x = NULL, 
   y = NULL, 
   color = NULL, 
-  pal = paletteContinuous(set = "solar_extra"), 
+  pal = paletteContinuous(set = "solarExtra"), 
   bins = 200,
   xlim = NULL, 
   ylim = NULL, 
