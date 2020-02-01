@@ -18,7 +18,7 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2)){
   }
   
   message("Setting default number of Parallel threads to ", threads, ".")
-  assign("ArchRThreads", as.integer(threads), envir = .GlobalEnv)
+  assign(".ArchRThreads", as.integer(threads), envir = .GlobalEnv)
 
 }
 
@@ -28,12 +28,13 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2)){
 #' 
 #' @export
 getArchRThreads <- function(){
-  if(exists("ArchRThreads")){
-    if(!is.integer(ArchRThreads)){
-      rm(list="ArchRThreads", envir = .GlobalEnv ) # Remove this.
+  if(exists(".ArchRThreads")){
+    if(!is.integer(.ArchRThreads)){
+      message(".ArchRThreads : ", .ArchRThreads, " is not an integer. \nDid you mistakenly set this to a value without addArchRThreads? Deleting .ArchRThreads from global environment.")
+      rm(list=".ArchRThreads", envir = .GlobalEnv ) # Remove this.
       1
     }else{
-      ArchRThreads
+      .ArchRThreads
     }
   }else{
     1
@@ -50,7 +51,7 @@ getArchRThreads <- function(){
 #' 
 #' @param genome The default genome to be used for all ArchR functions. This value is stored as a global environment variable, not part of the `ArchRProject`. This can be overwritten on a per-function basis using the given function's `geneAnnotation` and  `genomeAnnotation` parameter.
 #' @export
-addArchRGenome <- function(genome = NULL){
+addArchRGenome <- function(genome = NULL, install = TRUE){
   
   .validInput(input = genome, name = "genome", valid = "character")
 
@@ -60,14 +61,53 @@ addArchRGenome <- function(genome = NULL){
     
     message("Genome : ", genome, " is not currently supported by ArchR.")
     message("Currently supported genomes : ", paste0(supportedGenomes, collapse = ","))
-    message("To continue try building a geneAnnotation with createGeneAnnnotation,\nand a genomeAnnotation with createGenomeAnnotation!")
+    message("To continue try building a custom geneAnnotation with createGeneAnnnotation,\nand genomeAnnotation with createGenomeAnnotation!")
  
   }else{
+
+    #Check if BSgenome exists!
+    if(tolower(genome)=="hg19"){
+      if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)){
+        if(install){
+          message("BSgenome for hg19 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+        }else{
+          stop("BSgenome for hg19 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
+        }
+      }
+    }else if(tolower(genome)=="hg38"){
+      if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)){
+        if(install){
+          message("BSgenome for hg38 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg38\")")
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
+        }else{
+          stop("BSgenome for hg38 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg38\")")
+        }
+      }
+    }else if(tolower(genome)=="mm9"){
+      if(!requireNamespace("BSgenome.Mmusculus.UCSC.mm9", quietly = TRUE)){
+        if(install){
+          message("BSgenome for mm9 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Mmusculus.UCSC.mm9\")")
+          BiocManager::install("BSgenome.Mmusculus.UCSC.mm9")
+        }else{
+          stop("BSgenome for mm9 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Mmusculus.UCSC.mm9\")")
+        }
+      }
+    }else if(tolower(genome)=="mm10"){
+      if(!requireNamespace("BSgenome.Mmusculus.UCSC.mm10", quietly = TRUE)){
+        if(install){
+          message("BSgenome for mm10 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Mmusculus.UCSC.mm10\")")
+          BiocManager::install("BSgenome.Mmusculus.UCSC.mm10")
+        }else{
+          stop("BSgenome for mm10 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Mmusculus.UCSC.mm10\")")
+        }
+      }
+    }
 
     genome <- paste(toupper(substr(genome, 1, 1)), substr(genome, 2, nchar(genome)), sep="")
     
     message("Setting default genome to ", genome, ".")
-    assign("ArchRGenome", genome, envir = .GlobalEnv)
+    assign(".ArchRGenome", genome, envir = .GlobalEnv)
     
   }
 
@@ -89,9 +129,9 @@ getArchRGenome <- function(
 
   supportedGenomes <- c("hg19","hg38","mm9","mm10")
 
-  if(exists("ArchRGenome")){
+  if(exists(".ArchRGenome")){
     
-    if(!is.character(ArchRGenome)){
+    if(!is.character(.ArchRGenome)){
     
       return(NULL)
     
@@ -99,7 +139,7 @@ getArchRGenome <- function(
       
       if(tolower(genome) %in% supportedGenomes){
         
-        genome <- paste(toupper(substr(ArchRGenome, 1, 1)), substr(ArchRGenome, 2, nchar(ArchRGenome)), sep="")
+        genome <- paste(toupper(substr(.ArchRGenome, 1, 1)), substr(.ArchRGenome, 2, nchar(.ArchRGenome)), sep="")
         
         if(geneAnnotation){
 
@@ -125,9 +165,9 @@ getArchRGenome <- function(
 
       }else{
         
-        AG <- ArchRGenome
-        rm(list="ArchRGenome", envir = .GlobalEnv ) # Remove this.
-        stop("ArchRGenome : ", AG, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
+        AG <- .ArchRGenome
+        rm(list=".ArchRGenome", envir = .GlobalEnv ) # Remove this.
+        stop(".ArchRGenome : ", AG, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
       
       }
     }

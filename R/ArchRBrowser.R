@@ -37,7 +37,7 @@ ArchRBrowser <- function(
   #Determine Grouping Methods
   ccd <- getCellColData(ArchRProj)
   discreteCols <- lapply(seq_len(ncol(ccd)), function(x){
-    ArchR:::.isDiscrete(ccd[, x])
+    .isDiscrete(ccd[, x])
   }) %>% unlist %>% {colnames(ccd)[.]}
   if("Clusters" %in% discreteCols){
     selectCols <- "Clusters"
