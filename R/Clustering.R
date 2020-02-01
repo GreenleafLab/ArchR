@@ -62,11 +62,26 @@ addClusters <- function(
 
     if(inherits(input, "ArchRProject")){
         #Check
-        input <- addCellColData(ArchRProj = input, data = rep(NA, nCells(input)), name = name, cells = getCellNames(input), force = force)
+        input <- addCellColData(
+            ArchRProj = input, 
+            data = rep(NA, nCells(input)), 
+            name = name, 
+            cells = getCellNames(input), 
+            force = force
+        )
+
         if(reducedDims %ni% names(input@reducedDims)){
             stop("Error reducedDims not available!")
         }
-        matDR <- getReducedDims(ArchRProj = input, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
+
+        matDR <- getReducedDims(
+            ArchRProj = input, 
+            reducedDims = reducedDims, 
+            dimsToUse = dimsToUse, 
+            corCutOff = corCutOff, 
+            scaleDims = scaleDims
+        )
+    
     }else if(inherits(input, "matrix")){
         matDR <- input
     }else{
@@ -107,7 +122,7 @@ addClusters <- function(
         clustParams <- list(...)
         clustParams$x <- matDR
         clustParams$d <- ncol(matDR)
-        clustParams$k <- ifelse(!is.null(...$k), ...$k, 25)
+        clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
         clust <- .clustScran(clustParams)
 
     }else if(grepl("louvainjaccard",tolower(method))){

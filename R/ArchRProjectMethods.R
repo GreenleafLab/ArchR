@@ -30,6 +30,7 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2)){
 getArchRThreads <- function(){
   if(exists("ArchRThreads")){
     if(!is.integer(ArchRThreads)){
+      rm(list="ArchRThreads", envir = .GlobalEnv ) # Remove this.
       1
     }else{
       ArchRThreads
@@ -42,6 +43,103 @@ getArchRThreads <- function(){
 ##########################################################################################
 # Create Gene/Genome Annotation
 ##########################################################################################
+
+#' Add a globally defined genome to all ArchR functions. JJJ
+#' 
+#' This function will set the genome across all ArchR functions.
+#' 
+#' @param genome The default genome to be used for all ArchR functions. This value is stored as a global environment variable, not part of the `ArchRProject`. This can be overwritten on a per-function basis using the given function's `geneAnnotation` and  `genomeAnnotation` parameter.
+#' @export
+addArchRGenome <- function(genome = NULL){
+  
+  .validInput(input = genome, name = "genome", valid = "character")
+
+  supportedGenomes <- c("hg19","hg38","mm9","mm10")
+  
+  if(tolower(genome) %ni% supportedGenomes){
+    
+    message("Genome : ", genome, " is not currently supported by ArchR.")
+    message("Currently supported genomes : ", paste0(supportedGenomes, collapse = ","))
+    message("To continue try building a geneAnnotation with createGeneAnnnotation,\nand a genomeAnnotation with createGenomeAnnotation!")
+ 
+  }else{
+
+    genome <- paste(toupper(substr(genome, 1, 1)), substr(genome, 2, nchar(genome)), sep="")
+    
+    message("Setting default genome to ", genome, ".")
+    assign("ArchRGenome", genome, envir = .GlobalEnv)
+    
+  }
+
+  invisible(0)
+
+}
+
+#' Get a globally defined genome to all ArchR functions. JJJ
+#' 
+#' This function will get the genome across all ArchR functions. Additionally can return geneAnnotation and genomeAnnotation associated with ArchRGenome if desired.
+#' 
+#' @param geneAnnotation Export geneAnnotation set with addArchRGenome. The geneAnnotation (see `createGeneAnnotation()`) to associate with the ArrowFiles. This is used downstream to calculate TSS Enrichment Scores etc.
+#' @param genomeAnnotation Export genomeAnnotation set with addArchRGenome. The genomeAnnotation (see `createGenomeAnnotation()`) to associate with the ArrowFiles. This is used downstream to collect chromosome sizes and nucleotide information etc.
+#' @export
+getArchRGenome <- function(
+  geneAnnotation=FALSE, 
+  genomeAnnotation=FALSE
+  ){
+
+  supportedGenomes <- c("hg19","hg38","mm9","mm10")
+
+  if(exists("ArchRGenome")){
+    
+    if(!is.character(ArchRGenome)){
+    
+      return(NULL)
+    
+    }else{
+      
+      if(tolower(genome) %in% supportedGenomes){
+        
+        genome <- paste(toupper(substr(ArchRGenome, 1, 1)), substr(ArchRGenome, 2, nchar(ArchRGenome)), sep="")
+        
+        if(geneAnnotation){
+
+          message("Using GeneAnnotation set by addArchRGenome!")
+
+          geneAnno <- paste0("geneAnno", genome)
+          eval(parse(text=paste0("data(geneAnno",genome,")")))
+          return(eval(parse(text=geneAnno)))
+        
+        }else if(genomeAnnotation){
+
+          message("Using GenomeAnnotation set by addArchRGenome!")
+
+          genomeAnno <- paste0("genomeAnno", genome)
+          eval(parse(text=paste0("data(genomeAnno",genome,")")))
+          return(eval(parse(text=genomeAnno)))
+
+        }else{
+
+          return(genome)
+
+        }
+
+      }else{
+        
+        AG <- ArchRGenome
+        rm(list="ArchRGenome", envir = .GlobalEnv ) # Remove this.
+        stop("ArchRGenome : ", AG, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
+      
+      }
+    }
+
+  }else{
+    
+    return(NULL)
+
+  }
+
+}
+
 
 #' Create a genome annotation object for ArchR
 #' 
@@ -557,6 +655,10 @@ addCellColData <- function(ArchRProj = NULL, data = NULL, name = NULL, cells =  
   .validInput(input = cells, name = "cells", valid = c("character"))
   .validInput(input = force, name = "force", valid = "boolean")
 
+  if(name == "cellNames"){
+    stop("cellNames is a protected column name in an ArchRProject!")
+  }
+
   if(is.null(cells)){
     stop("Error cells must be provided")
   }
@@ -638,6 +740,12 @@ addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGenomeAnnotation <- function(ArchRProj = NULL){
+  if(is.null(ArchRProj)){
+    genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
+    if(!is.null(genomeAnnotation)){
+      return(genomeAnnotation)
+    }
+  }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation)
 }
@@ -649,6 +757,12 @@ getGenomeAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getBlacklist <- function(ArchRProj = NULL){
+  if(is.null(ArchRProj)){
+    genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
+    if(!is.null(genomeAnnotation)){
+      return(genomeAnnotation$blacklist)
+    }
+  }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$blacklist)
 }
@@ -660,6 +774,12 @@ getBlacklist <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGenome <- function(ArchRProj = NULL){
+  if(is.null(ArchRProj)){
+    genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
+    if(!is.null(genomeAnnotation)){
+      return(genomeAnnotation$genome)
+    }
+  }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$genome)
 }
@@ -671,6 +791,12 @@ getGenome <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getChromSizes <- function(ArchRProj = NULL){
+  if(is.null(ArchRProj)){
+    genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
+    if(!is.null(genomeAnnotation)){
+      return(genomeAnnotation$chromSizes)
+    }
+  }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$chromSizes)
 }
@@ -682,11 +808,19 @@ getChromSizes <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getChromLengths <- function(ArchRProj = NULL){
+  if(is.null(ArchRProj)){
+    genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
+    if(!is.null(genomeAnnotation)){
+      cS <- genomeAnnotation$chromSizes
+      cL <- end(cS)
+      names(cL) <- paste0(seqnames(cS))
+      return(cL)
+    }
+  }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   cS <- ArchRProj@genomeAnnotation$chromSizes
   cL <- end(cS)
   names(cL) <- paste0(seqnames(cS))
-  cL
   return(cL)
 }
 
@@ -708,6 +842,12 @@ getChromLengths <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGeneAnnotation <- function(ArchRProj = NULL){
+  if(is.null(ArchRProj)){
+    geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
+    if(!is.null(geneAnnotation)){
+      return(geneAnnotation)
+    }
+  }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   ArchRProj@geneAnnotation
 }
@@ -719,9 +859,14 @@ getGeneAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getTSS <- function(ArchRProj = NULL){
+  if(is.null(ArchRProj)){
+    geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
+    if(!is.null(geneAnnotation)){
+      return(geneAnnotation$TSS)
+    }
+  }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   ArchRProj@geneAnnotation$TSS
-
 }
 
 #' Get the genes from an ArchRProject
@@ -732,14 +877,24 @@ getTSS <- function(ArchRProj = NULL){
 #' @param symbols A character vector containing the gene symbols to subset from the `geneAnnotation`.
 #' @export
 getGenes <- function(ArchRProj = NULL, symbols = NULL){
-
-  #Validate
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+  
   .validInput(input = symbols, name = "symbols", valid = c("character", "null"))
-  #########
+
+  if(is.null(ArchRProj)){
+    geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
+    if(!is.null(geneAnnotation)){
+      genes <- geneAnnotation$genes
+      if(!is.null(symbols)){
+        genes <- genes[which(tolower(genes$symbol) %in% tolower(symbols))]
+      }
+      return(genes)
+    }
+  }
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+  
   genes <- ArchRProj@geneAnnotation$genes
+  
   if(!is.null(symbols)){
     genes <- genes[which(tolower(genes$symbol) %in% tolower(symbols))]
   }
@@ -757,10 +912,20 @@ getGenes <- function(ArchRProj = NULL, symbols = NULL){
 #' @export
 getExons <- function(ArchRProj = NULL, symbols = NULL){
 
-  #Validate
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = symbols, name = "symbols", valid = c("character", "null"))
-  #########
+
+  if(is.null(ArchRProj)){
+    geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
+    if(!is.null(geneAnnotation)){
+      exons <- geneAnnotation$exons
+      if(!is.null(symbols)){
+        exons <- exons[which(tolower(exons$symbol) %in% tolower(symbols))]
+      }
+      return(exons)
+    }
+  }
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
 
   exons <- ArchRProj@geneAnnotation$exons
   exons <- exons[which(tolower(exons$symbol) %in% tolower(symbols))]
@@ -798,7 +963,8 @@ getReducedDims <- function(
   returnMatrix = TRUE, 
   dimsToUse = NULL,
   scaleDims = NULL,
-  corCutOff = 0.75
+  corCutOff = 0.75,
+  ...
   ){
 
   #Validate
@@ -810,10 +976,21 @@ getReducedDims <- function(
   #########
 
   if(reducedDims %in% names(ArchRProj@reducedDims)){
+    
     if(is.null(scaleDims)){
       scaleDims <- ArchRProj@reducedDims[[reducedDims]]$scaleDims
     }
-    corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth
+
+    #Get Dimensions
+    if(scaleDims){
+      corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$scaled
+      matDR <- .scaleDims(ArchRProj@reducedDims[[reducedDims]][[1]])
+    }else{
+      corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$none
+      matDR <- ArchRProj@reducedDims[[reducedDims]][[1]]
+    }
+    
+    #Determine PCs to Keep
     if(!is.null(dimsToUse)){
       corToUse <- dimsToUse
     }else{
@@ -823,46 +1000,33 @@ getReducedDims <- function(
     if(length(idx) != length(corToUse)){
       message("Filtering ", length(corToUse) - length(idx), " dims correlated > ", corCutOff, " to log10(depth + 1)")
     }
+
+    #Return Values
     if(returnMatrix){
-      out <- ArchRProj@reducedDims[[reducedDims]][[1]][,corToUse[idx],drop=FALSE]
-      if(scaleDims){
-        out <- .scaleDims(out)
-      }
+      
+      return(matDR[,corToUse[idx],drop=FALSE])
+
     }else{
-      out <- ArchRProj@reducedDims[[reducedDims]]
+      
       out$dimsKept <- corToUse[idx]
-      out1 <- out[[1]][, corToUse[idx], drop=FALSE]
-      if(scaleDims){
-        out$scaleDims <- TRUE
-        out1 <- .scaleDims(out1, returnInfo = TRUE)
-        out$dimsMean <- out1$dimsMean
-        out$dimsSd <- out1$dimsSd
-        out1 <- out1[[1]]
-      }
-      out[[1]] <- out1
+      out[[1]] <- matDR
+      return(out)
+
     }
+
   }else{
+
     stop(paste0("Reduced dimensions not in computed reduceDims, Current ones are : ", paste0(names(ArchRProj@reducedDims), collapse=",")))
+  
   }
-  return(out)
 
 }
 
-.scaleDims <- function(x, xm = NULL, xs = NULL, returnInfo = FALSE){
-  #Test
-  x <- as.matrix(x)
-  if(is.null(xm)){
-    xm <- colMeans(x)
-  }
-  if(is.null(xs)){
-    xs <- matrixStats::colSds(x)
-  }
-  log2Vars <- sqrt(log2(xs^2 + 1))
-  x <- t((t(x) - xm) * log2Vars / xs)
-  if(returnInfo){
-    list(dims=x,dimsMean=xm,dimsSd=xs)
+.scaleDims <- function(x, scaleMax = NULL){
+  if(!is.null(scaleMax)){
+    .rowZscores(m=x, min=-scaleMax, max = scaleMax, limit = TRUE)
   }else{
-    x
+    .rowZscores(m=x)
   }
 }
 
@@ -889,7 +1053,7 @@ getEmbedding <- function(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE){
       out <- ArchRProj@embeddings[[embedding]]
     }
   }else{
-    stop("embedding not in computed embeddings!")
+    stop(paste0("Embedding not in computed embeddings, Current ones are : ", paste0(names(ArchRProj@embeddings), collapse=",")))
   }
   return(out)
 }

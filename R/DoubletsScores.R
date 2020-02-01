@@ -158,8 +158,8 @@ addDoubletScores <- function(
     outputDirectory = tmpDir,
     copyArrows = FALSE,
     showLogo = FALSE,
-    geneAnnotation = ArchR:::.nullGeneAnnotation(), #this doesnt matter just needs to be valid
-    genomeAnnotation = ArchR:::.nullGenomeAnnotation() #this doesnt matter just needs to be valid
+    geneAnnotation = .nullGeneAnnotation(), #this doesnt matter just needs to be valid
+    genomeAnnotation = .nullGenomeAnnotation() #this doesnt matter just needs to be valid
   ))
   if(is.null(allCells)){
     proj@cellColData <- proj@cellColData[.availableCells(ArrowFile, useMatrix),]
