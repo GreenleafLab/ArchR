@@ -1197,17 +1197,21 @@ createArrowFiles <- function(
   h5DF <- h5ls(tmpFile, recursive = TRUE)
   dtList <- lapply(seq_along(chunkNames), function(x){
     chrTmp <- chunkNames[x]
-    nRG <- h5DF %>% 
-      {.[.$group==paste0("/Fragments/",chrTmp) & .$name == "RGLengths",]$dim} %>% 
-      {gsub(" x 1","",.)} %>% as.integer
-    if(nRG > 0){
-      dt <- data.table(
-        values = h5read(tmpFile, paste0("Fragments/",chrTmp,"/RGValues")),
-        lengths = h5read(tmpFile, paste0("Fragments/",chrTmp,"/RGLengths"))
-        )
-    }else{
-      dt <- NULL
-    }
+    values <- h5read(tmpFile, paste0("Fragments/",chrTmp,"/RGValues"))
+    lengths <- h5read(tmpFile, paste0("Fragments/",chrTmp,"/RGLengths"))
+    dt <- tryCatch({
+      if(length(values) > 0 & length(lengths) > 0){
+        d <- data.table(
+          values = values,
+          lengths = lengths
+        ) 
+      }else{
+        d <- NULL
+      }
+      d
+    }, error = function(x){
+      NULL
+    })
     dt
   })
   names(dtList) <- chunkNames
@@ -1496,5 +1500,4 @@ createArrowFiles <- function(
   })
 
 }
-
 
