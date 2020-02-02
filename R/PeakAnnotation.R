@@ -662,9 +662,11 @@ addArchRAnnotations <- function(
   }
 
   o <- h5closeAll()
-  nRegions <- h5ls(AnnoFile, recursive = TRUE) %>% 
-    {.[.$group==paste0("/",Group,"/",chr) & .$name == "Ranges",]$dim} %>% 
-    {gsub(" x 2","",.)} %>% as.integer
+  nRegions <- sum(.h5read(AnnoFile, paste0(Group,"/",chr,"/IDLengths"), method = method))
+
+  #nRegions <- h5ls(AnnoFile, recursive = TRUE) %>% 
+  #  {.[.$group==paste0("/",Group,"/",chr) & .$name == "Ranges",]$dim} %>% 
+  #  {gsub(" x 2","",.)} %>% as.integer
 
   if(nRegions==0){
     if(tolower(out)=="granges"){
