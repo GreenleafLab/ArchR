@@ -70,9 +70,7 @@ getFragmentsFromArrow <- function(
   sampleName <- .h5read(ArrowFile, paste0("Metadata/Sample"), method = method)
 
   o <- h5closeAll()
-  nFrags <- h5ls(ArrowFile, recursive = TRUE) %>% 
-    {.[.$group==paste0("/Fragments/",chr) & .$name == "Ranges",]$dim} %>% 
-    {gsub(" x 2","",.)} %>% as.integer
+  nFrags <- sum(.h5read(ArrowFile, paste0("Fragments/",chr,"/RGLengths"), method = method))
 
   if(nFrags==0){
     if(tolower(out)=="granges"){
@@ -85,7 +83,6 @@ getFragmentsFromArrow <- function(
     }
     return(output)
   }
-
 
   if(is.null(cellNames) | tolower(method) == "fast"){
     
