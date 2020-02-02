@@ -260,8 +260,8 @@ ggPoint <- function(
 
               # make halo layers, similar to https://github.com/GuangchuangYu/shadowtext/blob/master/R/shadowtext-grob.R#L43
               theta <- seq(pi / 8, 2 * pi, length.out = 16)
-              xo <- bgWidth * diff(range(df$x)) / 200
-              yo <- bgWidth * diff(range(df$y)) / 200
+              xo <- bgWidth * diff(range(df$x)) / 300
+              yo <- bgWidth * diff(range(df$y)) / 300
               for (i in theta) {
                 p <- p + 
                   geom_text(data = dfMean, 

@@ -133,7 +133,9 @@ addTSNE <- function(
   reducedDims = "IterativeLSI",
   method = "RTSNE",
   name = "TSNE",
-  perplexity = 25,
+  perplexity = 50,
+  maxIterations = 1000,
+  learningRate = 1000,
   dimsToUse = NULL,
   scaleDims = NULL,
   corCutOff = 0.75,
@@ -179,7 +181,7 @@ addTSNE <- function(
       scaleDims = scaleDims
   )
 
-if(tolower(method)=="rtsne"){
+  if(tolower(method)=="rtsne"){
 
     .requirePackage("Rtsne")
     
@@ -192,6 +194,11 @@ if(tolower(method)=="rtsne"){
     )
 
     embeddingParams$pca <- FALSE
+    embeddingParams$verbose <- verbose
+    embeddingParams$num_threads <- threads
+    embeddingParams$max_iter <- maxIterations
+    embeddingParams$eta <- learningRate
+
     Rtsne_tsne <- do.call(Rtsne::Rtsne, embeddingParams)
     dfEmbedding <- data.frame(Rtsne_tsne$Y)   
     colnames(dfEmbedding) <- paste0(reducedDims,"#TSNE_Dimension_",seq_len(ncol(dfEmbedding)))
