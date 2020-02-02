@@ -229,9 +229,26 @@ addIterativeLSI <- function(
   outLSI$scaleDims <- scaleDims
   gc()
 
+  if(scaleDims){
+    dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
+  }else{
+    dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
+  }
+  if(length(dimsPF)!=length(dimsToUse)){
+    message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+  }
+  if(length(dimsPF) < 2){
+    stop("Dimensions to use after filtering for correlation to depth lower than 2!")
+  }
+
   if(runHarmony){
     .messageDiffTime("Harmonizing LSI output on the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
     .requirePackage("harmony")
+    # if(scaleDims){
+    #   harmonyParams$data_mat <- .scaleDims(outLSI$matSVD) #[, dimsPF, drop = FALSE]
+    # }else{
+    #   harmonyParams$data_mat <- outLSI$matSVD #[, dimsPF, drop = FALSE]
+    # }
     harmonyParams$data_mat <- outLSI$matSVD
     harmonyParams$meta_data <- data.frame(row.names = rownames(outLSI$matSVD), Group = stringr::str_split(rownames(outLSI$matSVD), pattern = "#", simplify=TRUE)[,1])
     harmonyParams$do_pca <- FALSE
@@ -244,20 +261,9 @@ addIterativeLSI <- function(
 
   #Time to compute clusters
   .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  if(scaleDims){
-    dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
-  }else{
-    dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
-  }
-  if(length(dimsPF)!=length(dimsToUse)){
-    message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
-  }
-  if(length(dimsPF) < 2){
-    stop("Dimensions to use after filtering for correlation to depth lower than 2!")
-  }
   parClust <- lapply(clusterParams, function(x) x[[1]])
   if(scaleDims){
-      parClust$input <- .scaleDims(outLSI$matSVD)
+    parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
   }else{
     parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
   }
@@ -339,8 +345,25 @@ addIterativeLSI <- function(
       )
     outLSI$scaleDims <- scaleDims
 
+    if(scaleDims){
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
+    }else{
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
+    }
+    if(length(dimsPF)!=length(dimsToUse)){
+      message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+    }
+    if(length(dimsPF) < 2){
+      stop("Dimensions to use after filtering for correlation to depth lower than 2!")
+    }
+
     if(runHarmony){
       .messageDiffTime("Harmonizing LSI output on the Variable Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
+      # if(scaleDims){
+      #   harmonyParams$data_mat <- .scaleDims(outLSI$matSVD) #[, dimsPF, drop = FALSE]
+      # }else{
+      #   harmonyParams$data_mat <- outLSI$matSVD #[, dimsPF, drop = FALSE]
+      # }
       harmonyParams$data_mat <- outLSI$matSVD
       harmonyParams$meta_data <- data.frame(row.names = rownames(outLSI$matSVD), Group = stringr::str_split(rownames(outLSI$matSVD), pattern = "#", simplify=TRUE)[,1])
       harmonyParams$do_pca <- FALSE
@@ -355,17 +378,6 @@ addIterativeLSI <- function(
 
       #Time to compute clusters
       .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
-      if(scaleDims){
-        dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
-      }else{
-        dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
-      }
-      if(length(dimsPF)!=length(dimsToUse)){
-        message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
-      }
-      if(length(dimsPF) < 2){
-        stop("Dimensions to use after filtering for correlation to depth lower than 2!")
-      }
       parClust <- lapply(clusterParams, function(x){
         if(length(x) > 1){
           return(x[[j]])
@@ -375,7 +387,7 @@ addIterativeLSI <- function(
       })
 
       if(scaleDims){
-          parClust$input <- .scaleDims(outLSI$matSVD)
+        parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
       }else{
         parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
       }

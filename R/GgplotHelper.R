@@ -1,8 +1,9 @@
+
 ##########################################################################################
 # ggPlot Wrapper Methods For Easy Plotting
 ##########################################################################################
 
-#' A ggplot-based dot plot wrapper function
+#' A ggplot-based dot plot wrapper function JJJ
 #'
 #' This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.
 #'
@@ -31,7 +32,6 @@
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
 #' @param baseSize The base font size (in points) to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param labelType A string indicating how to label the points on the plot. Options include "ggrepel", "shadowtext".
 #' @param fgColor The foreground color of the plot.
 #' @param bgColor The background color of the plot.
 #' @param labelSize The numeric font size of labels.
@@ -46,7 +46,7 @@ ggPoint <- function(
     discrete = TRUE, 
     discreteSet = "stallion",
     continuousSet = "solarExtra", 
-    labelMeans = FALSE,  
+    labelMeans = TRUE,  
     pal = NULL, 
     defaultColor = "lightGrey",
     colorDensity = FALSE,
@@ -64,11 +64,13 @@ ggPoint <- function(
     colorLimits = NULL,
     alpha = 1, 
     baseSize = 6, 
+    legendSize = 3,
     ratioYX = 1, 
-    labelType = "ggrepel", 
-    fgColor = NULL, 
+    labelAsFactors = TRUE,
+    fgColor = "black", 
     bgColor = "white", 
-    labelSize = 1.5,
+    bgWidth = 1,
+    labelSize = 3,
     addFit = NULL, 
     rastr = FALSE, 
     dpi = 300
@@ -97,9 +99,8 @@ ggPoint <- function(
     .validInput(input = alpha, name = "alpha", valid = c("numeric"))
     .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
     .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
-    .validInput(input = labelType, name = "labelType", valid = c("character"))
     .validInput(input = fgColor, name = "fgColor", valid = c("character", "null"))
-    .validInput(input = bgColor, name = "bgColor", valid = c("character", "null"))
+    .validInput(input = bgColor, name = "bgColor", valid = c("character"))
     .validInput(input = labelSize, name = "labelSize", valid = c("numeric"))
     .validInput(input = addFit, name = "addFit", valid = c("character", "null"))
     .validInput(input = rastr, name = "rastr", valid = c("boolean"))
@@ -190,10 +191,18 @@ ggPoint <- function(
           if(is.null(colorTitle)){
             colorTitle <- "color"
           }
-
+          
           stopifnot(length(color) == nrow(df))
           df$color <- factor(color, levels = colorOrder)
           
+          if(labelAsFactors){
+            df$color <- factor(
+              x = paste0(paste0(match(paste0(df$color), paste0(levels(df$color)))), "-", paste0(df$color)), 
+              levels = paste0(seq_along(levels(df$color)), "-", levels(df$color))
+            )
+            colorOrder <- paste0(levels(df$color))
+          }
+
         }else{
           stopifnot(length(color) == nrow(df))
           if(!is.null(colorLimits)){
@@ -204,7 +213,7 @@ ggPoint <- function(
         }
 
         p <- ggplot(df[idx,], aes(x = x, y = y, color = color)) +  
-              coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = F) + 
+              coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = FALSE) + 
               xlab(xlabel) + ylab(ylabel) + 
               ggtitle(title) + theme_ArchR(baseSize = baseSize) +
               theme(legend.direction = "horizontal", legend.box.background = element_rect(color = NA)) +
@@ -217,8 +226,11 @@ ggPoint <- function(
           p <- p + geom_point(size = size, alpha = alpha)
         }else{
           .requirePackage("ggrastr")
-          p <- p + geom_point_rast(size = size, raster.dpi = dpi, alpha = alpha, 
-            raster.width=par('fin')[1], raster.height = (ratioYX * par('fin')[2]))
+          p <- p + geom_point_rast(
+              size = size, raster.dpi = dpi, alpha = alpha, 
+              raster.width=par('fin')[1], 
+              raster.height = (ratioYX * par('fin')[2])
+            )
         }
       
       }else{
@@ -232,7 +244,8 @@ ggPoint <- function(
           if (!is.null(pal)) {
               p <- p + scale_color_manual(values = pal)
           }else {
-              p <- p + scale_color_manual(values = paletteDiscrete(set = discreteSet, values = colorOrder))
+              p <- p + scale_color_manual(values = paletteDiscrete(set = discreteSet, values = colorOrder)) +
+                guides(color = guide_legend(override.aes = list(size = legendSize, shape = 15)))
           }
 
           if (labelMeans) {
@@ -241,32 +254,33 @@ ggPoint <- function(
                 data.frame(x = mean(x[, 1]), y = mean(x[, 2]), color = x[1, 3])
               }) %>% Reduce("rbind", .)
 
-              #Check Packages!
-              if(tolower(labelType) == "repel" | tolower(labelType) == "ggrepel"){
-                .requirePackage("ggrepel")
-              }else if(tolower(labelType) == "shadow" | tolower(labelType) == "shadowtext"){
-                .requirePackage("shadowtext")
+              if(labelAsFactors){
+                dfMean$label <- stringr::str_split(paste0(seq_len(nrow(dfMean))), pattern = "\\-", simplify=TRUE)[,1]
               }
 
-              if(tolower(labelType) == "repel" | tolower(labelType) == "ggrepel"){
+              # make halo layers, similar to https://github.com/GuangchuangYu/shadowtext/blob/master/R/shadowtext-grob.R#L43
+              theta <- seq(pi / 8, 2 * pi, length.out = 16)
+              xo <- bgWidth * diff(range(df$x)) / 200
+              yo <- bgWidth * diff(range(df$y)) / 200
+              for (i in theta) {
+                p <- p + 
+                  geom_text(data = dfMean, 
+                      aes_q(
+                        x = bquote(x + .(cos(i) * xo)),
+                        y = bquote(y + .(sin(i) * yo)),
+                        label = ~stringr::str_split(dfMean$color, pattern = "-", simplify = TRUE)[,1]
+                      ),
+                      size = labelSize,
+                      color = bgColor
+                  )
+              }
 
-                if(!is.null(fgColor)){
-                  p <- p + ggrepel::geom_label_repel(data = dfMean, aes(x, y, label = color), color = fgColor, size = labelSize)
-                }else{
-                  p <- p + ggrepel::geom_label_repel(data = dfMean, aes(x, y, label = color), size = labelSize)
-                }
-
-              }else if(tolower(labelType) == "shadow" | tolower(labelType) == "shadowtext"){
-
-                if(!is.null(fgColor)){
-                  p <- p + shadowtext::geom_shadowtext(data = dfMean, aes(x, y, label = color), color = fgColor, bg.colour = bgColor, size = labelSize)
-                }else{
-                  p <- p + shadowtext::geom_shadowtext(data = dfMean, aes(x, y, label = color), bg.colour = bgColor, size = labelSize)
-                }
-        
+              if(is.null(fgColor)){
+                p <- p + geom_text(data = dfMean, aes(x = x, y = y, color = color, label = label), size = labelSize, show.legend = FALSE)
               }else{
-                stop("Error unrecognized label type!")
+                p <- p + geom_text(data = dfMean, aes(x = x, y = y, label = label), color = fgColor, size = labelSize, show.legend = FALSE) 
               }
+
           }
 
       }else{
