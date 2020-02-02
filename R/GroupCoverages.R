@@ -252,6 +252,7 @@ addGroupCoverages <- function(
   chromLengths = NULL, 
   covDir = NULL, 
   tstart = NULL, 
+  subThreads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE
   ){
@@ -469,12 +470,13 @@ addGroupCoverages <- function(
     #Rank Group by Unique # of Cells
     nUnique <- lapply(cellGroupsPass, function(x){
       length(unique(x))
-    })
-    cellsGroupPass <- cellsGroupPass[order(nUnique, decreasing = TRUE)]
+    }) %>% unlist
+
+    cellGroupsPass <- cellGroupsPass[order(nUnique, decreasing = TRUE)]
 
     if(!is.null(maxReplicates)){
-      if(length(cellsGroupPass) > maxReplicates){
-        cellsGroupPass <- cellsGroupPass[seq_len(maxReplicates)]
+      if(length(cellGroupsPass) > maxReplicates){
+        cellGroupsPass <- cellGroupsPass[seq_len(maxReplicates)]
       }    
     }
 
@@ -508,7 +510,8 @@ addGroupCoverages <- function(
   availableChr <- .availableSeqnames(coverageFiles, "Coverage")
 
   biasList <- .safelapply(seq_along(availableChr), function(x){
-    .messageDiffTime(sprintf("Computing Kmer Bias Chr %s of %s!", x, length(availableChr)), tstart, verbose=verbose)
+    #.messageDiffTime(sprintf("Computing Kmer Bias Chr %s of %s!", x, length(availableChr)), tstart, verbose=verbose)
+    message(".", appendLF = FALSE)
     chrBS <- BSgenome[[availableChr[x]]]
     exp <- Biostrings::oligonucleotideFrequency(chrBS, width = kmerLength)
     obsList <- lapply(seq_along(coverageFiles), function(y){
@@ -522,6 +525,7 @@ addGroupCoverages <- function(
     SimpleList(expected = exp, observed = obsList)
   }, threads = threads) %>% SimpleList
   names(biasList) <- availableChr
+  message("\n")
 
   #Summarize Bias
   for(i in seq_along(biasList)){

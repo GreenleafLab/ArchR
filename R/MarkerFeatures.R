@@ -697,6 +697,7 @@ markerHeatmap <- function(
   nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
+  transpose = TRUE,
   invert = FALSE
   ){
 
@@ -773,7 +774,7 @@ markerHeatmap <- function(
     stop("No Makers Found!")
   }
 
-  if(metadata(markersGS)$Params$useMatrix == "GeneScoreMatrix"){
+  if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
     message("Printing Top Marker Genes:")
     spmat <- passMat / rowSums(passMat)
     for(x in seq_len(ncol(spmat))){
@@ -825,20 +826,41 @@ markerHeatmap <- function(
     pal <- rev(pal)
   }
 
-  ht <- .ArchRHeatmap(
-    mat = mat,
-    scale = FALSE,
-    limits = c(min(mat), max(mat)),
-    color = pal, 
-    clusterCols = clusterCols, 
-    clusterRows = clusterRows,
-    labelRows = labelRows,
-    labelCols = TRUE,
-    customRowLabel = mn,
-    showColDendrogram = TRUE,
-    draw = FALSE,
-    name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(markersGS)$Params$useMatrix)
-  )
+  if(transpose){
+    
+    ht <- .ArchRHeatmap(
+      mat = t(mat),
+      scale = FALSE,
+      limits = c(min(mat), max(mat)),
+      color = pal, 
+      clusterCols = clusterRows, 
+      clusterRows = clusterCols,
+      labelRows = TRUE,
+      labelCols = labelRows,
+      customColLabel = mn,
+      showRowDendrogram = TRUE,
+      draw = FALSE,
+      name = paste0("Column Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+    )
+
+  }else{
+    
+    ht <- .ArchRHeatmap(
+      mat = mat,
+      scale = FALSE,
+      limits = c(min(mat), max(mat)),
+      color = pal, 
+      clusterCols = clusterCols, 
+      clusterRows = clusterRows,
+      labelRows = labelRows,
+      labelCols = TRUE,
+      customRowLabel = mn,
+      showColDendrogram = TRUE,
+      draw = FALSE,
+      name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+    )
+
+  }
 
   if(returnMat){
     return(mat)
@@ -929,7 +951,7 @@ markerHeatmap <- function(
   if(!is.null(colData) & !is.null(customColLabel)){
     message("Adding Annotations..")
     if(is.null(customColLabelIDs)){
-      customColLabelIDs <- colnames(mat)[customRowLabel]
+      customColLabelIDs <- colnames(mat)[customColLabel]
     }
     ht1Anno <- HeatmapAnnotation(
       df = colData,
@@ -961,7 +983,7 @@ markerHeatmap <- function(
     )
   }else if(is.null(colData) & !is.null(customColLabel)){
     if(is.null(customColLabelIDs)){
-      customColLabelIDs <- colnames(mat)[customRowLabel]
+      customColLabelIDs <- colnames(mat)[customColLabel]
     }
     message("Adding Annotations..")
     ht1Anno <- HeatmapAnnotation(
@@ -1263,6 +1285,7 @@ markerPlot <- function(
       y = LFC[idx], 
       color = color[idx], 
       rastr = TRUE, 
+      labelMeans = FALSE,
       pal = pal,
       xlabel = "Log2 Mean",
       ylabel = "Log2 Fold Change",
@@ -1274,6 +1297,7 @@ markerPlot <- function(
       y = -log10(FDR[idx]), 
       color = color[idx], 
       rastr = TRUE, 
+      labelMeans = FALSE,
       pal = pal,
       xlabel = "Log2 Fold Change",
       ylabel = "-Log10 FDR",

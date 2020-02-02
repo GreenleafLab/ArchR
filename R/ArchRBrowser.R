@@ -1171,7 +1171,7 @@ ArchRBrowserTrack <- function(
   .requirePackage("ggrepel")
 
   #only take first region
-  region <- ArchR::.validGRanges(region)
+  region <- .validGRanges(region)
   region <- .subsetSeqnamesGR(region[1], as.character(seqnames(region[1])))
 
   genes <- sort(sortSeqlevels(geneAnnotation$genes), ignore.strand = TRUE)
@@ -1304,11 +1304,11 @@ ArchRBrowserTrack <- function(
   .requirePackage("ggplot2")
 
   #only take first region
-  region <- ArchR::.validGRanges(region)
-  region <- subsetSeqnamesGR(region[1], as.character(seqnames(region[1])))
+  region <- .validGRanges(region)
+  region <- .subsetSeqnamesGR(region[1], as.character(seqnames(region[1])))
 
   if(!inherits(features,"GRangesList") & !inherits(features,"GenomicRangesList")){
-    features <- ArchR::.validGRanges(features)
+    features <- .validGRanges(features)
     featureList <- GenomicRanges::GenomicRangesList(features)
     names(featureList) <- "FeatureTrack"
     hideY <- TRUE

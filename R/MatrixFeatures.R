@@ -147,6 +147,8 @@ addPeakMatrix <- function(
   matrixName = "PeakMatrix", 
   ceiling = 4, 
   binarize = FALSE,
+  tstart = NULL,
+  subThreads = 1,
   force = FALSE
   ){
 
@@ -165,7 +167,9 @@ addPeakMatrix <- function(
     }
   }
   
-  tstart <- Sys.time()
+  if(!is.null(tstart)){
+    tstart <- Sys.time()
+  }
  
   #Get all cell ids before constructing matrix
   if(is.null(cellNames)){

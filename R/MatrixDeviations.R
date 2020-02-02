@@ -114,6 +114,7 @@ addDeviationsMatrix <- function(
 
   #Remove Project from Args
   args$ArchRProj <- NULL
+  args$matches <- NULL
 
   #Run With Parallel or lapply
   outList <- .batchlapply(args)

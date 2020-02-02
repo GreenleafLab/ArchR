@@ -36,7 +36,7 @@ plotEmbedding <- function(
   log2Norm = NULL,
   imputeWeights = NULL,
   pal = NULL,
-  size = 0.5,
+  size = 0.1,
   rastr = TRUE,
   quantCut = c(0.01, 0.99),
   discreteSet = NULL,
@@ -173,6 +173,12 @@ plotEmbedding <- function(
       }
 
       if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
+
+        plotParamsx$discrete <- NULL
+        plotParamsx$continuousSet <- NULL
+        plotParamsx$rastr <- NULL
+        plotParamsx$size <- NULL
+        plotParamsx$randomize <- NULL
 
         gg <- do.call(ggHex, plotParamsx)
 
@@ -326,7 +332,7 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))
       if(length(ix)==0){
-        stop(sprintf("FeatureName does not exist for %s! See availableFeatures", name))
+        stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]))
       }
       ix
     }) %>% unlist
@@ -336,7 +342,7 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- which(tolower(name[x]) == tolower(featureDF$name))[1]
       if(length(ix)==0){
-        stop(sprintf("FeatureName does not exist for %s! See availableFeatures", name))
+        stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]))
       }
       ix
     }) %>% unlist
@@ -344,7 +350,7 @@ plotGroups <- function(
   }
 
   if(any(is.na(idx))){
-    stop("name is not in featureNames!")
+    stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[which(is.na(idx))]))
   }
 
   featureDF <- featureDF[idx, ,drop=FALSE]

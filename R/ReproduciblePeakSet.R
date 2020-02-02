@@ -313,7 +313,9 @@ addReproduciblePeakSet <- function(
 	    )
 		.messageDiffTime(sprintf("Created Pseudo-Grouped Tile Matrix (%s GB)", round(object.size(groupMat) / 10^9, 3)), tstart, addHeader = verboseAll, verbose = verboseHeader)
 
-	    exp <- Matrix::colSums(groupMat) / nTiles
+		#Expectation, we lowered the expectation (by 25%) to better match 
+		#the results between macs2 and tile peak calling methods.
+	    exp <- 0.75 * Matrix::colSums(groupMat) / nTiles
 
 		#####################################################
 		# Peak Calling Per Group
@@ -633,6 +635,7 @@ addReproduciblePeakSet <- function(
 	peakParams = NULL,
 	bedDir = NULL,
 	excludeChr = NULL,
+	subThreads = 1,
 	tstart = NULL
 	){
 	
@@ -656,7 +659,7 @@ addReproduciblePeakSet <- function(
 	################
 	saveRDS(summits, outFiles[i])
 
-	.messageDiffTime(sprintf("Group %s of %s, Finished Calling Peaks with MACS2!", i, length(coverageFiles)), tstart)
+	#.messageDiffTime(sprintf("Group %s of %s, Finished Calling Peaks with MACS2!", i, length(coverageFiles)), tstart)
 
 	outFiles[i]
 

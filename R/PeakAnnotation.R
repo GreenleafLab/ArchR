@@ -237,7 +237,7 @@ addMotifAnnotations <- function(
   .validInput(input = species, name = "species", valid = c("character", "null"))
   .validInput(input = collection, name = "collection", valid = c("character", "null"))
   .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
-  .validInput(input = w, name = "w", valid = c("integer"))
+  .validInput(input = width, name = "width", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
