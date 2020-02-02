@@ -799,13 +799,6 @@ markerHeatmap <- function(
     clusterCols <- TRUE
   }
 
-  if(!is.null(labelMarkers)){
-    mn <- match(tolower(labelMarkers), tolower(rownames(mat)), nomatch = 0)
-    mn <- mn[mn > 0]
-  }else{
-    mn <- NULL
-  }
-
   if(nrow(mat) == 0){
     stop("No Makers Found!")
   }
@@ -827,24 +820,40 @@ markerHeatmap <- function(
   }
 
   if(transpose){
-    
+
+    mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
+
+    if(!is.null(labelMarkers)){
+      mn <- match(tolower(labelMarkers), tolower(colnames(mat)), nomatch = 0)
+      mn <- mn[mn > 0]
+    }else{
+      mn <- NULL
+    }
+
     ht <- .ArchRHeatmap(
-      mat = t(mat),
+      mat = mat,
       scale = FALSE,
       limits = c(min(mat), max(mat)),
       color = pal, 
       clusterCols = clusterRows, 
-      clusterRows = clusterCols,
+      clusterRows = FALSE,
       labelRows = TRUE,
       labelCols = labelRows,
       customColLabel = mn,
       showRowDendrogram = TRUE,
       draw = FALSE,
-      name = paste0("Column Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+      name = paste0("Column Z-Scores\n", ncol(mat), " features\n", metadata(seMarker)$Params$useMatrix)
     )
 
   }else{
     
+    if(!is.null(labelMarkers)){
+      mn <- match(tolower(labelMarkers), tolower(rownames(mat)), nomatch = 0)
+      mn <- mn[mn > 0]
+    }else{
+      mn <- NULL
+    }
+
     ht <- .ArchRHeatmap(
       mat = mat,
       scale = FALSE,
@@ -963,11 +972,9 @@ markerHeatmap <- function(
         list(
           nrow = min(colAnnoPerRow, max(round(nrow(colData)/colAnnoPerRow), 1))
         ),
-      link = anno_check_version_cols(
-        at = customColLabel, labels = customColLabelIDs),
-        width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs)
-
+      foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs)
     )
+
   }else if(!is.null(colData)){
     message("Adding Annotations..")
     ht1Anno <- HeatmapAnnotation(
@@ -986,11 +993,13 @@ markerHeatmap <- function(
       customColLabelIDs <- colnames(mat)[customColLabel]
     }
     message("Adding Annotations..")
-    ht1Anno <- HeatmapAnnotation(
-      link = anno_check_version_cols(
-        at = customColLabel, labels = customColLabelIDs),
-        width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs)
-    )
+    #print(customColLabel)
+    #print(customColLabelIDs)
+    #ht1Anno <- columnAnnotation(foo = anno_check_version_cols(
+    #   at = customColLabel, labels = customColLabelIDs),
+    #   width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs))
+    #ht1Anno <- HeatmapAnnotation(foo = anno_mark(at = c(1:4, 20, 60, 1097:1100), labels = month.name[1:10]))
+    ht1Anno <- HeatmapAnnotation(foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs))
   }else{
     ht1Anno <- NULL
   }
@@ -999,7 +1008,7 @@ markerHeatmap <- function(
   ht1 <- Heatmap(
     
     #Main Stuff
-    matrix = mat,
+    matrix = as.matrix(mat),
     name = name,
     col = color, 
     
