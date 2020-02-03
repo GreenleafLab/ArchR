@@ -792,6 +792,11 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
   message(Ascii[[ascii]])
 }
 
+
+########
+# Developer Utils
+########
+
 .devMode <- function(){
   fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
   for(i in seq_along(fn)){
@@ -802,3 +807,57 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
   }
 }
 
+.convertToPNG <- function(
+  ArchRProj = NULL,
+  paths = c("QualityControl"),
+  recursive = TRUE,
+  outDir = "Figures"
+  ){
+
+  #If error try
+  #brew install fontconfig
+
+  library(pdftools)
+
+  if(!is.null(ArchRProj)){
+    paths <- c(paths, file.path(getOutputDirectory(ArchRProj), "Plots"))
+  }
+  
+  pdfFiles <- lapply(seq_along(paths), function(i){
+    if(recursive){
+      dirs <- list.dirs(paths[i], recursive = FALSE, full.names = FALSE)
+      if(length(dirs) > 0){
+        pdfs <- lapply(seq_along(dirs), function(j){
+          list.files(file.path(paths[i], dirs[j]), full.names = TRUE, pattern = "\\.pdf")
+        }) %>% unlist
+      }else{
+        pdfs <- c()
+      }
+      pdfs <- c(list.files(paths[i], full.names = TRUE, pattern = "\\.pdf"), pdfs)
+    }else{
+      pdfs <- list.files(paths[i], full.names = TRUE, pattern = "\\.pdf")
+    }
+    pdfs
+  }) %>% unlist
+
+  dir.create(outDir, showWarnings = FALSE)
+
+  for(i in seq_along(pdfFiles)){
+    print(i)
+    tryCatch({
+      pdf_convert(
+        pdfFiles[i], 
+        format = "png", 
+        pages = NULL, 
+        filenames = file.path(outDir, gsub("\\.pdf", "_%d.png",basename(pdfFiles[i]))),
+        dpi = 300, 
+        opw = "", 
+        upw = "", 
+        verbose = TRUE
+      )
+    },error=function(x){
+
+    })
+  }
+
+}
