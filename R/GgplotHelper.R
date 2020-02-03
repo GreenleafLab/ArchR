@@ -200,6 +200,7 @@ ggPoint <- function(
               x = paste0(paste0(match(paste0(df$color), paste0(levels(df$color)))), "-", paste0(df$color)), 
               levels = paste0(seq_along(levels(df$color)), "-", levels(df$color))
             )
+            names(pal) <- paste0(levels(df$color))[match(names(pal), colorOrder)]
             colorOrder <- paste0(levels(df$color))
           }
 
@@ -256,6 +257,8 @@ ggPoint <- function(
 
               if(labelAsFactors){
                 dfMean$label <- stringr::str_split(paste0(seq_len(nrow(dfMean))), pattern = "\\-", simplify=TRUE)[,1]
+              }else{
+                dfMean$label <- dfMean$color
               }
 
               # make halo layers, similar to https://github.com/GuangchuangYu/shadowtext/blob/master/R/shadowtext-grob.R#L43
