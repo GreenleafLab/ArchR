@@ -110,7 +110,7 @@ addPeakAnnotations <- function(
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list"))
+  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
@@ -139,13 +139,13 @@ addPeakAnnotations <- function(
       }else if(is.character(regions[x])){
         
         gr <- tryCatch({
-          .validGRanges(makeGRangesFromDataFrame(
+          makeGRangesFromDataFrame(
             df = data.frame(data.table::fread(regions[x])), 
             keep.extra.columns = TRUE,
             seqnames.field = "V1",
             start.field = "V2",
             end.field = "V3"
-          ))
+          )
         }, error = function(y){
 
           print(paste0("Could not successfully get region : ", regions[x]))
@@ -504,6 +504,7 @@ addArchRAnnotations <- function(
     }
   }
 
+  genome <- tolower(validBSgenome(getGenome(ArchRProj))@provider_version)
 
   annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
   dir.create(annoPath, showWarnings = FALSE)
@@ -851,8 +852,8 @@ peakAnnoEnrichment <- function(
     return(p/log(10))
   }) %>% unlist %>% round(4)
 
-  #Minus Log10 FDR
-  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
+  #Minus Log10 Padj
+  pOut$mlog10Padj <- pOut$mlog10p - log10(ncol(pOut))
   pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
 
   pOut
@@ -874,44 +875,119 @@ peakAnnoEnrichment <- function(
 enrichHeatmap <- function(
   seEnrich = NULL,
   pal = paletteContinuous(set = "comet", n = 100),
-  limits = c(0, 60),
   n = 10,
+  cutOff = 20,
+  pMax = Inf,
   clusterCols = TRUE,
-  clusterRows = TRUE,
-  labelRows = TRUE
+  binaryClusterRows = TRUE,
+  labelRows = TRUE,
+  transpose = TRUE
   ){
 
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
   .validInput(input = pal, name = "pal", valid = c("character"))
-  .validInput(input = limits, name = "limits", valid = c("numeric"))
+  #.validInput(input = limits, name = "limits", valid = c("numeric"))
   .validInput(input = n, name = "n", valid = c("integer"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
-  .validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
+  #.validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
 
-  mat <- assays(seEnrich)[["mlog10FDR"]]
-  mat[mat < min(limits)] <- min(limits)
-  mat[mat > max(limits)] <- max(max(limits), 25)
+  mat <- assays(seEnrich)[["mlog10Padj"]]
+  #mat[mat < min(limits)] <- min(limits)
 
   keep <- lapply(seq_len(ncol(mat)), function(x){
-    rownames(mat)[head(order(mat[, x], decreasing = TRUE), n)]
+    idx <- head(order(mat[, x], decreasing = TRUE), n)
+    rownames(mat)[idx[which(mat[idx,x] > cutOff)]]
   }) %>% unlist %>% unique
 
-  ht <- .ArchRHeatmap(
-    mat = as.matrix(mat[keep, ,drop = FALSE]),
-    scale = FALSE,
-    limits = c(min(mat), max(mat)),
-    color = pal, 
-    clusterCols = clusterCols, 
-    clusterRows = clusterRows,
-    labelRows = labelRows,
-    labelCols = TRUE,
-    showColDendrogram = TRUE,
-    draw = FALSE,
-    name = "Enrichment -log10(FDR)"
-  )
+  mat <- mat[keep, ,drop = FALSE]
+  passMat <- lapply(seq_len(nrow(mat)), function(x){
+    (mat[x, ] >= 0.9*max(mat[x, ])) * 1
+  }) %>% Reduce("rbind", .) %>% data.frame
+  colnames(passMat) <- colnames(mat)
+
+  mat[mat > pMax] <- pMax
+
+  if(nrow(mat)==0){
+    stop("No enrichments found!")
+  }
+
+  mat <- .rowScale(as.matrix(mat), min = 0)
+  if(pMax != 100){
+      rownames(mat[[1]]) <- paste0(rownames(mat[[1]]), " (",round(mat$max),")")
+      rownames(passMat) <- rownames(mat[[1]])
+  }
+
+  mat2 <- mat[[1]] * 100
+
+  if(binaryClusterRows){
+    #cn <- order(colMeans(mat2), decreasing=TRUE)
+    bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = TRUE)
+    mat2 <- bS[[1]][,colnames(mat2)]
+    clusterRows <- FALSE
+    clusterCols <- bS[[2]]
+  }else{
+    clusterRows <- TRUE
+  }
+
+  if(transpose){
+
+    mat2 <- t(mat2[,clusterCols$order])
+
+    #mat2 <- t(mat2[rev(seq_len(nrow(mat2))), ])
+
+    ht <- .ArchRHeatmap(
+      mat = as.matrix(mat2),
+      scale = FALSE,
+      limits = c(0, max(mat2)),
+      color = pal, 
+      clusterCols = FALSE, 
+      clusterRows = FALSE,
+      #clusterRows = rev(as.dendrogram(clusterCols)),
+      labelRows = TRUE,
+      fontSizeCols = 6,
+      #labelCols = labelRows,
+      customColLabel = seq_len(ncol(mat2)),
+      showRowDendrogram = FALSE,
+      draw = FALSE,
+      name = "Enrichment -log10(P-adj) [0-Max]"
+    )
+
+
+  }else{
+
+    ht <- .ArchRHeatmap(
+      mat = as.matrix(mat2),
+      scale = FALSE,
+      limits = c(0, max(mat2)),
+      color = pal, 
+      clusterCols = clusterCols, 
+      clusterRows = clusterRows,
+      fontSizeRows = 6,
+      #labelRows = labelRows,
+      customRowLabel = seq_len(nrow(mat2)),
+      labelCols = TRUE,
+      showColDendrogram = TRUE,
+      draw = FALSE,
+      name = "Enrichment -log10(P-adj) [0-Max]"
+    )
+
+  }
 
   return(ht)
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -448,7 +448,7 @@ getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE
 
   if(plot){
     rowV <- data.frame(rowV)
-    ggplot(rowV, aes(rank, combinedVars)) +
+    ggplot(rowV, aes(x = rank, y = combinedVars, color = )) +
       geom_point(size = 1) + 
       ggrepel::geom_label_repel(
         data = rowV[rev(seq_len(n)), ], aes(x = rank, y = combinedVars, label = name), 

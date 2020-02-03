@@ -692,6 +692,7 @@ markerHeatmap <- function(
   grepExclude = NULL,
   pal = NULL,
   binaryClusterRows = TRUE,
+  clusterCols = TRUE,
   labelMarkers = NULL,
   nLabel = NULL,
   nPrint = 20,
@@ -786,10 +787,10 @@ markerHeatmap <- function(
 
   if(binaryClusterRows){
     if(invert){
-      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)])
+      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)], clusterCols = clusterCols)
       mat <- -bS[[1]][,colnames(mat)]
     }else{
-      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
+      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)], clusterCols = clusterCols)
       mat <- bS[[1]][,colnames(mat)]
     }
     clusterRows <- FALSE
@@ -821,7 +822,8 @@ markerHeatmap <- function(
 
   if(transpose){
 
-    mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
+    #mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
+    mat <- t(mat[seq_len(nrow(mat)), clusterCols$order])
 
     if(!is.null(labelMarkers)){
       mn <- match(tolower(labelMarkers), tolower(colnames(mat)), nomatch = 0)
@@ -897,7 +899,9 @@ markerHeatmap <- function(
   useRaster = TRUE,
   rasterQuality = 5,
   split = NULL,
-  fontsize = 10,
+  fontSizeRows = 10,
+  fontSizeCols = 10,
+  fontSizeLabels = 8,
   colAnnoPerRow = 4,
   showRowDendrogram = FALSE,
   showColDendrogram = FALSE,
@@ -972,7 +976,7 @@ markerHeatmap <- function(
         list(
           nrow = min(colAnnoPerRow, max(round(nrow(colData)/colAnnoPerRow), 1))
         ),
-      foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs)
+      foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels))
     )
 
   }else if(!is.null(colData)){
@@ -999,7 +1003,7 @@ markerHeatmap <- function(
     #   at = customColLabel, labels = customColLabelIDs),
     #   width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs))
     #ht1Anno <- HeatmapAnnotation(foo = anno_mark(at = c(1:4, 20, 60, 1097:1100), labels = month.name[1:10]))
-    ht1Anno <- HeatmapAnnotation(foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs))
+    ht1Anno <- HeatmapAnnotation(foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels)))
   }else{
     ht1Anno <- NULL
   }
@@ -1025,12 +1029,12 @@ markerHeatmap <- function(
     cluster_columns = clusterCols, 
     show_column_dend = showColDendrogram,
     clustering_method_columns = "ward.D2",
-    column_names_gp = gpar(fontsize = fontsize), 
+    column_names_gp = gpar(fontsize = fontSizeCols), 
     column_names_max_height = unit(100, "mm"),
     
     #Row Options
     show_row_names = labelRows,
-    row_names_gp = gpar(fontsize = fontsize), 
+    row_names_gp = gpar(fontsize = fontSizeRows), 
     cluster_rows = clusterRows, 
     show_row_dend = showRowDendrogram, 
     clustering_method_rows = "ward.D2",
@@ -1050,7 +1054,7 @@ markerHeatmap <- function(
       customRowLabelIDs <- rownames(mat)[customRowLabel]
     }
     ht1 <- ht1 + rowAnnotation(link = 
-        anno_check_version_rows(at = customRowLabel, labels = customRowLabelIDs),
+        anno_check_version_rows(at = customRowLabel, labels = customRowLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels)),
         width = unit(customLabelWidth, "cm") + max_text_width(customRowLabelIDs))
   }
 
@@ -1266,7 +1270,7 @@ markerPlot <- function(
   
   LFC <- assays(seMarker[,name])$Log2FC
   LFC <- as.vector(as.matrix(LFC))
-  qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4)
+  qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4) * 1.05
 
   FDR <- assays(seMarker[,name])$FDR
   FDR <- as.vector(as.matrix(FDR))
@@ -1291,27 +1295,37 @@ markerPlot <- function(
   if(tolower(plotAs) == "ma"){
     ggPoint(
       x = LM[idx],
-      y = LFC[idx], 
-      color = color[idx], 
+      y = LFC[idx],
+      color = color[idx],  
+      ylim = c(-qLFC, qLFC),
+      size = 1,
+      extend = 0,
       rastr = TRUE, 
       labelMeans = FALSE,
+      labelAsFactors = FALSE,
       pal = pal,
       xlabel = "Log2 Mean",
       ylabel = "Log2 Fold Change",
       title = title
-    ) + geom_hline(yintercept = 0, lty = "dashed") + scale_y_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC))
+    ) + geom_hline(yintercept = 0, lty = "dashed") + 
+    scale_y_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC), expand = c(0,0))
   }else if(tolower(plotAs) == "volcano"){
     ggPoint(
       x = LFC[idx],
       y = -log10(FDR[idx]), 
       color = color[idx], 
+      xlim = c(-qLFC, qLFC),
+      extend = 0,
+      size = 1,
       rastr = TRUE, 
       labelMeans = FALSE,
+      labelAsFactors = FALSE,
       pal = pal,
       xlabel = "Log2 Fold Change",
       ylabel = "-Log10 FDR",
       title = title
-    ) + geom_vline(xintercept = 0, lty = "dashed") + scale_x_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC))
+    ) + geom_vline(xintercept = 0, lty = "dashed") + 
+    scale_x_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC), expand = c(0,0))
   }else{
     stop("plotAs not recognized")
   }

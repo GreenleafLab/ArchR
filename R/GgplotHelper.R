@@ -63,7 +63,7 @@ ggPoint <- function(
     colorOrder = NULL, 
     colorLimits = NULL,
     alpha = 1, 
-    baseSize = 6, 
+    baseSize = 10, 
     legendSize = 3,
     ratioYX = 1, 
     labelAsFactors = TRUE,
@@ -769,7 +769,7 @@ ggAlignPlots <- function(
 #' @export
 theme_ArchR <- function(
   color = "black",
-  baseSize = 6, 
+  baseSize = 10, 
   baseLineSize = 0.5,
   baseRectSize = 0.5,
   plotMarginCm = 1,
@@ -804,8 +804,8 @@ theme_ArchR <- function(
       axis.ticks = element_line(color = color, size = baseLineSize * (4/3) * as.numeric(grid::convertX(grid::unit(1, "points"), "mm"))),
       legend.key = element_rect(fill = "transparent", colour = NA),
       legend.text = element_text(color = color, size = legendTextSize),
-      legend.background = element_rect(fill = "transparent"),
-      legend.box.background = element_rect(fill = "transparent"),
+      legend.box.background = element_rect(color = NA),
+      #legend.box.background = element_rect(fill = "transparent"),
       legend.position = legendPosition,
       strip.text = element_text(size = baseSize, color="black"),
       plot.background = element_rect(fill = "transparent", color = NA)

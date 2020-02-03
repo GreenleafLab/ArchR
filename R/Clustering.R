@@ -179,16 +179,6 @@ addClusters <- function(
     #################################################################################
     # Renaming Clusters based on Proximity in Reduced Dimensions
     #################################################################################
-    .reLabel <- function(labels = NULL, oldLabels = NULL, newLabels = NULL){
-        labels <- paste0(labels)
-        oldLabels <- paste0(oldLabels)
-        newLabels <- paste0(newLabels)
-        labelsNew <- labels
-        for(i in seq_along(oldLabels)){
-            labelsNew[labels == oldLabels[i]] <- newLabels[i]
-        }
-        paste0(labelsNew)
-    }
     .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
     meanSVD <- t(.groupMeans(t(matDR), clust))
     meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
@@ -202,7 +192,7 @@ addClusters <- function(
             idx <- meanKNN[idx, ][which(rownames(meanSVD)[meanKNN[idx, ]] %ni% clustOld)][1]
         }
     }
-    out <- .reLabel(clust, oldLabels = clustOld, newLabels = clustNew)
+    out <- mapLabels(labels = clust, oldLabels = clustOld, newLabels = clustNew)
 
     if(inherits(input, "ArchRProject")){
         input <- .suppressAll(addCellColData(

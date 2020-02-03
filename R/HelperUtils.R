@@ -368,6 +368,34 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(0)
 }
 
+
+#' @export
+#JJJ
+mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabels)){
+
+  .validInput(input = labels, name = "labels", valid = c("character"))
+  .validInput(input = newLabels, name = "newLabels", valid = c("character"))
+  .validInput(input = oldLabels, name = "oldLabels", valid = c("character"))
+
+  if(length(newLabels) != length(oldLabels)){
+    stop("newLabels and oldLabels must be equal length!")
+  }
+
+  if(!requireNamespace("plyr", quietly = TRUE)){
+    labels <- paste0(labels)
+    oldLabels <- paste0(oldLabels)
+    newLabels <- paste0(newLabels)
+    labelsNew <- labels
+    for(i in seq_along(oldLabels)){
+        labelsNew[labels == oldLabels[i]] <- newLabels[i]
+    }
+    paste0(labelsNew)
+  }else{
+    paste0(plyr::mapvalues(x = labels, from = oldLabels, to = newLabels))
+  }
+
+}
+
 ##########################################################################################
 # Lapply Methods
 ##########################################################################################
@@ -528,7 +556,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   rScale <- rMax - rMin
   matDiff <- mat - rMin
   matScale <- matDiff/rScale
-  out <- list(mat=matScale, min=rMax, max=rMin)
+  out <- list(mat=matScale, min=rMin, max=rMax)
   return(out)
 }
 
