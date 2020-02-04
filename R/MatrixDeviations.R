@@ -446,13 +446,17 @@ getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE
   rowV <- rowV[order(rowV$combinedVars, decreasing=TRUE), ]
   rowV$rank <- seq_len(nrow(rowV))
 
+  print(head(rowV))
+
   if(plot){
     rowV <- data.frame(rowV)
-    ggplot(rowV, aes(x = rank, y = combinedVars, color = )) +
+    ggplot(rowV, aes(x = rank, y = combinedVars, color = combinedVars)) +
       geom_point(size = 1) + 
+      scale_color_gradientn(colors = paletteContinuous(set = "comet")) +
       ggrepel::geom_label_repel(
         data = rowV[rev(seq_len(n)), ], aes(x = rank, y = combinedVars, label = name), 
         size = 1.5,
+        color = "black",
         nudge_x = 2
       ) + theme_ArchR() + ylab("Variability") + xlab("Rank Sorted Annotations")
   }else{

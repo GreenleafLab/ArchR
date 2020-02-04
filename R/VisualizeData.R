@@ -272,38 +272,51 @@ plotGroups <- function(
   groups <- getCellColData(ArchRProj, groupBy, drop = FALSE)
   groupNames <- groups[,1]
   names(groupNames) <- rownames(groups)
-  
-  if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
-    values <- getCellColData(ArchRProj, name, drop = TRUE)
-  }else{
-    if (tolower(colorBy) == "genescorematrix"){
-      if(is.null(log2Norm)){
-        log2Norm <- TRUE
+
+  pl <- lapply(seq_along(name), function(x){
+
+    message(paste0(x, " "), appendLF = FALSE)
+
+    if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
+        values <- getCellColData(ArchRProj, name[x], drop = TRUE)
+      }else{
+        if (tolower(colorBy) == "genescorematrix"){
+          if(is.null(log2Norm)){
+            log2Norm <- TRUE
+          }
+        }
+        values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
       }
-    }
-    values <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
+
+      if(!is.null(imputeWeights)){
+        imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
+        values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
+      }
+
+      if(is.null(ylim)){
+        ylim <- range(values) %>% extendrange(f = 0.05)
+      }
+
+      p <- ggGroup(
+        x = groupNames, 
+        y = values, 
+        xlabel = groupBy, 
+        ylabel = name[x], 
+        baseSize = baseSize, 
+        ratioYX = ratioYX,
+        size = size
+        )
+
+      p
+  })
+
+  message("\n")
+  
+  if(length(name)==1){
+    pl[[1]]
+  }else{
+    pl
   }
-
-  if(!is.null(imputeWeights)){
-    imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
-    values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
-  }
-
-  if(is.null(ylim)){
-    ylim <- range(values) %>% extendrange(f = 0.05)
-  }
-
-  p <- ggGroup(
-    x = groupNames, 
-    y = values, 
-    xlabel = groupBy, 
-    ylabel = name, 
-    baseSize = baseSize, 
-    ratioYX = ratioYX,
-    size = size
-    )
-
-  p
 
 }
 

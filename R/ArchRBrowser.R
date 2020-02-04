@@ -305,10 +305,6 @@ ArchRBrowser <- function(
 
             useGroups <- groupDF[groupDF[,"include"],"group"]
 
-            .isColor <- function(x = NULL) {
-                unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), 
-                  error = function(e) FALSE)))
-            }
 
             if(!all(.isColor(groupDF[groupDF[,"include"], "color"]))){
               p <- ggplot() +
