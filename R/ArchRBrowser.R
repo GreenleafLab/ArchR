@@ -81,7 +81,7 @@ ArchRBrowser <- function(
   ui <- fluidPage(
     theme = theme,
     titlePanel(
-        h1(div(HTML("<b>ArchR Browser</b>")), align = "center")
+        h1(div(HTML("<b>ArchR Browser</b>")), align = "left")
     ),
     sidebarLayout(
       sidebarPanel(
@@ -1303,47 +1303,64 @@ ArchRBrowserTrack <- function(
   region <- .validGRanges(region)
   region <- .subsetSeqnamesGR(region[1], as.character(seqnames(region[1])))
 
-  if(!inherits(features,"GRangesList") & !inherits(features,"GenomicRangesList")){
-    features <- .validGRanges(features)
-    featureList <- GenomicRanges::GenomicRangesList(features)
-    names(featureList) <- "FeatureTrack"
-    hideY <- TRUE
-  }else{
-    featureList <- features
-    hideY <- FALSE
-  }
-  featureList <- featureList[rev(seq_along(featureList))]
+  if(!is.null(features)){
 
-  featureO <- lapply(seq_along(featureList), function(x){
-    featurex <- featureList[[x]]
-    namex <- names(featureList)[x]
-    mcols(featurex) <- NULL
-    sub <- subsetByOverlaps(featurex, region, ignore.strand = TRUE)
-    if(length(sub) > 0){
-      data.frame(sub, name = namex)
+    if(!inherits(features,"GRangesList") & !inherits(features,"GenomicRangesList")){
+      features <- .validGRanges(features)
+      featureList <- GenomicRanges::GenomicRangesList(features)
+      names(featureList) <- "FeatureTrack"
+      hideY <- TRUE
     }else{
-      empty <- GRanges(as.character(seqnames(region[1])), ranges = IRanges(0,0))
-      data.frame(empty, name = namex)
+      featureList <- features
+      hideY <- FALSE
+    }
+    featureList <- featureList[rev(seq_along(featureList))]
+
+    featureO <- lapply(seq_along(featureList), function(x){
+      featurex <- featureList[[x]]
+      namex <- names(featureList)[x]
+      mcols(featurex) <- NULL
+      sub <- subsetByOverlaps(featurex, region, ignore.strand = TRUE)
+      if(length(sub) > 0){
+        data.frame(sub, name = namex)
+      }else{
+        empty <- GRanges(as.character(seqnames(region[1])), ranges = IRanges(0,0))
+        data.frame(empty, name = namex)
+      }
+
+    })
+
+    featureO <- Reduce("rbind", featureO)
+    featureO$facet <- title
+
+    if(is.null(pal)){
+      pal <- paletteDiscrete(set = "stallion", values = rev(unique(paste0(featureO$name))))
     }
 
-  })
+    p <- ggplot(data = featureO, aes(color = name)) +
+      facet_grid(facet~.) +
+      geom_segment(data = featureO, aes(x = start, xend = end, y = name, yend = name, color = name), size=featureWidth) +
+      ylab("") + xlab("") + 
+      scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+      scale_color_manual(values = pal) +
+      theme(legend.text = element_text(size = baseSize)) + 
+      theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth) +
+      guides(color = FALSE, fill = FALSE) + theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank())
 
-  featureO <- Reduce("rbind", featureO)
-  featureO$facet <- title
+  }else{
 
-  if(is.null(pal)){
-    pal <- paletteDiscrete(set = "stallion", values = rev(unique(paste0(featureO$name))))
+    #create empty plot
+    df <- data.frame(facet = "FeatureTrack", start = 0, end = 0, strand = "*", symbol = "none")
+    p <- ggplot(data = df, aes(start, end)) + 
+      geom_point() +
+      facet_grid(facet~.) +
+      theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth) +
+      scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+      theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
+      theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank())
+
   }
 
-  p <- ggplot(data = featureO, aes(color = name)) +
-    facet_grid(facet~.) +
-    geom_segment(data = featureO, aes(x = start, xend = end, y = name, yend = name, color = name), size=featureWidth) +
-    ylab("") + xlab("") + 
-    scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
-    scale_color_manual(values = pal) +
-    theme(legend.text = element_text(size = baseSize)) + 
-    theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth) +
-    guides(color = FALSE, fill = FALSE) + theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank())
 
   if(hideX){
     p <- p + theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
@@ -1388,43 +1405,58 @@ ArchRBrowserTrack <- function(
     return(df)
   }
 
-  if(inherits(loops, "GRanges")){
-    loops <- GenomicRanges::GenomicRangesList(loops)
-    names(loops) <- "Loops" 
-  }else if(all(unlist(lapply(loops, function(x) inherits(x, "GRanges"))))){
+  if(!is.null(loops)){
+
+    if(inherits(loops, "GRanges")){
+      loops <- GenomicRanges::GenomicRangesList(loops)
+      names(loops) <- "Loops" 
+    }else if(all(unlist(lapply(loops, function(x) inherits(x, "GRanges"))))){
+    }else{
+      stop("Loops is not a GRanges or a list of GRanges! Please supply valid input!")
+    }
+
+    valueMin <- min(unlist(lapply(loops, function(x) min(x$value))))
+    valueMax <- max(unlist(lapply(loops, function(x) max(x$value))))
+
+    loopO <- lapply(seq_along(loops), function(x){
+       subLoops <- subsetByOverlaps(loops[[x]], region, ignore.strand = TRUE, type = "within")    
+       dfx <- getArchDF(subLoops)
+       dfx$name <- Rle(paste0(names(loops)[x]))
+       return(dfx)
+    }) %>% Reduce("rbind",.)
+
+    loopO$facet <- title
+
+    if(is.null(pal)){
+      pal <- colorRampPalette(c("#E6E7E8","#3A97FF","#8816A7","black"))(100)
+    }
+
+    p <- ggplot(data = data.frame(loopO), aes(x = x, y = y, group = id, color = value)) + 
+      geom_line() +
+      facet_grid(name ~ .) +
+      ylab("") + 
+      coord_cartesian(ylim = c(-100,0)) +
+      scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+      scale_color_gradientn(colors = pal, limits = c(valueMin, valueMax)) +
+      theme(legend.text = element_text(size = baseSize)) +
+      theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth, legendPosition = "right") +
+      theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank(),
+        legend.box.background = element_rect(color = NA)) +
+      guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
+
   }else{
-    stop("Loops is not a GRanges or a list of GRanges! Please supply valid input!")
+
+    #create empty plot
+    df <- data.frame(facet = "LoopTrack", start = 0, end = 0, strand = "*", symbol = "none")
+    p <- ggplot(data = df, aes(start, end)) + 
+      geom_point() +
+      facet_grid(facet~.) +
+      theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth) +
+      scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+      theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
+      theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank())
+
   }
-
-  valueMin <- min(unlist(lapply(loops, function(x) min(x$value))))
-  valueMax <- max(unlist(lapply(loops, function(x) max(x$value))))
-
-  loopO <- lapply(seq_along(loops), function(x){
-     subLoops <- subsetByOverlaps(loops[[x]], region, ignore.strand = TRUE, type = "within")    
-     dfx <- getArchDF(subLoops)
-     dfx$name <- Rle(paste0(names(loops)[x]))
-     return(dfx)
-  }) %>% Reduce("rbind",.)
-
-  loopO$facet <- title
-
-  if(is.null(pal)){
-    pal <- colorRampPalette(c("#E6E7E8","#3A97FF","#8816A7","black"))(100)
-  }
-
-  p <- ggplot(data = data.frame(loopO), aes(x = x, y = y, group = id, color = value)) + 
-    geom_line() +
-    facet_grid(name ~ .) +
-    ylab("") + 
-    coord_cartesian(ylim = c(-100,0)) +
-    scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
-    scale_color_gradientn(colors = pal, limits = c(valueMin, valueMax)) +
-    theme(legend.text = element_text(size = baseSize)) +
-    theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth, legendPosition = "right") +
-    theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank(),
-      legend.box.background = element_rect(color = NA)) +
-    guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
-
 
   if(hideX){
     p <- p + theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
