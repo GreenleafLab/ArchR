@@ -229,7 +229,6 @@ plotEmbedding <- function(
 #' @param size The numeric size of the points to be plotted.
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param addPoints A boolean value that indicates whether points should be added to the plot using `ggplot2::geom_quasirandom()`.
 #' @export
 plotGroups <- function(
   ArchRProj = NULL, 
@@ -242,8 +241,7 @@ plotGroups <- function(
   ylim = NULL, 
   size = 0.5, 
   baseSize = 6, 
-  ratioYX = 0.5, 
-  addPoints = FALSE
+  ratioYX = NULL
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -256,8 +254,8 @@ plotGroups <- function(
   .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
-  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
-  .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
+  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
+  #.validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
   .requirePackage("ggplot2")
 
@@ -295,15 +293,14 @@ plotGroups <- function(
     ylim <- range(values) %>% extendrange(f = 0.05)
   }
 
-  p <- ggViolin(
+  p <- ggGroup(
     x = groupNames, 
     y = values, 
     xlabel = groupBy, 
     ylabel = name, 
     baseSize = baseSize, 
     ratioYX = ratioYX,
-    size = size,
-    addPoints = addPoints
+    size = size
     )
 
   p

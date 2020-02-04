@@ -438,111 +438,6 @@ ggOneToOne <- function (
   return(df)
 }
 
-#' A ggplot-based violin plot wrapper function
-#'
-#' This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.
-#' 
-#' @param x A character vector containing the categorical x-axis values for each y-axis value.
-#' @param y A numeric vector containing the y-axis values for each point.
-#' @param xlabel The label to plot for the x-axis.
-#' @param ylabel The label to plot for the y-axis.
-#' @param xOrder A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible values of `x` in the desired order.
-#' @param addPoints A boolean value indicating whether individual points should be added to the plot using `geom_quasirandom`.
-#' @param size The line width for boxplot/summary lines.
-#' @param baseSize The base font (in points) size to use in the plot.
-#' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param sampleRatio The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.
-#' @param title The title of the plot.
-#' @param pal A named custom palette (see `paletteDiscrete()` and `ArchRPalettes`) for discrete coloring.
-#' @export
-ggViolin <- function(
-  x = NULL, 
-  y = NULL, 
-  xlabel = NULL, 
-  ylabel = NULL, 
-  xOrder = NULL,
-  addPoints = FALSE,
-  size = 1,  
-  baseSize = 6, 
-  ratioYX = NULL,
-  sampleRatio = 0.1, 
-  title = "", 
-  pal = paletteDiscrete(values=x, set = "stallion")
-  ){
-
-  .validInput(input = x, name = "x", valid = c("character"))
-  .validInput(input = y, name = "y", valid = c("numeric"))
-  .validInput(input = xlabel, name = "xlabel", valid = c("character", "null"))
-  .validInput(input = ylabel, name = "ylabel", valid = c("character", "null"))
-  .validInput(input = xOrder, name = "xOrder", valid = c("character", "null"))
-  .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
-  .validInput(input = size, name = "size", valid = c("numeric"))
-  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
-  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
-  .validInput(input = sampleRatio, name = "sampleRatio", valid = c("numeric"))
-  .validInput(input = pal, name = "pal", valid = c("character"))
-  
-  names(y) <- x
-  me = round(mean(stats::aggregate(y ~ names(y), FUN = mean)[, 2]), 2)
-  sd = round(sd(stats::aggregate(y ~ names(y), FUN = mean)[, 2]), 2)
-  min = round(min(y), 2)
-  max = round(max(y), 2)
-  df <- data.frame(x, y)
-
-  if(!is.null(xOrder)){
-    if(!all(x %in% xOrder)){
-      stop("Not all x values are present in xOrder!")
-    }
-  }else{
-    xOrder <- gtools::mixedsort(unique(x))
-  }
-
-  df$x <- factor(df$x, xOrder)
-  
-  p <- ggplot(df, aes_string(x = "x", y = "y", color = "x")) + 
-    geom_violin(aes_string(fill="x"), alpha = 0.35) +
-    geom_boxplot(size = size, outlier.size = 0, outlier.stroke = 0, fill = NA) + 
-    scale_color_manual(values = pal, guide = FALSE) + 
-    scale_fill_manual(values = pal, guide = FALSE) + 
-    theme_ArchR(xText90 = TRUE, baseSize = baseSize) +
-    ggtitle(title)
-
-  if(!is.null(ratioYX)){
-    p <- p + coord_fixed(ratioYX, expand = TRUE)
-  }
-
-  if(addPoints){
-
-    if(requireNamespace("ggrastr", quietly = TRUE)){
-      .requirePackage("ggrastr")
-      p <- p + ggrastr::geom_quasirandom_rast(data = df[sample(seq_len(nrow(df)), floor(nrow(df) * sampleRatio)),], alpha = 1, 
-            aes(x = x, y = y, color = x, fill = x), 
-            size = 0.5, dodge.width=1)
-    }else{
-      message("ggrastr is not available for rastr of points, continuing without points!")
-    }
-
-  }
-
-  if (!is.null(xlabel)) {
-    p <- p + xlab(xlabel)
-  }
-  
-  if (!is.null(ylabel)) {
-    p <- p + ylab(ylabel)
-  }
-  
-  p <- p + theme(legend.position = "bottom")
-
-  if(!is.null(ratioYX)){
-    attr(p, "ratioYX") <- ratioYX
-  }
-  
-  return(p)
-
-}
-
-
 #' A ggplot-based Hexplot wrapper function summary of points in a standardized manner
 #'
 #' This function will plot x,y coordinate values summarized in hexagons in a standardized manner
@@ -658,6 +553,144 @@ ggHex <- function(
     }
 
     p
+
+}
+
+#' A ggplot-based violin plot wrapper function JJJ
+#'
+#' This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.
+#' 
+#' @param x A character vector containing the categorical x-axis values for each y-axis value.
+#' @param y A numeric vector containing the y-axis values for each point.
+#' @param xlabel The label to plot for the x-axis.
+#' @param ylabel The label to plot for the y-axis.
+#' @param groupOrder A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible values of `x` in the desired order.
+#' @param size The line width for boxplot/summary lines.
+#' @param baseSize The base font (in points) size to use in the plot.
+#' @param ratioYX The aspect ratio of the x and y axes on the plot.
+#' @param sampleRatio The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.
+#' @param title The title of the plot.
+#' @param pal A named custom palette (see `paletteDiscrete()` and `ArchRPalettes`) for discrete coloring.
+#' @export
+ggGroup <- function(
+  x = NULL, 
+  y = NULL, 
+  xlabel = NULL, 
+  ylabel = NULL, 
+  groupOrder = NULL,
+  groupSort = FALSE,
+  size = 1,  
+  baseSize = 10,
+  ridgeScale = 1, 
+  ratioYX = NULL,
+  alpha = 1,
+  title = "", 
+  pal = paletteDiscrete(values=x, set = "stallion"),
+  addBoxPlot = FALSE,
+  plotAs = "ridges"
+  ){
+
+  .validInput(input = x, name = "x", valid = c("character"))
+  .validInput(input = y, name = "y", valid = c("numeric"))
+  .validInput(input = xlabel, name = "xlabel", valid = c("character", "null"))
+  .validInput(input = ylabel, name = "ylabel", valid = c("character", "null"))
+  #.validInput(input = xOrder, name = "xOrder", valid = c("character", "null"))
+  .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
+  .validInput(input = pal, name = "pal", valid = c("character"))
+  
+  names(y) <- x
+  dm <- stats::aggregate(y ~ names(y), FUN = mean)
+  df <- data.frame(x, y)
+
+  if(!is.null(groupOrder)){
+    if(!all(x %in% groupOrder)){
+      stop("Not all x values are present in xOrder!")
+    }
+  }else{
+    if(groupSort){
+      groupOrder <- paste0(dm[,1])[order(dm[,2], decreasing= FALSE)]
+    }else{
+      groupOrder <- gtools::mixedsort(unique(x))
+    }
+  }
+
+  df$x <- factor(df$x, groupOrder)
+  
+  p <- ggplot(df, aes(x = x, y = y, color = x)) +
+      scale_color_manual(values = pal, guide = FALSE) + 
+      scale_fill_manual(values = pal, guide = FALSE) +
+      ggtitle(title)
+
+  if(tolower(plotAs) == "ridges" | tolower(plotAs) == "ggridges"){
+    if(!requireNamespace("ggridges", quietly = TRUE)){
+      type <- "violin"
+      message("ggridges is not available for plotting, continuing with geom_violin!")
+      p <- p + geom_violin(aes_string(fill="x"), alpha = alpha)
+    }else{
+      type <- "ridges"
+      .requirePackage("ggridges")
+      #p <- p + 
+      #  stat_density_ridges(aes_string(x = "y", y = "x", fill = "x"), 
+      #    quantile_lines = TRUE, quantiles = c(0.5), alpha = alpha, color = "black",
+      #    scale = ridgeScale
+      #  ) + scale_y_discrete(expand = c(0, 0))
+      #   stat_density_ridges(
+      #     aes_string(x = "y", y = "x", fill = "x"),
+      #     quantile_lines = TRUE,
+      #     alpha = alpha,
+      #     geom = "density_ridges_gradient",
+      #     calc_ecdf = TRUE,
+      #     quantiles = c(0.5)
+      # )
+      val <- 1/length(unique(x))
+      p <- p + geom_density_ridges(data = df,
+        aes(x = y, y = x, color = x, fill = x), scale = ridgeScale,
+        alpha = alpha, color = "black") + scale_y_discrete(expand = expand_scale(mult = c(0.01, val)))
+    }
+  }else{
+    type <- "violin"
+    p <- p + geom_violin(aes_string(x = "x", y = "y", color = "x", fill="x"), alpha = alpha)
+  }
+  
+  if(addBoxPlot & type == "violin"){
+    p <- p + geom_boxplot(size = size, outlier.size = 0, outlier.stroke = 0, fill = NA) 
+  }
+
+  if(type != "violin"){
+    p <- p + theme_ArchR(baseSize = baseSize)
+  }else{
+    p <- p + theme_ArchR(xText90 = TRUE, baseSize = baseSize)
+  }
+
+  if(!is.null(ratioYX)){
+    p <- p + coord_fixed(ratioYX, expand = TRUE)
+  }
+
+  if (!is.null(xlabel)) {
+    if(type=="violin"){
+      p <- p + xlab(xlabel)
+    }else{
+      p <- p + xlab(ylabel)
+    }
+  }
+  
+  if (!is.null(ylabel)) {
+    if(type=="violin"){
+      p <- p + ylab(ylabel)
+    }else{
+      p <- p + ylab(xlabel)
+    }
+  }
+  
+  p <- p + theme(legend.position = "bottom")
+
+  if(!is.null(ratioYX)){
+    attr(p, "ratioYX") <- ratioYX
+  }
+  
+  return(p)
 
 }
 
