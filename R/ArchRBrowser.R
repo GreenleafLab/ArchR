@@ -291,7 +291,7 @@ ArchRBrowser <- function(
               mdata
             })
 
-            if(groupDF$groupBy != groupBy){
+            if(groupDF$groupBy[1] != groupBy){
               groups <- gtools::mixedsort(unique(ccd[,isolate(input$grouping)]))
               groupDF <- data.frame(
                 groupBy = groupBy,
