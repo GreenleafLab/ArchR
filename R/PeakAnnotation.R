@@ -881,7 +881,8 @@ enrichHeatmap <- function(
   clusterCols = TRUE,
   binaryClusterRows = TRUE,
   labelRows = TRUE,
-  transpose = TRUE
+  transpose = TRUE,
+  returnMatrix = FALSE
   ){
 
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
@@ -922,7 +923,7 @@ enrichHeatmap <- function(
 
   if(binaryClusterRows){
     #cn <- order(colMeans(mat2), decreasing=TRUE)
-    bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = TRUE)
+    bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = clusterCols)
     mat2 <- bS[[1]][,colnames(mat2)]
     clusterRows <- FALSE
     clusterCols <- bS[[2]]
@@ -930,11 +931,25 @@ enrichHeatmap <- function(
     clusterRows <- TRUE
   }
 
+  if(nrow(mat2) > 100){
+    borderColor <- FALSE
+  }else{
+    borderColor <- TRUE
+  }
+
   if(transpose){
 
-    mat2 <- t(mat2[,clusterCols$order])
+    if(!is.null(clusterCols)){
+      mat2 <- t(mat2[,clusterCols$order])
+    }else{
+      mat2 <- t(mat2)
+    }
 
     #mat2 <- t(mat2[rev(seq_len(nrow(mat2))), ])
+
+    if(returnMatrix){
+      return(mat2)
+    }
 
     ht <- .ArchRHeatmap(
       mat = as.matrix(mat2),
@@ -946,6 +961,7 @@ enrichHeatmap <- function(
       #clusterRows = rev(as.dendrogram(clusterCols)),
       labelRows = TRUE,
       fontSizeCols = 6,
+      borderColor = borderColor,
       #labelCols = labelRows,
       customColLabel = seq_len(ncol(mat2)),
       showRowDendrogram = FALSE,
@@ -956,6 +972,10 @@ enrichHeatmap <- function(
 
   }else{
 
+    if(returnMatrix){
+      return(mat2)
+    }
+
     ht <- .ArchRHeatmap(
       mat = as.matrix(mat2),
       scale = FALSE,
@@ -963,6 +983,7 @@ enrichHeatmap <- function(
       color = pal, 
       clusterCols = clusterCols, 
       clusterRows = clusterRows,
+      borderColor = borderColor,
       fontSizeRows = 6,
       #labelRows = labelRows,
       customRowLabel = seq_len(nrow(mat2)),

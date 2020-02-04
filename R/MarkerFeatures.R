@@ -743,7 +743,7 @@ markerHeatmap <- function(
   mat[mat > max(limits)] <- max(limits)
   mat[mat < min(limits)] <- min(limits)
   
-  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
+  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
   mat <- mat[idx,]
   passMat <- passMat[idx,]
 
@@ -823,7 +823,11 @@ markerHeatmap <- function(
   if(transpose){
 
     #mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
-    mat <- t(mat[seq_len(nrow(mat)), clusterCols$order])
+    if(!is.null(clusterCols)){
+      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order])
+    }else{
+      mat <- t(mat[seq_len(nrow(mat)), ])
+    }
 
     if(!is.null(labelMarkers)){
       mn <- match(tolower(labelMarkers), tolower(colnames(mat)), nomatch = 0)
