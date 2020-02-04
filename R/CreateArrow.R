@@ -572,7 +572,8 @@ createArrowFiles <- function(
   cFn <- countList$nFlank / norm
 
   #Compute scores
-  tssScores <- 2 * cWn / (pmax(cFn[names(cWn)], minNorm)) #Multiply 2 because enrichment over average 2 flanks
+  #tssScores <- 2 * cWn / (pmax(cFn[names(cWn)], minNorm)) #Multiply 2 because enrichment over average 2 flanks
+  tssScores <- 2 * cWn / (pmax(cFn, minNorm))
   names(tssScores) <- cellNames
   tssScores <- round(tssScores, 3)
 
@@ -595,7 +596,7 @@ createArrowFiles <- function(
   #Count
   countDF <- .safelapply(seq_along(featureList), function(x){
 
-    print(x)
+    #print(x)
 
     #Count Vector
     nWindow <- rep(0, length(cellNames))
