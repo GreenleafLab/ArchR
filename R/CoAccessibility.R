@@ -182,7 +182,7 @@ getCoAccessibility <- function(ArchRProj = NULL, corCutOff = 0.5, resolution = 1
       peakSummits <- resize(metadata(coA)$peakSet, 1, "center")
       summitTiles <- floor(start(peakSummits) / resolution) * resolution + floor(resolution / 2)
     
-      loops <- constructGR(
+      loops <- .constructGR(
         seqnames = seqnames(peakSummits[coA[,1]]),
         start = summitTiles[coA[,1]],
         end = summitTiles[coA[,2]]
