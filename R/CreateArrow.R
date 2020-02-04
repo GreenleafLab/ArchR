@@ -595,6 +595,8 @@ createArrowFiles <- function(
   #Count
   countDF <- .safelapply(seq_along(featureList), function(x){
 
+    print(x)
+
     #Count Vector
     nWindow <- rep(0, length(cellNames))
     names(nWindow) <- cellNames
@@ -606,7 +608,12 @@ createArrowFiles <- function(
     # Get Fragments
     ###############################################################################
     featurex <- featureList[[x]]
-    fragments <- .getFragsFromArrow(ArrowFile = ArrowFile, chr = names(featureList)[x], out = "IRanges", cellNames = cellNames)
+    fragments <- .getFragsFromArrow(
+      ArrowFile = ArrowFile, 
+      chr = names(featureList)[x], 
+      out = "IRanges", 
+      cellNames = cellNames
+    )
 
     if(length(fragments) > 0){
 
@@ -648,13 +655,28 @@ createArrowFiles <- function(
       rm(fragments)
       gc()
 
-      as.matrix(data.frame(row.names = cellNames, nWindow = nWindow, nFlank = nFlank))
-
     }
 
-  }, threads = threads) %>% Reduce("+", .)
+    names(nWindow) <- NULL
+    names(nFlank) <- NULL
 
-  out <- list(nWindow = countDF[,1] , nFlank = countDF[, 2])
+    DataFrame(nWindow = nWindow, nFlank = nFlank)
+
+  }, threads = threads)
+
+  for(i in seq_along(countDF)){
+    if(i == 1){
+      cDF <- countDF[[i]]
+    }else{
+      cDF$nWindow <- cDF$nWindow + countDF[[i]]$nWindow
+      cDF$nFlank <- cDF$nFlank + countDF[[i]]$nFlank
+    }
+  }
+
+  rm(countDF)
+  gc()
+
+  out <- list(nWindow = cDF[,1] , nFlank = cDF[, 2])
 
   return(out)
 
@@ -1500,4 +1522,21 @@ createArrowFiles <- function(
   })
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
