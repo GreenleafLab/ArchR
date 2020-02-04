@@ -15,8 +15,7 @@ plotGroups(
   ylim = NULL,
   size = 0.5,
   baseSize = 6,
-  ratioYX = 0.5,
-  addPoints = FALSE
+  ratioYX = NULL
 )
 }
 \arguments{
@@ -38,8 +37,6 @@ For example if colorBy is \code{cellColData} then name refers to a column name i
 \item{baseSize}{The base font size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
-
-\item{addPoints}{A boolean value that indicates whether points should be added to the plot using \code{ggplot2::geom_quasirandom()}.}
 }
 \description{
 This function will group, summarize and then plot data from an ArchRProject for visual comparison.

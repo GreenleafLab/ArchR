@@ -12,7 +12,7 @@ plotEmbedding(
   log2Norm = NULL,
   imputeWeights = NULL,
   pal = NULL,
-  size = 0.5,
+  size = 0.1,
   rastr = TRUE,
   quantCut = c(0.01, 0.99),
   discreteSet = NULL,

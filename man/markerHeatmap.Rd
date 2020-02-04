@@ -15,11 +15,13 @@ markerHeatmap(
   grepExclude = NULL,
   pal = NULL,
   binaryClusterRows = TRUE,
+  clusterCols = TRUE,
   labelMarkers = NULL,
   nLabel = NULL,
   nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
+  transpose = TRUE,
   invert = FALSE
 )
 }

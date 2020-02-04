@@ -6,7 +6,7 @@
 \usage{
 theme_ArchR(
   color = "black",
-  baseSize = 6,
+  baseSize = 10,
   baseLineSize = 0.5,
   baseRectSize = 0.5,
   plotMarginCm = 1,

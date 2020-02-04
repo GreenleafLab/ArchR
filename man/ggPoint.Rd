@@ -28,7 +28,7 @@ ggPoint(
   colorOrder = NULL,
   colorLimits = NULL,
   alpha = 1,
-  baseSize = 6,
+  baseSize = 10,
   legendSize = 3,
   ratioYX = 1,
   labelAsFactors = TRUE,
