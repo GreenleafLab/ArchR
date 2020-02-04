@@ -108,9 +108,9 @@ addGroupCoverages <- function(
   cellGroups <- lapply(seq_along(uniqueGroups), function(x){
       subColDat <- getCellColData(ArchRProj)[which(groups==uniqueGroups[x]),]
       cellNamesx <- rownames(subColDat)
-      if(length(cellNamesx) < minCells){
-        return(NULL)
-      }
+      #if(length(cellNamesx) < minCells){
+      #  outListx <- SimpleList(LowCellGroup = cellNamesx) or NULL
+      #}
       if(useLabels){
         sampleLabelsx <- paste0(subColDat$Sample)
       }else{
@@ -125,7 +125,7 @@ addGroupCoverages <- function(
         minReplicates = minReplicates, 
         maxReplicates = maxReplicates,
         sampleRatio = sampleRatio
-        )
+      )
       if(is.null(outListx)){
         return(NULL)
       }
@@ -170,8 +170,12 @@ addGroupCoverages <- function(
   dir.create(file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy), showWarnings = FALSE)
 
   unlistGroups <- lapply(seq_along(cellGroups), function(x){
-    names(cellGroups[[x]]) <- paste0(names(cellGroups)[x], "._.", names(cellGroups[[x]]))
-    cellGroups[[x]]
+    if(is.null(cellGroups[[x]])){
+      NULL
+    }else{
+      names(cellGroups[[x]]) <- paste0(names(cellGroups)[x], "._.", names(cellGroups[[x]]))
+      cellGroups[[x]]
+    }
   }) %>% SimpleList %>%unlist()
 
   args <- list()
