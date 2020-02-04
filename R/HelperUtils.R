@@ -856,7 +856,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
         verbose = TRUE
       )
     },error=function(x){
-
+      0
     })
   }
 

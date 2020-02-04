@@ -200,7 +200,11 @@ ggPoint <- function(
               x = paste0(paste0(match(paste0(df$color), paste0(levels(df$color)))), "-", paste0(df$color)), 
               levels = paste0(seq_along(levels(df$color)), "-", levels(df$color))
             )
-            names(pal) <- paste0(levels(df$color))[match(names(pal), colorOrder)]
+            if(!is.null(pal)){
+              #print(pal)
+              #print(paste0(levels(df$color))[match(names(pal), colorOrder)])
+              names(pal) <- paste0(levels(df$color))[match(names(pal), colorOrder)]
+            }
             colorOrder <- paste0(levels(df$color))
           }
 

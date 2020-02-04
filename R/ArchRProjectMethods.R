@@ -8,13 +8,23 @@
 #' 
 #' @param threads The default number of threads to be used for parallel execution across all ArchR functions. This value is stored as a global environment variable, not part of the `ArchRProject`. This can be overwritten on a per-function basis using the given function's `threads` parameter.
 #' @export
-addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2)){
+addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force = FALSE){
   
   .validInput(input = threads, name = "threads", valid = "integer")
-  
+  .validInput(input = force, name = "force", valid = "boolean")
+
   if(tolower(.Platform$OS.type) == "windows"){
     message("Detected windows OS, setting threads to 1.")
     threads <- 1
+  }
+
+  if(threads >= parallel::detectCores() - 1){
+    if(force){
+      message("Input threads is equal to or greater than ncores minus 1 (",parallel::detectCores()-1,")\nOverriding since force = TRUE.")
+    }else{
+      message("Input threads is equal to or greater than ncores minus 1 (",parallel::detectCores()-1,")\nSetting cores to ncores minus 2. Set force = TRUE to set above this number!")
+      threads <- parallel::detectCores()-2
+    }
   }
   
   message("Setting default number of Parallel threads to ", threads, ".")
