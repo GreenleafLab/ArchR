@@ -548,7 +548,7 @@ createArrowFiles <- function(
   window = 101, 
   norm = 100, 
   flank = 2000, 
-  minNorm = 0.1, 
+  minNorm = 0.2, #Handles low cell reads inflated TSS values
   threads = 1
   ){
 
