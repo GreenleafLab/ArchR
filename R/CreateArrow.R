@@ -130,6 +130,7 @@ createArrowFiles <- function(
   args$X <- seq_along(inputFiles)
   args$FUN <- .createArrow
   args$registryDir <- file.path(outDir, "CreateArrowsRegistry")
+  args$cleanTmp <- NULL
 
   if(subThreading){
     h5disableFileLocking()
