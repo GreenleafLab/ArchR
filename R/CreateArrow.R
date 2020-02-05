@@ -36,6 +36,7 @@
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param verboseHeader A boolean value that determines whether standard output should include verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output should include verbose subsections.
+#' @param cleamTmp A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.
 #' @export
 #' 
 createArrowFiles <- function(
@@ -68,7 +69,8 @@ createArrowFiles <- function(
   parallelParam = NULL,
   subThreading = TRUE,
   verboseHeader = TRUE,
-  verboseAll = FALSE
+  verboseAll = FALSE,
+  cleanTmp = TRUE
   ){
 
   .validInput(input = inputFiles, name = "inputFiles", valid = c("character"))
@@ -107,6 +109,10 @@ createArrowFiles <- function(
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
 
   dir.create(outDir, showWarnings = FALSE)
+
+  if(cleanTmp){
+    o <- .suppressAll(file.remove(list.files("tmp", pattern = ".arrow")))
+  }
 
   #Add args to list
   args <- list()
