@@ -382,12 +382,13 @@ createArrowFiles <- function(
         paste0("Median TSS Enrichment = ", median(Metadata$TSSEnrichment[Metadata$Keep==1]))
       )
 
-    pdf(file.path(outDir,paste0(sampleName,"-TSS_by_Unique_Frags.pdf")),width=6,height=6,onefile=FALSE)
+    pdf(file.path(outDir,paste0(sampleName,"-TSS_by_Unique_Frags.pdf")),width=4,height=4,onefile=FALSE)
     gg <- ggPoint(
       x = log10(Metadata$nFrags),
       y = Metadata$TSSEnrichment, 
       colorDensity = TRUE,
       size = 0.5,
+      baseSize = 6,
       continuousSet = "sambaNight",
       xlabel = "Log 10 (Unique Fragments)",
       ylabel = "TSS Enrichment",
