@@ -18,7 +18,7 @@
   chr <- .availableChr(ArrowFiles)
   chr <- gtools::mixedsort(intersect(chr, paste0(seqnames(TSS))))
   cellNames <- proj$cellNames
-  TSS <- sort(sortSeqlevels(TSS, ignore.strand = TRUE))
+  TSS <- sort(sortSeqlevels(TSS))
   splitTSS <- split(resize(TSS,1,"start"), seqnames(TSS))[chr]
   window <- 2 * flank + 1
 
