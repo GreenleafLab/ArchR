@@ -114,6 +114,16 @@ createArrowFiles <- function(
     o <- .suppressAll(file.remove(list.files("tmp", pattern = ".arrow")))
   }
 
+  #order inputFiles
+  o <- tryCatch({
+    order(file.info(inputFiles)$size, decreasing = TRUE)
+    }, error=function(x){
+    seq_along(inputFiles)
+  })
+  inputFiles <- inputFiles[o]
+  sampleNames <- sampleNames[o]
+  outputNames <- outputNames[o]
+
   #Add args to list
   args <- list()
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe()))) #as.list(match.call())
