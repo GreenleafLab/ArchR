@@ -387,7 +387,6 @@ createArrowFiles <- function(
       x = log10(Metadata$nFrags),
       y = Metadata$TSSEnrichment, 
       colorDensity = TRUE,
-      size = 0.5,
       baseSize = 6,
       continuousSet = "sambaNight",
       xlabel = "Log 10 (Unique Fragments)",
