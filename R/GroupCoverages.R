@@ -236,6 +236,8 @@ addGroupCoverages <- function(
 
   ArchRProj@projectMetadata$GroupCoverages[[groupBy]] <- SimpleList(Params = Params, coverageMetadata = coverageMetadata)
 
+  .messageDiffTime(sprintf("Finished Creation of Coverage Files!"), tstart, addHeader = verboseAll)
+
   ArchRProj
 
 }

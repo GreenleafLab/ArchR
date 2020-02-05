@@ -731,31 +731,35 @@ findMacs2 <- function(){
   message("Not Found in $PATH")
 
   #Try seeing if its pip installed
-  search2 <- suppressWarnings(tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"}))
-  search3 <- suppressWarnings(tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"}))
+  search2 <- suppressWarnings(tryCatch({system("pip show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"}))
+  search3 <- suppressWarnings(tryCatch({system("pip3 show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"}))
 
-  if(search2[1] != "ERROR"){
-	  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
-	  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
-	  	message("Found with pip!")
-	    return(path2Bin)
-	  }else{
-  		message("Not Found with pip")
+  if(length(search2) > 0){
+	  if(search2[1] != "ERROR"){
+		  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
+		  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+		  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+		  	message("Found with pip!")
+		    return(path2Bin)
+		  }
 	  }
   }
 
-  if(search3[1] != "ERROR"){
-	  path2Install <- gsub("Location: ","",search3[grep("Location", search3, ignore.case=TRUE)])
-	  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
-	  	message("Found with pip3!")
-	    return(path2Bin)
-	  }else{
-  		message("Not Found with pip3")
+  message("Not Found with pip")
+
+  if(length(search3) > 0){
+	  if(search3[1] != "ERROR"){
+		  path2Install <- gsub("Location: ","",search3[grep("Location", search3, ignore.case=TRUE)])
+		  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+		  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+		  	message("Found with pip3!")
+		    return(path2Bin)
+		  }
 	  }
   }
-  
+
+  message("Not Found with pip3")
+
   stop("Could Not Find Macs2! Please install w/ pip, add to your $PATH, or just supply the macs2 path directly and avoid this function!")
 
 }
