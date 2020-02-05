@@ -548,7 +548,7 @@ createArrowFiles <- function(
   window = 101, 
   norm = 100, 
   flank = 2000, 
-  minNorm = 1, 
+  minNorm = 0.1, 
   threads = 1
   ){
 
