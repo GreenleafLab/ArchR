@@ -240,6 +240,7 @@ plotGroups <- function(
   pal = NULL,
   ylim = NULL, 
   size = 0.5, 
+  ridgeScale = 1,
   baseSize = 6, 
   ratioYX = NULL
   ){
@@ -303,6 +304,7 @@ plotGroups <- function(
         xlabel = groupBy, 
         ylabel = name[x], 
         baseSize = baseSize, 
+        ridgeScale = ridgeScale,
         ratioYX = ratioYX,
         size = size
         )

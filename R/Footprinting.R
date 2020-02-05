@@ -132,6 +132,11 @@ plotFootprints <- function(
 
   .messageDiffTime("Plotting Footprints", tstart, addHeader = verboseAll)
 
+  if(is.null(pal)){
+    groups <- getCellColData(ArchRProj, groupBy, drop= TRUE)
+    pal <- paletteDiscrete(values = gtools::mixedsort(unique(groups)))
+  }
+
   o <- tryCatch({
     if(useSink){
       tmpFile <- .tempfile()
@@ -256,7 +261,7 @@ plotFootprints <- function(
 
   #Plot GG
   if(is.null(pal)){
-    pal <- paletteDiscrete(values=SummarizedExperiment::colData(seFoot)$Group)
+    pal <- paletteDiscrete(values=gtools::mixedsort(SummarizedExperiment::colData(seFoot)$Group))
   }
 
   plotMax <- plotFootDF[order(plotFootDF$mean,decreasing=TRUE),]

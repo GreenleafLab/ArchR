@@ -881,6 +881,7 @@ enrichHeatmap <- function(
   clusterCols = TRUE,
   binaryClusterRows = TRUE,
   labelRows = TRUE,
+  rastr = TRUE,
   transpose = TRUE,
   returnMatrix = FALSE
   ){
@@ -960,6 +961,7 @@ enrichHeatmap <- function(
       clusterRows = FALSE,
       #clusterRows = rev(as.dendrogram(clusterCols)),
       labelRows = TRUE,
+      useRaster = rastr,
       fontSizeCols = 6,
       borderColor = borderColor,
       #labelCols = labelRows,
@@ -983,6 +985,7 @@ enrichHeatmap <- function(
       color = pal, 
       clusterCols = clusterCols, 
       clusterRows = clusterRows,
+      useRaster = rastr,
       borderColor = borderColor,
       fontSizeRows = 6,
       #labelRows = labelRows,
