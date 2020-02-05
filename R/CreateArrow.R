@@ -111,7 +111,7 @@ createArrowFiles <- function(
   dir.create(outDir, showWarnings = FALSE)
 
   if(cleanTmp){
-    o <- .suppressAll(file.remove(list.files("tmp", pattern = ".arrow")))
+    o <- .suppressAll(file.remove(list.files("tmp", pattern = ".arrow", full.names = TRUE)))
   }
 
   #order inputFiles
@@ -1420,7 +1420,7 @@ createArrowFiles <- function(
     o <- h5write(obj = "Arrow", file = fid, name = "Class")
     o <- h5write(obj = sampleName, file = fid, name = "Metadata/Sample")
     o <- h5write(obj = paste0(Sys.Date()), file = fid, name = "Metadata/Date")
-    o <- h5write(obj = as.character(bcPass), file = outArrow, name = "Metadata/CellNames")
+    o <- h5write(obj = as.character(bcPass), file = fid, name = "Metadata/CellNames")
 
     tmpChrFiles <- unlist(outList)
 
