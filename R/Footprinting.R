@@ -454,7 +454,11 @@ plotFootprints <- function(
   cov <- .getCoverageRle(coverageFile, allChr)
   footprintDF <- lapply(seq_along(featureList), function(x){
     featurex <- split(resize(featureList[[x]],1,"center"), seqnames(featureList[[x]]))
-    outx <- ArchR:::rleSumsStranded(cov, featurex, window, as.integer) #Rcpp
+    intSeq <- intersect(names(featurex), names(cov))
+    if(length(intSeq)==0){
+      stop("No intersecting chromsomes for feature ", names(featureList)[x], "!")
+    }
+    outx <- ArchR:::rleSumsStranded(cov[intSeq], featurex[intSeq], window, as.integer) #Rcpp
     if(x %% 25 == 0 & gc){
       gc()
     }
