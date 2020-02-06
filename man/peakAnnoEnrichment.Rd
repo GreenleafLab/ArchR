@@ -10,8 +10,7 @@ peakAnnoEnrichment(
   peakAnnotation = NULL,
   matches = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
-  background = "all",
-  ...
+  background = "all"
 )
 }
 \arguments{
@@ -26,8 +25,6 @@ peakAnnoEnrichment(
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} to use. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{background}{A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").}
-
-\item{...}{additional args}
 }
 \description{
 This function will perform hypergeometric enrichment of a given peak annotation within the defined marker peaks.

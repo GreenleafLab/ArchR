@@ -14,7 +14,6 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the `input`.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addFeatureMatrix <- function(
   input = NULL,
@@ -24,9 +23,8 @@ addFeatureMatrix <- function(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = TRUE,
-  ...#QQQ
-){
+  force = TRUE
+  ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
   .validInput(input = features, name = "features", valid = c("GRanges"))
@@ -62,6 +60,9 @@ addFeatureMatrix <- function(
   args$FUN <- .addFeatureMatrix
   args$registryDir <- file.path(outDir, "CountFeaturesRegistry")
 
+  #Remove input from args
+  args$input <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
 
@@ -84,7 +85,6 @@ addFeatureMatrix <- function(
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the "PeakMatrix" to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addPeakMatrix <- function(
   ArchRProj = NULL,
@@ -92,9 +92,8 @@ addPeakMatrix <- function(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = TRUE,
-  ...#QQQ
-){
+  force = TRUE
+  ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = ceiling, name = "ceiling", valid = c("numeric"))
@@ -125,6 +124,9 @@ addPeakMatrix <- function(
   args$FUN <- .addFeatureMatrix
   args$registryDir <- file.path(outDir, "CountPeaksRegistry")
 
+  #Remove project from args
+  args$ArchRProj <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
 
@@ -145,8 +147,9 @@ addPeakMatrix <- function(
   matrixName = "PeakMatrix", 
   ceiling = 4, 
   binarize = FALSE,
-  force = FALSE,
-  ...#QQQ
+  tstart = NULL,
+  subThreads = 1,
+  force = FALSE
   ){
 
   ArrowFile <- ArrowFiles[i]
@@ -164,7 +167,9 @@ addPeakMatrix <- function(
     }
   }
   
-  tstart <- Sys.time()
+  if(!is.null(tstart)){
+    tstart <- Sys.time()
+  }
  
   #Get all cell ids before constructing matrix
   if(is.null(cellNames)){

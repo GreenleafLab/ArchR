@@ -108,9 +108,9 @@ addGroupCoverages <- function(
   cellGroups <- lapply(seq_along(uniqueGroups), function(x){
       subColDat <- getCellColData(ArchRProj)[which(groups==uniqueGroups[x]),]
       cellNamesx <- rownames(subColDat)
-      if(length(cellNamesx) < minCells){
-        return(NULL)
-      }
+      #if(length(cellNamesx) < minCells){
+      #  outListx <- SimpleList(LowCellGroup = cellNamesx) or NULL
+      #}
       if(useLabels){
         sampleLabelsx <- paste0(subColDat$Sample)
       }else{
@@ -125,7 +125,7 @@ addGroupCoverages <- function(
         minReplicates = minReplicates, 
         maxReplicates = maxReplicates,
         sampleRatio = sampleRatio
-        )
+      )
       if(is.null(outListx)){
         return(NULL)
       }
@@ -170,8 +170,12 @@ addGroupCoverages <- function(
   dir.create(file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy), showWarnings = FALSE)
 
   unlistGroups <- lapply(seq_along(cellGroups), function(x){
-    names(cellGroups[[x]]) <- paste0(names(cellGroups)[x], "._.", names(cellGroups[[x]]))
-    cellGroups[[x]]
+    if(is.null(cellGroups[[x]])){
+      NULL
+    }else{
+      names(cellGroups[[x]]) <- paste0(names(cellGroups)[x], "._.", names(cellGroups[[x]]))
+      cellGroups[[x]]
+    }
   }) %>% SimpleList %>%unlist()
 
   args <- list()
@@ -232,6 +236,8 @@ addGroupCoverages <- function(
 
   ArchRProj@projectMetadata$GroupCoverages[[groupBy]] <- SimpleList(Params = Params, coverageMetadata = coverageMetadata)
 
+  .messageDiffTime(sprintf("Finished Creation of Coverage Files!"), tstart, addHeader = verboseAll)
+
   ArchRProj
 
 }
@@ -252,6 +258,7 @@ addGroupCoverages <- function(
   chromLengths = NULL, 
   covDir = NULL, 
   tstart = NULL, 
+  subThreads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE
   ){
@@ -469,12 +476,13 @@ addGroupCoverages <- function(
     #Rank Group by Unique # of Cells
     nUnique <- lapply(cellGroupsPass, function(x){
       length(unique(x))
-    })
-    cellsGroupPass <- cellsGroupPass[order(nUnique, decreasing = TRUE)]
+    }) %>% unlist
+
+    cellGroupsPass <- cellGroupsPass[order(nUnique, decreasing = TRUE)]
 
     if(!is.null(maxReplicates)){
-      if(length(cellsGroupPass) > maxReplicates){
-        cellsGroupPass <- cellsGroupPass[seq_len(maxReplicates)]
+      if(length(cellGroupsPass) > maxReplicates){
+        cellGroupsPass <- cellGroupsPass[seq_len(maxReplicates)]
       }    
     }
 
@@ -508,7 +516,8 @@ addGroupCoverages <- function(
   availableChr <- .availableSeqnames(coverageFiles, "Coverage")
 
   biasList <- .safelapply(seq_along(availableChr), function(x){
-    .messageDiffTime(sprintf("Computing Kmer Bias Chr %s of %s!", x, length(availableChr)), tstart, verbose=verbose)
+    #.messageDiffTime(sprintf("Computing Kmer Bias Chr %s of %s!", x, length(availableChr)), tstart, verbose=verbose)
+    message(".", appendLF = FALSE)
     chrBS <- BSgenome[[availableChr[x]]]
     exp <- Biostrings::oligonucleotideFrequency(chrBS, width = kmerLength)
     obsList <- lapply(seq_along(coverageFiles), function(y){
@@ -522,6 +531,7 @@ addGroupCoverages <- function(
     SimpleList(expected = exp, observed = obsList)
   }, threads = threads) %>% SimpleList
   names(biasList) <- availableChr
+  message("\n")
 
   #Summarize Bias
   for(i in seq_along(biasList)){

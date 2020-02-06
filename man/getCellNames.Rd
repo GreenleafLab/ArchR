@@ -4,12 +4,10 @@
 \alias{getCellNames}
 \title{Get cellNames from an ArchRProject}
 \usage{
-getCellNames(ArchRProj = NULL, ...)
+getCellNames(ArchRProj = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the cellNames from a given ArchRProject object.

@@ -13,8 +13,7 @@ trajectoryHeatmap(
   labelMarkers = NULL,
   labelTop = 50,
   labelRows = FALSE,
-  returnMat = FALSE,
-  ...
+  returnMat = FALSE
 )
 }
 \arguments{
@@ -35,8 +34,6 @@ trajectoryHeatmap(
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
-
-\item{...}{additional args}
 }
 \description{
 This function will plot a heatmap of the results from getTrajectory

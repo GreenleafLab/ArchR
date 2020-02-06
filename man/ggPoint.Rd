@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggPoint}
 \alias{ggPoint}
-\title{A ggplot-based dot plot wrapper function}
+\title{A ggplot-based dot plot wrapper function JJJ}
 \usage{
 ggPoint(
   x = NULL,
@@ -10,8 +10,8 @@ ggPoint(
   color = NULL,
   discrete = TRUE,
   discreteSet = "stallion",
-  continuousSet = "solar_extra",
-  labelMeans = FALSE,
+  continuousSet = "solarExtra",
+  labelMeans = TRUE,
   pal = NULL,
   defaultColor = "lightGrey",
   colorDensity = FALSE,
@@ -28,16 +28,17 @@ ggPoint(
   colorOrder = NULL,
   colorLimits = NULL,
   alpha = 1,
-  baseSize = 6,
+  baseSize = 10,
+  legendSize = 3,
   ratioYX = 1,
-  labelType = "ggrepel",
-  fgColor = NULL,
+  labelAsFactors = TRUE,
+  fgColor = "black",
   bgColor = "white",
-  labelSize = 1.5,
+  bgWidth = 1,
+  labelSize = 3,
   addFit = NULL,
   rastr = FALSE,
-  dpi = 300,
-  ...
+  dpi = 300
 )
 }
 \arguments{
@@ -90,8 +91,6 @@ ggPoint(
 \item{baseSize}{The base font size (in points) to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
-
-\item{labelType}{A string indicating how to label the points on the plot. Options include "ggrepel", "shadowtext".}
 
 \item{fgColor}{The foreground color of the plot.}
 

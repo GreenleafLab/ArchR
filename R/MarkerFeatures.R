@@ -15,16 +15,14 @@
 #' @param normBy The name of a numeric column in `cellColData` that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.
 #' @param testMethod The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".
 #' @param maxCells The maximum number of cells to consider from a single-cell group when performing marker feature identification.
-#' @param scaleTo QQQ DOUBLE CHECK Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo`.
+#' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param k The number of nearby cells to use for selecting a biased-matched background while accounting for `bgdGroups` proportions.
 #' @param bufferRatio When generating optimal biased-matched background groups of cells to determine significance, it can be difficult to find sufficient numbers of well-matched cells to create a background group made up of an equal number of cells. The `bufferRatio` indicates the fraction of the total cells that must be obtained when creating the biased-matched group. For example to create a biased-matched background for a group of 100 cells, when `bufferRatio` is set to 0.8 the biased-matched background group will be composed of the 80 best-matched cells. This option provides flexibility in the generation of biased-matched background groups given the stringency of also maintaining the group proportions from `bgdGroups`.
 #' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when `useMatrix` is an insertion counts-based matrix.
 #' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
-#' @param method The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 markerFeatures <- function(
   ArchRProj = NULL,
@@ -42,10 +40,8 @@ markerFeatures <- function(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
-  method = "ArchR",
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...#QQQ
+  verboseAll = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -63,27 +59,12 @@ markerFeatures <- function(
   .validInput(input = bufferRatio, name = "bufferRatio", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
-  .validInput(input = method, name = "method", valid = c("character"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
   
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+  out <- do.call(.MarkersSC, args)
 
-  if(tolower(method) == "archr"){
- 
-    out <- do.call(.MarkersSC, args)
-    
-  }else if(tolower(method) == "venice"){
-
-    .requirePackage("signac", installInfo = 'devtools::install_github("bioturing/signac")')
-
-  }else{
-  
-    stop("Input Method Not Available!")
-  
-  }
-
-  args$ArchRProj <- NULL
   metadata(out)$Params <- args
 
   return(out)
@@ -687,7 +668,7 @@ markerFeatures <- function(
 #' @param seMarker A `SummarizedExperiment` object returned by `markerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like "DeviationsMatrix").
-#' @param scaleTo QQQ DOUBLE CHECK Each column in the matrix from `seMarker` will be normalized to a column sum designated by `scaleTo` prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
+#' @param scaleTo Each column in the assay Mean from `seMarker` will be normalized to a column sum designated by `scaleTo` prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
 #' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
 #' @param limits A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.
 #' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.
@@ -697,7 +678,8 @@ markerFeatures <- function(
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param invert QQQ UNCLEAR. WHAT DO YOU MEAN BY SORTING FEATURES AND COLOR?? A boolean value that indicates whether the heatmap will be inverted when QQQ sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
+#' @param invert JJJ A boolean value that indicates whether the heatmap will be sorted features by features that are Log2FC < 0 and the color palette is 
+#' inverted for visualization. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
 #' @export
 markerHeatmap <- function(
   seMarker = NULL,
@@ -710,11 +692,13 @@ markerHeatmap <- function(
   grepExclude = NULL,
   pal = NULL,
   binaryClusterRows = TRUE,
+  clusterCols = TRUE,
   labelMarkers = NULL,
   nLabel = NULL,
   nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
+  transpose = TRUE,
   invert = FALSE
   ){
 
@@ -759,7 +743,7 @@ markerHeatmap <- function(
   mat[mat > max(limits)] <- max(limits)
   mat[mat < min(limits)] <- min(limits)
   
-  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
+  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
   mat <- mat[idx,]
   passMat <- passMat[idx,]
 
@@ -791,7 +775,7 @@ markerHeatmap <- function(
     stop("No Makers Found!")
   }
 
-  if(metadata(markersGS)$Params$useMatrix == "GeneScoreMatrix"){
+  if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
     message("Printing Top Marker Genes:")
     spmat <- passMat / rowSums(passMat)
     for(x in seq_len(ncol(spmat))){
@@ -803,10 +787,10 @@ markerHeatmap <- function(
 
   if(binaryClusterRows){
     if(invert){
-      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)])
+      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)], clusterCols = clusterCols)
       mat <- -bS[[1]][,colnames(mat)]
     }else{
-      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
+      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)], clusterCols = clusterCols)
       mat <- bS[[1]][,colnames(mat)]
     }
     clusterRows <- FALSE
@@ -814,13 +798,6 @@ markerHeatmap <- function(
   }else{
     clusterRows <- TRUE
     clusterCols <- TRUE
-  }
-
-  if(!is.null(labelMarkers)){
-    mn <- match(tolower(labelMarkers), tolower(rownames(mat)), nomatch = 0)
-    mn <- mn[mn > 0]
-  }else{
-    mn <- NULL
   }
 
   if(nrow(mat) == 0){
@@ -831,11 +808,11 @@ markerHeatmap <- function(
 
   if(is.null(pal)){
     if(is.null(metadata(seMarker)$Params$useMatrix)){
-      pal <- paletteContinuous(set = "solar_extra", n = 100)
+      pal <- paletteContinuous(set = "solarExtra", n = 100)
     }else if(tolower(metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
-      pal <- paletteContinuous(set = "blue_yellow", n = 100)
+      pal <- paletteContinuous(set = "blueYellow", n = 100)
     }else{
-      pal <- paletteContinuous(set = "solar_extra", n = 100)
+      pal <- paletteContinuous(set = "solarExtra", n = 100)
     }
   }
 
@@ -843,20 +820,62 @@ markerHeatmap <- function(
     pal <- rev(pal)
   }
 
-  ht <- .ArchRHeatmap(
-    mat = mat,
-    scale = FALSE,
-    limits = c(min(mat), max(mat)),
-    color = pal, 
-    clusterCols = clusterCols, 
-    clusterRows = clusterRows,
-    labelRows = labelRows,
-    labelCols = TRUE,
-    customRowLabel = mn,
-    showColDendrogram = TRUE,
-    draw = FALSE,
-    name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(markersGS)$Params$useMatrix)
-  )
+  if(transpose){
+
+    #mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
+    if(!is.null(clusterCols)){
+      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order])
+    }else{
+      mat <- t(mat[seq_len(nrow(mat)), ])
+    }
+
+    if(!is.null(labelMarkers)){
+      mn <- match(tolower(labelMarkers), tolower(colnames(mat)), nomatch = 0)
+      mn <- mn[mn > 0]
+    }else{
+      mn <- NULL
+    }
+
+    ht <- .ArchRHeatmap(
+      mat = mat,
+      scale = FALSE,
+      limits = c(min(mat), max(mat)),
+      color = pal, 
+      clusterCols = clusterRows, 
+      clusterRows = FALSE,
+      labelRows = TRUE,
+      labelCols = labelRows,
+      customColLabel = mn,
+      showRowDendrogram = TRUE,
+      draw = FALSE,
+      name = paste0("Column Z-Scores\n", ncol(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+    )
+
+  }else{
+    
+    if(!is.null(labelMarkers)){
+      mn <- match(tolower(labelMarkers), tolower(rownames(mat)), nomatch = 0)
+      mn <- mn[mn > 0]
+    }else{
+      mn <- NULL
+    }
+
+    ht <- .ArchRHeatmap(
+      mat = mat,
+      scale = FALSE,
+      limits = c(min(mat), max(mat)),
+      color = pal, 
+      clusterCols = clusterCols, 
+      clusterRows = clusterRows,
+      labelRows = labelRows,
+      labelCols = TRUE,
+      customRowLabel = mn,
+      showColDendrogram = TRUE,
+      draw = FALSE,
+      name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+    )
+
+  }
 
   if(returnMat){
     return(mat)
@@ -875,7 +894,7 @@ markerHeatmap <- function(
   scale = FALSE,
   limits = c(min(mat), max(mat)),
   colData = NULL, 
-  color = paletteContinuous(set = "solar_extra", n = 100),
+  color = paletteContinuous(set = "solarExtra", n = 100),
   clusterCols = TRUE,
   clusterRows = FALSE,
   labelCols = FALSE,
@@ -884,7 +903,9 @@ markerHeatmap <- function(
   useRaster = TRUE,
   rasterQuality = 5,
   split = NULL,
-  fontsize = 10,
+  fontSizeRows = 10,
+  fontSizeCols = 10,
+  fontSizeLabels = 8,
   colAnnoPerRow = 4,
   showRowDendrogram = FALSE,
   showColDendrogram = FALSE,
@@ -906,7 +927,7 @@ markerHeatmap <- function(
   
   #Z-score
   if (scale) {
-    message("Scaling Matrix...")
+    message("Scaling Matrix..")
     mat <- .rowZscores(mat, limit = FALSE)
     name <- paste0(name," Z-Scores")
   }
@@ -945,9 +966,9 @@ markerHeatmap <- function(
 
   #Annotation Heatmap
   if(!is.null(colData) & !is.null(customColLabel)){
-    message("Adding Annotations...")
+    message("Adding Annotations..")
     if(is.null(customColLabelIDs)){
-      customColLabelIDs <- colnames(mat)[customRowLabel]
+      customColLabelIDs <- colnames(mat)[customColLabel]
     }
     ht1Anno <- HeatmapAnnotation(
       df = colData,
@@ -959,13 +980,11 @@ markerHeatmap <- function(
         list(
           nrow = min(colAnnoPerRow, max(round(nrow(colData)/colAnnoPerRow), 1))
         ),
-      link = anno_check_version_cols(
-        at = customColLabel, labels = customColLabelIDs),
-        width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs)
-
+      foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels))
     )
+
   }else if(!is.null(colData)){
-    message("Adding Annotations...")
+    message("Adding Annotations..")
     ht1Anno <- HeatmapAnnotation(
       df = colData,
       col = colorMap, 
@@ -979,23 +998,25 @@ markerHeatmap <- function(
     )
   }else if(is.null(colData) & !is.null(customColLabel)){
     if(is.null(customColLabelIDs)){
-      customColLabelIDs <- colnames(mat)[customRowLabel]
+      customColLabelIDs <- colnames(mat)[customColLabel]
     }
-    message("Adding Annotations...")
-    ht1Anno <- HeatmapAnnotation(
-      link = anno_check_version_cols(
-        at = customColLabel, labels = customColLabelIDs),
-        width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs)
-    )
+    message("Adding Annotations..")
+    #print(customColLabel)
+    #print(customColLabelIDs)
+    #ht1Anno <- columnAnnotation(foo = anno_check_version_cols(
+    #   at = customColLabel, labels = customColLabelIDs),
+    #   width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs))
+    #ht1Anno <- HeatmapAnnotation(foo = anno_mark(at = c(1:4, 20, 60, 1097:1100), labels = month.name[1:10]))
+    ht1Anno <- HeatmapAnnotation(foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels)))
   }else{
     ht1Anno <- NULL
   }
 
-  message("Preparing Main Heatmap...")
+  message("Preparing Main Heatmap..")
   ht1 <- Heatmap(
     
     #Main Stuff
-    matrix = mat,
+    matrix = as.matrix(mat),
     name = name,
     col = color, 
     
@@ -1012,12 +1033,12 @@ markerHeatmap <- function(
     cluster_columns = clusterCols, 
     show_column_dend = showColDendrogram,
     clustering_method_columns = "ward.D2",
-    column_names_gp = gpar(fontsize = fontsize), 
+    column_names_gp = gpar(fontsize = fontSizeCols), 
     column_names_max_height = unit(100, "mm"),
     
     #Row Options
     show_row_names = labelRows,
-    row_names_gp = gpar(fontsize = fontsize), 
+    row_names_gp = gpar(fontsize = fontSizeRows), 
     cluster_rows = clusterRows, 
     show_row_dend = showRowDendrogram, 
     clustering_method_rows = "ward.D2",
@@ -1037,7 +1058,7 @@ markerHeatmap <- function(
       customRowLabelIDs <- rownames(mat)[customRowLabel]
     }
     ht1 <- ht1 + rowAnnotation(link = 
-        anno_check_version_rows(at = customRowLabel, labels = customRowLabelIDs),
+        anno_check_version_rows(at = customRowLabel, labels = customRowLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels)),
         width = unit(customLabelWidth, "cm") + max_text_width(customRowLabelIDs))
   }
 
@@ -1084,7 +1105,7 @@ markerHeatmap <- function(
   return(show)
 }
 
-.colorMapAnno <- function(colData = NULL, customAnno = NULL, discreteSet = "stallion", continuousSet = "solar_extra"){
+.colorMapAnno <- function(colData = NULL, customAnno = NULL, discreteSet = "stallion", continuousSet = "solarExtra"){
   discreteCols <- sapply(colData,function(x) !is.numeric(x))
   if(!is.null(customAnno)){
     colorMap <- lapply(seq_along(discreteCols),function(x){
@@ -1253,7 +1274,7 @@ markerPlot <- function(
   
   LFC <- assays(seMarker[,name])$Log2FC
   LFC <- as.vector(as.matrix(LFC))
-  qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4)
+  qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4) * 1.05
 
   FDR <- assays(seMarker[,name])$FDR
   FDR <- as.vector(as.matrix(FDR))
@@ -1278,25 +1299,37 @@ markerPlot <- function(
   if(tolower(plotAs) == "ma"){
     ggPoint(
       x = LM[idx],
-      y = LFC[idx], 
-      color = color[idx], 
+      y = LFC[idx],
+      color = color[idx],  
+      ylim = c(-qLFC, qLFC),
+      size = 1,
+      extend = 0,
       rastr = TRUE, 
+      labelMeans = FALSE,
+      labelAsFactors = FALSE,
       pal = pal,
       xlabel = "Log2 Mean",
       ylabel = "Log2 Fold Change",
       title = title
-    ) + geom_hline(yintercept = 0, lty = "dashed") + scale_y_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC))
+    ) + geom_hline(yintercept = 0, lty = "dashed") + 
+    scale_y_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC), expand = c(0,0))
   }else if(tolower(plotAs) == "volcano"){
     ggPoint(
       x = LFC[idx],
       y = -log10(FDR[idx]), 
       color = color[idx], 
+      xlim = c(-qLFC, qLFC),
+      extend = 0,
+      size = 1,
       rastr = TRUE, 
+      labelMeans = FALSE,
+      labelAsFactors = FALSE,
       pal = pal,
       xlabel = "Log2 Fold Change",
       ylabel = "-Log10 FDR",
       title = title
-    ) + geom_vline(xintercept = 0, lty = "dashed") + scale_x_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC))
+    ) + geom_vline(xintercept = 0, lty = "dashed") + 
+    scale_x_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC), expand = c(0,0))
   }else{
     stop("plotAs not recognized")
   }

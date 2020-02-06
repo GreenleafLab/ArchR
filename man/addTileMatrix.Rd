@@ -13,8 +13,7 @@ addTileMatrix(
   excludeChr = c("chrM", "chrY"),
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{

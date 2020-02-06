@@ -6,31 +6,30 @@
 \usage{
 enrichHeatmap(
   seEnrich = NULL,
-  pal = paletteContinuous(set = "white_blue_purple", n = 100),
-  limits = c(0, 60),
+  pal = paletteContinuous(set = "comet", n = 100),
   n = 10,
+  cutOff = 20,
+  pMax = Inf,
   clusterCols = TRUE,
-  clusterRows = TRUE,
+  binaryClusterRows = TRUE,
   labelRows = TRUE,
-  ...
+  transpose = TRUE
 )
 }
 \arguments{
 \item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}
 
-\item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
-
 \item{n}{The number of top enriched peakAnnotations per column from the \code{seMarker} to display in the heatmap. This number can be lowered to improve visibility of the heatmap.}
 
 \item{clusterCols}{A boolean indicating whether or not to cluster columns in the heatmap.}
 
-\item{clusterRows}{A boolean indicating whether or not to cluster rows in the heatmap.}
-
 \item{labelRows}{A boolean indicating whether or not to label all rows in the heatmap.}
 
-\item{...}{additional args}
-
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{peakAnnoEnrichment()}.}
+
+\item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
+
+\item{clusterRows}{A boolean indicating whether or not to cluster rows in the heatmap.}
 }
 \description{
 This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined marker peaks.

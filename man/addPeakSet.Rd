@@ -4,7 +4,7 @@
 \alias{addPeakSet}
 \title{Add a peak set to an ArchRProject}
 \usage{
-addPeakSet(ArchRProj = NULL, peakSet = NULL, force = FALSE, ...)
+addPeakSet(ArchRProj = NULL, peakSet = NULL, force = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -12,8 +12,6 @@ addPeakSet(ArchRProj = NULL, peakSet = NULL, force = FALSE, ...)
 \item{peakSet}{A \code{GRanges} object containing the set of regions that define all peaks in the desired peak set.}
 
 \item{force}{If a \code{peakSet} object has already been added to the given \code{ArchRProject}, the value of \code{force} determines whether or not to overwrite this \code{peakSet}.}
-
-\item{...}{additional args}
 }
 \description{
 This function adds a peak set as a GRanges object to a given ArchRProject.

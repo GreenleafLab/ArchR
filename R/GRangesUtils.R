@@ -10,7 +10,7 @@
 #' @param remove A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `remove` should be set to `NULL`.
 #' @param underscore A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").
 #' @param standard A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.
-#' @param pruningMode QQQ From `GenomeInfoDb::seqinfo()`, when some of the seqlevels to drop from QQQ the given `GRanges` object are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
+#' @param pruningMode JJJ From `GenomeInfoDb::seqinfo()`, when some of the seqlevels to drop from the given `GRanges` object are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
 #' @export
 filterChrGR <- function(
     gr = NULL, 
@@ -79,8 +79,7 @@ nonOverlappingGR <- function(
   #-----------
   # Cluster GRanges into islands using reduce and then select based on input
   #-----------
-  # QQQ SHOULD THIS BE A HIDDEN FUNCTION??
-  clusterGRanges <- function(gr = NULL, filter = TRUE, by = "score", decreasing = TRUE){
+  .clusterGRanges <- function(gr = NULL, filter = TRUE, by = "score", decreasing = TRUE){
     gr <- sort(sortSeqlevels(gr))
     r <- GenomicRanges::reduce(gr, min.gapwidth=0L, ignore.strand=TRUE)
     o <- findOverlaps(gr,r, ignore.strand = TRUE)
@@ -102,7 +101,7 @@ nonOverlappingGR <- function(
       message(".", appendLF = FALSE)
     }
     i <-  i + 1
-    grSelect <- clusterGRanges(
+    grSelect <- .clusterGRanges(
       gr = grConverge, 
       filter = TRUE, 
       by = by, 
@@ -133,114 +132,6 @@ nonOverlappingGR <- function(
 
 }
 
-#' Subset a Genomic Ranges object by the provided seqnames
-#'
-#' This function returns a subsetted Genomic Ranges object based on a vector of provided seqnames
-#'
-#' @param gr A `GRanges` object to be subsetted.
-#' @param names A character vector containing the `seqnames` to keep from the provided `GRanges` object.
-#' @export
-subsetSeqnamesGR <- function(gr = NULL, names = NULL){
-  .validInput(input = gr, name = "gr", valid = c("GRanges"))
-  .validInput(input = names, name = "names", valid = c("character"))
-  gr <- gr[which(as.character(seqnames(gr)) %in% names),]
-  seqlevels(gr) <- as.character(unique(seqnames(gr)))
-  return(gr)
-}
-
-#' Adds seqlength information to the seqnames of a Genomic Ranges object
-#'
-#' This function adds seqlength information for each of the seqnames in the provided Genomic Ranges object.
-#'
-#' @param gr A `GRanges` object.
-#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `validBSgenome()`.
-#' @export
-addSeqLengthsGR <- function(gr = NULL, genome = NULL){
-  .validInput(input = gr, name = "gr", valid = c("GRanges"))
-  .validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
-  genome <- validBSgenome(genome)
-  stopifnot(all(as.character(seqnames(gr)) %in% as.character(seqnames(genome))))
-  seqlengths(gr) <- seqlengths(genome)[as.character(names(seqlengths(gr)))]
-  return(gr)
-}
-
-#' Randomly shuffle a Genomic Ranges object
-#'
-#' This function randomly shuffles a Genomic Ranges object.
-#'
-#' @param gr A `GRanges` object.
-#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"). See `validBSgenome()`.
-#' @param n The number of permutations to perform during shuffling.
-#' @param shuffleChr QQQ DOUBLE CHECK A boolean value indicating whether to shuffle the regions across chromosomes randomly based on the distribution of chromosome lengths (`TRUE`) or to use prior knowledge of the distribution of regions in `gr` across the various chromosomes to create a shuffled set of ranges that is similarly distributed (`FALSE`).
-#' @export
-shuffleGR <- function(gr = NULL, genome = NULL, n = 100, shuffleChr = TRUE){
-  .validInput(input = gr, name = "gr", valid = c("GRanges"))
-  .validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
-  .validInput(input = n, name = "n", valid = c("integer"))
-  .validInput(input = shuffleChr, name = "shuffleChr", valid = c("boolean"))
-  #adapted from ChIPseeker's shuffle
-  cs <- getChromSizes(genome)
-  seqL <- seqlengths(cs)
-  seqL <- seqL[sort(names(seqL))]
-  sub <- subsetSeqnamesGR(gr, names = names(seqL)) #change
-  sub <- sub[order(as.character(seqnames(sub)))]
-  #stopifnot(identical(unique(as.character(seqnames(sub))), names(seqL)))
-  w <- width(sub)
-  name <- mcols(sub)$name
-  seqN <- as.character(seqnames(sub))
-  if(shuffleChr){
-    expected <- round(length(sub)*as.numeric(seqL)/sum(as.numeric(seqL)))
-    names(expected) <- names(seqL)
-    #hackish rounding correction
-    diff <- sum(length(sub))-sum(expected)
-    r <- sample(length(expected),1)
-    expected[r] <- expected[r] + diff
-    subPerChr <- expected
-  }else{
-    subPerChr <- table(seqN)
-  }
-  pb <- txtProgressBar(min=0,max=100,initial=0,style=3)  
-  grL <- lapply(seq_len(n), function(x){
-    setTxtProgressBar(pb,round(x*100/n,0))
-    rand <- sample(length(w))
-    ws <- w[rand]
-    ns <- name[rand]
-    d <- lapply(seq_along(subPerChr), function(i){
-      st_i <- sample(seqL[i],subPerChr[i])
-      return(data.frame(seq = names(subPerChr)[i], start = st_i))
-    }) %>% data.table::rbindlist(.) %>% data.frame
-    gr <- GRanges(seqnames=d[,1], ranges=IRanges(d[,2], width=ws), strand="*", name = ns)
-    suppressWarnings(seqlengths(gr) <- seqL)
-    gr <- trim(gr)
-    return(gr)
-  })
-  grL <- GenomicRangesList(grL)
-  return(grL)
-}
-
-#' Merge genomic regions within a single Genomic Ranges object
-#'
-#' This function merges overlapping regions within a single Genomic Ranges object
-#'
-#' @param gr A `GRanges` object.
-#' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `GenomicRanges::findOverlaps()`.
-#' @export
-mergeGR <- function(gr, ignoreStrand = TRUE){
-  .validInput(input = gr, name = "gr", valid = c("GRanges"))
-  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
-  grR <- reduce(gr,min.gapwidth=0L,ignore.strand = ignoreStrand)
-  o <- DataFrame(findOverlaps(grR, gr,ignore.strand = ignoreStrand))
-  o$start <- start(gr[o$subjectHits])
-  o$end <- end(gr[o$subjectHits])
-  o$chr <- seqnames(gr[o$subjectHits])
-  os <- o[order(o$start,decreasing = FALSE),] %>% {.[!duplicated(.$queryHits),c("queryHits", "start")]}
-  oe <- o[order(o$end,decreasing = TRUE),] %>% {.[!duplicated(.$queryHits),c("queryHits", "end")]}
-  oc <- o[!duplicated(o$queryHits),c("queryHits", "chr")]
-  df <- merge(merge(oc, os, by = "queryHits"),oe,  by = "queryHits")
-  mGR <- GRanges(df[,2], ranges = IRanges(df[,3], df[,4])) %>% sortSeqlevels %>% sort
-  return(mGR)
-}
-
 #' Extend regions from a Genomic Ranges object
 #'
 #' This function extends each region in a Genomic Ranges object by a designated upstream and downstream extension in a strand-aware fashion
@@ -265,80 +156,5 @@ extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
   return(gr)
 }
 
-#' Identify the number of bases that overlap two Genomic Ranges objects
-#'
-#' This function returns a data.frame describing how many basepairs overlap the provided query and subject Genomic Ranges objects
-#'
-#' @param query A `GRanges` object to be used as the query in `GenomicRanges::findOverlaps()`.
-#' @param subject A `GRanges` object to be used as the subject in `GenomicRanges::findOverlaps()`.
-#' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
-#' @export
-nOverlapGR <- function(query = NULL, subject = NULL, ignoreStrand = TRUE){
-  .validInput(input = query, name = "query", valid = c("GRanges"))
-  .validInput(input = subject, name = "subject", valid = c("GRanges"))
-  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
-  o <- findOverlaps(query, subject, ignore.strand = ignoreStrand)
-  overlaps <- pintersect(query[queryHits(o)], subject[subjectHits(o)])
-  percentOverlap <- width(overlaps) / width(subject[subjectHits(o)])
-  l <- unlist(lapply(split(percentOverlap, subjectHits(o)),function(x)sum(x)))
-  perOverlap <- sum(l*width(subject[unique(subjectHits(o))]))/sum(width(subject))
-  nBP <- perOverlap * sum(width(subject))
-  type <- c("queryBP", "sharedBP", "subjectBP")
-  nBases <- c(sum(width(query))-nBP, nBP, sum(width(subject))-nBP)
-  return(data.frame(type = type, bp = nBases))
-}
 
-#' Overlap with many genomic regions
-#'
-#' This function returns a sparse matrix that describes the overlap with each sub-grouped genomic region as specified in the "by" column.
-#'
-#' @param query A `GRanges` object to be used as the query in `GenomicRanges::findOverlaps()`.
-#' @param subject A `GRanges` object containing a column in `mcols(subject)` sub-grouping to be used as the subject in `GenomicRanges::findOverlaps()`.
-#' @param by The name of a column in `mcols(subject)` that should be used to determine how overlapping regions should be sub-grouped.
-#' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `GenomicRanges::findOverlaps()`.
-#' @export
-overlapsManyGR <- function(query = NULL, subject = NULL, by = NULL, ignoreStrand = TRUE){
-  .validInput(input = query, name = "query", valid = c("GRanges"))
-  .validInput(input = subject, name = "subject", valid = c("GRanges"))
-  .validInput(input = by, name = "by", valid = c("character"))
-  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
-  o <- DataFrame(findOverlaps(query, subject, ignore.strand = ignoreStrand))
-  o$name <- mcols(subject)[o$subjectHits, by]
-  o$id <- match(o$name, unique(o$name))
-  sparse <- Matrix::sparseMatrix(
-    i = o[,1],
-    j = o[,4],
-    x = rep(TRUE,nrow(o)),
-    dims = c(length(query),length(unique(o$name)))
-  )
-  colnames(sparse) <- unique(o$name)
-  return(sparse)
-}
-
-#' Construct a Genomic Ranges object taking into account strandedness
-#'
-#' This function creates a Genomic Ranges object accounting for strandedness indicated by the relative orientation of the provided start and end positions
-#'
-#' @param seqnames A character vector containing the seqnames to be added to the `GRanges` object.
-#' @param start A vector of start positions to be added to the `GRanges` object.
-#' @param end A vector of end positions to be added to the `GRanges` object.
-#' @param ignoreStrand A boolean value indicating whether strandedness should be ignored in `findOverlaps()`.
-#' @export
-constructGR <- function(seqnames = NULL, start = NULL, end = NULL, ignoreStrand = TRUE){
-  .validInput(input = seqnames, name = "seqnames", valid = c("character", "rleCharacter"))
-  .validInput(input = start, name = "start", valid = c("integer"))
-  .validInput(input = end, name = "end", valid = c("integer"))
-  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
-  df <- data.frame(seqnames, start, end)
-  idx <- which(df[,2] > df[,3])
-  df[idx,2:3] <-  df[idx,3:2]
-  if(!ignoreStrand){
-    strand <- rep("+",nrow(df))
-    strand[idx] <- "-" 
-  }else{
-    strand <- rep("*",nrow(df))
-  }
-  gr <- GRanges(df[,1], IRanges(df[,2],df[,3]), strand = strand)
-  return(gr)
-}
 

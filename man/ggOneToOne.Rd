@@ -20,7 +20,7 @@ ggOneToOne(
   extend = 0.05,
   baseSize = 6,
   rastr = TRUE,
-  pal = paletteContinuous(set = "blue_yellow"),
+  pal = paletteContinuous(set = "blueYellow"),
   ...
 )
 }
@@ -39,9 +39,9 @@ ggOneToOne(
 
 \item{title}{The title of the plot.}
 
-\item{min}{QQQ DOUBLE CHECK The lower limit of the x and y axes as a numeric quantile between 0 and 1.}
+\item{min}{The lower limit of the x and y axes as a numeric quantile between 0 and 1.}
 
-\item{max}{QQQ DOUBLE CHECK The upper limit of the x and y axes as a numeric quantile between 0 and 1.}
+\item{max}{The upper limit of the x and y axes as a numeric quantile between 0 and 1.}
 
 \item{nPlot}{The number of points to plot. When this value is less than the total points, the \code{sample} function is used to extract random data points to be plotted.}
 

@@ -13,6 +13,8 @@
 #' @param k The number of cells neighboring a simulated doublet to be considered as putative doublets.
 #' @param nTrials The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
+#' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
 #' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "LSI".
@@ -23,7 +25,6 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addDoubletScores <- function(
   input = NULL,
@@ -36,17 +37,16 @@ addDoubletScores <- function(
   corCutOff = 0.75,
   sampleCells = NULL,
   knnMethod = "UMAP",
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric= "euclidean", verbose=FALSE),
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose = FALSE),
   LSIParams = list(),
   outDir = if(inherits(input, "ArchRProject")) getOutputDirectory(input) else "QualityControl",  
   threads = getArchRThreads(),
   parallelParam = NULL,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
-  .validInput(input = input, name = "input", valid = c("character", "ArchRProj"))
+  .validInput(input = input, name = "input", valid = c("character", "ArchRProject"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = nTrials, name = "nTrials", valid = c("integer"))
@@ -93,6 +93,9 @@ addDoubletScores <- function(
   args$FUN <- .addDoubScores
   args$registryDir <- file.path(outDir, "AddDoubletsRegistry")
 
+  #Make Sure these Args are NULL
+  args$input <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args, sequential = TRUE)
   names(outList) <- names(ArrowFiles)
@@ -126,9 +129,10 @@ addDoubletScores <- function(
   UMAPParams = list(),
   LSIParams = list(),
   nTrials = 5,
-  dimsToUse = 1:25,
+  dimsToUse = 1:30,
   corCutOff = 0.75,
   LSIMethod = 1,
+  sampleCells = NULL,
   scaleDims = FALSE,
   k = 10,
   nSample = 1000,
@@ -137,10 +141,13 @@ addDoubletScores <- function(
   subThreads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
-  ...#QQQ
+  tstart = NULL
   ){
 
-  tstart <- Sys.time()
+  if(!is.null(tstart)){
+    tstart <- Sys.time()
+  }
+
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)
   outDir <- file.path(outDir, sampleName)
@@ -158,8 +165,8 @@ addDoubletScores <- function(
     outputDirectory = tmpDir,
     copyArrows = FALSE,
     showLogo = FALSE,
-    geneAnnotation = ArchR:::.nullGeneAnnotation(), #this doesnt matter just needs to be valid
-    genomeAnnotation = ArchR:::.nullGenomeAnnotation() #this doesnt matter just needs to be valid
+    geneAnnotation = .nullGeneAnnotation(), #this doesnt matter just needs to be valid
+    genomeAnnotation = .nullGenomeAnnotation() #this doesnt matter just needs to be valid
   ))
   if(is.null(allCells)){
     proj@cellColData <- proj@cellColData[.availableCells(ArrowFile, useMatrix),]
@@ -211,7 +218,7 @@ addDoubletScores <- function(
   cellNames <- rownames(getCellColData(proj))
 
   #################################################
-  # 2. Run UMAP for LSI-Projection
+  # 4. Run UMAP for LSI-Projection
   #################################################
   .messageDiffTime("Running LSI UMAP", tstart, addHeader = verboseHeader)
   set.seed(1) # Always do this prior to UMAP
@@ -223,7 +230,7 @@ addDoubletScores <- function(
   uwotUmap <- do.call(uwot::umap, UMAPParams)
 
   #################################################
-  # 4. Simulate and Project Doublets
+  # 5. Simulate and Project Doublets
   #################################################
   .messageDiffTime("Simulating and Projecting Doublets", tstart, addHeader = verboseHeader)
   simDoubletsSave <- .simulateProjectDoublets(
@@ -254,7 +261,7 @@ addDoubletScores <- function(
   }
 
   #################################################
-  # 5. Plot / Save Results
+  # 6. Plot / Save Results
   #################################################
 
   pal <- c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF") #grey_magma
@@ -400,7 +407,7 @@ addDoubletScores <- function(
   })
 
   #################################################
-  # 6. Add Info To Arrow!
+  # 7. Add Info To Arrow!
   #################################################
   allCells <- .availableCells(ArrowFile, passQC = FALSE)
   
@@ -449,8 +456,6 @@ addDoubletScores <- function(
 
   simLSI <- .safelapply(seq_len(nTrials), function(y){
 
-    message(".", appendLF = FALSE)
-
     if(y %% 5 == 0){
       gc()
     }
@@ -465,7 +470,7 @@ addDoubletScores <- function(
                       .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
 
       #Project LSI
-      lsiProject <- suppressMessages(ArchR:::.projectLSI(simulatedMat, LSI))
+      lsiProject <- suppressMessages(.projectLSI(simulatedMat, LSI))
       rownames(lsiProject) <- NULL
 
       lsiProject
@@ -474,7 +479,6 @@ addDoubletScores <- function(
 
 
   }, threads = threads) %>% Reduce("rbind", .)
-  message("\n")
 
   #Compute original
   ogLSI <- suppressMessages(.projectLSI(mat, LSI))
@@ -490,7 +494,7 @@ addDoubletScores <- function(
   gc()
 
   if(LSI$scaleDims){
-    allLSI <- .scaleDims(allLSI, xm = LSI$dimsMean, xs = LSI$dimsSd)
+    allLSI <- .scaleDims(allLSI)
   }
 
   #Project UMAP
@@ -557,7 +561,6 @@ addDoubletScores <- function(
   #Store Results
   out$doubletEnrichLSI <- doubletEnrich
   out$doubletScoreLSI <- doubletScore
-
 
   ##############################################################################
   # Compute Doublet Scores from LSI (TF-IDF + SVD) + UMAP Embedding
@@ -643,5 +646,7 @@ addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames =
   ArchRProj
   
 }
+
+
 
 

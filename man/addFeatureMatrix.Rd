@@ -12,8 +12,7 @@ addFeatureMatrix(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = TRUE,
-  ...
+  force = TRUE
 )
 }
 \arguments{

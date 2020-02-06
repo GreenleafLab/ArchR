@@ -4,14 +4,12 @@
 \alias{getExons}
 \title{Get the exons from an ArchRProject}
 \usage{
-getExons(ArchRProj = NULL, symbols = NULL, ...)
+getExons(ArchRProj = NULL, symbols = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{symbols}{A character vector containing the gene symbols for the genes where exons should be extracted.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the exons coordinates as a GRanges object from the geneAnnotation of a given ArchRProject.

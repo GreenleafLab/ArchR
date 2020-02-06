@@ -6,11 +6,11 @@
 \usage{
 createArrowFiles(
   inputFiles = NULL,
-  sampleNames = NULL,
-  outputNames = paste0("./", sampleNames),
+  sampleNames = names(inputFiles),
+  outputNames = sampleNames,
   validBarcodes = NULL,
-  geneAnnotation = NULL,
-  genomeAnnotation = NULL,
+  geneAnnotation = getGeneAnnotation(),
+  genomeAnnotation = getGenomeAnnotation(),
   filterFrags = 1000,
   filterTSS = 4,
   removeFilteredCells = TRUE,
@@ -34,8 +34,7 @@ createArrowFiles(
   parallelParam = NULL,
   subThreading = TRUE,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
 )
 }
 \arguments{
@@ -102,8 +101,6 @@ For example, given \verb{window = 101, flank = 2000, norm = 100}, the accessibil
 \item{verboseHeader}{A boolean value that determines whether standard output should include verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output should include verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.

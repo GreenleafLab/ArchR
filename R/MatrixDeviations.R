@@ -14,7 +14,6 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the ArrowFiles associated with the given `ArchRProject`.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj = NULL,
@@ -26,8 +25,7 @@ addDeviationsMatrix <- function(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE,
-  ...#QQQ
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -114,6 +112,10 @@ addDeviationsMatrix <- function(
   args$FUN <- .addDeviationsMatrix
   args$registryDir <- file.path(getOutputDirectory(ArchRProj), paste0(matrixName,"DeviationsRegistry"))
 
+  #Remove Project from Args
+  args$ArchRProj <- NULL
+  args$matches <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
   .messageDiffTime("Completed Computing Deviations!", tstart, addHeader = TRUE)
@@ -136,11 +138,8 @@ addDeviationsMatrix <- function(
   useMatrix = "PeakMatrix",
   matrixName = "Motif", 
   force = FALSE,
-  profileMemory = TRUE,
-  debug = FALSE,
   tstart = NULL,
-  subThreads = 1,
-  ... #QQQ UNSURE HERE
+  subThreads = 1
   ){
 
   gc()
@@ -330,8 +329,7 @@ addDeviationsMatrix <- function(
   threshold = 1
   ){
 
-  #QQQ SHOULD THIS BE A HIDDEN FUNCTION?
-  binarizeMat <- function(mat = NULL){
+  .binarizeMat <- function(mat = NULL){
     mat@x[mat@x > 0] <- 1
     mat
   }
@@ -375,7 +373,7 @@ addDeviationsMatrix <- function(
     sampled <- as.matrix(sampleMat %*% countsMatrix)
     sampledExpected <- sampleMat %*% expectation %*% countsPerSample
     sampledDeviation <- (sampled - sampledExpected)/sampledExpected
-    bgOverlap <- Matrix::mean(binarizeMat(sampleMat) %*% binarizeMat(annotationsVector)) / length(annotationsVector@x)
+    bgOverlap <- Matrix::mean(.binarizeMat(sampleMat) %*% .binarizeMat(annotationsVector)) / length(annotationsVector@x)
     
     #Summary
     meanSampledDeviation <- Matrix::colMeans(sampledDeviation)
@@ -448,13 +446,17 @@ getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE
   rowV <- rowV[order(rowV$combinedVars, decreasing=TRUE), ]
   rowV$rank <- seq_len(nrow(rowV))
 
+  print(head(rowV))
+
   if(plot){
     rowV <- data.frame(rowV)
-    ggplot(rowV, aes(rank, combinedVars)) +
+    ggplot(rowV, aes(x = rank, y = combinedVars, color = combinedVars)) +
       geom_point(size = 1) + 
+      scale_color_gradientn(colors = paletteContinuous(set = "comet")) +
       ggrepel::geom_label_repel(
         data = rowV[rev(seq_len(n)), ], aes(x = rank, y = combinedVars, label = name), 
         size = 1.5,
+        color = "black",
         nudge_x = 2
       ) + theme_ArchR() + ylab("Variability") + xlab("Rank Sorted Annotations")
   }else{
@@ -542,7 +544,6 @@ addBgdPeaks <- function(
 #' @param w The parameter controlling similarity measure of background peaks. See `chromVAR::getBackgroundPeaks()`.
 #' @param binSize The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param outFile QQQ I DONT THINK THIS PARAM SHOULD EXIST. ALSO PRESENT IN VALIDINPUT() DECLARATION. The path to save the backgroundPeaks object as a `.rds` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 getBgdPeaks <- function(
@@ -559,7 +560,6 @@ getBgdPeaks <- function(
   .validInput(input = w, name = "w", valid = c("numeric"))
   .validInput(input = binSize, name = "binSize", valid = c("integer"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
-  .validInput(input = outFile, name = "outFile", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
   if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){

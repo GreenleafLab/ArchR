@@ -8,8 +8,8 @@ ArchRProject(
   ArrowFiles = NULL,
   outputDirectory = "ArchR_Output",
   copyArrows = TRUE,
-  geneAnnotation = NULL,
-  genomeAnnotation = NULL,
+  geneAnnotation = getGeneAnnotation(),
+  genomeAnnotation = getGenomeAnnotation(),
   showLogo = TRUE
 )
 }

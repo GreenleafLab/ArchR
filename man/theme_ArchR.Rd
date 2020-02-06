@@ -6,7 +6,7 @@
 \usage{
 theme_ArchR(
   color = "black",
-  baseSize = 6,
+  baseSize = 10,
   baseLineSize = 0.5,
   baseRectSize = 0.5,
   plotMarginCm = 1,
@@ -14,8 +14,7 @@ theme_ArchR(
   legendTextSize = 5,
   axisTickCm = 0.1,
   xText90 = FALSE,
-  yText90 = FALSE,
-  ...
+  yText90 = FALSE
 )
 }
 \arguments{

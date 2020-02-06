@@ -9,8 +9,7 @@ markerPlot(
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
-  scaleTo = 10^4,
-  ...
+  scaleTo = 10^4
 )
 }
 \arguments{
@@ -21,8 +20,6 @@ markerPlot(
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{plotAs}{A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").}
-
-\item{...}{additional args}
 }
 \description{
 This function will plot one group/column of a differential markers as an MA or Volcano plot.

@@ -20,10 +20,8 @@ markerFeatures(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
-  method = "ArchR",
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
 )
 }
 \arguments{
@@ -45,7 +43,7 @@ markerFeatures(
 
 \item{maxCells}{The maximum number of cells to consider from a single-cell group when performing marker feature identification.}
 
-\item{scaleTo}{QQQ DOUBLE CHECK Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo}.}
+\item{scaleTo}{Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo}.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
@@ -57,13 +55,9 @@ markerFeatures(
 
 \item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
 
-\item{method}{The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.}
-
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 This function will identify features that are definitional of each provided cell grouping where possible

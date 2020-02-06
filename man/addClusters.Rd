@@ -29,7 +29,7 @@ addClusters(
 
 \item{name}{The column name of the cluster label column to be added to \code{cellColData} if \code{input} is an \code{ArchRProject} object.}
 
-\item{sampleCells}{QQQ An integer specifying the number of cells to subsample and perform clustering on. The remaining cells that were not subsampled will be assigned to the cluster of the nearest subsampled cell. QQQ This enables a decrease in run time but can sacrifice granularity of clusters.}
+\item{sampleCells}{An integer specifying the number of cells to subsample and perform clustering on. The remaining cells that were not subsampled will be assigned to the cluster of the nearest subsampled cell. This enables a decrease in run time but can sacrifice granularity of clusters.}
 
 \item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
@@ -47,7 +47,7 @@ addClusters(
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
-\item{tstart}{QQQ THIS STILL DOESNT MAKE SENSE TO ME. WHY WOULD YOU PROVIDE A MANUAL TIMESTAMP? WHY ISNT THIS CALCULATED AT RUNTIME? A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering when running things like "IterativeLSI".}
+\item{tstart}{JJJ A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering relative to a start time, for example this is used in "IterativeLSI".}
 
 \item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already exists as a column name in \code{cellColData}.}
 

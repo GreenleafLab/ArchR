@@ -9,7 +9,7 @@
 #' @param input Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`. Not required if input is a matrix.
 #' @param name The column name of the cluster label column to be added to `cellColData` if `input` is an `ArchRProject` object.
-#' @param sampleCells QQQ An integer specifying the number of cells to subsample and perform clustering on. The remaining cells that were not subsampled will be assigned to the cluster of the nearest subsampled cell. QQQ This enables a decrease in run time but can sacrifice granularity of clusters.
+#' @param sampleCells An integer specifying the number of cells to subsample and perform clustering on. The remaining cells that were not subsampled will be assigned to the cluster of the nearest subsampled cell. This enables a decrease in run time but can sacrifice granularity of clusters.
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param method A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
@@ -18,7 +18,7 @@
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
-#' @param tstart QQQ THIS STILL DOESNT MAKE SENSE TO ME. WHY WOULD YOU PROVIDE A MANUAL TIMESTAMP? WHY ISNT THIS CALCULATED AT RUNTIME? A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering when running things like "IterativeLSI". 
+#' @param tstart JJJ A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering relative to a start time, for example this is used in "IterativeLSI". 
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
 #' @param ... Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)
 #' @export
@@ -62,11 +62,26 @@ addClusters <- function(
 
     if(inherits(input, "ArchRProject")){
         #Check
-        input <- addCellColData(ArchRProj = input, data = rep(NA, nCells(input)), name = name, cells = getCellNames(input), force = force)
+        input <- addCellColData(
+            ArchRProj = input, 
+            data = rep(NA, nCells(input)), 
+            name = name, 
+            cells = getCellNames(input), 
+            force = force
+        )
+
         if(reducedDims %ni% names(input@reducedDims)){
             stop("Error reducedDims not available!")
         }
-        matDR <- getReducedDims(ArchRProj = input, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff, scaleDims = scaleDims)
+
+        matDR <- getReducedDims(
+            ArchRProj = input, 
+            reducedDims = reducedDims, 
+            dimsToUse = dimsToUse, 
+            corCutOff = corCutOff, 
+            scaleDims = scaleDims
+        )
+    
     }else if(inherits(input, "matrix")){
         matDR <- input
     }else{
@@ -107,7 +122,7 @@ addClusters <- function(
         clustParams <- list(...)
         clustParams$x <- matDR
         clustParams$d <- ncol(matDR)
-        clustParams$k <- ifelse(!is.null(...$k), ...$k, 25)
+        clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
         clust <- .clustScran(clustParams)
 
     }else if(grepl("louvainjaccard",tolower(method))){
@@ -164,16 +179,6 @@ addClusters <- function(
     #################################################################################
     # Renaming Clusters based on Proximity in Reduced Dimensions
     #################################################################################
-    .reLabel <- function(labels = NULL, oldLabels = NULL, newLabels = NULL){
-        labels <- paste0(labels)
-        oldLabels <- paste0(oldLabels)
-        newLabels <- paste0(newLabels)
-        labelsNew <- labels
-        for(i in seq_along(oldLabels)){
-            labelsNew[labels == oldLabels[i]] <- newLabels[i]
-        }
-        paste0(labelsNew)
-    }
     .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
     meanSVD <- t(.groupMeans(t(matDR), clust))
     meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
@@ -187,7 +192,7 @@ addClusters <- function(
             idx <- meanKNN[idx, ][which(rownames(meanSVD)[meanKNN[idx, ]] %ni% clustOld)][1]
         }
     }
-    out <- .reLabel(clust, oldLabels = clustOld, newLabels = clustNew)
+    out <- mapLabels(labels = clust, oldLabels = clustOld, newLabels = clustNew)
 
     if(inherits(input, "ArchRProject")){
         input <- .suppressAll(addCellColData(

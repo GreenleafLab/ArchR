@@ -8,8 +8,7 @@ getFragmentsFromArrow(
   ArrowFile = NULL,
   chr = NULL,
   cellNames = NULL,
-  verbose = TRUE,
-  ...
+  verbose = TRUE
 )
 }
 \arguments{
@@ -20,8 +19,6 @@ getFragmentsFromArrow(
 \item{cellNames}{A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using \code{getCellNames()}.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to \code{FALSE} for a cleaner output.}
-
-\item{...}{additional params}
 }
 \description{
 This function retrieves the fragments from a given ArrowFile as a GRanges object.

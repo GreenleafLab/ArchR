@@ -31,6 +31,7 @@
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param ... Additional params to be pass to `addGroupCoverages` to get sample-guided pseudobulk cell-groupings. Only used for `TileMatrix` peak calling. See `addGroupCoverages` for more info.
 #' @export
 addReproduciblePeakSet <- function(
 	ArchRProj = NULL,
@@ -56,7 +57,8 @@ addReproduciblePeakSet <- function(
 	parallelParam = NULL,
 	force = FALSE,
 	verboseHeader = TRUE,
-	verboseAll = FALSE
+	verboseAll = FALSE,
+	...
 	){
 
 	.validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -240,7 +242,7 @@ addReproduciblePeakSet <- function(
 			groupBy = groupBy,
 			returnGroups = TRUE,
 			minCells = minCells,
-			...#QQQ
+			...
 		)[[1]]$cellGroups
 
 		#####################################################
@@ -311,7 +313,9 @@ addReproduciblePeakSet <- function(
 	    )
 		.messageDiffTime(sprintf("Created Pseudo-Grouped Tile Matrix (%s GB)", round(object.size(groupMat) / 10^9, 3)), tstart, addHeader = verboseAll, verbose = verboseHeader)
 
-	    exp <- Matrix::colSums(groupMat) / nTiles
+		#Expectation, we lowered the expectation (by 25%) to better match 
+		#the results between macs2 and tile peak calling methods.
+	    exp <- 0.75 * Matrix::colSums(groupMat) / nTiles
 
 		#####################################################
 		# Peak Calling Per Group
@@ -631,6 +635,7 @@ addReproduciblePeakSet <- function(
 	peakParams = NULL,
 	bedDir = NULL,
 	excludeChr = NULL,
+	subThreads = 1,
 	tstart = NULL
 	){
 	
@@ -654,7 +659,7 @@ addReproduciblePeakSet <- function(
 	################
 	saveRDS(summits, outFiles[i])
 
-	.messageDiffTime(sprintf("Group %s of %s, Finished Calling Peaks with MACS2!", i, length(coverageFiles)), tstart)
+	#.messageDiffTime(sprintf("Group %s of %s, Finished Calling Peaks with MACS2!", i, length(coverageFiles)), tstart)
 
 	outFiles[i]
 
@@ -715,7 +720,7 @@ addReproduciblePeakSet <- function(
 #' @export
 findMacs2 <- function(){
   
-  message("Searching For MACS2...")
+  message("Searching For MACS2..")
 
   #Check if in path
   if(.suppressAll(.checkPath("macs2", throwError = FALSE))){
@@ -728,29 +733,33 @@ findMacs2 <- function(){
   #Try seeing if its pip installed
   search2 <- tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
   search3 <- tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
-
-  if(search2[1] != "ERROR"){
-	  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
-	  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
-	  	message("Found with pip!")
-	    return(path2Bin)
-	  }else{
-  		message("Not Found with pip")
-	  }
-  }
-
-  if(search3[1] != "ERROR"){
-	  path2Install <- gsub("Location: ","",search3[grep("Location", search3, ignore.case=TRUE)])
-	  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-	  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
-	  	message("Found with pip3!")
-	    return(path2Bin)
-	  }else{
-  		message("Not Found with pip3")
-	  }
-  }
   
+  if(length(search2) > 0){
+	  if(search2[1] != "ERROR"){
+		  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
+		  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+		  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+		  	message("Found with pip!")
+		    return(path2Bin)
+		  }
+	  }
+  }
+
+  message("Not Found with pip")
+
+  if(length(search3) > 0){
+	  if(search3[1] != "ERROR"){
+		  path2Install <- gsub("Location: ","",search3[grep("Location", search3, ignore.case=TRUE)])
+		  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
+		  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+		  	message("Found with pip3!")
+		    return(path2Bin)
+		  }
+	  }
+  }
+
+  message("Not Found with pip3")
+
   stop("Could Not Find Macs2! Please install w/ pip, add to your $PATH, or just supply the macs2 path directly and avoid this function!")
 
 }

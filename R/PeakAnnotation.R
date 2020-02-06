@@ -110,7 +110,7 @@ addPeakAnnotations <- function(
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list"))
+  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
@@ -139,13 +139,13 @@ addPeakAnnotations <- function(
       }else if(is.character(regions[x])){
         
         gr <- tryCatch({
-          .validGRanges(makeGRangesFromDataFrame(
+          makeGRangesFromDataFrame(
             df = data.frame(data.table::fread(regions[x])), 
             keep.extra.columns = TRUE,
             seqnames.field = "V1",
             start.field = "V2",
             end.field = "V3"
-          ))
+          )
         }, error = function(y){
 
           print(paste0("Could not successfully get region : ", regions[x]))
@@ -217,7 +217,7 @@ addPeakAnnotations <- function(
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... QQQ Additional parameters to be passed to QQQ.
+#' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a PWM object.
 #' @export
 addMotifAnnotations <- function(
   ArchRProj = NULL,
@@ -228,7 +228,7 @@ addMotifAnnotations <- function(
   cutOff = 5e-05, 
   width = 7,
   force = FALSE,
-  ...#QQQ
+  ...
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -237,7 +237,7 @@ addMotifAnnotations <- function(
   .validInput(input = species, name = "species", valid = c("character", "null"))
   .validInput(input = collection, name = "collection", valid = c("character", "null"))
   .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
-  .validInput(input = w, name = "w", valid = c("integer"))
+  .validInput(input = width, name = "width", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
@@ -474,7 +474,7 @@ addMotifAnnotations <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param db A character indicating which database or a path to a database to use for peak annotation. Options include ArchR, LOLA, and a valid path to a file of class `ArchRAnno`.
 #' @param collection A character indicating which collection within the database to collect for annotation. 
-#' For ArchR, options JJJ include to be added.
+#' For ArchR, options "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
 #' For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
 #' If supplying a custom ArchRAnno please use a valid collection.
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
@@ -482,7 +482,7 @@ addMotifAnnotations <- function(
 #' @export
 addArchRAnnotations <- function(
   ArchRProj = NULL,
-  db = "LOLA",
+  db = "ArchR",
   collection = "EncodeTFBS",
   name = collection,
   force = FALSE
@@ -504,6 +504,7 @@ addArchRAnnotations <- function(
     }
   }
 
+  genome <- tolower(validBSgenome(getGenome(ArchRProj))@provider_version)
 
   annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
   dir.create(annoPath, showWarnings = FALSE)
@@ -522,7 +523,7 @@ addArchRAnnotations <- function(
     
     #Download
     if(!file.exists(file.path(annoPath, basename(url)))){
-      message("Annotation ", basename(url)," does not exist! Downloading...")
+      message("Annotation ", basename(url)," does not exist! Downloading..")
       download.file(
         url = url, 
         destfile = file.path(annoPath, basename(url)),
@@ -538,14 +539,16 @@ addArchRAnnotations <- function(
     }else if(genome == "hg38"){
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Hg38-v1.Anno"
     }else if(genome == "mm9"){
+      stop("ArchR mm9 annotations not yet supported! Try LOLA for now!")
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm9-v1.Anno"
     }else if(genome == "mm10"){
+      stop("ArchR mm10 annotations not yet supported! Try LOLA for now!")
       url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm10-v1.Anno"
     }
 
     #Download
     if(!file.exists(file.path(annoPath, basename(url)))){
-      message("Annotation ", basename(url)," does not exist! Downloading...")
+      message("Annotation ", basename(url)," does not exist! Downloading..")
       download.file(
         url = url, 
         destfile = file.path(annoPath, basename(url)),
@@ -660,9 +663,11 @@ addArchRAnnotations <- function(
   }
 
   o <- h5closeAll()
-  nRegions <- h5ls(AnnoFile, recursive = TRUE) %>% 
-    {.[.$group==paste0("/",Group,"/",chr) & .$name == "Ranges",]$dim} %>% 
-    {gsub(" x 2","",.)} %>% as.integer
+  nRegions <- sum(.h5read(AnnoFile, paste0(Group,"/",chr,"/IDLengths"), method = method))
+
+  #nRegions <- h5ls(AnnoFile, recursive = TRUE) %>% 
+  #  {.[.$group==paste0("/",Group,"/",chr) & .$name == "Ranges",]$dim} %>% 
+  #  {gsub(" x 2","",.)} %>% as.integer
 
   if(nRegions==0){
     if(tolower(out)=="granges"){
@@ -847,8 +852,8 @@ peakAnnoEnrichment <- function(
     return(p/log(10))
   }) %>% unlist %>% round(4)
 
-  #Minus Log10 FDR
-  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
+  #Minus Log10 Padj
+  pOut$mlog10Padj <- pOut$mlog10p - log10(ncol(pOut))
   pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
 
   pOut
@@ -869,46 +874,144 @@ peakAnnoEnrichment <- function(
 #' @export
 enrichHeatmap <- function(
   seEnrich = NULL,
-  pal = paletteContinuous(set = "white_blue_purple", n = 100),
-  limits = c(0, 60),
+  pal = paletteContinuous(set = "comet", n = 100),
   n = 10,
+  cutOff = 20,
+  pMax = Inf,
   clusterCols = TRUE,
-  clusterRows = TRUE,
-  labelRows = TRUE
+  binaryClusterRows = TRUE,
+  labelRows = TRUE,
+  rastr = TRUE,
+  transpose = TRUE,
+  returnMatrix = FALSE
   ){
 
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
   .validInput(input = pal, name = "pal", valid = c("character"))
-  .validInput(input = limits, name = "limits", valid = c("numeric"))
+  #.validInput(input = limits, name = "limits", valid = c("numeric"))
   .validInput(input = n, name = "n", valid = c("integer"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
-  .validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
+  #.validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
 
-  mat <- assays(seEnrich)[["mlog10FDR"]]
-  mat[mat < min(limits)] <- min(limits)
-  mat[mat > max(limits)] <- max(max(limits), 25)
+  mat <- assays(seEnrich)[["mlog10Padj"]]
+  #mat[mat < min(limits)] <- min(limits)
 
   keep <- lapply(seq_len(ncol(mat)), function(x){
-    rownames(mat)[head(order(mat[, x], decreasing = TRUE), n)]
+    idx <- head(order(mat[, x], decreasing = TRUE), n)
+    rownames(mat)[idx[which(mat[idx,x] > cutOff)]]
   }) %>% unlist %>% unique
 
-  ht <- .ArchRHeatmap(
-    mat = as.matrix(mat[keep, ,drop = FALSE]),
-    scale = FALSE,
-    limits = c(min(mat), max(mat)),
-    color = pal, 
-    clusterCols = clusterCols, 
-    clusterRows = clusterRows,
-    labelRows = labelRows,
-    labelCols = TRUE,
-    showColDendrogram = TRUE,
-    draw = FALSE,
-    name = "Enrichment -log10(FDR)",
-    ...#QQQ
-  )
+  mat <- mat[keep, ,drop = FALSE]
+  passMat <- lapply(seq_len(nrow(mat)), function(x){
+    (mat[x, ] >= 0.9*max(mat[x, ])) * 1
+  }) %>% Reduce("rbind", .) %>% data.frame
+  colnames(passMat) <- colnames(mat)
+
+  mat[mat > pMax] <- pMax
+
+  if(nrow(mat)==0){
+    stop("No enrichments found!")
+  }
+
+  mat <- .rowScale(as.matrix(mat), min = 0)
+  if(pMax != 100){
+      rownames(mat[[1]]) <- paste0(rownames(mat[[1]]), " (",round(mat$max),")")
+      rownames(passMat) <- rownames(mat[[1]])
+  }
+
+  mat2 <- mat[[1]] * 100
+
+  if(binaryClusterRows){
+    #cn <- order(colMeans(mat2), decreasing=TRUE)
+    bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = clusterCols)
+    mat2 <- bS[[1]][,colnames(mat2)]
+    clusterRows <- FALSE
+    clusterCols <- bS[[2]]
+  }else{
+    clusterRows <- TRUE
+  }
+
+  if(nrow(mat2) > 100){
+    borderColor <- FALSE
+  }else{
+    borderColor <- TRUE
+  }
+
+  if(transpose){
+
+    if(!is.null(clusterCols)){
+      mat2 <- t(mat2[,clusterCols$order])
+    }else{
+      mat2 <- t(mat2)
+    }
+
+    #mat2 <- t(mat2[rev(seq_len(nrow(mat2))), ])
+
+    if(returnMatrix){
+      return(mat2)
+    }
+
+    ht <- .ArchRHeatmap(
+      mat = as.matrix(mat2),
+      scale = FALSE,
+      limits = c(0, max(mat2)),
+      color = pal, 
+      clusterCols = FALSE, 
+      clusterRows = FALSE,
+      #clusterRows = rev(as.dendrogram(clusterCols)),
+      labelRows = TRUE,
+      useRaster = rastr,
+      fontSizeCols = 6,
+      borderColor = borderColor,
+      #labelCols = labelRows,
+      customColLabel = seq_len(ncol(mat2)),
+      showRowDendrogram = FALSE,
+      draw = FALSE,
+      name = "Enrichment -log10(P-adj) [0-Max]"
+    )
+
+
+  }else{
+
+    if(returnMatrix){
+      return(mat2)
+    }
+
+    ht <- .ArchRHeatmap(
+      mat = as.matrix(mat2),
+      scale = FALSE,
+      limits = c(0, max(mat2)),
+      color = pal, 
+      clusterCols = clusterCols, 
+      clusterRows = clusterRows,
+      useRaster = rastr,
+      borderColor = borderColor,
+      fontSizeRows = 6,
+      #labelRows = labelRows,
+      customRowLabel = seq_len(nrow(mat2)),
+      labelCols = TRUE,
+      showColDendrogram = TRUE,
+      draw = FALSE,
+      name = "Enrichment -log10(P-adj) [0-Max]"
+    )
+
+  }
 
   return(ht)
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 

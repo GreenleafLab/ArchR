@@ -36,7 +36,7 @@ plotEmbedding <- function(
   log2Norm = NULL,
   imputeWeights = NULL,
   pal = NULL,
-  size = 0.5,
+  size = 0.1,
   rastr = TRUE,
   quantCut = c(0.01, 0.99),
   discreteSet = NULL,
@@ -86,6 +86,15 @@ plotEmbedding <- function(
   plotParams$size <- size
   plotParams$randomize <- randomize
 
+  #Make Sure ColorBy is valid!
+  if(length(colorBy) > 1){
+    stop("colorBy must be of length 1!")
+  }
+  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)))
+  if(tolower(colorBy) %ni% tolower(allColorBy)){
+    stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
+  }
+  colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
 
   if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
       
@@ -93,7 +102,7 @@ plotEmbedding <- function(
       colorParams <- list()
       colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = TRUE))
       colorParams$discrete <- .isDiscrete(colorParams$color)
-      colorParams$continuousSet <- "solar_extra"
+      colorParams$continuousSet <- "solarExtra"
       colorParams$discreteSet <- "stallion"
       colorParams$title <- paste(plotParams$title, " colored by\ncolData : ", name[x])
       if(!is.null(continuousSet)){
@@ -119,9 +128,9 @@ plotEmbedding <- function(
       colorParams$discrete <- FALSE
       colorParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name[x])
       if(tolower(colorBy) == "genescorematrix"){
-        colorParams$continuousSet <- "horizon_extra"
+        colorParams$continuousSet <- "horizonExtra"
       }else{
-        colorParams$continuousSet <- "solar_extra"
+        colorParams$continuousSet <- "solarExtra"
       }
       if(!is.null(continuousSet)){
         colorParams$continuousSet <- continuousSet
@@ -164,6 +173,12 @@ plotEmbedding <- function(
       }
 
       if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
+
+        plotParamsx$discrete <- NULL
+        plotParamsx$continuousSet <- NULL
+        plotParamsx$rastr <- NULL
+        plotParamsx$size <- NULL
+        plotParamsx$randomize <- NULL
 
         gg <- do.call(ggHex, plotParamsx)
 
@@ -214,7 +229,6 @@ plotEmbedding <- function(
 #' @param size The numeric size of the points to be plotted.
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param addPoints A boolean value that indicates whether points should be added to the plot using `ggplot2::geom_quasirandom()`.
 #' @export
 plotGroups <- function(
   ArchRProj = NULL, 
@@ -226,9 +240,9 @@ plotGroups <- function(
   pal = NULL,
   ylim = NULL, 
   size = 0.5, 
+  ridgeScale = 1,
   baseSize = 6, 
-  ratioYX = 0.5, 
-  addPoints = FALSE
+  ratioYX = NULL
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -241,47 +255,70 @@ plotGroups <- function(
   .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
-  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
-  .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
+  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
+  #.validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
   .requirePackage("ggplot2")
+
+  #Make Sure ColorBy is valid!
+  if(length(colorBy) > 1){
+    stop("colorBy must be of length 1!")
+  }
+  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)))
+  if(tolower(colorBy) %ni% tolower(allColorBy)){
+    stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
+  }
+  colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
 
   groups <- getCellColData(ArchRProj, groupBy, drop = FALSE)
   groupNames <- groups[,1]
   names(groupNames) <- rownames(groups)
-  
-  if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
-    values <- getCellColData(ArchRProj, name, drop = TRUE)
-  }else{
-    if (tolower(colorBy) == "genescorematrix"){
-      if(is.null(log2Norm)){
-        log2Norm <- TRUE
+
+  pl <- lapply(seq_along(name), function(x){
+
+    message(paste0(x, " "), appendLF = FALSE)
+
+    if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
+        values <- getCellColData(ArchRProj, name[x], drop = TRUE)
+      }else{
+        if (tolower(colorBy) == "genescorematrix"){
+          if(is.null(log2Norm)){
+            log2Norm <- TRUE
+          }
+        }
+        values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
       }
-    }
-    values <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
+
+      if(!is.null(imputeWeights)){
+        imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
+        values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
+      }
+
+      if(is.null(ylim)){
+        ylim <- range(values) %>% extendrange(f = 0.05)
+      }
+
+      p <- ggGroup(
+        x = groupNames, 
+        y = values, 
+        xlabel = groupBy, 
+        ylabel = name[x], 
+        baseSize = baseSize, 
+        ridgeScale = ridgeScale,
+        ratioYX = ratioYX,
+        size = size
+        )
+
+      p
+  })
+
+  message("\n")
+  
+  if(length(name)==1){
+    pl[[1]]
+  }else{
+    pl
   }
-
-  if(!is.null(imputeWeights)){
-    imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
-    values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
-  }
-
-  if(is.null(ylim)){
-    ylim <- range(values) %>% extendrange(f = 0.05)
-  }
-
-  p <- ggViolin(
-    x = groupNames, 
-    y = values, 
-    xlabel = groupBy, 
-    ylabel = name, 
-    baseSize = baseSize, 
-    ratioYX = ratioYX,
-    size = size,
-    addPoints = addPoints
-    )
-
-  p
 
 }
 
@@ -307,7 +344,7 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))
       if(length(ix)==0){
-        stop(sprintf("FeatureName does not exist for %s! See availableFeatures", name))
+        stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]))
       }
       ix
     }) %>% unlist
@@ -317,7 +354,7 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- which(tolower(name[x]) == tolower(featureDF$name))[1]
       if(length(ix)==0){
-        stop(sprintf("FeatureName does not exist for %s! See availableFeatures", name))
+        stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]))
       }
       ix
     }) %>% unlist
@@ -325,7 +362,7 @@ plotGroups <- function(
   }
 
   if(any(is.na(idx))){
-    stop("name is not in featureNames!")
+    stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[which(is.na(idx))]))
   }
 
   featureDF <- featureDF[idx, ,drop=FALSE]

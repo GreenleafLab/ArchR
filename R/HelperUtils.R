@@ -3,6 +3,8 @@
 ##########################################################################################
 .validInput <- function(input = NULL, name = NULL, valid = NULL){
 
+  valid <- unique(valid)
+
   if(is.character(valid)){
     valid <- tolower(valid)
   }else{
@@ -13,7 +15,13 @@
     stop("name must be a character!")
   }
 
-  av <- lapply(seq_along(valid), function(i){
+  if("null" %in% tolower(valid)){
+    valid <- c("null", valid[which(tolower(valid) != "null")])
+  }
+
+  av <- FALSE
+
+  for(i in seq_along(valid)){
 
     vi <- valid[i]
 
@@ -61,12 +69,7 @@
 
     }else if(vi == "palette"){
 
-      #https://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation
-      #QQQ SHOULD THIS BE A HIDDEN FUNCTION?
-      isColor <- function(x = NULL){
-       unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), error = function(e) FALSE)))
-      }
-      cv <- all(isColor(input))
+      cv <- all(.isColor(input))
 
     }else if(vi == "timestamp"){
 
@@ -130,7 +133,12 @@
 
     }
 
-  }) %>% Reduce("c", .) %>% any
+    if(cv){
+      av <- TRUE
+      break
+    }   
+     
+  }
 
   if(av){
 
@@ -142,6 +150,11 @@
 
   }
 
+}
+
+#https://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation
+.isColor <- function(x = NULL){
+  unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), error = function(e) FALSE)))
 }
 
 #' Get/Validate BSgenome
@@ -336,7 +349,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   t2 = Sys.time(),
   units = "mins",
   header = "###########",
-  tail = "elapsed...",
+  tail = "elapsed..",
   precision = 3
   ){
 
@@ -353,6 +366,34 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
     })
   }
   return(0)
+}
+
+
+#' @export
+#JJJ
+mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabels)){
+
+  .validInput(input = labels, name = "labels", valid = c("character"))
+  .validInput(input = newLabels, name = "newLabels", valid = c("character"))
+  .validInput(input = oldLabels, name = "oldLabels", valid = c("character"))
+
+  if(length(newLabels) != length(oldLabels)){
+    stop("newLabels and oldLabels must be equal length!")
+  }
+
+  if(!requireNamespace("plyr", quietly = TRUE)){
+    labels <- paste0(labels)
+    oldLabels <- paste0(oldLabels)
+    newLabels <- paste0(newLabels)
+    labelsNew <- labels
+    for(i in seq_along(oldLabels)){
+        labelsNew[labels == oldLabels[i]] <- newLabels[i]
+    }
+    paste0(labelsNew)
+  }else{
+    paste0(plyr::mapvalues(x = labels, from = oldLabels, to = newLabels))
+  }
+
 }
 
 ##########################################################################################
@@ -394,6 +435,8 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   #Determine Parallel Backend
   if(inherits(args$parallelParam, "BatchtoolsParam")){
 
+    stop("Batchtools not yet fully supported please use local parallel threading!")
+
     .messageDiffTime("Batch Execution w/ BatchTools through BiocParallel!", args$tstart)
 
     require(BiocParallel)
@@ -427,6 +470,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
     }
 
     #Run
+    args <- args[names(args) %ni% c("threads", "parallelParam", "subThreading")]
     outlist <- do.call(bplapply, args)
 
   }else{
@@ -443,6 +487,8 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
         args$subThreads <- 1
       }
     }
+
+    args <- args[names(args) %ni% c("registryDir", "parallelParam", "subThreading")]
     outlist <- do.call(.safelapply, args)
 
   }
@@ -465,8 +511,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 }
 
 .computeROC <- function(labels = NULL, scores = NULL, name="ROC"){
-  #QQQ SHOULD THIS BE HIDDEN FUNCTION?
-  calcAUC <- function(TPR = NULL, FPR = NULL){
+  .calcAUC <- function(TPR = NULL, FPR = NULL){
     # http://blog.revolutionanalytics.com/2016/11/calculating-auc.html
     dFPR <- c(diff(FPR), 0)
     dTPR <- c(diff(TPR), 0)
@@ -478,7 +523,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
     False_Positive_Rate = cumsum(!labels)/sum(!labels),
     True_Positive_Rate =  cumsum(labels)/sum(labels)
     )
-  df$AUC <- round(calcAUC(df$True_Positive_Rate,df$False_Positive_Rate),3)
+  df$AUC <- round(.calcAUC(df$True_Positive_Rate,df$False_Positive_Rate),3)
   df$name <- name
   return(df)
 }
@@ -511,7 +556,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   rScale <- rMax - rMin
   matDiff <- mat - rMin
   matScale <- matDiff/rScale
-  out <- list(mat=matScale, min=rMax, max=rMin)
+  out <- list(mat=matScale, min=rMin, max=rMax)
   return(out)
 }
 
@@ -639,17 +684,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 # Miscellaneous Methods
 ##########################################################################################
 
-.cleanParams <- function(params = NULL, maxSize = 0.05){
-  lapply(params, function(x){
-    os <- object.size(x)
-    if(os > 10^6 * maxSize){
-      NULL
-    }else{
-      x
-    }
-  })
-}
-
 .splitEvery <- function(x = NULL, n = NULL){
   #https://stackoverflow.com/questions/3318333/split-a-vector-into-chunks-in-r
   if(is.atomic(x)){
@@ -664,16 +698,15 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 }
 
 .getAssay <- function(se = NULL, assayName = NULL){
-  #QQQ SHOULD THIS BE HIDDEN FUNCTION?
-  assayNames <- function(se){
+  .assayNames <- function(se){
     names(SummarizedExperiment::assays(se))
   }
   if(is.null(assayName)){
     o <- SummarizedExperiment::assay(se)
-  }else if(assayName %in% assayNames(se)){
+  }else if(assayName %in% .assayNames(se)){
     o <- SummarizedExperiment::assays(se)[[assayName]]
   }else{
-    stop(sprintf("assayName '%s' is not in assayNames of se : %s", assayName, paste(assayNames(se),collapse=", ")))
+    stop(sprintf("assayName '%s' is not in assayNames of se : %s", assayName, paste(.assayNames(se),collapse=", ")))
   }
   return(o)
 }
@@ -759,3 +792,72 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   message(Ascii[[ascii]])
 }
 
+
+########
+# Developer Utils
+########
+
+.devMode <- function(){
+  fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
+  for(i in seq_along(fn)){
+    tryCatch({
+      eval(parse(text=paste0(fn[i], '<-ArchR:::', fn[i])))
+    }, error = function(x){
+    })
+  }
+}
+
+.convertToPNG <- function(
+  ArchRProj = NULL,
+  paths = c("QualityControl"),
+  recursive = TRUE,
+  outDir = "Figures"
+  ){
+
+  #If error try
+  #brew install fontconfig
+
+  library(pdftools)
+
+  if(!is.null(ArchRProj)){
+    paths <- c(paths, file.path(getOutputDirectory(ArchRProj), "Plots"))
+  }
+  
+  pdfFiles <- lapply(seq_along(paths), function(i){
+    if(recursive){
+      dirs <- list.dirs(paths[i], recursive = FALSE, full.names = FALSE)
+      if(length(dirs) > 0){
+        pdfs <- lapply(seq_along(dirs), function(j){
+          list.files(file.path(paths[i], dirs[j]), full.names = TRUE, pattern = "\\.pdf")
+        }) %>% unlist
+      }else{
+        pdfs <- c()
+      }
+      pdfs <- c(list.files(paths[i], full.names = TRUE, pattern = "\\.pdf"), pdfs)
+    }else{
+      pdfs <- list.files(paths[i], full.names = TRUE, pattern = "\\.pdf")
+    }
+    pdfs
+  }) %>% unlist
+
+  dir.create(outDir, showWarnings = FALSE)
+
+  for(i in seq_along(pdfFiles)){
+    print(i)
+    tryCatch({
+      pdf_convert(
+        pdfFiles[i], 
+        format = "png", 
+        pages = NULL, 
+        filenames = file.path(outDir, gsub("\\.pdf", "_%d.png",basename(pdfFiles[i]))),
+        dpi = 300, 
+        opw = "", 
+        upw = "", 
+        verbose = TRUE
+      )
+    },error=function(x){
+      0
+    })
+  }
+
+}

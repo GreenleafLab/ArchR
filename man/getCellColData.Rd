@@ -4,7 +4,7 @@
 \alias{getCellColData}
 \title{Get cellColData from an ArchRProject}
 \usage{
-getCellColData(ArchRProj = NULL, select = NULL, drop = FALSE, ...)
+getCellColData(ArchRProj = NULL, select = NULL, drop = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -12,8 +12,6 @@ getCellColData(ArchRProj = NULL, select = NULL, drop = FALSE, ...)
 \item{select}{A character vector of column names to select from \code{cellColData} if you would like to subset the returned data.}
 
 \item{drop}{A boolean value that indicates whether to drop the \code{dataframe} structure and convert to a vector if selecting only one column.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the cellColData from a given ArchRProject.

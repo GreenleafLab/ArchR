@@ -4,14 +4,12 @@
 \alias{getPeakAnnotation}
 \title{Get peakAnnotation from an ArchRProject}
 \usage{
-getPeakAnnotation(ArchRProj = NULL, name = NULL, ...)
+getPeakAnnotation(ArchRProj = NULL, name = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{name}{The name of the \code{peakAnnotation} object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets a peakAnnotation from a given ArchRProject.

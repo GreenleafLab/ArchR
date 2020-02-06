@@ -18,8 +18,7 @@ addCoAccessibility(
   log2Norm = TRUE,
   seed = 1,
   knnMethod = NULL,
-  threads = getArchRThreads(),
-  ...
+  threads = getArchRThreads()
 )
 }
 \arguments{
@@ -50,8 +49,6 @@ addCoAccessibility(
 \item{knnMethod}{The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
-
-\item{...}{additional args}
 }
 \description{
 This function will add co-accessibility scores to peaks in a given ArchRProject

@@ -11,8 +11,7 @@ getMatrixFromArrow(
   cellNames = NULL,
   ArchRProj = NULL,
   verbose = TRUE,
-  binarize = FALSE,
-  ...
+  binarize = FALSE
 )
 }
 \arguments{
@@ -24,13 +23,11 @@ getMatrixFromArrow(
 
 \item{cellNames}{A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using \code{getCellNames()}.}
 
-\item{ArchRProj}{An \code{ArchRProject} object to be used for getting additional information for cells in \code{cellColData}. This is useful when QQQ STILL DOESNT MAKE SENSE TO ME you want to keep information created while analyzing an ArchRProject.}
+\item{ArchRProj}{JJJ An \code{ArchRProject} object to be used for getting additional information for cells in \code{cellColData}. This is useful when you want to keep information created when analyzing an ArchRProject that is not present in the ArrowFile.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.}
-
-\item{...}{additional params}
 }
 \description{
 This function gets a given data matrix from an individual ArrowFile.

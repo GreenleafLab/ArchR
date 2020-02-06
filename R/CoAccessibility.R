@@ -182,7 +182,7 @@ getCoAccessibility <- function(ArchRProj = NULL, corCutOff = 0.5, resolution = 1
       peakSummits <- resize(metadata(coA)$peakSet, 1, "center")
       summitTiles <- floor(start(peakSummits) / resolution) * resolution + floor(resolution / 2)
     
-      loops <- constructGR(
+      loops <- .constructGR(
         seqnames = seqnames(peakSummits[coA[,1]]),
         start = summitTiles[coA[,1]],
         end = summitTiles[coA[,2]]
@@ -207,4 +207,23 @@ getCoAccessibility <- function(ArchRProj = NULL, corCutOff = 0.5, resolution = 1
   }
 
 }
+
+.constructGR <- function(seqnames = NULL, start = NULL, end = NULL, ignoreStrand = TRUE){
+  .validInput(input = seqnames, name = "seqnames", valid = c("character", "rleCharacter"))
+  .validInput(input = start, name = "start", valid = c("integer"))
+  .validInput(input = end, name = "end", valid = c("integer"))
+  .validInput(input = ignoreStrand, name = "ignoreStrand", valid = c("boolean"))
+  df <- data.frame(seqnames, start, end)
+  idx <- which(df[,2] > df[,3])
+  df[idx,2:3] <-  df[idx,3:2]
+  if(!ignoreStrand){
+    strand <- rep("+",nrow(df))
+    strand[idx] <- "-" 
+  }else{
+    strand <- rep("*",nrow(df))
+  }
+  gr <- GRanges(df[,1], IRanges(df[,2],df[,3]), strand = strand)
+  return(gr)
+}
+
 

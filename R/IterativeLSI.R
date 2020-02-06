@@ -2,13 +2,70 @@
 # LSI Dimensionality Reduction Methods
 ##########################################################################################
 
+#' Add an LSI-based dimensionality reduction to an ArchRProject JJJ
+#' 
+#' This function will compute an LSI dimensionality reduction on an ArchRProject.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options are "TileMatrix" or "PeakMatrix".
+#' @param name The name to use for storage of the LSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
+#' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
+#' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
+#' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
+#' @param topFeatures The number of N top accessible features to use for LSI.
+#' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to TF-IDF normalization.
+#' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total insertion counts. These are an equivalent when using a `TileMatrix` to a defined peakSet.
+#' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior to the LSI reduction. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts will be ignored for LSI reduction.
+#' @param runHarmony A boolean value indicating whether harmony-based batch correction should be run on the computed LSI object.
+#' @param harmonyParams Additional parameters to be passed to `harmony::HarmonyMatrix()`.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
+#' @export
+addLSI <- function(
+  ArchRProj = NULL, 
+  useMatrix = "TileMatrix",
+  name = "LSI",
+  dimsToUse = 1:30,
+  LSIMethod = 2,
+  scaleDims = TRUE,
+  corCutOff = 0.75,
+  binarize = TRUE,
+  sampleCells = NULL,
+  topFeatures = 50000,
+  totalFeatures = 500000,
+  filterQuantile = 0.995,
+  runHarmony = FALSE,
+  harmonyParams = list(),
+  threads = getArchRThreads(),
+  seed = 1,
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  force = FALSE
+  ){
+
+  args <- mget(names(formals()),sys.frame(sys.nframe()))
+  args$iterations <- 1
+  args$varFeatures <- args$topFeatures
+  args$saveIterations <- FALSE
+  do.call(addIterativeLSI, args)
+
+}
+
+
 #' Add an Iterative LSI-based dimensionality reduction to an ArchRProject
 #' 
 #' This function will compute an iterative LSI dimensionality reduction on an ArchRProject.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options are "TileMatrix" or "PeakMatrix".
-#' @param reducedDimsOut The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
+#' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
@@ -19,7 +76,7 @@
 #' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.
-#' @param scaleTo QQQ DOUBLE CHECK Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to variance calculation.
+#' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to variance calculation and TF-IDF normalization.
 #' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total number of insertions. These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a `TileMatrix` to a defined peakSet.
 #' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts will be ignored for the first LSI iteration.
 #' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.
@@ -36,13 +93,13 @@
 addIterativeLSI <- function(
   ArchRProj = NULL, 
   useMatrix = "TileMatrix",
-  reducedDimsOut = "IterativeLSI",
+  name = "IterativeLSI",
   iterations = 2,
-  clusterParams = list(resolution = 0.2, sampleCells = 10000, n.start = 25),
+  clusterParams = list(resolution = 0.3, sampleCells = 10000, n.start = 25),
   dimsToUse = 1:30,
+  LSIMethod = 2,
   scaleDims = TRUE,
   corCutOff = 0.75,
-  LSIMethod = 2,
   binarize = TRUE,
   sampleCells = NULL,
   varFeatures = 50000,
@@ -90,15 +147,15 @@ addIterativeLSI <- function(
   .requirePackage("Matrix")
   tstart <- Sys.time()
 
-  if(!is.null(ArchRProj@reducedDims[[reducedDimsOut]])){
+  if(!is.null(ArchRProj@reducedDims[[name]])){
     if(!force){
-      stop("Error ReducedDimsOut Already Exists! Set force = TRUE or pick a different name!")
+      stop("Error name in reducedDims Already Exists! Set force = TRUE or pick a different name!")
     }
   }
 
   #Set Seed
   set.seed(seed)
-  outDir <- file.path(outDir, reducedDimsOut)
+  outDir <- file.path(outDir, name)
   dir.create(outDir, showWarnings = FALSE, recursive = TRUE)
 
   #All the Cell Names
@@ -119,7 +176,6 @@ addIterativeLSI <- function(
   }
 
   tstart <- Sys.time()
-  .messageDiffTime(paste0("Computing IterativeLSI on ", useMatrix), tstart, addHeader = TRUE, verbose = verboseHeader)
   .messageDiffTime(paste0("Running LSI (1 of ",iterations,") on Top Features"), tstart, addHeader = TRUE, verbose = verboseHeader)
 
   #MatrixFiles
@@ -173,9 +229,26 @@ addIterativeLSI <- function(
   outLSI$scaleDims <- scaleDims
   gc()
 
+  if(scaleDims){
+    dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
+  }else{
+    dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
+  }
+  if(length(dimsPF)!=length(dimsToUse)){
+    message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+  }
+  if(length(dimsPF) < 2){
+    stop("Dimensions to use after filtering for correlation to depth lower than 2!")
+  }
+
   if(runHarmony){
     .messageDiffTime("Harmonizing LSI output on the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
     .requirePackage("harmony")
+    # if(scaleDims){
+    #   harmonyParams$data_mat <- .scaleDims(outLSI$matSVD) #[, dimsPF, drop = FALSE]
+    # }else{
+    #   harmonyParams$data_mat <- outLSI$matSVD #[, dimsPF, drop = FALSE]
+    # }
     harmonyParams$data_mat <- outLSI$matSVD
     harmonyParams$meta_data <- data.frame(row.names = rownames(outLSI$matSVD), Group = stringr::str_split(rownames(outLSI$matSVD), pattern = "#", simplify=TRUE)[,1])
     harmonyParams$do_pca <- FALSE
@@ -188,16 +261,9 @@ addIterativeLSI <- function(
 
   #Time to compute clusters
   .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  dimsPF <- dimsToUse[which(outLSI$corToDepth[dimsToUse] <= corCutOff)]
-  if(length(dimsPF)!=length(dimsToUse)){
-    message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
-  }
-  if(length(dimsPF) < 2){
-    stop("Dimensions to use after filtering for correlation to depth lower than 2!")
-  }
   parClust <- lapply(clusterParams, function(x) x[[1]])
   if(scaleDims){
-      parClust$input <- .scaleDims(outLSI$matSVD)
+    parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
   }else{
     parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
   }
@@ -279,8 +345,25 @@ addIterativeLSI <- function(
       )
     outLSI$scaleDims <- scaleDims
 
+    if(scaleDims){
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
+    }else{
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
+    }
+    if(length(dimsPF)!=length(dimsToUse)){
+      message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+    }
+    if(length(dimsPF) < 2){
+      stop("Dimensions to use after filtering for correlation to depth lower than 2!")
+    }
+
     if(runHarmony){
       .messageDiffTime("Harmonizing LSI output on the Variable Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
+      # if(scaleDims){
+      #   harmonyParams$data_mat <- .scaleDims(outLSI$matSVD) #[, dimsPF, drop = FALSE]
+      # }else{
+      #   harmonyParams$data_mat <- outLSI$matSVD #[, dimsPF, drop = FALSE]
+      # }
       harmonyParams$data_mat <- outLSI$matSVD
       harmonyParams$meta_data <- data.frame(row.names = rownames(outLSI$matSVD), Group = stringr::str_split(rownames(outLSI$matSVD), pattern = "#", simplify=TRUE)[,1])
       harmonyParams$do_pca <- FALSE
@@ -295,13 +378,6 @@ addIterativeLSI <- function(
 
       #Time to compute clusters
       .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
-      dimsPF <- dimsToUse[which(outLSI$corToDepth[dimsToUse] <= corCutOff)]
-      if(length(dimsPF)!=length(dimsToUse)){
-        message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
-      }
-      if(length(dimsPF) < 2){
-        stop("Dimensions to use after filtering for correlation to depth lower than 2!")
-      }
       parClust <- lapply(clusterParams, function(x){
         if(length(x) > 1){
           return(x[[j]])
@@ -311,7 +387,7 @@ addIterativeLSI <- function(
       })
 
       if(scaleDims){
-          parClust$input <- .scaleDims(outLSI$matSVD)
+        parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
       }else{
         parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
       }
@@ -333,7 +409,7 @@ addIterativeLSI <- function(
 
   #Organize Output
   .messageDiffTime("Finished Running IterativeLSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  ArchRProj@reducedDims[[reducedDimsOut]] <- outLSI
+  ArchRProj@reducedDims[[name]] <- outLSI
 
   return(ArchRProj)
 
@@ -448,7 +524,10 @@ addIterativeLSI <- function(
   }
 
   outLSI$LSIFeatures <- featureDF
-  outLSI$corToDepth <- abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
+  outLSI$corToDepth <- list(
+    scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
+    none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
+  )
 
   return(outLSI)
 

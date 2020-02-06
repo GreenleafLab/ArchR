@@ -10,8 +10,7 @@ getReducedDims(
   returnMatrix = TRUE,
   dimsToUse = NULL,
   scaleDims = NULL,
-  corCutOff = 0.75,
-  ...
+  corCutOff = 0.75
 )
 }
 \arguments{
@@ -26,8 +25,6 @@ getReducedDims(
 \item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by \code{addIterativeLSI}.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.

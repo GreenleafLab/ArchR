@@ -6,11 +6,10 @@
 \usage{
 addArchRAnnotations(
   ArchRProj = NULL,
-  db = "LOLA",
+  db = "ArchR",
   collection = "EncodeTFBS",
   name = collection,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{
@@ -19,15 +18,13 @@ addArchRAnnotations(
 \item{db}{A character indicating which database or a path to a database to use for peak annotation. Options include ArchR, LOLA, and a valid path to a file of class \code{ArchRAnno}.}
 
 \item{collection}{A character indicating which collection within the database to collect for annotation.
-For ArchR, options JJJ include to be added.
+For ArchR, options "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
 For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
 If supplying a custom ArchRAnno please use a valid collection.}
 
 \item{name}{The name of \code{peakAnnotation} object to be stored as in \code{ArchRProject}.}
 
 \item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
-
-\item{...}{additional args}
 }
 \description{
 This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.

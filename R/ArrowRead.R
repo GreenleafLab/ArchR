@@ -70,9 +70,7 @@ getFragmentsFromArrow <- function(
   sampleName <- .h5read(ArrowFile, paste0("Metadata/Sample"), method = method)
 
   o <- h5closeAll()
-  nFrags <- h5ls(ArrowFile, recursive = TRUE) %>% 
-    {.[.$group==paste0("/Fragments/",chr) & .$name == "Ranges",]$dim} %>% 
-    {gsub(" x 2","",.)} %>% as.integer
+  nFrags <- sum(.h5read(ArrowFile, paste0("Fragments/",chr,"/RGLengths"), method = method))
 
   if(nFrags==0){
     if(tolower(out)=="granges"){
@@ -85,7 +83,6 @@ getFragmentsFromArrow <- function(
     }
     return(output)
   }
-
 
   if(is.null(cellNames) | tolower(method) == "fast"){
     
@@ -151,7 +148,7 @@ getFragmentsFromArrow <- function(
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
 #' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using `getCellNames()`.
-#' @param ArchRProj An `ArchRProject` object to be used for getting additional information for cells in `cellColData`. This is useful when QQQ STILL DOESNT MAKE SENSE TO ME you want to keep information created while analyzing an ArchRProject.
+#' @param ArchRProj JJJ An `ArchRProject` object to be used for getting additional information for cells in `cellColData`. This is useful when you want to keep information created when analyzing an ArchRProject that is not present in the ArrowFile.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @export
@@ -680,7 +677,7 @@ getMatrixFromArrow <- function(
     res <- .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, fid@native, PACKAGE='rhdf5')
     invisible(.Call("_H5Dclose", did, PACKAGE='rhdf5'))   
   }else{
-    res <- h5read(file = file, name = name, index = index, start = start, block = block, count = count, ...)
+    res <- h5read(file = file, name = name, index = index, start = start, block = block, count = count)
   }
   o <- h5closeAll()
   return(res)

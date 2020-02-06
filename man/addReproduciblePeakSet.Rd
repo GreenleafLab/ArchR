@@ -81,7 +81,7 @@ addReproduciblePeakSet(
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
-\item{...}{additional args}
+\item{...}{Additional params to be pass to \code{addGroupCoverages} to get sample-guided pseudobulk cell-groupings. Only used for \code{TileMatrix} peak calling. See \code{addGroupCoverages} for more info.}
 }
 \description{
 This function will get insertions from coverage files, call peaks,

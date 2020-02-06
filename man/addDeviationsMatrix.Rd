@@ -14,8 +14,7 @@ addDeviationsMatrix(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{

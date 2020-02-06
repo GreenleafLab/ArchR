@@ -9,8 +9,7 @@ addCellColData(
   data = NULL,
   name = NULL,
   cells = NULL,
-  force = FALSE,
-  ...
+  force = FALSE
 )
 }
 \arguments{
@@ -23,8 +22,6 @@ addCellColData(
 \item{cells}{The names of the cells corresponding to \code{data}. Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where \code{data} is not added are set to \code{NA}.}
 
 \item{force}{A boolean value indicating whether or not to overwrite data in a given column when the value passed to \code{name} already exists as a column name in \code{cellColData}.}
-
-\item{...}{additional args}
 }
 \description{
 This function adds new data to cellColData in a given ArchRProject.
