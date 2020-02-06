@@ -4,9 +4,17 @@
 \alias{plotPDF}
 \title{Plot PDF in outputDirectory of an ArchRProject}
 \usage{
-plotPDF(..., name = "Plot", width = 6, height = 6,
-  ArchRProj = NULL, addDOC = TRUE, useDingbats = FALSE,
-  plotList = NULL, useSink = TRUE)
+plotPDF(
+  ...,
+  name = "Plot",
+  width = 6,
+  height = 6,
+  ArchRProj = NULL,
+  addDOC = TRUE,
+  useDingbats = FALSE,
+  plotList = NULL,
+  useSink = TRUE
+)
 }
 \arguments{
 \item{...}{vector of plots to be plotted (if input is a list use plotList instead)}
@@ -17,7 +25,7 @@ plotPDF(..., name = "Plot", width = 6, height = 6,
 
 \item{height}{The height in inches to be used for the output PDF.}
 
-\item{ArchRProj}{An \code{ArchRProject} object to be used for getting the outputDirectory and plotting in a folder within called "plots".}
+\item{ArchRProj}{An \code{ArchRProject} object to be used for retrieving the desired \code{outputDirectory} which will be used to store the output plots in a subfolder called "plots".}
 
 \item{addDOC}{A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful for preventing overwritting of old plots.}
 
@@ -25,7 +33,7 @@ plotPDF(..., name = "Plot", width = 6, height = 6,
 
 \item{plotList}{A \code{list} of plots to be printed to the output PDF file. Each element of \code{plotList} should be a printable plot formatted object (ggplot2, plot, heatmap, etc).}
 
-\item{useSink}{A boolean value indicating whether sink should be used to hide output messages that result from plotting.}
+\item{useSink}{A boolean value that indicates whether the \code{sink} function from base R should be used to hide messages during plotting.}
 }
 \description{
 This function will save a plot or set of plots as a PDF file in the outputDirectory of a given ArchRProject.

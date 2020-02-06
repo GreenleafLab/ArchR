@@ -4,9 +4,14 @@
 \alias{peakAnnoEnrichment}
 \title{Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
-peakAnnoEnrichment(seMarker = NULL, ArchRProj = NULL,
-  peakAnnotation = NULL, matches = NULL,
-  cutOff = "FDR <= 0.1 & Log2FC >= 0.5", background = "all", ...)
+peakAnnoEnrichment(
+  seMarker = NULL,
+  ArchRProj = NULL,
+  peakAnnotation = NULL,
+  matches = NULL,
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
+  background = "all"
+)
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{markerFeatures()}.}
@@ -20,8 +25,6 @@ peakAnnoEnrichment(seMarker = NULL, ArchRProj = NULL,
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} to use. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{background}{A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").}
-
-\item{...}{additional args}
 }
 \description{
 This function will perform hypergeometric enrichment of a given peak annotation within the defined marker peaks.

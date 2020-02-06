@@ -13,7 +13,7 @@
 #' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the ArrowFiles asociated with the given `ArchRProject`.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the ArrowFiles associated with the given `ArchRProject`.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj = NULL,
@@ -25,8 +25,7 @@ addDeviationsMatrix <- function(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -113,6 +112,10 @@ addDeviationsMatrix <- function(
   args$FUN <- .addDeviationsMatrix
   args$registryDir <- file.path(getOutputDirectory(ArchRProj), paste0(matrixName,"DeviationsRegistry"))
 
+  #Remove Project from Args
+  args$ArchRProj <- NULL
+  args$matches <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
   .messageDiffTime("Completed Computing Deviations!", tstart, addHeader = TRUE)
@@ -123,9 +126,9 @@ addDeviationsMatrix <- function(
 }
 
 .addDeviationsMatrix <- function(
-  i,
-  ArrowFiles, 
-  annotationsMatrix,
+  i = NULL,
+  ArrowFiles = NULL, 
+  annotationsMatrix = NULL,
   out = c("z", "deviations"),
   cellNames = NULL, 
   allCells = NULL,
@@ -135,10 +138,8 @@ addDeviationsMatrix <- function(
   useMatrix = "PeakMatrix",
   matrixName = "Motif", 
   force = FALSE,
-  profileMemory = TRUE,
-  debug = FALSE,
   tstart = NULL,
-  ...
+  subThreads = 1
   ){
 
   gc()
@@ -170,7 +171,8 @@ addDeviationsMatrix <- function(
       prefix = prefix,
       backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
       expectation = featureDF$rowSums/sum(featureDF$rowSums),
-      out = out
+      out = out,
+      threads = subThreads
     )}
   gc()
 
@@ -237,12 +239,13 @@ addDeviationsMatrix <- function(
 # Adapted from chromVAR
 ############################################################################
 .customDeviations <- function(
-  countsMatrix,
-  annotationsMatrix,
-  backgroudPeaks,
-  expectation,
+  countsMatrix = NULL,
+  annotationsMatrix = NULL,
+  backgroudPeaks = NULL,
+  expectation = NULL,
   prefix = "",
-  out = c("deviations", "z")
+  out = c("deviations", "z"),
+  threads = 1
   ){
 
   tstart <- Sys.time()
@@ -256,7 +259,7 @@ addDeviationsMatrix <- function(
   countsPerSample <- Matrix::colSums(countsMatrix)
 
   d <- max(floor(ncol(annotationsMatrix)/20), 1)
-  results <- lapply(seq_len(ncol(annotationsMatrix)), function(x){
+  results <- .safelapply(seq_len(ncol(annotationsMatrix)), function(x){
     if(x %% d == 0){
       .messageDiffTime(sprintf("%s : Deviations for Annotation %s of %s", prefix, x, ncol(annotationsMatrix)), tstart)
     }
@@ -271,7 +274,7 @@ addDeviationsMatrix <- function(
       expectation = norm_expectation,
       out = out
     )
-  })
+  }, threads = threads)
   cn <- colnames(countsMatrix)
   rm(countsMatrix)
   gc()
@@ -316,17 +319,17 @@ addDeviationsMatrix <- function(
 }
 
 .customDeviationsSingle <- function(
-  annotationsVector,
-  countsMatrix,
-  countsPerSample,
-  backgroudPeaks,
+  annotationsVector = NULL,
+  countsMatrix = NULL,
+  countsPerSample = NULL,
+  backgroudPeaks = NULL,
   out = c("deviations", "z"),
   expectation = NULL,
   intermediate_results = FALSE,
   threshold = 1
   ){
 
-  binarizeMat <- function(mat){
+  .binarizeMat <- function(mat = NULL){
     mat@x[mat@x > 0] <- 1
     mat
   }
@@ -370,7 +373,7 @@ addDeviationsMatrix <- function(
     sampled <- as.matrix(sampleMat %*% countsMatrix)
     sampledExpected <- sampleMat %*% expectation %*% countsPerSample
     sampledDeviation <- (sampled - sampledExpected)/sampledExpected
-    bgOverlap <- Matrix::mean(binarizeMat(sampleMat) %*% binarizeMat(annotationsVector)) / length(annotationsVector@x)
+    bgOverlap <- Matrix::mean(.binarizeMat(sampleMat) %*% .binarizeMat(annotationsVector)) / length(annotationsVector@x)
     
     #Summary
     meanSampledDeviation <- Matrix::colMeans(sampledDeviation)
@@ -443,13 +446,17 @@ getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE
   rowV <- rowV[order(rowV$combinedVars, decreasing=TRUE), ]
   rowV$rank <- seq_len(nrow(rowV))
 
+  print(head(rowV))
+
   if(plot){
     rowV <- data.frame(rowV)
-    ggplot(rowV, aes(rank, combinedVars)) +
+    ggplot(rowV, aes(x = rank, y = combinedVars, color = combinedVars)) +
       geom_point(size = 1) + 
+      scale_color_gradientn(colors = paletteContinuous(set = "comet")) +
       ggrepel::geom_label_repel(
         data = rowV[rev(seq_len(n)), ], aes(x = rank, y = combinedVars, label = name), 
         size = 1.5,
+        color = "black",
         nudge_x = 2
       ) + theme_ArchR() + ylab("Variability") + xlab("Rank Sorted Annotations")
   }else{
@@ -469,7 +476,7 @@ getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE
 #' @param w The parameter controlling similarity of background peaks. See `chromVAR::getBackgroundPeaks()`.
 #' @param binSize The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param outFile The path to save the backgroundPeaks object as a `.rds` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
+#' @param outFile The path to save the `backgroundPeaks` object as a `.RDS` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 addBgdPeaks <- function(
@@ -479,8 +486,7 @@ addBgdPeaks <- function(
   binSize = 50, 
   seed = 1,
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -538,7 +544,6 @@ addBgdPeaks <- function(
 #' @param w The parameter controlling similarity measure of background peaks. See `chromVAR::getBackgroundPeaks()`.
 #' @param binSize The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param outFile The path to save the backgroundPeaks object as a `.rds` file for the given `ArchRProject`. The default action is to save this file in the `outputDirectory` of the `ArchRProject`.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 getBgdPeaks <- function(
@@ -547,8 +552,7 @@ getBgdPeaks <- function(
   w = 0.1, 
   binSize = 50, 
   seed = 1,
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -556,7 +560,6 @@ getBgdPeaks <- function(
   .validInput(input = w, name = "w", valid = c("numeric"))
   .validInput(input = binSize, name = "binSize", valid = c("integer"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
-  .validInput(input = outFile, name = "outFile", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
   if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
@@ -602,8 +605,7 @@ getBgdPeaks <- function(
   w = 0.1, 
   binSize = 50, 
   seed = 1, 
-  outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  ...
+  outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds")
   ){
 
   set.seed(1)

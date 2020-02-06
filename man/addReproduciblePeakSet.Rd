@@ -4,22 +4,40 @@
 \alias{addReproduciblePeakSet}
 \title{Add a Reproducible Peak Set to an ArchRProject}
 \usage{
-addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
-  reproducibility = "2", peaksPerCell = 500, maxPeaks = 150000,
-  minCells = 25, excludeChr = c("chrM", "chrY"),
-  pathToMacs2 = findMacs2(), genomeSize = NULL, shift = -75,
-  extsize = 150, method = "q", cutOff = 0.1,
-  additionalParams = "--nomodel --nolambda", extendSummits = 250,
+addReproduciblePeakSet(
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  peakMethod = "Macs2",
+  reproducibility = "2",
+  peaksPerCell = 500,
+  maxPeaks = 150000,
+  minCells = 25,
+  excludeChr = c("chrM", "chrY"),
+  pathToMacs2 = findMacs2(),
+  genomeSize = NULL,
+  shift = -75,
+  extsize = 150,
+  method = "q",
+  cutOff = 0.1,
+  additionalParams = "--nomodel --nolambda",
+  extendSummits = 250,
   promoterDist = 500,
   genomeAnnotation = getGenomeAnnotation(ArchRProj),
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  threads = getArchRThreads(), parallelParam = NULL, force = FALSE,
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  force = FALSE,
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for peak calling.}
+
+\item{peakMethod}{The name of peak calling method to be used. Options include "Macs2" for using macs2 callpeak or "Tiles" for using a TileMatrix.}
 
 \item{reproducibility}{A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of \code{n} where \code{n} is the number of samples being assessed. For example, \code{reproducibility = "2"} means at least 2 samples must have a peak call at this locus and \code{reproducibility = "(n+1)/2"} means that the majority of samples must have a peak call at this locus.}
 
@@ -41,7 +59,7 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{method}{The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with \code{cutOff} this gives the method and significance threshold for peak calling (see MACS2 documentation).}
 
-\item{cutOff}{The numeric significance cutoff for the testing method indicated by \code{method} (see MACS2 documentation).}
+\item{cutOff}{The numeric significance cutOff for the testing method indicated by \code{method} (see MACS2 documentation).}
 
 \item{additionalParams}{A string of additional parameters to pass to MACS2 (see MACS2 documentation).}
 
@@ -63,7 +81,7 @@ addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
-\item{...}{additional args}
+\item{...}{Additional params to be pass to \code{addGroupCoverages} to get sample-guided pseudobulk cell-groupings. Only used for \code{TileMatrix} peak calling. See \code{addGroupCoverages} for more info.}
 }
 \description{
 This function will get insertions from coverage files, call peaks,

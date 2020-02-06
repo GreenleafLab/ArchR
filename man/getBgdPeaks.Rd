@@ -4,8 +4,14 @@
 \alias{getBgdPeaks}
 \title{Get Background Peaks from an ArchRProject}
 \usage{
-getBgdPeaks(ArchRProj = NULL, nIterations = 50, w = 0.1,
-  binSize = 50, seed = 1, force = FALSE, ...)
+getBgdPeaks(
+  ArchRProj = NULL,
+  nIterations = 50,
+  w = 0.1,
+  binSize = 50,
+  seed = 1,
+  force = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -19,8 +25,6 @@ getBgdPeaks(ArchRProj = NULL, nIterations = 50, w = 0.1,
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{force}{A boolean value indicating whether to force the file indicated by \code{outFile} to be overwritten if it already exists.}
-
-\item{outFile}{The path to save the backgroundPeaks object as a \code{.rds} file for the given \code{ArchRProject}. The default action is to save this file in the \code{outputDirectory} of the \code{ArchRProject}.}
 }
 \description{
 This function will get/compute background peaks controlling for total accessibility and GC-content from an ArchRProject.

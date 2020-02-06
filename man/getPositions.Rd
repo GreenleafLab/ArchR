@@ -4,7 +4,7 @@
 \alias{getPositions}
 \title{Get peak annotation positions from an ArchRProject}
 \usage{
-getPositions(ArchRProj = NULL, name = NULL, annoName = NULL, ...)
+getPositions(ArchRProj = NULL, name = NULL, annoName = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -12,8 +12,6 @@ getPositions(ArchRProj = NULL, name = NULL, annoName = NULL, ...)
 \item{name}{The name of the \code{peakAnnotation} object (i.e. Motifs) to retrieve from the designated \code{ArchRProject}.}
 
 \item{annoName}{The name of a specific annotation to subset within the \code{peakAnnotation}.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the peak annotation positions (i.e. Motifs) from a given ArchRProject.

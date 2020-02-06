@@ -4,13 +4,25 @@
 \alias{markerFeatures}
 \title{Identify Marker Features for each cell grouping}
 \usage{
-markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
-  useGroups = NULL, bgdGroups = NULL, useMatrix = "GeneScoreMatrix",
-  bias = c("TSSEnrichment", "log10(nFrags)"), normBy = NULL,
-  testMethod = "wilcoxon", maxCells = 500, scaleTo = 10^4,
-  threads = getArchRThreads(), k = 100, bufferRatio = 0.8,
-  binarize = FALSE, useSeqnames = NULL, method = "ArchR",
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+markerFeatures(
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  useGroups = NULL,
+  bgdGroups = NULL,
+  useMatrix = "GeneScoreMatrix",
+  bias = c("TSSEnrichment", "log10(nFrags)"),
+  normBy = NULL,
+  testMethod = "wilcoxon",
+  maxCells = 500,
+  scaleTo = 10^4,
+  threads = getArchRThreads(),
+  k = 100,
+  bufferRatio = 0.8,
+  binarize = FALSE,
+  useSeqnames = NULL,
+  verboseHeader = TRUE,
+  verboseAll = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -31,25 +43,21 @@ markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{maxCells}{The maximum number of cells to consider from a single-cell group when performing marker feature identification.}
 
-\item{scaleTo}{The normalization depth to center normalization to in normBy (default is 10,000).}
+\item{scaleTo}{Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo}.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{k}{The number of nearby cells to use for selecting a biased-matched background while accounting for \code{bgdGroups} proportions.}
 
-\item{bufferRatio}{The buffering ratio of cells to enable optimal biased-matched background while accounting for \code{bgdGroups} proportions. For example when set to 0.8, the biased-matching will take the first matched 80th percentile of the cell group to ensure outlier exclusion.}
+\item{bufferRatio}{When generating optimal biased-matched background groups of cells to determine significance, it can be difficult to find sufficient numbers of well-matched cells to create a background group made up of an equal number of cells. The \code{bufferRatio} indicates the fraction of the total cells that must be obtained when creating the biased-matched group. For example to create a biased-matched background for a group of 100 cells, when \code{bufferRatio} is set to 0.8 the biased-matched background group will be composed of the 80 best-matched cells. This option provides flexibility in the generation of biased-matched background groups given the stringency of also maintaining the group proportions from \code{bgdGroups}.}
 
 \item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when \code{useMatrix} is an insertion counts-based matrix.}
 
 \item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
 
-\item{method}{The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.}
-
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 This function will identify features that are definitional of each provided cell grouping where possible

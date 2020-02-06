@@ -15,16 +15,14 @@
 #' @param normBy The name of a numeric column in `cellColData` that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.
 #' @param testMethod The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".
 #' @param maxCells The maximum number of cells to consider from a single-cell group when performing marker feature identification.
-#' @param scaleTo The normalization depth to center normalization to in normBy (default is 10,000).
+#' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param k The number of nearby cells to use for selecting a biased-matched background while accounting for `bgdGroups` proportions.
-#' @param bufferRatio The buffering ratio of cells to enable optimal biased-matched background while accounting for `bgdGroups` proportions. For example when set to 0.8, the biased-matching will take the first matched 80th percentile of the cell group to ensure outlier exclusion.
+#' @param bufferRatio When generating optimal biased-matched background groups of cells to determine significance, it can be difficult to find sufficient numbers of well-matched cells to create a background group made up of an equal number of cells. The `bufferRatio` indicates the fraction of the total cells that must be obtained when creating the biased-matched group. For example to create a biased-matched background for a group of 100 cells, when `bufferRatio` is set to 0.8 the biased-matched background group will be composed of the 80 best-matched cells. This option provides flexibility in the generation of biased-matched background groups given the stringency of also maintaining the group proportions from `bgdGroups`.
 #' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when `useMatrix` is an insertion counts-based matrix.
 #' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
-#' @param method The name of the method to be used for marker feature identification. Currently, the only valid option is "ArchR", though additional options will be added eventually.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... additional args
 #' @export
 markerFeatures <- function(
   ArchRProj = NULL,
@@ -42,10 +40,8 @@ markerFeatures <- function(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
-  method = "ArchR",
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -63,27 +59,12 @@ markerFeatures <- function(
   .validInput(input = bufferRatio, name = "bufferRatio", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
-  .validInput(input = method, name = "method", valid = c("character"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
   
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+  out <- do.call(.MarkersSC, args)
 
-  if(tolower(method) == "archr"){
- 
-    out <- do.call(.MarkersSC, args)
-    
-  }else if(tolower(method) == "venice"){
-
-    .requirePackage("signac", installInfo = 'devtools::install_github("bioturing/signac")')
-
-  }else{
-  
-    stop("Input Method Not Available!")
-  
-  }
-
-  args$ArchRProj <- NULL
   metadata(out)$Params <- args
 
   return(out)
@@ -111,8 +92,7 @@ markerFeatures <- function(
     useMatrix = "GeneScoreMatrix",
     markerParams = list(),
     verboseHeader = TRUE,
-    verboseAll = FALSE,
-    ...
+    verboseAll = FALSE
   ){
 
     tstart <- Sys.time()
@@ -257,8 +237,17 @@ markerFeatures <- function(
 
 }
 
-.testMarkerSC <- function(ArrowFiles, matchObj, group = NULL, testMethod = "ttest", useMatrix,
-  threads = 1, featureDF, binarize = FALSE, normFactors = NULL){
+.testMarkerSC <- function(
+  ArrowFiles = NULL,
+  matchObj = NULL,
+  group = NULL,
+  testMethod = "ttest",
+  useMatrix = NULL,
+  threads = 1,
+  featureDF,
+  binarize = FALSE,
+  normFactors = NULL
+  ){
 
   matchx <- matchObj[[1]][[group]]
   cellsx <- matchObj[[2]]$cells[matchx$cells]
@@ -337,7 +326,7 @@ markerFeatures <- function(
 }
 
 #Wilcoxon Row-wise two matrices
-.sparseMatWilcoxon <- function(mat1, mat2){
+.sparseMatWilcoxon <- function(mat1 = NULL, mat2 = NULL){
   
   .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
   df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
@@ -366,7 +355,7 @@ markerFeatures <- function(
 }
 
 #T-Test Row-wise two matrices
-.sparseMatTTest <- function(mat1, mat2, m0 = 0){
+.sparseMatTTest <- function(mat1 = NULL, mat2 = NULL, m0 = 0){
     
     #Get Population Values
     n1 <- ncol(mat1)
@@ -409,7 +398,7 @@ markerFeatures <- function(
 }
 
 #Binomial Test Row-wise two matrices
-.sparseMatBinomTest <- function(mat1, mat2){
+.sparseMatBinomTest <- function(mat1 = NULL, mat2 = NULL){
   
   #Get Population Values
   n1 <- ncol(mat1)
@@ -456,10 +445,19 @@ markerFeatures <- function(
 }
 
 
-.matchBiasCellGroups <- function(input, groups, useGroups, bgdGroups, bias, k = 100, n = 500, bufferRatio = 0.8){
+.matchBiasCellGroups <- function(
+  input = NULL,
+  groups = NULL,
+  useGroups = NULL,
+  bgdGroups = NULL,
+  bias = NULL,
+  k = 100,
+  n = 500,
+  bufferRatio = 0.8
+  ){
 
   #Summary Function
-  .summarizeColStats <- function(m, name = NULL){
+  .summarizeColStats <- function(m = NULL, name = NULL){
     med <- apply(m, 2, median)
     mean <- colMeans(m)
     sd <- apply(m, 2, sd)
@@ -670,18 +668,18 @@ markerFeatures <- function(
 #' @param seMarker A `SummarizedExperiment` object returned by `markerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like "DeviationsMatrix").
-#' @param scaleTo This numerical value to depth-normalize to prior to log2 Normalization, if log2Norm is FALSE this does nothing
+#' @param scaleTo Each column in the assay Mean from `seMarker` will be normalized to a column sum designated by `scaleTo` prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
 #' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
 #' @param limits A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.
 #' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.
 #' @param pal A custom continuous palette from `ArchRPalettes` (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
-#' @param labelTop An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
+#' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param invert A boolean value that indicates whether the heatmap will be inverted when sorting features (rows) and color. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
-#' @param ... additional args
+#' @param invert JJJ A boolean value that indicates whether the heatmap will be sorted features by features that are Log2FC < 0 and the color palette is 
+#' inverted for visualization. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
 #' @export
 markerHeatmap <- function(
   seMarker = NULL,
@@ -694,12 +692,14 @@ markerHeatmap <- function(
   grepExclude = NULL,
   pal = NULL,
   binaryClusterRows = TRUE,
+  clusterCols = TRUE,
   labelMarkers = NULL,
-  labelTop = NULL,
+  nLabel = NULL,
+  nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
-  invert = FALSE,
-  ...
+  transpose = TRUE,
+  invert = FALSE
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -713,7 +713,8 @@ markerHeatmap <- function(
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
-  .validInput(input = labelTop, name = "labelTop", valid = c("integer", "null"))
+  .validInput(input = nLabel, name = "nLabel", valid = c("integer", "null"))
+  .validInput(input = nLabel, name = "nPrint", valid = c("integer", "null"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
   .validInput(input = invert, name = "invert", valid = c("boolean"))
@@ -742,7 +743,7 @@ markerHeatmap <- function(
   mat[mat > max(limits)] <- max(limits)
   mat[mat < min(limits)] <- min(limits)
   
-  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0)
+  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
   mat <- mat[idx,]
   passMat <- passMat[idx,]
 
@@ -774,21 +775,22 @@ markerHeatmap <- function(
     stop("No Makers Found!")
   }
 
-  if(!is.null(labelTop)){
+  if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
+    message("Printing Top Marker Genes:")
     spmat <- passMat / rowSums(passMat)
-    idx2 <- lapply(seq_len(ncol(spmat)), function(x){
-      head(order(spmat[,x], decreasing = TRUE), labelTop)
-    }) %>% unlist %>% unique %>% sort
-    mat <- mat[idx2,]
-    labelRows <- TRUE
+    for(x in seq_len(ncol(spmat))){
+      genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
+      message(colnames(spmat)[x], ":")
+      message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
+    }
   }
 
   if(binaryClusterRows){
     if(invert){
-      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)])
+      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)], clusterCols = clusterCols)
       mat <- -bS[[1]][,colnames(mat)]
     }else{
-      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)])
+      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)], clusterCols = clusterCols)
       mat <- bS[[1]][,colnames(mat)]
     }
     clusterRows <- FALSE
@@ -796,13 +798,6 @@ markerHeatmap <- function(
   }else{
     clusterRows <- TRUE
     clusterCols <- TRUE
-  }
-
-  if(!is.null(labelMarkers)){
-    mn <- match(tolower(labelMarkers), tolower(rownames(mat)), nomatch = 0)
-    mn <- mn[mn > 0]
-  }else{
-    mn <- NULL
   }
 
   if(nrow(mat) == 0){
@@ -813,11 +808,11 @@ markerHeatmap <- function(
 
   if(is.null(pal)){
     if(is.null(metadata(seMarker)$Params$useMatrix)){
-      pal <- paletteContinuous(set = "solar_extra", n = 100)
+      pal <- paletteContinuous(set = "solarExtra", n = 100)
     }else if(tolower(metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
-      pal <- paletteContinuous(set = "blue_yellow", n = 100)
+      pal <- paletteContinuous(set = "blueYellow", n = 100)
     }else{
-      pal <- paletteContinuous(set = "solar_extra", n = 100)
+      pal <- paletteContinuous(set = "solarExtra", n = 100)
     }
   }
 
@@ -825,20 +820,62 @@ markerHeatmap <- function(
     pal <- rev(pal)
   }
 
-  ht <- .ArchRHeatmap(
-    mat = mat,
-    scale = FALSE,
-    limits = c(min(mat), max(mat)),
-    color = pal, 
-    clusterCols = clusterCols, 
-    clusterRows = clusterRows,
-    labelRows = labelRows,
-    labelCols = TRUE,
-    customRowLabel = mn,
-    showColDendrogram = TRUE,
-    draw = FALSE,
-    ...
-  )
+  if(transpose){
+
+    #mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
+    if(!is.null(clusterCols)){
+      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order])
+    }else{
+      mat <- t(mat[seq_len(nrow(mat)), ])
+    }
+
+    if(!is.null(labelMarkers)){
+      mn <- match(tolower(labelMarkers), tolower(colnames(mat)), nomatch = 0)
+      mn <- mn[mn > 0]
+    }else{
+      mn <- NULL
+    }
+
+    ht <- .ArchRHeatmap(
+      mat = mat,
+      scale = FALSE,
+      limits = c(min(mat), max(mat)),
+      color = pal, 
+      clusterCols = clusterRows, 
+      clusterRows = FALSE,
+      labelRows = TRUE,
+      labelCols = labelRows,
+      customColLabel = mn,
+      showRowDendrogram = TRUE,
+      draw = FALSE,
+      name = paste0("Column Z-Scores\n", ncol(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+    )
+
+  }else{
+    
+    if(!is.null(labelMarkers)){
+      mn <- match(tolower(labelMarkers), tolower(rownames(mat)), nomatch = 0)
+      mn <- mn[mn > 0]
+    }else{
+      mn <- NULL
+    }
+
+    ht <- .ArchRHeatmap(
+      mat = mat,
+      scale = FALSE,
+      limits = c(min(mat), max(mat)),
+      color = pal, 
+      clusterCols = clusterCols, 
+      clusterRows = clusterRows,
+      labelRows = labelRows,
+      labelCols = TRUE,
+      customRowLabel = mn,
+      showColDendrogram = TRUE,
+      draw = FALSE,
+      name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+    )
+
+  }
 
   if(returnMat){
     return(mat)
@@ -853,11 +890,11 @@ markerHeatmap <- function(
 ########################################################################################################
 
 .ArchRHeatmap <- function(
-  mat, 
+  mat = NULL, 
   scale = FALSE,
   limits = c(min(mat), max(mat)),
   colData = NULL, 
-  color = paletteContinuous(set = "solar_extra", n = 100),
+  color = paletteContinuous(set = "solarExtra", n = 100),
   clusterCols = TRUE,
   clusterRows = FALSE,
   labelCols = FALSE,
@@ -866,7 +903,9 @@ markerHeatmap <- function(
   useRaster = TRUE,
   rasterQuality = 5,
   split = NULL,
-  fontsize = 6,
+  fontSizeRows = 10,
+  fontSizeCols = 10,
+  fontSizeLabels = 8,
   colAnnoPerRow = 4,
   showRowDendrogram = FALSE,
   showColDendrogram = FALSE,
@@ -888,7 +927,7 @@ markerHeatmap <- function(
   
   #Z-score
   if (scale) {
-    message("Scaling Matrix...")
+    message("Scaling Matrix..")
     mat <- .rowZscores(mat, limit = FALSE)
     name <- paste0(name," Z-Scores")
   }
@@ -927,9 +966,9 @@ markerHeatmap <- function(
 
   #Annotation Heatmap
   if(!is.null(colData) & !is.null(customColLabel)){
-    message("Adding Annotations...")
+    message("Adding Annotations..")
     if(is.null(customColLabelIDs)){
-      customColLabelIDs <- colnames(mat)[customRowLabel]
+      customColLabelIDs <- colnames(mat)[customColLabel]
     }
     ht1Anno <- HeatmapAnnotation(
       df = colData,
@@ -941,13 +980,11 @@ markerHeatmap <- function(
         list(
           nrow = min(colAnnoPerRow, max(round(nrow(colData)/colAnnoPerRow), 1))
         ),
-      link = anno_check_version_cols(
-        at = customColLabel, labels = customColLabelIDs),
-        width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs)
-
+      foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels))
     )
+
   }else if(!is.null(colData)){
-    message("Adding Annotations...")
+    message("Adding Annotations..")
     ht1Anno <- HeatmapAnnotation(
       df = colData,
       col = colorMap, 
@@ -961,23 +998,25 @@ markerHeatmap <- function(
     )
   }else if(is.null(colData) & !is.null(customColLabel)){
     if(is.null(customColLabelIDs)){
-      customColLabelIDs <- colnames(mat)[customRowLabel]
+      customColLabelIDs <- colnames(mat)[customColLabel]
     }
-    message("Adding Annotations...")
-    ht1Anno <- HeatmapAnnotation(
-      link = anno_check_version_cols(
-        at = customColLabel, labels = customColLabelIDs),
-        width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs)
-    )
+    message("Adding Annotations..")
+    #print(customColLabel)
+    #print(customColLabelIDs)
+    #ht1Anno <- columnAnnotation(foo = anno_check_version_cols(
+    #   at = customColLabel, labels = customColLabelIDs),
+    #   width = unit(customLabelWidth, "cm") + max_text_width(customColLabelIDs))
+    #ht1Anno <- HeatmapAnnotation(foo = anno_mark(at = c(1:4, 20, 60, 1097:1100), labels = month.name[1:10]))
+    ht1Anno <- HeatmapAnnotation(foo = anno_check_version_cols(at = customColLabel, labels = customColLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels)))
   }else{
     ht1Anno <- NULL
   }
 
-  message("Preparing Main Heatmap...")
+  message("Preparing Main Heatmap..")
   ht1 <- Heatmap(
     
     #Main Stuff
-    matrix = mat,
+    matrix = as.matrix(mat),
     name = name,
     col = color, 
     
@@ -994,12 +1033,12 @@ markerHeatmap <- function(
     cluster_columns = clusterCols, 
     show_column_dend = showColDendrogram,
     clustering_method_columns = "ward.D2",
-    column_names_gp = gpar(fontsize = fontsize), 
+    column_names_gp = gpar(fontsize = fontSizeCols), 
     column_names_max_height = unit(100, "mm"),
     
     #Row Options
     show_row_names = labelRows,
-    row_names_gp = gpar(fontsize = fontsize), 
+    row_names_gp = gpar(fontsize = fontSizeRows), 
     cluster_rows = clusterRows, 
     show_row_dend = showRowDendrogram, 
     clustering_method_rows = "ward.D2",
@@ -1019,7 +1058,7 @@ markerHeatmap <- function(
       customRowLabelIDs <- rownames(mat)[customRowLabel]
     }
     ht1 <- ht1 + rowAnnotation(link = 
-        anno_check_version_rows(at = customRowLabel, labels = customRowLabelIDs),
+        anno_check_version_rows(at = customRowLabel, labels = customRowLabelIDs, labels_gp = gpar(fontsize = fontSizeLabels)),
         width = unit(customLabelWidth, "cm") + max_text_width(customRowLabelIDs))
   }
 
@@ -1034,7 +1073,7 @@ markerHeatmap <- function(
 
 }
 
-.colorMapForCH <- function(colorMap, colData){
+.colorMapForCH <- function(colorMap = NULL, colData = NULL){
   colorMap <- colorMap[which(names(colorMap) %in% colnames(colData))]
   colorMapCH <- lapply(seq_along(colorMap), function(x){
     if(attr(colorMap[[x]],"discrete")){
@@ -1053,7 +1092,7 @@ markerHeatmap <- function(
   return(colorMapCH)
 }
 
-.checkShowLegend <- function(colorMap, max_discrete = 30){
+.checkShowLegend <- function(colorMap = NULL, max_discrete = 30){
   show <- lapply(seq_along(colorMap), function(x){
       if(attr(colorMap[[x]],"discrete") && length(unique(colorMap[[x]])) > max_discrete){
         sl <- FALSE
@@ -1066,7 +1105,7 @@ markerHeatmap <- function(
   return(show)
 }
 
-.colorMapAnno <- function(colData, customAnno = NULL, discreteSet = "stallion", continuousSet = "solar_extra"){
+.colorMapAnno <- function(colData = NULL, customAnno = NULL, discreteSet = "stallion", continuousSet = "solarExtra"){
   discreteCols <- sapply(colData,function(x) !is.numeric(x))
   if(!is.null(customAnno)){
     colorMap <- lapply(seq_along(discreteCols),function(x){
@@ -1106,7 +1145,7 @@ markerHeatmap <- function(
 
 }
 
-.binarySort <- function(m, scale = FALSE, cutOff = 1, lmat = NULL, clusterCols = TRUE){
+.binarySort <- function(m = NULL, scale = FALSE, cutOff = 1, lmat = NULL, clusterCols = TRUE){
 
   if(is.null(lmat)){
     #Compute Row-Zscores
@@ -1153,12 +1192,10 @@ markerHeatmap <- function(
 #' 
 #' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
-#' @param ... additional args
 #' @export
 markerGR <- function(
   seMarker = NULL,
-  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
-  ...
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5"
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -1202,18 +1239,16 @@ markerGR <- function(
 #' This function will plot one group/column of a differential markers as an MA or Volcano plot.
 #' 
 #' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
-#' @param name The name of a column (ie cell grouping in `groupBy`/`useGroups` for `markerFeatures`) in `seMarker` to be plotted. To see available options try `colnames(seMarker)`.
+#' @param name The name of a column (ie cell grouping in `groupBy`/`useGroups` for `markerFeatures()`) in `seMarker` to be plotted. To see available options try `colnames(seMarker)`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
-#' @param ... additional args
 #' @export
 markerPlot <- function(
   seMarker = NULL,
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
-  scaleTo = 10^4,
-  ...
+  scaleTo = 10^4
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -1239,7 +1274,7 @@ markerPlot <- function(
   
   LFC <- assays(seMarker[,name])$Log2FC
   LFC <- as.vector(as.matrix(LFC))
-  qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4)
+  qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4) * 1.05
 
   FDR <- assays(seMarker[,name])$FDR
   FDR <- as.vector(as.matrix(FDR))
@@ -1264,25 +1299,37 @@ markerPlot <- function(
   if(tolower(plotAs) == "ma"){
     ggPoint(
       x = LM[idx],
-      y = LFC[idx], 
-      color = color[idx], 
+      y = LFC[idx],
+      color = color[idx],  
+      ylim = c(-qLFC, qLFC),
+      size = 1,
+      extend = 0,
       rastr = TRUE, 
+      labelMeans = FALSE,
+      labelAsFactors = FALSE,
       pal = pal,
       xlabel = "Log2 Mean",
       ylabel = "Log2 Fold Change",
       title = title
-    ) + geom_hline(yintercept = 0, lty = "dashed") + scale_y_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC))
+    ) + geom_hline(yintercept = 0, lty = "dashed") + 
+    scale_y_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC), expand = c(0,0))
   }else if(tolower(plotAs) == "volcano"){
     ggPoint(
       x = LFC[idx],
       y = -log10(FDR[idx]), 
       color = color[idx], 
+      xlim = c(-qLFC, qLFC),
+      extend = 0,
+      size = 1,
       rastr = TRUE, 
+      labelMeans = FALSE,
+      labelAsFactors = FALSE,
       pal = pal,
       xlabel = "Log2 Fold Change",
       ylabel = "-Log10 FDR",
       title = title
-    ) + geom_vline(xintercept = 0, lty = "dashed") + scale_x_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC))
+    ) + geom_vline(xintercept = 0, lty = "dashed") + 
+    scale_x_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC), expand = c(0,0))
   }else{
     stop("plotAs not recognized")
   }

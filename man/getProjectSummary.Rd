@@ -4,14 +4,12 @@
 \alias{getProjectSummary}
 \title{Get projectSummary from an ArchRProject}
 \usage{
-getProjectSummary(ArchRProj = NULL, returnSummary = FALSE, ...)
+getProjectSummary(ArchRProj = NULL, returnSummary = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{returnSummary}{A boolean value indicating whether to return a summary of the \code{ArchRProject} or to just print the summary.}
-
-\item{...}{additional args}
 }
 \description{
 This function prints the projectSummary from an ArchRProject

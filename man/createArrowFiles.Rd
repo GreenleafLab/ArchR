@@ -4,20 +4,41 @@
 \alias{createArrowFiles}
 \title{Create Arrow Files}
 \usage{
-createArrowFiles(inputFiles = NULL, sampleNames = NULL,
-  outputNames = paste0("./", sampleNames), validBarcodes = NULL,
-  geneAnnotation = NULL, genomeAnnotation = NULL, filterFrags = 1000,
-  filterTSS = 4, removeFilteredCells = TRUE, minFrags = 500,
-  outDir = "QualityControl", nucLength = 147, TSSParams = list(),
-  excludeChr = c("chrM", "chrY"), nChunk = 5, bcTag = "qname",
-  gsubExpression = NULL, bamFlag = NULL, offsetPlus = 4,
-  offsetMinus = -5, addTileMat = TRUE, TileMatParams = list(),
-  addGeneScoreMat = TRUE, GeneScoreMatParams = list(), force = FALSE,
-  threads = getArchRThreads(), parallelParam = NULL,
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+createArrowFiles(
+  inputFiles = NULL,
+  sampleNames = names(inputFiles),
+  outputNames = sampleNames,
+  validBarcodes = NULL,
+  geneAnnotation = getGeneAnnotation(),
+  genomeAnnotation = getGenomeAnnotation(),
+  filterFrags = 1000,
+  filterTSS = 4,
+  removeFilteredCells = TRUE,
+  minFrags = 500,
+  outDir = "QualityControl",
+  nucLength = 147,
+  TSSParams = list(),
+  excludeChr = c("chrM", "chrY"),
+  nChunk = 5,
+  bcTag = "qname",
+  gsubExpression = NULL,
+  bamFlag = NULL,
+  offsetPlus = 4,
+  offsetMinus = -5,
+  addTileMat = TRUE,
+  TileMatParams = list(),
+  addGeneScoreMat = TRUE,
+  GeneScoreMatParams = list(),
+  force = FALSE,
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  subThreading = TRUE,
+  verboseHeader = TRUE,
+  verboseAll = FALSE
+)
 }
 \arguments{
-\item{inputFiles}{A character vector containing the names of the input files to use to generate the Arrowfiles. These files can be  either scATAC tabix fragment files or a bam file.}
+\item{inputFiles}{A character vector containing the paths to the input files to use to generate the ArrowFiles. These files can be in one of the following formats: (i) scATAC tabix files, (ii) fragment files, or (iii) bam files.}
 
 \item{sampleNames}{A character vector containing the names to assign to the samples that correspond to the \code{inputFiles}. Each input file should receive a unique sample name. This list should be in the same order as \code{inputFiles}.}
 
@@ -45,7 +66,7 @@ createArrowFiles(inputFiles = NULL, sampleNames = NULL,
 This includes the \code{window} which is the size in basepairs of the window centered at each TSS (default 101),
 the \code{flank} which is the size in basepairs of the flanking window (default 2000),
 and the \code{norm} which describes the size in basepairs of the flank window to be used for normalization of the TSS enrichment score (default 100).
-For example, given \code{window = 101, flank = 2000, norm = 100}, the accessibility within the 101-bp surrounding the TSS will be normalized to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.}
+For example, given \verb{window = 101, flank = 2000, norm = 100}, the accessibility within the 101-bp surrounding the TSS will be normalized to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.}
 
 \item{excludeChr}{A character vector containing the names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the ArrowFile.}
 
@@ -63,7 +84,7 @@ For example, given \code{window = 101, flank = 2000, norm = 100}, the accessibil
 
 \item{addTileMat}{A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome. This matrix can be used in many downstream ArchR operations.}
 
-\item{TileMatParams}{A list of parameters to pass to the \code{addTileMatrix()} function. See \code{ArchR::addTileMatrix()} for options.}
+\item{TileMatParams}{A list of parameters to pass to the \code{addTileMatrix()} function. See \code{addTileMatrix()} for options.}
 
 \item{addGeneScoreMat}{A boolean value indicating whether to add a Gene-Score Matrix to each ArrowFile. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.}
 
@@ -75,11 +96,11 @@ For example, given \code{window = 101, flank = 2000, norm = 100}, the accessibil
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
+\item{subThreading}{A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.}
+
 \item{verboseHeader}{A boolean value that determines whether standard output should include verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output should include verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.

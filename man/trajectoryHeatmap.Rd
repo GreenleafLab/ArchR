@@ -4,10 +4,17 @@
 \alias{trajectoryHeatmap}
 \title{Plot a Heatmap of Features across a Trajectory}
 \usage{
-trajectoryHeatmap(seTrajectory = NULL, scaleRows = TRUE,
-  limits = c(-2, 2), grepExclude = NULL, pal = NULL,
-  labelMarkers = NULL, labelTop = 50, labelRows = FALSE,
-  returnMat = FALSE, ...)
+trajectoryHeatmap(
+  seTrajectory = NULL,
+  scaleRows = TRUE,
+  limits = c(-2, 2),
+  grepExclude = NULL,
+  pal = NULL,
+  labelMarkers = NULL,
+  labelTop = 50,
+  labelRows = FALSE,
+  returnMat = FALSE
+)
 }
 \arguments{
 \item{seTrajectory}{A \code{SummarizedExperiment} object that results from calling \code{markerFeatures()}.}
@@ -22,13 +29,11 @@ trajectoryHeatmap(seTrajectory = NULL, scaleRows = TRUE,
 
 \item{labelMarkers}{A character vector listing the \code{rownames} of \code{seTrajectory} that should be labeled on the side of the heatmap.}
 
-\item{labelTop}{A number indicating how many of the top N features based on variance in \code{seTrajectory} should be labeled on the side of the heatmap.}
+\item{labelTop}{A number indicating how many of the top N features, based on variance, in \code{seTrajectory} should be labeled on the side of the heatmap.}
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
-
-\item{...}{additional args}
 }
 \description{
 This function will plot a heatmap of the results from getTrajectory

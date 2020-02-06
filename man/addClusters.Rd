@@ -4,11 +4,23 @@
 \alias{addClusters}
 \title{Add cluster information to an ArchRProject}
 \usage{
-addClusters(input = NULL, reducedDims = "IterativeLSI",
-  name = "Clusters", sampleCells = NULL, seed = 1,
-  method = "Seurat", dimsToUse = NULL, corCutOff = 0.75,
-  knnAssign = 10, nOutlier = 20, verbose = TRUE, tstart = NULL,
-  force = FALSE, ...)
+addClusters(
+  input = NULL,
+  reducedDims = "IterativeLSI",
+  name = "Clusters",
+  sampleCells = NULL,
+  seed = 1,
+  method = "Seurat",
+  dimsToUse = NULL,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  knnAssign = 10,
+  nOutlier = 20,
+  verbose = TRUE,
+  tstart = NULL,
+  force = FALSE,
+  ...
+)
 }
 \arguments{
 \item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims} or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.}
@@ -17,13 +29,15 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 
 \item{name}{The column name of the cluster label column to be added to \code{cellColData} if \code{input} is an \code{ArchRProject} object.}
 
-\item{sampleCells}{UNCLEAR. FIX AND ADD LEAVE JJJ FOR ME TO CHECK. An integer specifying the number of cells to subsample and perform clustering on. The remaining cells will be assigned to the cluster of the nearest subsampled cell.}
+\item{sampleCells}{An integer specifying the number of cells to subsample and perform clustering on. The remaining cells that were not subsampled will be assigned to the cluster of the nearest subsampled cell. This enables a decrease in run time but can sacrifice granularity of clusters.}
 
 \item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{method}{A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+
+\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by \code{addIterativeLSI}.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
@@ -33,7 +47,7 @@ addClusters(input = NULL, reducedDims = "IterativeLSI",
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
-\item{tstart}{A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering when running things like IterativeLSI.}
+\item{tstart}{JJJ A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering relative to a start time, for example this is used in "IterativeLSI".}
 
 \item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already exists as a column name in \code{cellColData}.}
 

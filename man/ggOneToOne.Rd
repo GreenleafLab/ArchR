@@ -4,11 +4,25 @@
 \alias{ggOneToOne}
 \title{A ggplot-based one-to-one dot plot wrapper function}
 \usage{
-ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
-  ylabel = "y", title = "Correlation", min = 0.05, max = 0.9999,
-  nPlot = 100 * 10^3, nKernel = 100, densityMax = 0.95,
-  extend = 0.05, baseSize = 6, rastr = TRUE,
-  pal = paletteContinuous(set = "blue_yellow"), ...)
+ggOneToOne(
+  x = NULL,
+  y = NULL,
+  size = 2,
+  alpha = 1,
+  xlabel = "x",
+  ylabel = "y",
+  title = "Correlation",
+  min = 0.05,
+  max = 0.9999,
+  nPlot = 100 * 10^3,
+  nKernel = 100,
+  densityMax = 0.95,
+  extend = 0.05,
+  baseSize = 6,
+  rastr = TRUE,
+  pal = paletteContinuous(set = "blueYellow"),
+  ...
+)
 }
 \arguments{
 \item{x}{A numeric vector containing the x-axis values for each point.}
@@ -25,19 +39,19 @@ ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
 
 \item{title}{The title of the plot.}
 
-\item{min}{x and y-limits min as a numeric quantile between 0 and 1.}
+\item{min}{The lower limit of the x and y axes as a numeric quantile between 0 and 1.}
 
-\item{max}{x and y-limits max as a numeric quantile between 0 and 1.}
+\item{max}{The upper limit of the x and y axes as a numeric quantile between 0 and 1.}
 
 \item{nPlot}{The number of points to plot. When this value is less than the total points, the \code{sample} function is used to extract random data points to be plotted.}
 
-\item{nKernel}{The number of grid points in each direction to use when computing the kernel with \code{kde2d} from the \code{MASS} package.}
+\item{nKernel}{The number of grid points in each direction to use when computing the kernel with \code{MASS::kde2d()}.}
 
 \item{densityMax}{The quantile that should be represented by the maximum color on the continuous scale designated by \code{pal}. Values above \code{densityMax} will be thresholded to the maximum color on the color scale.}
 
 \item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum value on either axis. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end beyond \code{quantile(c(x,y), max)} and \code{quantile(c(x,y), min)}.}
 
-\item{baseSize}{The base font size to use in the plot.}
+\item{baseSize}{The base font size (in points) to use in the plot.}
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.}
 

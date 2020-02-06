@@ -4,10 +4,19 @@
 \alias{addTrajectory}
 \title{Add a Supervised Trajectory to an ArchR Project}
 \usage{
-addTrajectory(ArchRProj = NULL, name = "Trajectory",
-  trajectory = NULL, groupBy = "Clusters",
-  reducedDims = "IterativeLSI", embedding = NULL, preFilterQ = 0.9,
-  postFilterQ = 0.9, dof = 250, spar = 1, force = FALSE, ...)
+addTrajectory(
+  ArchRProj = NULL,
+  name = "Trajectory",
+  trajectory = NULL,
+  groupBy = "Clusters",
+  reducedDims = "IterativeLSI",
+  embedding = NULL,
+  preFilterQ = 0.9,
+  postFilterQ = 0.9,
+  dof = 250,
+  spar = 1,
+  force = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -16,7 +25,7 @@ addTrajectory(ArchRProj = NULL, name = "Trajectory",
 
 \item{trajectory}{The order of cell groups to be used for constraining the initial supervised fitting procedure. For example, to get a trajectory from Cluster1 to Cluster2 to Cluster3, input should be c("Cluster1", "Cluster2", "Cluster3"). Cells will then be used from these 3 groups to constrain an initial fit in the group order.}
 
-\item{groupBy}{A string indicating the grouping column for \code{trajectory} in cellColData to constrain the initial supervised fitting procedure.}
+\item{groupBy}{A string indicating the column name from \code{cellColData} that contains the cell group definitions used in \code{trajectory} to constrain the initial supervised fitting procedure.}
 
 \item{reducedDims}{A string indicating the name of the \code{reducedDims} object from the \code{ArchRProject} that should be used for distance computation.}
 
@@ -31,8 +40,6 @@ addTrajectory(ArchRProj = NULL, name = "Trajectory",
 \item{spar}{The sparsity to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
 \item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
-
-\item{...}{additional args}
 }
 \description{
 This function will fit a supervised trajectory in a lower dimensional space that

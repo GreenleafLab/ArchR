@@ -2,19 +2,22 @@
 # Doublet Identification Methods
 ##########################################################################################
 
-#' Add Doublet Scores to a collection of Arrow files or an ArchRProject
+#' Add Doublet Scores to a collection of ArrowFiles or an ArchRProject
 #' 
 #' For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information
 #' to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 #' contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell. 
 #'
-#' @param input An `ArchRProject` object or a character vector containing the names of ArrowFiles to be used.
+#' @param input An `ArchRProject` object or a character vector containing the paths to the ArrowFiles to be used.
 #' @param useMatrix The name of the matrix to be used for performing doublet identification analyses. Options include "TileMatrix" and "PeakMatrix".
 #' @param k The number of cells neighboring a simulated doublet to be considered as putative doublets.
 #' @param nTrials The number of times to simulate nCell (number of cells in the sample) doublets to use for doublet simulation when calculating doublet scores.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
+#' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
+#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "SVD".
+#' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "LSI".
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function `umap` in the uwot package.
 #' @param LSIParams The list of parameters to pass to the `IterativeLSI()` function. See `IterativeLSI()`.
 #' @param outDir The relative path to the output directory for relevant plots/results from doublet identification.
@@ -22,27 +25,28 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... additional args
 #' @export
 addDoubletScores <- function(
   input = NULL,
   useMatrix = "TileMatrix",
   k = 10,
   nTrials = 5,
-  dimsToUse = 1:25,
+  dimsToUse = 1:30,
+  LSIMethod = 1,
+  scaleDims = FALSE,
   corCutOff = 0.75,
+  sampleCells = NULL,
   knnMethod = "UMAP",
-  UMAPParams = list(),
-  LSIParams = list(sampleCells = NULL),
-  outDir = "QualityControl",  
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose = FALSE),
+  LSIParams = list(),
+  outDir = if(inherits(input, "ArchRProject")) getOutputDirectory(input) else "QualityControl",  
   threads = getArchRThreads(),
   parallelParam = NULL,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
-  .validInput(input = input, name = "input", valid = c("character", "ArchRProj"))
+  .validInput(input = input, name = "input", valid = c("character", "ArchRProject"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = nTrials, name = "nTrials", valid = c("integer"))
@@ -65,7 +69,6 @@ addDoubletScores <- function(
     
     ArrowFiles <- getArrowFiles(input)
     allCells <- rownames(getCellColData(input))
-    outDir <- getOutputDirectory(input)
   
   }else if(inherits(input, "character")){
 
@@ -89,6 +92,9 @@ addDoubletScores <- function(
   args$X <- seq_along(ArrowFiles)
   args$FUN <- .addDoubScores
   args$registryDir <- file.path(outDir, "AddDoubletsRegistry")
+
+  #Make Sure these Args are NULL
+  args$input <- NULL
 
   #Run With Parallel or lapply
   outList <- .batchlapply(args, sequential = TRUE)
@@ -116,28 +122,32 @@ addDoubletScores <- function(
 }
 
 .addDoubScores <- function(
-  i,
-  ArrowFiles,
+  i = NULL,
+  ArrowFiles = NULL,
   useMatrix = "TileMatrix",
   allCells = NULL,
   UMAPParams = list(),
   LSIParams = list(),
   nTrials = 5,
-  dimsToUse = 1:25,
+  dimsToUse = 1:30,
   corCutOff = 0.75,
+  LSIMethod = 1,
+  sampleCells = NULL,
+  scaleDims = FALSE,
   k = 10,
   nSample = 1000,
   knnMethod = "UMAP",
   outDir = "QualityControl",
-  #useClusters = FALSE,
   subThreads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
-  ...
+  tstart = NULL
   ){
 
-  tstart <- Sys.time()
-  useClusters <- FALSE
+  if(!is.null(tstart)){
+    tstart <- Sys.time()
+  }
+
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)
   outDir <- file.path(outDir, sampleName)
@@ -170,15 +180,15 @@ addDoubletScores <- function(
   LSIParams$ArchRProj <- proj
   LSIParams$saveIterations <- FALSE
   LSIParams$useMatrix <- useMatrix
+  LSIParams$LSIMethod <- LSIMethod
   LSIParams$dimsToUse <- dimsToUse
+  LSIParams$scaleDims <- scaleDims
   LSIParams$corCutOff <- corCutOff
   LSIParams$threads <- subThreads
   LSIParams$verboseHeader <- verboseHeader
   LSIParams$verboseAll <- verboseAll
+  LSIParams$force  <- TRUE
   proj <- do.call(addIterativeLSI, LSIParams)
-  if(useClusters){
-    proj <- addClusters(proj)
-  }
 
   #################################################
   # 3. Get LSI Partial Matrix For Simulation
@@ -187,11 +197,12 @@ addDoubletScores <- function(
   LSI <- getReducedDims(
     ArchRProj = proj, 
     reducedDims = "IterativeLSI", 
-    corCutOff = 999, 
+    corCutOff = corCutOff, 
     dimsToUse = dimsToUse,
+    scaleDims = scaleDims,
     returnMatrix = FALSE
   )
-  LSIDims <- intersect(seq_len(ncol(LSI[[1]])), which(LSI$corToDepth < corCutOff))
+  LSIDims <- seq_len(ncol(LSI[[1]]))
   if(length(LSIDims) < 2){
     stop("Reduced LSI Dims below 2 dimensions, please increase dimsToUse or increase corCutOff!")
   }
@@ -207,42 +218,54 @@ addDoubletScores <- function(
   cellNames <- rownames(getCellColData(proj))
 
   #################################################
-  # 2. Run UMAP for LSI-Projection
+  # 4. Run UMAP for LSI-Projection
   #################################################
   .messageDiffTime("Running LSI UMAP", tstart, addHeader = verboseHeader)
   set.seed(1) # Always do this prior to UMAP
-  UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors=40, min_dist=0.4, metric="euclidean", verbose=FALSE))
-  UMAPParams$X <- LSI$matSVD[, LSIDims, drop = FALSE]
+  UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="euclidean", verbose=FALSE))
+  UMAPParams$X <- LSI$matSVD
   UMAPParams$ret_nn <- TRUE
   UMAPParams$ret_model <- TRUE
   UMAPParams$n_threads <- subThreads
   uwotUmap <- do.call(uwot::umap, UMAPParams)
 
   #################################################
-  # 4. Simulate and Project Doublets
+  # 5. Simulate and Project Doublets
   #################################################
   .messageDiffTime("Simulating and Projecting Doublets", tstart, addHeader = verboseHeader)
-  simDoublets <- .simulateProjectDoublets(
+  simDoubletsSave <- .simulateProjectDoublets(
     mat = mat, 
     LSI = LSI, 
-    LSIDims = LSIDims,
-    clusters = if(useClusters) getCellColData(proj, "Clusters", drop = TRUE) else NULL,
     sampleRatio1 = c(1/2), 
     sampleRatio2 = c(1/2), 
-    nTrials = floor(nTrials * nCells(proj) / 1000), 
+    nTrials = floor(nTrials * nCells(proj) / nSample), 
     nSample = nSample, 
     k = k, 
     uwotUmap = uwotUmap,
-    knnMethod = knnMethod,
     seed = 1, 
     threads = subThreads
   )
 
+  if(tolower(knnMethod)=="lsi"){
+    simDoublets <- SimpleList(
+      doubletUMAP=simDoubletsSave$doubletUMAP,
+      doubletScore=simDoubletsSave$doubletScoreLSI,
+      doubletEnrich=simDoubletsSave$doubletEnrichLSI
+    )
+  }else{
+    simDoublets <- SimpleList(
+      doubletUMAP=simDoubletsSave$doubletUMAP,
+      doubletScore=simDoubletsSave$doubletScoreUMAP,
+      doubletEnrich=simDoubletsSave$doubletEnrichUMAP
+    )    
+  }
+
   #################################################
-  # 5. Plot / Save Results
+  # 6. Plot / Save Results
   #################################################
 
-  pal <- c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF") #grey magma
+  pal <- c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF") #grey_magma
+  #pal <- c("grey", "#3A97FF", "#8816A7", "black")
 
   #Create Plot DF
   df <- data.frame(row.names = rownames(LSI$matSVD), uwotUmap[[1]], type = "experiment")
@@ -254,12 +277,24 @@ addDoubletScores <- function(
   doubUMAP <- simDoublets$doubletUMAP
   dfDoub <- data.frame(
     row.names = paste0("doublet_", seq_len(nrow(doubUMAP))), 
-    ArchR:::.getDensity(doubUMAP[,1], doubUMAP[,2]), 
+    .getDensity(doubUMAP[,1], doubUMAP[,2]), 
     type = "simulated_doublet"
   )
   dfDoub <- dfDoub[order(dfDoub$density), , drop = FALSE]
   dfDoub$color <- dfDoub$density
   
+  ##################################
+  #Save Results
+  summaryList <- SimpleList(
+    originalDataUMAP = df,
+    simulatedDoubletUMAP = dfDoub,
+    doubletResults = simDoubletsSave
+  )
+
+  saveRDS(summaryList, file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.rds")))
+  rm(simDoubletsSave)
+  ##################################
+
   tmpFile <- .tempfile()
 
   o <- tryCatch({
@@ -282,12 +317,12 @@ addDoubletScores <- function(
         geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
           scale_colour_gradientn(colors = pal) + 
           xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-          guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
+          guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
           labs(color = "Simulated Doublet Density") +
           theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
                 axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
           coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
-          ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
+          ggtitle("Simulated and LSI-Projected Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
           legend.box.background = element_rect(color = NA))
 
     }else{
@@ -300,16 +335,14 @@ addDoubletScores <- function(
           scale_colour_gradientn(colors = pal) + 
           xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
           labs(color = "Simulated Doublet Density") +
-          guides(fill = FALSE) + theme_ArchR(baseSize = 6) +
+          guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
           theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
                 axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
           coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
-          ggtitle("Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
+          ggtitle("Simulated and LSI-Projected Density Overlayed") + theme(legend.direction = "horizontal", 
           legend.box.background = element_rect(color = NA))
 
     }
-    
-    print(.fixPlotSize(pdensity, plotWidth = 6, plotHeight = 6))
 
     #Plot Doublet Score
     pscore <- ggPoint(
@@ -323,16 +356,14 @@ addDoubletScores <- function(
       xlab = "UMAP Dimension 1",
       ylab = "UMAP Dimension 2",
       pal = pal,
-      title = "Doublet Scores -log10(FDR)",
-      colorTitle = "Doublet Scores -log10(FDR)",
+      title = "Doublet Scores -log10(P-adj.)",
+      colorTitle = "Doublet Scores -log10(P-adj.)",
       rastr = TRUE,
-      baseSize = 6
+      baseSize = 10
       ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
             axis.text.y = element_blank(), axis.ticks.y = element_blank())
     
-    grid::grid.newpage()
-    print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
-    
+
     #Plot Enrichment Summary
     penrich <- ggPoint(
       x = df[,1],
@@ -345,14 +376,24 @@ addDoubletScores <- function(
       xlab = "UMAP Dimension 1",
       ylab = "UMAP Dimension 2",
       pal = pal,
-      title = "Doublet Enrichment",
+      title = "Simulated Doublet Enrichment over Expectation",
       colorTitle = "Doublet Enrichment",
-      rastr = TRUE
+      rastr = TRUE,
+      baseSize = 10
       ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
             axis.text.y = element_blank(), axis.ticks.y = element_blank())
     
-    grid::grid.newpage()
+
+    #1. Doublet Enrichment
     print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
+    grid::grid.newpage()
+
+    #2. Doublet Scores
+    print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
+    grid::grid.newpage()
+
+    #3. Doublet Density
+    print(.fixPlotSize(pdensity, plotWidth = 6, plotHeight = 6))
 
     dev.off()
     sink()
@@ -365,14 +406,8 @@ addDoubletScores <- function(
     
   })
 
-  summaryList <- SimpleList(
-    originalDataUMAP = df,
-    simulatedDoubletUMAP = dfDoub
-  )
-  saveRDS(summaryList, file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.rds")))
-
   #################################################
-  # 6. Add Info To Arrow!
+  # 7. Add Info To Arrow!
   #################################################
   allCells <- .availableCells(ArrowFile, passQC = FALSE)
   
@@ -384,17 +419,7 @@ addDoubletScores <- function(
   names(allDoubletEnrichment) <- allCells
   allDoubletEnrichment[names(simDoublets$doubletEnrich)] <- simDoublets$doubletEnrich
 
-  allDoubUMAP1 <- rep(NA, length(allCells))
-  names(allDoubUMAP1) <- allCells
-  allDoubUMAP1[rownames(df)] <- df[,1]
-
-  allDoubUMAP2 <- rep(NA, length(allCells))
-  names(allDoubUMAP2) <- allCells
-  allDoubUMAP2[rownames(df)] <- df[,2]
-
   o <- h5closeAll()
-  h5write(allDoubUMAP1, file = ArrowFile, "Metadata/Doublet_UMAP1")
-  h5write(allDoubUMAP2, file = ArrowFile, "Metadata/Doublet_UMAP2")
   h5write(allDoubletScores, file = ArrowFile, "Metadata/DoubletScore")
   h5write(allDoubletEnrichment, file = ArrowFile, "Metadata/DoubletEnrichment")
   o <- h5closeAll()
@@ -406,11 +431,9 @@ addDoubletScores <- function(
 }
 
 .simulateProjectDoublets <- function(
-  mat, 
-  LSI,
-  LSIDims,
-  uwotUmap,
-  clusters = NULL,
+  mat = NULL, 
+  LSI = NULL,
+  uwotUmap = NULL,
   sampleRatio1 = c(0.5), 
   sampleRatio2 = c(0.5), 
   nTrials = 100, 
@@ -418,10 +441,10 @@ addDoubletScores <- function(
   k = 200, 
   knnMethod = "UMAP",
   seed = 1, 
-  threads = 16
+  threads = 1
   ){
 
-  .sampleSparseMat <- function(mat, sampleRatio = 0.5){
+  .sampleSparseMat <- function(mat = NULL, sampleRatio = 0.5){
     total <- length(mat@x)
     sampleTo <- floor(total * (1-sampleRatio))
     mat@x[sample(seq_len(total), sampleTo)] <- 0
@@ -431,84 +454,83 @@ addDoubletScores <- function(
 
   set.seed(seed)
 
-  if(is.null(clusters)){
+  simLSI <- .safelapply(seq_len(nTrials), function(y){
 
-    simLSI <- .safelapply(seq_len(nTrials), function(y){
+    if(y %% 5 == 0){
+      gc()
+    }
 
-      if(y %% 5 == 0){
-        gc()
-      }
+    lapply(seq_along(sampleRatio1), function(x){
 
-      lapply(seq_along(sampleRatio1), function(x){
+      idx1 <- sample(seq_len(ncol(mat)), nSample, replace = TRUE)
+      idx2 <- sample(seq_len(ncol(mat)), nSample, replace = TRUE)
 
-        idx1 <- sample(seq_len(ncol(mat)), nSample, replace = TRUE)
-        idx2 <- sample(seq_len(ncol(mat)), nSample, replace = TRUE)
+      #Simulated Doublet
+      simulatedMat <- .sampleSparseMat(mat = mat[,idx1], sampleRatio = sampleRatio1[x]) + 
+                      .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
 
-        #Simulated Doublet
-        simulatedMat <- .sampleSparseMat(mat = mat[,idx1], sampleRatio = sampleRatio1[x]) + 
-                        .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
+      #Project LSI
+      lsiProject <- suppressMessages(.projectLSI(simulatedMat, LSI))
+      rownames(lsiProject) <- NULL
 
-        #Project LSI
-        lsiProject <- suppressMessages(ArchR:::.projectLSI(simulatedMat, LSI))
+      lsiProject
 
-        lsiProject
-
-      }) %>% Reduce("rbind", .)
-
-
-    }, threads = threads) %>% Reduce("rbind", .)
-
-  }else{
-
-    comClust <- combn(unique(clusters), 2)
-
-    simLSI <- .safelapply(seq_len(ncol(comClust)), function(y){
-
-      if(y %% 5 == 0){
-        gc()
-      }
-
-      lapply(seq_along(sampleRatio1), function(x){
-
-        idx1 <- sample(which(clusters==comClust[1,y]), nSample, replace = TRUE)
-        idx2 <- sample(which(clusters==comClust[2,y]), nSample, replace = TRUE)
-
-        #Simulated Doublet
-        simulatedMat <- .sampleSparseMat(mat = mat[,idx1], sampleRatio = sampleRatio1[x]) + 
-                        .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
-
-        #Project LSI
-        lsiProject <- suppressMessages(ArchR:::.projectLSI(simulatedMat, LSI))
-
-        lsiProject
-
-      }) %>% Reduce("rbind", .)
+    }) %>% Reduce("rbind", .)
 
 
-    }, threads = threads) %>% Reduce("rbind", .)
+  }, threads = threads) %>% Reduce("rbind", .)
 
+  #Compute original
+  ogLSI <- suppressMessages(.projectLSI(mat, LSI))
+
+  #Merge
+  allLSI <- rbind(simLSI[, LSI$dimsKept, drop = FALSE], ogLSI[, LSI$dimsKept, drop = FALSE])
+  nSimLSI <- nrow(simLSI)
+  if(nSimLSI==0){
+    stop("Simulations must be greater than 0! Please adjust nTrials!")
   }
+  rm(simLSI)
+  rm(ogLSI)
+  gc()
 
+  if(LSI$scaleDims){
+    allLSI <- .scaleDims(allLSI)
+  }
 
   #Project UMAP
   set.seed(1) # Always do this prior to UMAP
-  umapProject <- data.frame(uwot::umap_transform(as.matrix(simLSI[, LSIDims, drop = FALSE]), uwotUmap, verbose = FALSE, n_threads = threads))
+  umapProject <- uwot::umap_transform(
+    X = as.matrix(allLSI), 
+    model = uwotUmap, 
+    verbose = FALSE, 
+    n_threads = threads
+  )
 
-  #Compute KNN 
-  if(toupper(knnMethod) == "SVD"){
+  corProjection <- list(
+    LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(allLSI[-seq_len(nSimLSI), x], LSI$matSVD[, x]) )),
+    UMAP =  c(
+        dim1 = cor(uwotUmap[[1]][,1], umapProject[-seq_len(nSimLSI), 1]),
+        dim2 = cor(uwotUmap[[1]][,2], umapProject[-seq_len(nSimLSI), 2])
+      )
+  )
+  names(corProjection[[1]]) <- paste0("SVD", LSI$dimsKept)
 
-    knnDoub <- .computeKNN(LSI$matSVD, simLSI, k)
+  message("UMAP Projection R^2 = ", round(mean(corProjection[[2]])^2, 5))
 
-  }else if(toupper(knnMethod) == "UMAP"){
-
-    knnDoub <- .computeKNN(uwotUmap[[1]], umapProject, k)
-
-  }else{
-
-    stop("Error KNN Method Not Recognized!")
-
+  if(mean(corProjection[[2]]) < 0.85){
+    stop("Correlation of UMAP Projection is below 0.85 (normally this is ~0.99+), This means there is a bug with the projection code. Please immediately report this!")
   }
 
+  out <- SimpleList(
+    doubletUMAP = umapProject[seq_len(nSimLSI), ],
+    projectionCorrelation = corProjection
+  )
+
+  ##############################################################################
+  # Compute Doublet Scores from LSI (TF-IDF + SVD)
+  ##############################################################################
+  knnDoub <- .computeKNN(allLSI[-seq_len(nSimLSI),], allLSI[seq_len(nSimLSI),], k)
+  
   #Compile KNN Sums
   countKnn <- rep(0, nrow(LSI$matSVD))
   names(countKnn) <- rownames(LSI$matSVD)
@@ -534,10 +556,49 @@ addDoubletScores <- function(
   #Convert To Scores
   doubletScore <- -log10(pmax(pvalBinomDoub, 4.940656e-324))
   doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
-  doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set
+  doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set  
 
-  out <- SimpleList(doubletUMAP = umapProject, doubletScore = doubletScore, doubletEnrich = doubletEnrich)
+  #Store Results
+  out$doubletEnrichLSI <- doubletEnrich
+  out$doubletScoreLSI <- doubletScore
 
+  ##############################################################################
+  # Compute Doublet Scores from LSI (TF-IDF + SVD) + UMAP Embedding
+  ##############################################################################
+  knnDoub <- .computeKNN(umapProject[-seq_len(nSimLSI),], umapProject[seq_len(nSimLSI),], k)
+  
+  #Compile KNN Sums
+  countKnn <- rep(0, nrow(LSI$matSVD))
+  names(countKnn) <- rownames(LSI$matSVD)
+
+  tabDoub <- table(as.vector(knnDoub))
+  countKnn[as.integer(names(tabDoub))] <-  countKnn[as.integer(names(tabDoub))] + tabDoub
+
+  nSim <- nrow(LSI$matSVD)
+  scaleTo <- 10000
+  scaleBy <- scaleTo / nSim
+
+  #P-Values
+  pvalBinomDoub <- lapply(seq_along(countKnn), function(x){
+    #Round Prediction
+    countKnnx <- round(countKnn[x] * scaleBy)
+    sumKnnx <- round(sum(countKnn) * scaleBy)
+    pbinom(countKnnx - 1, sumKnnx, 1 / scaleTo, lower.tail = FALSE)
+  }) %>% unlist
+
+  #Adjust
+  padjBinomDoub <- p.adjust(pvalBinomDoub, method = "bonferroni")
+
+  #Convert To Scores
+  doubletScore <- -log10(pmax(pvalBinomDoub, 4.940656e-324))
+  doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
+  doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set  
+
+  #Store Results
+  out$doubletEnrichUMAP <- doubletEnrich
+  out$doubletScoreUMAP <- doubletScore
+
+  #Save Output
   out
 
 }
@@ -550,9 +611,8 @@ addDoubletScores <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param bestFiles The file path to the .best files created by Demuxlet. There should be one .best file for each sample in the `ArchRProject`.
 #' @param sampleNames The sample names corresponding to the .best files. These must match the sample names present in the `ArchRProject`.
-#' @param ... additional args
 #' @export
-addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames = NULL, ...){
+addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames = NULL){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = bestFiles, name = "bestFiles", valid = c("character"))

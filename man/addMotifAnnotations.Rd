@@ -4,9 +4,17 @@
 \alias{addMotifAnnotations}
 \title{Add motif annotations to an ArchRProject}
 \usage{
-addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
-  name = "Motif", species = NULL, collection = "CORE",
-  cutOff = 5e-05, width = 7, force = FALSE, ...)
+addMotifAnnotations(
+  ArchRProj = NULL,
+  motifSet = "cisbp",
+  name = "Motif",
+  species = NULL,
+  collection = "CORE",
+  cutOff = 5e-05,
+  width = 7,
+  force = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -25,7 +33,7 @@ addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
 
 \item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
 
-\item{...}{additional args}
+\item{...}{Additional parameters to be passed to \code{TFBSTools::getMatrixSet} for getting a PWM object.}
 }
 \description{
 This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.

@@ -4,8 +4,12 @@
 \alias{getFeatures}
 \title{Get the features that could be selected from a given data matrix within an ArchRProject}
 \usage{
-getFeatures(ArchRProj = NULL, useMatrix = "GeneScoreMatrix",
-  select = NULL, ignore.case = TRUE, ...)
+getFeatures(
+  ArchRProj = NULL,
+  useMatrix = "GeneScoreMatrix",
+  select = NULL,
+  ignoreCase = TRUE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -14,9 +18,7 @@ getFeatures(ArchRProj = NULL, useMatrix = "GeneScoreMatrix",
 
 \item{select}{A string specifying a specific feature name (or rowname) to be found with \code{grep}.}
 
-\item{ignore.case}{A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to \code{select}.}
-
-\item{...}{additional args}
+\item{ignoreCase}{A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to \code{select}.}
 }
 \description{
 This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return them for downstream plotting utilities.

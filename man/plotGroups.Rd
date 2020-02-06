@@ -4,10 +4,19 @@
 \alias{plotGroups}
 \title{Visualize Groups from ArchR Project}
 \usage{
-plotGroups(ArchRProj = NULL, groupBy = "Sample", colorBy = "colData",
-  name = "TSSEnrichment", imputeWeights = NULL, log2Norm = NULL,
-  pal = NULL, ylim = NULL, size = 0.5, baseSize = 6,
-  ratioYX = 0.5, addPoints = FALSE, ...)
+plotGroups(
+  ArchRProj = NULL,
+  groupBy = "Sample",
+  colorBy = "colData",
+  name = "TSSEnrichment",
+  imputeWeights = NULL,
+  log2Norm = NULL,
+  pal = NULL,
+  ylim = NULL,
+  size = 0.5,
+  baseSize = 6,
+  ratioYX = NULL
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -17,7 +26,7 @@ plotGroups(ArchRProj = NULL, groupBy = "Sample", colorBy = "colData",
 \item{colorBy}{A string indicating whether the numeric values to be used in the violin plot should be from a column in \code{cellColData} ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").}
 
 \item{name}{The name of the column in \code{cellColData} or the featureName/rowname of the data matrix to be used for plotting.
-For example if colorBy is \code{cellColData} then name refers to a column name in the cellcoldata (see \code{getCellcoldata()}), if colorBy is \code{GeneScoreMatrix} then name refers to a gene name which can be listed by \code{getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")}.}
+For example if colorBy is \code{cellColData} then name refers to a column name in the cellcoldata (see \code{getCellcoldata()}), if colorBy is "GeneScoreMatrix" then name refers to a gene name which can be listed by \code{getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")}.}
 
 \item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override discreteSet/continuousSet for coloring vector.}
 
@@ -28,10 +37,6 @@ For example if colorBy is \code{cellColData} then name refers to a column name i
 \item{baseSize}{The base font size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
-
-\item{addPoints}{A boolean value that indicates whether points should be added to the plot using \code{geom_quasirandom()}.}
-
-\item{...}{additional args}
 }
 \description{
 This function will group, summarize and then plot data from an ArchRProject for visual comparison.

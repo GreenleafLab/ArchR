@@ -4,14 +4,12 @@
 \alias{getGenes}
 \title{Get the genes from an ArchRProject}
 \usage{
-getGenes(ArchRProj = NULL, symbols = NULL, ...)
+getGenes(ArchRProj = NULL, symbols = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{symbols}{A character vector containing the gene symbols to subset from the \code{geneAnnotation}.}
-
-\item{...}{additional args}
 }
 \description{
 This function gets the genes start and end coordinates as a GRanges object from the geneAnnotation of a given ArchRProject.

@@ -4,10 +4,15 @@
 \alias{addBgdPeaks}
 \title{Add Background Peaks to an ArchRProject}
 \usage{
-addBgdPeaks(ArchRProj = NULL, nIterations = 50, w = 0.1,
-  binSize = 50, seed = 1,
-  outFile = file.path(getOutputDirectory(ArchRProj),
-  "Background-Peaks.rds"), force = FALSE, ...)
+addBgdPeaks(
+  ArchRProj = NULL,
+  nIterations = 50,
+  w = 0.1,
+  binSize = 50,
+  seed = 1,
+  outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
+  force = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -20,7 +25,7 @@ addBgdPeaks(ArchRProj = NULL, nIterations = 50, w = 0.1,
 
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 
-\item{outFile}{The path to save the backgroundPeaks object as a \code{.rds} file for the given \code{ArchRProject}. The default action is to save this file in the \code{outputDirectory} of the \code{ArchRProject}.}
+\item{outFile}{The path to save the \code{backgroundPeaks} object as a \code{.RDS} file for the given \code{ArchRProject}. The default action is to save this file in the \code{outputDirectory} of the \code{ArchRProject}.}
 
 \item{force}{A boolean value indicating whether to force the file indicated by \code{outFile} to be overwritten if it already exists.}
 }

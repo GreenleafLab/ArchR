@@ -4,15 +4,33 @@
 \alias{addCoAccessibility}
 \title{Add Peak Co-Accessibility to an ArchRProject}
 \usage{
-addCoAccessibility(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  k = 100, knnIteration = 5000, overlapCutoff = 0.8,
-  maxDist = 250000, scaleTo = 10^4, log2Norm = TRUE, seed = 1,
-  knnMethod = NULL, threads = getArchRThreads(), ...)
+addCoAccessibility(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  dimsToUse = 1:30,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  k = 200,
+  knnIteration = 500,
+  overlapCutoff = 0.8,
+  maxDist = 1e+05,
+  scaleTo = 10^4,
+  log2Norm = TRUE,
+  seed = 1,
+  knnMethod = NULL,
+  threads = getArchRThreads()
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
+
+\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+
+\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by \code{addIterativeLSI}.}
+
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{k}{The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.}
 
@@ -22,7 +40,7 @@ addCoAccessibility(ArchRProj = NULL, reducedDims = "IterativeLSI",
 
 \item{maxDist}{The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.}
 
-\item{scaleTo}{A numeric value indicating what to depth-normalize the accessibility of a single-cell group prior to computing co-accessibility correlations.}
+\item{scaleTo}{The total insertion counts from the designated group of single cells is summed across all relevant peak regions from the \code{peakSet} of the \code{ArchRProject} and normalized to the total depth provided by \code{scaleTo}.}
 
 \item{log2Norm}{A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.}
 
@@ -31,8 +49,6 @@ addCoAccessibility(ArchRProj = NULL, reducedDims = "IterativeLSI",
 \item{knnMethod}{The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
-
-\item{...}{additional args}
 }
 \description{
 This function will add co-accessibility scores to peaks in a given ArchRProject

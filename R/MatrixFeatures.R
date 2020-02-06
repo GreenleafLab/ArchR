@@ -6,14 +6,14 @@
 #' 
 #' This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.
 #'
-#' @param input An `ArchRProject` object or character vector of ArrowFiles.
+#' @param input An `ArchRProject` object or character vector of paths to ArrowFiles.
 #' @param features A `GRanges` object containing the regions (aka features) to use for counting insertions for each cell.
 #' @param matrixName The name to be used for storage of the feature matrix in the provided `ArchRProject` or ArrowFiles.
 #' @param ceiling The maximum counts per feature allowed. This is used to prevent large biases in feature counts.
 #' @param binarize A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the `input`.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the `input`.
 #' @export
 addFeatureMatrix <- function(
   input = NULL,
@@ -23,9 +23,8 @@ addFeatureMatrix <- function(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = TRUE,
-  ...
-){
+  force = TRUE
+  ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
   .validInput(input = features, name = "features", valid = c("GRanges"))
@@ -54,12 +53,15 @@ addFeatureMatrix <- function(
   }
 
   #Add args to list
-  args <- mget(names(formals()),sys.frame(sys.nframe()))
+  args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
   args$ArrowFiles <- ArrowFiles
   args$allCells <- allCells
   args$X <- seq_along(ArrowFiles)
   args$FUN <- .addFeatureMatrix
   args$registryDir <- file.path(outDir, "CountFeaturesRegistry")
+
+  #Remove input from args
+  args$input <- NULL
 
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
@@ -90,9 +92,8 @@ addPeakMatrix <- function(
   binarize = FALSE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = TRUE,
-  ...
-){
+  force = TRUE
+  ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = ceiling, name = "ceiling", valid = c("numeric"))
@@ -123,6 +124,9 @@ addPeakMatrix <- function(
   args$FUN <- .addFeatureMatrix
   args$registryDir <- file.path(outDir, "CountPeaksRegistry")
 
+  #Remove project from args
+  args$ArchRProj <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
 
@@ -135,16 +139,17 @@ addPeakMatrix <- function(
 }
 
 .addFeatureMatrix <- function(
-  i,
-  ArrowFiles, 
-  features,
+  i = NULL,
+  ArrowFiles = NULL, 
+  features = NULL,
   cellNames = NULL, 
   allCells = NULL,
   matrixName = "PeakMatrix", 
   ceiling = 4, 
   binarize = FALSE,
-  force = FALSE,
-  ...
+  tstart = NULL,
+  subThreads = 1,
+  force = FALSE
   ){
 
   ArrowFile <- ArrowFiles[i]
@@ -162,7 +167,9 @@ addPeakMatrix <- function(
     }
   }
   
-  tstart <- Sys.time()
+  if(!is.null(tstart)){
+    tstart <- Sys.time()
+  }
  
   #Get all cell ids before constructing matrix
   if(is.null(cellNames)){

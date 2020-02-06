@@ -2,17 +2,44 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggPoint}
 \alias{ggPoint}
-\title{A ggplot-based dot plot wrapper function}
+\title{A ggplot-based dot plot wrapper function JJJ}
 \usage{
-ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
-  discreteSet = "stallion", continuousSet = "solar_extra",
-  labelMeans = FALSE, pal = NULL, defaultColor = "lightGrey",
-  colorDensity = FALSE, size = 1, xlim = NULL, ylim = NULL,
-  extend = 0.05, xlabel = "x", ylabel = "y", title = "",
-  randomize = FALSE, seed = 1, colorTitle = NULL,
-  colorOrder = NULL, alpha = 1, baseSize = 6, ratioYX = 1,
-  labelType = "ggrepel", fgColor = NULL, bgColor = "white",
-  labelSize = 1.5, addFit = NULL, rastr = FALSE, dpi = 300, ...)
+ggPoint(
+  x = NULL,
+  y = NULL,
+  color = NULL,
+  discrete = TRUE,
+  discreteSet = "stallion",
+  continuousSet = "solarExtra",
+  labelMeans = TRUE,
+  pal = NULL,
+  defaultColor = "lightGrey",
+  colorDensity = FALSE,
+  size = 1,
+  xlim = NULL,
+  ylim = NULL,
+  extend = 0.05,
+  xlabel = "x",
+  ylabel = "y",
+  title = "",
+  randomize = FALSE,
+  seed = 1,
+  colorTitle = NULL,
+  colorOrder = NULL,
+  colorLimits = NULL,
+  alpha = 1,
+  baseSize = 10,
+  legendSize = 3,
+  ratioYX = 1,
+  labelAsFactors = TRUE,
+  fgColor = "black",
+  bgColor = "white",
+  bgWidth = 1,
+  labelSize = 3,
+  addFit = NULL,
+  rastr = FALSE,
+  dpi = 300
+)
 }
 \arguments{
 \item{x}{A numeric vector containing the x-axis values for each point.}
@@ -53,17 +80,17 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{seed}{A numeric seed number for use in randomization.}
 
-\item{colorTitle}{A title to be added to the legend if color is supplied.}
+\item{colorTitle}{A title to be added to the legend if \code{color} is supplied.}
 
 \item{colorOrder}{If you want to control the order of \code{color} supplied as a factor to \code{ggplot2}. For example if you have \code{color} as c("a","b","c") and want to have the first color selected from the palette be for "c" then "b" and then "a", you would supply the \code{colorOrder} as c("c", "b", "a").}
 
+\item{colorLimits}{A numeric vector of two values indicating the lower and upper bounds of colors if numeric.}
+
 \item{alpha}{A number indicating the transparency to use for each point. See \code{ggplot2} for more details.}
 
-\item{baseSize}{The base font size to use in the plot.}
+\item{baseSize}{The base font size (in points) to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
-
-\item{labelType}{A string indicating how to label the points on the plot. Options include "ggrepel", "shadowtext".}
 
 \item{fgColor}{The foreground color of the plot.}
 
@@ -71,7 +98,7 @@ ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
 
 \item{labelSize}{The numeric font size of labels.}
 
-\item{addFit}{A string indicating if a fit/regression line (see \code{geom_smooth} methods) should be included in the plot and what method to use for this fit.}
+\item{addFit}{A string indicating if a fit/regression line (see \code{ggplot2::geom_smooth()} methods) should be included in the plot and what method to use for this fit.}
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize lines and labels, just the internal portions of the plot.}
 

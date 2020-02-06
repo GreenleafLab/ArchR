@@ -19,15 +19,14 @@
 #' @export
 addTileMatrix <- function(
   input = NULL,
-  chromSizes = ifelse(inherits(input, "ArchRProject"), chromSizes(input), NULL),
-  blacklist = ifelse(inherits(input, "ArchRProject"), getBlacklist(input), NULL),
+  chromSizes = if(inherits(input, "ArchRProject")) getChromSizes(input) else NULL,
+  blacklist = if(inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
   tileSize = 500, 
   binarize = TRUE, 
   excludeChr = c("chrM","chrY"),
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -65,6 +64,9 @@ addTileMatrix <- function(
   names(args$chromLengths) <- paste0(seqnames(chromSizes))
   args$registryDir <- file.path(outDir, "CountTilesRegistry")
 
+  #Remove Input from args
+  args$input <- NULL
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
 
@@ -86,8 +88,7 @@ addTileMatrix <- function(
   excludeChr = "chrY", 
   blacklist = NULL, 
   chromLengths = NULL, 
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = i, name = "i", valid = c("integer"))

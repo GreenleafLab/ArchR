@@ -4,12 +4,24 @@
 \alias{addGroupCoverages}
 \title{Add Group Coverages to an ArchRProject object}
 \usage{
-addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
-  useLabels = TRUE, minCells = 40, maxCells = 500,
-  maxFragments = 25 * 10^6, minReplicates = 2, maxReplicates = 5,
-  sampleRatio = 0.8, kmerLength = 6, threads = getArchRThreads(),
-  parallelParam = NULL, force = FALSE, verboseHeader = TRUE,
-  verboseAll = FALSE, ...)
+addGroupCoverages(
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  useLabels = TRUE,
+  minCells = 40,
+  maxCells = 500,
+  maxFragments = 25 * 10^6,
+  minReplicates = 2,
+  maxReplicates = 5,
+  sampleRatio = 0.8,
+  kmerLength = 6,
+  threads = getArchRThreads(),
+  returnGroups = FALSE,
+  parallelParam = NULL,
+  force = FALSE,
+  verboseHeader = TRUE,
+  verboseAll = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -34,6 +46,8 @@ addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
+\item{returnGroups}{A boolean whether to just return sample-guided cell-groupings without creating coverages. This is used mainly in addReproduciblePeakSet when calling peaks with TileMatrix.}
+
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if insertion coverage / pseudo-bulk replicate information already exists.}
@@ -41,8 +55,6 @@ addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
-
-\item{...}{additional args}
 }
 \description{
 This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file.

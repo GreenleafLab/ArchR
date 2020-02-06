@@ -4,10 +4,18 @@
 \alias{addImputeWeights}
 \title{Add Imputation Weights to an ArchRProject}
 \usage{
-addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  dimsToUse = NULL, corCutOff = 0.75, td = 3, ka = 4,
-  sampleCells = max(5000, floor(nCells(ArchRProj)/10)), k = 15,
-  epsilon = 1, ...)
+addImputeWeights(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  dimsToUse = NULL,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  td = 3,
+  ka = 4,
+  sampleCells = max(5000, floor(nCells(ArchRProj)/10)),
+  k = 15,
+  epsilon = 1
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -15,6 +23,8 @@ addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use.}
+
+\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by \code{addIterativeLSI}.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded.}
 
@@ -28,8 +38,6 @@ imputation for numerical values within these cells. ArchR creates many blocks to
 \item{k}{The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).}
 
 \item{epsilon}{The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).}
-
-\item{...}{additional params}
 }
 \description{
 This function computes imputations weights that describe each cell as a linear combination of many cells based on a MAGIC diffusion matrix.

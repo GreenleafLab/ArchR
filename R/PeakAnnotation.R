@@ -9,9 +9,8 @@
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
-#' @param ... additional args
 #' @export
-getPeakAnnotation <- function(ArchRProj = NULL, name = NULL, ...){
+getPeakAnnotation <- function(ArchRProj = NULL, name = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
   if(is.null(name)){
@@ -31,9 +30,8 @@ getPeakAnnotation <- function(ArchRProj = NULL, name = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param annoName The name of a specific annotation to subset within the `peakAnnotation`.
-#' @param ... additional args
 #' @export
-getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
+getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
   .validInput(input = annoName, name = "annoName", valid = c("character", "null"))
@@ -67,9 +65,8 @@ getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param annoName The name of a specific annotation to subset within the `peakAnnotation`.
-#' @param ... additional args
 #' @export
-getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
+getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
   .validInput(input = annoName, name = "annoName", valid = c("character", "null"))
@@ -104,18 +101,16 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL, ...){
 #' @param regions A `list` of `GRanges` that are to be overlapped with the `peakSet` in the `ArchRProject`.
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... additional args
 #' @export
 addPeakAnnotations <- function(
   ArchRProj = NULL,
   regions = NULL,
   name = "Region",
-  force = FALSE,
-  ...
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list"))
+  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
@@ -144,13 +139,13 @@ addPeakAnnotations <- function(
       }else if(is.character(regions[x])){
         
         gr <- tryCatch({
-          .validGRanges(makeGRangesFromDataFrame(
+          makeGRangesFromDataFrame(
             df = data.frame(data.table::fread(regions[x])), 
             keep.extra.columns = TRUE,
             seqnames.field = "V1",
             start.field = "V2",
             end.field = "V3"
-          ))
+          )
         }, error = function(y){
 
           print(paste0("Could not successfully get region : ", regions[x]))
@@ -222,7 +217,7 @@ addPeakAnnotations <- function(
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
-#' @param ... additional args
+#' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a PWM object.
 #' @export
 addMotifAnnotations <- function(
   ArchRProj = NULL,
@@ -242,7 +237,7 @@ addMotifAnnotations <- function(
   .validInput(input = species, name = "species", valid = c("character", "null"))
   .validInput(input = collection, name = "collection", valid = c("character", "null"))
   .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
-  .validInput(input = w, name = "w", valid = c("integer"))
+  .validInput(input = width, name = "width", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
@@ -410,7 +405,7 @@ addMotifAnnotations <- function(
 
 }
 
-.summarizeJASPARMotifs <- function(motifs){
+.summarizeJASPARMotifs <- function(motifs = NULL){
 
   motifNames <- lapply(seq_along(motifs), function(x){
     namex <- make.names(motifs[[x]]@name)
@@ -442,7 +437,7 @@ addMotifAnnotations <- function(
   
 }
 
-.summarizeChromVARMotifs <- function(motifs){
+.summarizeChromVARMotifs <- function(motifs = NULL){
 
   motifNames <- lapply(seq_along(motifs), function(x){
     namex <- make.names(motifs[[x]]@name)
@@ -472,6 +467,263 @@ addMotifAnnotations <- function(
 
 }
 
+#' Add ArchR annotations to an ArchRProject
+#' 
+#' This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param db A character indicating which database or a path to a database to use for peak annotation. Options include ArchR, LOLA, and a valid path to a file of class `ArchRAnno`.
+#' @param collection A character indicating which collection within the database to collect for annotation. 
+#' For ArchR, options "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
+#' For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
+#' If supplying a custom ArchRAnno please use a valid collection.
+#' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
+#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
+#' @export
+addArchRAnnotations <- function(
+  ArchRProj = NULL,
+  db = "ArchR",
+  collection = "EncodeTFBS",
+  name = collection,
+  force = FALSE
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = db, name = "db", valid = c("character"))
+  .validInput(input = collection, name = "collection", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+
+  tstart <- Sys.time()
+
+  if(name %in% names(ArchRProj@peakAnnotation)){
+    if(force){
+      message("peakAnnotation name already exists! Overriding.")
+    }else{
+      stop("peakAnnotation name already exists! set force = TRUE to override!")
+    }
+  }
+
+  genome <- tolower(validBSgenome(getGenome(ArchRProj))@provider_version)
+
+  annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
+  dir.create(annoPath, showWarnings = FALSE)
+  
+  if(tolower(db) == "lola"){
+  
+    if(genome == "hg19"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/LOLA-Hg19-v1.Anno"
+    }else if(genome == "hg38"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/LOLA-Hg38-v1.Anno"
+    }else if(genome == "mm9"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/LOLA-Mm9-v1.Anno"
+    }else if(genome == "mm10"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/LOLA-Mm10-v1.Anno"
+    }
+    
+    #Download
+    if(!file.exists(file.path(annoPath, basename(url)))){
+      message("Annotation ", basename(url)," does not exist! Downloading..")
+      download.file(
+        url = url, 
+        destfile = file.path(annoPath, basename(url)),
+        quiet = FALSE
+      )
+    }
+    AnnoFile <- file.path(annoPath, basename(url))
+
+  }else if(tolower(db) == "archr"){
+
+    if(genome == "hg19"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Hg19-v1.Anno"
+    }else if(genome == "hg38"){
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Hg38-v1.Anno"
+    }else if(genome == "mm9"){
+      stop("ArchR mm9 annotations not yet supported! Try LOLA for now!")
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm9-v1.Anno"
+    }else if(genome == "mm10"){
+      stop("ArchR mm10 annotations not yet supported! Try LOLA for now!")
+      url <- "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/ArchR-Mm10-v1.Anno"
+    }
+
+    #Download
+    if(!file.exists(file.path(annoPath, basename(url)))){
+      message("Annotation ", basename(url)," does not exist! Downloading..")
+      download.file(
+        url = url, 
+        destfile = file.path(annoPath, basename(url)),
+        quiet = FALSE
+      )
+    }
+    AnnoFile <- file.path(annoPath, basename(url))
+
+  }else if(tolower(db) %ni% c("archr", "lola")){
+
+    if(!file.exists(db)){
+      stop("Database path does not exist! Please supply valid database for Annotations!")
+    }
+    AnnoFile <- db
+
+  }else{
+
+    stop("Please supply valid database for Annotations!")
+
+  }
+
+  #Check AnnoFile is ArchRAnno
+  if (h5read(AnnoFile, "Class") != "ArchRAnno") {
+    stop("Not Valid ArchRAnno!")
+  }
+
+  #Check if Collection is Valid
+  h5d <- h5ls(AnnoFile)
+  collections <- h5d[h5d$group == "/" & h5d$otype == "H5I_GROUP",]$name
+  if(any(tolower(collections) == tolower(collection))){
+    collection <- collections[tolower(collections) %in% tolower(collection)]
+  }else{
+    stop("Not Valid Collection in ArchRAnno Database!")
+  }
+
+  #############################################################
+  # Peak Overlap Matrix
+  #############################################################
+  peakSet <- getPeakSet(ArchRProj)
+  chr <- paste0(unique(seqnames(peakSet)))
+
+  message("Annotating Chr: ", appendLF = FALSE)
+  regionMat <- lapply(seq_along(chr), function(i){
+    message(gsub("chr", " ", chr[i]), appendLF = FALSE)
+    regions <- .getRegionsFromAnno(AnnoFile = AnnoFile, Group = collection, chr = chr[i])
+    o <- DataFrame(findOverlaps(query = peakSet, subject = regions, ignore.strand = TRUE))
+    o$ID <- as.integer(mcols(regions)[o$subjectHits, "ID"])
+    o$subjectHits <- NULL
+    o
+  }) %>% Reduce("rbind", .)
+  message("\n")
+
+  regionMat <- Matrix::sparseMatrix(
+    i = regionMat[, 1], 
+    j = regionMat[, 2], 
+    x = rep(TRUE, nrow(regionMat)), 
+    dims = c(length(peakSet), length(unique(regionMat$ID)))
+  )
+
+  #Get Region Metadata
+  regionMetadata <- DataFrame(h5read(AnnoFile, paste0(collection,"/Info")))
+  rownames(regionMetadata) <- regionMetadata$name
+  colnames(regionMat) <- rownames(regionMetadata)
+  regionMetadata$name <- NULL
+
+  #Matches Summarized Experiment
+  regionMat <- SummarizedExperiment::SummarizedExperiment(
+    assays=SimpleList(matches = regionMat), 
+    rowRanges = peakSet, 
+    colData = regionMetadata
+  )
+
+  dir.create(file.path(getOutputDirectory(ArchRProj), "Annotations"), showWarnings=FALSE)
+  saveMatches <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Matches-In-Peaks.rds"))
+
+  out <- SimpleList(
+      regionMatches = regionMat,
+      regionPositions = "None",
+      date = Sys.Date()
+    )
+
+  ArchRProj@peakAnnotation[[name]]$Name <- name
+  ArchRProj@peakAnnotation[[name]]$Positions <- "None"
+  ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
+
+  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  saveRDS(out$regionMatches, saveMatches, compress = FALSE)
+
+  return(ArchRProj)
+
+}
+
+.getRegionsFromAnno <- function(
+  AnnoFile = NULL, 
+  Group = NULL,
+  chr = NULL, 
+  out = "GRanges", 
+  method = "fast"
+  ){
+
+  if(is.null(chr)){
+    stop("Need to provide chromosome to read!")
+  }
+
+  o <- h5closeAll()
+  if (h5read(AnnoFile, "Class") != "ArchRAnno") {
+  stop("Not Valid ArchRAnno!")
+  }
+  
+  if(chr %ni% .availableSeqnames(AnnoFile, Group)){
+    stop("Error Chromosome not in AnnoFile!")
+  }
+
+  o <- h5closeAll()
+  nRegions <- sum(.h5read(AnnoFile, paste0(Group,"/",chr,"/IDLengths"), method = method))
+
+  #nRegions <- h5ls(AnnoFile, recursive = TRUE) %>% 
+  #  {.[.$group==paste0("/",Group,"/",chr) & .$name == "Ranges",]$dim} %>% 
+  #  {gsub(" x 2","",.)} %>% as.integer
+
+  if(nRegions==0){
+    if(tolower(out)=="granges"){
+      output <- GRanges(seqnames = chr, IRanges(start = 1, end = 1), ID = "tmp")
+      output <- output[-1,]
+    }else{
+      output <- IRanges(start = 1, end = 1)
+      mcols(output)$ID <- c("tmp")
+      output <- output[-1,]
+    }
+    return(output)
+  }
+
+
+  if(tolower(method) == "fast"){
+    
+    output <- .h5read(AnnoFile, paste0(Group,"/",chr,"/Ranges"), method = method) %>% 
+      {IRanges(start = .[,1], width = .[,2])}
+    mcols(output)$ID <- Rle(
+      values =  .h5read(AnnoFile, paste0(Group,"/",chr,"/IDValues"), method = method), 
+      lengths = .h5read(AnnoFile, paste0(Group,"/",chr,"/IDLengths"), method = method)
+    )
+
+  }else{
+    o <- h5closeAll()
+  idRle <- Rle(h5read(AnnoFile, paste0(Group,"/",chr,"/IDValues")), h5read(AnnoFile, paste0(Group,"/",chr,"/IDLengths")))
+  idx <- seq_along(idRle)
+  if(length(idx) > 0){
+    output <- h5read(AnnoFile, paste0(Group,"/",chr,"/Ranges"), index = list(idx, 1:2)) %>% 
+      {IRanges(start = .[,1], width = .[,2])}
+    mcols(output)$ID <- idRle[idx]
+  }else{
+    output <- IRanges(start = 1, end = 1)
+    mcols(output)$ID <- c("tmp")
+    output <- output[-1,]
+  }
+
+  }
+  
+  o <- h5closeAll()
+
+  if(tolower(out)=="granges"){
+    if(length(output) > 0){
+      output <- GRanges(seqnames = chr, ranges(output), ID = mcols(output)$ID)    
+    }else{
+      output <- IRanges(start = 1, end = 1)
+      mcols(output)$ID <- c("tmp")
+      output <- GRanges(seqnames = chr, ranges(output), ID = mcols(output)$ID)
+      output <- output[-1,]
+    }
+  }
+
+  return(output)
+
+}
+
 #' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
 #' 
 #' This function will perform hypergeometric enrichment of a given peak annotation within the defined marker peaks.
@@ -482,7 +734,6 @@ addMotifAnnotations <- function(
 #' @param matches A custom `peakAnnotation` matches object used as input for the hypergeometric test. See `motifmatchr::matchmotifs()` for additional information.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` to use. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param background A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").
-#' @param ... additional args
 #' @export
 peakAnnoEnrichment <- function(
   seMarker = NULL,
@@ -490,8 +741,7 @@ peakAnnoEnrichment <- function(
   peakAnnotation = NULL,
   matches = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
-  background = "all",
-  ...
+  background = "all"
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -568,7 +818,7 @@ peakAnnoEnrichment <- function(
 
 }
 
-.computeEnrichment <- function(matches, compare, background){
+.computeEnrichment <- function(matches = NULL, compare = NULL, background = NULL){
 
   matches <- .getAssay(matches,  grep("matches", names(assays(matches)), value = TRUE, ignore.case = TRUE))
   
@@ -602,8 +852,8 @@ peakAnnoEnrichment <- function(
     return(p/log(10))
   }) %>% unlist %>% round(4)
 
-  #Minus Log10 FDR
-  pOut$mlog10FDR <- -log10(p.adjust(matrixStats::rowMaxs(cbind(10^-pOut$mlog10p, 4.940656e-324)), method = "fdr"))
+  #Minus Log10 Padj
+  pOut$mlog10Padj <- pOut$mlog10p - log10(ncol(pOut))
   pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
 
   pOut
@@ -621,51 +871,147 @@ peakAnnoEnrichment <- function(
 #' @param clusterCols A boolean indicating whether or not to cluster columns in the heatmap.
 #' @param clusterRows A boolean indicating whether or not to cluster rows in the heatmap.
 #' @param labelRows A boolean indicating whether or not to label all rows in the heatmap.
-#' @param ... additional args
 #' @export
 enrichHeatmap <- function(
   seEnrich = NULL,
-  pal = paletteContinuous(set = "white_blue_purple", n = 100),
-  limits = c(0, 60),
+  pal = paletteContinuous(set = "comet", n = 100),
   n = 10,
+  cutOff = 20,
+  pMax = Inf,
   clusterCols = TRUE,
-  clusterRows = TRUE,
+  binaryClusterRows = TRUE,
   labelRows = TRUE,
-  ...
+  rastr = TRUE,
+  transpose = TRUE,
+  returnMatrix = FALSE
   ){
 
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
   .validInput(input = pal, name = "pal", valid = c("character"))
-  .validInput(input = limits, name = "limits", valid = c("numeric"))
+  #.validInput(input = limits, name = "limits", valid = c("numeric"))
   .validInput(input = n, name = "n", valid = c("integer"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
-  .validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
+  #.validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
 
-  mat <- assays(seEnrich)[["mlog10FDR"]]
-  mat[mat < min(limits)] <- min(limits)
-  mat[mat > max(limits)] <- max(max(limits), 25)
+  mat <- assays(seEnrich)[["mlog10Padj"]]
+  #mat[mat < min(limits)] <- min(limits)
 
   keep <- lapply(seq_len(ncol(mat)), function(x){
-    rownames(mat)[head(order(mat[, x], decreasing = TRUE), n)]
+    idx <- head(order(mat[, x], decreasing = TRUE), n)
+    rownames(mat)[idx[which(mat[idx,x] > cutOff)]]
   }) %>% unlist %>% unique
 
-  ht <- .ArchRHeatmap(
-    mat = as.matrix(mat[keep, ,drop = FALSE]),
-    scale = FALSE,
-    limits = c(min(mat), max(mat)),
-    color = pal, 
-    clusterCols = clusterCols, 
-    clusterRows = clusterRows,
-    labelRows = labelRows,
-    labelCols = TRUE,
-    showColDendrogram = TRUE,
-    draw = FALSE,
-    name = "Enrichment -log10(FDR)",
-    ...
-  )
+  mat <- mat[keep, ,drop = FALSE]
+  passMat <- lapply(seq_len(nrow(mat)), function(x){
+    (mat[x, ] >= 0.9*max(mat[x, ])) * 1
+  }) %>% Reduce("rbind", .) %>% data.frame
+  colnames(passMat) <- colnames(mat)
+
+  mat[mat > pMax] <- pMax
+
+  if(nrow(mat)==0){
+    stop("No enrichments found!")
+  }
+
+  mat <- .rowScale(as.matrix(mat), min = 0)
+  if(pMax != 100){
+      rownames(mat[[1]]) <- paste0(rownames(mat[[1]]), " (",round(mat$max),")")
+      rownames(passMat) <- rownames(mat[[1]])
+  }
+
+  mat2 <- mat[[1]] * 100
+
+  if(binaryClusterRows){
+    #cn <- order(colMeans(mat2), decreasing=TRUE)
+    bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = clusterCols)
+    mat2 <- bS[[1]][,colnames(mat2)]
+    clusterRows <- FALSE
+    clusterCols <- bS[[2]]
+  }else{
+    clusterRows <- TRUE
+  }
+
+  if(nrow(mat2) > 100){
+    borderColor <- FALSE
+  }else{
+    borderColor <- TRUE
+  }
+
+  if(transpose){
+
+    if(!is.null(clusterCols)){
+      mat2 <- t(mat2[,clusterCols$order])
+    }else{
+      mat2 <- t(mat2)
+    }
+
+    #mat2 <- t(mat2[rev(seq_len(nrow(mat2))), ])
+
+    if(returnMatrix){
+      return(mat2)
+    }
+
+    ht <- .ArchRHeatmap(
+      mat = as.matrix(mat2),
+      scale = FALSE,
+      limits = c(0, max(mat2)),
+      color = pal, 
+      clusterCols = FALSE, 
+      clusterRows = FALSE,
+      #clusterRows = rev(as.dendrogram(clusterCols)),
+      labelRows = TRUE,
+      useRaster = rastr,
+      fontSizeCols = 6,
+      borderColor = borderColor,
+      #labelCols = labelRows,
+      customColLabel = seq_len(ncol(mat2)),
+      showRowDendrogram = FALSE,
+      draw = FALSE,
+      name = "Enrichment -log10(P-adj) [0-Max]"
+    )
+
+
+  }else{
+
+    if(returnMatrix){
+      return(mat2)
+    }
+
+    ht <- .ArchRHeatmap(
+      mat = as.matrix(mat2),
+      scale = FALSE,
+      limits = c(0, max(mat2)),
+      color = pal, 
+      clusterCols = clusterCols, 
+      clusterRows = clusterRows,
+      useRaster = rastr,
+      borderColor = borderColor,
+      fontSizeRows = 6,
+      #labelRows = labelRows,
+      customRowLabel = seq_len(nrow(mat2)),
+      labelCols = TRUE,
+      showColDendrogram = TRUE,
+      draw = FALSE,
+      name = "Enrichment -log10(P-adj) [0-Max]"
+    )
+
+  }
 
   return(ht)
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 

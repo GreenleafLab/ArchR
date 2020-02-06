@@ -4,15 +4,24 @@
 \alias{addGeneScoreMatrix}
 \title{Add GeneScoreMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneScoreMatrix(input = NULL, genes = ifelse(inherits(input,
-  "ArchRProject"), getGenes(input), NULL),
+addGeneScoreMatrix(
+  input = NULL,
+  genes = if (inherits(input, "ArchRProject")) getGenes(input) else NULL,
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
-  matrixName = "GeneScoreMatrix", upstream = c(5000, 1e+05),
-  downstream = c(5000, 1e+05), tileSize = 500, ceiling = 4,
-  useGeneBoundaries = TRUE, scaleTo = 10000, excludeChr = c("chrY",
-  "chrM"), blacklist = ifelse(inherits(input, "ArchRProject"),
-  getBlacklist(input), NULL), threads = getArchRThreads(),
-  parallelParam = NULL, force = FALSE, ...)
+  matrixName = "GeneScoreMatrix",
+  upstream = c(5000, 1e+05),
+  downstream = c(5000, 1e+05),
+  tileSize = 500,
+  ceiling = 4,
+  useGeneBoundaries = TRUE,
+  scaleTo = 10000,
+  excludeChr = c("chrY", "chrM"),
+  blacklist = if (inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  subThreading = TRUE,
+  force = FALSE
+)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
@@ -33,7 +42,7 @@ addGeneScoreMatrix(input = NULL, genes = ifelse(inherits(input,
 
 \item{useGeneBoundaries}{A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.}
 
-\item{scaleTo}{A numeric value indicating what depth-normalize the computed geneScores to across all cells. This normalization is useful for direct comparison.}
+\item{scaleTo}{Each column in the calculated gene score matrix will be normalized to a column sum designated by \code{scaleTo}.}
 
 \item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
@@ -42,6 +51,8 @@ addGeneScoreMatrix(input = NULL, genes = ifelse(inherits(input,
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
+
+\item{subThreading}{A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{input}.}
 }

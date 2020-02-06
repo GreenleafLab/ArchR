@@ -1,8 +1,9 @@
 ##########################################################################################
 # Validation Methods
 ##########################################################################################
-#' @export
 .validInput <- function(input = NULL, name = NULL, valid = NULL){
+
+  valid <- unique(valid)
 
   if(is.character(valid)){
     valid <- tolower(valid)
@@ -14,7 +15,13 @@
     stop("name must be a character!")
   }
 
-  av <- lapply(seq_along(valid), function(i){
+  if("null" %in% tolower(valid)){
+    valid <- c("null", valid[which(tolower(valid) != "null")])
+  }
+
+  av <- FALSE
+
+  for(i in seq_along(valid)){
 
     vi <- valid[i]
 
@@ -51,13 +58,18 @@
 
       cv <- is.character(input)
 
+    }else if(vi == "rlecharacter"){
+
+      cv1 <- is(input, "Rle")
+      if(cv1){
+        cv <- is(input@values, "factor") || is(input@values, "character")
+      }else{
+        cv <- FALSE
+      }
+
     }else if(vi == "palette"){
 
-      #https://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation
-      isColor <- function(x){
-       unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), error = function(e) FALSE)))
-      }
-      cv <- all(isColor(input))
+      cv <- all(.isColor(input))
 
     }else if(vi == "timestamp"){
 
@@ -121,7 +133,12 @@
 
     }
 
-  }) %>% Reduce("c", .) %>% any
+    if(cv){
+      av <- TRUE
+      break
+    }   
+     
+  }
 
   if(av){
 
@@ -135,12 +152,17 @@
 
 }
 
+#https://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation
+.isColor <- function(x = NULL){
+  unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), error = function(e) FALSE)))
+}
+
 #' Get/Validate BSgenome
 #' 
 #' This function will attempt to get or validate an input as a BSgenome.
 #' 
-#' @param genome The name of a valid genome (for example "hg38", "hg19", or "mm10"), name of a BSgenome package (BSgenome.Hsapiens.UCSC.hg19) or a BSgenome object.
-#' @param masked A boolean describing whether or not to access the masked genome versino. See `BSgenome::getBSgenome()`.
+#' @param genome This option must be one of the following: (i) the name of a valid genome (for example "hg38", "hg19", or "mm10"), (ii) the name of a `BSgenome` package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a `BSgenome` object.
+#' @param masked A boolean describing whether or not to access the masked version of the selected genome. See `BSgenome::getBSgenome()`.
 #' @export
 validBSgenome <- function(genome = NULL, masked = FALSE){
   stopifnot(!is.null(genome))
@@ -164,7 +186,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }  
 }
 
-#' @export
 .validTxDb <- function(TxDb = NULL){
   stopifnot(!is.null(TxDb))
   if(inherits(TxDb, "TxDb")){
@@ -176,7 +197,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }
 }
 
-#' @export
 .validOrgDb <- function(OrgDb = NULL){
   stopifnot(!is.null(OrgDb))
   if(inherits(OrgDb, "OrgDb")){
@@ -188,7 +208,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }
 }
 
-#' @export
 .validGRanges <- function(gr = NULL){
   stopifnot(!is.null(gr))
   if(inherits(gr, "GRanges")){
@@ -198,8 +217,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }
 }
 
-#' @export
-.validGeneAnnotation <- function(geneAnnotation, ...){
+.validGeneAnnotation <- function(geneAnnotation = NULL){
   
   if(!inherits(geneAnnotation, "SimpleList")){
     if(inherits(geneAnnotation, "list")){
@@ -223,8 +241,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
 }
 
-#' @export
-.validGenomeAnnotation <- function(genomeAnnotation, ...){
+.validGenomeAnnotation <- function(genomeAnnotation = NULL){
   
   if(!inherits(genomeAnnotation, "SimpleList")){
     if(inherits(genomeAnnotation, "list")){
@@ -256,8 +273,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
 }
 
-#' @export
-.validArchRProject <- function(ArchRProj, ...){
+.validArchRProject <- function(ArchRProj = NULL){
   if(!inherits(ArchRProj, "ArchRProject")){
     stop("Not a valid ArchRProject as input!")
   }else{
@@ -300,8 +316,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 # Helper Intermediate Methods
 ##########################################################################################
 
-#' @export
-.mergeParams <- function(paramInput, paramDefault){
+.mergeParams <- function(paramInput = NULL, paramDefault = NULL){
   for(i in seq_along(paramDefault)){
     if(!(names(paramDefault)[i] %in% names(paramInput))){
       paramInput[[names(paramDefault)[i]]] <- paramDefault[[i]]
@@ -310,8 +325,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(paramInput)
 }
 
-#' @export
-.requirePackage <- function(x, load = TRUE, installInfo = NULL){
+.requirePackage <- function(x = NULL, load = TRUE, installInfo = NULL){
   if(x %in% rownames(installed.packages())){
     if(load){
       suppressPackageStartupMessages(require(x, character.only = TRUE))
@@ -327,8 +341,18 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }
 }
 
-#' @export
-.messageDiffTime <- function(main = "", t1 = NULL, verbose = TRUE, addHeader = FALSE, t2 = Sys.time(), units = "mins", header = "###########", tail = "elapsed...", precision = 3){
+.messageDiffTime <- function(
+  main = "",
+  t1 = NULL,
+  verbose = TRUE,
+  addHeader = FALSE,
+  t2 = Sys.time(),
+  units = "mins",
+  header = "###########",
+  tail = "elapsed..",
+  precision = 3
+  ){
+
   if(verbose){
     timeStamp <- tryCatch({
       dt <- abs(round(difftime(t2, t1, units = units),precision))
@@ -344,11 +368,38 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(0)
 }
 
+
+#' @export
+#JJJ
+mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabels)){
+
+  .validInput(input = labels, name = "labels", valid = c("character"))
+  .validInput(input = newLabels, name = "newLabels", valid = c("character"))
+  .validInput(input = oldLabels, name = "oldLabels", valid = c("character"))
+
+  if(length(newLabels) != length(oldLabels)){
+    stop("newLabels and oldLabels must be equal length!")
+  }
+
+  if(!requireNamespace("plyr", quietly = TRUE)){
+    labels <- paste0(labels)
+    oldLabels <- paste0(oldLabels)
+    newLabels <- paste0(newLabels)
+    labelsNew <- labels
+    for(i in seq_along(oldLabels)){
+        labelsNew[labels == oldLabels[i]] <- newLabels[i]
+    }
+    paste0(labelsNew)
+  }else{
+    paste0(plyr::mapvalues(x = labels, from = oldLabels, to = newLabels))
+  }
+
+}
+
 ##########################################################################################
 # Lapply Methods
 ##########################################################################################
 
-#' @export
 .safelapply <- function(..., threads = 1, preschedule = FALSE){
 
   if(tolower(.Platform$OS.type) == "windows"){
@@ -375,8 +426,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
 }
 
-#' @export
-.batchlapply <- function(args, sequential = FALSE){
+.batchlapply <- function(args = NULL, sequential = FALSE){
 
   if(is.null(args$tstart)){
     args$tstart <- Sys.time()
@@ -384,6 +434,8 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
   #Determine Parallel Backend
   if(inherits(args$parallelParam, "BatchtoolsParam")){
+
+    stop("Batchtools not yet fully supported please use local parallel threading!")
 
     .messageDiffTime("Batch Execution w/ BatchTools through BiocParallel!", args$tstart)
 
@@ -418,6 +470,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
     }
 
     #Run
+    args <- args[names(args) %ni% c("threads", "parallelParam", "subThreading")]
     outlist <- do.call(bplapply, args)
 
   }else{
@@ -428,12 +481,14 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
       args$threads <- 1
     }else{
       if(args$threads > length(args$X)){
-        args$subThreads <- floor( (args$threads - length(args$X) ) / length(args$X))
+        args$subThreads <- floor( args$threads / length(args$X) )
         args$threads <- length(args$X)
       }else{
         args$subThreads <- 1
       }
     }
+
+    args <- args[names(args) %ni% c("registryDir", "parallelParam", "subThreading")]
     outlist <- do.call(.safelapply, args)
 
   }
@@ -446,8 +501,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 # Stat/Summary Methods
 ##########################################################################################
 
-#' @export
-.rowZscores <- function(m,min=-2,max=2,limit=FALSE){
+.rowZscores <- function(m = NULL, min = -2, max = 2, limit = FALSE){
   z <- sweep(m - rowMeans(m), 1, matrixStats::rowSds(m),`/`)
   if(limit){
     z[z > max] <- max
@@ -456,9 +510,8 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(z)
 }
 
-#' @export
-.computeROC <- function(labels, scores, name="ROC"){
-  calcAUC <- function(TPR, FPR){
+.computeROC <- function(labels = NULL, scores = NULL, name="ROC"){
+  .calcAUC <- function(TPR = NULL, FPR = NULL){
     # http://blog.revolutionanalytics.com/2016/11/calculating-auc.html
     dFPR <- c(diff(FPR), 0)
     dTPR <- c(diff(TPR), 0)
@@ -470,13 +523,12 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
     False_Positive_Rate = cumsum(!labels)/sum(!labels),
     True_Positive_Rate =  cumsum(labels)/sum(labels)
     )
-  df$AUC <- round(calcAUC(df$True_Positive_Rate,df$False_Positive_Rate),3)
+  df$AUC <- round(.calcAUC(df$True_Positive_Rate,df$False_Positive_Rate),3)
   df$name <- name
   return(df)
 }
 
-#' @export
-.getQuantiles <- function(v, len = length(v)){
+.getQuantiles <- function(v = NULL, len = length(v)){
   if(length(v) < len){
     v2 <- rep(0, len)
     v2[seq_along(v)] <- v
@@ -490,8 +542,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(p)
 }
 
-#' @export
-.rowScale <- function(mat, min = NULL, max = NULL){
+.rowScale <- function(mat = NULL, min = NULL, max = NULL){
   if(!is.null(min)){
     rMin <- min
   }else{
@@ -505,12 +556,11 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   rScale <- rMax - rMin
   matDiff <- mat - rMin
   matScale <- matDiff/rScale
-  out <- list(mat=matScale, min=rMax, max=rMin)
+  out <- list(mat=matScale, min=rMin, max=rMax)
   return(out)
 }
 
-#' @export
-.quantileCut <- function(x, lo = 0.025, hi = 0.975, maxIf0 = TRUE){
+.quantileCut <- function(x = NULL, lo = 0.025, hi = 0.975, maxIf0 = TRUE){
   q <- quantile(x, probs = c(lo,hi))
   if(q[2] == 0){
     if(maxIf0){
@@ -522,8 +572,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(x)
 }
 
-#' @export
-.normalizeCols <- function(mat, colSm = NULL, scaleTo = NULL){
+.normalizeCols <- function(mat = NULL, colSm = NULL, scaleTo = NULL){
     if(is.null(colSm)){
         colSm <- Matrix::colSums(mat)
     }
@@ -535,8 +584,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
     return(mat)
 }
 
-#' @export
-.confusionMatrix <- function(i,j){
+.confusionMatrix <- function(i = NULL, j = NULL){
   ui <- unique(i)
   uj <- unique(j)
   m <- Matrix::sparseMatrix(
@@ -550,8 +598,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   m
 }
 
-#' @export
-.safeSubset <- function(mat, subsetRows = NULL, subsetCols = NULL){
+.safeSubset <- function(mat = NULL, subsetRows = NULL, subsetCols = NULL){
   
   if(!is.null(subsetRows)){
     idxNotIn <- which(subsetRows %ni% rownames(mat))
@@ -579,8 +626,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
 }
 
-#' @export
-.groupMeans <- function(mat, groups=NULL, na.rm = TRUE, sparse = FALSE){
+.groupMeans <- function(mat = NULL, groups=NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
   gm <- lapply(unique(groups), function(x){
@@ -594,8 +640,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(gm)
 }
 
-#' @export
-.groupSums <- function(mat, groups=NULL, na.rm = TRUE, sparse = FALSE){
+.groupSums <- function(mat = NULL, groups=NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
   gm <- lapply(unique(groups), function(x){
@@ -609,8 +654,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(gm)
 }
 
-#' @export
-.groupSds <- function(mat, groups = NULL, na.rm = TRUE, sparse = FALSE){
+.groupSds <- function(mat = NULL, groups = NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
   gs <- lapply(unique(groups), function(x){
@@ -624,8 +668,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(gs)
 }
 
-#' @export
-.centerRollMean <- function(v, k){
+.centerRollMean <- function(v = NULL, k = NULL){
   o1 <- data.table::frollmean(v, k, align = "right", na.rm = FALSE)
   if(k%%2==0){
     o2 <- c(rep(o1[k], floor(k/2)-1), o1[-seq_len(k-1)], rep(o1[length(o1)], floor(k/2)))
@@ -641,20 +684,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 # Miscellaneous Methods
 ##########################################################################################
 
-#' @export
-.cleanParams <- function(params, maxSize = 0.05){
-  lapply(params, function(x){
-    os <- object.size(x)
-    if(os > 10^6 * maxSize){
-      NULL
-    }else{
-      x
-    }
-  })
-}
-
-#' @export
-.splitEvery <- function(x, n){
+.splitEvery <- function(x = NULL, n = NULL){
   #https://stackoverflow.com/questions/3318333/split-a-vector-into-chunks-in-r
   if(is.atomic(x)){
     split(x, ceiling(seq_along(x) / n))
@@ -663,33 +693,29 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }
 }
 
-#' @export
-.suppressAll <- function(expr){
+.suppressAll <- function(expr = NULL){
   suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
 }
 
-#' @export
-.getAssay <- function(se, assayName = NULL){
-  assayNames <- function(se){
+.getAssay <- function(se = NULL, assayName = NULL){
+  .assayNames <- function(se){
     names(SummarizedExperiment::assays(se))
   }
   if(is.null(assayName)){
     o <- SummarizedExperiment::assay(se)
-  }else if(assayName %in% assayNames(se)){
+  }else if(assayName %in% .assayNames(se)){
     o <- SummarizedExperiment::assays(se)[[assayName]]
   }else{
-    stop(sprintf("assayName '%s' is not in assayNames of se : %s", assayName, paste(assayNames(se),collapse=", ")))
+    stop(sprintf("assayName '%s' is not in assayNames of se : %s", assayName, paste(.assayNames(se),collapse=", ")))
   }
   return(o)
 }
 
-#' @export
-.fileExtension <- function (x){
+.fileExtension <- function (x = NULL){
   pos <- regexpr("\\.([[:alnum:]]+)$", x)
   ifelse(pos > -1L, substring(x, pos + 1L), "")
 }
 
-#' @export
 .checkPath <- function(u = NULL, path = NULL, throwError = TRUE){
   if(is.null(u)){
     out <- TRUE
@@ -713,7 +739,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(out)
 }
 
-#' @export
 .tempfile <- function(pattern = "tmp", tmpdir = "tmp", fileext = "", addDOC = TRUE){
 
   dir.create(tmpdir, showWarnings = FALSE)
@@ -728,7 +753,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
 }
 
-#' @export
 .ArchRLogo <- function(ascii = "Logo"){
   Ascii <- list(
     Package = c("
@@ -768,3 +792,72 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   message(Ascii[[ascii]])
 }
 
+
+########
+# Developer Utils
+########
+
+.devMode <- function(){
+  fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
+  for(i in seq_along(fn)){
+    tryCatch({
+      eval(parse(text=paste0(fn[i], '<-ArchR:::', fn[i])))
+    }, error = function(x){
+    })
+  }
+}
+
+.convertToPNG <- function(
+  ArchRProj = NULL,
+  paths = c("QualityControl"),
+  recursive = TRUE,
+  outDir = "Figures"
+  ){
+
+  #If error try
+  #brew install fontconfig
+
+  library(pdftools)
+
+  if(!is.null(ArchRProj)){
+    paths <- c(paths, file.path(getOutputDirectory(ArchRProj), "Plots"))
+  }
+  
+  pdfFiles <- lapply(seq_along(paths), function(i){
+    if(recursive){
+      dirs <- list.dirs(paths[i], recursive = FALSE, full.names = FALSE)
+      if(length(dirs) > 0){
+        pdfs <- lapply(seq_along(dirs), function(j){
+          list.files(file.path(paths[i], dirs[j]), full.names = TRUE, pattern = "\\.pdf")
+        }) %>% unlist
+      }else{
+        pdfs <- c()
+      }
+      pdfs <- c(list.files(paths[i], full.names = TRUE, pattern = "\\.pdf"), pdfs)
+    }else{
+      pdfs <- list.files(paths[i], full.names = TRUE, pattern = "\\.pdf")
+    }
+    pdfs
+  }) %>% unlist
+
+  dir.create(outDir, showWarnings = FALSE)
+
+  for(i in seq_along(pdfFiles)){
+    print(i)
+    tryCatch({
+      pdf_convert(
+        pdfFiles[i], 
+        format = "png", 
+        pages = NULL, 
+        filenames = file.path(outDir, gsub("\\.pdf", "_%d.png",basename(pdfFiles[i]))),
+        dpi = 300, 
+        opw = "", 
+        upw = "", 
+        verbose = TRUE
+      )
+    },error=function(x){
+      0
+    })
+  }
+
+}

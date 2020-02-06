@@ -4,15 +4,14 @@
 \alias{ggAlignPlots}
 \title{Align ggplot plots vertically or horizontally}
 \usage{
-ggAlignPlots(..., plotList = NULL, sizes = NULL, type = "v",
-  draw = TRUE)
+ggAlignPlots(..., plotList = NULL, sizes = NULL, type = "v", draw = TRUE)
 }
 \arguments{
 \item{...}{All additional arguments will be interpreted as \code{ggplot2} plot objects and used if and only if \code{plotList} is \code{NULL}}
 
 \item{plotList}{A list of \code{ggplot2} plot objects to be aligned.}
 
-\item{sizes}{A numeric vector or list of values indicating the relative size for each of the objects in \code{plotList} or supplied in \code{...}. If the plot is supplied in \code{...} the order is the same as the input in this function.}
+\item{sizes}{A numeric vector or list of values indicating the relative size for each of the objects in \code{plotList} or supplied in \code{...}. If the plot is supplied in \code{...} the order is the same as the input in this function. If set to NULL all plots will be evenly distributed.}
 
 \item{type}{A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.}
 

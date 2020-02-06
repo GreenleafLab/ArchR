@@ -16,16 +16,17 @@
 #' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
 #' @param ceiling The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
 #' @param useGeneBoundaries A boolean value indicating whether gene boundaries should be employed during gene activity score calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene if there is a second gene's transcription start site between the tile and the gene of interest.
-#' @param scaleTo A numeric value indicating what depth-normalize the computed geneScores to across all cells. This normalization is useful for direct comparison.
+#' @param scaleTo Each column in the calculated gene score matrix will be normalized to a column sum designated by `scaleTo`.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param blacklist A `GRanges` object containing genomic regions to blacklist that may be extremeley over-represented and thus biasing the geneScores for genes nearby that locus.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
-  genes = ifelse(inherits(input, "ArchRProject"), getGenes(input), NULL),
+  genes = if(inherits(input, "ArchRProject")) getGenes(input) else NULL,
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
   matrixName = "GeneScoreMatrix",
   upstream = c(5000, 100000),
@@ -35,11 +36,11 @@ addGeneScoreMatrix <- function(
   useGeneBoundaries = TRUE,
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
-  blacklist = ifelse(inherits(input, "ArchRProject"), getBlacklist(input), NULL),
+  blacklist = if(inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE,
-  ...
+  subThreading = TRUE,
+  force = FALSE
   ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -85,9 +86,22 @@ addGeneScoreMatrix <- function(
   args$X <- seq_along(ArrowFiles)
   args$FUN <- .addGeneScoreMat
   args$registryDir <- file.path(outDir, "GeneScoresRegistry")
+  
+  if(subThreading){
+    h5disableFileLocking()
+  }else{
+    args$threads <- length(inputFiles)
+  }
+
+  #Remove Input from args
+  args$input <- NULL
 
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
+
+  if(subThreading){
+    h5enableFileLocking()
+  }
 
   if(inherits(input, "ArchRProject")){
 
@@ -119,7 +133,7 @@ addGeneScoreMatrix <- function(
   allCells = NULL,
   force = FALSE,
   tmpFile = NULL,
-  ...
+  subThreads = 1
   ){
 
   .validInput(input = i, name = "i", valid = c("integer"))
@@ -187,13 +201,11 @@ addGeneScoreMatrix <- function(
 
   tstart <- Sys.time()
 
-  totalGS <- rep(0, length(cellNames))
-  names(totalGS) <- cellNames
 
   #########################################################################################################
   #First we will write gene scores to a temporary path! rhdf5 delete doesnt actually delete the memory!
   #########################################################################################################
-  for(z in seq_along(geneStart)){
+  totalGS <- .safelapply(seq_along(geneStart), function(z){
 
     #Get Gene Starts
     geneStarti <- geneStart[[z]]
@@ -295,7 +307,7 @@ addGeneScoreMatrix <- function(
     #Calculate Gene Scores
     matGS <- tmp %*% matGS
     colnames(matGS) <- cellNames
-    totalGS <- totalGS + Matrix::colSums(matGS)
+    totalGSz <- Matrix::colSums(matGS)
 
     #Save tmp file
     saveRDS(matGS, file = paste0(tmpFile, "-", chri, ".rds"), compress = FALSE)
@@ -304,7 +316,9 @@ addGeneScoreMatrix <- function(
     rm(matGS, tmp)
     gc()
 
-  }
+    totalGSz
+
+  }, threads = subThreads) %>% Reduce("+", .)
 
 
   #########################################################################################################

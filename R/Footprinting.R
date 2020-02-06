@@ -9,7 +9,7 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param positions A `list` or `GenomicRangesList` of `GRanges` containing the positions to incorporate into the footprint. Each position should be stranded.
 #' @param plotName The prefix to add to the file name for the output PDF file containing the footprint plots.
-#' @param groupBy The name of the column in `cellColData` used in `addGroupCoverages` for grouping multiple cells together (see `addGroupCoverages`).
+#' @param groupBy The name of the column in `cellColData` used in the `addGroupCoverages()` function for grouping multiple cells together.
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform footprinting.
 #' @param pal The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
 #' @param flank The number of basepairs from the position center (+/-) to consider as the flank.
@@ -26,7 +26,6 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... additional args
 #' @export
 plotFootprints <- function(
   ArchRProj = NULL,
@@ -48,8 +47,7 @@ plotFootprints <- function(
   useSink = TRUE,
   threads = getArchRThreads(),
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -134,6 +132,11 @@ plotFootprints <- function(
 
   .messageDiffTime("Plotting Footprints", tstart, addHeader = verboseAll)
 
+  if(is.null(pal)){
+    groups <- getCellColData(ArchRProj, groupBy, drop= TRUE)
+    pal <- paletteDiscrete(values = gtools::mixedsort(unique(groups)))
+  }
+
   o <- tryCatch({
     if(useSink){
       tmpFile <- .tempfile()
@@ -192,7 +195,16 @@ plotFootprints <- function(
 
 }
 
-.ggFootprint <- function(seFoot, name, pal, smoothWindow, flank, flankNorm, baseSize = 6, normMethod, ...){
+.ggFootprint <- function(
+  seFoot = NULL,
+  name = NULL,
+  pal = NULL,
+  smoothWindow = NULL,
+  flank = NULL,
+  flankNorm = NULL,
+  baseSize = 6,
+  normMethod = NULL
+  ){
 
   #Get Footprint Info
   rowDF <- SummarizedExperiment::rowData(seFoot)
@@ -249,7 +261,7 @@ plotFootprints <- function(
 
   #Plot GG
   if(is.null(pal)){
-    pal <- paletteDiscrete(values=SummarizedExperiment::colData(seFoot)$Group)
+    pal <- paletteDiscrete(values=gtools::mixedsort(SummarizedExperiment::colData(seFoot)$Group))
   }
 
   plotMax <- plotFootDF[order(plotFootDF$mean,decreasing=TRUE),]
@@ -290,7 +302,12 @@ plotFootprints <- function(
 
 }
 
-.ggSmallLegend <- function(gg, pointSize = 2, baseSize = 5, spaceLegend = 0.1) {
+.ggSmallLegend <- function(
+  gg = NULL,
+  pointSize = 2,
+  baseSize = 5,
+  spaceLegend = 0.1
+  ) {
     #https://stackoverflow.com/questions/52297978/decrease-overal-legend-size-elements-and-text
     gg +
         guides(shape = guide_legend(override.aes = list(size = pointSize)),
@@ -304,19 +321,17 @@ plotFootprints <- function(
 # Summarize Footprints into a Summarized Experiment for Plotting 
 #####################################################################################################
 
-#' @export
 .summarizeFootprints <- function(
   ArchRProj = NULL,
-  positions,
+  positions = NULL,
   groupBy = "Clusters",
   useGroups = NULL,
   minCells = 25,
   flank = 250,
-  threads = 16,
+  threads = 1,
   force = FALSE,
   verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
+  verboseAll = FALSE
   ){
 
   if(verboseAll){
@@ -397,7 +412,7 @@ plotFootprints <- function(
 
 }
 
-.computeFootprintsBias <- function(kmerTableList, coverageFiles, threads = 8, verbose = TRUE){
+.computeFootprintsBias <- function(kmerTableList = NULL, coverageFiles = NULL, threads = 1, verbose = TRUE){
   tstart <- Sys.time()
   out <- .safelapply(seq_along(coverageFiles), function(i){
       .messageDiffTime(sprintf("Computing Footprints Bias %s of %s:", i, length(coverageFiles)),tstart,verbose=verbose)
@@ -406,7 +421,7 @@ plotFootprints <- function(
   return(out)
 }
 
-.computeFootprintsBiasSingle <- function(kmerTableList, coverageFile){
+.computeFootprintsBiasSingle <- function(kmerTableList = NULL, coverageFile = NULL){
   kmerTableList <- as(kmerTableList, "list")
   oe <- h5read(coverageFile, "KmerBias/ObservedKmers") / h5read(coverageFile, "KmerBias/ExpectedKmers")
   names(oe) <- h5read(coverageFile, "KmerBias/Kmer")
@@ -419,7 +434,7 @@ plotFootprints <- function(
   biasDF    
 }
 
-.computeFootprints <- function(featureList, coverageFiles, flank = 250, threads = 8, verbose = TRUE){
+.computeFootprints <- function(featureList = NULL, coverageFiles = NULL, flank = 250, threads = 1, verbose = TRUE){
   tstart <- Sys.time()
   out <- .safelapply(seq_along(coverageFiles), function(i){
     .computeFootprintsSingle(featureList, coverageFiles[i], flank, gc = TRUE, 
@@ -431,7 +446,7 @@ plotFootprints <- function(
   return(out)
 }
 
-.computeFootprintsSingle <- function(featureList, coverageFile, flank = 250, gc = FALSE, pre = "", tstart, verbose = TRUE){
+.computeFootprintsSingle <- function(featureList = NULL, coverageFile = NULL, flank = 250, gc = FALSE, pre = "", tstart = NULL, verbose = TRUE){
   window <- 2 * flank + 1
   featureNames <- names(featureList)
   featureList <- as(featureList, "list")
@@ -439,7 +454,11 @@ plotFootprints <- function(
   cov <- .getCoverageRle(coverageFile, allChr)
   footprintDF <- lapply(seq_along(featureList), function(x){
     featurex <- split(resize(featureList[[x]],1,"center"), seqnames(featureList[[x]]))
-    outx <- ArchR:::rleSumsStranded(cov, featurex, window, as.integer) #Rcpp
+    intSeq <- intersect(names(featurex), names(cov))
+    if(length(intSeq)==0){
+      stop("No intersecting chromsomes for feature ", names(featureList)[x], "!")
+    }
+    outx <- ArchR:::rleSumsStranded(cov[intSeq], featurex[intSeq], window, as.integer) #Rcpp
     if(x %% 25 == 0 & gc){
       gc()
     }
@@ -458,7 +477,7 @@ plotFootprints <- function(
   footprintDF   
 }
 
-.getCoverageRle <- function(coverageFile, allChr){
+.getCoverageRle <- function(coverageFile = NULL, allChr = NULL){
   cov <- lapply(seq_along(allChr), function(x){
     Rle(
       lengths = h5read(coverageFile, paste0("Coverage/",allChr[x],"/Lengths")), 
@@ -469,7 +488,7 @@ plotFootprints <- function(
   cov
 }
 
-.kmerPositionFrequency <- function(featureList, genome, flank = 250, k = 6, threads = 8, verbose = TRUE){
+.kmerPositionFrequency <- function(featureList = NULL, genome = NULL, flank = 250, k = 6, threads = 1, verbose = TRUE){
   
   tstart <- Sys.time()
   genome <- validBSgenome(genome)
@@ -491,7 +510,7 @@ plotFootprints <- function(
   return(kmerList)
 }
 
-.getKmers <-function(k, letters = c('A','C','G','T')){
+.getKmers <-function(k = NULL, letters = c('A','C','G','T')){
   kmers = ''
   for (i in seq_len(k)) {
     kmers <- unlist(lapply(kmers, function(x) paste0(x, letters)))
