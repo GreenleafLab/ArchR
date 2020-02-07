@@ -202,6 +202,7 @@ addClusters <- function(
                 cells = rownames(matDR),
                 force = TRUE
             ))
+        return(input)
     }else if(!inherits(input, "ArchRProject")){
         return(out)
     }

@@ -73,7 +73,8 @@ ggPoint <- function(
     labelSize = 3,
     addFit = NULL, 
     rastr = FALSE, 
-    dpi = 300
+    dpi = 300,
+    ...
     ){
 
     .validInput(input = x, name = "x", valid = c("numeric"))
@@ -481,7 +482,8 @@ ggHex <- function(
   ratioYX = 1, 
   FUN = "mean", 
   quantCut = c(0.01, 0.99),
-  addPoints = FALSE
+  addPoints = FALSE,
+  ...
   ){
 
     .validInput(input = x, name = "x", valid = c("numeric"))
