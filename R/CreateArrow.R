@@ -756,6 +756,8 @@ createArrowFiles <- function(
 
   readTiledChrom <- .safelapply(seq_along(tileChromSizes), function(x){
 
+    #print(x)
+
     errorCheck <- 0
 
     if(threads == 1){
@@ -776,8 +778,12 @@ createArrowFiles <- function(
         {tryCatch(read.table(.), error = function(e) NULL)} %>% 
         {data.table(V2=.$V2 + 1, V3=.$V3, V4=.$V4)}
     }, error = function(f){
-      NULL
+        NULL
     })
+
+    if(is.null(dt)){
+      return(list(tmpChrFile = NULL, errorCheck = errorCheck))
+    }
 
     #Care for Break Points
     dt <- dt[dt$V2 >= start(tileChromSizes[x]),]
@@ -863,6 +869,8 @@ createArrowFiles <- function(
     }
 
   }, threads = threads)
+
+  #print("completed")
 
   if(threads > 1){
 
@@ -1052,6 +1060,10 @@ createArrowFiles <- function(
     
     #Clean Up Memory
     rm(scanChunk)
+
+    if(is.null(dt)){
+      return(list(tmpChrFile = NULL, errorCheck = errorCheck))
+    }
 
     #Care for Break Points
     dt <- dt[dt$start >= start(tileChromSizes[x]),]    
@@ -1666,6 +1678,9 @@ createArrowFiles <- function(
   })
 
 }
+
+
+
 
 
 
