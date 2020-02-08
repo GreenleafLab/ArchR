@@ -1,4 +1,35 @@
 ##########################################################################################
+# S4Vectors/BiocGenerics Within Methods
+##########################################################################################
+
+#' Negated Value Matching
+#'
+#' This function is the reciprocal of %in%. See the match funciton in base R.
+#'
+#' @param x The value to search for in `table`.
+#' @param table The set of values to serve as the base for the match function.
+#' @export
+"%ni%" <- function(x, table) !(match(x, table, nomatch = 0) > 0)
+
+#' Generic matching function for S4Vector objects
+#'
+#' This function provides a generic matching function for S4Vector objects primarily to avoid ambiguity.
+#'
+#' @param x An `S4Vector` object to search for in `table`.
+#' @param table The set of `S4Vector` objects to serve as the base for the match function.
+#' @export
+'%bcin%' <- function(x, table) S4Vectors::match(x, table, nomatch = 0) > 0
+
+#' Negated matching function for S4Vector objects
+#'
+#' This function provides the reciprocal of %bcin% for S4Vector objects primarily to avoid ambiguity.
+#'
+#' @param x An `S4Vector` object to search for in `table`.
+#' @param table The set of `S4Vector` objects to serve as the base for the match function.
+#' @export
+'%bcni%' <- function(x, table) !(S4Vectors::match(x, table, nomatch = 0) > 0)
+
+##########################################################################################
 # Validation Methods
 ##########################################################################################
 .validInput <- function(input = NULL, name = NULL, valid = NULL){
@@ -95,6 +126,7 @@
 
     }else if(vi == "grangeslist" | vi == "grlist"){
 
+      #I think there could be a bug here JJJ
       cv <- all(unlist(lapply(input, function(x) inherits(x, "GRanges"))))
 
     }else if(vi == "list" | vi == "simplelist"){
@@ -282,37 +314,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 }
 
 ##########################################################################################
-# S4Vectors/BiocGenerics Within Methods
-##########################################################################################
-
-#' Negated Value Matching
-#'
-#' This function is the reciprocal of %in%. See the match funciton in base R.
-#'
-#' @param x The value to search for in `table`.
-#' @param table The set of values to serve as the base for the match function.
-#' @export
-"%ni%" <- function(x, table) !(match(x, table, nomatch = 0) > 0)
-
-#' Generic matching function for S4Vector objects
-#'
-#' This function provides a generic matching function for S4Vector objects primarily to avoid ambiguity.
-#'
-#' @param x An `S4Vector` object to search for in `table`.
-#' @param table The set of `S4Vector` objects to serve as the base for the match function.
-#' @export
-'%bcin%' <- function(x, table) S4Vectors::match(x, table, nomatch = 0) > 0
-
-#' Negated matching function for S4Vector objects
-#'
-#' This function provides the reciprocal of %bcin% for S4Vector objects primarily to avoid ambiguity.
-#'
-#' @param x An `S4Vector` object to search for in `table`.
-#' @param table The set of `S4Vector` objects to serve as the base for the match function.
-#' @export
-'%bcni%' <- function(x, table) !(S4Vectors::match(x, table, nomatch = 0) > 0)
-
-##########################################################################################
 # Helper Intermediate Methods
 ##########################################################################################
 
@@ -410,7 +411,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
     o <- mclapply(..., mc.cores = threads, mc.preschedule = preschedule)
 
-    for(i in seq_along(o)){
+    for(i in seq_along(o)){ #JJJ this doesnt seem to work?
       if(inherits(o[[i]], "try-error")){
         stop(o)
       }

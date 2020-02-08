@@ -2,11 +2,12 @@
 # Parallel Information
 ##########################################################################################
 
-#' Add a globally-applied number of threads to use for parallel computing.
+#' Add a globally-applied number of threads to use for parallel computing. JJJ
 #' 
 #' This function will set the number of threads to be used for parallel computing across all ArchR functions.
 #' 
 #' @param threads The default number of threads to be used for parallel execution across all ArchR functions. This value is stored as a global environment variable, not part of the `ArchRProject`. This can be overwritten on a per-function basis using the given function's `threads` parameter.
+#' @param force If you requested for more than nCPU - 2 threads. If `force = FALSE` ArchR will set the threads maximum at nCPU - 2 threads. To bypass this set `force = TRUE`.
 #' @export
 addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force = FALSE){
   
@@ -60,6 +61,7 @@ getArchRThreads <- function(){
 #' This function will set the genome across all ArchR functions.
 #' 
 #' @param genome The default genome to be used for all ArchR functions. This value is stored as a global environment variable, not part of the `ArchRProject`. This can be overwritten on a per-function basis using the given function's `geneAnnotation` and  `genomeAnnotation` parameter.
+#' @param install Install the BSgenome associated with the ArchRGenome is not currently installed. This is useful for helping reduce user download requirements.
 #' @export
 addArchRGenome <- function(genome = NULL, install = TRUE){
   
@@ -1005,7 +1007,10 @@ getExons <- function(ArchRProj = NULL, symbols = NULL){
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param returnMatrix If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.
 #' @param dimsToUse A vector containing the dimensions (i.e. 1:30) to return from the `reducedDims` object.
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
+#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases 
+#' (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. 
+#' If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by the dimensionality reduction method.
+#' This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded.
 #' @export
 getReducedDims <- function(
@@ -1022,6 +1027,7 @@ getReducedDims <- function(
   .validInput(input = reducedDims, name = "reducedDims", valid = "character")
   .validInput(input = returnMatrix, name = "returnMatrix", valid = "boolean")
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   #########
 
@@ -1337,7 +1343,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
 }
 
-#' Get Relevant Data For ArchR Tutorials
+#' Get Relevant Data For ArchR Tutorials JJJ
 #' 
 #' This function will download data for a given tutorial and return the input files required for ArchR
 #' 

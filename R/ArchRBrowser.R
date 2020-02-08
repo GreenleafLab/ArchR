@@ -8,31 +8,33 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
+#' @param loops JJJ A `GRanges` object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods. 
+#' i.e. the set of CoAccessible links obtained using `getCoAccessibility(ArchRProj))` which are added with `addCoAccessibility(ArchRProj))`. 
 #' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.
-#' @param threads The number of threads to use for parallel execution.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
 #' @param browserTheme A `shinytheme` from shinythemes for viewing the ArchR Browser. If not installed this will be NULL. To install try devtools::install_github("rstudio/shinythemes").
+#' @param threads The number of threads to use for parallel execution.
 #' @export
 ArchRBrowser <- function(
   ArchRProj = NULL,
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
   minCells = 25,
-  threads = getArchRThreads(),
   baseSize = 10,
   borderWidth = 0.5,
   tickWidth = 0.5,
   facetbaseSize = 12,
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  browserTheme = "cosmo"
+  browserTheme = "cosmo",
+  threads = getArchRThreads()
   ){
 
-  .requirePackage("shiny")
-  .requirePackage("rhandsontable")
+  .requirePackage("shiny", installInfo = 'install.packages("shiny")')
+  .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
 
   #Determine Grouping Methods
   ccd <- getCellColData(ArchRProj)
@@ -73,6 +75,7 @@ ArchRBrowser <- function(
   #Shiny App UI
   #####################
   if(!requireNamespace("shinythemes", quietly = TRUE)){
+    message("shinythemes not found! To see a nice theme use :\n\tinstall.packages('shinythemes')\nContinuing wihtout shinythemes!")
     theme <- NULL
   }else{
     theme <- shinythemes::shinytheme(browserTheme)
@@ -586,6 +589,8 @@ ArchRBrowser <- function(
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).
 #' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`. The order must be the same as `plotSummary`.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
+#' @param loops JJJ A `GRanges` object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods. 
+#' i.e. the set of CoAccessible links obtained using `getCoAccessibility(ArchRProj))` which are added with `addCoAccessibility(ArchRProj))`. 
 #' @param geneSymbol If `region` is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.
 #' @param upstream The number of basepairs upstream of the transcription start site of `geneSymbol` to extend the plotting window. If `region` is supplied, this argument is ignored.
 #' @param downstream The number of basepairs downstream of the transcription start site of `geneSymbol` to extend the plotting window. If `region` is supplied, this argument is ignored.
@@ -632,8 +637,8 @@ ArchRBrowserTrack <- function(
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
   .validInput(input = plotSummary, name = "plotSummary", valid = "character")
   .validInput(input = sizes, name = "sizes", valid = "numeric")
-  #.validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
-  #.validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
+  #.validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null")) #JJJ 
+  #.validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null")) #JJJ 
   .validInput(input = geneSymbol, name = "geneSymbol", valid = c("character", "null"))
   .validInput(input = upstream, name = "upstream", valid = c("integer"))
   .validInput(input = downstream, name = "downstream", valid = c("integer"))

@@ -92,7 +92,7 @@ ArchRProject <- function(
   dir.create(sampleDirectory,showWarnings=FALSE)
 
   if(copyArrows){
-    message("Copying ArrowFiles to Ouptut Directory!")
+    message("Copying ArrowFiles to Ouptut Directory! If you want to save disk space set copyArrows = FALSE")
     cf <- file.copy(ArrowFiles, file.path(sampleDirectory, paste0(sampleNames, ".arrow")), overwrite = TRUE)
     ArrowFiles <- file.path(sampleDirectory, paste0(sampleNames, ".arrow"))
   }

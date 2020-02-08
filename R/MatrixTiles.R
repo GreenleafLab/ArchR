@@ -88,7 +88,9 @@ addTileMatrix <- function(
   excludeChr = "chrY", 
   blacklist = NULL, 
   chromLengths = NULL, 
-  force = FALSE
+  force = FALSE,
+  subThreads = 1,
+  tstart = NULL
   ){
 
   .validInput(input = i, name = "i", valid = c("integer"))
