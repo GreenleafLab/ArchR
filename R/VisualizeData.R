@@ -2,7 +2,7 @@
 # Visualization Methods
 ####################################################################
 
-#' Visualize an Embedding from ArchR Project
+#' Visualize an Embedding from ArchR Project JJJ
 #' 
 #' This function will plot an embedding stored in an ArchRProject
 #'
@@ -26,7 +26,7 @@
 #' @param keepAxis A boolean value that indicates whether the x and y axis ticks and labels should be plotted.
 #' @param baseSize The base font size to use in the plot.
 #' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default if `colorBy` is numeric this is "hex".
-#' @param plotParams Additional parameters to pass to `ggPoint()` or `ggHex()`.
+#' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
 #' @export
 plotEmbedding <- function(
   ArchRProj = NULL,
@@ -34,7 +34,7 @@ plotEmbedding <- function(
   colorBy = "cellColData",
   name = "Sample",
   log2Norm = NULL,
-  imputeWeights = NULL,
+  imputeWeights = if(!grepl("coldata",tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   pal = NULL,
   size = 0.1,
   rastr = TRUE,
@@ -45,7 +45,7 @@ plotEmbedding <- function(
   keepAxis = FALSE,
   baseSize = 10,
   plotAs = NULL,
-  plotParams = list()
+  ...
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -64,7 +64,6 @@ plotEmbedding <- function(
   .validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
-  .validInput(input = plotParams, name = "plotParams", valid = c("list"))
 
   .requirePackage("ggplot2")
 
@@ -74,6 +73,7 @@ plotEmbedding <- function(
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
 
   #Parameters
+  plotParams <- list(...)
   plotParams$x <- df[,1]
   plotParams$y <- df[,2]
   plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,1])
@@ -205,6 +205,7 @@ plotEmbedding <- function(
     gg
 
   })
+  names(ggList) <- name
 
   if(length(ggList) == 1){
     ggList <- ggList[[1]]
@@ -215,7 +216,7 @@ plotEmbedding <- function(
 }
 
 
-#' Visualize Groups from ArchR Project
+#' Visualize Groups from ArchR Project JJJ
 #' 
 #' This function will group, summarize and then plot data from an ArchRProject for visual comparison.
 #'
@@ -224,25 +225,31 @@ plotEmbedding <- function(
 #' @param colorBy A string indicating whether the numeric values to be used in the violin plot should be from a column in `cellColData` ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").
 #' @param name The name of the column in `cellColData` or the featureName/rowname of the data matrix to be used for plotting. 
 #' For example if colorBy is `cellColData` then name refers to a column name in the cellcoldata (see `getCellcoldata()`), if colorBy is "GeneScoreMatrix" then name refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
+#' @param imputeWeights The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See `addImputationWeights()` and `getImutationWeights()` for more information.
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
 #' @param size The numeric size of the points to be plotted.
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
+#' @param ridgeScale The scale factor for the relative heights of each ridge when making a ridgeplot with `ggridges`.
+#' @param plotAs A string that indicates whether a rigdge plot ("ridges") should be plotted or a violin plot ("violin") should be plotted.
+#' @param ... Additional parameters to pass to `ggGroup()`.
 #' @export
 plotGroups <- function(
   ArchRProj = NULL, 
   groupBy = "Sample", 
   colorBy = "colData", 
   name = "TSSEnrichment",
-  imputeWeights = NULL, 
+  imputeWeights = if(!grepl("coldata",tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   log2Norm = NULL,
   pal = NULL,
   ylim = NULL, 
   size = 0.5, 
-  ridgeScale = 1,
   baseSize = 6, 
-  ratioYX = NULL
+  ratioYX = NULL,
+  ridgeScale = 1,
+  plotAs = "ridges",
+  ...
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -256,7 +263,8 @@ plotGroups <- function(
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
-  #.validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
+  .validInput(input = ridgeScale, name = "ridgeScale", valid = c("numeric"))
+  .validInput(input = plotAs, name = "plotAs", valid = c("character"))
 
   .requirePackage("ggplot2")
 
@@ -274,43 +282,48 @@ plotGroups <- function(
   groupNames <- groups[,1]
   names(groupNames) <- rownames(groups)
 
+  plotParams <- list(...)
+
   pl <- lapply(seq_along(name), function(x){
 
     message(paste0(x, " "), appendLF = FALSE)
 
     if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
-        values <- getCellColData(ArchRProj, name[x], drop = TRUE)
-      }else{
-        if (tolower(colorBy) == "genescorematrix"){
-          if(is.null(log2Norm)){
-            log2Norm <- TRUE
-          }
+      values <- getCellColData(ArchRProj, name[x], drop = TRUE)
+    }else{
+      if(tolower(colorBy) == "genescorematrix"){
+        if(is.null(log2Norm)){
+          log2Norm <- TRUE
         }
-        values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
       }
+      values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
+    }
 
-      if(!is.null(imputeWeights)){
-        imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
-        values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
-      }
+    if(!is.null(imputeWeights)){
+      imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
+      values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
+    }
 
-      if(is.null(ylim)){
-        ylim <- range(values) %>% extendrange(f = 0.05)
-      }
+    if(is.null(ylim)){
+      ylim <- range(values) %>% extendrange(f = 0.05)
+    }
 
-      p <- ggGroup(
-        x = groupNames, 
-        y = values, 
-        xlabel = groupBy, 
-        ylabel = name[x], 
-        baseSize = baseSize, 
-        ridgeScale = ridgeScale,
-        ratioYX = ratioYX,
-        size = size
-        )
+    plotParamsx <- plotParams
+    plotParamsx$x <- groupNames
+    plotParamsx$y <- values
+    plotParamsx$xlabel <- groupBy
+    plotParamsx$ylabel <- name[x]
+    plotParamsx$baseSize <- baseSize
+    plotParamsx$ridgeScale <- ridgeScale
+    plotParamsx$ratioYX <- ratioYX
+    plotParamsx$size <- size
 
-      p
+    p <- do.call(ggGroup, plotParamsx)
+
+    p
+
   })
+  names(pl) <- name
 
   message("\n")
   

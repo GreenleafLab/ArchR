@@ -322,6 +322,8 @@ getMatrixFromArrow <- function(
     )
     rownames(mat) <- rownames(featureDFx)
 
+    rm(matchI, idxI, matchJ, idxJ, featureDFx, idxRows)
+
     return(mat)
 
   }, threads = threads) %>% Reduce("rbind", .)
@@ -333,6 +335,8 @@ getMatrixFromArrow <- function(
   #Double Check Order!
   mat <- mat[rownames(featureDF), , drop = FALSE]
   rownames(mat) <- NULL
+
+  gc()
 
   return(mat)
 
@@ -401,6 +405,12 @@ getMatrixFromArrow <- function(
           matChr[,z] <- Matrix::rowSums(maty[,idx,drop=FALSE])
         }
 
+      }
+
+      rm(maty)
+
+      if(y %% 10 == 0 | y %% length(ArrowFiles) == 0){
+        gc()
       } 
 
     }
@@ -416,6 +426,8 @@ getMatrixFromArrow <- function(
   mat <- mat[rownames(featureDF), , drop = FALSE]
   
   .messageDiffTime("Successfully Created Group Matrix", tstart, verbose = verbose)
+
+  gc()
 
   return(mat)
   
@@ -478,6 +490,8 @@ getMatrixFromArrow <- function(
     }
 
   }, threads = threads)
+
+  gc()
   
 
   if(doSampleCells){

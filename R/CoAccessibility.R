@@ -155,14 +155,19 @@ addCoAccessibility <- function(
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
-#' @param corCutOff A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
+#' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
 #' @param returnLoops A boolean indicating to regurn CoAccessibility as loops designed for `ArchRBrowser` or `ArchRRegionTrack`.
 #' @export
-getCoAccessibility <- function(ArchRProj = NULL, corCutOff = 0.5, resolution = 1000, returnLoops = TRUE){
+getCoAccessibility <- function(
+  ArchRProj = NULL, 
+  corCutOff = 0.5, 
+  resolution = 1000, 
+  returnLoops = TRUE
+  ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = corCutOff, name = "corCutOff", valid = "numeric")
-  .validInput(input = resolution, name = "resolution", valid = "numeric")
+  .validInput(input = resolution, name = "resolution", valid = c("integer", "null"))
   .validInput(input = returnLoops, name = "returnLoops", valid = "boolean")
   
   if(is.null(ArchRProj@peakSet)){
@@ -183,7 +188,12 @@ getCoAccessibility <- function(ArchRProj = NULL, corCutOff = 0.5, resolution = 1
     if(returnLoops){
       
       peakSummits <- resize(metadata(coA)$peakSet, 1, "center")
-      summitTiles <- floor(start(peakSummits) / resolution) * resolution + floor(resolution / 2)
+
+      if(!is.null(resolution)){
+        summitTiles <- floor(start(peakSummits) / resolution) * resolution + floor(resolution / 2)
+      }else{
+        summitTiles <- start(peakSummits)
+      }
     
       loops <- .constructGR(
         seqnames = seqnames(peakSummits[coA[,1]]),
@@ -211,7 +221,12 @@ getCoAccessibility <- function(ArchRProj = NULL, corCutOff = 0.5, resolution = 1
 
 }
 
-.constructGR <- function(seqnames = NULL, start = NULL, end = NULL, ignoreStrand = TRUE){
+.constructGR <- function(
+  seqnames = NULL, 
+  start = NULL, 
+  end = NULL, 
+  ignoreStrand = TRUE
+  ){
   .validInput(input = seqnames, name = "seqnames", valid = c("character", "rleCharacter"))
   .validInput(input = start, name = "start", valid = c("integer"))
   .validInput(input = end, name = "end", valid = c("integer"))

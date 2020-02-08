@@ -464,6 +464,7 @@ ggOneToOne <- function (
 #' @param FUN The function to use for summarizing data into hexagons. Typically "mean" or something similar.
 #' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where a is the upper threshold and b is the lower threshold. For example, quantileCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
 #' @param addPoints A boolean value indicating whether individual points should be shown on the hexplot.
+#' @param ... Additional params for plotting
 #' @export
 ggHex <- function(
   x = NULL, 
@@ -562,9 +563,9 @@ ggHex <- function(
 
 }
 
-#' A ggplot-based violin plot wrapper function JJJ
+#' A ggplot-based ridge/violin plot wrapper function JJJ
 #'
-#' This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.
+#' This function is a wrapper around ggplot geom_density_ridges or geom_violin to allow for plotting group distribution plots in ArchR.
 #' 
 #' @param x A character vector containing the categorical x-axis values for each y-axis value.
 #' @param y A numeric vector containing the y-axis values for each point.
@@ -577,6 +578,7 @@ ggHex <- function(
 #' @param sampleRatio The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.
 #' @param title The title of the plot.
 #' @param pal A named custom palette (see `paletteDiscrete()` and `ArchRPalettes`) for discrete coloring.
+#' @param ... Additional params for plotting
 #' @export
 ggGroup <- function(
   x = NULL, 
@@ -593,26 +595,33 @@ ggGroup <- function(
   title = "", 
   pal = paletteDiscrete(values=x, set = "stallion"),
   addBoxPlot = FALSE,
-  plotAs = "ridges"
+  plotAs = "ridges",
+  ...
   ){
 
   .validInput(input = x, name = "x", valid = c("character"))
   .validInput(input = y, name = "y", valid = c("numeric"))
   .validInput(input = xlabel, name = "xlabel", valid = c("character", "null"))
   .validInput(input = ylabel, name = "ylabel", valid = c("character", "null"))
-  #.validInput(input = xOrder, name = "xOrder", valid = c("character", "null"))
+  .validInput(input = groupOrder, name = "groupOrder", valid = c("character", "null"))
+  .validInput(input = groupSort, name = "groupSort", valid = c("boolean"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = ridgeScale, name = "ridgeScale", valid = c("numeric"))
   .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
+  .validInput(input = alpha, name = "alpha", valid = c("numeric"))
+  .validInput(input = title, name = "title", valid = c("character"))
   .validInput(input = pal, name = "pal", valid = c("character"))
-  
+  .validInput(input = addBoxPlot, name = "addBoxPlot", valid = c("boolean"))
+  .validInput(input = plotAs, name = "plotAs", valid = c("character"))
+
   names(y) <- x
   dm <- stats::aggregate(y ~ names(y), FUN = mean)
   df <- data.frame(x, y)
 
   if(!is.null(groupOrder)){
     if(!all(x %in% groupOrder)){
-      stop("Not all x values are present in xOrder!")
+      stop("Not all x values are present in groupOrder!")
     }
   }else{
     if(groupSort){

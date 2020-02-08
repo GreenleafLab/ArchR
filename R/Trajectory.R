@@ -473,7 +473,7 @@ plotTrajectory <- function(
   colorBy = "colData",
   name = "Trajectory",
   log2Norm = NULL,
-  imputeWeights = NULL,
+  imputeWeights = if(!grepl("coldata",tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   pal = NULL,
   size = 0.5,
   rastr = TRUE,
