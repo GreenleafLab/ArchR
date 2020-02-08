@@ -491,11 +491,15 @@ createGeneAnnnotation <- function(
 
 #' Get outputDirectory from an ArchRProject
 #' 
-#' This function gets the outputDirectory from a given ArchRProject.
+#' This function gets the outputDirectory from a given ArchRProject. If null this returns "QualityControl" directory.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getOutputDirectory <- function(ArchRProj = NULL){
+
+  if(is.null(ArchRProj)){
+    return("QualityControl")
+  }
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
 
@@ -1066,7 +1070,7 @@ getReducedDims <- function(
       
       out <- ArchRProj@reducedDims[[reducedDims]]
       out$dimsKept <- corToUse[idx]
-      out[[1]] <- matDR
+      out[[1]] <- matDR[,corToUse[idx],drop=FALSE]
       return(out)
 
     }

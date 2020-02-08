@@ -13,7 +13,10 @@
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param method A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
+#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases 
+#' (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. 
+#' If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by the dimensionality reduction method.
+#' This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.
@@ -280,8 +283,8 @@ addClusters <- function(
 }
 
 .clustScran <- function(clustParams = NULL){
-    .requirePackage("scran")
-    .requirePackage("igraph")
+    .requirePackage("scran", installInfo='BiocManager::install("scran")')
+    .requirePackage("igraph", installInfo='install.packages("igraph")')
     #See Scran Vignette!
     set.seed(1)
     #clustParams$x <- matDR
@@ -290,7 +293,7 @@ addClusters <- function(
     paste0("Cluster", cluster)
 }
 
-# #Need to work on making this work
+# #Need to work on making this work JJJ
 # .clustLouvain <- function(matDR, knn = 50, jaccard = TRUE){
 
 #     getEdges <- function(X, knn, jaccard) {
@@ -360,6 +363,8 @@ addClusters <- function(
 
 # }
 
+#JJJ should i just default to one? Nabor seems faster than RANN and if you install chromVAR
+#you neeed RANN. Seurat uses RANN.
 .computeKNN <- function(
     data = NULL,
     query = NULL,

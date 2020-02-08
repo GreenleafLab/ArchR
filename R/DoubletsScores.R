@@ -39,7 +39,7 @@ addDoubletScores <- function(
   knnMethod = "UMAP",
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose = FALSE),
   LSIParams = list(),
-  outDir = if(inherits(input, "ArchRProject")) getOutputDirectory(input) else "QualityControl",  
+  outDir = getOutputDirectory(input),  
   threads = getArchRThreads(),
   parallelParam = NULL,
   verboseHeader = TRUE,
@@ -646,7 +646,6 @@ addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames =
   ArchRProj
   
 }
-
 
 
 

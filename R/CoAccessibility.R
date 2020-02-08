@@ -9,7 +9,10 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
+#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases 
+#' (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. 
+#' If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by the dimensionality reduction method.
+#' This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
@@ -27,7 +30,7 @@ addCoAccessibility <- function(
   dimsToUse = 1:30,
   scaleDims = NULL,
   corCutOff = 0.75,
-  k = 200, 
+  k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
   maxDist = 100000,
