@@ -299,6 +299,7 @@ addIterativeLSI <- function(
       verbose = verboseAll
     )
 
+    .messageDiffTime("Computing Variable Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
     if(length(varFeatures) > 1){
       nFeature <- varFeatures[j]
     }else{

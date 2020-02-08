@@ -25,6 +25,7 @@
 #' @param LSIParams The list of parameters to pass to the `IterativeLSI()` function. See `IterativeLSI()`.
 #' @param outDir The relative path to the output directory for relevant plots/results from doublet identification.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param force If `force=FALSE` the umap projection is not accurate R < 0.8 return doubletScores and doubletEnrichments as -1. If `force=TRUE` it will bypass this warning and continue (not recommended).
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
@@ -44,6 +45,7 @@ addDoubletScores <- function(
   LSIParams = list(),
   outDir = getOutputDirectory(input),  
   threads = getArchRThreads(),
+  force = FALSE,
   parallelParam = NULL,
   verboseHeader = TRUE,
   verboseAll = FALSE
@@ -141,6 +143,7 @@ addDoubletScores <- function(
   nSample = 1000,
   knnMethod = "UMAP",
   outDir = "QualityControl",
+  force = FALSE,
   subThreads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
@@ -246,6 +249,7 @@ addDoubletScores <- function(
     k = k, 
     uwotUmap = uwotUmap,
     seed = 1, 
+    force = force,
     threads = subThreads
   )
 
@@ -365,7 +369,6 @@ addDoubletScores <- function(
       baseSize = 10
       ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
             axis.text.y = element_blank(), axis.ticks.y = element_blank())
-    
 
     #Plot Enrichment Summary
     penrich <- ggPoint(
@@ -385,7 +388,7 @@ addDoubletScores <- function(
       baseSize = 10
       ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
             axis.text.y = element_blank(), axis.ticks.y = element_blank())
-    
+
 
     #1. Doublet Enrichment
     print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
@@ -444,7 +447,8 @@ addDoubletScores <- function(
   k = 200, 
   knnMethod = "UMAP",
   seed = 1, 
-  threads = 1
+  threads = 1,
+  force = FALSE
   ){
 
   .sampleSparseMat <- function(mat = NULL, sampleRatio = 0.5){
@@ -520,14 +524,20 @@ addDoubletScores <- function(
 
   message("UMAP Projection R^2 = ", round(mean(corProjection[[2]])^2, 5))
 
-  if(mean(corProjection[[2]]) < 0.85){
-    stop("Correlation of UMAP Projection is below 0.85 (normally this is ~0.99+), This means there is a bug with the projection code. Please immediately report this!")
-  }
-
   out <- SimpleList(
     doubletUMAP = umapProject[seq_len(nSimLSI), ],
     projectionCorrelation = corProjection
   )
+
+  if(mean(corProjection[[2]]) < 0.8){
+    if(!force){
+      warning("Correlation of UMAP Projection is below 0.8 (normally this is ~0.99)\nThis means there is either little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
+      out$doubletEnrichLSI <- rep(-1, nrow(LSI$matSVD))
+      out$doubletScoreLSI <- rep(-1, nrow(LSI$matSVD))
+      out$doubletEnrichUMAP <- rep(-1, nrow(LSI$matSVD))
+      out$doubletScoreUMAP <- rep(-1, nrow(LSI$matSVD))
+    }
+  }
 
   ##############################################################################
   # Compute Doublet Scores from LSI (TF-IDF + SVD)
