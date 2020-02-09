@@ -188,9 +188,18 @@
   }
 
   if(addRowVarsLog2){
+
     mat@x <- log2(mat@x + 1) #log-normalize
     rM <- Matrix::rowMeans(mat)
-    rV <- ArchR:::computeSparseRowVariances(mat@i + 1, mat@x, rM, n = ncol(mat))
+    idx <- seq_along(rM)
+    idxSplit <- ArchR:::.splitEvery(idx, 5000)
+
+    #Make sure not too much memory
+    rV <- lapply(seq_along(idxSplit), function(x){
+      idxX <- idxSplit[[x]]
+      matx <- mat[idxX, , drop = FALSE]
+      ArchR:::computeSparseRowVariances(matx@i + 1, matx@x, rM[idxX], n = ncol(mat))
+    }) %>% unlist
 
     #Have to write rowMeansLog2 as well
     o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowMeansLog2"), storage.mode = "double", 
