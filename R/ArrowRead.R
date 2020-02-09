@@ -336,8 +336,6 @@ getMatrixFromArrow <- function(
   mat <- mat[rownames(featureDF), , drop = FALSE]
   rownames(mat) <- NULL
 
-  gc()
-
   return(mat)
 
 }
@@ -409,7 +407,7 @@ getMatrixFromArrow <- function(
 
       rm(maty)
 
-      if(y %% 10 == 0 | y %% length(ArrowFiles) == 0){
+      if(y %% 20 == 0 | y %% length(ArrowFiles) == 0){
         gc()
       } 
 
