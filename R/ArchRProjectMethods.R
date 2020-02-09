@@ -497,7 +497,7 @@ createGeneAnnnotation <- function(
 #' @export
 getOutputDirectory <- function(ArchRProj = NULL){
 
-  if(is.null(ArchRProj)){
+  if(is.null(ArchRProj) | is.character(ArchRProj)){
     return("QualityControl")
   }
 

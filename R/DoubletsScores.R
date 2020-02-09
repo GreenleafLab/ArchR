@@ -62,7 +62,7 @@ addDoubletScores <- function(
   .validInput(input = LSIParams, name = "LSIParams", valid = c("list"))
   .validInput(input = outDir, name = "outDir", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
 
