@@ -1351,7 +1351,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
 #' 
 #' This function will download data for a given tutorial and return the input files required for ArchR
 #' 
-#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis", "PBMC", "FreshFrozen". "Hematopoiesis" refers to hematopoieitic scATAC hierarchy. "PBMC" refers to a small standard PBMC scATAC dataset. "FreshFrozen" refers to a PBMC fresh and frozen scATAC dataset.
+#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis" for now. "Hematopoiesis" refers to hematopoieitic scATAC hierarchy. "PBMC" refers to a small standard PBMC scATAC dataset. "FreshFrozen" refers to a PBMC fresh and frozen scATAC dataset.
 #' @export
 getTutorialData <- function(tutorial = "hematopoiesis"){
 
@@ -1363,49 +1363,17 @@ getTutorialData <- function(tutorial = "hematopoiesis"){
     
     if(!dir.exists("Heme_Fragments")){
       download.file(
-        url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/Heme_Fragments.zip", 
-        destfile = "Heme_Fragments.zip"
+        url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/HemeFragments.zip", 
+        destfile = "HemeFragments.zip"
       )
-      unzip("Heme_Fragments.zip")
-      if(dir.exists("Heme_Fragments")){
-        file.remove("Heme_Fragments.zip")
+      unzip("HemeFragments.zip")
+      if(dir.exists("HemeFragments")){
+        file.remove("HemeFragments.zip")
       }else{
         stop("Download May Not Have Worked!")
       }
     }
-    pathFragments <- "Heme_Fragments"
-
-  }else if(tolower(tutorial) %in% c("pbmc")){
-
-    if(!dir.exists("Pbmc_Fragments")){
-      download.file(
-        url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/Pbmc_Fragments.zip", 
-        destfile = "Pbmc_Fragments.zip"
-      )
-      unzip("Pbmc_Fragments")
-      if(dir.exists("Pbmc_Fragments")){
-        file.remove("Pbmc_Fragments")
-      }else{
-        stop("Download May Not Have Worked!")
-      }
-    }
-    pathFragments <- "Pbmc_Fragments"
-
-  }else if(tolower(tutorial) %in% c("fresh_vs_frozen", "freshfrozen", "batch")){
-
-    if(!dir.exists("Fresh_Frozen_Fragments")){
-      download.file(
-        url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/Fresh_Frozen_Fragments.zip", 
-        destfile = "Fresh_Frozen_Fragments.zip"
-      )
-      unzip("Fresh_Frozen_Fragments")
-      if(dir.exists("Fresh_Frozen_Fragments")){
-        file.remove("Fresh_Frozen_Fragments")
-      }else{
-        stop("Download May Not Have Worked!")
-      }
-    }
-    pathFragments <- "Fresh_Frozen_Fragments"
+    pathFragments <- "HemeFragments"
 
   }else{
   
