@@ -39,7 +39,7 @@ addUMAP <- function(
   verbose = TRUE,
   seed = 1,
   force = FALSE,
-  threads = getArchRThreads(),
+  threads = max(floor(getArchRThreads() / 2), 1),
   ...
   ){
 
@@ -158,7 +158,7 @@ addTSNE <- function(
   verbose = TRUE,
   seed = 1,
   force = FALSE,
-  threads = getArchRThreads(),
+  threads = max(floor(getArchRThreads() / 2), 1),
   ...
   ){
 
