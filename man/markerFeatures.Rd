@@ -4,25 +4,13 @@
 \alias{markerFeatures}
 \title{Identify Marker Features for each cell grouping}
 \usage{
-markerFeatures(
-  ArchRProj = NULL,
-  groupBy = "Clusters",
-  useGroups = NULL,
-  bgdGroups = NULL,
-  useMatrix = "GeneScoreMatrix",
-  bias = c("TSSEnrichment", "log10(nFrags)"),
-  normBy = NULL,
-  testMethod = "wilcoxon",
-  maxCells = 500,
-  scaleTo = 10^4,
-  threads = getArchRThreads(),
-  k = 100,
-  bufferRatio = 0.8,
-  binarize = FALSE,
-  useSeqnames = NULL,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
-)
+markerFeatures(ArchRProj = NULL, groupBy = "Clusters",
+  useGroups = NULL, bgdGroups = NULL, useMatrix = "GeneScoreMatrix",
+  bias = c("TSSEnrichment", "log10(nFrags)"), normBy = NULL,
+  testMethod = "wilcoxon", maxCells = 500, scaleTo = 10^4,
+  threads = getArchRThreads(), k = 100, bufferRatio = 0.8,
+  binarize = FALSE, useSeqnames = NULL, verboseHeader = TRUE,
+  verboseAll = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

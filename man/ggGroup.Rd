@@ -2,25 +2,13 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggGroup}
 \alias{ggGroup}
-\title{A ggplot-based violin plot wrapper function JJJ}
+\title{A ggplot-based ridge/violin plot wrapper function JJJ}
 \usage{
-ggGroup(
-  x = NULL,
-  y = NULL,
-  xlabel = NULL,
-  ylabel = NULL,
-  groupOrder = NULL,
-  groupSort = FALSE,
-  size = 1,
-  baseSize = 10,
-  ridgeScale = 1,
-  ratioYX = NULL,
-  alpha = 1,
-  title = "",
+ggGroup(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
+  groupOrder = NULL, groupSort = FALSE, size = 1, baseSize = 10,
+  ridgeScale = 1, ratioYX = NULL, alpha = 1, title = "",
   pal = paletteDiscrete(values = x, set = "stallion"),
-  addBoxPlot = FALSE,
-  plotAs = "ridges"
-)
+  addBoxPlot = FALSE, plotAs = "ridges", ...)
 }
 \arguments{
 \item{x}{A character vector containing the categorical x-axis values for each y-axis value.}
@@ -43,8 +31,10 @@ ggGroup(
 
 \item{pal}{A named custom palette (see \code{paletteDiscrete()} and \code{ArchRPalettes}) for discrete coloring.}
 
+\item{...}{Additional params for plotting}
+
 \item{sampleRatio}{The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.}
 }
 \description{
-This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.
+This function is a wrapper around ggplot geom_density_ridges or geom_violin to allow for plotting group distribution plots in ArchR.
 }

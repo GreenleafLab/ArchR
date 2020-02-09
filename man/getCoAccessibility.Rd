@@ -4,17 +4,15 @@
 \alias{getCoAccessibility}
 \title{Get the peak coAccessibility from an ArchRProject}
 \usage{
-getCoAccessibility(
-  ArchRProj = NULL,
-  corCutOff = 0.5,
-  resolution = 1000,
-  returnLoops = TRUE
-)
+getCoAccessibility(ArchRProj = NULL, corCutOff = 0.5,
+  resolution = 1000, returnLoops = TRUE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{corCutOff}{A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.}
+\item{corCutOff}{A numeric describing the minimum numeric peak-to-peak correlation to return.}
+
+\item{resolution}{A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.}
 
 \item{returnLoops}{A boolean indicating to regurn CoAccessibility as loops designed for \code{ArchRBrowser} or \code{ArchRRegionTrack}.}
 }

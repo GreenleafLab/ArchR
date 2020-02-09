@@ -8,6 +8,8 @@ addArchRGenome(genome = NULL, install = TRUE)
 }
 \arguments{
 \item{genome}{The default genome to be used for all ArchR functions. This value is stored as a global environment variable, not part of the \code{ArchRProject}. This can be overwritten on a per-function basis using the given function's \code{geneAnnotation} and  \code{genomeAnnotation} parameter.}
+
+\item{install}{Install the BSgenome associated with the ArchRGenome is not currently installed. This is useful for helping reduce user download requirements.}
 }
 \description{
 This function will set the genome across all ArchR functions.

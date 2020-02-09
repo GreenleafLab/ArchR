@@ -2,21 +2,13 @@
 % Please edit documentation in R/VisualizeData.R
 \name{plotGroups}
 \alias{plotGroups}
-\title{Visualize Groups from ArchR Project}
+\title{Visualize Groups from ArchR Project JJJ}
 \usage{
-plotGroups(
-  ArchRProj = NULL,
-  groupBy = "Sample",
-  colorBy = "colData",
-  name = "TSSEnrichment",
-  imputeWeights = NULL,
-  log2Norm = NULL,
-  pal = NULL,
-  ylim = NULL,
-  size = 0.5,
-  baseSize = 6,
-  ratioYX = NULL
-)
+plotGroups(ArchRProj = NULL, groupBy = "Sample", colorBy = "colData",
+  name = "TSSEnrichment", imputeWeights = if (!grepl("coldata",
+  tolower(colorBy[1]))) getImputeWeights(ArchRProj), log2Norm = NULL,
+  pal = NULL, ylim = NULL, size = 0.5, baseSize = 6,
+  ratioYX = NULL, ridgeScale = 1, plotAs = "ridges", ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -28,6 +20,8 @@ plotGroups(
 \item{name}{The name of the column in \code{cellColData} or the featureName/rowname of the data matrix to be used for plotting.
 For example if colorBy is \code{cellColData} then name refers to a column name in the cellcoldata (see \code{getCellcoldata()}), if colorBy is "GeneScoreMatrix" then name refers to a gene name which can be listed by \code{getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")}.}
 
+\item{imputeWeights}{The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See \code{addImputationWeights()} and \code{getImutationWeights()} for more information.}
+
 \item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override discreteSet/continuousSet for coloring vector.}
 
 \item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
@@ -37,6 +31,12 @@ For example if colorBy is \code{cellColData} then name refers to a column name i
 \item{baseSize}{The base font size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
+
+\item{ridgeScale}{The scale factor for the relative heights of each ridge when making a ridgeplot with \code{ggridges}.}
+
+\item{plotAs}{A string that indicates whether a rigdge plot ("ridges") should be plotted or a violin plot ("violin") should be plotted.}
+
+\item{...}{Additional parameters to pass to \code{ggGroup()}.}
 }
 \description{
 This function will group, summarize and then plot data from an ArchRProject for visual comparison.

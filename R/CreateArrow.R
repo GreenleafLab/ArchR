@@ -12,6 +12,7 @@
 #' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use in downstream analyses. Cells with a TSS enrichment score greater than or equal to `filterTSS` will be retained. TSS enrichment score is a measurement of signal-to-background in ATAC-seq.
 #' @param removeFilteredCells A boolean value that determines whether cells that do not pass `filterFrags` and `filterTSS` should be excluded entirely from the ArrowFiles. If `FALSE` cells that do not pass QC filters will be included in the ArrowFile but will be marked as not passing QC and excluded from downstream analyses.
 #' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score). This is useful for limiting the number of barcodes analyzed.
+#' @param minFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score). This is useful for limiting the number of barcodes analyzed.
 #' @param outDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
 #' @param TSSParams A list of parameters for computing TSS Enrichment scores. 
@@ -50,6 +51,7 @@ createArrowFiles <- function(
   filterTSS = 4,
   removeFilteredCells = TRUE,
   minFrags = 500, 
+  maxFrags = 100000,
   outDir = "QualityControl",
   nucLength = 147,
   TSSParams = list(),
@@ -89,6 +91,7 @@ createArrowFiles <- function(
   .validInput(input = filterTSS, name = "filterTSS", valid = c("numeric"))
   .validInput(input = removeFilteredCells, name = "removeFilteredCells", valid = c("boolean"))
   .validInput(input = minFrags, name = "minFrags", valid = c("numeric"))
+  .validInput(input = maxFrags, name = "maxFrags", valid = c("numeric"))
   .validInput(input = outDir, name = "outDir", valid = c("character"))
   .validInput(input = TSSParams, name = "TSSParams", valid = c("list"))
   .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
@@ -178,6 +181,7 @@ createArrowFiles <- function(
   geneAnnotation = NULL,
   genomeAnnotation = NULL,
   minFrags = 500, 
+  maxFrags = 100000,
   removeFilteredCells = TRUE,
   filterFrags = 1000,
   filterTSS = 4,
@@ -290,7 +294,7 @@ createArrowFiles <- function(
             verboseAll = verboseAll, tstart = tstart)
 
     out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnnotation$genome, 
-            minFrags = minFrags, sampleName = sampleName, prefix = prefix, threads = subThreads,
+            minFrags = minFrags, maxFrags = maxFrags, sampleName = sampleName, prefix = prefix, threads = subThreads,
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, 
             chromSizes = genomeAnnotation$chromSizes, removeFilteredCells = removeFilteredCells)
   
@@ -303,7 +307,7 @@ createArrowFiles <- function(
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart)
 
     out <- .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnnotation$genome, 
-            minFrags = minFrags, sampleName = sampleName, prefix = prefix, threads = subThreads,
+            minFrags = minFrags, maxFrags = maxFrags, sampleName = sampleName, prefix = prefix, threads = subThreads,
             verboseHeader = verboseHeader, verboseAll = verboseAll, tstart = tstart, 
             chromSizes = genomeAnnotation$chromSizes, removeFilteredCells = removeFilteredCells)
 
@@ -1217,6 +1221,7 @@ createArrowFiles <- function(
   genome = NULL, 
   chromSizes = NULL,
   minFrags = 500, 
+  maxFrags = 100000, 
   sampleName = NULL, 
   verboseHeader = TRUE,
   verboseAll = FALSE,
@@ -1278,7 +1283,7 @@ createArrowFiles <- function(
   
   #Order to reduce number of hyperslabs
   dt <- dt[order(V1,decreasing=TRUE)]
-  bcPass <- BStringSet(dt$values.V1[dt$V1 >= minFrags])
+  bcPass <- BStringSet(dt$values.V1[dt$V1 >= minFrags & dt$V1 <= maxFrags])
   rm(dt)
   gc()
 
@@ -1474,108 +1479,6 @@ createArrowFiles <- function(
   return(outArrow)
 
 }
-
-#########################################################################################################
-# Methods to turn input file directly to arrow! These may not be memory friendly!
-#########################################################################################################
-
-.tsvToArrow <- function(
-  tsvFile = NULL,
-  outArrow = NULL,
-  chromSizes = NULL,
-  genome = NULL,
-  minFrags = 500, 
-  sampleName = NULL
-  ){
-
-  tstart <- Sys.time()
-  o <- h5closeAll()
-  o <- h5createFile(outArrow)
-  o <- h5write(obj = "Arrow", file = outArrow, name = "Class")
-  o <- h5createGroup(outArrow, paste0("Metadata"))
-  o <- h5write(obj = paste0(Sys.Date()), file = outArrow, name = "Metadata/Date")
-  o <- h5write(obj = sampleName, file = outArrow, name = "Metadata/Sample")
-  o <- h5createGroup(outArrow, paste0("Fragments"))
-
-  #############################################################
-  #Read in TSV File..
-  #############################################################
-  .messageDiffTime("Reading full inputTSV with data.table::fread", tstart, addHeader = TRUE)
-  dt <- fread(tsvFile, sep = "\t", select = c(1,2,3,4))
-  setkey(dt, V4) #Set Key
-  dt <- dt[order(dt$V4),] #Sort Data.table
-  dt <- DataFrame(chr = Rle(dt$V1), start = dt$V2, end = dt$V3, RG = Rle(dt$V4))
-  
-  #Order to reduce number of hyperslabs
-  reOrderRG <- dt$RG@values[order(dt$RG@lengths, decreasing=TRUE)]
-  dt <- dt[S4Vectors::match(dt$RG, reOrderRG),]
-  gc()
-
-  #############################################################
-  #Filter Minimum because this would not be worth keeping at all!
-  #############################################################
-  idx <- BiocGenerics::which(dt$RG %bcin% dt$RG@values[dt$RG@lengths >= minFrags])
-  .messageDiffTime(sprintf("Filtering Fragments less than %s Fragments (%s)", minFrags, 1 - round(length(idx) / nrow(dt),3)), tstart, addHeader = TRUE)
-  dt <- dt[idx,]
-  remove(idx)
-  gc()
-
-  #Add To Metadata
-  o <- h5write(obj = as.character(dt$RG@values), file = outArrow, name = "Metadata/CellNames")
-
-  #############################################################
-  #Keep Those only in ChromSizes
-  #############################################################
-  uniqueChr <- unique(paste0(dt$chr@values))
-  dt <- dt[BiocGenerics::which(dt$chr %bcin% paste0(seqnames(chromSizes))),]
-
-  #############################################################
-  #Check all chromSizes represented..
-  #############################################################
-  if(nrow(dt) == 0 | !all(paste0(seqnames(chromSizes)) %in% uniqueChr)){
-    notIn <- paste0(seqnames(chromSizes)[BiocGenerics::which(seqnames(chromSizes) %bcni% uniqueChr)])
-    stop(sprintf("Error no fragments in all seqnames of chromSizes (%s) are you sure this is the correct genome?",notIn))
-  }
-
-  #############################################################
-  #Write Fragments
-  #############################################################
-  dt$start <- dt$start + 1
-  expAll <- 0
-  obsAll <- 0
-  seqL <- 0
-  for(i in seq_along(uniqueChr)){
-    
-    .messageDiffTime(sprintf("Writing Chromosome %s of %s to Arrow File!", i, length(uniqueChr)), tstart)
-    chri <- uniqueChr[i]
-    dti <- dt[BiocGenerics::which(dt$chr==chri),]
-    chrPos <- paste0("Fragments/",chri,"/Ranges")
-    chrRGLengths <- paste0("Fragments/",chri,"/RGLengths")
-    chrRGValues <- paste0("Fragments/",chri,"/RGValues")
-    lengthRG <- length(dti$RG@lengths)
-    o <- h5createGroup(outArrow, paste0("Fragments/",chri))
-    o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(nrow(dti), 2), level = 0))
-    o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-    o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, size = nchar(dti$RG@values[1]) + 1))
-    o <- h5write(obj = cbind(dti$start,dti$end-dti$start), file = outArrow, name = chrPos)
-    o <- h5write(obj = dti$RG@lengths, file = outArrow, name = chrRGLengths)
-    o <- h5write(obj = dti$RG@values, file = outArrow, name = chrRGValues)
-
-    rm(dti)
-    gc()
-
-  }
-
-  .messageDiffTime("Finished Constructing Arrow File!", tstart)
-
-  #Clean Up
-  rm(dt)
-  gc()
-
-  return(outArrow)
-
-}
-
 
 #########################################################################################################
 # Filtering bad fragments!

@@ -4,28 +4,21 @@
 \alias{ArchRBrowser}
 \title{Launch ArchR Genome Browser}
 \usage{
-ArchRBrowser(
-  ArchRProj = NULL,
-  features = getPeakSet(ArchRProj),
-  loops = getCoAccessibility(ArchRProj),
-  minCells = 25,
-  threads = getArchRThreads(),
-  baseSize = 10,
-  borderWidth = 0.5,
-  tickWidth = 0.5,
-  facetbaseSize = 12,
-  geneAnnotation = getGeneAnnotation(ArchRProj),
-  browserTheme = "cosmo"
-)
+ArchRBrowser(ArchRProj = NULL, features = getPeakSet(ArchRProj),
+  loops = getCoAccessibility(ArchRProj), minCells = 25,
+  baseSize = 10, borderWidth = 0.5, tickWidth = 0.5,
+  facetbaseSize = 12, geneAnnotation = getGeneAnnotation(ArchRProj),
+  browserTheme = "cosmo", threads = getArchRThreads())
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
+
+\item{loops}{JJJ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods.
+i.e. the set of CoAccessible links obtained using \code{getCoAccessibility(ArchRProj))} which are added with \code{addCoAccessibility(ArchRProj))}.}
 
 \item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}
-
-\item{threads}{The number of threads to use for parallel execution.}
 
 \item{baseSize}{The numeric font size to be used in the plot. This applies to all plot labels.}
 
@@ -38,6 +31,8 @@ ArchRBrowser(
 \item{geneAnnotation}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See \code{createGeneAnnotation()} for more info.}
 
 \item{browserTheme}{A \code{shinytheme} from shinythemes for viewing the ArchR Browser. If not installed this will be NULL. To install try devtools::install_github("rstudio/shinythemes").}
+
+\item{threads}{The number of threads to use for parallel execution.}
 }
 \description{
 This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.

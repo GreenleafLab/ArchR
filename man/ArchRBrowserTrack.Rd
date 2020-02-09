@@ -4,30 +4,16 @@
 \alias{ArchRBrowserTrack}
 \title{Plot an ArchR Region Track}
 \usage{
-ArchRBrowserTrack(
-  ArchRProj = NULL,
-  region = NULL,
-  groupBy = "Clusters",
-  useGroups = NULL,
+ArchRBrowserTrack(ArchRProj = NULL, region = NULL,
+  groupBy = "Clusters", useGroups = NULL,
   plotSummary = c("bulkTrack", "featureTrack", "loopTrack", "geneTrack"),
-  sizes = c(10, 1.5, 3, 4),
-  features = getPeakSet(ArchRProj),
-  loops = getCoAccessibility(ArchRProj),
-  geneSymbol = NULL,
-  upstream = 50000,
-  downstream = 50000,
-  tileSize = 250,
-  minCells = 25,
-  normMethod = "ReadsInTSS",
-  threads = getArchRThreads(),
-  ylim = NULL,
-  baseSize = 7,
-  borderWidth = 0.4,
-  tickWidth = 0.4,
-  facetbaseSize = 7,
-  geneAnnotation = getGeneAnnotation(ArchRProj),
-  title = ""
-)
+  sizes = c(10, 1.5, 3, 4), features = getPeakSet(ArchRProj),
+  loops = getCoAccessibility(ArchRProj), geneSymbol = NULL,
+  upstream = 50000, downstream = 50000, tileSize = 250,
+  minCells = 25, normMethod = "ReadsInTSS",
+  threads = getArchRThreads(), ylim = NULL, baseSize = 7,
+  borderWidth = 0.4, tickWidth = 0.4, facetbaseSize = 7,
+  geneAnnotation = getGeneAnnotation(ArchRProj), title = "")
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -42,7 +28,10 @@ ArchRBrowserTrack(
 
 \item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}. The order must be the same as \code{plotSummary}.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
+
+\item{loops}{JJJ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods.
+i.e. the set of CoAccessible links obtained using \code{getCoAccessibility(ArchRProj))} which are added with \code{addCoAccessibility(ArchRProj))}.}
 
 \item{geneSymbol}{If \code{region} is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
 

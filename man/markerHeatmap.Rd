@@ -4,26 +4,13 @@
 \alias{markerHeatmap}
 \title{Plot a Heatmap of Identified Marker Features}
 \usage{
-markerHeatmap(
-  seMarker = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
-  log2Norm = TRUE,
-  scaleTo = 10^4,
-  scaleRows = TRUE,
-  plotLog2FC = FALSE,
-  limits = c(-2, 2),
-  grepExclude = NULL,
-  pal = NULL,
-  binaryClusterRows = TRUE,
-  clusterCols = TRUE,
-  labelMarkers = NULL,
-  nLabel = NULL,
-  nPrint = 20,
-  labelRows = FALSE,
-  returnMat = FALSE,
-  transpose = TRUE,
-  invert = FALSE
-)
+markerHeatmap(seMarker = NULL, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  log2Norm = TRUE, scaleTo = 10^4, scaleRows = TRUE,
+  plotLog2FC = FALSE, limits = c(-2, 2), grepExclude = NULL,
+  pal = NULL, binaryClusterRows = TRUE, clusterCols = TRUE,
+  labelMarkers = NULL, nLabel = NULL, nPrint = 20,
+  labelRows = FALSE, returnMat = FALSE, transpose = TRUE,
+  invert = FALSE)
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{markerFeatures()}.}

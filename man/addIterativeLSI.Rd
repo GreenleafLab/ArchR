@@ -4,33 +4,17 @@
 \alias{addIterativeLSI}
 \title{Add an Iterative LSI-based dimensionality reduction to an ArchRProject}
 \usage{
-addIterativeLSI(
-  ArchRProj = NULL,
-  useMatrix = "TileMatrix",
-  name = "IterativeLSI",
-  iterations = 2,
-  clusterParams = list(resolution = 0.3, sampleCells = 10000, n.start = 25),
-  dimsToUse = 1:30,
-  LSIMethod = 2,
-  scaleDims = TRUE,
-  corCutOff = 0.75,
-  binarize = TRUE,
-  sampleCells = NULL,
-  varFeatures = 50000,
-  selectionMethod = "var",
-  scaleTo = 10000,
-  totalFeatures = 5e+05,
-  filterQuantile = 0.995,
-  saveIterations = TRUE,
-  outDir = getOutputDirectory(ArchRProj),
-  runHarmony = FALSE,
-  harmonyParams = list(),
-  threads = getArchRThreads(),
-  seed = 1,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
-  force = FALSE
-)
+addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
+  name = "IterativeLSI", iterations = 2,
+  clusterParams = list(resolution = 0.3, sampleCells = 10000, n.start =
+  25), dimsToUse = 1:30, LSIMethod = 2, scaleDims = TRUE,
+  corCutOff = 0.75, binarize = TRUE, sampleCells = NULL,
+  varFeatures = 50000, selectionMethod = "var", scaleTo = 10000,
+  totalFeatures = 5e+05, filterQuantile = 0.995,
+  saveIterations = TRUE, outDir = getOutputDirectory(ArchRProj),
+  runHarmony = FALSE, harmonyParams = list(),
+  threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
+  verboseAll = FALSE, force = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

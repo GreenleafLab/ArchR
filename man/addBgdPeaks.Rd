@@ -4,15 +4,10 @@
 \alias{addBgdPeaks}
 \title{Add Background Peaks to an ArchRProject}
 \usage{
-addBgdPeaks(
-  ArchRProj = NULL,
-  nIterations = 50,
-  w = 0.1,
-  binSize = 50,
-  seed = 1,
-  outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
-  force = FALSE
-)
+addBgdPeaks(ArchRProj = NULL, nIterations = 50, w = 0.1,
+  binSize = 50, seed = 1,
+  outFile = file.path(getOutputDirectory(ArchRProj),
+  "Background-Peaks.rds"), force = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -2,27 +2,15 @@
 % Please edit documentation in R/VisualizeData.R
 \name{plotEmbedding}
 \alias{plotEmbedding}
-\title{Visualize an Embedding from ArchR Project}
+\title{Visualize an Embedding from ArchR Project JJJ}
 \usage{
-plotEmbedding(
-  ArchRProj = NULL,
-  embedding = "UMAP",
-  colorBy = "cellColData",
-  name = "Sample",
-  log2Norm = NULL,
-  imputeWeights = NULL,
-  pal = NULL,
-  size = 0.1,
-  rastr = TRUE,
-  quantCut = c(0.01, 0.99),
-  discreteSet = NULL,
-  continuousSet = NULL,
-  randomize = TRUE,
-  keepAxis = FALSE,
-  baseSize = 10,
-  plotAs = NULL,
-  plotParams = list()
-)
+plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
+  colorBy = "cellColData", name = "Sample", log2Norm = NULL,
+  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
+  getImputeWeights(ArchRProj), pal = NULL, size = 0.1, rastr = TRUE,
+  quantCut = c(0.01, 0.99), discreteSet = NULL, continuousSet = NULL,
+  randomize = TRUE, keepAxis = FALSE, baseSize = 10, plotAs = NULL,
+  ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -61,7 +49,7 @@ the 2.5th and 97.5th percentile values respectively.}
 
 \item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default if \code{colorBy} is numeric this is "hex".}
 
-\item{plotParams}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
+\item{...}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 }
 \description{
 This function will plot an embedding stored in an ArchRProject

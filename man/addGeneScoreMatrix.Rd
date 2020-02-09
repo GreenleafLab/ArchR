@@ -4,24 +4,14 @@
 \alias{addGeneScoreMatrix}
 \title{Add GeneScoreMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneScoreMatrix(
-  input = NULL,
-  genes = if (inherits(input, "ArchRProject")) getGenes(input) else NULL,
+addGeneScoreMatrix(input = NULL, genes = getGenes(input),
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
-  matrixName = "GeneScoreMatrix",
-  upstream = c(5000, 1e+05),
-  downstream = c(5000, 1e+05),
-  tileSize = 500,
-  ceiling = 4,
-  useGeneBoundaries = TRUE,
-  scaleTo = 10000,
-  excludeChr = c("chrY", "chrM"),
-  blacklist = if (inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
-  threads = getArchRThreads(),
-  parallelParam = NULL,
-  subThreading = TRUE,
-  force = FALSE
-)
+  matrixName = "GeneScoreMatrix", upstream = c(5000, 1e+05),
+  downstream = c(5000, 1e+05), tileSize = 500, ceiling = 4,
+  useGeneBoundaries = TRUE, scaleTo = 10000, excludeChr = c("chrY",
+  "chrM"), blacklist = getBlacklist(input),
+  threads = getArchRThreads(), parallelParam = NULL,
+  subThreading = TRUE, force = FALSE)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
@@ -32,9 +22,9 @@ addGeneScoreMatrix(
 
 \item{matrixName}{The name to be used for storage of the gene activity score matrix in the provided \code{ArchRProject} or ArrowFiles.}
 
-\item{upstream}{The number of basepairs upstream of the transcription start site to consider for gene activity score calculation.}
+\item{upstream}{The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene activity score calculation.}
 
-\item{downstream}{The number of basepairs downstream of the transcription start site to consider for gene activity score calculation.}
+\item{downstream}{The minimum and maximum number of basepairs downstream of the transcription start site to consider for gene activity score calculation.}
 
 \item{tileSize}{The size of the tiles used for binning counts prior to gene activity score calculation.}
 

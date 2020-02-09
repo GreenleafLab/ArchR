@@ -2,12 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{addArchRThreads}
 \alias{addArchRThreads}
-\title{Add a globally-applied number of threads to use for parallel computing.}
+\title{Add a globally-applied number of threads to use for parallel computing. JJJ}
 \usage{
-addArchRThreads(threads = floor(parallel::detectCores()/2), force = FALSE)
+addArchRThreads(threads = floor(parallel::detectCores()/2),
+  force = FALSE)
 }
 \arguments{
 \item{threads}{The default number of threads to be used for parallel execution across all ArchR functions. This value is stored as a global environment variable, not part of the \code{ArchRProject}. This can be overwritten on a per-function basis using the given function's \code{threads} parameter.}
+
+\item{force}{If you requested for more than nCPU - 2 threads. If \code{force = FALSE} ArchR will set the threads maximum at nCPU - 2 threads. To bypass this set \code{force = TRUE}.}
 }
 \description{
 This function will set the number of threads to be used for parallel computing across all ArchR functions.

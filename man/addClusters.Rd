@@ -4,23 +4,11 @@
 \alias{addClusters}
 \title{Add cluster information to an ArchRProject}
 \usage{
-addClusters(
-  input = NULL,
-  reducedDims = "IterativeLSI",
-  name = "Clusters",
-  sampleCells = NULL,
-  seed = 1,
-  method = "Seurat",
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  knnAssign = 10,
-  nOutlier = 20,
-  verbose = TRUE,
-  tstart = NULL,
-  force = FALSE,
-  ...
-)
+addClusters(input = NULL, reducedDims = "IterativeLSI",
+  name = "Clusters", sampleCells = NULL, seed = 1,
+  method = "Seurat", dimsToUse = NULL, scaleDims = NULL,
+  corCutOff = 0.75, knnAssign = 10, nOutlier = 5, verbose = TRUE,
+  tstart = NULL, force = FALSE, ...)
 }
 \arguments{
 \item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims} or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.}
@@ -37,7 +25,10 @@ addClusters(
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by \code{addIterativeLSI}.}
+\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
+(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
+If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
+This idea was introduced by Timothy Stuart.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 

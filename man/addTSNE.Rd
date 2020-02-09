@@ -4,24 +4,12 @@
 \alias{addTSNE}
 \title{Add a TSNE embedding of a reduced dimensions object to an ArchRProject JJJ}
 \usage{
-addTSNE(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  method = "RTSNE",
-  name = "TSNE",
-  perplexity = 50,
-  maxIterations = 1000,
-  learningRate = 1000,
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  saveModel = FALSE,
-  verbose = TRUE,
-  seed = 1,
-  force = FALSE,
-  threads = getArchRThreads(),
-  ...
-)
+addTSNE(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  method = "RTSNE", name = "TSNE", perplexity = 50,
+  maxIterations = 1000, learningRate = 200, dimsToUse = NULL,
+  scaleDims = NULL, corCutOff = 0.75, saveModel = FALSE,
+  verbose = TRUE, seed = 1, force = FALSE,
+  threads = max(floor(getArchRThreads()/2), 1), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -32,11 +20,22 @@ addTSNE(
 
 \item{name}{The name for the TSNE embedding to be stored as in the given \code{ArchRProject} object.}
 
+\item{perplexity}{An integer describing the number of nearest neighbors to compute a \code{Rtsne}. This argument is passed to \code{perplexity} in \code{Rtsne::Rtsne}.}
+
+\item{maxIterations}{An integer describing the maximum number of iterations when computing a TSNE. This argument is passed to \code{max_iter} in \code{Rtsne::Rtsne}.}
+
+\item{learningRate}{An integer controlling how much the weights are adjusted at each iteration. This argument is passed to \code{eta} in \code{Rtsne::Rtsne}.}
+
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
-\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by \code{addIterativeLSI}.}
+\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
+(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
+If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
+This idea was introduced by Timothy Stuart.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+
+\item{verbose}{A boolean value that indicates whether printing TSNE output.}
 
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
 

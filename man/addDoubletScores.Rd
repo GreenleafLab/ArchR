@@ -4,27 +4,14 @@
 \alias{addDoubletScores}
 \title{Add Doublet Scores to a collection of ArrowFiles or an ArchRProject}
 \usage{
-addDoubletScores(
-  input = NULL,
-  useMatrix = "TileMatrix",
-  k = 10,
-  nTrials = 5,
-  dimsToUse = 1:30,
-  LSIMethod = 1,
-  scaleDims = FALSE,
-  corCutOff = 0.75,
-  sampleCells = NULL,
-  knnMethod = "UMAP",
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose =
-    FALSE),
-  LSIParams = list(),
-  outDir = if (inherits(input, "ArchRProject")) getOutputDirectory(input) else
-    "QualityControl",
-  threads = getArchRThreads(),
-  parallelParam = NULL,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
-)
+addDoubletScores(input = NULL, useMatrix = "TileMatrix", k = 10,
+  nTrials = 5, dimsToUse = 1:30, LSIMethod = 1, scaleDims = FALSE,
+  corCutOff = 0.75, sampleCells = NULL, knnMethod = "UMAP",
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric =
+  "euclidean", verbose = FALSE), LSIParams = list(),
+  outDir = getOutputDirectory(input), threads = getArchRThreads(),
+  force = FALSE, parallelParam = NULL, verboseHeader = TRUE,
+  verboseAll = FALSE)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or a character vector containing the paths to the ArrowFiles to be used.}
@@ -40,7 +27,10 @@ addDoubletScores(
 \item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
 Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
 
-\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.}
+\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
+(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
+If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
+This idea was introduced by Timothy Stuart.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
@@ -53,6 +43,8 @@ Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logid
 \item{outDir}{The relative path to the output directory for relevant plots/results from doublet identification.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
+
+\item{force}{If \code{force=FALSE} the umap projection is not accurate R < 0.8 return doubletScores and doubletEnrichments as -1. If \code{force=TRUE} it will bypass this warning and continue (not recommended).}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 

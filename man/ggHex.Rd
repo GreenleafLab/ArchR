@@ -4,25 +4,11 @@
 \alias{ggHex}
 \title{A ggplot-based Hexplot wrapper function summary of points in a standardized manner}
 \usage{
-ggHex(
-  x = NULL,
-  y = NULL,
-  color = NULL,
-  pal = paletteContinuous(set = "solarExtra"),
-  bins = 200,
-  xlim = NULL,
-  ylim = NULL,
-  extend = 0.05,
-  xlabel = "x",
-  ylabel = "y",
-  title = "",
-  colorTitle = "values",
-  baseSize = 6,
-  ratioYX = 1,
-  FUN = "mean",
-  quantCut = c(0.01, 0.99),
-  addPoints = FALSE
-)
+ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
+  = "solarExtra"), bins = 200, xlim = NULL, ylim = NULL,
+  extend = 0.05, xlabel = "x", ylabel = "y", title = "",
+  colorTitle = "values", baseSize = 6, ratioYX = 1, FUN = "mean",
+  quantCut = c(0.01, 0.99), addPoints = FALSE, ...)
 }
 \arguments{
 \item{x}{A numeric vector containing the x-axis values for each point.}
@@ -58,6 +44,8 @@ ggHex(
 \item{quantCut}{If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where a is the upper threshold and b is the lower threshold. For example, quantileCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.}
 
 \item{addPoints}{A boolean value indicating whether individual points should be shown on the hexplot.}
+
+\item{...}{Additional params for plotting}
 }
 \description{
 This function will plot x,y coordinate values summarized in hexagons in a standardized manner

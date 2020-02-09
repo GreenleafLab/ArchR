@@ -4,38 +4,20 @@
 \alias{createArrowFiles}
 \title{Create Arrow Files}
 \usage{
-createArrowFiles(
-  inputFiles = NULL,
-  sampleNames = names(inputFiles),
-  outputNames = sampleNames,
-  validBarcodes = NULL,
+createArrowFiles(inputFiles = NULL, sampleNames = names(inputFiles),
+  outputNames = sampleNames, validBarcodes = NULL,
   geneAnnotation = getGeneAnnotation(),
-  genomeAnnotation = getGenomeAnnotation(),
-  filterFrags = 1000,
-  filterTSS = 4,
-  removeFilteredCells = TRUE,
-  minFrags = 500,
-  outDir = "QualityControl",
-  nucLength = 147,
-  TSSParams = list(),
-  excludeChr = c("chrM", "chrY"),
-  nChunk = 5,
-  bcTag = "qname",
-  gsubExpression = NULL,
-  bamFlag = NULL,
-  offsetPlus = 4,
-  offsetMinus = -5,
-  addTileMat = TRUE,
-  TileMatParams = list(),
-  addGeneScoreMat = TRUE,
-  GeneScoreMatParams = list(),
-  force = FALSE,
-  threads = getArchRThreads(),
-  parallelParam = NULL,
-  subThreading = TRUE,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
-)
+  genomeAnnotation = getGenomeAnnotation(), filterFrags = 1000,
+  filterTSS = 4, removeFilteredCells = TRUE, minFrags = 500,
+  maxFrags = 1e+05, outDir = "QualityControl", nucLength = 147,
+  TSSParams = list(), excludeChr = c("chrM", "chrY"), nChunk = 5,
+  bcTag = "qname", gsubExpression = NULL, bamFlag = NULL,
+  offsetPlus = 4, offsetMinus = -5, addTileMat = TRUE,
+  TileMatParams = list(), addGeneScoreMat = TRUE,
+  GeneScoreMatParams = list(), force = FALSE,
+  threads = getArchRThreads(), parallelParam = NULL,
+  subThreading = TRUE, verboseHeader = TRUE, verboseAll = FALSE,
+  cleanTmp = TRUE)
 }
 \arguments{
 \item{inputFiles}{A character vector containing the paths to the input files to use to generate the ArrowFiles. These files can be in one of the following formats: (i) scATAC tabix files, (ii) fragment files, or (iii) bam files.}
@@ -66,7 +48,7 @@ createArrowFiles(
 This includes the \code{window} which is the size in basepairs of the window centered at each TSS (default 101),
 the \code{flank} which is the size in basepairs of the flanking window (default 2000),
 and the \code{norm} which describes the size in basepairs of the flank window to be used for normalization of the TSS enrichment score (default 100).
-For example, given \verb{window = 101, flank = 2000, norm = 100}, the accessibility within the 101-bp surrounding the TSS will be normalized to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.}
+For example, given \code{window = 101, flank = 2000, norm = 100}, the accessibility within the 101-bp surrounding the TSS will be normalized to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.}
 
 \item{excludeChr}{A character vector containing the names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the ArrowFile.}
 
@@ -101,6 +83,10 @@ For example, given \verb{window = 101, flank = 2000, norm = 100}, the accessibil
 \item{verboseHeader}{A boolean value that determines whether standard output should include verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output should include verbose subsections.}
+
+\item{minFrags}{The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score). This is useful for limiting the number of barcodes analyzed.}
+
+\item{cleamTmp}{A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.}
 }
 \description{
 This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.
