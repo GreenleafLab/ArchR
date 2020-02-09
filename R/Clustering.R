@@ -37,7 +37,7 @@ addClusters <- function(
     scaleDims = NULL, 
     corCutOff = 0.75,
     knnAssign = 10, 
-    nOutlier = 20, 
+    nOutlier = 5, 
     verbose = TRUE,
     tstart = NULL,
     force = FALSE,
