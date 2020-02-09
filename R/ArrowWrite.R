@@ -100,8 +100,9 @@
   binarize = FALSE, 
   addRowSums = FALSE,
   addColSums = FALSE,
+  addRowMeans = FALSE,
   addRowVars = FALSE,
-  addRowMeans = FALSE
+  addRowVarsLog2 = FALSE
   ){
 
   stopifnot(inherits(mat, "dgCMatrix"))
@@ -184,6 +185,22 @@
       dims = c(nrow(mat), 1), level = 0))
     o <- .suppressAll(h5write(obj = rV, file = ArrowFile, name = paste0(Group, "/rowVars")))
 
+  }
+
+  if(addRowVarsLog2){
+    mat@x <- log2(mat@x + 1) #log-normalize
+    rM <- Matrix::rowMeans(mat)
+    rV <- ArchR:::computeSparseRowVariances(mat@i + 1, mat@x, rM, n = ncol(mat))
+
+    #Have to write rowMeansLog2 as well
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowMeansLog2"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = 0))
+    o <- .suppressAll(h5write(obj = rM, file = ArrowFile, name = paste0(Group, "/rowMeansLog2")))
+
+    #Write rowVarsLog2
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowVarsLog2"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = 0))
+    o <- .suppressAll(h5write(obj = rV, file = ArrowFile, name = paste0(Group, "/rowVarsLog2")))
   }
 
   #Clean Up Memorys

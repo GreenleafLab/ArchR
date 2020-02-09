@@ -388,7 +388,7 @@ addGeneScoreMatrix <- function(
       binarize = FALSE,
       addColSums = TRUE,
       addRowSums = TRUE,
-      addRowVars = TRUE #add for integration analyses
+      addRowVarsLog2 = TRUE #add for integration analyses
     )
     gc()
 
