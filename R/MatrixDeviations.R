@@ -236,7 +236,7 @@ addDeviationsMatrix <- function(
 }
 
 ############################################################################
-# Adapted from chromVAR
+# Adapted from chromVAR, Approved by Alicia Schep for Modification.
 ############################################################################
 .customDeviations <- function(
   countsMatrix = NULL,

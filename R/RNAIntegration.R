@@ -104,6 +104,7 @@ addGeneIntegrationMatrix <- function(
       stop("groupBy not in meta.data of Seurat Object")
     }
     seuratRNA <- seRNA
+    seuratRNA$Group <- seRNA@meta.data[,groupBy]
     seuratRNA <- NormalizeData(object = seuratRNA, verbose = verboseAll)
     rm(seRNA)
   }
@@ -197,7 +198,7 @@ addGeneIntegrationMatrix <- function(
     transferParams$verbose <- verboseAll
       
     #Get RNA Labels
-    transferParams$refdata <- seuratRNA@meta.data[,groupBy]
+    transferParams$refdata <- seuratRNA@meta.data$Group
     rnaLabels <- do.call(Seurat::TransferData, transferParams)
 
     if(addToArrow){
