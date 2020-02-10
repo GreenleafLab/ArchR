@@ -377,7 +377,7 @@ addGeneScoreMatrix <- function(
     matGS@x <- as.numeric(scaleTo * matGS@x/rep.int(totalGS, Matrix::diff(matGS@p)))
 
     #Round to Reduce Digits After Final Normalization
-    matGS@x <- round(matGS@x, 2)
+    matGS@x <- round(matGS@x, 3)
     matGS <- Matrix::drop0(matGS)
 
     #Write sparseMatrix to Arrow File!
@@ -390,11 +390,13 @@ addGeneScoreMatrix <- function(
       addRowSums = TRUE,
       addRowVarsLog2 = TRUE #add for integration analyses
     )
-    gc()
 
     #Clean Memory
     rm(matGS)
-    gc()
+
+    if(z %% 3 == 0 | z == length(geneStart)){
+      gc()
+    }
 
   }
 

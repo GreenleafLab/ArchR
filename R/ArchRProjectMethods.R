@@ -1063,14 +1063,18 @@ getReducedDims <- function(
 
     #Return Values
     if(returnMatrix){
+
+      cells <- rownames(matDR) %in% ArchRProj$cellNames
       
-      return(matDR[,corToUse[idx],drop=FALSE])
+      return(matDR[cells,corToUse[idx],drop=FALSE])
 
     }else{
       
+      cells <- rownames(matDR) %in% ArchRProj$cellNames
+
       out <- ArchRProj@reducedDims[[reducedDims]]
       out$dimsKept <- corToUse[idx]
-      out[[1]] <- matDR[,corToUse[idx],drop=FALSE]
+      out[[1]] <- matDR[cells,corToUse[idx],drop=FALSE]
       return(out)
 
     }

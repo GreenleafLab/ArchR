@@ -139,6 +139,10 @@
 
       cv <- inherits(input, "SummarizedExperiment")
 
+    }else if(vi == "seurat" | vi == "seuratobject"){
+
+      cv <- inherits(input, "Seurat")
+
     }else if(vi == "txdb"){
 
       cv <- inherits(input, "TxDb")

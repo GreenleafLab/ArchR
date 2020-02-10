@@ -111,7 +111,7 @@ addUMAP <- function(
     dfEmbedding <- data.frame(uwot_umap)    
   }   
   colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
-  rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
+  rownames(dfEmbedding) <- rownames(embeddingParams$X)
 
   embeddingParams$X <- NULL
   ArchRProj@embeddings[[name]] <- SimpleList(df = dfEmbedding, params = embeddingParams)
@@ -226,7 +226,7 @@ addTSNE <- function(
     Rtsne_tsne <- do.call(Rtsne::Rtsne, embeddingParams)
     dfEmbedding <- data.frame(Rtsne_tsne$Y)   
     colnames(dfEmbedding) <- paste0(reducedDims,"#TSNE_Dimension_",seq_len(ncol(dfEmbedding)))
-    rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
+    rownames(dfEmbedding) <- rownames(embeddingParams$X)
 
   }else if(tolower(method)=="fftrtsne" | tolower(method)=="fit-tsne"){
 
@@ -247,7 +247,7 @@ addTSNE <- function(
 
     dfEmbedding <- data.frame(fftrtsne_tsne@cell.embeddings)   
     colnames(dfEmbedding) <- paste0(reducedDims,"#TSNE_Dimension_",seq_len(ncol(dfEmbedding)))
-    rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
+    rownames(dfEmbedding) <- rownames(embeddingParams$X)
 
   }else{
 
