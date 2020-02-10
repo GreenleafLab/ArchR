@@ -214,6 +214,7 @@ addGeneIntegrationMatrix <- function(
       predictionScore = rnaLabels$prediction.score.max,
       predictedGroup = rnaLabels$predicted.id
     )
+    rownames(matchDF) <- matchDF$cellNames
 
     #Clean Memory
     rm(transferParams, transferAnchors)
@@ -251,6 +252,18 @@ addGeneIntegrationMatrix <- function(
         force = force
       )
 
+      o <- h5write(
+        obj = matchDF[colnames(matchedRNA), "predictionScore"], 
+        file = ArrowFile, 
+        name = paste0(matrixName, "/Info/predictionScore")
+      )
+
+      o <- h5write(
+        obj = matchDF[colnames(matchedRNA), "predictedGroup"], 
+        file = ArrowFile, 
+        name = paste0(matrixName, "/Info/predictedGroup")
+      )
+      
       #Clean Memory
       gc()
 
