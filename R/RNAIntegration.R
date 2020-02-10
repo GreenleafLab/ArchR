@@ -115,13 +115,12 @@ addGeneIntegrationMatrix <- function(
 
   dfAll <- .safelapply(seq_along(ArrowFiles), function(i){
 
-    .messageDiffTime(paste0(prefix, " Running Seurat's Integration Stuart et al 2019"), tstart, verbose = verboseHeader)
-
     ArrowFiles <- getArrowFiles(subProj)
     ArrowFile <- ArrowFiles[i]
     sampleName <- .sampleName(ArrowFile)
     matrixName <- "GeneIntegrationMatrix"
     prefix <- sprintf("%s (%s of %s)", sampleName, i, length(ArrowFiles))
+    .messageDiffTime(paste0(prefix, " Running Seurat's Integration Stuart et al 2019"), tstart, verbose = verboseHeader)
 
     #Subset
     subProj@cellColData <- subProj@cellColData[BiocGenerics::which(subProj$Sample == sampleName), ]
@@ -160,8 +159,8 @@ addGeneIntegrationMatrix <- function(
     if(useImputation){
       .messageDiffTime(paste0(prefix, " Imputing Gene Scores"), tstart, verbose = verboseHeader)
       subProj <- .suppressAll(addImputeWeights(subProj))
-      mat <- getImputeWeights(subProj)[[1]][colnames(mat), colnames(mat)] %*% t(mat)
-      mat <- t(mat)
+      mat <- getImputeWeights(subProj)[[1]][colnames(mat), colnames(mat)] %*% Matrix::t(mat)
+      mat <- Matrix::t(mat)
     }
     seuratATAC <- Seurat::CreateSeuratObject(counts = mat[head(seq_len(nrow(mat)), 5), , drop = FALSE])
     seuratATAC[["GeneScore"]] <- Seurat::CreateAssayObject(counts = mat)
@@ -263,7 +262,7 @@ addGeneIntegrationMatrix <- function(
         file = ArrowFile, 
         name = paste0(matrixName, "/Info/predictedGroup")
       )
-      
+
       #Clean Memory
       gc()
 
