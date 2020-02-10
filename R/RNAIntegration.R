@@ -59,7 +59,6 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = reduction, name = "reduction", valid = c("character"))
   .validInput(input = addToArrow, name = "addToArrow", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
