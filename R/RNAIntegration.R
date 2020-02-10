@@ -144,7 +144,7 @@ addGeneIntegrationMatrix <- function(
     genesUse <- VariableFeatures(object = seuratRNA)
 
     #2. Get Gene Score Matrix and Create Seurat ATAC
-    .messageDiffTime(paste0(prefix, " Creating Seurat ATAC GeneScore Object"), tstart, verbose = verboseHeader)
+    .messageDiffTime(paste0(prefix, " Creating Seurat ATAC Gene Score Object"), tstart, verbose = verboseHeader)
     mat <- .getPartialMatrix(
       getArrowFiles(subProj)[sampleName], 
       featureDF = geneDF[geneDF$name %in% genesUse,], 
@@ -185,7 +185,6 @@ addGeneIntegrationMatrix <- function(
     gc()
 
     #4. Transfer Data
-    .messageDiffTime(paste0(prefix, " Seurat Transfer Data"), tstart, verbose = verboseHeader)
     transferParams$anchorset <- transferAnchors
     transferParams$weight.reduction <- CreateDimReducObject(
       embeddings = getReducedDims(
@@ -198,11 +197,13 @@ addGeneIntegrationMatrix <- function(
     transferParams$verbose <- verboseAll
       
     #Get RNA Labels
-    transferParams$refdata <- seuratRNA@meta.data$Group
+    .messageDiffTime(paste0(prefix, " Seurat Transfer Labels"), tstart, verbose = verboseHeader)
+    transferParams$refdata <- seuratRNA$Group
     rnaLabels <- do.call(Seurat::TransferData, transferParams)
 
     if(addToArrow){
       #Get Matched RNA
+      .messageDiffTime(paste0(prefix, " Seurat Transfer Matrix"), tstart, verbose = verboseHeader)
       transferParams$refdata <- GetAssayData(seuratRNA, assay = "RNA", slot = "data")
       matchedRNA <- do.call(Seurat::TransferData, transferParams)
       matchedRNA <- matchedRNA@data
@@ -226,7 +227,7 @@ addGeneIntegrationMatrix <- function(
 
       #Re-Index RNA
       geneDF2 <- geneDF[geneDF$name %in% rownames(matchedRNA), , drop = FALSE]
-      splitGeneDF <- split(geneDF2, geneDF2$seqnames)
+      splitGeneDF <- S4Vectors::split(geneDF2, geneDF2$seqnames)
       featureDF <- lapply(splitGeneDF, function(x){
         x$idx <- seq_len(nrow(x))
         return(x)
