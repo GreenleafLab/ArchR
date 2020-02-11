@@ -643,9 +643,10 @@ addGroupCoverages <- function(
   if(length(allChr)==0){
     stop("No Chromosomes in Coverage after Excluding Chr!")
   }
+  ##Note that there was a bug with data.table vs data.frame with stacking
   for(x in seq_along(allChr)){
     .getCoverageInsertionSites(coverageFile, allChr[x]) %>% 
-      {data.frame(seqnames = allChr[x], start = . - 1L, end = .)} %>% 
+      {data.table(seqnames = allChr[x], start = . - 1L, end = .)} %>% 
       {data.table::fwrite(., out, sep = "\t", col.names = FALSE, append = TRUE)}
   }
   out
