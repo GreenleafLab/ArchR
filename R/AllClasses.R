@@ -23,6 +23,18 @@ setClass("ArchRProject",
   )
 )
 
+.validArrowFiles <- function(object){
+  errors <- c()
+  fe <- file.exists(object@sampleColData$ArrowFiles)
+  if(any(!fe)){
+    msg <- paste0("\nArrowFiles :\n  ", paste0(object@sampleColData$ArrowFiles[!fe], collapse=",\n  "), "\nDo not exist!")
+    errors <- c(errors, msg)    
+  }
+  if (length(errors) == 0) TRUE else errors
+}
+
+setValidity("ArchRProject", .validArrowFiles)
+
 setMethod("show", "ArchRProject",
   function(object) {
     scat <- function(fmt, vals=character(), exdent=2, n = 5, ...){
@@ -76,6 +88,9 @@ ArchRProject <- function(
 
   #Validate
   message("Validating Arrows...")
+  if(any(!file.exists(ArrowFiles))){
+    stop(paste0("Could not find ArrowFiles :\n", paste0(ArrowFiles[!file.exists(ArrowFiles)], collapse="\n")))
+  }
   ArrowFiles <- unlist(lapply(ArrowFiles, .validArrow))
 
   message("Getting SampleNames...")
@@ -106,6 +121,7 @@ ArchRProject <- function(
   metadataList <- lapply(ArrowFiles, .getMetadata)
   intCols <- Reduce("intersect",lapply(metadataList,colnames))
   cellColData <- lapply(metadataList, function(x) x[,intCols]) %>% Reduce("rbind",.)
+  cellColData <- DataFrame(cellColData)
 
   AProj <- new("ArchRProject", 
     projectMetadata = SimpleList(outputDirectory = normalizePath(outputDirectory)),
@@ -291,6 +307,9 @@ loadArchRProject <- function(
 
 }
 
+#Accessor methods adapted from Seurat 
+#https://github.com/satijalab/seurat/blob/87e2454817ed1d5d5aa2e9c949b9231f2231802f/R/objects.R
+
 #'Accessing cellColData directly from dollar.sign accessor
 #' 
 #' This function will allow direct access to cellColData with a `$` accessor.
@@ -316,5 +335,90 @@ loadArchRProject <- function(
     return(x@cellColData[[i, drop = TRUE]])
   }
 }
+
+#' Add directly to cellColData directly from dollar.sign accessor
+#' 
+#' This function will allow adding directly to cellColData with a `$` accessor.
+#'
+#' @export
+#'
+"$<-.ArchRProject" <- function(x, i, value){
+  if(object.size(Rle(value)) < 2 * object.size(value)){ #Check if Rle is more efficient for storage purposes...
+    value <- Rle(value)
+  }
+  if(length(value)==1){
+    value <- Rle(value, lengths = nrow(x@cellColData))
+  }
+  x@cellColData[[i]] <- value
+  return(x)
+}
+
+
+#' Subset cells directly from ArchRProject
+#' 
+#' This function will allow adding directly to cellColData with a `$` accessor.
+#'
+#' @export
+#'
+"[.ArchRProject" <- function(x, i, j){
+  cD <- x@cellColData
+  
+  if (missing(i) && missing(j)) {
+    return(x)
+  }
+  
+  if (missing(i)) {
+    i <- rownames(cD)
+  } else if (missing(j)) {
+    j <- colnames(cD)
+  }
+  
+  if (is.logical(i)) {
+    if (length(i) != nrow(cD)) {
+      stop("Incorrect number of logical values provided to subset cells")
+    }
+    i <- rownames(cD)[i]
+  }
+  
+  if (is.logical(j)) {
+    if (length(j) != ncol(cD)) {
+      stop("Incorrect number of logical values provided to subset columns in cellColData")
+    }
+    j <- colnames(cD)[j]
+  }
+  
+  if (is.numeric(i)) {
+    i <- rownames(cD)[i]
+  }
+  
+  if (is.numeric(j)) {
+    j <- colnames(cD)[j]
+  }
+
+  if("Sample" %ni% j){
+    stop("Sample column must be in subsetting by column to continue!")
+  }
+
+  x@cellColData <- cD[i, j, drop=FALSE]
+
+  return(x)
+
+}
+
+setMethod(
+  f = "colnames",
+  signature = c("x" = "ArchRProject"),
+  definition = function(x) {
+    colnames(x@cellColData)
+  }
+)
+
+setMethod(
+  f = "rownames",
+  signature = c("x" = "ArchRProject"),
+  definition = function(x) {
+    rownames(x@cellColData)
+  }
+)
 
 

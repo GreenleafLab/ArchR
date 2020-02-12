@@ -368,7 +368,7 @@ getMatrixFromArrow <- function(
   #########################################
   seqnames <- unique(featureDF$seqnames)
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
-  cellNames <- unlist(groupList, use.names = FALSE)
+  cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check JJJ
 
   mat <- .safelapply(seq_along(seqnames), function(x){
 

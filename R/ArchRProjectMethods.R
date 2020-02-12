@@ -1037,6 +1037,10 @@ getReducedDims <- function(
 
   if(reducedDims %in% names(ArchRProj@reducedDims)){
     
+    if(is.na(ArchRProj@reducedDims[[reducedDims]]$scaleDims)){
+      scaleDims <- FALSE # if na this means dont scaleDims ever.
+    }
+
     if(is.null(scaleDims)){
       scaleDims <- ArchRProj@reducedDims[[reducedDims]]$scaleDims
     }
@@ -1046,8 +1050,13 @@ getReducedDims <- function(
       corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$scaled
       matDR <- .scaleDims(ArchRProj@reducedDims[[reducedDims]][[1]])
     }else{
-      corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$none
-      matDR <- ArchRProj@reducedDims[[reducedDims]][[1]]
+      if(is.na(ArchRProj@reducedDims[[reducedDims]]$corToDepth)){
+        corToDepth <- rep(0, ncol(ArchRProj@reducedDims[[reducedDims]][[1]]))
+        matDR <- ArchRProj@reducedDims[[reducedDims]][[1]]
+      }else{
+        corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$none
+        matDR <- ArchRProj@reducedDims[[reducedDims]][[1]]
+      }
     }
     
     #Determine PCs to Keep

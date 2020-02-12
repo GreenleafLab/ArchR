@@ -7,8 +7,7 @@
 addLSI(ArchRProj = NULL, useMatrix = "TileMatrix", name = "LSI",
   dimsToUse = 1:30, LSIMethod = 2, scaleDims = TRUE,
   corCutOff = 0.75, binarize = TRUE, sampleCells = NULL,
-  topFeatures = 50000, totalFeatures = 5e+05, filterQuantile = 0.995,
-  runHarmony = FALSE, harmonyParams = list(),
+  topFeatures = 25000, totalFeatures = 5e+05, filterQuantile = 0.995,
   threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
   verboseAll = FALSE, force = FALSE)
 }
@@ -37,10 +36,6 @@ Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logid
 \item{totalFeatures}{The number of features to consider for use in LSI after ranking the features by the total insertion counts. These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
 
 \item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior to the LSI reduction. For example, if \code{filterQuantile = 0.99}, any features above the 99th percentile in insertion counts will be ignored for LSI reduction.}
-
-\item{runHarmony}{A boolean value indicating whether harmony-based batch correction should be run on the computed LSI object.}
-
-\item{harmonyParams}{Additional parameters to be passed to \code{harmony::HarmonyMatrix()}.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

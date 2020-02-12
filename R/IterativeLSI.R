@@ -20,8 +20,6 @@
 #' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to TF-IDF normalization.
 #' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total insertion counts. These are an equivalent when using a `TileMatrix` to a defined peakSet.
 #' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior to the LSI reduction. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts will be ignored for LSI reduction.
-#' @param runHarmony A boolean value indicating whether harmony-based batch correction should be run on the computed LSI object.
-#' @param harmonyParams Additional parameters to be passed to `harmony::HarmonyMatrix()`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
@@ -38,11 +36,9 @@ addLSI <- function(
   corCutOff = 0.75,
   binarize = TRUE,
   sampleCells = NULL,
-  topFeatures = 50000,
+  topFeatures = 25000,
   totalFeatures = 500000,
   filterQuantile = 0.995,
-  runHarmony = FALSE,
-  harmonyParams = list(),
   threads = getArchRThreads(),
   seed = 1,
   verboseHeader = TRUE,
@@ -67,6 +63,8 @@ addLSI <- function(
 #' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options are "TileMatrix" or "PeakMatrix".
 #' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
+#' @param clusterParams Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either length 1 or the total number of `iterations` - 1.
+#' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
@@ -74,16 +72,14 @@ addLSI <- function(
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
 #' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
-#' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.
 #' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to variance calculation and TF-IDF normalization.
 #' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total number of insertions. These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a `TileMatrix` to a defined peakSet.
 #' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts will be ignored for the first LSI iteration.
 #' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.
+#' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" if `saveIterations=TRUE`. See the function `umap` in the uwot package.
+#' @param nPlot If `saveIterations=TRUE`, how many cells to sample make a UMAP and plot for each iteration.
 #' @param outDir The output directory for saving LSI iterations if desired. Default is in the `outputDirectory` of the `ArchRProject`.
-#' @param clusterParams Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either length 1 or the total number of `iterations` - 1.
-#' @param runHarmony A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.
-#' @param harmonyParams Additional parameters to be passed to `harmony::HarmonyMatrix()`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
@@ -95,22 +91,26 @@ addIterativeLSI <- function(
   useMatrix = "TileMatrix",
   name = "IterativeLSI",
   iterations = 2,
-  clusterParams = list(resolution = 0.3, sampleCells = 10000, n.start = 25),
+  clusterParams = list(
+      resolution = c(0.2), 
+      sampleCells = 10000, 
+      n.start = 10
+  ),
+  varFeatures = 25000,
   dimsToUse = 1:30,
   LSIMethod = 2,
   scaleDims = TRUE,
   corCutOff = 0.75,
   binarize = TRUE,
   sampleCells = NULL,
-  varFeatures = 50000,
   selectionMethod = "var",
   scaleTo = 10000,
   totalFeatures = 500000,
   filterQuantile = 0.995,
   saveIterations = TRUE,
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
+  nPlot = 10000,
   outDir = getOutputDirectory(ArchRProj),
-  runHarmony = FALSE,
-  harmonyParams = list(),
   threads = getArchRThreads(),
   seed = 1,
   verboseHeader = TRUE,
@@ -133,10 +133,10 @@ addIterativeLSI <- function(
   .validInput(input = totalFeatures, name = "totalFeatures", valid = c("integer"))
   .validInput(input = filterQuantile, name = "filterQuantile", valid = c("numeric"))
   .validInput(input = saveIterations, name = "saveIterations", valid = c("boolean"))
+  .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
+  .validInput(input = nPlot, name = "nPlot", valid = c("integer"))
   .validInput(input = outDir, name = "outDir", valid = c("character"))
   .validInput(input = clusterParams, name = "clusterParams", valid = c("list"))
-  .validInput(input = runHarmony, name = "runHarmony", valid = c("boolean"))
-  .validInput(input = harmonyParams, name = "harmonyParams", valid = c("list"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
@@ -241,44 +241,75 @@ addIterativeLSI <- function(
     stop("Dimensions to use after filtering for correlation to depth lower than 2!")
   }
 
-  if(runHarmony){
-    .messageDiffTime("Harmonizing LSI output on the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    .requirePackage("harmony")
-    # if(scaleDims){
-    #   harmonyParams$data_mat <- .scaleDims(outLSI$matSVD) #[, dimsPF, drop = FALSE]
-    # }else{
-    #   harmonyParams$data_mat <- outLSI$matSVD #[, dimsPF, drop = FALSE]
-    # }
-    harmonyParams$data_mat <- outLSI$matSVD
-    harmonyParams$meta_data <- data.frame(row.names = rownames(outLSI$matSVD), Group = stringr::str_split(rownames(outLSI$matSVD), pattern = "#", simplify=TRUE)[,1])
-    harmonyParams$do_pca <- FALSE
-    harmonyParams$vars_use <- "Group"
-    harmonyParams$plot_convergence <- FALSE
-    harmonyParams$verbose <- verboseAll
-    #Harmonize the LSI Results
-    outLSI$matSVD <- do.call(HarmonyMatrix, harmonyParams)
-  }
-
   #Time to compute clusters
   .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
   parClust <- lapply(clusterParams, function(x) x[[1]])
+  parClust$verbose <- verboseAll
   if(scaleDims){
     parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
   }else{
     parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
   }
-  parClust$verbose <- verboseAll
   clusters <- do.call(addClusters, parClust)
-  
+  nClust <- length(unique(clusters))
+  .messageDiffTime(sprintf("Identified %s Clusters",nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+
   #Save Output
   if(saveIterations){
     .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    outj <- SimpleList(LSI = outLSI, clusters = clusters, params = parClust[-length(parClust)])
-    saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-1.rds")))
+    o <- tryCatch({
+      if(nrow(outLSI[[1]]) > nPlot){
+        saveIdx <- sample(seq_len(nrow(outLSI[[1]])), nPlot)
+      }else{
+        saveIdx <- seq_len(nrow(outLSI[[1]]))
+      }
+      #Plot Quick UMAP
+      UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE, fast_sgd = TRUE))
+      if(scaleDims){
+        UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])
+      }else{
+        UMAPParams$X <- (outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE]
+      }
+      UMAPParams$ret_nn <- FALSE
+      UMAPParams$ret_model <- FALSE
+      UMAPParams$n_threads <- floor(threads / 2)
+      uwotUmap <- do.call(uwot::umap, UMAPParams)
+      pdf(file.path(outDir, paste0("UMAP-LSI-Iteration-1.pdf")), width = 6, height = 6)
+      p1 <- ggPoint(uwotUmap[,1], uwotUmap[,2], getCellColData(ArchRProj, select = "Sample")[rownames(outLSI[[1]])[saveIdx],], 
+        size = 0.5, title = paste0("SampleName (N = ",nrow(UMAPParams$X),")"),rastr=TRUE)
+      p2 <- ggPoint(uwotUmap[,1], uwotUmap[,2], clusters[saveIdx], size = 0.5, title = paste0("Clusters (N = ",nrow(UMAPParams$X),")"),rastr=TRUE)
+      p1 <- p1 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
+          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank())
+      p2 <- p2 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
+          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank())
+      print(.fixPlotSize(p1, plotWidth = 6, plotHeight = 6))
+      grid::grid.newpage()
+      print(.fixPlotSize(p2, plotWidth = 6, plotHeight = 6))
+      dev.off()
+      #Save results
+      outj <- SimpleList(LSI = outLSI, clusters = clusters, params = parClust[-length(parClust)], uwotUmap = uwotUmap)
+      saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-1.rds")))
+      rm(UMAPParams, uwotUmap)
+      gc()
+    }, error = function(x){
+      message("An error occured plotting umap and saving LSI iteration, continuing without saving.")
+    })
   }
 
   j <- 1
   while(j < iterations){
+
+    if(!is.null(parClust$sampleCells)){
+      if(is.numeric(parClust$sampleCells)){
+        idxSub <- sort(sample(seq_len(nrow(outLSI$matSVD)), floor(parClust$sampleCells)))
+      }else{
+        idxSub <- seq_len(nrow(outLSI$matSVD))
+      }
+    }else{
+      idxSub <- seq_len(nrow(outLSI$matSVD))
+    }
 
     #Jth iteration
     j <- j + 1
@@ -287,7 +318,7 @@ addIterativeLSI <- function(
     
     #Create Group Matrix
     .messageDiffTime("Creating Cluster Matrix on the total Group Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    groupList <- SimpleList(split(rownames(outLSI$matSVD), clusters))
+    groupList <- SimpleList(split(rownames(outLSI$matSVD)[idxSub], clusters[idxSub]))
     groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
     groupMat <- .getGroupMatrix(
       ArrowFiles = ArrowFiles, 
@@ -358,23 +389,6 @@ addIterativeLSI <- function(
       stop("Dimensions to use after filtering for correlation to depth lower than 2!")
     }
 
-    if(runHarmony){
-      .messageDiffTime("Harmonizing LSI output on the Variable Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-      # if(scaleDims){
-      #   harmonyParams$data_mat <- .scaleDims(outLSI$matSVD) #[, dimsPF, drop = FALSE]
-      # }else{
-      #   harmonyParams$data_mat <- outLSI$matSVD #[, dimsPF, drop = FALSE]
-      # }
-      harmonyParams$data_mat <- outLSI$matSVD
-      harmonyParams$meta_data <- data.frame(row.names = rownames(outLSI$matSVD), Group = stringr::str_split(rownames(outLSI$matSVD), pattern = "#", simplify=TRUE)[,1])
-      harmonyParams$do_pca <- FALSE
-      harmonyParams$vars_use <- "Group"
-      harmonyParams$plot_convergence <- FALSE
-      harmonyParams$verbose <- verboseAll
-      #Harmonize the LSI Results
-      outLSI$matSVD <- do.call(HarmonyMatrix, harmonyParams)
-    }
-
     if(j != iterations){
 
       #Time to compute clusters
@@ -386,20 +400,59 @@ addIterativeLSI <- function(
           return(x[[1]])
         }
       })
-
+      parClust$verbose <- verboseAll
       if(scaleDims){
         parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
       }else{
         parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
       }
-      parClust$verbose <- verboseAll
       clusters <- do.call(addClusters, parClust)
+      nClust <- length(unique(clusters))
+      .messageDiffTime(sprintf("Identified %s Clusters",nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
 
       #Save Output
       if(saveIterations){
         .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
-        outj <- SimpleList(LSI = outLSI, clusters = clusters, params = parClust[-length(parClust)])
-        saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-",j,".rds")))
+        .requirePackage("uwot")
+        o <- tryCatch({
+          if(nrow(outLSI[[1]]) > nPlot){
+            saveIdx <- sample(seq_len(nrow(outLSI[[1]])), nPlot)
+          }else{
+            saveIdx <- seq_len(nrow(outLSI[[1]]))
+          }
+          #Plot Quick UMAP
+          UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE, fast_sgd = TRUE))
+          if(scaleDims){
+            UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])
+          }else{
+            UMAPParams$X <- (outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE]
+          }
+          UMAPParams$ret_nn <- FALSE
+          UMAPParams$ret_model <- FALSE
+          UMAPParams$n_threads <- floor(threads / 2)
+          uwotUmap <- do.call(uwot::umap, UMAPParams)
+          pdf(file.path(outDir, paste0("Save-LSI-Iteration-",j,".pdf")), width = 6, height = 6)
+          p1 <- ggPoint(uwotUmap[,1], uwotUmap[,2], getCellColData(ArchRProj, select = "Sample")[rownames(outLSI[[1]])[saveIdx],], 
+            size = 0.5, title = paste0("SampleName (N = ",nrow(UMAPParams$X),")"),rastr=TRUE)
+          p2 <- ggPoint(uwotUmap[,1], uwotUmap[,2], clusters[saveIdx], size = 0.5, title = paste0("Clusters (N = ",nrow(UMAPParams$X),")"),rastr=TRUE)
+          p1 <- p1 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
+              theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                    axis.text.y = element_blank(), axis.ticks.y = element_blank())
+          p2 <- p2 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
+              theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                    axis.text.y = element_blank(), axis.ticks.y = element_blank())
+          print(.fixPlotSize(p1, plotWidth = 6, plotHeight = 6))
+          grid::grid.newpage()
+          print(.fixPlotSize(p2, plotWidth = 6, plotHeight = 6))
+          dev.off()
+          #Save results
+          outj <- SimpleList(LSI = outLSI, clusters = clusters, params = parClust[-length(parClust)], uwotUmap = uwotUmap)
+          saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-",j,".rds")))
+          rm(UMAPParams, uwotUmap)
+          gc()
+        }, error = function(x){
+          message("An error occured plotting umap and saving LSI iteration, continuing without saving.")
+        })
       }
 
     }
@@ -775,6 +828,112 @@ addIterativeLSI <- function(
 
     return(out)
 }
+
+
+#' Add Harmony Batch Correction Reduced Dims to ArchRProject JJJ
+#' 
+#' This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
+#' 
+#' @param ArchRProj An `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims`.
+#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
+#' @param name The column name of the cluster label column to be added to `cellColData` if `input` is an `ArchRProject` object.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases 
+#' (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. 
+#' If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by the dimensionality reduction method.
+#' This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
+#' @param ... Additional arguments to be provided to harmony::HarmonyMatrix
+#' @export
+#'
+addHarmony <- function(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  dimsToUse = NULL,
+  scaleDims = NULL, 
+  corCutOff = 0.75,
+  name = "Harmony",
+  groupBy = "Sample",
+  verbose = TRUE,
+  force = FALSE,
+  ...
+  ){
+
+  if(!is.null(ArchRProj@reducedDims[[name]])){
+    if(!force){
+      stop("Error name in reducedDims Already Exists! Set force = TRUE or pick a different name!")
+    }
+  }
+
+  .requirePackage("harmony")
+  harmonyParams <- list(...)
+  harmonyParams$data_mat <- getReducedDims(
+    ArchRProj = ArchRProj, 
+    reducedDims = reducedDims, 
+    dimsToUse = dimsToUse, 
+    scaleDims = scaleDims, 
+    corCutOff = corCutOff
+  )
+  harmonyParams$verbose <- verbose
+  harmonyParams$meta_data <- data.frame(getCellColData(
+    ArchRProj = ArchRProj, 
+    select = groupBy)[rownames(harmonyParams$data_mat), , drop = FALSE])
+  harmonyParams$do_pca <- FALSE
+  harmonyParams$vars_use <- groupBy
+  harmonyParams$plot_convergence <- FALSE
+
+  #Call Harmony
+  harmonyMat <- do.call(HarmonyMatrix, harmonyParams)
+  harmonyParams$data_mat <- NULL
+  ArchRProj@reducedDims[[name]] <- SimpleList(
+    matDR = harmonyMat, 
+    params = harmonyParams,
+    date = Sys.time(),
+    scaleDims = NA, #Do not scale dims after
+    corToDepth = NA
+  )
+
+  ArchRProj
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

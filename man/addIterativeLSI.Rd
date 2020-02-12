@@ -6,13 +6,14 @@
 \usage{
 addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
   name = "IterativeLSI", iterations = 2,
-  clusterParams = list(resolution = 0.3, sampleCells = 10000, n.start =
-  25), dimsToUse = 1:30, LSIMethod = 2, scaleDims = TRUE,
-  corCutOff = 0.75, binarize = TRUE, sampleCells = NULL,
-  varFeatures = 50000, selectionMethod = "var", scaleTo = 10000,
+  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start
+  = 10), varFeatures = 25000, dimsToUse = 1:30, LSIMethod = 2,
+  scaleDims = TRUE, corCutOff = 0.75, binarize = TRUE,
+  sampleCells = NULL, selectionMethod = "var", scaleTo = 10000,
   totalFeatures = 5e+05, filterQuantile = 0.995,
-  saveIterations = TRUE, outDir = getOutputDirectory(ArchRProj),
-  runHarmony = FALSE, harmonyParams = list(),
+  saveIterations = TRUE, UMAPParams = list(n_neighbors = 40, min_dist =
+  0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
+  nPlot = 10000, outDir = getOutputDirectory(ArchRProj),
   threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
   verboseAll = FALSE, force = FALSE)
 }
@@ -27,6 +28,8 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 
 \item{clusterParams}{Additional parameters to be passed to \code{addClusters()} for clustering within each iteration. These must be either length 1 or the total number of \code{iterations} - 1.}
 
+\item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
+
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
 \item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
@@ -40,8 +43,6 @@ Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logid
 
 \item{sampleCells}{An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.}
 
-\item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
-
 \item{selectionMethod}{The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.}
 
 \item{scaleTo}{Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo} prior to variance calculation and TF-IDF normalization.}
@@ -52,11 +53,11 @@ Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logid
 
 \item{saveIterations}{A boolean value indicating whether the results of each LSI iterations should be saved as compressed \code{.rds} files in the designated \code{outDir}.}
 
+\item{UMAPParams}{The list of parameters to pass to the UMAP function if "UMAP" if \code{saveIterations=TRUE}. See the function \code{umap} in the uwot package.}
+
+\item{nPlot}{If \code{saveIterations=TRUE}, how many cells to sample make a UMAP and plot for each iteration.}
+
 \item{outDir}{The output directory for saving LSI iterations if desired. Default is in the \code{outputDirectory} of the \code{ArchRProject}.}
-
-\item{runHarmony}{A boolean value indicating whether harmony-based batch correction should be run during the LSI iterations.}
-
-\item{harmonyParams}{Additional parameters to be passed to \code{harmony::HarmonyMatrix()}.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
