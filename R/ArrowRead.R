@@ -400,7 +400,7 @@ getMatrixFromArrow <- function(
 
         #If In Group RowSums
         if(length(idx) > 0){
-          matChr[,z] <- Matrix::rowSums(maty[,idx,drop=FALSE])
+          matChr[,z] <- matChr[,z] + Matrix::rowSums(maty[,idx,drop=FALSE])
         }
 
       }
