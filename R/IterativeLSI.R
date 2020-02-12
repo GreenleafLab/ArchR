@@ -303,7 +303,11 @@ addIterativeLSI <- function(
 
     if(!is.null(parClust$sampleCells)){
       if(is.numeric(parClust$sampleCells)){
-        idxSub <- sort(sample(seq_len(nrow(outLSI$matSVD)), floor(parClust$sampleCells)))
+        if(floor(parClust$sampleCells) < nrow(outLSI$matSVD)){
+          idxSub <- sort(sample(seq_len(nrow(outLSI$matSVD)), floor(parClust$sampleCells)))
+        }else{
+          idxSub <- seq_len(nrow(outLSI$matSVD))
+        }
       }else{
         idxSub <- seq_len(nrow(outLSI$matSVD))
       }
