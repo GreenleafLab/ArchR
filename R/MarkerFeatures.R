@@ -1186,24 +1186,26 @@ markerHeatmap <- function(
 
 }
 
-#' Identify Marker Feature Ranges
+#' Get Marker Features from a marker summarized experiment
 #' 
-#' This function will identify Markers and return a GRangesList for each group of significant marker regions.
+#' This function will identify Markers and return a List of Features or a GRangesList for each group of significant marker features.
 #' 
 #' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param n An integer describing the maximum number of features to return per group.
+#' @param returnGR A boolean describing whether to return as a `GRanges`. Only valid when `seMarker` is computed for a PeakMatrix.
 #' @export
-markerGR <- function(
+getMarkers <- function(
   seMarker = NULL,
-  cutOff = "FDR <= 0.1 & Log2FC >= 0.5"
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
+  n = NULL,
+  returnGR = FALSE
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
   .validInput(input = cutOff, name = "cutOff", valid = c("character"))
-  
-  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
-    stop("Only markers identified from PeakMatrix can be used!")
-  }
+  .validInput(input = n, name = "n", valid = c("integer", "null"))
+  .validInput(input = returnGR, name = "returnGR", valid = c("boolean"))
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))
@@ -1215,22 +1217,55 @@ markerGR <- function(
     eval(parse(text=paste0("rm(",an,")")))
   }
 
-  FDR <- assays(seMarker)[["FDR"]]
+  if(returnGR){
 
-  rr <- GRanges(rowData(seMarker)$seqnames, IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
+    if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+      stop("Only markers can be returned as GRanges when PeakMatrix!")
+    }
 
-  grL <- lapply(seq_len(ncol(passMat)), function(x){
-    idx <- which(passMat[, x])
-    rrx <- rr[idx]
-    rrx$FDR <- FDR[idx, x]
-    rrx
-  }) %>% GenomicRangesList
+    rr <- GRanges(rowData(seMarker)$seqnames, IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
 
-  names(grL) <- colnames(seMarker)
+    grL <- lapply(seq_len(ncol(passMat)), function(x){
+      idx <- which(passMat[, x])
+      rrx <- rr[idx]
+      rrx$Log2FC <- SummarizedExperiment::assays(seMarker[idx, ])[["Log2FC"]][, x]
+      rrx$FDR <- SummarizedExperiment::assays(seMarker[idx, ])[["FDR"]][, x]
+      rrx <- rrx[order(rrx$FDR),,drop=FALSE]
+      if(!is.null(n)){
+        if(n < nrow(rrx)){
+          rrx <- rrx[seq_len(n), , drop = FALSE]
+        }
+      }
+      rrx
+    }) %>% GenomicRangesList
 
-  grL <- grL[gtools::mixedsort(names(grL))]
+    names(grL) <- colnames(seMarker)
 
-  grL
+    grL <- grL[gtools::mixedsort(names(grL))]
+
+    return(grL)
+
+  }else{
+
+    markerList <- lapply(seq_len(ncol(passMat)), function(x){
+      idx <- which(passMat[, x])
+      rrx <- SummarizedExperiment::rowData(seMarker[idx,])
+      rrx$Log2FC <- SummarizedExperiment::assays(seMarker[idx, ])[["Log2FC"]][, x]
+      rrx$FDR <- SummarizedExperiment::assays(seMarker[idx, ])[["FDR"]][, x]
+      rrx <- rrx[order(rrx$FDR),,drop=FALSE]
+      if(!is.null(n)){
+        if(n < nrow(rrx)){
+          rrx <- rrx[seq_len(n), , drop = FALSE]
+        }
+      }
+      rrx
+    }) %>% SimpleList
+
+    names(markerList) <- colnames(seMarker)
+
+    return(markerList)
+
+  }
 
 }
 

@@ -9,7 +9,7 @@ markerHeatmap(seMarker = NULL, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   plotLog2FC = FALSE, limits = c(-2, 2), grepExclude = NULL,
   pal = NULL, binaryClusterRows = TRUE, clusterCols = TRUE,
   labelMarkers = NULL, nLabel = NULL, nPrint = 20,
-  labelRows = FALSE, returnMat = FALSE, transpose = TRUE,
+  labelRows = FALSE, returnMat = FALSE, transpose = FALSE,
   invert = FALSE)
 }
 \arguments{
