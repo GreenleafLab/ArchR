@@ -698,7 +698,7 @@ markerHeatmap <- function(
   nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
-  transpose = TRUE,
+  transpose = FALSE,
   invert = FALSE
   ){
 

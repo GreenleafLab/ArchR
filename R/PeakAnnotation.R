@@ -882,7 +882,7 @@ enrichHeatmap <- function(
   binaryClusterRows = TRUE,
   labelRows = TRUE,
   rastr = TRUE,
-  transpose = TRUE,
+  transpose = FALSE,
   returnMatrix = FALSE
   ){
 

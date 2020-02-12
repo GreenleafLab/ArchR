@@ -1,16 +1,33 @@
-#To be added and documented JJJ
-
-
-.plotTSSEnrichment <- function(
+#' Plot fragment size distribution for each sample JJJ
+#' 
+#' This function will plot a TSS enrichment plot for each sample. Cells in `ArchRProject` are the only ones
+#' used when making this plot.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param TSS A GRanges object containing stranded TSS ranges. By default will try to get this info from geneAnnotation stored in `ArchRProj`.
+#' @param flank A numeric specifying how far in bp (+/-) to extend TSS for plotting.
+#' @param norm A numeric specifying the number of base pairs from the ends of the flanks to be used for normalization. 
+#' For example if `flank=2000` and `norm=100`, the TSS insertions will be normalized by +/- 1900-2000 bp from the TSS.
+#' @param smooth A numeric describing the smoothing window to be applied to TSS plot.
+#' @param returnDF A boolean for return plot as a `data.frame` instead.
+#' @param threads An integer specifying the number of threads to use for calculation. By default this uses threads set by `addArchRThreads`.
+#' @export
+plotTSSEnrichment <- function(
   ArchRProj = NULL,
   TSS = getTSS(ArchRProj),
-  chromSizes = getChromSizes(ArchRProj),
   flank = 2000, 
   norm = 100, 
   smooth = 11,
   returnDF = FALSE,
   threads = getArchRThreads()
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = TSS, name = "TSS", valid = c("granges"))
+  .validInput(input = flank, name = "flank", valid = c("integer"))
+  .validInput(input = norm, name = "norm", valid = c("integer"))
+  .validInput(input = returnDF, name = "returnDF", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
 
@@ -87,12 +104,27 @@
 }
 
 
-.plotFragmentSizes <- function(
+#' Plot fragment size distribution for each sample JJJ
+#' 
+#' This function will plot a fragment size distribution for each sample. Cells in `ArchRProject` are the only ones
+#' used when making this plot.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param nbp Number of basepairs to plot fragment size distribution.
+#' @param returnDF A boolean for return plot as a `data.frame` instead.
+#' @param threads An integer specifying the number of threads to use for calculation. By default this uses threads set by `addArchRThreads`.
+#' @export
+plotFragmentSizes <- function(
   ArchRProj = NULL,
-  nbins = 750,
+  nbp = 750,
   returnDF = FALSE,
   threads = getArchRThreads()
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = nbp, name = "nbp", valid = c("integer"))
+  .validInput(input = returnDF, name = "returnDF", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
 
@@ -113,14 +145,14 @@
             chr = chr[i], 
             out = "IRanges", 
             cellNames = cellNames
-          ) %>% width %>% tabulate(nbins = nbins)
+          ) %>% width %>% tabulate(nbins = nbp)
       }else{
           fsi <- fsi + .getFragsFromArrow(
             ArrowFile = ArrowFiles[x], 
             chr = chr[i], 
             out = "IRanges", 
             cellNames = cellNames
-          ) %>% width %>% tabulate(nbins = nbins)
+          ) %>% width %>% tabulate(nbins = nbp)
       }
 
     }
