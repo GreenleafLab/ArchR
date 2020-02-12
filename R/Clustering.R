@@ -215,7 +215,7 @@ addClusters <- function(
 #Simply a wrapper on Seurats FindClusters
 .clustSeurat <- function(mat = NULL, clustParams = NULL){
 
-    .requirePackage("Seurat")
+    .requirePackage("Seurat", source = "cran")
     .messageDiffTime("Running Seurats FindClusters (Stuart et al. Cell 2019)", clustParams$tstart, verbose=clustParams$verbose)
     set.seed(1)
 
@@ -401,7 +401,7 @@ addClusters <- function(
 
   if(tolower(method)=="nabor"){
     
-    .requirePackage("nabor")
+    .requirePackage("nabor", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- nabor::knn(data = data, query = query, k = k + 1, ...)$nn.idx
       knnIdx <- knnIdx[,-1]
@@ -411,7 +411,7 @@ addClusters <- function(
   
   }else if(tolower(method)=="rann"){
     
-    .requirePackage("RANN")
+    .requirePackage("RANN", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- RANN::nn2(data = data, query = query, k = k + 1, ...)$nn.idx
       knnIdx <- knnIdx[,-1]
@@ -421,7 +421,7 @@ addClusters <- function(
 
   }else if(tolower(method)=="fnn"){
 
-    .requirePackage("FNN")
+    .requirePackage("FNN", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- FNN::get.knnx(data = data, query = query, k = k + 1, ...)$nn.index
       knnIdx <- knnIdx[,-1]

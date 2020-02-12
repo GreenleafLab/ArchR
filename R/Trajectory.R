@@ -510,7 +510,7 @@ plotTrajectory <- function(
   .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
   .validInput(input = plotParams, name = "plotParams", valid = c("list"))
 
-  .requirePackage("ggplot2")
+  .requirePackage("ggplot2", source = "cran")
 
   #Make Sure ColorBy is valid!
   if(length(colorBy) > 1){

@@ -162,6 +162,8 @@
     }else if(vi == "archrproj" | vi == "archrproject"){
 
       cv <- inherits(input, "ArchRProject")
+      ###validObject(input) check this doesnt break anything if we
+      ###add it. Useful to make sure all ArrowFiles exist! JJJ
 
     }else{
 
@@ -330,7 +332,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(paramInput)
 }
 
-.requirePackage <- function(x = NULL, load = TRUE, installInfo = NULL){
+.requirePackage <- function(x = NULL, load = TRUE, installInfo = NULL, source = NULL){
   if(x %in% rownames(installed.packages())){
     if(load){
       suppressPackageStartupMessages(require(x, character.only = TRUE))
@@ -338,6 +340,15 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
       return(0)
     }
   }else{
+    if(!is.null(source) & is.null(installInfo)){
+      if(tolower(source) == "cran"){
+        installInfo <- paste0('install.packages("',x,'")')
+      }else if(tolower(source) == "bioc"){
+        installInfo <- paste0('BiocManager::install("',x,'")')
+      }else{
+        stop("Unrecognized package source, available are cran/bioc!")
+      }
+    }
     if(!is.null(installInfo)){
       stop(paste0("Required package : ", x, " is not installed/found!\n  Package Can Be Installed : ", installInfo))
     }else{
@@ -822,7 +833,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
   #If error try
   #brew install fontconfig
 
-  library(pdftools)
+  .requirePackage("pdftools", source = "cran")
 
   if(!is.null(ArchRProj)){
     paths <- c(paths, file.path(getOutputDirectory(ArchRProj), "Plots"))

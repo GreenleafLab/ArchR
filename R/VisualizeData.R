@@ -65,7 +65,7 @@ plotEmbedding <- function(
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
 
-  .requirePackage("ggplot2")
+  .requirePackage("ggplot2", source = "cran")
 
   ##############################
   # Get Embedding
@@ -266,7 +266,7 @@ plotGroups <- function(
   .validInput(input = ridgeScale, name = "ridgeScale", valid = c("numeric"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character"))
 
-  .requirePackage("ggplot2")
+  .requirePackage("ggplot2", source = "cran")
 
   #Make Sure ColorBy is valid!
   if(length(colorBy) > 1){
@@ -422,8 +422,8 @@ plotGroups <- function(
   newPage = FALSE
   ){
 
-  .requirePackage("grid")
-  .requirePackage("gridExtra")
+  .requirePackage("grid", source = "cran")
+  .requirePackage("gridExtra", source = "cran")
 
   if(!inherits(plotWidth, "unit")){
     plotWidth <- unit(plotWidth, "in") 

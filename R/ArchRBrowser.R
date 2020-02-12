@@ -793,7 +793,7 @@ ArchRBrowserTrack <- function(
   verbose = FALSE
   ){
 
-  .requirePackage("ggplot2")
+  .requirePackage("ggplot2", source = "cran")
 
   if(is.null(tstart)){
     tstart <- Sys.time()
@@ -1168,8 +1168,8 @@ ArchRBrowserTrack <- function(
   colorPlus = "red"
   ){
 
-  .requirePackage("ggplot2")
-  .requirePackage("ggrepel")
+  .requirePackage("ggplot2", source = "cran")
+  .requirePackage("ggrepel", source = "cran")
 
   #only take first region
   region <- .validGRanges(region)
@@ -1302,7 +1302,7 @@ ArchRBrowserTrack <- function(
   hideY = FALSE
   ){
 
-  .requirePackage("ggplot2")
+  .requirePackage("ggplot2", source = "cran")
 
   #only take first region
   region <- .validGRanges(region)

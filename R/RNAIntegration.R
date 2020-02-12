@@ -46,7 +46,7 @@ addGeneIntegrationMatrix <- function(
   tstart <- Sys.time()
   .messageDiffTime("Running Seurat's Integration Stuart et al 2019", tstart, verbose = verboseHeader)
 
-  .requirePackage("Seurat")
+  .requirePackage("Seurat", source = "cran")
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = seRNA, name = "seRNA", valid = c("SummarizedExperiment", "Seurat"))

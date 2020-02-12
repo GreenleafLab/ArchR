@@ -349,7 +349,7 @@ addDeviationsMatrix <- function(
   ################################
   # Fore Ground Deviations
   ################################
-  .requirePackage("Matrix")
+  .requirePackage("Matrix",source="cran")
   observed <- as.vector(Matrix::t(annotationsVector) %*% countsMatrix)
   expected <- as.vector(Matrix::t(annotationsVector) %*% expectation %*% countsPerSample)
   observed_deviation <- (observed - expected)/expected
@@ -609,7 +609,7 @@ getBgdPeaks <- function(
   ){
 
   set.seed(1)
-  .requirePackage("chromVAR")
+  .requirePackage("chromVAR",source="bioc")
 
   #Get Expectations
   ArrowFiles <- getArrowFiles(ArchRProj)

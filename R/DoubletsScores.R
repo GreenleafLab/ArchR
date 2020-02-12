@@ -318,6 +318,7 @@ addDoubletScores <- function(
     if(!requireNamespace("ggrastr", quietly = TRUE)){
       
       message("ggrastr is not available for rastr of points, continuing without rastr!")
+      message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
 
       pdensity <- ggplot() + 
         geom_point(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
@@ -334,7 +335,7 @@ addDoubletScores <- function(
 
     }else{
 
-      .requirePackage("ggrastr")
+      .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
 
       pdensity <- ggplot() + 
         geom_point_rast(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
@@ -631,7 +632,7 @@ addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames =
   .validInput(input = bestFiles, name = "bestFiles", valid = c("character"))
   .validInput(input = sampleNames, name = "sampleNames", valid = c("character"))
 
-  .requirePackage("readr")
+  .requirePackage("readr", source = "cran")
 
   if(!all(sampleNames %in% rownames(getSampleColData(ArchRProj)))){
     samples <- sampleNames[sampleNames %ni% rownames(getSampleColData(ArchRProj))]

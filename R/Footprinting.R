@@ -356,7 +356,7 @@ plotFootprints <- function(
 
   genome <- getGenome(ArchRProj)
   .requirePackage(genome)
-  .requirePackage("Biostrings")
+  .requirePackage("Biostrings", source = "bioc")
   BSgenome <- eval(parse(text = genome))
   BSgenome <- validBSgenome(BSgenome)
 

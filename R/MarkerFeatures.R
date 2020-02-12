@@ -922,8 +922,8 @@ markerHeatmap <- function(
   ){
   
   #Packages
-  .requirePackage("ComplexHeatmap")
-  .requirePackage("circlize")
+  .requirePackage("ComplexHeatmap", source = "bioc")
+  .requirePackage("circlize", source = "cran")
   
   #Z-score
   if (scale) {

@@ -144,7 +144,7 @@ addIterativeLSI <- function(
   .validInput(input = force, name = "force", valid = c("boolean"))
 
 
-  .requirePackage("Matrix")
+  .requirePackage("Matrix", source = "cran")
   tstart <- Sys.time()
 
   if(!is.null(ArchRProj@reducedDims[[name]])){
@@ -413,7 +413,7 @@ addIterativeLSI <- function(
       #Save Output
       if(saveIterations){
         .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
-        .requirePackage("uwot")
+        .requirePackage("uwot", source = "cran")
         o <- tryCatch({
           if(nrow(outLSI[[1]]) > nPlot){
             saveIdx <- sample(seq_len(nrow(outLSI[[1]])), nPlot)
@@ -867,7 +867,7 @@ addHarmony <- function(
     }
   }
 
-  .requirePackage("harmony")
+  .requirePackage("harmony", installInfo = 'devtools::install_github("immunogenomics/harmony")')
   harmonyParams <- list(...)
   harmonyParams$data_mat <- getReducedDims(
     ArchRProj = ArchRProj, 

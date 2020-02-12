@@ -860,7 +860,7 @@ peakAnnoEnrichment <- function(
 
 }
 
-#' Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.
+#' Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks. JJJ
 #' 
 #' This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined marker peaks.
 #' 
@@ -968,7 +968,7 @@ enrichHeatmap <- function(
       customColLabel = seq_len(ncol(mat2)),
       showRowDendrogram = FALSE,
       draw = FALSE,
-      name = "Enrichment -log10(P-adj) [0-Max]"
+      name = "Norm. Enrichment -log10(P-adj) [0-Max]"
     )
 
 
@@ -993,7 +993,7 @@ enrichHeatmap <- function(
       labelCols = TRUE,
       showColDendrogram = TRUE,
       draw = FALSE,
-      name = "Enrichment -log10(P-adj) [0-Max]"
+      name = "Norm. Enrichment -log10(P-adj) [0-Max]"
     )
 
   }

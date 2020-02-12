@@ -239,8 +239,8 @@ createArrowFiles <- function(
 
   prefix <- sprintf("(%s : %s of %s)", sampleName, i, length(inputFiles))
 
-  .requirePackage("rhdf5")
-  .requirePackage("Rsamtools")
+  .requirePackage("rhdf5", source = "bioc")
+  .requirePackage("Rsamtools", source = "bioc")
 
   #Check if a completed file exists!
   if(file.exists(ArrowFile)){
@@ -737,7 +737,7 @@ createArrowFiles <- function(
   threads = 1
   ){
 
-  .requirePackage("Rsamtools")
+  .requirePackage("Rsamtools", source = "bioc")
 
   #######################################################################################################
   # We will dump a chunked genome into an Hdf5 file in a memory efficient manner!
@@ -954,7 +954,7 @@ createArrowFiles <- function(
   threads = 1
   ){
 
-  .requirePackage("Rsamtools")
+  .requirePackage("Rsamtools", source = "bioc")
 
   #######################################################################################################
   # We will dump a chunked genome into an Hdf5 file in a memory efficient manner!

@@ -143,7 +143,7 @@ ggPoint <- function(
     ratioXY <- ratioYX * diff(xlim)/diff(ylim)
 
     #Plot
-    .requirePackage("ggplot2")
+    .requirePackage("ggplot2", source = "cran")
 
     if (is.null(color) & !colorDensity) {
 
@@ -229,9 +229,10 @@ ggPoint <- function(
         
         if(!requireNamespace("ggrastr", quietly = TRUE)){
           message("ggrastr is not available for rastr of points, continuing without rastr!")
+          message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
           p <- p + geom_point(size = size, alpha = alpha)
         }else{
-          .requirePackage("ggrastr")
+          .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
           p <- p + geom_point_rast(
               size = size, raster.dpi = dpi, alpha = alpha, 
               raster.width=par('fin')[1], 
@@ -528,10 +529,11 @@ ggHex <- function(
 
     if(addPoints){
       if(requireNamespace("ggrastr", quietly = TRUE)){
-        .requirePackage("ggrastr")
+        .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
         p <- p + geom_point_rast(data = df, aes(x=x,y=y), color = "lightgrey")
       }else{
         message("ggrastr is not available for rastr of points, continuing without points!")
+        message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
       }
     }
 
@@ -642,10 +644,11 @@ ggGroup <- function(
     if(!requireNamespace("ggridges", quietly = TRUE)){
       type <- "violin"
       message("ggridges is not available for plotting, continuing with geom_violin!")
+      message("To install ggrastr try : install.packages('ggridges')")
       p <- p + geom_violin(aes_string(fill="x"), alpha = alpha)
     }else{
       type <- "ridges"
-      .requirePackage("ggridges")
+      .requirePackage("ggridges", source = "cran")
       #p <- p + 
       #  stat_density_ridges(aes_string(x = "y", y = "x", fill = "x"), 
       #    quantile_lines = TRUE, quantiles = c(0.5), alpha = alpha, color = "black",
@@ -737,7 +740,7 @@ ggAlignPlots <- function(
 
   #http://stackoverflow.com/a/21503904
 
-  .requirePackage("gtable")
+  .requirePackage("gtable", source = "cran")
 
   if(is.null(plotList)){
     plotList <- list(...)

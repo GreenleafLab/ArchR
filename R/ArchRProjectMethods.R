@@ -281,7 +281,7 @@ createGeneAnnnotation <- function(
     inExons <- exons
     inTSS <- TSS
 
-    .requirePackage("GenomicFeatures")
+    .requirePackage("GenomicFeatures", source = "bioc")
 
     if(is.null(genome)) {
       if (is.null(TxDb) | is.null(OrgDb)) {

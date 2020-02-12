@@ -207,7 +207,7 @@ addTSNE <- function(
 
   if(tolower(method)=="rtsne"){
 
-    .requirePackage("Rtsne")
+    .requirePackage("Rtsne", source = "cran")
     
     embeddingParams$X <- getReducedDims(
         ArchRProj = ArchRProj, 
@@ -230,7 +230,7 @@ addTSNE <- function(
 
   }else if(tolower(method)=="fftrtsne" | tolower(method)=="fit-tsne"){
 
-    .requirePackage("Seurat")
+    .requirePackage("Seurat", source = "cran")
     
     embeddingParams$X <- getReducedDims(
         ArchRProj = ArchRProj, 
