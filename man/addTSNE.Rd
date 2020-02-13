@@ -4,12 +4,24 @@
 \alias{addTSNE}
 \title{Add a TSNE embedding of a reduced dimensions object to an ArchRProject JJJ}
 \usage{
-addTSNE(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  method = "RTSNE", name = "TSNE", perplexity = 50,
-  maxIterations = 1000, learningRate = 200, dimsToUse = NULL,
-  scaleDims = NULL, corCutOff = 0.75, saveModel = FALSE,
-  verbose = TRUE, seed = 1, force = FALSE,
-  threads = max(floor(getArchRThreads()/2), 1), ...)
+addTSNE(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  method = "RTSNE",
+  name = "TSNE",
+  perplexity = 50,
+  maxIterations = 1000,
+  learningRate = 200,
+  dimsToUse = NULL,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  saveModel = FALSE,
+  verbose = TRUE,
+  seed = 1,
+  force = FALSE,
+  threads = max(floor(getArchRThreads()/2), 1),
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

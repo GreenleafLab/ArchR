@@ -4,8 +4,7 @@
 \alias{addArchRThreads}
 \title{Add a globally-applied number of threads to use for parallel computing. JJJ}
 \usage{
-addArchRThreads(threads = floor(parallel::detectCores()/2),
-  force = FALSE)
+addArchRThreads(threads = floor(parallel::detectCores()/2), force = FALSE)
 }
 \arguments{
 \item{threads}{The default number of threads to be used for parallel execution across all ArchR functions. This value is stored as a global environment variable, not part of the \code{ArchRProject}. This can be overwritten on a per-function basis using the given function's \code{threads} parameter.}

@@ -4,14 +4,27 @@
 \alias{addDoubletScores}
 \title{Add Doublet Scores to a collection of ArrowFiles or an ArchRProject}
 \usage{
-addDoubletScores(input = NULL, useMatrix = "TileMatrix", k = 10,
-  nTrials = 5, dimsToUse = 1:30, LSIMethod = 1, scaleDims = FALSE,
-  corCutOff = 0.75, sampleCells = NULL, knnMethod = "UMAP",
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric =
-  "euclidean", verbose = FALSE), LSIParams = list(),
-  outDir = getOutputDirectory(input), threads = getArchRThreads(),
-  force = FALSE, parallelParam = NULL, verboseHeader = TRUE,
-  verboseAll = FALSE)
+addDoubletScores(
+  input = NULL,
+  useMatrix = "TileMatrix",
+  k = 10,
+  nTrials = 5,
+  dimsToUse = 1:30,
+  LSIMethod = 1,
+  scaleDims = FALSE,
+  corCutOff = 0.75,
+  sampleCells = NULL,
+  knnMethod = "UMAP",
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose =
+    FALSE),
+  LSIParams = list(),
+  outDir = getOutputDirectory(input),
+  threads = getArchRThreads(),
+  force = FALSE,
+  parallelParam = NULL,
+  verboseHeader = TRUE,
+  verboseAll = FALSE
+)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or a character vector containing the paths to the ArrowFiles to be used.}

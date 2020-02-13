@@ -4,19 +4,27 @@
 \alias{ArchRBrowser}
 \title{Launch ArchR Genome Browser}
 \usage{
-ArchRBrowser(ArchRProj = NULL, features = getPeakSet(ArchRProj),
-  loops = getCoAccessibility(ArchRProj), minCells = 25,
-  baseSize = 10, borderWidth = 0.5, tickWidth = 0.5,
-  facetbaseSize = 12, geneAnnotation = getGeneAnnotation(ArchRProj),
-  browserTheme = "cosmo", threads = getArchRThreads())
+ArchRBrowser(
+  ArchRProj = NULL,
+  features = getPeakSet(ArchRProj),
+  loops = getCoAccessibility(ArchRProj),
+  minCells = 25,
+  baseSize = 10,
+  borderWidth = 0.5,
+  tickWidth = 0.5,
+  facetbaseSize = 12,
+  geneAnnotation = getGeneAnnotation(ArchRProj),
+  browserTheme = "cosmo",
+  threads = getArchRThreads()
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
 
 \item{loops}{JJJ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods.
-i.e. the set of CoAccessible links obtained using \code{getCoAccessibility(ArchRProj))} which are added with \code{addCoAccessibility(ArchRProj))}.}
+i.e. the set of CoAccessible links obtained using \verb{getCoAccessibility(ArchRProj))} which are added with \verb{addCoAccessibility(ArchRProj))}.}
 
 \item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}
 

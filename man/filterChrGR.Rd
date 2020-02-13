@@ -4,8 +4,13 @@
 \alias{filterChrGR}
 \title{Filters unwanted seqlevels from a Genomic Ranges object or similar object}
 \usage{
-filterChrGR(gr = NULL, remove = NULL, underscore = TRUE,
-  standard = TRUE, pruningMode = "coarse")
+filterChrGR(
+  gr = NULL,
+  remove = NULL,
+  underscore = TRUE,
+  standard = TRUE,
+  pruningMode = "coarse"
+)
 }
 \arguments{
 \item{gr}{A \code{GRanges} object or another object containing seqlevels.}
