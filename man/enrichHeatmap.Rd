@@ -4,10 +4,19 @@
 \alias{enrichHeatmap}
 \title{Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks. JJJ}
 \usage{
-enrichHeatmap(seEnrich = NULL, pal = paletteContinuous(set = "comet", n
-  = 100), n = 10, cutOff = 20, pMax = Inf, clusterCols = TRUE,
-  binaryClusterRows = TRUE, labelRows = TRUE, rastr = TRUE,
-  transpose = FALSE, returnMatrix = FALSE)
+enrichHeatmap(
+  seEnrich = NULL,
+  pal = paletteContinuous(set = "comet", n = 100),
+  n = 10,
+  cutOff = 20,
+  pMax = Inf,
+  clusterCols = TRUE,
+  binaryClusterRows = TRUE,
+  labelRows = TRUE,
+  rastr = TRUE,
+  transpose = FALSE,
+  returnMatrix = FALSE
+)
 }
 \arguments{
 \item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}

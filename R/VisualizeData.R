@@ -326,6 +326,7 @@ plotGroups <- function(
     plotParamsx$ridgeScale <- ridgeScale
     plotParamsx$ratioYX <- ratioYX
     plotParamsx$size <- size
+    plotParamsx$plotAs <- plotAs
 
     p <- do.call(ggGroup, plotParamsx)
 

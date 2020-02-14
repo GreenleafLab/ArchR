@@ -4,10 +4,17 @@
 \alias{trajectoryHeatmap}
 \title{Plot a Heatmap of Features across a Trajectory}
 \usage{
-trajectoryHeatmap(seTrajectory = NULL, scaleRows = TRUE,
-  limits = c(-2, 2), grepExclude = NULL, pal = NULL,
-  labelMarkers = NULL, labelTop = 50, labelRows = FALSE,
-  returnMat = FALSE)
+trajectoryHeatmap(
+  seTrajectory = NULL,
+  scaleRows = TRUE,
+  limits = c(-2, 2),
+  grepExclude = NULL,
+  pal = NULL,
+  labelMarkers = NULL,
+  labelTop = 50,
+  labelRows = FALSE,
+  returnMat = FALSE
+)
 }
 \arguments{
 \item{seTrajectory}{A \code{SummarizedExperiment} object that results from calling \code{markerFeatures()}.}

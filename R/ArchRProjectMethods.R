@@ -1064,7 +1064,7 @@ getReducedDims <- function(
 
   if(reducedDims %in% names(ArchRProj@reducedDims)){
     
-    if(is.na(ArchRProj@reducedDims[[reducedDims]]$scaleDims)){
+    if(is.na(ArchRProj@reducedDims[[reducedDims]]$scaleDims[1])){
       scaleDims <- FALSE # if na this means dont scaleDims ever.
     }
 
@@ -1077,7 +1077,7 @@ getReducedDims <- function(
       corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$scaled
       matDR <- .scaleDims(ArchRProj@reducedDims[[reducedDims]][[1]])
     }else{
-      if(is.na(ArchRProj@reducedDims[[reducedDims]]$corToDepth)){
+      if(is.na(ArchRProj@reducedDims[[reducedDims]]$corToDepth[1])){
         corToDepth <- rep(0, ncol(ArchRProj@reducedDims[[reducedDims]][[1]]))
         matDR <- ArchRProj@reducedDims[[reducedDims]][[1]]
       }else{
@@ -1410,7 +1410,7 @@ getTutorialData <- function(tutorial = "hematopoiesis"){
 
   if(tolower(tutorial) %in% c("heme","hematopoiesis")){
     
-    if(!dir.exists("Heme_Fragments")){
+    if(!dir.exists("HemeFragments")){
       download.file(
         url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/HemeFragments.zip", 
         destfile = "HemeFragments.zip"

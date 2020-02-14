@@ -612,7 +612,7 @@ ggGroup <- function(
   alpha = 1,
   title = "", 
   pal = paletteDiscrete(values=x, set = "stallion"),
-  addBoxPlot = FALSE,
+  addBoxPlot = TRUE,
   plotAs = "ridges",
   ...
   ){
@@ -645,7 +645,11 @@ ggGroup <- function(
     if(groupSort){
       groupOrder <- paste0(dm[,1])[order(dm[,2], decreasing= FALSE)]
     }else{
-      groupOrder <- gtools::mixedsort(unique(x))
+      if(tolower(plotAs) == "ridges"){
+        groupOrder <- rev(gtools::mixedsort(unique(x)))
+      }else{
+        groupOrder <- gtools::mixedsort(unique(x))
+      }
     }
   }
 

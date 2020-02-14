@@ -4,8 +4,12 @@
 \alias{plotFragmentSizes}
 \title{Plot fragment size distribution for each sample JJJ}
 \usage{
-plotFragmentSizes(ArchRProj = NULL, nbp = 750, returnDF = FALSE,
-  threads = getArchRThreads())
+plotFragmentSizes(
+  ArchRProj = NULL,
+  nbp = 750,
+  returnDF = FALSE,
+  threads = getArchRThreads()
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

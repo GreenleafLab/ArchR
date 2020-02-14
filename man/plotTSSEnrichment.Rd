@@ -4,9 +4,15 @@
 \alias{plotTSSEnrichment}
 \title{Plot fragment size distribution for each sample JJJ}
 \usage{
-plotTSSEnrichment(ArchRProj = NULL, TSS = getTSS(ArchRProj),
-  flank = 2000, norm = 100, smooth = 11, returnDF = FALSE,
-  threads = getArchRThreads())
+plotTSSEnrichment(
+  ArchRProj = NULL,
+  TSS = getTSS(ArchRProj),
+  flank = 2000,
+  norm = 100,
+  smooth = 11,
+  returnDF = FALSE,
+  threads = getArchRThreads()
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

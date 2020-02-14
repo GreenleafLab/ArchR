@@ -51,7 +51,7 @@ filterChrGR <- function(
     chrKeep <- seqNames
   }
   #this function restores seqlevels
-  seqlevels(gr, pruning.mode=pruning.mode) <- chrKeep
+  seqlevels(gr, pruning.mode=pruningMode) <- chrKeep
   
   return(gr)
 

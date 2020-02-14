@@ -4,11 +4,24 @@
 \alias{ggGroup}
 \title{A ggplot-based ridge/violin plot wrapper function JJJ}
 \usage{
-ggGroup(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
-  groupOrder = NULL, groupSort = FALSE, size = 1, baseSize = 10,
-  ridgeScale = 1, ratioYX = NULL, alpha = 1, title = "",
+ggGroup(
+  x = NULL,
+  y = NULL,
+  xlabel = NULL,
+  ylabel = NULL,
+  groupOrder = NULL,
+  groupSort = FALSE,
+  size = 1,
+  baseSize = 10,
+  ridgeScale = 1,
+  ratioYX = NULL,
+  alpha = 1,
+  title = "",
   pal = paletteDiscrete(values = x, set = "stallion"),
-  addBoxPlot = FALSE, plotAs = "ridges", ...)
+  addBoxPlot = FALSE,
+  plotAs = "ridges",
+  ...
+)
 }
 \arguments{
 \item{x}{A character vector containing the categorical x-axis values for each y-axis value.}
