@@ -2,26 +2,34 @@
 # LSI Dimensionality Reduction Methods
 ##########################################################################################
 
-#' Add an LSI-based dimensionality reduction to an ArchRProject JJJ
+#' Add an LSI-based dimensionality reduction to an ArchRProject
 #' 
 #' This function will compute an LSI dimensionality reduction on an ArchRProject.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options are "TileMatrix" or "PeakMatrix".
+#' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options
+#' are "TileMatrix" or "PeakMatrix".
 #' @param name The name to use for storage of the LSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
-#' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
+#' #' @param scaleDims QQQ A boolean value indicating whether to rescale the total variance for each principal component by QQQ. This is useful for
+#' minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead
+#' to stronger sample-specific biases since it is over-weighting latent PCs.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
+#' to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when
+#' working with insertion counts.
 #' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
 #' @param topFeatures The number of N top accessible features to use for LSI.
-#' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to TF-IDF normalization.
-#' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total insertion counts. These are an equivalent when using a `TileMatrix` to a defined peakSet.
-#' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior to the LSI reduction. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts will be ignored for LSI reduction.
+#' @param totalFeatures QQQ I DONT UNDERSTAND THE SECOND SENTENCE The number of features to consider for use in LSI after ranking the features by the total insertion counts.
+#' These are an equivalent when using a `TileMatrix` to a defined peakSet.
+#' @param filterQuantile A number between 0 and 1 that indicates the quantile above which features should be removed based on insertion counts
+#' prior to the LSI reduction. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts
+#' will be ignored for LSI reduction.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so
+#' that you can reproduce results downstream.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
@@ -61,28 +69,40 @@ addLSI <- function(
 #' This function will compute an iterative LSI dimensionality reduction on an ArchRProject.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options are "TileMatrix" or "PeakMatrix".
+#' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options are
+#' "TileMatrix" or "PeakMatrix".
 #' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
-#' @param clusterParams Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either length 1 or the total number of `iterations` - 1.
+#' @param clusterParams Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either
+#' length 1 or the total number of `iterations` - 1.
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
+#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+#' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
 #' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
-#' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.
-#' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to variance calculation and TF-IDF normalization.
-#' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total number of insertions. These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a `TileMatrix` to a defined peakSet.
-#' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts will be ignored for the first LSI iteration.
-#' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in the designated `outDir`.
-#' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" if `saveIterations=TRUE`. See the function `umap` in the uwot package.
+#' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for
+#' log-variability or "vmr" for variance-to-mean ratio.
+#' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to
+#' variance calculation and TF-IDF normalization.
+#' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total number of insertions.
+#' These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a `TileMatrix` to a defined peakSet.
+#' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior
+#' to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in
+#' insertion counts will be ignored for the first LSI iteration.
+#' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in
+#' the designated `outDir`.
+#' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" if `saveIterations=TRUE`. See the function `uwot::umap()`.
 #' @param nPlot If `saveIterations=TRUE`, how many cells to sample make a UMAP and plot for each iteration.
 #' @param outDir The output directory for saving LSI iterations if desired. Default is in the `outputDirectory` of the `ArchRProject`.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+#' reproduce results downstream.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
@@ -835,21 +855,24 @@ addIterativeLSI <- function(
 }
 
 
-#' Add Harmony Batch Correction Reduced Dims to ArchRProject JJJ
+#' Add Harmony Batch Corrected Reduced Dims to an ArchRProject
 #' 
-#' This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
+#' This function will add the Harmony batch-corrected reduced dimensions to an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims`.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
-#' @param name The column name of the cluster label column to be added to `cellColData` if `input` is an `ArchRProject` object.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases 
-#' (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. 
-#' If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by the dimensionality reduction method.
-#' This idea was introduced by Timothy Stuart.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param scaleDims QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
+#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
+#' to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param name QQQ WHEN WOULD NAME NOT BE AN ARCHRPROJECT. IF THIS IS POSSIBLE IT SHOULD BE INDICATED UNDER NAME. The column name of the cluster label column to be added to `cellColData` if `input` is an `ArchRProject` object.
+#' @param groupBy QQQ The name of the column in `cellColData` to use for grouping cells together for QQQ.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
-#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already
+#' exists as a column name in `cellColData`.
 #' @param ... Additional arguments to be provided to harmony::HarmonyMatrix
 #' @export
 #'
@@ -903,49 +926,5 @@ addHarmony <- function(
   ArchRProj
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

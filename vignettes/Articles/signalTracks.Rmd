@@ -1,7 +1,0 @@
----
-title: "Signal Track Plotting"
----
-
-One of the most important parts of scATAC-seq data analysis is visualizing the data as signal tracks or "genome browser tracks". This can be extremely helpful when trying to situate certain results in the correct genomic context (i.e. what genes are nearby / what does this peak really look like?). ArchR provides a very fascile way to create these signal tracks and generate publication quality vectorized images.
-
-__I dont really have any idea how this works yet__

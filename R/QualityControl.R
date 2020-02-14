@@ -1,16 +1,18 @@
-#' Plot fragment size distribution for each sample JJJ
+#' Plot a TSS Enrichment Plot for Each Sample
 #' 
 #' This function will plot a TSS enrichment plot for each sample. Cells in `ArchRProject` are the only ones
 #' used when making this plot.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param TSS A GRanges object containing stranded TSS ranges. By default will try to get this info from geneAnnotation stored in `ArchRProj`.
-#' @param flank A numeric specifying how far in bp (+/-) to extend TSS for plotting.
-#' @param norm A numeric specifying the number of base pairs from the ends of the flanks to be used for normalization. 
+#' @param TSS A `GRanges` object containing the locations of stranded TSS regions. The default behavior is to try to retrieve
+#' this information from the `geneAnnotation` stored in the `ArchRProject`.
+#' @param flank A number that specifies how far in bp (+/-) to extend the TSS for plotting.
+#' @param norm A number that specifies the number of base pairs from the ends of the flanks to be used for normalization. 
 #' For example if `flank=2000` and `norm=100`, the TSS insertions will be normalized by +/- 1900-2000 bp from the TSS.
-#' @param smooth A numeric describing the smoothing window to be applied to TSS plot.
-#' @param returnDF A boolean for return plot as a `data.frame` instead.
-#' @param threads An integer specifying the number of threads to use for calculation. By default this uses threads set by `addArchRThreads`.
+#' @param smooth QQQ WHAT ARE THE UNITS OF THIS? IS IT THE NUMBER OF BASEPAIRS THAT GET SMOOTHED TOGETHER? A number that indicates the smoothing window to be applied to the TSS plot.
+#' @param returnDF A boolean value that indicates whether to return a `data.frame` containing the plot information
+#' instead of plotting the TSS enrichment plot.
+#' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
 #' @export
 plotTSSEnrichment <- function(
   ArchRProj = NULL,
@@ -104,15 +106,15 @@ plotTSSEnrichment <- function(
 }
 
 
-#' Plot fragment size distribution for each sample JJJ
+#' Plot the fragment size distribution for each sample
 #' 
-#' This function will plot a fragment size distribution for each sample. Cells in `ArchRProject` are the only ones
-#' used when making this plot.
+#' This function will plot a fragment size distribution for each sample. Only cells in the `ArchRProject` are used when making this plot.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param nbp Number of basepairs to plot fragment size distribution.
-#' @param returnDF A boolean for return plot as a `data.frame` instead.
-#' @param threads An integer specifying the number of threads to use for calculation. By default this uses threads set by `addArchRThreads`.
+#' @param nbp QQQ I FEEL LIKE NBP ISNT A GREAT NAME BUT IM OK WITH IT The axis limit in basepairs to use when plotting the fragment size distribution.
+#' @param returnDF A boolean value that indicates whether to return a `data.frame` containing the plot information
+#' instead of plotting the fragment size distribution.
+#' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
 #' @export
 plotFragmentSizes <- function(
   ArchRProj = NULL,

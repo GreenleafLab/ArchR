@@ -8,7 +8,9 @@
 #'
 #' @param ArrowFile The path to the ArrowFile from which fragments should be obtained.
 #' @param chr A name of a chromosome to be used to subset the fragments `GRanges` object to a specific chromsome if desired.
-#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using `getCellNames()`.
+#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
+#' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells
+#' from the provided ArrowFile using `getCellNames()`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
 #' @export
 getFragmentsFromArrow <- function(
@@ -147,8 +149,12 @@ getFragmentsFromArrow <- function(
 #' @param ArrowFile The path to an ArrowFile from which the selected data matrix should be obtained.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
-#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted. This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from the provided ArrowFile using `getCellNames()`.
-#' @param ArchRProj JJJ An `ArchRProject` object to be used for getting additional information for cells in `cellColData`. This is useful when you want to keep information created when analyzing an ArchRProject that is not present in the ArrowFile.
+#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
+#' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
+#' the provided ArrowFile using `getCellNames()`.
+#' @param ArchRProj An `ArchRProject` object to be used for getting additional information for cells in `cellColData`.
+#' In some cases, data exists within the `ArchRProject` object that does not exist within the ArrowFiles. To access this data, you can
+#' provide the `ArchRProject` object here.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @export

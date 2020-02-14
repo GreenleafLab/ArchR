@@ -10,28 +10,39 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy The name of the column in `cellColData` to use for grouping cells together for peak calling.
 #' @param peakMethod The name of peak calling method to be used. Options include "Macs2" for using macs2 callpeak or "Tiles" for using a TileMatrix.
-#' @param reproducibility A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a function of `n` where `n` is the number of samples being assessed. For example, `reproducibility = "2"` means at least 2 samples must have a peak call at this locus and `reproducibility = "(n+1)/2"` means that the majority of samples must have a peak call at this locus.
-#' @param peaksPerCell The upper limit of the number of peaks that can be identified per cell-grouping in `groupBy`. This is useful for controlling how many peaks can be called from cell groups with low cell numbers.
+#' @param reproducibility A string that indicates how peak reproducibility should be handled. This string is dynamic and can be a
+#' function of `n` where `n` is the number of samples being assessed. For example, `reproducibility = "2"` means at least 2 samples
+#' must have a peak call at this locus and `reproducibility = "(n+1)/2"` means that the majority of samples must have a peak call at this locus.
+#' @param peaksPerCell The upper limit of the number of peaks that can be identified per cell-grouping in `groupBy`. This is useful
+#' for controlling how many peaks can be called from cell groups with low cell numbers.
 #' @param maxPeaks A numeric threshold for the maximum peaks to retain per group from `groupBy` in the union reproducible peak set.
-#' @param minCells The minimum allowable number of unique cells that was used to create the coverage files on which peaks are called. This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.
+#' @param minCells The minimum allowable number of unique cells that was used to create the coverage files on which peaks are called.
+#' This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.
 #' @param pathToMacs2 The full path to the MACS2 executable.
 #' @param genomeSize The genome size to be used for MACS2 peak calling (see MACS2 documentation).
-#' @param shift The number of basepairs to shift each Tn5 insertion. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
-#' @param extsize The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
-#' @param method The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with `cutOff` this gives the method and significance threshold for peak calling (see MACS2 documentation).
+#' @param shift The number of basepairs to shift each Tn5 insertion. When combined with `extsize` this allows you to create proper fragments,
+#' centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
+#' @param extsize The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this
+#' allows you to create proper fragments, centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
+#' @param method The method to use for significance testing in MACS2. Options are "p" for p-value and "q" for q-value. When combined with
+#' `cutOff` this gives the method and significance threshold for peak calling (see MACS2 documentation).
 #' @param cutOff The numeric significance cutOff for the testing method indicated by `method` (see MACS2 documentation).
 #' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
-#' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example, `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
-#' @param promoterDist The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak to be annotated as a "promoter" peak.
-#' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to be used for generating peak metadata such as nucleotide information (GC content) or chromosome sizes.
+#' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example,
+#' `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
+#' @param promoterDist The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak
+#' to be annotated as a "promoter" peak.
+#' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to be used for generating peak metadata such as nucleotide
+#' information (GC content) or chromosome sizes.
 #' @param geneAnnotation The geneAnnotation (see `createGeneAnnotation()`) to be used for labeling peaks as "promoter", "exonic", etc.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param ... Additional params to be pass to `addGroupCoverages` to get sample-guided pseudobulk cell-groupings. Only used for `TileMatrix` peak calling. See `addGroupCoverages` for more info.
+#' @param ... Additional parameters to be pass to `addGroupCoverages()` to get sample-guided pseudobulk cell-groupings. Only used for TileMatrix-based
+#' peak calling (not for MACS2). See `addGroupCoverages()` for more info.
 #' @export
 addReproduciblePeakSet <- function(
 	ArchRProj = NULL,
@@ -763,12 +774,6 @@ findMacs2 <- function(){
   stop("Could Not Find Macs2! Please install w/ pip, add to your $PATH, or just supply the macs2 path directly and avoid this function!")
 
 }
-
-
-
-
-
-
 
 
 

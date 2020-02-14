@@ -2,12 +2,12 @@
 # Cell Filtering Methods
 ##########################################################################################
 
-#' Filter cells in an ArchRProject JJJ
+#' Filter cells in an ArchRProject QQQ I WOULD PERSONALLY CALL THIS "subsetCells" OR SOMETHING.
 #' 
-#' This function returns an ArchRProject object with a subset of cells desired.
+#' This function returns an ArchRProject object that contains a specified subset of cells.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param cellNames A character vector of cellNames that will be subsetted of the current `ArchRProject`.
+#' @param cellNames A character vector of `cellNames` that will be subsetted of the current `ArchRProject`.
 #' @export
 filterCells <- function(
   ArchRProj = NULL, 
@@ -30,18 +30,19 @@ filterCells <- function(
 
 #' Filter Doublets From an ArchRProject
 #'
-#' This function wil filter doublets from an ArchRProject after addDoubletScores has been run
+#' This function will filter doublets from an ArchRProject after addDoubletScores has been run.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param cutEnrich The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.
-#' @param cutScore The minimum numeric cutoff for `DoubletScore` which represents the -log10(binomial adjusted p-value) for the `DoubletEnrichment`.
+#' @param cutEnrich The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated
+#' doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.
+#' @param cutScore The minimum numeric cutoff for `DoubletScore` which represents the `-log10(binomial adjusted p-value)` for the `DoubletEnrichment`.
 #' @param filterRatio The maximum ratio of predicted doublets to filter based on the number of pass-filter cells.
-#' For example, if there are 5,000 cells the maximum would be filterRatio * 5,000^2 / (100,000) (which simplifies to filterRatio * 5000 * 0.05).
-#' This `filterRatio` allows you to apply a consistent filter across multiple different samples that
-#' may have different percentages of doublets because they were run with different cell loading concentrations.
+#' For example, if there are 5000 cells, the maximum would be `filterRatio * 5000^2 / (100000)` (which simplifies to `filterRatio * 5000 * 0.05`).
+#' This `filterRatio` allows you to apply a consistent filter across multiple different samples that may have different
+#' percentages of doublets because they were run with different cell loading concentrations.
 #' The higher the `filterRatio`, the greater the number of cells potentially removed as doublets.
 #' @export
-filterDoublets <- function(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1){
+filterDoublets <- function(ArchRProj = NULL, cutEnrich = 1, cutScore = -Inf, filterRatio = 1){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = cutEnrich, name = "cutEnrich", valid = c("numeric"))

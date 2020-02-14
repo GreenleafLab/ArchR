@@ -7,10 +7,14 @@
 #' This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object
 #'
 #' @param gr A `GRanges` object or another object containing seqlevels.
-#' @param remove A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `remove` should be set to `NULL`.
+#' @param remove A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
+#' If no manual removal is desired, `remove` should be set to `NULL`.
 #' @param underscore A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").
-#' @param standard A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by `GenomeInfoDb::keepStandardChromosomes()`.
-#' @param pruningMode JJJ From `GenomeInfoDb::seqinfo()`, when some of the seqlevels to drop from the given `GRanges` object are in use (i.e. have ranges on them), the ranges on these sequences need to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
+#' @param standard A boolean value indicating whether only standard chromosomes should be kept. Standard chromosomes are defined by
+#' `GenomeInfoDb::keepStandardChromosomes()`.
+#' @param pruningMode The name of the pruning method to use (from`GenomeInfoDb::seqinfo()`) when seqlevels must be removed from a `GRanges` object.
+#' When some of the seqlevels to drop from the given `GRanges` object are in use (i.e. have ranges on them), the ranges on these sequences need
+#' to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
 #' @export
 filterChrGR <- function(
     gr = NULL, 
@@ -58,8 +62,12 @@ filterChrGR <- function(
 #' This function returns a GRanges object containing a non-overlapping set regions derived from a supplied Genomic Ranges object.
 #'
 #' @param gr A `GRanges` object.
-#' @param by The name of a column in `mcols(gr)` that should be used to determine how overlapping regions should be resolved. The resolution of overlapping regions also depends on `decreasing`. For example, if a column named "score" is used for `by`, `decreasing = TRUE` means that the highest "score" in the overlap will be retained and `decreasing = FALSE` means that the lowest "score" in the overlap will be retained.
-#' @param decreasing A boolean value indicating whether the values in the column indicated via `by` should be ordered in decreasing order. If `TRUE`, the higher value in `by` will be retained.
+#' @param by The name of a column in `mcols(gr)` that should be used to determine how overlapping regions should be resolved.
+#' The resolution of overlapping regions also depends on `decreasing`. For example, if a column named "score" is used for `by`,
+#' `decreasing = TRUE` means that the highest "score" in the overlap will be retained and `decreasing = FALSE` means that the
+#' lowest "score" in the overlap will be retained.
+#' @param decreasing A boolean value indicating whether the values in the column indicated via `by` should be ordered in decreasing
+#' order. If `TRUE`, the higher value in `by` will be retained.
 #' @param verbose A boolean value indicating whether the output should include extra reporting.
 #' @export
 nonOverlappingGR <- function(

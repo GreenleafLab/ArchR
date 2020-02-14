@@ -2,34 +2,58 @@
 #' 
 #' This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.
 #'
-#' @param inputFiles A character vector containing the paths to the input files to use to generate the ArrowFiles. These files can be in one of the following formats: (i) scATAC tabix files, (ii) fragment files, or (iii) bam files.
-#' @param sampleNames A character vector containing the names to assign to the samples that correspond to the `inputFiles`. Each input file should receive a unique sample name. This list should be in the same order as `inputFiles`.
-#' @param outputNames The prefix to use for output files. Each input file should receive a unique output file name. This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"
-#' @param validBarcodes A list of valid barcode strings to be used for filtering cells read from each input file (see `getValidBarcodes()` for 10x fragment files).
-#' @param geneAnnotation The geneAnnotation (see `createGeneAnnotation()`) to associate with the ArrowFiles. This is used downstream to calculate TSS Enrichment Scores etc.
-#' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to associate with the ArrowFiles. This is used downstream to collect chromosome sizes and nucleotide information etc.
-#' @param filterFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses. Cells containing greater than or equal to `filterFrags` total fragments wll be retained.
-#' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use in downstream analyses. Cells with a TSS enrichment score greater than or equal to `filterTSS` will be retained. TSS enrichment score is a measurement of signal-to-background in ATAC-seq.
-#' @param removeFilteredCells A boolean value that determines whether cells that do not pass `filterFrags` and `filterTSS` should be excluded entirely from the ArrowFiles. If `FALSE` cells that do not pass QC filters will be included in the ArrowFile but will be marked as not passing QC and excluded from downstream analyses.
-#' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score). This is useful for limiting the number of barcodes analyzed.
-#' @param minFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score). This is useful for limiting the number of barcodes analyzed.
+#' @param inputFiles A character vector containing the paths to the input files to use to generate the ArrowFiles.
+#' These files can be in one of the following formats: (i) scATAC tabix files, (ii) fragment files, or (iii) bam files.
+#' @param sampleNames A character vector containing the names to assign to the samples that correspond to the `inputFiles`.
+#' Each input file should receive a unique sample name. This list should be in the same order as `inputFiles`.
+#' @param outputNames The prefix to use for output files. Each input file should receive a unique output file name.
+#' This list should be in the same order as "inputFiles". For example, if the predix is "PBMC" the output file will be named "PBMC.arrow"
+#' @param validBarcodes A list of valid barcode strings to be used for filtering cells read from each input file
+#' (see `getValidBarcodes()` for 10x fragment files).
+#' @param geneAnnotation The geneAnnotation (see `createGeneAnnotation()`) to associate with the ArrowFiles. This is used downstream
+#' to calculate TSS Enrichment Scores etc.
+#' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to associate with the ArrowFiles. This is used
+#' downstream to collect chromosome sizes and nucleotide information etc.
+#' @param filterFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
+#' Cells containing greater than or equal to `filterFrags` total fragments wll be retained.
+#' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use
+#' in downstream analyses. Cells with a TSS enrichment score greater than or equal to `filterTSS` will be retained. TSS enrichment score
+#' is a measurement of signal-to-background in ATAC-seq.
+#' @param removeFilteredCells A boolean value that determines whether cells that do not pass `filterFrags` and `filterTSS` should be
+#' excluded entirely from the ArrowFiles. If `FALSE` cells that do not pass QC filters will be included in the ArrowFile but will be
+#' marked as not passing QC and excluded from downstream analyses.
+#' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
+#' This is useful for limiting the number of barcodes analyzed.
+#' @param minFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
+#' This is useful for limiting the number of barcodes analyzed.
 #' @param outDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
-#' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
-#' @param TSSParams A list of parameters for computing TSS Enrichment scores. 
-#' This includes the `window` which is the size in basepairs of the window centered at each TSS (default 101), 
-#' the `flank` which is the size in basepairs of the flanking window (default 2000), 
+#' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
+#' sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
+#' @param TSSParams A list of parameters for computing TSS Enrichment scores. This includes the `window` which is the size in basepairs
+#' of the window centered at each TSS (default 101), the `flank` which is the size in basepairs of the flanking window (default 2000), 
 #' and the `norm` which describes the size in basepairs of the flank window to be used for normalization of the TSS enrichment score (default 100). 
-#' For example, given `window = 101, flank = 2000, norm = 100`, the accessibility within the 101-bp surrounding the TSS will be normalized to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.
-#' @param excludeChr A character vector containing the names of chromosomes to be excluded from downstream analyses. In most human/mouse analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the corresponding fragments from being stored in the ArrowFile.
-#' @param nChunk The number of chunks to divide each chromosome into to allow for low-memory parallelized reading of the `inputFiles`. Higher numbers reduce memory usage but increase compute time.
+#' For example, given `window = 101, flank = 2000, norm = 100`, the accessibility within the 101-bp surrounding the TSS will be normalized
+#' to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.
+#' @param excludeChr A character vector containing the names of chromosomes to be excluded from downstream analyses. In most human/mouse
+#' analyses, this includes the mitochondrial DNA (chrM) and the male sex chromosome (chrY). This does, however, not exclude the
+#' corresponding fragments from being stored in the ArrowFile.
+#' @param nChunk The number of chunks to divide each chromosome into to allow for low-memory parallelized reading of the `inputFiles`.
+#' Higher numbers reduce memory usage but increase compute time.
 #' @param bcTag The name of the field in the input bam file containing the barcode tag information. See `ScanBam` in Rsamtools.
-#' @param gsubExpression A regular expression used to clean up the barcode tag string read in from a bam file. For example, if the barcode is appended to the readname or qname field like for the mouse atlas data from Cusanovic* and Hill* et al. (2018), the gsubExpression would be ":.*". This would retrieve the string after the colon as the barcode.
-#' @param bamFlag A vector of bam flags to be used for reading in fragments from input bam files. Should be in the format of a `scanBamFlag` passed to `ScanBam` in Rsamtools.
-#' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
-#' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site. See Buenrostro et al. Nature Methods 2013.
-#' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that, instead of using peaks, uses a fixed-width sliding window of bins across the whole genome. This matrix can be used in many downstream ArchR operations.
+#' @param gsubExpression A regular expression used to clean up the barcode tag string read in from a bam file. For example, if the
+#' barcode is appended to the readname or qname field like for the mouse atlas data from Cusanovic* and Hill* et al. (2018), the
+#' gsubExpression would be ":.*". This would retrieve the string after the colon as the barcode.
+#' @param bamFlag A vector of bam flags to be used for reading in fragments from input bam files. Should be in the format of a
+#' `scanBamFlag` passed to `ScanBam` in Rsamtools.
+#' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site.
+#' See Buenrostro et al. Nature Methods 2013.
+#' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site.
+#' See Buenrostro et al. Nature Methods 2013.
+#' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that,
+#' instead of using peaks, uses a fixed-width sliding window of bins across the whole genome. This matrix can be used in many downstream ArchR operations.
 #' @param TileMatParams A list of parameters to pass to the `addTileMatrix()` function. See `addTileMatrix()` for options.
-#' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each ArrowFile. A Gene-Score Matrix uses ATAC-seq signal proximal to the TSS to estimate gene activity.
+#' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each ArrowFile. A Gene-Score Matrix uses
+#' ATAC-seq signal proximal to the TSS to estimate gene activity.
 #' @param GeneScoreMatParams A list of parameters to pass to the `addGeneScoreMatrix()` function. See `addGeneScoreMatrix()` for options.
 #' @param force A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist in `outDir`.
 #' @param threads The number of threads to be used for parallel computing.

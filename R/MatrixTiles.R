@@ -8,8 +8,10 @@
 #' per cell in the ArrowFile
 #'
 #' @param input An `ArchRProject` object or character vector of ArrowFiles.
-#' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the `ArchRProject` using `getChromSizes()`.
-#' @param blacklist A `GRanges` object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the `ArchRProject` using `getBlacklist()`.
+#' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve
+#' this from the `ArchRProject` using `getChromSizes()`.
+#' @param blacklist A `GRanges` object containing genomic regions to blacklist counting in these tiles. The default behavior
+#' is to retrieve this from the `ArchRProject` using `getBlacklist()`.
 #' @param tileSize The size of the tiles used for binning counts in the "TileMatrix".
 #' @param binarize A boolean value indicating whether the "TileMatrix" should be binarized prior to storage.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from the "TileMatrix".

@@ -2,27 +2,30 @@
 # Gene Integration Matrix Methods
 ####################################################################
 
-#' Add GeneIntegrationMatrix to ArrowFiles or an ArchRProject JJJ
+#' Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject
 #' 
-#' This function, for each sample, will independently compute counts for each tile
+#' QQQ IS THIS CORRECT? This function, for each sample, will independently compute counts for each tile
 #' per cell and then infer gene activity scores.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param seRNA A scRNA `SummarizedExperiment` or `SeuratObject` to be integrated with.
-#' @param groupBy A column name in either `colData` or `metadata` of seRNA to compute prediction scores.
+#' @param seRNA A scRNA-seq `SummarizedExperiment` or `SeuratObject` to integrated with the scATAC-seq data.
+#' @param groupBy QQQ UNCLEAR WHAT PREDICTION SCORES ARE The column name in either `colData` or `metadata` of seRNA to use to compute prediction scores.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`. 
-#' @param sampleList A named list of sampleNames from `ArchRProj` containing cell names in `seRNA` that are used for constraining data integration.
-#' For example when integrating hematopoiesis it is useful to partition integration for "CD34", "BMMC" and "PBMC" single cells.
-#' @param sampleRNA Number of cells from seRNA to be used for integration. This is useful for lowering memory and speeding
-#' up results of `Seurat::FindTransferAnchors` when integrating datasets.
-#' @param nGenes Number of variable genes determined by `Seurat::FindVariableGenes` to use for integration.
-#' @param useImputation Use imputation for Gene Score Matrix prior to integration.
-#' @param reduction Seurat reduction method for integrating modalities. See `Seurat::FindTransferAnchors` for reduction methods.
-#' @param addToArrow Add integrated matched RNA to ArrowFiles afterwards.
+#' @param sampleList QQQ THIS COULD BE BETTER DESCRIBED A named list of sampleNames from `ArchRProj` containing cell names in `seRNA` that are used for constraining data integration.
+#' For example when integrating hematopoiesis it is useful to perform integration separately for cells derived from different biological contexts
+#' such as "CD34", "BMMC" and "PBMC" single cells. Performing this integration separately not only provides better linking but
+#' also increases speed of processing.
+#' @param sampleRNA The number of cells from `seRNA` to be used for integration. This is useful for lowering the memory requirements and
+#' processing time of `Seurat::FindTransferAnchors()` when integrating datasets.
+#' @param nGenes The number of variable genes determined by `Seurat::FindVariableGenes()` to use for integration.
+#' @param useImputation A boolean value indicating whether to use imputation for creating the Gene Score Matrix prior to integration.
+#' @param reduction The Seurat reduction method to use for integrating modalities. See `Seurat::FindTransferAnchors()` for possible reduction methods.
+#' @param addToArrow QQQ A boolean value indicating whether to add the QQQ transcript counts from the integrated matched RNA to the ArrowFiles.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
-#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
+#' @param subThreading QQQ A boolean value indicating whether the computational architecture being used can allow for the use of threads within
+#' each multi-threaded subprocess if QQQ is greater than the number of input samples.
+#' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the given `input`.
 #' @export
 addGeneIntegrationMatrix <- function(
   ArchRProj = NULL,
@@ -336,22 +339,27 @@ addGeneIntegrationMatrix <- function(
 #' Add Peak2GeneLinks to an ArchRProject JJJ
 #' 
 #' This function will add co-accessibility scores to peaks in a given ArchRProject
-#'
+#' QQQ IM NOT CLEAR ON HOW THIS IS DIFFERENT FROM addCoAccessibility? THE FUNCTION DESCRIPTION IS IDENTICAL
+#' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases 
-#' (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. 
-#' If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by the dimensionality reduction method.
-#' This idea was introduced by Timothy Stuart.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param scaleDims QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
+#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
+#' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
-#' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.
+#' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current
+#' group be added to the group list during k-nearest neighbor calculations.
 #' @param maxDist The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.
-#' @param scaleTo The total insertion counts from the designated group of single cells is summed across all relevant peak regions from the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
+#' @param scaleTo The total insertion counts from the designated group of single cells is summed across all relevant peak regions
+#' from the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
-#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended
+#' to keep track of the seed used so that you can reproduce results downstream.
 #' @param knnMethod The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.
 #' @param threads The number of threads to be used for parallel computing.
 #' @export

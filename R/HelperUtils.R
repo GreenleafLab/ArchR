@@ -199,7 +199,8 @@
 #' 
 #' This function will attempt to get or validate an input as a BSgenome.
 #' 
-#' @param genome This option must be one of the following: (i) the name of a valid genome (for example "hg38", "hg19", or "mm10"), (ii) the name of a `BSgenome` package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a `BSgenome` object.
+#' @param genome This option must be one of the following: (i) the name of a valid genome (for example "hg38", "hg19", or "mm10"),
+#' (ii) the name of a `BSgenome` package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a `BSgenome` object.
 #' @param masked A boolean describing whether or not to access the masked version of the selected genome. See `BSgenome::getBSgenome()`.
 #' @export
 validBSgenome <- function(genome = NULL, masked = FALSE){
