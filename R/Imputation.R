@@ -163,6 +163,9 @@ addImputeWeights <- function(
 #' @export
 getImputeWeights <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  if(length(ArchRProj@imputeWeights) == 0){
+    return(NULL)
+  }
   ArchRProj@imputeWeights
 }
 

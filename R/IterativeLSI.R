@@ -49,6 +49,7 @@ addLSI <- function(
   args <- mget(names(formals()),sys.frame(sys.nframe()))
   args$iterations <- 1
   args$varFeatures <- args$topFeatures
+  args$topFeatures <- NULL
   args$saveIterations <- FALSE
   do.call(addIterativeLSI, args)
 

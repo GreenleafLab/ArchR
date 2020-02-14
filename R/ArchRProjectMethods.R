@@ -1374,7 +1374,7 @@ getTutorialData <- function(tutorial = "hematopoiesis"){
 
   if(tolower(tutorial) %in% c("heme","hematopoiesis")){
     
-    if(!dir.exists("Heme_Fragments")){
+    if(!dir.exists("HemeFragments")){
       download.file(
         url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/HemeFragments.zip", 
         destfile = "HemeFragments.zip"
