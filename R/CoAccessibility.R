@@ -9,18 +9,22 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases 
-#' (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. 
-#' If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by the dimensionality reduction method.
-#' This idea was introduced by Timothy Stuart.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param scaleDims QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
+#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+#' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
-#' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.
+#' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be
+#' added to the group list during k-nearest neighbor calculations.
 #' @param maxDist The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.
-#' @param scaleTo The total insertion counts from the designated group of single cells is summed across all relevant peak regions from the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
+#' @param scaleTo The total insertion counts from the designated group of single cells is summed across all relevant peak regions from
+#' the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
-#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track
+#' of the seed used so that you can reproduce results downstream.
 #' @param knnMethod The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.
 #' @param threads The number of threads to be used for parallel computing.
 #' @export
@@ -149,14 +153,15 @@ addCoAccessibility <- function(
 
 }
 
-#' Get the peak coAccessibility from an ArchRProject
+#' Get the peak co-accessibility from an ArchRProject
 #' 
-#' This function gets the peak set as a GRanges object from an ArchRProject.
+#' This function obtains co-accessibility data from an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
 #' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
-#' @param returnLoops A boolean indicating to regurn CoAccessibility as loops designed for `ArchRBrowser` or `ArchRRegionTrack`.
+#' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
+#' the `ArchRBrowser()` or as an `ArchRRegionTrack()`.
 #' @export
 getCoAccessibility <- function(
   ArchRProj = NULL, 

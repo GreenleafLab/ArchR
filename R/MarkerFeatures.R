@@ -8,19 +8,31 @@
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy The name of the column in `cellColData` to use for grouping cells together for marker feature identification.
-#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform marker feature identification.
-#' @param bgdGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData` to be used for background calculations in marker feature identification.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column
+#' in `cellColData`. This limits the groups used to perform marker feature identification.
+#' @param bgdGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column
+#' in `cellColData` to be used for background calculations in marker feature identification.
 #' @param useMatrix The name of the matrix to be used for performing differential analyses. Options include "GeneScoreMatrix", "PeakMatrix", etc.
-#' @param bias A character vector indicating the potential bias variables (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.
-#' @param normBy The name of a numeric column in `cellColData` that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.
-#' @param testMethod The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".
+#' @param bias A character vector indicating the potential bias variables (i.e. c("TSSEnrichment", "log10(nFrags)")) to account
+#' for in selecting a matched null group for marker feature identification. These should be column names from `cellColData`.
+#' @param normBy The name of a numeric column in `cellColData` that should be normalized across cells (i.e. "ReadsInTSS") prior
+#' to performing marker feature identification.
+#' @param testMethod The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during
+#' marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".
 #' @param maxCells The maximum number of cells to consider from a single-cell group when performing marker feature identification.
 #' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param k The number of nearby cells to use for selecting a biased-matched background while accounting for `bgdGroups` proportions.
-#' @param bufferRatio When generating optimal biased-matched background groups of cells to determine significance, it can be difficult to find sufficient numbers of well-matched cells to create a background group made up of an equal number of cells. The `bufferRatio` indicates the fraction of the total cells that must be obtained when creating the biased-matched group. For example to create a biased-matched background for a group of 100 cells, when `bufferRatio` is set to 0.8 the biased-matched background group will be composed of the 80 best-matched cells. This option provides flexibility in the generation of biased-matched background groups given the stringency of also maintaining the group proportions from `bgdGroups`.
-#' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when `useMatrix` is an insertion counts-based matrix.
-#' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored. 
+#' @param bufferRatio When generating optimal biased-matched background groups of cells to determine significance, it can be difficult
+#' to find sufficient numbers of well-matched cells to create a background group made up of an equal number of cells. The `bufferRatio`
+#' indicates the fraction of the total cells that must be obtained when creating the biased-matched group. For example to create a
+#' biased-matched background for a group of 100 cells, when `bufferRatio` is set to 0.8 the biased-matched background group will be
+#' composed of the 80 best-matched cells. This option provides flexibility in the generation of biased-matched background groups given
+#' the stringency of also maintaining the group proportions from `bgdGroups`.
+#' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when
+#' `useMatrix` is an insertion counts-based matrix.
+#' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from
+#' seqnames that are not listed will be ignored. 
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @export
@@ -666,20 +678,26 @@ markerFeatures <- function(
 #' This function will plot a heatmap of the results from markerFeatures
 #' 
 #' @param seMarker A `SummarizedExperiment` object returned by `markerFeatures()`.
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
-#' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values in `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like "DeviationsMatrix").
-#' @param scaleTo Each column in the assay Mean from `seMarker` will be normalized to a column sum designated by `scaleTo` prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted
+#' in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values in
+#' `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like "DeviationsMatrix").
+#' @param scaleTo Each column in the assay Mean from `seMarker` will be normalized to a column sum designated by `scaleTo`
+#' prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
 #' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
 #' @param limits A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.
-#' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies rownames from `seMarker` to be excluded from the heatmap.
+#' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies
+#' rownames from `seMarker` to be excluded from the heatmap.
 #' @param pal A custom continuous palette from `ArchRPalettes` (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param invert JJJ A boolean value that indicates whether the heatmap will be sorted features by features that are Log2FC < 0 and the color palette is 
-#' inverted for visualization. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).
+#' @param invert QQQ CHECK. STILL UNCLEAR A boolean value that indicates whether the heatmap will display the features with the
+#' lowest `log2(fold change)`. In this case, the heatmap will display features that are specifically lower in the given cell
+#' group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
+#' looking for down-regulated markers (`log2(fold change) < 0`) instead of up-regulated markers (`log2(fold change) > 0`).
 #' @export
 markerHeatmap <- function(
   seMarker = NULL,
@@ -1191,9 +1209,10 @@ markerHeatmap <- function(
 #' This function will identify Markers and return a List of Features or a GRangesList for each group of significant marker features.
 #' 
 #' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any of the `assayNames` from `seMarker`.
-#' @param n An integer describing the maximum number of features to return per group.
-#' @param returnGR A boolean describing whether to return as a `GRanges`. Only valid when `seMarker` is computed for a PeakMatrix.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any
+#' of the `assayNames` from `seMarker`.
+#' @param n An integer that indicates the maximum number of features to return per group.
+#' @param returnGR A boolean indicating whether to return as a `GRanges` object. Only valid when `seMarker` is computed for a PeakMatrix.
 #' @export
 getMarkers <- function(
   seMarker = NULL,
@@ -1274,8 +1293,10 @@ getMarkers <- function(
 #' This function will plot one group/column of a differential markers as an MA or Volcano plot.
 #' 
 #' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
-#' @param name The name of a column (ie cell grouping in `groupBy`/`useGroups` for `markerFeatures()`) in `seMarker` to be plotted. To see available options try `colnames(seMarker)`.
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param name The name of a column in `seMarker` (i.e. cell grouping in `groupBy` or `useGroups` for `markerFeatures()`) to be plotted.
+#' To see available options try `colnames(seMarker)`.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted.
+#' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
 #' @export
 markerPlot <- function(
