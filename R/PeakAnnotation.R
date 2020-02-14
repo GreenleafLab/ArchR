@@ -95,12 +95,14 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 
 #' Add peak annotations to an ArchRProject
 #' 
-#' This function adds information about which peaks contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.
+#' This function adds information about which peaks contain input regions to a given ArchRProject. For each peak, a
+#' binary value is stored indicating whether each region is observed within the peak region.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param regions A `list` of `GRanges` that are to be overlapped with the `peakSet` in the `ArchRProject`.
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
-#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
+#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten
+#' if it already exists in the given `ArchRProject`.
 #' @export
 addPeakAnnotations <- function(
   ArchRProj = NULL,
@@ -207,16 +209,23 @@ addPeakAnnotations <- function(
 
 #' Add motif annotations to an ArchRProject
 #' 
-#' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value is stored indicating whether each motif is observed within the peak region.
+#' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value
+#' is stored indicating whether each motif is observed within the peak region.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param motifSet The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020" which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the corresponding motif sets from the `chromVAR` package. 
+#' @param motifSet The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020"
+#' which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the
+#' corresponding motif sets from the `chromVAR` package. 
 #' @param name The name of the `peakAnnotation` object to be stored in the provided `ArchRProject`
-#' @param species The name of the species relevant to the supplied `ArchRProject`. This is used for identifying which motif to be used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from `getGenome()`.
-#' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR collection to be used. See `getMatrixSet()` from `TFBSTools` for all options to supply for collection.
-#' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences (see `MOODS` for more details on this determination).
+#' @param species The name of the species relevant to the supplied `ArchRProject`. This is used for identifying which motif to be
+#' used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from `getGenome()`.
+#' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR
+#' collection to be used. See `getMatrixSet()` from `TFBSTools` for all options to supply for collection.
+#' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
+#' (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
-#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
+#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if
+#' it already exists in the given `ArchRProject`.
 #' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a PWM object.
 #' @export
 addMotifAnnotations <- function(
@@ -469,16 +478,19 @@ addMotifAnnotations <- function(
 
 #' Add ArchR annotations to an ArchRProject
 #' 
-#' This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.
+#' This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject.
+#' For each peak, a binary value is stored indicating whether each region is observed within the peak region.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param db A character indicating which database or a path to a database to use for peak annotation. Options include ArchR, LOLA, and a valid path to a file of class `ArchRAnno`.
-#' @param collection A character indicating which collection within the database to collect for annotation. 
-#' For ArchR, options "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
+#' @param db A string indicating the database or a path to a database to use for peak annotation. Options include ArchR,
+#' LOLA, and a valid path to a file of class `ArchRAnno`.
+#' @param collection A string indicating which collection within the database to collect for annotation. 
+#' For ArchR, options are "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
 #' For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
-#' If supplying a custom ArchRAnno please use a valid collection.
-#' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
-#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if it already exist in the given `ArchRProject`.
+#' If supplying a custom `ArchRAnno` file please select a valid collection from within that database.
+#' @param name The name of the `peakAnnotation` object to be stored in the `ArchRProject`.
+#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be
+#' overwritten if it already exists in the given `ArchRProject`.
 #' @export
 addArchRAnnotations <- function(
   ArchRProj = NULL,
@@ -731,8 +743,10 @@ addArchRAnnotations <- function(
 #' @param seMarker  A `SummarizedExperiment` object returned by `markerFeatures()`.
 #' @param ArchRProj An `ArchRProject` object.
 #' @param peakAnnotation A `peakAnnotation` object in the provided `ArchRProject` to be used for hypergeometric testing.
-#' @param matches A custom `peakAnnotation` matches object used as input for the hypergeometric test. See `motifmatchr::matchmotifs()` for additional information.
-#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` to use. `cutoff` can contain any of the `assayNames` from `seMarker`.
+#' @param matches A custom `peakAnnotation` matches object used as input for the hypergeometric test. See
+#' `motifmatchr::matchmotifs()` for additional information.
+#' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` to use.
+#' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param background A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").
 #' @export
 peakAnnoEnrichment <- function(
@@ -860,17 +874,23 @@ peakAnnoEnrichment <- function(
 
 }
 
-#' Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks. JJJ
+#' Plot a Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.
 #' 
-#' This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined marker peaks.
+#' This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.
 #' 
-#' @param seMarker  A `SummarizedExperiment` object returned by `peakAnnoEnrichment()`.
+#' @param seEnrich QQQ A `SummarizedExperiment` object QQQ returned by `peakAnnoEnrichment()`.
 #' @param pal A custom continuous palette (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
-#' @param limits A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.
-#' @param n The number of top enriched peakAnnotations per column from the `seMarker` to display in the heatmap. This number can be lowered to improve visibility of the heatmap.
+#' @param n The number of top enriched peakAnnotations per column from the `seMarker` to display in the heatmap. This number can
+#' be lowered to improve visibility of the heatmap.
+#' @param cutOff QQQ
+#' @param pMax QQQ
 #' @param clusterCols A boolean indicating whether or not to cluster columns in the heatmap.
-#' @param clusterRows A boolean indicating whether or not to cluster rows in the heatmap.
+#' @param binaryClusterRows QQQ A boolean indicating whether or not to cluster rows in the heatmap.
 #' @param labelRows A boolean indicating whether or not to label all rows in the heatmap.
+#' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
+#' lines and labels, just the internal portions of the plot.
+#' @param transpose QQQ
+#' @param returnMatrix QQQ
 #' @export
 enrichHeatmap <- function(
   seEnrich = NULL,
@@ -1001,17 +1021,6 @@ enrichHeatmap <- function(
   return(ht)
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

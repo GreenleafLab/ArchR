@@ -2,12 +2,15 @@
 # Parallel Information
 ##########################################################################################
 
-#' Add a globally-applied number of threads to use for parallel computing. JJJ
+#' Add a globally-applied number of threads to use for parallel computing.
 #' 
 #' This function will set the number of threads to be used for parallel computing across all ArchR functions.
 #' 
-#' @param threads The default number of threads to be used for parallel execution across all ArchR functions. This value is stored as a global environment variable, not part of the `ArchRProject`. This can be overwritten on a per-function basis using the given function's `threads` parameter.
-#' @param force If you requested for more than nCPU - 2 threads. If `force = FALSE` ArchR will set the threads maximum at nCPU - 2 threads. To bypass this set `force = TRUE`.
+#' @param threads The default number of threads to be used for parallel execution across all ArchR functions.
+#' This value is stored as a global environment variable, not part of the `ArchRProject`.
+#' This can be overwritten on a per-function basis using the given function's `threads` parameter.
+#' @param force If you request more than the total number of CPUs minus 2, ArchR will set `threads` to `(nCPU - 2)`.
+#' To bypass this, setting `force = TRUE` will use the number provided to `threads`.
 #' @export
 addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force = FALSE){
   
@@ -56,12 +59,17 @@ getArchRThreads <- function(){
 # Create Gene/Genome Annotation
 ##########################################################################################
 
-#' Add a globally defined genome to all ArchR functions. JJJ
+#' Add a globally defined genome to all ArchR functions.
 #' 
 #' This function will set the genome across all ArchR functions.
 #' 
-#' @param genome The default genome to be used for all ArchR functions. This value is stored as a global environment variable, not part of the `ArchRProject`. This can be overwritten on a per-function basis using the given function's `geneAnnotation` and  `genomeAnnotation` parameter.
-#' @param install Install the BSgenome associated with the ArchRGenome is not currently installed. This is useful for helping reduce user download requirements.
+#' @param genome QQQ DOUBLECHECK A string indicating the default genome to be used for all ArchR functions.
+#' Currently supported values include "hg19","hg38","mm9", and "mm10".
+#' This value is stored as a global environment variable, not part of the `ArchRProject`.
+#' This can be overwritten on a per-function basis using the given function's `geneAnnotation`and `genomeAnnotation` parameter.
+#' For something other than one of the currently supported, see `createGeneAnnnotation()` and `createGenomeAnnnotation()`.
+#' @param install QQQ DOUBLECHECK A boolean value indicating whether the `BSgenome` object associated with the provided `genome` should be
+#' automatically installed if it is not currently installed. This is useful for helping reduce user download requirements.
 #' @export
 addArchRGenome <- function(genome = NULL, install = TRUE){
   
@@ -73,7 +81,7 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
     
     message("Genome : ", genome, " is not currently supported by ArchR.")
     message("Currently supported genomes : ", paste0(supportedGenomes, collapse = ","))
-    message("To continue try building a custom geneAnnotation with createGeneAnnnotation,\nand genomeAnnotation with createGenomeAnnotation!")
+    message("To continue try building a custom geneAnnotation with createGeneAnnnotation(),\nand genomeAnnotation with createGenomeAnnotation()!")
  
   }else{
 
@@ -127,12 +135,17 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
 
 }
 
-#' Get a globally defined genome to all ArchR functions. JJJ
+#' Get the globally defined genome, the geneAnnotation, or genomeAnnotation objects associated with the globally defined genome.
 #' 
-#' This function will get the genome across all ArchR functions. Additionally can return geneAnnotation and genomeAnnotation associated with ArchRGenome if desired.
+#' This function will retrieve the genome that is currently in use by ArchR. Alternatively, this function can return either the `geneAnnotation`
+#' or the `genomeAnnotation` associated with the globally defined genome if desired.
 #' 
-#' @param geneAnnotation Export geneAnnotation set with addArchRGenome. The geneAnnotation (see `createGeneAnnotation()`) to associate with the ArrowFiles. This is used downstream to calculate TSS Enrichment Scores etc.
-#' @param genomeAnnotation Export genomeAnnotation set with addArchRGenome. The genomeAnnotation (see `createGenomeAnnotation()`) to associate with the ArrowFiles. This is used downstream to collect chromosome sizes and nucleotide information etc.
+#' @param geneAnnotation A boolean value indicating whether the `geneAnnotation` associated with the ArchRGenome should be returned
+#' instead of the globally defined genome. The `geneAnnotation` is used downstream to calculate things like TSS Enrichment Scores.
+#'This function is not meant to be run with both `geneAnnotation` and `genomeAnnotation` set to `TRUE` (it is an either/or return value).
+#' @param genomeAnnotation A boolean value indicating whether the `genomeAnnotation` associated with the ArchRGenome should be returned
+#' instead of the globally defined genome. The `genomeAnnotation` is used downstream to determine things like chromosome sizes and nucleotide content.
+#' This function is not meant to be run with both `geneAnnotation` and `genomeAnnotation` set to `TRUE` (it is an either/or return value).
 #' @export
 getArchRGenome <- function(
   geneAnnotation=FALSE, 
@@ -154,7 +167,7 @@ getArchRGenome <- function(
       if(tolower(ag) %in% supportedGenomes){
         
         genome <- paste(toupper(substr(ag, 1, 1)), substr(ag, 2, nchar(ag)), sep="")
-        
+        #QQQ might be good to add a check for both geneAnnotation and genomeAnnotation being set to TRUE
         if(geneAnnotation){
 
           message("Using GeneAnnotation set by addArchRGenome!")
@@ -201,8 +214,10 @@ getArchRGenome <- function(
 #' @param genome Either (i) a string that is a valid `BSgenome` or (ii) a `BSgenome` object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").
 #' @param chromSizes A `GRanges` object containing chromosome start and end coordinates.
 #' @param blacklist A `GRanges` object containing regions that should be excluded from analyses due to unwanted biases.
-#' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by `filterChrGR()`.
-#' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, `filterChr` should be set to `NULL`.
+#' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded.
+#' These "non-standard" chromosomes are defined by `filterChrGR()`.
+#' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
+#' If no manual removal is desired, `filterChr` should be set to `NULL`.
 #' @export
 createGenomeAnnotation <- function(
   genome = NULL,
@@ -252,9 +267,12 @@ createGenomeAnnotation <- function(
 #' 
 #' This function will create a gene annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
 #' 
-#' @param genome A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If `genome` is not supplied, `TxDb` and `OrgDb` are required. If genome is supplied, `TxDb` and `OrgDb` will be ignored.
-#' @param TxDb A `TxDb` object (transcript database) from Bioconductor which contains information for gene/transcript coordinates. For example, from `txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene`.
-#' @param OrgDb An `OrgDb` object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids. For example, from `orgdb <- org.Hs.eg.db`.
+#' @param genome A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If `genome` is not supplied,
+#' `TxDb` and `OrgDb` are required. If genome is supplied, `TxDb` and `OrgDb` will be ignored.
+#' @param TxDb A `TxDb` object (transcript database) from Bioconductor which contains information for gene/transcript coordinates.
+#' For example, from `txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene`.
+#' @param OrgDb An `OrgDb` object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids.
+#' For example, from `orgdb <- org.Hs.eg.db`.
 #' @param genes A `GRanges` object containing gene coordinates (start to end). Must have a symbols column matching the symbols column of `exons`.
 #' @param exons A `GRanges` object containing gene exon coordinates. Must have a symbols column matching the symbols column of `genes`.
 #' @param TSS A `GRanges` object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.
@@ -605,9 +623,12 @@ getSampleColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param data A vector containing the data to be added to `sampleColData`.
-#' @param name The column header name to be used for this new data in `sampleColData`. If a column with this name already exists, you may set `force` equal to `TRUE` to overwrite the data in this column.
-#' @param samples The names of the samples corresponding to `data`. Typically new data is added to all samples but you may use this argument to only add data to a subset of samples. Samples where `data` is not added are set to `NA`.
-#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `sampleColData`.
+#' @param name The column header name to be used for this new data in `sampleColData`.
+#' If a column with this name already exists, you may set `force` equal to `TRUE` to overwrite the data in this column.
+#' @param samples The names of the samples corresponding to `data`. Typically new data is added to all samples but you may
+#' use this argument to only add data to a subset of samples. Samples where `data` is not added are set to `NA`.
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name`
+#' already exists as a column name in `sampleColData`.
 #' @export
 addSampleColData <- function(ArchRProj = NULL, data = NULL, name = NULL, samples = NULL, force = FALSE){
   
@@ -700,9 +721,12 @@ getCellColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param data The data to add to `cellColData`.
-#' @param name The column header name to be used for this new data in `cellColData`. If a column with this name already exists, you may set `force` equal to `TRUE` to overwrite the data in this column.
-#' @param cells The names of the cells corresponding to `data`. Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where `data` is not added are set to `NA`.
-#' @param force A boolean value indicating whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
+#' @param name The column header name to be used for this new data in `cellColData`. If a column with this name already exists,
+#' you may set `force` equal to `TRUE` to overwrite the data in this column.
+#' @param cells The names of the cells corresponding to `data`. Typically new data is added to all cells but you may use this
+#' argument to only add data to a subset of cells. Cells where `data` is not added are set to `NA`.
+#' @param force A boolean value indicating whether or not to overwrite data in a given column when the value passed to `name`
+#' already exists as a column name in `cellColData`.
 #' @export
 addCellColData <- function(ArchRProj = NULL, data = NULL, name = NULL, cells =  NULL, force = FALSE){
 
@@ -767,7 +791,8 @@ getPeakSet <- function(ArchRProj = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param peakSet A `GRanges` object containing the set of regions that define all peaks in the desired peak set.
-#' @param force If a `peakSet` object has already been added to the given `ArchRProject`, the value of `force` determines whether or not to overwrite this `peakSet`.
+#' @param force If a `peakSet` object has already been added to the given `ArchRProject`, the value of `force` determines
+#' whether or not to overwrite this `peakSet`.
 #' @export
 addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -1009,13 +1034,15 @@ getExons <- function(ArchRProj = NULL, symbols = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
-#' @param returnMatrix If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for each individual cell. Otherwise, it will return the full `reducedDims` object.
+#' @param returnMatrix If set to "mat" or "matrix", the function will return the `reducedDims` object as a matrix with entries for
+#' each individual cell. Otherwise, it will return the full `reducedDims` object.
 #' @param dimsToUse A vector containing the dimensions (i.e. 1:30) to return from the `reducedDims` object.
-#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases 
-#' (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. 
-#' If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by the dimensionality reduction method.
-#' This idea was introduced by Timothy Stuart.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded.
+#' @param scaleDims A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the
+#' contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the
+#' `reducedDims` were created by the dimensionality reduction method. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
+#' to sequencing depth that is greater than the `corCutOff`, it will be excluded.
 #' @export
 getReducedDims <- function(
   ArchRProj = NULL, 
@@ -1109,8 +1136,10 @@ getReducedDims <- function(
 #' This function gets an embedding (i.e. UMAP) from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param embedding The name of the `embeddings` object (i.e. UMAP, TSNE see `embeddingOut` of the `addEmbeddings()` function) to retrieve from the designated `ArchRProject`.
-#' @param returnDF A boolean value indicating whether to return the embedding object as a `data.frame`. Otherwise, it will return the full embedding object.
+#' @param embedding The name of the `embeddings` object (i.e. UMAP, TSNE see `embeddingOut` of the `addEmbeddings()` function) to
+#' retrieve from the designated `ArchRProject`.
+#' @param returnDF A boolean value indicating whether to return the embedding object as a `data.frame`. Otherwise, it will return
+#' the full embedding object.
 #' @export
 getEmbedding <- function(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE){
 
@@ -1195,7 +1224,8 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
 
 #' Get the features that could be selected from a given data matrix within an ArchRProject
 #' 
-#' This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return them for downstream plotting utilities.
+#' This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return
+#' them for downstream plotting utilities.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
@@ -1240,10 +1270,13 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
 #' @param name The file name to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param height The height in inches to be used for the output PDF.
-#' @param ArchRProj An `ArchRProject` object to be used for retrieving the desired `outputDirectory` which will be used to store the output plots in a subfolder called "plots".
-#' @param addDOC A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful for preventing overwritting of old plots.
+#' @param ArchRProj An `ArchRProject` object to be used for retrieving the desired `outputDirectory` which will be used to store the output
+#' plots in a subfolder called "plots".
+#' @param addDOC A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful
+#' for preventing overwritting of old plots.
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
-#' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted object (ggplot2, plot, heatmap, etc).
+#' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted
+#' object (ggplot2, plot, heatmap, etc).
 #' @param useSink A boolean value that indicates whether the `sink` function from base R should be used to hide messages during plotting.
 #' @export
 plotPDF <- function(..., name = "Plot", width = 6, 
@@ -1360,11 +1393,14 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
 }
 
-#' Get Relevant Data For ArchR Tutorials JJJ
+#' Get Relevant Data For ArchR Tutorials
 #' 
-#' This function will download data for a given tutorial and return the input files required for ArchR
+#' This function will download data for a given tutorial and return the input files required for ArchR.
 #' 
-#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis" for now. "Hematopoiesis" refers to hematopoieitic scATAC hierarchy. "PBMC" refers to a small standard PBMC scATAC dataset. "FreshFrozen" refers to a PBMC fresh and frozen scATAC dataset.
+#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".
+#' "Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
+#' This dataset is made up of cells from peripheral blood, bone marrow, and QQQ.
+#' QQQ I REMOVED THE INFO CORRESPONDING TO THE OTHER TUTORIAL DATASETS. IF YOU ADD THEM AS OPTIONS DOWN THE LINE WE CAN ADD THEM BACK
 #' @export
 getTutorialData <- function(tutorial = "hematopoiesis"){
 
@@ -1403,7 +1439,7 @@ getTutorialData <- function(tutorial = "hematopoiesis"){
 
 #' Get Input Files from paths to create arrows
 #' 
-#' This function will look for fragment files and bam files in the input paths and return the full path and sample names
+#' This function will look for fragment files and bam files in the input paths and return the full path and sample names.
 #' 
 #' @param paths A character vector of paths to search for usable input files.
 #' @export
@@ -1473,7 +1509,7 @@ getValidBarcodes <- function(csvFiles = NULL, sampleNames = NULL){
 }
 
 
-#' Get a list available matrices in the ArrowFiles storted in an ArchRProject JJJ
+#' Get a list available matrices in the ArrowFiles storted in an ArchRProject
 #' 
 #' This function gets the available matrices from the ArrowFiles in a given ArchRProject object.
 #' 
