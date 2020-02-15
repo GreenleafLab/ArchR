@@ -1,3 +1,4 @@
+
 ##########################################################################################
 # LSI Dimensionality Reduction Methods
 ##########################################################################################
@@ -273,7 +274,13 @@ addIterativeLSI <- function(
   }
   clusters <- do.call(addClusters, parClust)
   nClust <- length(unique(clusters))
-  .messageDiffTime(sprintf("Identified %s Clusters",nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+  .messageDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+
+  if(nClust == 1){
+    .messageDiffTime("Identified 1 Cluster, returning the current LSI iteration! Try picking a lower resolution or k!", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    ArchRProj@reducedDims[[name]] <- outLSI
+    return(ArchRProj)
+  }
 
   #Save Output
   if(saveIterations){
@@ -434,6 +441,12 @@ addIterativeLSI <- function(
       clusters <- do.call(addClusters, parClust)
       nClust <- length(unique(clusters))
       .messageDiffTime(sprintf("Identified %s Clusters",nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+
+      if(nClust == 1){
+        .messageDiffTime("Identified 1 Cluster, returning the current LSI iteration! Try picking a lower resolution or k!", tstart, addHeader = verboseAll, verbose = verboseHeader)
+        ArchRProj@reducedDims[[name]] <- outLSI
+        return(ArchRProj)
+      }
 
       #Save Output
       if(saveIterations){
@@ -926,5 +939,8 @@ addHarmony <- function(
   ArchRProj
 
 }
+
+
+
 
 

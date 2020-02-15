@@ -194,19 +194,28 @@ addClusters <- function(
     # Renaming Clusters based on Proximity in Reduced Dimensions
     #################################################################################
     .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
-    meanSVD <- t(.groupMeans(t(matDR), clust))
-    meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
-    idx <- sample(seq_len(nrow(meanSVD)), 1)
-    clustOld <- c()
-    clustNew <- c()
-    for(i in seq_len(nrow(meanSVD))){
-        clustOld[i] <- rownames(meanSVD)[idx]
-        clustNew[i] <- paste0("Cluster", i)
-        if(i != nrow(meanSVD)){
-            idx <- meanKNN[idx, ][which(rownames(meanSVD)[meanKNN[idx, ]] %ni% clustOld)][1]
+    
+    if(length(unique(clust)) > 1){
+
+        meanSVD <- t(.groupMeans(t(matDR), clust))
+        meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
+        idx <- sample(seq_len(nrow(meanSVD)), 1)
+        clustOld <- c()
+        clustNew <- c()
+        for(i in seq_len(nrow(meanSVD))){
+            clustOld[i] <- rownames(meanSVD)[idx]
+            clustNew[i] <- paste0("Cluster", i)
+            if(i != nrow(meanSVD)){
+                idx <- meanKNN[idx, ][which(rownames(meanSVD)[meanKNN[idx, ]] %ni% clustOld)][1]
+            }
         }
+        out <- mapLabels(labels = clust, oldLabels = clustOld, newLabels = clustNew)
+
+    }else{
+
+        out <- rep("Cluster1", length(clust))
+
     }
-    out <- mapLabels(labels = clust, oldLabels = clustOld, newLabels = clustNew)
 
     if(inherits(input, "ArchRProject")){
         input <- .suppressAll(addCellColData(
@@ -455,4 +464,6 @@ addClusters <- function(
   knnIdx
 
 }
+
+
 

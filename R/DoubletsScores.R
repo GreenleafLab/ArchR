@@ -533,9 +533,9 @@ addDoubletScores <- function(
     projectionCorrelation = corProjection
   )
 
-  if(mean(corProjection[[2]]) < 0.8){
+  if(mean(corProjection[[2]]) < 0.9){
     if(!force){
-      warning("Correlation of UMAP Projection is below 0.8 (normally this is ~0.99)\nThis means there is either little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
+      message("Correlation of UMAP Projection is below 0.9 (normally this is ~0.99)\nThis means there is little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
       out$doubletEnrichLSI <- rep(-1, nrow(LSI$matSVD))
       out$doubletScoreLSI <- rep(-1, nrow(LSI$matSVD))
       out$doubletEnrichUMAP <- rep(-1, nrow(LSI$matSVD))
