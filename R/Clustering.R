@@ -132,7 +132,9 @@ addClusters <- function(
     }else if(grepl("scran",tolower(method))){
 
         clustParams <- list(...)
-        clustParams$x <- matDR
+        clustParams$verbose <- verbose
+        clustParams$tstart <- tstart
+        clustParams$x <- t(matDR)
         clustParams$d <- ncol(matDR)
         clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
         clust <- .clustScran(clustParams)
@@ -296,8 +298,14 @@ addClusters <- function(
     .requirePackage("igraph", installInfo='install.packages("igraph")')
     #See Scran Vignette!
     set.seed(1)
+    tstart <- clustParams$tstart
+    verbose <- clustParams$verbose
+    clustParams$tstart <- NULL
+    clustParams$verbose <- NULL
     #clustParams$x <- matDR
+    .messageDiffTime("Running Scran SNN Graph (Lun et al. Cell 2016)", tstart, verbose=verbose)
     snn <- do.call(scran::buildSNNGraph, clustParams)
+    .messageDiffTime("Identifying Clusters (Lun et al. Cell 2016)", tstart, verbose=verbose)
     cluster <- igraph::cluster_walktrap(snn)$membership
     paste0("Cluster", cluster)
 }

@@ -589,6 +589,51 @@ nCells <- function(input = NULL){
 
 }
 
+#' Get the number of cells from an ArchRProject/ArrowFile JJJ
+#' 
+#' This function gets number of cells from an ArchRProject or ArrowFile
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param select A character vector containing the column names to select from `cellColData`.
+#' @export
+getGroupSummary <- function(
+  ArchRProj = NULL,
+  groupBy = "Sample",
+  select = "TSSEnrichment",
+  summary = "median",
+  na.rm = TRUE
+  ){
+
+  message("Getting ", summary, " of ", select, " for ", groupBy)
+
+  groups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
+  select <- getCellColData(ArchRProj, select = select, drop = TRUE)
+
+  if(!is.numeric(select)){
+    stop("Select must be a numeric column!")
+  }
+
+  splitSelect <- split(select, groups)
+
+  summarySelect <- lapply(seq_along(splitSelect), function(x){
+    if(tolower(summary) == "median"){
+      median(splitSelect[[x]], na.rm = na.rm)
+    }else if(tolower(summary) == "mean"){
+      mean(splitSelect[[x]], na.rm = na.rm)
+    }else if(tolower(summary) == "sum"){
+      sum(splitSelect[[x]], na.rm = na.rm)
+    }else{
+      stop("Summary Method Not Supported!")
+    }
+  }) %>% unlist
+
+  names(summarySelect) <- names(splitSelect)
+  summarySelect <- summarySelect[gtools::mixedsort(names(summarySelect))]
+
+  summarySelect
+  
+}
+
 #' Get sampleColData from an ArchRProject
 #' 
 #' This function gets the sampleColData from a given ArchRProject.
@@ -1359,7 +1404,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
           grid::grid.newpage()
         }
       }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
-        padding <- 45
+        padding <- 15
         draw(plotList[[i]], 
           padding = unit(c(padding, padding, padding, padding), "mm"), 
           heatmap_legend_side = "bot", 

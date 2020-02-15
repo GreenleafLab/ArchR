@@ -89,7 +89,7 @@ ArchRBrowser <- function(
   ui <- fluidPage(
     theme = theme,
     titlePanel(
-        h1(div(HTML("<b>ArchR Browser</b>")), align = "left")
+        h1(div(HTML(paste0("<b>ArchR Browser v1 : nCells = ", formatC(nCells(ArchRProj), format="f", big.mark = ",", digits=0), "</b>"))), align = "left")
     ),
     sidebarLayout(
       sidebarPanel(
@@ -202,6 +202,9 @@ ArchRBrowser <- function(
           include = rep(TRUE,length(groups)), 
           group = groups, 
           color = paletteDiscrete(values = groups)[groups], 
+          nCells = as.vector(table(ccd[,input$grouping])[groups]),
+          medianTSS = getGroupSummary(ArchRProj = ArchRProj, select = "TSSEnrichment", summary = "median", groupBy = input$grouping)[groups],
+          medianFragments = getGroupSummary(ArchRProj = ArchRProj, select = "nFrags", summary = "median", groupBy = input$grouping)[groups],
           stringsAsFactors = FALSE
         )
         rownames(mdata) <- NULL
@@ -289,10 +292,13 @@ ArchRBrowser <- function(
             },error=function(x){
               groups <- gtools::mixedsort(unique(ccd[,isolate(input$grouping)]))
               mdata <- data.frame(
-                groupBy = groupBy,
+                groupBy = input$grouping,
                 include = rep(TRUE,length(groups)), 
                 group = groups, 
                 color = paletteDiscrete(values = groups)[groups], 
+                nCells = as.vector(table(ccd[,input$grouping])[groups]),
+                medianTSS = getGroupSummary(ArchRProj = ArchRProj, select = "TSSEnrichment", summary = "median", groupBy = input$grouping)[groups],
+                medianFragments = getGroupSummary(ArchRProj = ArchRProj, select = "nFrags", summary = "median", groupBy = input$grouping)[groups],
                 stringsAsFactors = FALSE
               )
               rownames(mdata) <- NULL
@@ -701,7 +707,7 @@ ArchRBrowserTrack <- function(
     # Bulk Tracks
     ##########################################################
     if("bulktrack" %in% tolower(plotSummary)){
-      .messageDiffTime("Adding Bulk Tracks", tstart)
+      .messageDiffTime(sprintf("Adding Bulk Tracks (%s of %s)",x,length(region)), tstart)
       plotList$bulktrack <- .bulkTracks(
         ArchRProj = ArchRProj, 
         region = region[x], 
@@ -726,7 +732,7 @@ ArchRBrowserTrack <- function(
     ##########################################################
     if("featuretrack" %in% tolower(plotSummary)){
       if(!is.null(features)){
-        .messageDiffTime("Adding Feature Tracks", tstart)
+        .messageDiffTime(sprintf("Adding Feature Tracks (%s of %s)",x,length(region)), tstart)
         plotList$featuretrack <- .featureTracks(
             features = features, 
             region = region[x], 
@@ -741,7 +747,7 @@ ArchRBrowserTrack <- function(
     ##########################################################
     if("looptrack" %in% tolower(plotSummary)){
       if(!is.null(loops)){
-        .messageDiffTime("Adding Loop Tracks", tstart)
+        .messageDiffTime(sprintf("Adding Loop Tracks (%s of %s)",x,length(region)), tstart)
         plotList$looptrack <- .loopTracks(
             loops = loops, 
             region = region[x], 
@@ -756,7 +762,7 @@ ArchRBrowserTrack <- function(
     # Gene Tracks
     ##########################################################
     if("genetrack" %in% tolower(plotSummary)){
-      .messageDiffTime("Adding Gene Tracks", tstart)
+      .messageDiffTime(sprintf("Adding Gene Tracks (%s of %s)",x,length(region)), tstart)
       plotList$genetrack <- .geneTracks(
         geneAnnotation = geneAnnotation, 
         region = region[x], 
@@ -781,8 +787,12 @@ ArchRBrowserTrack <- function(
 
   })
 
-  if(length(ggList) == 1){
-    ggList <- ggList[[1]]
+  if(!is.null(mcols(region)$symbol)){
+    names(ggList) <- mcols(region)$symbol
+  }else{
+    if(length(ggList) == 1){
+      ggList <- ggList[[1]]
+    }
   }
 
   ggList
