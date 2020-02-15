@@ -18,16 +18,18 @@ getReducedDims(
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
 
-\item{returnMatrix}{If set to "mat" or "matrix", the function will return the \code{reducedDims} object as a matrix with entries for each individual cell. Otherwise, it will return the full \code{reducedDims} object.}
+\item{returnMatrix}{If set to "mat" or "matrix", the function will return the \code{reducedDims} object as a matrix with entries for
+each individual cell. Otherwise, it will return the full \code{reducedDims} object.}
 
 \item{dimsToUse}{A vector containing the dimensions (i.e. 1:30) to return from the \code{reducedDims} object.}
 
-\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
-(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
-This idea was introduced by Timothy Stuart.}
+\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the
+contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the
+\code{reducedDims} were created by the dimensionality reduction method. This idea was introduced by Timothy Stuart.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
+to sequencing depth that is greater than the \code{corCutOff}, it will be excluded.}
 }
 \description{
 This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.

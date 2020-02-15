@@ -2,7 +2,7 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{enrichHeatmap}
 \alias{enrichHeatmap}
-\title{Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks. JJJ}
+\title{Plot a Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
 enrichHeatmap(
   seEnrich = NULL,
@@ -19,20 +19,30 @@ enrichHeatmap(
 )
 }
 \arguments{
+\item{seEnrich}{QQQ A \code{SummarizedExperiment} object QQQ returned by \code{peakAnnoEnrichment()}.}
+
 \item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}
 
-\item{n}{The number of top enriched peakAnnotations per column from the \code{seMarker} to display in the heatmap. This number can be lowered to improve visibility of the heatmap.}
+\item{n}{The number of top enriched peakAnnotations per column from the \code{seMarker} to display in the heatmap. This number can
+be lowered to improve visibility of the heatmap.}
+
+\item{cutOff}{QQQ}
+
+\item{pMax}{QQQ}
 
 \item{clusterCols}{A boolean indicating whether or not to cluster columns in the heatmap.}
 
+\item{binaryClusterRows}{QQQ A boolean indicating whether or not to cluster rows in the heatmap.}
+
 \item{labelRows}{A boolean indicating whether or not to label all rows in the heatmap.}
 
-\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{peakAnnoEnrichment()}.}
+\item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize
+lines and labels, just the internal portions of the plot.}
 
-\item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
+\item{transpose}{QQQ}
 
-\item{clusterRows}{A boolean indicating whether or not to cluster rows in the heatmap.}
+\item{returnMatrix}{QQQ}
 }
 \description{
-This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined marker peaks.
+This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.
 }

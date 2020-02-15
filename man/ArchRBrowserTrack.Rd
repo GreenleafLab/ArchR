@@ -32,32 +32,46 @@ ArchRBrowserTrack(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{region}{A \code{GRanges} region that indicates the region to be plotted. If more than one region exists in the \code{GRanges} object, all will be plotted. If no region is supplied, then the \code{geneSymbol} argument can be used to center the plot window at the transcription start site of the supplied gene.}
+\item{region}{A \code{GRanges} region that indicates the region to be plotted. If more than one region exists in the \code{GRanges} object,
+all will be plotted. If no region is supplied, then the \code{geneSymbol} argument can be used to center the plot window at the
+transcription start site of the supplied gene.}
 
-\item{groupBy}{A string that indicates how cells should be grouped. This string corresponds to one of the standard or user-supplied \code{cellColData} metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be plotted.}
+\item{groupBy}{A string that indicates how cells should be grouped. This string corresponds to one of the standard or
+user-supplied \code{cellColData} metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata
+column will be grouped together and the average signal will be plotted.}
 
-\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups to be plotted.}
+\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in
+\code{cellColData}. This limits the groups to be plotted.}
 
-\item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).}
+\item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
+"featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
+are on the minus strand and red-colored genes are on the plus strand).}
 
-\item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}. The order must be the same as \code{plotSummary}.}
+\item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}.
+The order must be the same as \code{plotSummary}.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
+bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
 
-\item{loops}{JJJ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods.
-i.e. the set of CoAccessible links obtained using \verb{getCoAccessibility(ArchRProj))} which are added with \verb{addCoAccessibility(ArchRProj))}.}
+\item{loops}{QQQ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack". This \code{GRanges} object must contain QQQ.
+A "loopTrack" draws an arc between two genomic regions that show some type of interaction.
+This type of track can be used to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
 
 \item{geneSymbol}{If \code{region} is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
 
-\item{upstream}{The number of basepairs upstream of the transcription start site of \code{geneSymbol} to extend the plotting window. If \code{region} is supplied, this argument is ignored.}
+\item{upstream}{The number of basepairs upstream of the transcription start site of \code{geneSymbol} to extend the plotting window.
+If \code{region} is supplied, this argument is ignored.}
 
-\item{downstream}{The number of basepairs downstream of the transcription start site of \code{geneSymbol} to extend the plotting window. If \code{region} is supplied, this argument is ignored.}
+\item{downstream}{The number of basepairs downstream of the transcription start site of \code{geneSymbol} to extend the plotting window.
+If \code{region} is supplied, this argument is ignored.}
 
 \item{tileSize}{The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.}
 
-\item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}
+\item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be
+used to exclude pseudo-bulk replicates generated from low numbers of cells.}
 
-\item{normMethod}{The name of the column in \code{cellColData} by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
+\item{normMethod}{The name of the column in \code{cellColData} by which normalization should be performed. The recommended and default value
+is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
 
 \item{threads}{The number of threads to use for parallel execution.}
 
@@ -76,5 +90,6 @@ i.e. the set of CoAccessible links obtained using \verb{getCoAccessibility(ArchR
 \item{title}{The title to add at the top of the plot next to the plot's genomic coordinates.}
 }
 \description{
-This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.
+This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal
+which enables direct comparison across samples.
 }

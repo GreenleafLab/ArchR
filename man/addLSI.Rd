@@ -2,7 +2,7 @@
 % Please edit documentation in R/IterativeLSI.R
 \name{addLSI}
 \alias{addLSI}
-\title{Add an LSI-based dimensionality reduction to an ArchRProject JJJ}
+\title{Add an LSI-based dimensionality reduction to an ArchRProject}
 \usage{
 addLSI(
   ArchRProj = NULL,
@@ -27,40 +27,46 @@ addLSI(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{useMatrix}{The name of the data matrix to retrieve from the ArrowFiles associated with the \code{ArchRProject}. Valid options are "TileMatrix" or "PeakMatrix".}
+\item{useMatrix}{The name of the data matrix to retrieve from the ArrowFiles associated with the \code{ArchRProject}. Valid options
+are "TileMatrix" or "PeakMatrix".}
 
 \item{name}{The name to use for storage of the LSI dimensionality reduction in the \code{ArchRProject} as a \code{reducedDims} object.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
 \item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
-Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
+Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
+#' @param scaleDims QQQ A boolean value indicating whether to rescale the total variance for each principal component by QQQ. This is useful for
+minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead
+to stronger sample-specific biases since it is over-weighting latent PCs.}
 
-\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
+to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
-
-\item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
+\item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when
+working with insertion counts.}
 
 \item{sampleCells}{An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.}
 
 \item{topFeatures}{The number of N top accessible features to use for LSI.}
 
-\item{totalFeatures}{The number of features to consider for use in LSI after ranking the features by the total insertion counts. These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
+\item{totalFeatures}{QQQ I DONT UNDERSTAND THE SECOND SENTENCE The number of features to consider for use in LSI after ranking the features by the total insertion counts.
+These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
 
-\item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior to the LSI reduction. For example, if \code{filterQuantile = 0.99}, any features above the 99th percentile in insertion counts will be ignored for LSI reduction.}
+\item{filterQuantile}{A number between 0 and 1 that indicates the quantile above which features should be removed based on insertion counts
+prior to the LSI reduction. For example, if \code{filterQuantile = 0.99}, any features above the 99th percentile in insertion counts
+will be ignored for LSI reduction.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so
+that you can reproduce results downstream.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{force}{A boolean value that indicates whether or not to overwrite relevant data in the \code{ArchRProject} object.}
-
-\item{scaleTo}{Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo} prior to TF-IDF normalization.}
 }
 \description{
 This function will compute an LSI dimensionality reduction on an ArchRProject.

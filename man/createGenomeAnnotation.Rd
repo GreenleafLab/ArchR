@@ -19,9 +19,11 @@ createGenomeAnnotation(
 
 \item{blacklist}{A \code{GRanges} object containing regions that should be excluded from analyses due to unwanted biases.}
 
-\item{filter}{A boolean value indicating whether non-standard chromosome scaffolds should be excluded. These "non-standard" chromosomes are defined by \code{filterChrGR()}.}
+\item{filter}{A boolean value indicating whether non-standard chromosome scaffolds should be excluded.
+These "non-standard" chromosomes are defined by \code{filterChrGR()}.}
 
-\item{filterChr}{A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels. If no manual removal is desired, \code{filterChr} should be set to \code{NULL}.}
+\item{filterChr}{A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
+If no manual removal is desired, \code{filterChr} should be set to \code{NULL}.}
 }
 \description{
 This function will create a genome annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.

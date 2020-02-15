@@ -22,17 +22,25 @@ addDeviationsMatrix(
 
 \item{peakAnnotation}{The name of the \code{peakAnnotation} stored in the \code{ArchRProject}.}
 
+\item{matches}{QQQ A custom \code{peakAnnotation} matches object used as input for the hypergeometric test. See
+\code{motifmatchr::matchmotifs()} for additional information.}
+
+\item{bgdPeaks}{QQQ}
+
 \item{matrixName}{The name to be used for storage of the deviations matrix in the provided \code{ArchRProject}.}
 
-\item{out}{A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations") z-scores ("z"), or both (c("deviations","z")).}
+\item{out}{A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations")
+z-scores ("z"), or both (c("deviations","z")).}
 
-\item{binarize}{A boolean value indicating whether the input matrix should be binarized before calculating deviations. This is often desired when working with insertion counts.}
+\item{binarize}{A boolean value indicating whether the input matrix should be binarized before calculating deviations.
+This is often desired when working with insertion counts.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the ArrowFiles associated with the given \code{ArchRProject}.}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it
+already exists in the ArrowFiles associated with the given \code{ArchRProject}.}
 }
 \description{
 This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).

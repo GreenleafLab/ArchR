@@ -23,9 +23,11 @@ addBgdPeaks(
 
 \item{binSize}{The precision with which the similarity is computed. See \code{chromVAR::getBackgroundPeaks()}.}
 
-\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that
+you can reproduce results downstream.}
 
-\item{outFile}{The path to save the \code{backgroundPeaks} object as a \code{.RDS} file for the given \code{ArchRProject}. The default action is to save this file in the \code{outputDirectory} of the \code{ArchRProject}.}
+\item{outFile}{The path to save the \code{backgroundPeaks} object as a \code{.RDS} file for the given \code{ArchRProject}. The default action
+is to save this file in the \code{outputDirectory} of the \code{ArchRProject}.}
 
 \item{force}{A boolean value indicating whether to force the file indicated by \code{outFile} to be overwritten if it already exists.}
 }

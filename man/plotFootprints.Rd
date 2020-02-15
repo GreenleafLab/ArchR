@@ -36,7 +36,8 @@ plotFootprints(
 
 \item{groupBy}{The name of the column in \code{cellColData} used in the \code{addGroupCoverages()} function for grouping multiple cells together.}
 
-\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform footprinting.}
+\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}.
+This limits the groups used to perform footprinting.}
 
 \item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for plotting the lines corresponding to the footprints.}
 
@@ -48,17 +49,21 @@ plotFootprints(
 
 \item{minCells}{The minimum number of cells required in a given cell group to permit footprint generation.}
 
-\item{nTop}{The number of genomic regions to consider. Only the top \code{nTop} genomic regions based on the "score" column in the \code{GRanges} object will be considered for the footprint.}
+\item{nTop}{The number of genomic regions to consider. Only the top \code{nTop} genomic regions based on the "score" column in the \code{GRanges}
+object will be considered for the footprint.}
 
-\item{normMethod}{The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.}
+\item{normMethod}{The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options
+include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.}
 
-\item{inputSE}{Input a previous footprint Summarized Experiment (returned after running \code{plotFootprints}) to be plotted instead of regenerating the footprinting information.}
+\item{inputSE}{Input a previous footprint Summarized Experiment (returned after running \code{plotFootprints}) to be plotted instead of
+regenerating the footprinting information.}
 
 \item{height}{The height in inches to be used for the output PDF.}
 
 \item{width}{The width in inches to be used for the output PDF file.}
 
-\item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.}
+\item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
+preventing overwritting of old plots.}
 
 \item{useSink}{A boolean value that indicates whether the \code{sink} function from base R should be used to hide messages during plotting.}
 

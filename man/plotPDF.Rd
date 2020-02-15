@@ -25,13 +25,16 @@ plotPDF(
 
 \item{height}{The height in inches to be used for the output PDF.}
 
-\item{ArchRProj}{An \code{ArchRProject} object to be used for retrieving the desired \code{outputDirectory} which will be used to store the output plots in a subfolder called "plots".}
+\item{ArchRProj}{An \code{ArchRProject} object to be used for retrieving the desired \code{outputDirectory} which will be used to store the output
+plots in a subfolder called "plots".}
 
-\item{addDOC}{A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful for preventing overwritting of old plots.}
+\item{addDOC}{A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful
+for preventing overwritting of old plots.}
 
 \item{useDingbats}{A boolean variable that determines wheter to use dingbats characters for plotting points.}
 
-\item{plotList}{A \code{list} of plots to be printed to the output PDF file. Each element of \code{plotList} should be a printable plot formatted object (ggplot2, plot, heatmap, etc).}
+\item{plotList}{A \code{list} of plots to be printed to the output PDF file. Each element of \code{plotList} should be a printable plot formatted
+object (ggplot2, plot, heatmap, etc).}
 
 \item{useSink}{A boolean value that indicates whether the \code{sink} function from base R should be used to hide messages during plotting.}
 }

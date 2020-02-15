@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getAvailableMatrices}
 \alias{getAvailableMatrices}
-\title{Get a list available matrices in the ArrowFiles storted in an ArchRProject JJJ}
+\title{Get a list available matrices in the ArrowFiles storted in an ArchRProject}
 \usage{
 getAvailableMatrices(ArchRProj = NULL)
 }

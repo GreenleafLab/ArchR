@@ -15,17 +15,20 @@ addArchRAnnotations(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{db}{A character indicating which database or a path to a database to use for peak annotation. Options include ArchR, LOLA, and a valid path to a file of class \code{ArchRAnno}.}
+\item{db}{A string indicating the database or a path to a database to use for peak annotation. Options include ArchR,
+LOLA, and a valid path to a file of class \code{ArchRAnno}.}
 
-\item{collection}{A character indicating which collection within the database to collect for annotation.
-For ArchR, options "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
+\item{collection}{A string indicating which collection within the database to collect for annotation.
+For ArchR, options are "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
 For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
-If supplying a custom ArchRAnno please use a valid collection.}
+If supplying a custom \code{ArchRAnno} file please select a valid collection from within that database.}
 
-\item{name}{The name of \code{peakAnnotation} object to be stored as in \code{ArchRProject}.}
+\item{name}{The name of the \code{peakAnnotation} object to be stored in the \code{ArchRProject}.}
 
-\item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
+\item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be
+overwritten if it already exists in the given \code{ArchRProject}.}
 }
 \description{
-This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject. For each peak, a binary value is stored indicating whether each region is observed within the peak region.
+This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject.
+For each peak, a binary value is stored indicating whether each region is observed within the peak region.
 }

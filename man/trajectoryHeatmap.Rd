@@ -23,7 +23,8 @@ trajectoryHeatmap(
 
 \item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
 
-\item{grepExclude}{A character vector or string that indicates the \code{rownames} or a specific pattern that identifies rownames from \code{seTrajectory} to be excluded from the heatmap.}
+\item{grepExclude}{A character vector or string that indicates the \code{rownames} or a specific pattern that identifies
+rownames from \code{seTrajectory} to be excluded from the heatmap.}
 
 \item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}
 

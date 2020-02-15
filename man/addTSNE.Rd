@@ -2,7 +2,7 @@
 % Please edit documentation in R/Embedding.R
 \name{addTSNE}
 \alias{addTSNE}
-\title{Add a TSNE embedding of a reduced dimensions object to an ArchRProject JJJ}
+\title{Add a TSNE embedding of a reduced dimensions object to an ArchRProject}
 \usage{
 addTSNE(
   ArchRProj = NULL,
@@ -28,34 +28,38 @@ addTSNE(
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to use from the designated \code{ArchRProject}.}
 
-\item{method}{The method for computing TSNE embedding to add to \code{ArchRProject} object. Possible options are "RTSNE", and "FFRTSNE".}
+\item{method}{QQQ DOUBLE CHECK The method for computing a TSNE embedding to add to the \code{ArchRProject} object. Possible options
+are "RTSNE", which uses \code{Rtsne::Rtsne()}, and "FFRTSNE", which uses \code{Seurat::RunTSNE()}.}
 
-\item{name}{The name for the TSNE embedding to be stored as in the given \code{ArchRProject} object.}
+\item{name}{The name for the TSNE embedding to store in the given \code{ArchRProject} object.}
 
-\item{perplexity}{An integer describing the number of nearest neighbors to compute a \code{Rtsne}. This argument is passed to \code{perplexity} in \code{Rtsne::Rtsne}.}
+\item{perplexity}{An integer describing the number of nearest neighbors to compute an \code{Rtsne}. This argument is passed to \code{perplexity} in \code{Rtsne::Rtsne()}.}
 
-\item{maxIterations}{An integer describing the maximum number of iterations when computing a TSNE. This argument is passed to \code{max_iter} in \code{Rtsne::Rtsne}.}
+\item{maxIterations}{An integer describing the maximum number of iterations when computing a TSNE. This argument is passed to \code{max_iter} in \code{Rtsne::Rtsne()}.}
 
-\item{learningRate}{An integer controlling how much the weights are adjusted at each iteration. This argument is passed to \code{eta} in \code{Rtsne::Rtsne}.}
+\item{learningRate}{An integer controlling how much the weights are adjusted at each iteration. This argument is passed to \code{eta} in \code{Rtsne::Rtsne()}.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
-\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
-(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
-This idea was introduced by Timothy Stuart.}
+\item{scaleDims}{QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+biases since it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the
+\code{reducedDims} were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing
+depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{verbose}{A boolean value that indicates whether printing TSNE output.}
 
-\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+reproduce results downstream.}
 
-\item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding named by \code{name} already exists.}
+\item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding indicated by
+\code{name} already exists.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{...}{Additional Params to add to for metohd = RTSNE (\code{Rtsne::Rtsne}) or method = FFRTSNE (\code{Seurat::RunTSNE}) for computing the TSNE embedding.}
+\item{...}{QQQ DOUBLE CHECK Additional parameters for computing the TSNE embedding to pass to \code{Rtsne::Rtsne()} (when \code{method = "RTSNE"}) or to \code{Seurat::RunTSNE()} (when method = "FFRTSNE").}
 }
 \description{
 This function will compute a TSNE embedding and add it to an ArchRProject.

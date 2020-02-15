@@ -29,26 +29,30 @@ addPeak2GeneLinks(
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
-(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
-This idea was introduced by Timothy Stuart.}
+\item{scaleDims}{QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
+originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
+correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{k}{The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.}
 
 \item{knnIteration}{The number of k-nearest neighbor groupings to test for passing the supplied \code{overlapCutoff}.}
 
-\item{overlapCutoff}{The maximum allowable overlap between the current group and all previous groups to permit the current group be added to the group list during k-nearest neighbor calculations.}
+\item{overlapCutoff}{The maximum allowable overlap between the current group and all previous groups to permit the current
+group be added to the group list during k-nearest neighbor calculations.}
 
 \item{maxDist}{The maximum allowable distance in basepairs between two peaks to consider for co-accessibility.}
 
-\item{scaleTo}{The total insertion counts from the designated group of single cells is summed across all relevant peak regions from the \code{peakSet} of the \code{ArchRProject} and normalized to the total depth provided by \code{scaleTo}.}
+\item{scaleTo}{The total insertion counts from the designated group of single cells is summed across all relevant peak regions
+from the \code{peakSet} of the \code{ArchRProject} and normalized to the total depth provided by \code{scaleTo}.}
 
 \item{log2Norm}{A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.}
 
-\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended
+to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{knnMethod}{The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.}
 
@@ -56,4 +60,5 @@ This idea was introduced by Timothy Stuart.}
 }
 \description{
 This function will add co-accessibility scores to peaks in a given ArchRProject
+QQQ IM NOT CLEAR ON HOW THIS IS DIFFERENT FROM addCoAccessibility? THE FUNCTION DESCRIPTION IS IDENTICAL
 }

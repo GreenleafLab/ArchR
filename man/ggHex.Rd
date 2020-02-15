@@ -50,7 +50,7 @@ ggHex(
 
 \item{colorTitle}{The label to use for the legend corresponding to \code{color}.}
 
-\item{baseSize}{The base font size to use in the plot.}
+\item{baseSize}{The base font size (in points) to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 

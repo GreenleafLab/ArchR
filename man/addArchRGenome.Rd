@@ -2,14 +2,19 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{addArchRGenome}
 \alias{addArchRGenome}
-\title{Add a globally defined genome to all ArchR functions. JJJ}
+\title{Add a globally defined genome to all ArchR functions.}
 \usage{
 addArchRGenome(genome = NULL, install = TRUE)
 }
 \arguments{
-\item{genome}{The default genome to be used for all ArchR functions. This value is stored as a global environment variable, not part of the \code{ArchRProject}. This can be overwritten on a per-function basis using the given function's \code{geneAnnotation} and  \code{genomeAnnotation} parameter.}
+\item{genome}{QQQ DOUBLECHECK A string indicating the default genome to be used for all ArchR functions.
+Currently supported values include "hg19","hg38","mm9", and "mm10".
+This value is stored as a global environment variable, not part of the \code{ArchRProject}.
+This can be overwritten on a per-function basis using the given function's \code{geneAnnotation}and \code{genomeAnnotation} parameter.
+For something other than one of the currently supported, see \code{createGeneAnnnotation()} and \code{createGenomeAnnnotation()}.}
 
-\item{install}{Install the BSgenome associated with the ArchRGenome is not currently installed. This is useful for helping reduce user download requirements.}
+\item{install}{QQQ DOUBLECHECK A boolean value indicating whether the \code{BSgenome} object associated with the provided \code{genome} should be
+automatically installed if it is not currently installed. This is useful for helping reduce user download requirements.}
 }
 \description{
 This function will set the genome across all ArchR functions.

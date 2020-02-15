@@ -17,11 +17,14 @@ addCellColData(
 
 \item{data}{The data to add to \code{cellColData}.}
 
-\item{name}{The column header name to be used for this new data in \code{cellColData}. If a column with this name already exists, you may set \code{force} equal to \code{TRUE} to overwrite the data in this column.}
+\item{name}{The column header name to be used for this new data in \code{cellColData}. If a column with this name already exists,
+you may set \code{force} equal to \code{TRUE} to overwrite the data in this column.}
 
-\item{cells}{The names of the cells corresponding to \code{data}. Typically new data is added to all cells but you may use this argument to only add data to a subset of cells. Cells where \code{data} is not added are set to \code{NA}.}
+\item{cells}{The names of the cells corresponding to \code{data}. Typically new data is added to all cells but you may use this
+argument to only add data to a subset of cells. Cells where \code{data} is not added are set to \code{NA}.}
 
-\item{force}{A boolean value indicating whether or not to overwrite data in a given column when the value passed to \code{name} already exists as a column name in \code{cellColData}.}
+\item{force}{A boolean value indicating whether or not to overwrite data in a given column when the value passed to \code{name}
+already exists as a column name in \code{cellColData}.}
 }
 \description{
 This function adds new data to cellColData in a given ArchRProject.

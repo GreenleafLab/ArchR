@@ -2,7 +2,7 @@
 % Please edit documentation in R/QualityControl.R
 \name{plotTSSEnrichment}
 \alias{plotTSSEnrichment}
-\title{Plot fragment size distribution for each sample JJJ}
+\title{Plot a TSS Enrichment Plot for Each Sample}
 \usage{
 plotTSSEnrichment(
   ArchRProj = NULL,
@@ -17,18 +17,20 @@ plotTSSEnrichment(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{TSS}{A GRanges object containing stranded TSS ranges. By default will try to get this info from geneAnnotation stored in \code{ArchRProj}.}
+\item{TSS}{A \code{GRanges} object containing the locations of stranded TSS regions. The default behavior is to try to retrieve
+this information from the \code{geneAnnotation} stored in the \code{ArchRProject}.}
 
-\item{flank}{A numeric specifying how far in bp (+/-) to extend TSS for plotting.}
+\item{flank}{A number that specifies how far in bp (+/-) to extend the TSS for plotting.}
 
-\item{norm}{A numeric specifying the number of base pairs from the ends of the flanks to be used for normalization.
+\item{norm}{A number that specifies the number of base pairs from the ends of the flanks to be used for normalization.
 For example if \code{flank=2000} and \code{norm=100}, the TSS insertions will be normalized by +/- 1900-2000 bp from the TSS.}
 
-\item{smooth}{A numeric describing the smoothing window to be applied to TSS plot.}
+\item{smooth}{QQQ WHAT ARE THE UNITS OF THIS? IS IT THE NUMBER OF BASEPAIRS THAT GET SMOOTHED TOGETHER? A number that indicates the smoothing window to be applied to the TSS plot.}
 
-\item{returnDF}{A boolean for return plot as a \code{data.frame} instead.}
+\item{returnDF}{A boolean value that indicates whether to return a \code{data.frame} containing the plot information
+instead of plotting the TSS enrichment plot.}
 
-\item{threads}{An integer specifying the number of threads to use for calculation. By default this uses threads set by \code{addArchRThreads}.}
+\item{threads}{An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by \code{addArchRThreads()}.}
 }
 \description{
 This function will plot a TSS enrichment plot for each sample. Cells in \code{ArchRProject} are the only ones

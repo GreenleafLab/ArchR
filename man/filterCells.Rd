@@ -2,15 +2,15 @@
 % Please edit documentation in R/FilterCells.R
 \name{filterCells}
 \alias{filterCells}
-\title{Filter cells in an ArchRProject JJJ}
+\title{Filter cells in an ArchRProject QQQ I WOULD PERSONALLY CALL THIS "subsetCells" OR SOMETHING.}
 \usage{
 filterCells(ArchRProj = NULL, cellNames = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{cellNames}{A character vector of cellNames that will be subsetted of the current \code{ArchRProject}.}
+\item{cellNames}{A character vector of \code{cellNames} that will be subsetted of the current \code{ArchRProject}.}
 }
 \description{
-This function returns an ArchRProject object with a subset of cells desired.
+This function returns an ArchRProject object that contains a specified subset of cells.
 }

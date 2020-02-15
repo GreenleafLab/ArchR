@@ -2,7 +2,7 @@
 % Please edit documentation in R/RNAIntegration.R
 \name{addGeneIntegrationMatrix}
 \alias{addGeneIntegrationMatrix}
-\title{Add GeneIntegrationMatrix to ArrowFiles or an ArchRProject JJJ}
+\title{Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject}
 \usage{
 addGeneIntegrationMatrix(
   ArchRProj = NULL,
@@ -26,35 +26,38 @@ addGeneIntegrationMatrix(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{seRNA}{A scRNA \code{SummarizedExperiment} or \code{SeuratObject} to be integrated with.}
+\item{seRNA}{A scRNA-seq \code{SummarizedExperiment} or \code{SeuratObject} to integrated with the scATAC-seq data.}
 
-\item{groupBy}{A column name in either \code{colData} or \code{metadata} of seRNA to compute prediction scores.}
+\item{groupBy}{QQQ UNCLEAR WHAT PREDICTION SCORES ARE The column name in either \code{colData} or \code{metadata} of seRNA to use to compute prediction scores.}
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
 
-\item{sampleList}{A named list of sampleNames from \code{ArchRProj} containing cell names in \code{seRNA} that are used for constraining data integration.
-For example when integrating hematopoiesis it is useful to partition integration for "CD34", "BMMC" and "PBMC" single cells.}
+\item{sampleList}{QQQ THIS COULD BE BETTER DESCRIBED A named list of sampleNames from \code{ArchRProj} containing cell names in \code{seRNA} that are used for constraining data integration.
+For example when integrating hematopoiesis it is useful to perform integration separately for cells derived from different biological contexts
+such as "CD34", "BMMC" and "PBMC" single cells. Performing this integration separately not only provides better linking but
+also increases speed of processing.}
 
-\item{sampleRNA}{Number of cells from seRNA to be used for integration. This is useful for lowering memory and speeding
-up results of \code{Seurat::FindTransferAnchors} when integrating datasets.}
+\item{sampleRNA}{The number of cells from \code{seRNA} to be used for integration. This is useful for lowering the memory requirements and
+processing time of \code{Seurat::FindTransferAnchors()} when integrating datasets.}
 
-\item{nGenes}{Number of variable genes determined by \code{Seurat::FindVariableGenes} to use for integration.}
+\item{nGenes}{The number of variable genes determined by \code{Seurat::FindVariableGenes()} to use for integration.}
 
-\item{useImputation}{Use imputation for Gene Score Matrix prior to integration.}
+\item{useImputation}{A boolean value indicating whether to use imputation for creating the Gene Score Matrix prior to integration.}
 
-\item{reduction}{Seurat reduction method for integrating modalities. See \code{Seurat::FindTransferAnchors} for reduction methods.}
+\item{reduction}{The Seurat reduction method to use for integrating modalities. See \code{Seurat::FindTransferAnchors()} for possible reduction methods.}
 
-\item{addToArrow}{Add integrated matched RNA to ArrowFiles afterwards.}
+\item{addToArrow}{QQQ A boolean value indicating whether to add the QQQ transcript counts from the integrated matched RNA to the ArrowFiles.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{input}.}
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the given \code{input}.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{subThreading}{A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.}
+\item{subThreading}{QQQ A boolean value indicating whether the computational architecture being used can allow for the use of threads within
+each multi-threaded subprocess if QQQ is greater than the number of input samples.}
 }
 \description{
-This function, for each sample, will independently compute counts for each tile
+QQQ IS THIS CORRECT? This function, for each sample, will independently compute counts for each tile
 per cell and then infer gene activity scores.
 }

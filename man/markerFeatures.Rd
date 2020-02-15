@@ -29,17 +29,22 @@ markerFeatures(
 
 \item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for marker feature identification.}
 
-\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}. This limits the groups used to perform marker feature identification.}
+\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column
+in \code{cellColData}. This limits the groups used to perform marker feature identification.}
 
-\item{bgdGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData} to be used for background calculations in marker feature identification.}
+\item{bgdGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column
+in \code{cellColData} to be used for background calculations in marker feature identification.}
 
 \item{useMatrix}{The name of the matrix to be used for performing differential analyses. Options include "GeneScoreMatrix", "PeakMatrix", etc.}
 
-\item{bias}{A character vector indicating the potential bias variables (i.e. c("TSSEnrichment", "log10(nFrags)")) to account for in selecting a matched null group for marker feature identification. These should be column names from \code{cellColData}.}
+\item{bias}{A character vector indicating the potential bias variables (i.e. c("TSSEnrichment", "log10(nFrags)")) to account
+for in selecting a matched null group for marker feature identification. These should be column names from \code{cellColData}.}
 
-\item{normBy}{The name of a numeric column in \code{cellColData} that should be normalized across cells (i.e. "ReadsInTSS") prior to performing marker feature identification.}
+\item{normBy}{The name of a numeric column in \code{cellColData} that should be normalized across cells (i.e. "ReadsInTSS") prior
+to performing marker feature identification.}
 
-\item{testMethod}{The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".}
+\item{testMethod}{The name of the pairwise test method to use in comparing cell groupings to the null cell grouping during
+marker feature identification. Valid options include "wilcoxon", "ttest", and "binomial".}
 
 \item{maxCells}{The maximum number of cells to consider from a single-cell group when performing marker feature identification.}
 
@@ -49,11 +54,18 @@ markerFeatures(
 
 \item{k}{The number of nearby cells to use for selecting a biased-matched background while accounting for \code{bgdGroups} proportions.}
 
-\item{bufferRatio}{When generating optimal biased-matched background groups of cells to determine significance, it can be difficult to find sufficient numbers of well-matched cells to create a background group made up of an equal number of cells. The \code{bufferRatio} indicates the fraction of the total cells that must be obtained when creating the biased-matched group. For example to create a biased-matched background for a group of 100 cells, when \code{bufferRatio} is set to 0.8 the biased-matched background group will be composed of the 80 best-matched cells. This option provides flexibility in the generation of biased-matched background groups given the stringency of also maintaining the group proportions from \code{bgdGroups}.}
+\item{bufferRatio}{When generating optimal biased-matched background groups of cells to determine significance, it can be difficult
+to find sufficient numbers of well-matched cells to create a background group made up of an equal number of cells. The \code{bufferRatio}
+indicates the fraction of the total cells that must be obtained when creating the biased-matched group. For example to create a
+biased-matched background for a group of 100 cells, when \code{bufferRatio} is set to 0.8 the biased-matched background group will be
+composed of the 80 best-matched cells. This option provides flexibility in the generation of biased-matched background groups given
+the stringency of also maintaining the group proportions from \code{bgdGroups}.}
 
-\item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when \code{useMatrix} is an insertion counts-based matrix.}
+\item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when
+\code{useMatrix} is an insertion counts-based matrix.}
 
-\item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from seqnames that are not listed will be ignored.}
+\item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from
+seqnames that are not listed will be ignored.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

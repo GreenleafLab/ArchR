@@ -21,12 +21,15 @@ ArchRBrowser(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
+bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
 
-\item{loops}{JJJ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods.
-i.e. the set of CoAccessible links obtained using \verb{getCoAccessibility(ArchRProj))} which are added with \verb{addCoAccessibility(ArchRProj))}.}
+\item{loops}{QQQ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack".
+This \code{GRanges} object must contain QQQ. A "loopTrack" draws an arc between two genomic regions that show some type of interaction.
+This type of track can be used to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
 
-\item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}
+\item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument
+can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}
 
 \item{baseSize}{The numeric font size to be used in the plot. This applies to all plot labels.}
 
@@ -38,10 +41,12 @@ i.e. the set of CoAccessible links obtained using \verb{getCoAccessibility(ArchR
 
 \item{geneAnnotation}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See \code{createGeneAnnotation()} for more info.}
 
-\item{browserTheme}{A \code{shinytheme} from shinythemes for viewing the ArchR Browser. If not installed this will be NULL. To install try devtools::install_github("rstudio/shinythemes").}
+\item{browserTheme}{A \code{shinytheme} from shinythemes for viewing the ArchR Browser. If not installed this will be NULL.
+To install try devtools::install_github("rstudio/shinythemes").}
 
 \item{threads}{The number of threads to use for parallel execution.}
 }
 \description{
-This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.
+This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which
+enables direct comparison across samples.
 }
