@@ -247,7 +247,7 @@ addDoubletScores <- function(
     LSI = LSI, 
     sampleRatio1 = c(1/2), 
     sampleRatio2 = c(1/2), 
-    nTrials = floor(nTrials * nCells(proj) / nSample), 
+    nTrials = nTrials * max( floor(nCells(proj) / nSample), 1 ), 
     nSample = nSample, 
     k = k, 
     uwotUmap = uwotUmap,
