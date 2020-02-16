@@ -153,7 +153,7 @@ addDoubletScores <- function(
   tstart = NULL
   ){
 
-  if(!is.null(tstart)){
+  if(is.null(tstart)){
     tstart <- Sys.time()
   }
 
