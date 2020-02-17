@@ -39,6 +39,8 @@ addGeneIntegrationMatrix <- function(
   reduction = "cca",
   addToArrow = TRUE,
   threads = getArchRThreads(),
+  nameGroup = "predictedGroup",
+  nameScore = "predictedScore",
   transferParams = list(),
   force = FALSE,
   verboseHeader = TRUE,
@@ -68,7 +70,7 @@ addGeneIntegrationMatrix <- function(
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
-  if(!is.null(sampleRNA)){
+  if(!is.null(sampleRNA) & length(sampleList) > 0){
     sampleList2 <- sampleList
     sampleList <- lapply(sampleList, function(x){
       if(length(x) > sampleRNA){
@@ -83,11 +85,11 @@ addGeneIntegrationMatrix <- function(
 
   idx <- which(names(ArrowFiles) %ni% names(sampleList))
   if(length(idx) > 1){
-    for(x in seq_along(sampleList)){
+    for(x in seq_along(idx)){
       if(ncol(seRNA) > sampleRNA){
-        sampleList[[names(ArrowFiles)]] <- sample(colnames(seRNA), sampleRNA)
+        sampleList[[names(ArrowFiles)[x]]] <- sample(colnames(seRNA), sampleRNA)
       }else{
-        sampleList[[names(ArrowFiles)]] <- colnames(seRNA)
+        sampleList[[names(ArrowFiles)[x]]] <- colnames(seRNA)
       }
     }
   }
@@ -319,7 +321,7 @@ addGeneIntegrationMatrix <- function(
     ArchRProj = ArchRProj, 
     cells = dfAll$cellNames, 
     data = dfAll$predictedGroup,
-    name = "predictedGroup",
+    name = nameGroup,
     force = TRUE
   )
   
@@ -327,7 +329,7 @@ addGeneIntegrationMatrix <- function(
     ArchRProj = ArchRProj, 
     cells = dfAll$cellNames, 
     data = dfAll$predictionScore,
-    name = "predictionScore",
+    name = nameScore,
     force = TRUE
   )
 

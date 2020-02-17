@@ -326,7 +326,8 @@ addReproduciblePeakSet <- function(
 
 		#Expectation, we lowered the expectation (by 25%) to better match 
 		#the results between macs2 and tile peak calling methods.
-	    exp <- 0.75 * Matrix::colSums(groupMat) / nTiles
+	    #exp <- 0.75 * Matrix::colSums(groupMat) / nTiles
+	    exp <- Matrix::colSums(groupMat) / nTiles
 
 		#####################################################
 		# Peak Calling Per Group

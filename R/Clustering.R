@@ -27,6 +27,7 @@
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
 #' this threshold, then the cells will be considered outliers and assigned to nearby clusters.
+#' @param prefix A character string to be added before each cluster identity. Ie if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param tstart A timestamp that is typically passed internally from another function (for ex. "IterativeLSI") to measure how long the clustering analysis
 #' has been running relative to the start time when this process was initiated in another function. This argument is rarely manually specified.
@@ -41,12 +42,13 @@ addClusters <- function(
     name = "Clusters",
     sampleCells = NULL,
     seed = 1, 
-    method = "Seurat", 
+    method = "Seurat",
     dimsToUse = NULL,
     scaleDims = NULL, 
     corCutOff = 0.75,
     knnAssign = 10, 
     nOutlier = 5, 
+    prefix = "Cluster",
     verbose = TRUE,
     tstart = NULL,
     force = FALSE,
@@ -64,6 +66,7 @@ addClusters <- function(
     .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
     .validInput(input = knnAssign, name = "knnAssign", valid = c("integer"))
     .validInput(input = nOutlier, name = "nOutlier", valid = c("integer"))
+    .validInput(input = prefix, name = "prefix", valid = c("character"))
     .validInput(input = verbose, name = "verbose", valid = c("boolean"))
     .validInput(input = tstart, name = "tstart", valid = c("timestamp","null"))
     .validInput(input = force, name = "force", valid = c("boolean"))
@@ -204,7 +207,7 @@ addClusters <- function(
         clustNew <- c()
         for(i in seq_len(nrow(meanSVD))){
             clustOld[i] <- rownames(meanSVD)[idx]
-            clustNew[i] <- paste0("Cluster", i)
+            clustNew[i] <- paste0(prefix, i)
             if(i != nrow(meanSVD)){
                 idx <- meanKNN[idx, ][which(rownames(meanSVD)[meanKNN[idx, ]] %ni% clustOld)][1]
             }
@@ -213,7 +216,7 @@ addClusters <- function(
 
     }else{
 
-        out <- rep("Cluster1", length(clust))
+        out <- rep(paste0(prefix, "1"), length(clust))
 
     }
 
@@ -318,76 +321,6 @@ addClusters <- function(
     cluster <- igraph::cluster_walktrap(snn)$membership
     paste0("Cluster", cluster)
 }
-
-# #Need to work on making this work JJJ
-# .clustLouvain <- function(matDR, knn = 50, jaccard = TRUE){
-
-#     getEdges <- function(X, knn, jaccard) {
-#         nearest <- RANN::nn2(X, X, k = knn + 1, treetype = "bd", searchtype = "priority")
-#         nearest$nn.idx <- nearest$nn.idx[, -1]
-#         nearest$nn.dists <- nearest$nn.dists[, -1]
-#         nearest$nn.sim <- 1 * (nearest$nn.dists >= 0)
-#         edges <- reshape2::melt(t(nearest$nn.idx))
-#         colnames(edges) = c("B", "A", "C")
-#         edges = edges[, c("A", "B", "C")]
-#         edges$B <- edges$C
-#         edges$C <- 1
-#         edges <- unique(transform(edges, A = pmin(A, B), B = pmax(A, B)))
-#         if (jaccard) {
-#           message("Calculating Jaccard Distance...")
-#             a <- Matrix::tcrossprod(nearest$nn.idx[edges[,1],], nearest$nn.idx[edges[,2],])
-#             bi <- Matrix::rowSums(nearest$nn.idx[edges[,1],])
-#             bj <- Matrix::rowSums(nearest$nn.idx[edges[,2],])
-#             jaccardDist <- a / (rep(ncol(a), bi) + t(rep(nrow(a), bj)) - a)
-#             pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-#             #RCPPP?
-#             # jaccardDist <- unlist(lapply(seq_len(nrow(edges)), function(x){
-#             #     setTxtProgressBar(pb,round(x*100/nrow(edges),0))
-#             #     jInt   <- intersect(nearest$nn.idx[edges[x,1],], nearest$nn.idx[edges[x,2],])
-#             #     jUnion <- union(nearest$nn.idx[edges[x,1],], nearest$nn.idx[edges[x,2],])
-#             #     length(jInt) / length(jUnion)
-#             # }))
-#             edges$C <- jaccardDist
-#             edges <- subset(edges, C != 0)
-#             edges$C <- edges$C/max(edges$C)
-#         }
-#         edges <- Matrix::sparseMatrix(i = edges$A, j = edges$B, x = edges$C, dims = c(nrow(X),nrow(X)), symmetric = TRUE)
-#         return(edges)
-#     }
-
-#     assignClusters <- function(edges, jaccard) {
-#         if (jaccard) {
-#             weights <- TRUE
-#         }else {
-#             weights <- NULL
-#         }
-#         g <- igraph::graph.adjacency(edges, mode = "undirected", weighted = weights)
-#         graphOut <- igraph::cluster_louvain(g)
-#         clustAssign <- factor(graphOut$membership, levels = sort(unique(graphOut$membership)))
-#         names(clustAssign) <- graphOut$names
-#         k = order(table(clustAssign), decreasing = TRUE)
-#         newLevels <- rep(1, length(unique(graphOut$membership)))
-#         newLevels[k] <- seq_len(length(unique(graphOut$membership)))
-#         levels(clustAssign) <- newLevels
-#         clustAssign <- factor(clustAssign, levels = seq_len(length(unique(graphOut$membership))))
-#         return(paste0("Cluster", clustAssign))
-#     }
-
-#     require(RANN)
-#     require(cluster)
-#     require(igraph)
-#     require(Matrix)
-#     message("Running Louvian Jaccard Graph Clustering...")
-#     message("Adapted from Comprehensive Classification of Retinal Bipolar Neurons by Single-Cell Transcriptomics. Cell 2016.")
-    
-#     message("Calculating Edges...")
-#     edges <- getEdges(X = matDR, knn = knn, jaccard = jaccard)
-#     message("\nAssigning Clusters...")
-#     clustAssign <- assignClusters(edges = edges, jaccard = jaccard)
-    
-#     return(clustAssign)
-
-# }
 
 #JJJ should i just default to one? Nabor seems faster than RANN and if you install chromVAR
 #you neeed RANN. Seurat uses RANN.

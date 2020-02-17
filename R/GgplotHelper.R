@@ -270,7 +270,7 @@ ggPoint <- function(
           if (labelMeans) {
               
               dfMean <- split(df, df$color) %>% lapply(., function(x) {
-                data.frame(x = mean(x[, 1]), y = mean(x[, 2]), color = x[1, 3])
+                data.frame(x = median(x[, 1]), y = median(x[, 2]), color = x[1, 3])
               }) %>% Reduce("rbind", .)
 
               if(labelAsFactors){
