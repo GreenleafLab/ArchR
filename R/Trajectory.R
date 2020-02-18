@@ -158,7 +158,11 @@ addTrajectory <- function(
     ######################################################
     # 2. Fit cells not in trajectory clusters
     ######################################################
-    mat2 <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
+    if(is.null(embedding)){
+      mat2 <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
+    }else{
+      mat2 <- getEmbedding(ArchRProj = ArchRProj, embedding = embedding)
+    }
     groupDF <- getCellColData(ArchRProj = ArchRProj, select = groupBy)
     groupDF <- groupDF[groupDF[,1] %ni% trajectory,,drop=FALSE]
     mat2 <- mat2[rownames(groupDF),,drop = FALSE]
@@ -280,7 +284,7 @@ getTrajectory <- function(
 
     #Scale
     if(!is.null(scaleTo)){
-      if(any(groupMat) < 0){
+      if(any(groupMat < 0)){
         message("Some values are below 0, this could be a DeviationsMatrix in which scaleTo should be set = NULL.\nContinuing without depth normalization!")
       }else{
         groupMat <- t(t(groupMat) / colSums(groupMat)) * scaleTo
@@ -288,7 +292,7 @@ getTrajectory <- function(
     }
 
     if(log2Norm){
-      if(any(groupMat) < 0){
+      if(any(groupMat < 0)){
         message("Some values are below 0, this could be a DeviationsMatrix in which log2Norm should be set = FALSE.\nContinuing without log2 normalization!")
       }else{
         groupMat <- log2(groupMat + 1)
@@ -375,6 +379,7 @@ trajectoryHeatmap <- function(
   labelMarkers = NULL,
   labelTop = 50,
   labelRows = FALSE,
+  rowOrder = NULL, 
   returnMat = FALSE
   ){
 
@@ -427,7 +432,11 @@ trajectoryHeatmap <- function(
     }
   }
 
-  idx <- order(apply(mat, 1, which.max))
+  if(!is.null(rowOrder)){
+    idx <- rowOrder
+  }else{
+    idx <- order(apply(mat, 1, which.max))
+  }
 
   ht <- .ArchRHeatmap(
     mat = mat[idx, ],
@@ -444,7 +453,7 @@ trajectoryHeatmap <- function(
   )
 
   if(returnMat){
-    return(mat)
+    return(mat[idx, ])
   }else{
     return(ht)
   }
@@ -497,7 +506,7 @@ plotTrajectory <- function(
   log2Norm = NULL,
   imputeWeights = if(!grepl("coldata",tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   pal = NULL,
-  size = 0.5,
+  size = 0.2,
   rastr = TRUE,
   quantCut = c(0.05, 0.95),
   quantHex = 0.5,
@@ -555,7 +564,7 @@ plotTrajectory <- function(
   }
 
   .summarizeHex <- function(x = NULL){
-    quantile(x, quantHex)
+    quantile(x, quantHex, na.rm = TRUE)
   }
 
   ##############################
@@ -581,7 +590,7 @@ plotTrajectory <- function(
     
     plotParams$color <- as.vector(getCellColData(ArchRProj)[,name])
     plotParams$discrete <- .isDiscrete(plotParams$color)
-    plotParams$continuousSet <- "solarExtra"
+    plotParams$continuousSet <- "horizonExtra"
     plotParams$discreteSet <- "stallion"
     plotParams$title <- paste(plotParams$title, " colored by\ncolData : ", name)
     if(is.null(plotAs)){
@@ -593,11 +602,11 @@ plotTrajectory <- function(
       if(is.null(log2Norm)){
         log2Norm <- TRUE
       }
-      plotParams$continuousSet <- "comet"
+      plotParams$continuousSet <- "horizonExtra"
     }else{
       plotParams$continuousSet <- "solarExtra"
     }
-    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[1,]
+    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[1, rownames(df)]
     plotParams$discrete <- FALSE
     plotParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name)
     if(is.null(plotAs)){
@@ -627,8 +636,6 @@ plotTrajectory <- function(
     plotParams$color <- paste0(plotParams$color)
   }
 
-  plotParams$color[idxRemove] <- NA
-
   if(!plotParams$discrete){
     if(!is.null(imputeWeights)){
       imputeWeights <- imputeWeights$Weights[rownames(df), rownames(df)]
@@ -636,9 +643,13 @@ plotTrajectory <- function(
     }else{
       plotParams$color <- .quantileCut0(plotParams$color, min(quantCut), max(quantCut))
     }
+    plotParams$color[idxRemove] <- NA
     plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
     if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
       plotParams$addPoints <- TRUE
+      if(is.null(plotParams$bins)){
+        plotParams$bins <- 100
+      }
       out <- do.call(ggHex, plotParams)
     }else{
       out <- do.call(ggPoint, plotParams)
@@ -657,14 +668,22 @@ plotTrajectory <- function(
   dfT <- dfT[!is.na(dfT$PseudoTime), ]
 
   #Plot Pseudo-Time
-  out2 <- ggPoint(dfT$PseudoTime, dfT$value, dfT$PseudoTime, 
-    discrete = FALSE, xlabel = "PseudoTime", ylabel = name, ratioYX = 0.5, rastr = TRUE) +
-    geom_smooth(color = "black")
+  out2 <- ggPoint(
+    x = dfT$PseudoTime, 
+    y = dfT$value, 
+    color = dfT$PseudoTime, 
+    discrete = FALSE,
+    xlabel = "PseudoTime", 
+    ylabel = name, 
+    pal = plotParams$pal,
+    ratioYX = 0.5, 
+    rastr = TRUE
+  ) + geom_smooth(color = "black")
 
   attr(out2, "ratioYX") <- 0.5
 
   if(addArrow){
-    dfArrow <- .splitEvery(dfT, floor(nrow(dfT) / 10)) %>% 
+    dfArrow <- .splitEvery(dfT, floor(nrow(dfT) / 15)) %>% 
       lapply(colMeans) %>% Reduce("rbind",.) %>% data.frame
     out <- out + geom_path(
             data = data.frame(dfArrow), aes(x, y, color=NULL), size= 1, 
@@ -672,7 +691,12 @@ plotTrajectory <- function(
           )
   }
 
-  list(out, out2)
+  if(name == trajectory){
+    out
+  }else{
+    list(out, out2)
+  }
 
 }
+
 

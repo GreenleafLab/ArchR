@@ -1341,6 +1341,19 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
   if(is.null(plotList)){
     plotList <- list(...)
+    plotList2 <- list()
+    for(i in seq_along(plotList)){
+      if(inherits(plotList[[i]], "list")){
+        for(j in seq_along(plotList[[i]])){
+          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
+        }
+      }else{
+        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
+      }
+    }
+    plotList <- plotList2
+    rm(plotList2)
+    gc()
   }else{
     plotList2 <- list()
     for(i in seq_along(plotList)){

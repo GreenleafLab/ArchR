@@ -1,4 +1,3 @@
-
 ##########################################################################################
 # Annotation Methods
 ##########################################################################################
@@ -795,6 +794,7 @@ peakAnnoEnrichment <- function(
     eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
   }
   passMat <- eval(parse(text=cutOff))
+  passMat[is.na(passMat)] <- FALSE
   for(an in assayNames){
     eval(parse(text=paste0("rm(",an,")")))
   }
@@ -867,7 +867,7 @@ peakAnnoEnrichment <- function(
   }) %>% unlist %>% round(4)
 
   #Minus Log10 Padj
-  pOut$mlog10Padj <- pOut$mlog10p - log10(ncol(pOut))
+  pOut$mlog10Padj <- pmax(pOut$mlog10p - log10(ncol(pOut)), 0)
   pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
 
   pOut

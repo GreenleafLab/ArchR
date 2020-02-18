@@ -374,7 +374,7 @@ addPeak2GeneLinks <- function(
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
-  maxDist = 250000,
+  maxDist = 150000,
   scaleTo = 10^4,
   log2Norm = TRUE,
   predictionCutoff = 0.4,
@@ -397,8 +397,21 @@ addPeak2GeneLinks <- function(
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
-
-  stop("not functional yet")
+  ArchRProj = projHeme5
+  reducedDims = "IterativeLSI"
+  dimsToUse = 1:30
+  scaleDims = NULL
+  corCutOff = 0.75
+  k = 100
+  knnIteration = 500
+  overlapCutoff = 0.8
+  maxDist = 150000
+  scaleTo = 10^4
+  log2Norm = TRUE
+  predictionCutoff = 0.4
+  seed = 1
+  knnMethod = NULL
+  threads = getArchRThreads()
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
@@ -449,7 +462,7 @@ addPeak2GeneLinks <- function(
 
   #Create Ranges
   peakSummits <- resize(peakSet, 1, "center")
-  peakWindows <- resize(peakSummits, maxDist, "center")
+  geneWindows <- resize(geneStart, maxDist, "center")
 
   #Create Pairwise Things to Test
   o <- DataFrame(findOverlaps(peakSummits, peakWindows, ignore.strand = TRUE))
