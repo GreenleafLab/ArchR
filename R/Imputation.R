@@ -32,7 +32,7 @@ addImputeWeights <- function(
   corCutOff = 0.75, 
   td = 3,
   ka = 4,
-  sampleCells = max(5000, floor(nCells(ArchRProj) / 10)),
+  sampleCells = max(5000, floor(nCells(ArchRProj) / 50)),
   k = 15,
   epsilon = 1
   ){

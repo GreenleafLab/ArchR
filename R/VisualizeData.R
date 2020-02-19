@@ -43,6 +43,7 @@ plotEmbedding <- function(
   imputeWeights = if(!grepl("coldata",tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   pal = NULL,
   size = 0.1,
+  sampleCells = NULL,
   rastr = TRUE,
   quantCut = c(0.01, 0.99),
   discreteSet = NULL,
@@ -149,7 +150,11 @@ plotEmbedding <- function(
 
   }
 
+  message("Plotting Embedding")
+
   ggList <- lapply(seq_along(colorList), function(x){
+
+    message(x, " ", appendLF = FALSE)
 
     plotParamsx <- .mergeParams(colorList[[x]], plotParams)
 
@@ -212,6 +217,7 @@ plotEmbedding <- function(
 
   })
   names(ggList) <- name
+  message("")
 
   if(length(ggList) == 1){
     ggList <- ggList[[1]]
@@ -349,6 +355,8 @@ plotGroups <- function(
   
   o <- h5closeAll()
 
+  message("Getting Matrix Values...")
+
   featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), matrixName)
 
   matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(matrixName, "/Info/Class"))
@@ -394,6 +402,7 @@ plotGroups <- function(
   cellNamesList <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
   
   values <- lapply(seq_along(cellNamesList), function(x){
+    message(x, " ", appendLF = FALSE)
     o <- h5closeAll()
     ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
     valuesx <- .getMatFromArrow(
@@ -406,6 +415,7 @@ plotGroups <- function(
     colnames(valuesx) <- cellNamesList[[x]]
     valuesx
   }) %>% Reduce("cbind", .)
+  message("")
   gc()
 
   #Values Summary
