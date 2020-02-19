@@ -14,7 +14,7 @@
 #' `uwot::umap()`. For more info on this see https://jlmelville.github.io/uwot/abparams.html.
 #' @param metric A number that determines how distance is computed in the `reducedDims` to compute a UMAP. This argument is passed to `metric` in `uwot::umap()`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
-#' @param scaleDims QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
 #' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
 #' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
@@ -130,14 +130,14 @@ addUMAP <- function(
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
-#' @param method QQQ DOUBLE CHECK The method for computing a TSNE embedding to add to the `ArchRProject` object. Possible options
+#' @param method The method for computing a TSNE embedding to add to the `ArchRProject` object. Possible options
 #' are "RTSNE", which uses `Rtsne::Rtsne()`, and "FFRTSNE", which uses `Seurat::RunTSNE()`.
 #' @param name The name for the TSNE embedding to store in the given `ArchRProject` object.
 #' @param perplexity An integer describing the number of nearest neighbors to compute an `Rtsne`. This argument is passed to `perplexity` in `Rtsne::Rtsne()`.
 #' @param maxIterations An integer describing the maximum number of iterations when computing a TSNE. This argument is passed to `max_iter` in `Rtsne::Rtsne()`.
 #' @param learningRate An integer controlling how much the weights are adjusted at each iteration. This argument is passed to `eta` in `Rtsne::Rtsne()`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
-#' @param scaleDims QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
 #' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
 #' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
@@ -149,7 +149,7 @@ addUMAP <- function(
 #' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding indicated by
 #' `name` already exists.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param ... QQQ DOUBLE CHECK Additional parameters for computing the TSNE embedding to pass to `Rtsne::Rtsne()` (when `method = "RTSNE"`) or to `Seurat::RunTSNE()` (when method = "FFRTSNE"). 
+#' @param ... Additional parameters for computing the TSNE embedding to pass to `Rtsne::Rtsne()` (when `method = "RTSNE"`) or to `Seurat::RunTSNE()` (when method = "FFRTSNE"). 
 #' @export
 addTSNE <- function(
   ArchRProj = NULL,

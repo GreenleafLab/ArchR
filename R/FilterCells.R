@@ -2,14 +2,14 @@
 # Cell Filtering Methods
 ##########################################################################################
 
-#' Filter cells in an ArchRProject QQQ I WOULD PERSONALLY CALL THIS "subsetCells" OR SOMETHING.
+#' Subset cells in an ArchRProject.
 #' 
 #' This function returns an ArchRProject object that contains a specified subset of cells.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param cellNames A character vector of `cellNames` that will be subsetted of the current `ArchRProject`.
 #' @export
-filterCells <- function(
+subsetCells <- function(
   ArchRProj = NULL, 
   cellNames = NULL
   ){  

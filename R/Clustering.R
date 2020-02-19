@@ -18,7 +18,7 @@
 #' to keep track of the seed used so that you can reproduce results downstream.
 #' @param method A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
 #' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
 #' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
 #' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.

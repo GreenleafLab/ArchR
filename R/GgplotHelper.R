@@ -34,16 +34,16 @@
 #' @param colorOrder A vector that allows you to control the order of palette colors associated with the values in `color`.
 #' For example if you have `color` as `c("a","b","c")` and want to have the first color selected from the palette be used for
 #' "c", the second color for "b", and the third color for "a", you would supply the `colorOrder` as `c("c", "b", "a")`.
-#' @param colorLimits QQQ A numeric vector of two values indicating the lower and upper bounds of colors if numeric. Values
+#' @param colorLimits A numeric vector of two values indicating the lower and upper bounds of colors if numeric. Values
 #' beyond these limits are thresholded.
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
 #' @param baseSize The base font size (in points) to use in the plot.
-#' @param legendSize QQQ
+#' @param legendSize This represents the color legend size in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param labelAsFactors QQQ
+#' @param labelAsFactors A boolean indicating whether to label as a factor numeric rather than labeling with a character string.
 #' @param fgColor The foreground color of the plot.
 #' @param bgColor The background color of the plot.
-#' @param bgWidth QQQ
+#' @param bgWidth The background width of the halos in the labeling.
 #' @param labelSize The numeric font size of labels.
 #' @param addFit A string indicating the method to use for adding a fit/regression line to the plot (see `ggplot2::geom_smooth()` methods).
 #' If set to `NULL`, no fit/regression line is added.
@@ -587,15 +587,15 @@ ggHex <- function(
 #' @param ylabel The label to plot for the y-axis.
 #' @param groupOrder A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible
 #' values of `x` in the desired order.
-#' @param groupSort QQQ
+#' @param groupSort A boolean indicating whether to sort groups based on the average value of the group.
 #' @param size The line width for boxplot/summary lines.
 #' @param baseSize The base font size (in points) to use in the plot.
-#' @param ridgeScale QQQ
+#' @param ridgeScale A numeric indicating the relative size for each ridge in the ridgeplot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
 #' @param title The title of the plot.
 #' @param pal A named custom palette (see `paletteDiscrete()` and `ArchRPalettes`) for discrete coloring.
-#' @param addBoxPlot QQQ
+#' @param addBoxPlot A boolean indicating whether to add a boxplot to the plot if `plotAs="violin"`.
 #' @param ... Additional parameters to pass to `ggplot2` for plotting.
 #' @export
 ggGroup <- function(

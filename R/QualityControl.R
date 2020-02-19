@@ -9,7 +9,7 @@
 #' @param flank A number that specifies how far in bp (+/-) to extend the TSS for plotting.
 #' @param norm A number that specifies the number of base pairs from the ends of the flanks to be used for normalization. 
 #' For example if `flank=2000` and `norm=100`, the TSS insertions will be normalized by +/- 1900-2000 bp from the TSS.
-#' @param smooth QQQ WHAT ARE THE UNITS OF THIS? IS IT THE NUMBER OF BASEPAIRS THAT GET SMOOTHED TOGETHER? A number that indicates the smoothing window to be applied to the TSS plot.
+#' @param smooth A number that indicates the smoothing window (in basepairs) to be applied to the TSS plot.
 #' @param returnDF A boolean value that indicates whether to return a `data.frame` containing the plot information
 #' instead of plotting the TSS enrichment plot.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
@@ -111,20 +111,20 @@ plotTSSEnrichment <- function(
 #' This function will plot a fragment size distribution for each sample. Only cells in the `ArchRProject` are used when making this plot.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param nbp QQQ I FEEL LIKE NBP ISNT A GREAT NAME BUT IM OK WITH IT The axis limit in basepairs to use when plotting the fragment size distribution.
+#' @param maxSize The maximum fragment size (in basepairs) to be included when plotting the fragment size distribution.
 #' @param returnDF A boolean value that indicates whether to return a `data.frame` containing the plot information
 #' instead of plotting the fragment size distribution.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
 #' @export
 plotFragmentSizes <- function(
   ArchRProj = NULL,
-  nbp = 750,
+  maxSize = 750,
   returnDF = FALSE,
   threads = getArchRThreads()
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = nbp, name = "nbp", valid = c("integer"))
+  .validInput(input = maxSize, name = "maxSize", valid = c("integer"))
   .validInput(input = returnDF, name = "returnDF", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
@@ -146,14 +146,14 @@ plotFragmentSizes <- function(
             chr = chr[i], 
             out = "IRanges", 
             cellNames = cellNames
-          ) %>% width %>% tabulate(nbins = nbp)
+          ) %>% width %>% tabulate(nbins = maxSize)
       }else{
           fsi <- fsi + .getFragsFromArrow(
             ArrowFile = ArrowFiles[x], 
             chr = chr[i], 
             out = "IRanges", 
             cellNames = cellNames
-          ) %>% width %>% tabulate(nbins = nbp)
+          ) %>% width %>% tabulate(nbins = maxSize)
       }
 
     }

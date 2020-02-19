@@ -4,8 +4,8 @@
 
 #' Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject
 #' 
-#' QQQ IS THIS CORRECT? This function, for each sample, will independently compute counts for each tile
-#' per cell and then infer gene activity scores.
+#' This function, for each sample, will independently integrate with a scRNA experiment, compute matched scRNA profiles and
+#' then store this in each samples ArrowFile.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param seRNA A scRNA-seq `SummarizedExperiment` or `SeuratObject` to integrated with the scATAC-seq data.
@@ -20,11 +20,8 @@
 #' @param nGenes The number of variable genes determined by `Seurat::FindVariableGenes()` to use for integration.
 #' @param useImputation A boolean value indicating whether to use imputation for creating the Gene Score Matrix prior to integration.
 #' @param reduction The Seurat reduction method to use for integrating modalities. See `Seurat::FindTransferAnchors()` for possible reduction methods.
-#' @param addToArrow QQQ A boolean value indicating whether to add the QQQ transcript counts from the integrated matched RNA to the ArrowFiles.
+#' @param addToArrow A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the ArrowFiles.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param subThreading QQQ A boolean value indicating whether the computational architecture being used can allow for the use of threads within
-#' each multi-threaded subprocess if QQQ is greater than the number of input samples.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the given `input`.
 #' @export
 addGeneIntegrationMatrix <- function(

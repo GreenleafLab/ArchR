@@ -15,7 +15,7 @@
 #' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
 #' @param kmerLength The length of the k-mer used for estimating Tn5 bias.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param returnGroups QQQ DOUBLECHECK A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
+#' @param returnGroups A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
 #' This is used mainly in `addReproduciblePeakSet()` when MACS2 is not being used to call peaks but rather peaks are called from a
 #' TileMatrix (`peakMethod = "Tiles"`).
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.

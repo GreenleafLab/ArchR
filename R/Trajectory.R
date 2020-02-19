@@ -484,7 +484,7 @@ trajectoryHeatmap <- function(
 #' This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the lower threshold and y is 
 #' the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and
 #' set values below/above to the value of the 2.5th and 97.5th percentile values respectively.
-#' @param quantHex QQQ DOUBLE CHECK The numeric xth quantile of all dots within each individual hexagon will determine the numerical value for
+#' @param quantHex The numeric xth quantile of all dots within each individual hexagon will determine the numerical value for
 #' coloring to be displayed. This occurs when (i) `plotAs` is set to "hex" or (ii) `plotAs` is set to `NULL` and the values of `colorBy` are numeric.
 #' @param discreteSet The name of a discrete palette from `ArchRPalettes` for visualizing `colorBy` in the embedding if a discrete color set is desired.
 #' @param continuousSet The name of a continuous palette from `ArchRPalettes` for visualizing `colorBy` in the embedding if a continuous color set is desired.

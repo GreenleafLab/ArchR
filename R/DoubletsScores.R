@@ -59,7 +59,7 @@ addDoubletScores <- function(
   .validInput(input = nTrials, name = "nTrials", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
-  #QQQ add scaleDims
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean"))
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
   .validInput(input = LSIParams, name = "LSIParams", valid = c("list"))

@@ -10,9 +10,10 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
 #' bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
-#' @param loops QQQ A `GRanges` object containing the "loops" to be plotted via the "loopTrack".
-#' This `GRanges` object must contain QQQ. A "loopTrack" draws an arc between two genomic regions that show some type of interaction.
-#' This type of track can be used to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
+#' @param loops A `GRanges` object containing the "loops" to be plotted via the "loopTrack".
+#' This `GRanges` object start represents the center position of one loop anchor and the end represents the center position of another loop anchor. 
+#' A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used 
+#' to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
 #' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument
 #' can be used to exclude pseudo-bulk replicates generated from low numbers of cells.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
@@ -610,9 +611,10 @@ ArchRBrowser <- function(
 #' The order must be the same as `plotSummary`.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
 #' bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
-#' @param loops QQQ A `GRanges` object containing the "loops" to be plotted via the "loopTrack". This `GRanges` object must contain QQQ.
-#' A "loopTrack" draws an arc between two genomic regions that show some type of interaction.
-#' This type of track can be used to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
+#' @param loops A `GRanges` object containing the "loops" to be plotted via the "loopTrack".
+#' This `GRanges` object start represents the center position of one loop anchor and the end represents the center position of another loop anchor. 
+#' A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used 
+#' to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
 #' @param geneSymbol If `region` is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.
 #' @param upstream The number of basepairs upstream of the transcription start site of `geneSymbol` to extend the plotting window.
 #' If `region` is supplied, this argument is ignored.

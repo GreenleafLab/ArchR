@@ -694,10 +694,10 @@ markerFeatures <- function(
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param invert QQQ CHECK. STILL UNCLEAR A boolean value that indicates whether the heatmap will display the features with the
+#' @param invert JJJ. A boolean value that indicates whether the heatmap will display the features with the
 #' lowest `log2(fold change)`. In this case, the heatmap will display features that are specifically lower in the given cell
 #' group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
-#' looking for down-regulated markers (`log2(fold change) < 0`) instead of up-regulated markers (`log2(fold change) > 0`).
+#' looking for down-regulated markers (`log2(fold change) < 0`) instead of up-regulated markers (`log2(fold change) > 0`). 
 #' @export
 markerHeatmap <- function(
   seMarker = NULL,
