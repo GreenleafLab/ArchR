@@ -65,11 +65,11 @@ filterDoublets <- function(ArchRProj = NULL, cutEnrich = 1, cutScore = -Inf, fil
     x <- x[order(x$DoubletEnrichment, decreasing = TRUE), ]
     
     if(!is.null(cutEnrich)){
-      x <- x[x$DoubletEnrichment >= cutEnrich, ]
+      x <- x[which(x$DoubletEnrichment >= cutEnrich), ]
     } 
     
     if(!is.null(cutScore)){
-      x <- x[x$DoubletScore >= cutScore, ]
+      x <- x[which(x$DoubletScore >= cutScore), ]
     } 
 
     if(nrow(x) > 0){
