@@ -4,11 +4,25 @@
 \alias{ggOneToOne}
 \title{A ggplot-based one-to-one dot plot wrapper function}
 \usage{
-ggOneToOne(x = NULL, y = NULL, size = 2, alpha = 1, xlabel = "x",
-  ylabel = "y", title = "Correlation", min = 0.05, max = 0.9999,
-  nPlot = 100 * 10^3, nKernel = 100, densityMax = 0.95,
-  extend = 0.05, baseSize = 6, rastr = TRUE,
-  pal = paletteContinuous(set = "blueYellow"), ...)
+ggOneToOne(
+  x = NULL,
+  y = NULL,
+  size = 2,
+  alpha = 1,
+  xlabel = "x",
+  ylabel = "y",
+  title = "Correlation",
+  min = 0.05,
+  max = 0.9999,
+  nPlot = 100 * 10^3,
+  nKernel = 100,
+  densityMax = 0.95,
+  extend = 0.05,
+  baseSize = 6,
+  rastr = TRUE,
+  pal = paletteContinuous(set = "blueYellow"),
+  ...
+)
 }
 \arguments{
 \item{x}{A numeric vector containing the x-axis values for each point.}

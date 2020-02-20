@@ -4,18 +4,34 @@
 \alias{addIterativeLSI}
 \title{Add an Iterative LSI-based dimensionality reduction to an ArchRProject}
 \usage{
-addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
-  name = "IterativeLSI", iterations = 2,
-  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start
-  = 10), varFeatures = 25000, dimsToUse = 1:30, LSIMethod = 2,
-  scaleDims = TRUE, corCutOff = 0.75, binarize = TRUE,
-  sampleCells = NULL, selectionMethod = "var", scaleTo = 10000,
-  totalFeatures = 5e+05, filterQuantile = 0.995,
-  saveIterations = TRUE, UMAPParams = list(n_neighbors = 40, min_dist =
-  0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
-  nPlot = 10000, outDir = getOutputDirectory(ArchRProj),
-  threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
-  verboseAll = FALSE, force = FALSE)
+addIterativeLSI(
+  ArchRProj = NULL,
+  useMatrix = "TileMatrix",
+  name = "IterativeLSI",
+  iterations = 2,
+  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start = 10),
+  varFeatures = 25000,
+  dimsToUse = 1:30,
+  LSIMethod = 2,
+  scaleDims = TRUE,
+  corCutOff = 0.75,
+  binarize = TRUE,
+  sampleCells = NULL,
+  selectionMethod = "var",
+  scaleTo = 10000,
+  totalFeatures = 5e+05,
+  filterQuantile = 0.995,
+  saveIterations = TRUE,
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
+    FALSE, fast_sgd = TRUE),
+  nPlot = 10000,
+  outDir = getOutputDirectory(ArchRProj),
+  threads = getArchRThreads(),
+  seed = 1,
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  force = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

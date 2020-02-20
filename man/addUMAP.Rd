@@ -4,11 +4,23 @@
 \alias{addUMAP}
 \title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject}
 \usage{
-addUMAP(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  name = "UMAP", nNeighbors = 40, minDist = 0.4, metric = "cosine",
-  dimsToUse = NULL, scaleDims = NULL, corCutOff = 0.75,
-  saveModel = FALSE, verbose = TRUE, seed = 1, force = FALSE,
-  threads = max(floor(getArchRThreads()/2), 1), ...)
+addUMAP(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  name = "UMAP",
+  nNeighbors = 40,
+  minDist = 0.4,
+  metric = "cosine",
+  dimsToUse = NULL,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  saveModel = FALSE,
+  verbose = TRUE,
+  seed = 1,
+  force = FALSE,
+  threads = max(floor(getArchRThreads()/2), 1),
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

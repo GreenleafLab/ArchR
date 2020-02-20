@@ -4,12 +4,25 @@
 \alias{addLSI}
 \title{Add an LSI-based dimensionality reduction to an ArchRProject}
 \usage{
-addLSI(ArchRProj = NULL, useMatrix = "TileMatrix", name = "LSI",
-  dimsToUse = 1:30, LSIMethod = 2, scaleDims = TRUE,
-  corCutOff = 0.75, binarize = TRUE, sampleCells = NULL,
-  topFeatures = 25000, totalFeatures = 5e+05, filterQuantile = 0.995,
-  threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
-  verboseAll = FALSE, force = FALSE)
+addLSI(
+  ArchRProj = NULL,
+  useMatrix = "TileMatrix",
+  name = "LSI",
+  dimsToUse = 1:30,
+  LSIMethod = 2,
+  scaleDims = TRUE,
+  corCutOff = 0.75,
+  binarize = TRUE,
+  sampleCells = NULL,
+  topFeatures = 25000,
+  totalFeatures = 5e+05,
+  filterQuantile = 0.995,
+  threads = getArchRThreads(),
+  seed = 1,
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  force = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
