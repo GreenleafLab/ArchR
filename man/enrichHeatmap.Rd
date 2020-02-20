@@ -4,44 +4,35 @@
 \alias{enrichHeatmap}
 \title{Plot a Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
-enrichHeatmap(
-  seEnrich = NULL,
-  pal = paletteContinuous(set = "comet", n = 100),
-  n = 10,
-  cutOff = 20,
-  pMax = Inf,
-  clusterCols = TRUE,
-  binaryClusterRows = TRUE,
-  labelRows = TRUE,
-  rastr = TRUE,
-  transpose = FALSE,
-  returnMatrix = FALSE
-)
+enrichHeatmap(seEnrich = NULL, pal = paletteContinuous(set = "comet", n
+  = 100), n = 10, cutOff = 20, pMax = Inf, clusterCols = TRUE,
+  binaryClusterRows = TRUE, labelRows = TRUE, rastr = TRUE,
+  transpose = FALSE, returnMatrix = FALSE)
 }
 \arguments{
-\item{seEnrich}{QQQ A \code{SummarizedExperiment} object QQQ returned by \code{peakAnnoEnrichment()}.}
+\item{seEnrich}{A \code{SummarizedExperiment} object containing peak enrichment information returned by \code{peakAnnoEnrichment()}.}
 
 \item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}
 
 \item{n}{The number of top enriched peakAnnotations per column from the \code{seMarker} to display in the heatmap. This number can
 be lowered to improve visibility of the heatmap.}
 
-\item{cutOff}{QQQ}
+\item{cutOff}{A numeric cutOff that indicates the minimum P-adj enrichment to be included in the heatmap.}
 
-\item{pMax}{QQQ}
+\item{pMax}{A numeric representing the maximum P-adj for plotting in the heatmap.}
 
 \item{clusterCols}{A boolean indicating whether or not to cluster columns in the heatmap.}
 
-\item{binaryClusterRows}{QQQ A boolean indicating whether or not to cluster rows in the heatmap.}
+\item{binaryClusterRows}{A boolean indicating whether or not to cluster rows using binary classification in the heatmap.}
 
 \item{labelRows}{A boolean indicating whether or not to label all rows in the heatmap.}
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize
 lines and labels, just the internal portions of the plot.}
 
-\item{transpose}{QQQ}
+\item{transpose}{A boolean determining whether to transpose heatmap in plot.}
 
-\item{returnMatrix}{QQQ}
+\item{returnMatrix}{A boolean determining whether to return matrix in heatmap rather than a plot.}
 }
 \description{
 This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.

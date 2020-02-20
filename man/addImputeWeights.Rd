@@ -4,18 +4,10 @@
 \alias{addImputeWeights}
 \title{Add Imputation Weights to an ArchRProject}
 \usage{
-addImputeWeights(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  td = 3,
-  ka = 4,
-  sampleCells = max(5000, floor(nCells(ArchRProj)/10)),
-  k = 15,
-  epsilon = 1
-)
+addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  dimsToUse = NULL, scaleDims = NULL, corCutOff = 0.75, td = 3,
+  ka = 4, sampleCells = max(5000, floor(nCells(ArchRProj)/50)),
+  k = 15, epsilon = 1)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -24,7 +16,7 @@ addImputeWeights(
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use.}
 
-\item{scaleDims}{QQQ DOUBLE CHECK A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
+\item{scaleDims}{A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
 of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
 it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
 originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}

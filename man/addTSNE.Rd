@@ -4,31 +4,19 @@
 \alias{addTSNE}
 \title{Add a TSNE embedding of a reduced dimensions object to an ArchRProject}
 \usage{
-addTSNE(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  method = "RTSNE",
-  name = "TSNE",
-  perplexity = 50,
-  maxIterations = 1000,
-  learningRate = 200,
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  saveModel = FALSE,
-  verbose = TRUE,
-  seed = 1,
-  force = FALSE,
-  threads = max(floor(getArchRThreads()/2), 1),
-  ...
-)
+addTSNE(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  method = "RTSNE", name = "TSNE", perplexity = 50,
+  maxIterations = 1000, learningRate = 200, dimsToUse = NULL,
+  scaleDims = NULL, corCutOff = 0.75, saveModel = FALSE,
+  verbose = TRUE, seed = 1, force = FALSE,
+  threads = max(floor(getArchRThreads()/2), 1), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to use from the designated \code{ArchRProject}.}
 
-\item{method}{QQQ DOUBLE CHECK The method for computing a TSNE embedding to add to the \code{ArchRProject} object. Possible options
+\item{method}{The method for computing a TSNE embedding to add to the \code{ArchRProject} object. Possible options
 are "RTSNE", which uses \code{Rtsne::Rtsne()}, and "FFRTSNE", which uses \code{Seurat::RunTSNE()}.}
 
 \item{name}{The name for the TSNE embedding to store in the given \code{ArchRProject} object.}
@@ -41,7 +29,7 @@ are "RTSNE", which uses \code{Rtsne::Rtsne()}, and "FFRTSNE", which uses \code{S
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
-\item{scaleDims}{QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+\item{scaleDims}{A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
 the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
 biases since it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the
 \code{reducedDims} were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
@@ -59,7 +47,7 @@ reproduce results downstream.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{...}{QQQ DOUBLE CHECK Additional parameters for computing the TSNE embedding to pass to \code{Rtsne::Rtsne()} (when \code{method = "RTSNE"}) or to \code{Seurat::RunTSNE()} (when method = "FFRTSNE").}
+\item{...}{Additional parameters for computing the TSNE embedding to pass to \code{Rtsne::Rtsne()} (when \code{method = "RTSNE"}) or to \code{Seurat::RunTSNE()} (when method = "FFRTSNE").}
 }
 \description{
 This function will compute a TSNE embedding and add it to an ArchRProject.

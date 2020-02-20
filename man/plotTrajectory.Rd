@@ -4,29 +4,14 @@
 \alias{plotTrajectory}
 \title{Visualize a Trajectory from ArchR Project}
 \usage{
-plotTrajectory(
-  ArchRProj = NULL,
-  embedding = "UMAP",
-  trajectory = "Trajectory",
-  colorBy = "colData",
-  name = "Trajectory",
-  log2Norm = NULL,
-  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-    getImputeWeights(ArchRProj),
-  pal = NULL,
-  size = 0.5,
-  rastr = TRUE,
-  quantCut = c(0.05, 0.95),
-  quantHex = 0.5,
-  discreteSet = NULL,
-  continuousSet = NULL,
-  randomize = TRUE,
-  keepAxis = FALSE,
-  baseSize = 6,
-  addArrow = TRUE,
-  plotAs = NULL,
-  plotParams = list()
-)
+plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
+  trajectory = "Trajectory", colorBy = "colData",
+  name = "Trajectory", log2Norm = NULL, imputeWeights = if
+  (!grepl("coldata", tolower(colorBy[1]))) getImputeWeights(ArchRProj),
+  pal = NULL, size = 0.2, rastr = TRUE, quantCut = c(0.05, 0.95),
+  quantHex = 0.5, discreteSet = NULL, continuousSet = NULL,
+  randomize = TRUE, keepAxis = FALSE, baseSize = 6,
+  addArrow = TRUE, plotAs = NULL, plotParams = list())
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -59,7 +44,7 @@ This prevents skewed color scales caused by strong outliers. The format of this 
 the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and
 set values below/above to the value of the 2.5th and 97.5th percentile values respectively.}
 
-\item{quantHex}{QQQ DOUBLE CHECK The numeric xth quantile of all dots within each individual hexagon will determine the numerical value for
+\item{quantHex}{The numeric xth quantile of all dots within each individual hexagon will determine the numerical value for
 coloring to be displayed. This occurs when (i) \code{plotAs} is set to "hex" or (ii) \code{plotAs} is set to \code{NULL} and the values of \code{colorBy} are numeric.}
 
 \item{discreteSet}{The name of a discrete palette from \code{ArchRPalettes} for visualizing \code{colorBy} in the embedding if a discrete color set is desired.}

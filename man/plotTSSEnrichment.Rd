@@ -4,15 +4,9 @@
 \alias{plotTSSEnrichment}
 \title{Plot a TSS Enrichment Plot for Each Sample}
 \usage{
-plotTSSEnrichment(
-  ArchRProj = NULL,
-  TSS = getTSS(ArchRProj),
-  flank = 2000,
-  norm = 100,
-  smooth = 11,
-  returnDF = FALSE,
-  threads = getArchRThreads()
-)
+plotTSSEnrichment(ArchRProj = NULL, TSS = getTSS(ArchRProj),
+  flank = 2000, norm = 100, smooth = 11, returnDF = FALSE,
+  threads = getArchRThreads())
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -25,7 +19,7 @@ this information from the \code{geneAnnotation} stored in the \code{ArchRProject
 \item{norm}{A number that specifies the number of base pairs from the ends of the flanks to be used for normalization.
 For example if \code{flank=2000} and \code{norm=100}, the TSS insertions will be normalized by +/- 1900-2000 bp from the TSS.}
 
-\item{smooth}{QQQ WHAT ARE THE UNITS OF THIS? IS IT THE NUMBER OF BASEPAIRS THAT GET SMOOTHED TOGETHER? A number that indicates the smoothing window to be applied to the TSS plot.}
+\item{smooth}{A number that indicates the smoothing window (in basepairs) to be applied to the TSS plot.}
 
 \item{returnDF}{A boolean value that indicates whether to return a \code{data.frame} containing the plot information
 instead of plotting the TSS enrichment plot.}

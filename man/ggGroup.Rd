@@ -4,24 +4,11 @@
 \alias{ggGroup}
 \title{A ggplot-based ridge/violin plot wrapper function}
 \usage{
-ggGroup(
-  x = NULL,
-  y = NULL,
-  xlabel = NULL,
-  ylabel = NULL,
-  groupOrder = NULL,
-  groupSort = FALSE,
-  size = 1,
-  baseSize = 10,
-  ridgeScale = 1,
-  ratioYX = NULL,
-  alpha = 1,
-  title = "",
+ggGroup(x = NULL, y = NULL, xlabel = NULL, ylabel = NULL,
+  groupOrder = NULL, groupSort = FALSE, size = 1, baseSize = 10,
+  ridgeScale = 1, ratioYX = NULL, alpha = 1, title = "",
   pal = paletteDiscrete(values = x, set = "stallion"),
-  addBoxPlot = TRUE,
-  plotAs = "ridges",
-  ...
-)
+  addBoxPlot = TRUE, plotAs = "ridges", ...)
 }
 \arguments{
 \item{x}{A character vector containing the categorical x-axis values for each y-axis value.}
@@ -35,13 +22,13 @@ ggGroup(
 \item{groupOrder}{A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible
 values of \code{x} in the desired order.}
 
-\item{groupSort}{QQQ}
+\item{groupSort}{A boolean indicating whether to sort groups based on the average value of the group.}
 
 \item{size}{The line width for boxplot/summary lines.}
 
 \item{baseSize}{The base font size (in points) to use in the plot.}
 
-\item{ridgeScale}{QQQ}
+\item{ridgeScale}{A numeric indicating the relative size for each ridge in the ridgeplot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
@@ -51,7 +38,7 @@ values of \code{x} in the desired order.}
 
 \item{pal}{A named custom palette (see \code{paletteDiscrete()} and \code{ArchRPalettes}) for discrete coloring.}
 
-\item{addBoxPlot}{QQQ}
+\item{addBoxPlot}{A boolean indicating whether to add a boxplot to the plot if \code{plotAs="violin"}.}
 
 \item{...}{Additional parameters to pass to \code{ggplot2} for plotting.}
 }

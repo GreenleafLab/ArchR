@@ -4,30 +4,16 @@
 \alias{ArchRBrowserTrack}
 \title{Plot an ArchR Region Track}
 \usage{
-ArchRBrowserTrack(
-  ArchRProj = NULL,
-  region = NULL,
-  groupBy = "Clusters",
-  useGroups = NULL,
+ArchRBrowserTrack(ArchRProj = NULL, region = NULL,
+  groupBy = "Clusters", useGroups = NULL,
   plotSummary = c("bulkTrack", "featureTrack", "loopTrack", "geneTrack"),
-  sizes = c(10, 1.5, 3, 4),
-  features = getPeakSet(ArchRProj),
-  loops = getCoAccessibility(ArchRProj),
-  geneSymbol = NULL,
-  upstream = 50000,
-  downstream = 50000,
-  tileSize = 250,
-  minCells = 25,
-  normMethod = "ReadsInTSS",
-  threads = getArchRThreads(),
-  ylim = NULL,
-  baseSize = 7,
-  borderWidth = 0.4,
-  tickWidth = 0.4,
-  facetbaseSize = 7,
-  geneAnnotation = getGeneAnnotation(ArchRProj),
-  title = ""
-)
+  sizes = c(10, 1.5, 3, 4), features = getPeakSet(ArchRProj),
+  loops = getCoAccessibility(ArchRProj), geneSymbol = NULL,
+  upstream = 50000, downstream = 50000, tileSize = 250,
+  minCells = 25, normMethod = "ReadsInTSS",
+  threads = getArchRThreads(), ylim = NULL, baseSize = 7,
+  borderWidth = 0.4, tickWidth = 0.4, facetbaseSize = 7,
+  geneAnnotation = getGeneAnnotation(ArchRProj), title = "")
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -51,11 +37,12 @@ are on the minus strand and red-colored genes are on the plus strand).}
 The order must be the same as \code{plotSummary}.}
 
 \item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
-bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
 
-\item{loops}{QQQ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack". This \code{GRanges} object must contain QQQ.
-A "loopTrack" draws an arc between two genomic regions that show some type of interaction.
-This type of track can be used to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
+\item{loops}{A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack".
+This \code{GRanges} object start represents the center position of one loop anchor and the end represents the center position of another loop anchor.
+A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used
+to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
 
 \item{geneSymbol}{If \code{region} is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
 

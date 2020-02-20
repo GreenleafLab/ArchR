@@ -4,24 +4,13 @@
 \alias{addGeneIntegrationMatrix}
 \title{Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneIntegrationMatrix(
-  ArchRProj = NULL,
-  seRNA = NULL,
-  groupBy = NULL,
-  reducedDims = "IterativeLSI",
-  sampleList = SimpleList(),
-  sampleRNA = 5000,
-  nGenes = 2000,
-  useImputation = TRUE,
-  reduction = "cca",
-  addToArrow = TRUE,
-  threads = getArchRThreads(),
-  transferParams = list(),
-  force = FALSE,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
-)
+addGeneIntegrationMatrix(ArchRProj = NULL, seRNA = NULL,
+  groupBy = NULL, reducedDims = "IterativeLSI",
+  sampleList = SimpleList(), sampleRNA = 5000, nGenes = 2000,
+  useImputation = TRUE, reduction = "cca", addToArrow = TRUE,
+  threads = getArchRThreads(), nameGroup = "predictedGroup",
+  nameScore = "predictedScore", transferParams = list(),
+  force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -46,18 +35,13 @@ processing time of \code{Seurat::FindTransferAnchors()} when integrating dataset
 
 \item{reduction}{The Seurat reduction method to use for integrating modalities. See \code{Seurat::FindTransferAnchors()} for possible reduction methods.}
 
-\item{addToArrow}{QQQ A boolean value indicating whether to add the QQQ transcript counts from the integrated matched RNA to the ArrowFiles.}
+\item{addToArrow}{A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the ArrowFiles.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the given \code{input}.}
-
-\item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
-
-\item{subThreading}{QQQ A boolean value indicating whether the computational architecture being used can allow for the use of threads within
-each multi-threaded subprocess if QQQ is greater than the number of input samples.}
 }
 \description{
-QQQ IS THIS CORRECT? This function, for each sample, will independently compute counts for each tile
-per cell and then infer gene activity scores.
+This function, for each sample, will independently integrate with a scRNA experiment, compute matched scRNA profiles and
+then store this in each samples ArrowFile.
 }

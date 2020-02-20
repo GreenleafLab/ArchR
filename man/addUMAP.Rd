@@ -4,23 +4,11 @@
 \alias{addUMAP}
 \title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject}
 \usage{
-addUMAP(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  name = "UMAP",
-  nNeighbors = 40,
-  minDist = 0.4,
-  metric = "cosine",
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  saveModel = FALSE,
-  verbose = TRUE,
-  seed = 1,
-  force = FALSE,
-  threads = max(floor(getArchRThreads()/2), 1),
-  ...
-)
+addUMAP(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  name = "UMAP", nNeighbors = 40, minDist = 0.4, metric = "cosine",
+  dimsToUse = NULL, scaleDims = NULL, corCutOff = 0.75,
+  saveModel = FALSE, verbose = TRUE, seed = 1, force = FALSE,
+  threads = max(floor(getArchRThreads()/2), 1), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -38,7 +26,7 @@ addUMAP(
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
-\item{scaleDims}{QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+\item{scaleDims}{A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
 the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
 biases since it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the
 \code{reducedDims} were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}

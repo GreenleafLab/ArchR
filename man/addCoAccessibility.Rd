@@ -4,22 +4,11 @@
 \alias{addCoAccessibility}
 \title{Add Peak Co-Accessibility to an ArchRProject}
 \usage{
-addCoAccessibility(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  dimsToUse = 1:30,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  k = 100,
-  knnIteration = 500,
-  overlapCutoff = 0.8,
-  maxDist = 1e+05,
-  scaleTo = 10^4,
-  log2Norm = TRUE,
-  seed = 1,
-  knnMethod = NULL,
-  threads = getArchRThreads()
-)
+addCoAccessibility(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  dimsToUse = 1:30, scaleDims = NULL, corCutOff = 0.75, k = 100,
+  knnIteration = 500, overlapCutoff = 0.8, maxDist = 1e+05,
+  scaleTo = 10^4, log2Norm = TRUE, seed = 1, knnMethod = NULL,
+  threads = getArchRThreads())
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -28,7 +17,7 @@ addCoAccessibility(
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{scaleDims}{QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+\item{scaleDims}{A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
 of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
 it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
 originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}

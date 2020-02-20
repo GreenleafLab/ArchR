@@ -4,29 +4,22 @@
 \alias{ArchRBrowser}
 \title{Launch ArchR Genome Browser}
 \usage{
-ArchRBrowser(
-  ArchRProj = NULL,
-  features = getPeakSet(ArchRProj),
-  loops = getCoAccessibility(ArchRProj),
-  minCells = 25,
-  baseSize = 10,
-  borderWidth = 0.5,
-  tickWidth = 0.5,
-  facetbaseSize = 12,
-  geneAnnotation = getGeneAnnotation(ArchRProj),
-  browserTheme = "cosmo",
-  threads = getArchRThreads()
-)
+ArchRBrowser(ArchRProj = NULL, features = getPeakSet(ArchRProj),
+  loops = getCoAccessibility(ArchRProj), minCells = 25,
+  baseSize = 10, borderWidth = 0.5, tickWidth = 0.5,
+  facetbaseSize = 12, geneAnnotation = getGeneAnnotation(ArchRProj),
+  browserTheme = "cosmo", threads = getArchRThreads())
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
-bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
 
-\item{loops}{QQQ A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack".
-This \code{GRanges} object must contain QQQ. A "loopTrack" draws an arc between two genomic regions that show some type of interaction.
-This type of track can be used to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
+\item{loops}{A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack".
+This \code{GRanges} object start represents the center position of one loop anchor and the end represents the center position of another loop anchor.
+A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used
+to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
 
 \item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument
 can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}

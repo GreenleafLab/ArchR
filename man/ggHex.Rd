@@ -4,26 +4,11 @@
 \alias{ggHex}
 \title{A ggplot-based Hexplot wrapper function summary of points in a standardized manner}
 \usage{
-ggHex(
-  x = NULL,
-  y = NULL,
-  color = NULL,
-  pal = paletteContinuous(set = "solarExtra"),
-  bins = 200,
-  xlim = NULL,
-  ylim = NULL,
-  extend = 0.05,
-  xlabel = "x",
-  ylabel = "y",
-  title = "",
-  colorTitle = "values",
-  baseSize = 6,
-  ratioYX = 1,
-  FUN = "mean",
-  quantCut = c(0.01, 0.99),
-  addPoints = FALSE,
-  ...
-)
+ggHex(x = NULL, y = NULL, color = NULL, pal = paletteContinuous(set
+  = "solarExtra"), bins = 200, xlim = NULL, ylim = NULL,
+  extend = 0.05, xlabel = "x", ylabel = "y", title = "",
+  colorTitle = "values", baseSize = 6, ratioYX = 1, FUN = "mean",
+  quantCut = c(0.01, 0.99), addPoints = FALSE, ...)
 }
 \arguments{
 \item{x}{A numeric vector containing the x-axis values for each point.}

@@ -4,17 +4,13 @@
 \alias{plotFragmentSizes}
 \title{Plot the fragment size distribution for each sample}
 \usage{
-plotFragmentSizes(
-  ArchRProj = NULL,
-  nbp = 750,
-  returnDF = FALSE,
-  threads = getArchRThreads()
-)
+plotFragmentSizes(ArchRProj = NULL, maxSize = 750, returnDF = FALSE,
+  threads = getArchRThreads())
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{nbp}{QQQ I FEEL LIKE NBP ISNT A GREAT NAME BUT IM OK WITH IT The axis limit in basepairs to use when plotting the fragment size distribution.}
+\item{maxSize}{The maximum fragment size (in basepairs) to be included when plotting the fragment size distribution.}
 
 \item{returnDF}{A boolean value that indicates whether to return a \code{data.frame} containing the plot information
 instead of plotting the fragment size distribution.}

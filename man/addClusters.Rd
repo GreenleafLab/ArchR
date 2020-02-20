@@ -4,23 +4,12 @@
 \alias{addClusters}
 \title{Add cluster information to an ArchRProject}
 \usage{
-addClusters(
-  input = NULL,
-  reducedDims = "IterativeLSI",
-  name = "Clusters",
-  sampleCells = NULL,
-  seed = 1,
-  method = "Seurat",
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  knnAssign = 10,
-  nOutlier = 5,
-  verbose = TRUE,
-  tstart = NULL,
-  force = FALSE,
-  ...
-)
+addClusters(input = NULL, reducedDims = "IterativeLSI",
+  name = "Clusters", sampleCells = NULL, seed = 1,
+  method = "Seurat", dimsToUse = NULL, scaleDims = NULL,
+  corCutOff = 0.75, knnAssign = 10, nOutlier = 5,
+  prefix = "Cluster", verbose = TRUE, tstart = NULL, force = FALSE,
+  ...)
 }
 \arguments{
 \item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}
@@ -42,7 +31,7 @@ to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{scaleDims}{QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+\item{scaleDims}{A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
 of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
 it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
 originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
@@ -54,6 +43,8 @@ sequencing depth that is greater than the \code{corCutOff}, it will be excluded 
 
 \item{nOutlier}{The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
 this threshold, then the cells will be considered outliers and assigned to nearby clusters.}
+
+\item{prefix}{A character string to be added before each cluster identity. Ie if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 

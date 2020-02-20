@@ -4,24 +4,12 @@
 \alias{addGroupCoverages}
 \title{Add Group Coverages to an ArchRProject object}
 \usage{
-addGroupCoverages(
-  ArchRProj = NULL,
-  groupBy = "Clusters",
-  useLabels = TRUE,
-  minCells = 40,
-  maxCells = 500,
-  maxFragments = 25 * 10^6,
-  minReplicates = 2,
-  maxReplicates = 5,
-  sampleRatio = 0.8,
-  kmerLength = 6,
-  threads = getArchRThreads(),
-  returnGroups = FALSE,
-  parallelParam = NULL,
-  force = FALSE,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
-)
+addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
+  useLabels = TRUE, minCells = 40, maxCells = 500,
+  maxFragments = 25 * 10^6, minReplicates = 2, maxReplicates = 5,
+  sampleRatio = 0.8, kmerLength = 6, threads = getArchRThreads(),
+  returnGroups = FALSE, parallelParam = NULL, force = FALSE,
+  verboseHeader = TRUE, verboseAll = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -47,7 +35,7 @@ of excessively large files which would negatively impact memory requirements.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{returnGroups}{QQQ DOUBLECHECK A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
+\item{returnGroups}{A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
 This is used mainly in \code{addReproduciblePeakSet()} when MACS2 is not being used to call peaks but rather peaks are called from a
 TileMatrix (\code{peakMethod = "Tiles"}).}
 

@@ -4,43 +4,16 @@
 \alias{ggPoint}
 \title{A ggplot-based dot plot wrapper function}
 \usage{
-ggPoint(
-  x = NULL,
-  y = NULL,
-  color = NULL,
-  discrete = TRUE,
-  discreteSet = "stallion",
-  continuousSet = "solarExtra",
-  labelMeans = TRUE,
-  pal = NULL,
-  defaultColor = "lightGrey",
-  colorDensity = FALSE,
-  size = 1,
-  xlim = NULL,
-  ylim = NULL,
-  extend = 0.05,
-  xlabel = "x",
-  ylabel = "y",
-  title = "",
-  randomize = FALSE,
-  seed = 1,
-  colorTitle = NULL,
-  colorOrder = NULL,
-  colorLimits = NULL,
-  alpha = 1,
-  baseSize = 10,
-  legendSize = 3,
-  ratioYX = 1,
-  labelAsFactors = TRUE,
-  fgColor = "black",
-  bgColor = "white",
-  bgWidth = 1,
-  labelSize = 3,
-  addFit = NULL,
-  rastr = FALSE,
-  dpi = 300,
-  ...
-)
+ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
+  discreteSet = "stallion", continuousSet = "solarExtra",
+  labelMeans = TRUE, pal = NULL, defaultColor = "lightGrey",
+  colorDensity = FALSE, size = 1, xlim = NULL, ylim = NULL,
+  extend = 0.05, xlabel = "x", ylabel = "y", title = "",
+  randomize = FALSE, seed = 1, colorTitle = NULL,
+  colorOrder = NULL, colorLimits = NULL, alpha = 1, baseSize = 10,
+  legendSize = 3, ratioYX = 1, labelAsFactors = TRUE,
+  fgColor = "black", bgColor = "white", bgWidth = 1, labelSize = 3,
+  addFit = NULL, rastr = FALSE, dpi = 300, ...)
 }
 \arguments{
 \item{x}{A numeric vector containing the x-axis values for each point.}
@@ -91,24 +64,24 @@ values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will e
 For example if you have \code{color} as \code{c("a","b","c")} and want to have the first color selected from the palette be used for
 "c", the second color for "b", and the third color for "a", you would supply the \code{colorOrder} as \code{c("c", "b", "a")}.}
 
-\item{colorLimits}{QQQ A numeric vector of two values indicating the lower and upper bounds of colors if numeric. Values
+\item{colorLimits}{A numeric vector of two values indicating the lower and upper bounds of colors if numeric. Values
 beyond these limits are thresholded.}
 
 \item{alpha}{A number indicating the transparency to use for each point. See \code{ggplot2} for more details.}
 
 \item{baseSize}{The base font size (in points) to use in the plot.}
 
-\item{legendSize}{QQQ}
+\item{legendSize}{This represents the color legend size in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{labelAsFactors}{QQQ}
+\item{labelAsFactors}{A boolean indicating whether to label as a factor numeric rather than labeling with a character string.}
 
 \item{fgColor}{The foreground color of the plot.}
 
 \item{bgColor}{The background color of the plot.}
 
-\item{bgWidth}{QQQ}
+\item{bgWidth}{The background width of the halos in the labeling.}
 
 \item{labelSize}{The numeric font size of labels.}
 

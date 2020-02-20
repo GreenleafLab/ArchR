@@ -4,34 +4,18 @@
 \alias{addIterativeLSI}
 \title{Add an Iterative LSI-based dimensionality reduction to an ArchRProject}
 \usage{
-addIterativeLSI(
-  ArchRProj = NULL,
-  useMatrix = "TileMatrix",
-  name = "IterativeLSI",
-  iterations = 2,
-  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start = 10),
-  varFeatures = 25000,
-  dimsToUse = 1:30,
-  LSIMethod = 2,
-  scaleDims = TRUE,
-  corCutOff = 0.75,
-  binarize = TRUE,
-  sampleCells = NULL,
-  selectionMethod = "var",
-  scaleTo = 10000,
-  totalFeatures = 5e+05,
-  filterQuantile = 0.995,
-  saveIterations = TRUE,
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
-    FALSE, fast_sgd = TRUE),
-  nPlot = 10000,
-  outDir = getOutputDirectory(ArchRProj),
-  threads = getArchRThreads(),
-  seed = 1,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
-  force = FALSE
-)
+addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
+  name = "IterativeLSI", iterations = 2,
+  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start
+  = 10), varFeatures = 25000, dimsToUse = 1:30, LSIMethod = 2,
+  scaleDims = TRUE, corCutOff = 0.75, binarize = TRUE,
+  sampleCells = NULL, selectionMethod = "var", scaleTo = 10000,
+  totalFeatures = 5e+05, filterQuantile = 0.995,
+  saveIterations = TRUE, UMAPParams = list(n_neighbors = 40, min_dist =
+  0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
+  nPlot = 10000, outDir = getOutputDirectory(ArchRProj),
+  threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
+  verboseAll = FALSE, force = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -53,9 +37,10 @@ length 1 or the total number of \code{iterations} - 1.}
 \item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
 Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
 
-\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing
-the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
-biases since it is over-weighting latent PCs.}
+\item{scaleDims}{A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
+of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
+originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}

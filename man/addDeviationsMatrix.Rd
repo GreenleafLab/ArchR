@@ -4,28 +4,21 @@
 \alias{addDeviationsMatrix}
 \title{Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject}
 \usage{
-addDeviationsMatrix(
-  ArchRProj = NULL,
-  peakAnnotation = NULL,
-  matches = NULL,
-  bgdPeaks = getBgdPeaks(ArchRProj),
-  matrixName = NULL,
-  out = c("z", "deviations"),
-  binarize = FALSE,
-  threads = getArchRThreads(),
-  parallelParam = NULL,
-  force = FALSE
-)
+addDeviationsMatrix(ArchRProj = NULL, peakAnnotation = NULL,
+  matches = NULL, bgdPeaks = getBgdPeaks(ArchRProj),
+  matrixName = NULL, out = c("z", "deviations"), binarize = FALSE,
+  threads = getArchRThreads(), parallelParam = NULL, force = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{peakAnnotation}{The name of the \code{peakAnnotation} stored in the \code{ArchRProject}.}
 
-\item{matches}{QQQ A custom \code{peakAnnotation} matches object used as input for the hypergeometric test. See
+\item{matches}{A custom \code{peakAnnotation} matches object used as input for the hypergeometric test. See
 \code{motifmatchr::matchmotifs()} for additional information.}
 
-\item{bgdPeaks}{QQQ}
+\item{bgdPeaks}{A \code{SummarizedExperiment} that contains for each peak a set of background peaks matched by biases such as total accessibility
+and GC nucleotide content. This can be computed using \code{addBgdPeaks} and accessed by \code{getBgdPeaks}.}
 
 \item{matrixName}{The name to be used for storage of the deviations matrix in the provided \code{ArchRProject}.}
 
