@@ -6,20 +6,33 @@
 #' 
 #' This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
 #' 
-#' @param input Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims` or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.
-#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`. Not required if input is a matrix.
+#' @param input Either (i) an `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims`
+#' or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.
+#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
+#' Not required if input is a matrix.
 #' @param name The column name of the cluster label column to be added to `cellColData` if `input` is an `ArchRProject` object.
-#' @param sampleCells An integer specifying the number of cells to subsample and perform clustering on. The remaining cells that were not subsampled will be assigned to the cluster of the nearest subsampled cell. This enables a decrease in run time but can sacrifice granularity of clusters.
-#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.
+#' @param sampleCells An integer specifying the number of cells to subsample and perform clustering on. The remaining cells
+#' that were not subsampled will be assigned to the cluster of the nearest subsampled cell. This enables a decrease in run time
+#' but can sacrifice granularity of clusters.
+#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended
+#' to keep track of the seed used so that you can reproduce results downstream.
 #' @param method A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
+#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+#' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
-#' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.
+#' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
+#' this threshold, then the cells will be considered outliers and assigned to nearby clusters.
+#' @param prefix A character string to be added before each cluster identity. Ie if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
-#' @param tstart JJJ A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering relative to a start time, for example this is used in "IterativeLSI". 
-#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already exists as a column name in `cellColData`.
+#' @param tstart A timestamp that is typically passed internally from another function (for ex. "IterativeLSI") to measure how long the clustering analysis
+#' has been running relative to the start time when this process was initiated in another function. This argument is rarely manually specified.
+#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already
+#' exists as a column name in `cellColData`.
 #' @param ... Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)
 #' @export
 #'
@@ -29,12 +42,13 @@ addClusters <- function(
     name = "Clusters",
     sampleCells = NULL,
     seed = 1, 
-    method = "Seurat", 
+    method = "Seurat",
     dimsToUse = NULL,
     scaleDims = NULL, 
     corCutOff = 0.75,
     knnAssign = 10, 
-    nOutlier = 20, 
+    nOutlier = 5, 
+    prefix = "Cluster",
     verbose = TRUE,
     tstart = NULL,
     force = FALSE,
@@ -52,6 +66,7 @@ addClusters <- function(
     .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
     .validInput(input = knnAssign, name = "knnAssign", valid = c("integer"))
     .validInput(input = nOutlier, name = "nOutlier", valid = c("integer"))
+    .validInput(input = prefix, name = "prefix", valid = c("character"))
     .validInput(input = verbose, name = "verbose", valid = c("boolean"))
     .validInput(input = tstart, name = "tstart", valid = c("timestamp","null"))
     .validInput(input = force, name = "force", valid = c("boolean"))
@@ -120,7 +135,9 @@ addClusters <- function(
     }else if(grepl("scran",tolower(method))){
 
         clustParams <- list(...)
-        clustParams$x <- matDR
+        clustParams$verbose <- verbose
+        clustParams$tstart <- tstart
+        clustParams$x <- t(matDR)
         clustParams$d <- ncol(matDR)
         clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
         clust <- .clustScran(clustParams)
@@ -180,19 +197,28 @@ addClusters <- function(
     # Renaming Clusters based on Proximity in Reduced Dimensions
     #################################################################################
     .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
-    meanSVD <- t(.groupMeans(t(matDR), clust))
-    meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
-    idx <- sample(seq_len(nrow(meanSVD)), 1)
-    clustOld <- c()
-    clustNew <- c()
-    for(i in seq_len(nrow(meanSVD))){
-        clustOld[i] <- rownames(meanSVD)[idx]
-        clustNew[i] <- paste0("Cluster", i)
-        if(i != nrow(meanSVD)){
-            idx <- meanKNN[idx, ][which(rownames(meanSVD)[meanKNN[idx, ]] %ni% clustOld)][1]
+    
+    if(length(unique(clust)) > 1){
+
+        meanSVD <- t(.groupMeans(t(matDR), clust))
+        meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
+        idx <- sample(seq_len(nrow(meanSVD)), 1)
+        clustOld <- c()
+        clustNew <- c()
+        for(i in seq_len(nrow(meanSVD))){
+            clustOld[i] <- rownames(meanSVD)[idx]
+            clustNew[i] <- paste0(prefix, i)
+            if(i != nrow(meanSVD)){
+                idx <- meanKNN[idx, ][which(rownames(meanSVD)[meanKNN[idx, ]] %ni% clustOld)][1]
+            }
         }
+        out <- mapLabels(labels = clust, oldLabels = clustOld, newLabels = clustNew)
+
+    }else{
+
+        out <- rep(paste0(prefix, "1"), length(clust))
+
     }
-    out <- mapLabels(labels = clust, oldLabels = clustOld, newLabels = clustNew)
 
     if(inherits(input, "ArchRProject")){
         input <- .suppressAll(addCellColData(
@@ -212,7 +238,7 @@ addClusters <- function(
 #Simply a wrapper on Seurats FindClusters
 .clustSeurat <- function(mat = NULL, clustParams = NULL){
 
-    .requirePackage("Seurat")
+    .requirePackage("Seurat", source = "cran")
     .messageDiffTime("Running Seurats FindClusters (Stuart et al. Cell 2019)", clustParams$tstart, verbose=clustParams$verbose)
     set.seed(1)
 
@@ -280,86 +306,24 @@ addClusters <- function(
 }
 
 .clustScran <- function(clustParams = NULL){
-    .requirePackage("scran")
-    .requirePackage("igraph")
+    .requirePackage("scran", installInfo='BiocManager::install("scran")')
+    .requirePackage("igraph", installInfo='install.packages("igraph")')
     #See Scran Vignette!
     set.seed(1)
+    tstart <- clustParams$tstart
+    verbose <- clustParams$verbose
+    clustParams$tstart <- NULL
+    clustParams$verbose <- NULL
     #clustParams$x <- matDR
+    .messageDiffTime("Running Scran SNN Graph (Lun et al. Cell 2016)", tstart, verbose=verbose)
     snn <- do.call(scran::buildSNNGraph, clustParams)
+    .messageDiffTime("Identifying Clusters (Lun et al. Cell 2016)", tstart, verbose=verbose)
     cluster <- igraph::cluster_walktrap(snn)$membership
     paste0("Cluster", cluster)
 }
 
-# #Need to work on making this work
-# .clustLouvain <- function(matDR, knn = 50, jaccard = TRUE){
-
-#     getEdges <- function(X, knn, jaccard) {
-#         nearest <- RANN::nn2(X, X, k = knn + 1, treetype = "bd", searchtype = "priority")
-#         nearest$nn.idx <- nearest$nn.idx[, -1]
-#         nearest$nn.dists <- nearest$nn.dists[, -1]
-#         nearest$nn.sim <- 1 * (nearest$nn.dists >= 0)
-#         edges <- reshape2::melt(t(nearest$nn.idx))
-#         colnames(edges) = c("B", "A", "C")
-#         edges = edges[, c("A", "B", "C")]
-#         edges$B <- edges$C
-#         edges$C <- 1
-#         edges <- unique(transform(edges, A = pmin(A, B), B = pmax(A, B)))
-#         if (jaccard) {
-#           message("Calculating Jaccard Distance...")
-#             a <- Matrix::tcrossprod(nearest$nn.idx[edges[,1],], nearest$nn.idx[edges[,2],])
-#             bi <- Matrix::rowSums(nearest$nn.idx[edges[,1],])
-#             bj <- Matrix::rowSums(nearest$nn.idx[edges[,2],])
-#             jaccardDist <- a / (rep(ncol(a), bi) + t(rep(nrow(a), bj)) - a)
-#             pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-#             #RCPPP?
-#             # jaccardDist <- unlist(lapply(seq_len(nrow(edges)), function(x){
-#             #     setTxtProgressBar(pb,round(x*100/nrow(edges),0))
-#             #     jInt   <- intersect(nearest$nn.idx[edges[x,1],], nearest$nn.idx[edges[x,2],])
-#             #     jUnion <- union(nearest$nn.idx[edges[x,1],], nearest$nn.idx[edges[x,2],])
-#             #     length(jInt) / length(jUnion)
-#             # }))
-#             edges$C <- jaccardDist
-#             edges <- subset(edges, C != 0)
-#             edges$C <- edges$C/max(edges$C)
-#         }
-#         edges <- Matrix::sparseMatrix(i = edges$A, j = edges$B, x = edges$C, dims = c(nrow(X),nrow(X)), symmetric = TRUE)
-#         return(edges)
-#     }
-
-#     assignClusters <- function(edges, jaccard) {
-#         if (jaccard) {
-#             weights <- TRUE
-#         }else {
-#             weights <- NULL
-#         }
-#         g <- igraph::graph.adjacency(edges, mode = "undirected", weighted = weights)
-#         graphOut <- igraph::cluster_louvain(g)
-#         clustAssign <- factor(graphOut$membership, levels = sort(unique(graphOut$membership)))
-#         names(clustAssign) <- graphOut$names
-#         k = order(table(clustAssign), decreasing = TRUE)
-#         newLevels <- rep(1, length(unique(graphOut$membership)))
-#         newLevels[k] <- seq_len(length(unique(graphOut$membership)))
-#         levels(clustAssign) <- newLevels
-#         clustAssign <- factor(clustAssign, levels = seq_len(length(unique(graphOut$membership))))
-#         return(paste0("Cluster", clustAssign))
-#     }
-
-#     require(RANN)
-#     require(cluster)
-#     require(igraph)
-#     require(Matrix)
-#     message("Running Louvian Jaccard Graph Clustering...")
-#     message("Adapted from Comprehensive Classification of Retinal Bipolar Neurons by Single-Cell Transcriptomics. Cell 2016.")
-    
-#     message("Calculating Edges...")
-#     edges <- getEdges(X = matDR, knn = knn, jaccard = jaccard)
-#     message("\nAssigning Clusters...")
-#     clustAssign <- assignClusters(edges = edges, jaccard = jaccard)
-    
-#     return(clustAssign)
-
-# }
-
+#JJJ should i just default to one? Nabor seems faster than RANN and if you install chromVAR
+#you neeed RANN. Seurat uses RANN.
 .computeKNN <- function(
     data = NULL,
     query = NULL,
@@ -396,7 +360,7 @@ addClusters <- function(
 
   if(tolower(method)=="nabor"){
     
-    .requirePackage("nabor")
+    .requirePackage("nabor", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- nabor::knn(data = data, query = query, k = k + 1, ...)$nn.idx
       knnIdx <- knnIdx[,-1]
@@ -406,7 +370,7 @@ addClusters <- function(
   
   }else if(tolower(method)=="rann"){
     
-    .requirePackage("RANN")
+    .requirePackage("RANN", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- RANN::nn2(data = data, query = query, k = k + 1, ...)$nn.idx
       knnIdx <- knnIdx[,-1]
@@ -416,7 +380,7 @@ addClusters <- function(
 
   }else if(tolower(method)=="fnn"){
 
-    .requirePackage("FNN")
+    .requirePackage("FNN", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- FNN::get.knnx(data = data, query = query, k = k + 1, ...)$nn.index
       knnIdx <- knnIdx[,-1]
@@ -433,4 +397,6 @@ addClusters <- function(
   knnIdx
 
 }
+
+
 

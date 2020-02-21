@@ -2,21 +2,32 @@
 # Embedding Methods
 ##########################################################################################
 
-#' Add a UMAP embedding of a reduced dimensions object to an ArchRProject JJJ
+#' Add a UMAP embedding of a reduced dimensions object to an ArchRProject
 #' 
 #' This function will compute a UMAP embedding and add it to an ArchRProject.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
-#' @param name The name for the UMAP embedding to be stored as in the given `ArchRProject` object.
+#' @param name The name for the UMAP embedding to store in the given `ArchRProject` object.
+#' @param nNeighbors An integer describing the number of nearest neighbors to compute a UMAP. This argument is passed to `n_neighbors` in `uwot::umap()`.
+#' @param minDist A number that determines how tightly the UMAP is allowed to pack points together. This argument is passed to `min_dist` in
+#' `uwot::umap()`. For more info on this see https://jlmelville.github.io/uwot/abparams.html.
+#' @param metric A number that determines how distance is computed in the `reducedDims` to compute a UMAP. This argument is passed to `metric` in `uwot::umap()`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding. Only relevant if `embedding` is set to "UMAP".
-#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding named by `name` already exists.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
+#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+#' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding.
+#' @param verbose A boolean value that indicates whether printing UMAP output.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+#' reproduce results downstream.
+#' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding indicated by
+#' `name` already exists.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param ... Additional Params to add to `uwot::umap`
+#' @param ... Additional parameters to pass to `uwot::umap()`
 #' @export
 addUMAP <- function(
   ArchRProj = NULL,
@@ -32,7 +43,7 @@ addUMAP <- function(
   verbose = TRUE,
   seed = 1,
   force = FALSE,
-  threads = getArchRThreads(),
+  threads = max(floor(getArchRThreads() / 2), 1),
   ...
   ){
 
@@ -43,6 +54,7 @@ addUMAP <- function(
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = saveModel, name = "saveModel", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
@@ -103,7 +115,7 @@ addUMAP <- function(
     dfEmbedding <- data.frame(uwot_umap)    
   }   
   colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
-  rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
+  rownames(dfEmbedding) <- rownames(embeddingParams$X)
 
   embeddingParams$X <- NULL
   ArchRProj@embeddings[[name]] <- SimpleList(df = dfEmbedding, params = embeddingParams)
@@ -112,21 +124,32 @@ addUMAP <- function(
 
 }
 
-#' Add a TSNE embedding of a reduced dimensions object to an ArchRProject JJJ
+#' Add a TSNE embedding of a reduced dimensions object to an ArchRProject
 #' 
 #' This function will compute a TSNE embedding and add it to an ArchRProject.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
-#' @param method The method for computing TSNE embedding to add to `ArchRProject` object. Possible options are "RTSNE", and "FFRTSNE".
-#' @param name The name for the TSNE embedding to be stored as in the given `ArchRProject` object.
+#' @param method The method for computing a TSNE embedding to add to the `ArchRProject` object. Possible options
+#' are "RTSNE", which uses `Rtsne::Rtsne()`, and "FFRTSNE", which uses `Seurat::RunTSNE()`.
+#' @param name The name for the TSNE embedding to store in the given `ArchRProject` object.
+#' @param perplexity An integer describing the number of nearest neighbors to compute an `Rtsne`. This argument is passed to `perplexity` in `Rtsne::Rtsne()`.
+#' @param maxIterations An integer describing the maximum number of iterations when computing a TSNE. This argument is passed to `max_iter` in `Rtsne::Rtsne()`.
+#' @param learningRate An integer controlling how much the weights are adjusted at each iteration. This argument is passed to `eta` in `Rtsne::Rtsne()`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If `NULL` this will scale the dimensions depending on if this were set true when the `reducedDims` were created by `addIterativeLSI`.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.
-#' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding named by `name` already exists.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
+#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing
+#' depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param verbose A boolean value that indicates whether printing TSNE output.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+#' reproduce results downstream.
+#' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding indicated by
+#' `name` already exists.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param ... Additional Params to add to for metohd = RTSNE (`Rtsne::Rtsne`) or method = FFRTSNE (`Seurat::RunTSNE`) for computing the TSNE embedding. 
+#' @param ... Additional parameters for computing the TSNE embedding to pass to `Rtsne::Rtsne()` (when `method = "RTSNE"`) or to `Seurat::RunTSNE()` (when method = "FFRTSNE"). 
 #' @export
 addTSNE <- function(
   ArchRProj = NULL,
@@ -135,7 +158,7 @@ addTSNE <- function(
   name = "TSNE",
   perplexity = 50,
   maxIterations = 1000,
-  learningRate = 1000,
+  learningRate = 200,
   dimsToUse = NULL,
   scaleDims = NULL,
   corCutOff = 0.75,
@@ -143,16 +166,20 @@ addTSNE <- function(
   verbose = TRUE,
   seed = 1,
   force = FALSE,
-  threads = getArchRThreads(),
+  threads = max(floor(getArchRThreads() / 2), 1),
   ...
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
+  .validInput(input = perplexity, name = "perplexity", valid = c("integer"))
+  .validInput(input = maxIterations, name = "maxIterations", valid = c("integer"))
+  .validInput(input = learningRate, name = "learningRate", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
@@ -181,9 +208,14 @@ addTSNE <- function(
       scaleDims = scaleDims
   )
 
+  if(tolower(method)!="rtsne"){
+    message("Methods other than Rtsne not currently supported, defaulting to Rtsne!")
+    method <- "rtsne" 
+  }
+
   if(tolower(method)=="rtsne"){
 
-    .requirePackage("Rtsne")
+    .requirePackage("Rtsne", source = "cran")
     
     embeddingParams$X <- getReducedDims(
         ArchRProj = ArchRProj, 
@@ -202,11 +234,11 @@ addTSNE <- function(
     Rtsne_tsne <- do.call(Rtsne::Rtsne, embeddingParams)
     dfEmbedding <- data.frame(Rtsne_tsne$Y)   
     colnames(dfEmbedding) <- paste0(reducedDims,"#TSNE_Dimension_",seq_len(ncol(dfEmbedding)))
-    rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
+    rownames(dfEmbedding) <- rownames(embeddingParams$X)
 
   }else if(tolower(method)=="fftrtsne" | tolower(method)=="fit-tsne"){
 
-    .requirePackage("Seurat")
+    .requirePackage("Seurat", source = "cran")
     
     embeddingParams$X <- getReducedDims(
         ArchRProj = ArchRProj, 
@@ -223,7 +255,7 @@ addTSNE <- function(
 
     dfEmbedding <- data.frame(fftrtsne_tsne@cell.embeddings)   
     colnames(dfEmbedding) <- paste0(reducedDims,"#TSNE_Dimension_",seq_len(ncol(dfEmbedding)))
-    rownames(dfEmbedding) <- rownames(ArchRProj@reducedDims[[reducedDims]][[1]])
+    rownames(dfEmbedding) <- rownames(embeddingParams$X)
 
   }else{
 

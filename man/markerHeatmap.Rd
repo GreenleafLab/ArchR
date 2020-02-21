@@ -21,24 +21,28 @@ markerHeatmap(
   nPrint = 20,
   labelRows = FALSE,
   returnMat = FALSE,
-  transpose = TRUE,
+  transpose = FALSE,
   invert = FALSE
 )
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{markerFeatures()}.}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted
+in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
-\item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values in \code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like "DeviationsMatrix").}
+\item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values in
+\code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like "DeviationsMatrix").}
 
-\item{scaleTo}{Each column in the assay Mean from \code{seMarker} will be normalized to a column sum designated by \code{scaleTo} prior to log2 normalization. If log2Norm is \code{FALSE} this option has no effect.}
+\item{scaleTo}{Each column in the assay Mean from \code{seMarker} will be normalized to a column sum designated by \code{scaleTo}
+prior to log2 normalization. If log2Norm is \code{FALSE} this option has no effect.}
 
 \item{scaleRows}{A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.}
 
 \item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
 
-\item{grepExclude}{A character vector or string that indicates the \code{rownames} or a specific pattern that identifies rownames from \code{seMarker} to be excluded from the heatmap.}
+\item{grepExclude}{A character vector or string that indicates the \code{rownames} or a specific pattern that identifies
+rownames from \code{seMarker} to be excluded from the heatmap.}
 
 \item{pal}{A custom continuous palette from \code{ArchRPalettes} (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}
 
@@ -52,8 +56,10 @@ markerHeatmap(
 
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
-\item{invert}{JJJ A boolean value that indicates whether the heatmap will be sorted features by features that are Log2FC < 0 and the color palette is
-inverted for visualization. For example, this is useful when looking for down-regulated markers (Log2FC < 0) instead of up-regulated markers (Log2FC > 0).}
+\item{invert}{JJJ. A boolean value that indicates whether the heatmap will display the features with the
+lowest \verb{log2(fold change)}. In this case, the heatmap will display features that are specifically lower in the given cell
+group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
+looking for down-regulated markers (\verb{log2(fold change) < 0}) instead of up-regulated markers (\verb{log2(fold change) > 0}).}
 }
 \description{
 This function will plot a heatmap of the results from markerFeatures

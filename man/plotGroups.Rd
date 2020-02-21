@@ -9,13 +9,17 @@ plotGroups(
   groupBy = "Sample",
   colorBy = "colData",
   name = "TSSEnrichment",
-  imputeWeights = NULL,
+  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
+    getImputeWeights(ArchRProj),
   log2Norm = NULL,
   pal = NULL,
   ylim = NULL,
   size = 0.5,
   baseSize = 6,
-  ratioYX = NULL
+  ratioYX = NULL,
+  ridgeScale = 1,
+  plotAs = "ridges",
+  ...
 )
 }
 \arguments{
@@ -23,10 +27,16 @@ plotGroups(
 
 \item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for summarizing and plotting.}
 
-\item{colorBy}{A string indicating whether the numeric values to be used in the violin plot should be from a column in \code{cellColData} ("cellColData") or by a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").}
+\item{colorBy}{A string indicating whether the numeric values to be used in the violin plot should be from a column in
+\code{cellColData} ("cellColData") or from a data matrix in the ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").}
 
 \item{name}{The name of the column in \code{cellColData} or the featureName/rowname of the data matrix to be used for plotting.
-For example if colorBy is \code{cellColData} then name refers to a column name in the cellcoldata (see \code{getCellcoldata()}), if colorBy is "GeneScoreMatrix" then name refers to a gene name which can be listed by \code{getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")}.}
+For example if \code{colorBy} is "cellColData" then \code{name} refers to a column name in the cellcoldata (see \code{getCellcoldata()}). If \code{colorBy}
+is "GeneScoreMatrix" then \code{name} refers to a gene name which can be listed by \code{getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")}.}
+
+\item{imputeWeights}{The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See \code{addImputationWeights()} and \code{getImutationWeights()} for more information.}
+
+\item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values (if continuous) in plotting.}
 
 \item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override discreteSet/continuousSet for coloring vector.}
 
@@ -37,6 +47,12 @@ For example if colorBy is \code{cellColData} then name refers to a column name i
 \item{baseSize}{The base font size to use in the plot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
+
+\item{ridgeScale}{The scale factor for the relative heights of each ridge when making a ridgeplot with \code{ggridges}.}
+
+\item{plotAs}{A string that indicates whether a rigdge plot ("ridges") should be plotted or a violin plot ("violin") should be plotted.}
+
+\item{...}{Additional parameters to pass to \code{ggGroup()}.}
 }
 \description{
 This function will group, summarize and then plot data from an ArchRProject for visual comparison.

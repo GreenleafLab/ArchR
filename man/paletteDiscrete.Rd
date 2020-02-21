@@ -7,12 +7,14 @@
 paletteDiscrete(values = NULL, set = "stallion", reverse = FALSE)
 }
 \arguments{
-\item{values}{A character vector containing the sample names that will be used. Each entry in this character vector will be given a unique color from the designated palette set.}
+\item{values}{A character vector containing the sample names that will be used. Each entry in this character vector will be
+given a unique color from the designated palette set.}
 
 \item{set}{The name of a color palette provided in the \code{ArchRPalettes} list object.}
 
 \item{reverse}{A boolean variable that indicates whether to return the palette colors in reverse order.}
 }
 \description{
-This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most possible color contrast from the designated color set.
+This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most
+possible color contrast from the designated color set.
 }

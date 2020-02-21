@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggGroup}
 \alias{ggGroup}
-\title{A ggplot-based violin plot wrapper function JJJ}
+\title{A ggplot-based ridge/violin plot wrapper function}
 \usage{
 ggGroup(
   x = NULL,
@@ -18,8 +18,9 @@ ggGroup(
   alpha = 1,
   title = "",
   pal = paletteDiscrete(values = x, set = "stallion"),
-  addBoxPlot = FALSE,
-  plotAs = "ridges"
+  addBoxPlot = TRUE,
+  plotAs = "ridges",
+  ...
 )
 }
 \arguments{
@@ -31,20 +32,29 @@ ggGroup(
 
 \item{ylabel}{The label to plot for the y-axis.}
 
-\item{groupOrder}{A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible values of \code{x} in the desired order.}
+\item{groupOrder}{A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible
+values of \code{x} in the desired order.}
+
+\item{groupSort}{A boolean indicating whether to sort groups based on the average value of the group.}
 
 \item{size}{The line width for boxplot/summary lines.}
 
-\item{baseSize}{The base font (in points) size to use in the plot.}
+\item{baseSize}{The base font size (in points) to use in the plot.}
+
+\item{ridgeScale}{A numeric indicating the relative size for each ridge in the ridgeplot.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
+
+\item{alpha}{A number indicating the transparency to use for each point. See \code{ggplot2} for more details.}
 
 \item{title}{The title of the plot.}
 
 \item{pal}{A named custom palette (see \code{paletteDiscrete()} and \code{ArchRPalettes}) for discrete coloring.}
 
-\item{sampleRatio}{The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.}
+\item{addBoxPlot}{A boolean indicating whether to add a boxplot to the plot if \code{plotAs="violin"}.}
+
+\item{...}{Additional parameters to pass to \code{ggplot2} for plotting.}
 }
 \description{
-This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.
+This function is a wrapper around ggplot geom_density_ridges or geom_violin to allow for plotting group distribution plots in ArchR.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Embedding.R
 \name{addUMAP}
 \alias{addUMAP}
-\title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject JJJ}
+\title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject}
 \usage{
 addUMAP(
   ArchRProj = NULL,
@@ -18,7 +18,7 @@ addUMAP(
   verbose = TRUE,
   seed = 1,
   force = FALSE,
-  threads = getArchRThreads(),
+  threads = max(floor(getArchRThreads()/2), 1),
   ...
 )
 }
@@ -27,23 +27,38 @@ addUMAP(
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to use from the designated \code{ArchRProject}.}
 
-\item{name}{The name for the UMAP embedding to be stored as in the given \code{ArchRProject} object.}
+\item{name}{The name for the UMAP embedding to store in the given \code{ArchRProject} object.}
+
+\item{nNeighbors}{An integer describing the number of nearest neighbors to compute a UMAP. This argument is passed to \code{n_neighbors} in \code{uwot::umap()}.}
+
+\item{minDist}{A number that determines how tightly the UMAP is allowed to pack points together. This argument is passed to \code{min_dist} in
+\code{uwot::umap()}. For more info on this see https://jlmelville.github.io/uwot/abparams.html.}
+
+\item{metric}{A number that determines how distance is computed in the \code{reducedDims} to compute a UMAP. This argument is passed to \code{metric} in \code{uwot::umap()}.}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
 
-\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs. If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by \code{addIterativeLSI}.}
+\item{scaleDims}{A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+biases since it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the
+\code{reducedDims} were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{saveModel}{A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding. Only relevant if \code{embedding} is set to "UMAP".}
+\item{saveModel}{A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding.}
 
-\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{verbose}{A boolean value that indicates whether printing UMAP output.}
 
-\item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding named by \code{name} already exists.}
+\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+reproduce results downstream.}
+
+\item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding indicated by
+\code{name} already exists.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{...}{Additional Params to add to \code{uwot::umap}}
+\item{...}{Additional parameters to pass to \code{uwot::umap()}}
 }
 \description{
 This function will compute a UMAP embedding and add it to an ArchRProject.

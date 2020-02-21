@@ -15,13 +15,19 @@
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param scaleDims A boolean that indicates whether to z-score the reduced dimensions for each cell during the LSI
+#' method performed for doublet determination. This is useful for minimizing the contribution of strong biases (dominating early PCs)
+#' and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
+#' to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param knnMethod The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "LSI".
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" is designated to `knnMethod`. See the function `umap` in the uwot package.
 #' @param LSIParams The list of parameters to pass to the `IterativeLSI()` function. See `IterativeLSI()`.
 #' @param outDir The relative path to the output directory for relevant plots/results from doublet identification.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param force If the UMAP projection is not accurate (when R < 0.8 for the reprojection of the training data - this occurs when you 
+#' have a very homogenous population of cells), setting `force=FALSE` will return -1 for all doubletScores and doubletEnrichments. If you would like to
+#' override this (not recommended!), you can bypass this warning by setting `force=TRUE`.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
@@ -39,8 +45,9 @@ addDoubletScores <- function(
   knnMethod = "UMAP",
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose = FALSE),
   LSIParams = list(),
-  outDir = if(inherits(input, "ArchRProject")) getOutputDirectory(input) else "QualityControl",  
+  outDir = getOutputDirectory(input),  
   threads = getArchRThreads(),
+  force = FALSE,
   parallelParam = NULL,
   verboseHeader = TRUE,
   verboseAll = FALSE
@@ -52,12 +59,13 @@ addDoubletScores <- function(
   .validInput(input = nTrials, name = "nTrials", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean"))
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
   .validInput(input = LSIParams, name = "LSIParams", valid = c("list"))
   .validInput(input = outDir, name = "outDir", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
 
@@ -138,13 +146,14 @@ addDoubletScores <- function(
   nSample = 1000,
   knnMethod = "UMAP",
   outDir = "QualityControl",
+  force = FALSE,
   subThreads = 1,
   verboseHeader = TRUE,
   verboseAll = FALSE,
   tstart = NULL
   ){
 
-  if(!is.null(tstart)){
+  if(is.null(tstart)){
     tstart <- Sys.time()
   }
 
@@ -238,11 +247,12 @@ addDoubletScores <- function(
     LSI = LSI, 
     sampleRatio1 = c(1/2), 
     sampleRatio2 = c(1/2), 
-    nTrials = floor(nTrials * nCells(proj) / nSample), 
+    nTrials = nTrials * max( floor(nCells(proj) / nSample), 1 ), 
     nSample = nSample, 
     k = k, 
     uwotUmap = uwotUmap,
     seed = 1, 
+    force = force,
     threads = subThreads
   )
 
@@ -311,6 +321,7 @@ addDoubletScores <- function(
     if(!requireNamespace("ggrastr", quietly = TRUE)){
       
       message("ggrastr is not available for rastr of points, continuing without rastr!")
+      message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
 
       pdensity <- ggplot() + 
         geom_point(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
@@ -327,7 +338,7 @@ addDoubletScores <- function(
 
     }else{
 
-      .requirePackage("ggrastr")
+      .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
 
       pdensity <- ggplot() + 
         geom_point_rast(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
@@ -362,7 +373,6 @@ addDoubletScores <- function(
       baseSize = 10
       ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
             axis.text.y = element_blank(), axis.ticks.y = element_blank())
-    
 
     #Plot Enrichment Summary
     penrich <- ggPoint(
@@ -382,7 +392,7 @@ addDoubletScores <- function(
       baseSize = 10
       ) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
             axis.text.y = element_blank(), axis.ticks.y = element_blank())
-    
+
 
     #1. Doublet Enrichment
     print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
@@ -441,7 +451,8 @@ addDoubletScores <- function(
   k = 200, 
   knnMethod = "UMAP",
   seed = 1, 
-  threads = 1
+  threads = 1,
+  force = FALSE
   ){
 
   .sampleSparseMat <- function(mat = NULL, sampleRatio = 0.5){
@@ -517,14 +528,21 @@ addDoubletScores <- function(
 
   message("UMAP Projection R^2 = ", round(mean(corProjection[[2]])^2, 5))
 
-  if(mean(corProjection[[2]]) < 0.85){
-    stop("Correlation of UMAP Projection is below 0.85 (normally this is ~0.99+), This means there is a bug with the projection code. Please immediately report this!")
-  }
-
   out <- SimpleList(
     doubletUMAP = umapProject[seq_len(nSimLSI), ],
     projectionCorrelation = corProjection
   )
+
+  if(mean(corProjection[[2]]) < 0.9){
+    if(!force){
+      message("Correlation of UMAP Projection is below 0.9 (normally this is ~0.99)\nThis means there is little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
+      out$doubletEnrichLSI <- rep(-1, nrow(LSI$matSVD))
+      out$doubletScoreLSI <- rep(-1, nrow(LSI$matSVD))
+      out$doubletEnrichUMAP <- rep(-1, nrow(LSI$matSVD))
+      out$doubletScoreUMAP <- rep(-1, nrow(LSI$matSVD))
+      return(out)
+    }
+  }
 
   ##############################################################################
   # Compute Doublet Scores from LSI (TF-IDF + SVD)
@@ -618,7 +636,7 @@ addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames =
   .validInput(input = bestFiles, name = "bestFiles", valid = c("character"))
   .validInput(input = sampleNames, name = "sampleNames", valid = c("character"))
 
-  .requirePackage("readr")
+  .requirePackage("readr", source = "cran")
 
   if(!all(sampleNames %in% rownames(getSampleColData(ArchRProj)))){
     samples <- sampleNames[sampleNames %ni% rownames(getSampleColData(ArchRProj))]
@@ -646,7 +664,6 @@ addDemuxletResults <- function(ArchRProj = NULL, bestFiles = NULL, sampleNames =
   ArchRProj
   
 }
-
 
 
 

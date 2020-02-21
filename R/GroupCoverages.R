@@ -1,21 +1,26 @@
 #' Add Group Coverages to an ArchRProject object
 #' 
-#' This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file.
+#' This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then
+#' merge these replicates into a single insertion coverage file.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy The name of the column in `cellColData` to use for grouping multiple cells together prior to generation of the insertion coverage file.
 #' @param useLabels A boolean value indicating whether to use sample labels to create sample-aware subgroupings during as pseudo-bulk replicate generation.
 #' @param minCells The minimum number of cells required in a given cell group to permit insertion coverage file generation.
 #' @param maxCells The maximum number of cells to use during insertion coverage file generation.
-#' @param maxFragments The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.
+#' @param maxFragments The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation
+#' of excessively large files which would negatively impact memory requirements.
 #' @param minReplicates The minimum number of pseudo-bulk replicates to be generated.
 #' @param maxReplicates The maximum number of pseudo-bulk replicates to be generated.
 #' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
 #' @param kmerLength The length of the k-mer used for estimating Tn5 bias.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param returnGroups A boolean whether to just return sample-guided cell-groupings without creating coverages. This is used mainly in addReproduciblePeakSet when calling peaks with TileMatrix.
+#' @param returnGroups A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
+#' This is used mainly in `addReproduciblePeakSet()` when MACS2 is not being used to call peaks but rather peaks are called from a
+#' TileMatrix (`peakMethod = "Tiles"`).
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if insertion coverage / pseudo-bulk replicate information already exists.
+#' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if
+#' insertion coverage / pseudo-bulk replicate information already exists.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @export
@@ -503,7 +508,7 @@ addGroupCoverages <- function(
   ){
   
   .requirePackage(genome)
-  .requirePackage("Biostrings")
+  .requirePackage("Biostrings", source = "bioc")
   BSgenome <- eval(parse(text = genome))
   BSgenome <- validBSgenome(BSgenome)
 
@@ -643,9 +648,10 @@ addGroupCoverages <- function(
   if(length(allChr)==0){
     stop("No Chromosomes in Coverage after Excluding Chr!")
   }
+  ##Note that there was a bug with data.table vs data.frame with stacking
   for(x in seq_along(allChr)){
     .getCoverageInsertionSites(coverageFile, allChr[x]) %>% 
-      {data.frame(seqnames = allChr[x], start = . - 1L, end = .)} %>% 
+      {data.table(seqnames = allChr[x], start = . - 1L, end = .)} %>% 
       {data.table::fwrite(., out, sep = "\t", col.names = FALSE, append = TRUE)}
   }
   out

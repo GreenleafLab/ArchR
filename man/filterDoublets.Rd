@@ -4,21 +4,27 @@
 \alias{filterDoublets}
 \title{Filter Doublets From an ArchRProject}
 \usage{
-filterDoublets(ArchRProj, cutEnrich = 1, cutScore = -Inf, filterRatio = 1)
+filterDoublets(
+  ArchRProj = NULL,
+  cutEnrich = 1,
+  cutScore = -Inf,
+  filterRatio = 1
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{cutEnrich}{The minimum numeric cutoff for \code{DoubletEnrichment}. This number is equivalent to the number of simulated doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.}
+\item{cutEnrich}{The minimum numeric cutoff for \code{DoubletEnrichment}. This number is equivalent to the number of simulated
+doublets identified as a nearest neighbor to the cell divided by the expected number given a random uniform distribution.}
 
-\item{cutScore}{The minimum numeric cutoff for \code{DoubletScore} which represents the -log10(binomial adjusted p-value) for the \code{DoubletEnrichment}.}
+\item{cutScore}{The minimum numeric cutoff for \code{DoubletScore} which represents the \verb{-log10(binomial adjusted p-value)} for the \code{DoubletEnrichment}.}
 
 \item{filterRatio}{The maximum ratio of predicted doublets to filter based on the number of pass-filter cells.
-For example, if there are 5,000 cells the maximum would be filterRatio * 5,000^2 / (100,000) (which simplifies to filterRatio * 5000 * 0.05).
-This \code{filterRatio} allows you to apply a consistent filter across multiple different samples that
-may have different percentages of doublets because they were run with different cell loading concentrations.
+For example, if there are 5000 cells, the maximum would be \code{filterRatio * 5000^2 / (100000)} (which simplifies to \code{filterRatio * 5000 * 0.05}).
+This \code{filterRatio} allows you to apply a consistent filter across multiple different samples that may have different
+percentages of doublets because they were run with different cell loading concentrations.
 The higher the \code{filterRatio}, the greater the number of cells potentially removed as doublets.}
 }
 \description{
-This function wil filter doublets from an ArchRProject after addDoubletScores has been run
+This function will filter doublets from an ArchRProject after addDoubletScores has been run.
 }

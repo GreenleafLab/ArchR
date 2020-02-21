@@ -10,18 +10,23 @@
 #' @param positions A `list` or `GenomicRangesList` of `GRanges` containing the positions to incorporate into the footprint. Each position should be stranded.
 #' @param plotName The prefix to add to the file name for the output PDF file containing the footprint plots.
 #' @param groupBy The name of the column in `cellColData` used in the `addGroupCoverages()` function for grouping multiple cells together.
-#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups used to perform footprinting.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`.
+#' This limits the groups used to perform footprinting.
 #' @param pal The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
 #' @param flank The number of basepairs from the position center (+/-) to consider as the flank.
 #' @param flankNorm The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.
 #' @param smoothWindow The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
 #' @param minCells The minimum number of cells required in a given cell group to permit footprint generation.
-#' @param nTop The number of genomic regions to consider. Only the top `nTop` genomic regions based on the "score" column in the `GRanges` object will be considered for the footprint.
-#' @param normMethod The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.
-#' @param inputSE Input a previous footprint Summarized Experiment (returned after running `plotFootprints`) to be plotted instead of regenerating the footprinting information.
+#' @param nTop The number of genomic regions to consider. Only the top `nTop` genomic regions based on the "score" column in the `GRanges`
+#' object will be considered for the footprint.
+#' @param normMethod The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options
+#' include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.
+#' @param inputSE Input a previous footprint Summarized Experiment (returned after running `plotFootprints`) to be plotted instead of
+#' regenerating the footprinting information.
 #' @param height The height in inches to be used for the output PDF.
 #' @param width The width in inches to be used for the output PDF file.
-#' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for preventing overwritting of old plots.
+#' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
+#' preventing overwritting of old plots.
 #' @param useSink A boolean value that indicates whether the `sink` function from base R should be used to hide messages during plotting.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
@@ -356,7 +361,7 @@ plotFootprints <- function(
 
   genome <- getGenome(ArchRProj)
   .requirePackage(genome)
-  .requirePackage("Biostrings")
+  .requirePackage("Biostrings", source = "bioc")
   BSgenome <- eval(parse(text = genome))
   BSgenome <- validBSgenome(BSgenome)
 

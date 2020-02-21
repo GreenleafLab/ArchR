@@ -23,6 +23,18 @@ setClass("ArchRProject",
   )
 )
 
+.validArrowFiles <- function(object){
+  errors <- c()
+  fe <- file.exists(object@sampleColData$ArrowFiles)
+  if(any(!fe)){
+    msg <- paste0("\nArrowFiles :\n  ", paste0(object@sampleColData$ArrowFiles[!fe], collapse=",\n  "), "\nDo not exist!")
+    errors <- c(errors, msg)    
+  }
+  if (length(errors) == 0) TRUE else errors
+}
+
+setValidity("ArchRProject", .validArrowFiles)
+
 setMethod("show", "ArchRProject",
   function(object) {
     scat <- function(fmt, vals=character(), exdent=2, n = 5, ...){
@@ -50,8 +62,10 @@ setMethod("show", "ArchRProject",
 #' @param ArrowFiles A character vector containing the relative paths to the ArrowFiles to be used.
 #' @param outputDirectory A name for the relative path of the outputDirectory for ArchR results. Relative to the current working directory.
 #' @param copyArrows A boolean value indicating whether ArrowFiles should be copied into `outputDirectory`.
-#' @param geneAnnotation The `geneAnnotation` object (see `createGeneAnnotation()`) to be used for downstream analyses such as calculating TSS Enrichment Scores, Gene Scores, etc.
-#' @param genomeAnnotation The `genomeAnnotation` object (see `createGenomeAnnotation()`) to be used for downstream analyses requiring genome information such as nucleotide information or chromosome sizes.
+#' @param geneAnnotation The `geneAnnotation` object (see `createGeneAnnotation()`) to be used for downstream analyses such as calculating
+#' TSS Enrichment Scores, Gene Scores, etc.
+#' @param genomeAnnotation The `genomeAnnotation` object (see `createGenomeAnnotation()`) to be used for downstream analyses requiring
+#' genome information such as nucleotide information or chromosome sizes.
 #' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
 #' @export
 ArchRProject <- function(
@@ -76,10 +90,17 @@ ArchRProject <- function(
 
   #Validate
   message("Validating Arrows...")
+  if(any(!file.exists(ArrowFiles))){
+    stop(paste0("Could not find ArrowFiles :\n", paste0(ArrowFiles[!file.exists(ArrowFiles)], collapse="\n")))
+  }
   ArrowFiles <- unlist(lapply(ArrowFiles, .validArrow))
 
   message("Getting SampleNames...")
-  sampleNames <- unlist(lapply(seq_along(ArrowFiles), function(x) .sampleName(ArrowFiles[x])))
+  sampleNames <- unlist(lapply(seq_along(ArrowFiles), function(x){
+    message(x, " ", appendLF = FALSE)
+    .sampleName(ArrowFiles[x])
+  }))
+  message("")
 
   if(any(duplicated(sampleNames))){
     stop("Error cannot have duplicate sampleNames, please add sampleNames that will overwrite the current sample name in Arrow file!")
@@ -93,7 +114,11 @@ ArchRProject <- function(
 
   if(copyArrows){
     message("Copying ArrowFiles to Ouptut Directory! If you want to save disk space set copyArrows = FALSE")
-    cf <- file.copy(ArrowFiles, file.path(sampleDirectory, paste0(sampleNames, ".arrow")), overwrite = TRUE)
+    for(i in seq_along(ArrowFiles)){
+      message(i, " ", appendLF = FALSE)
+      cf <- file.copy(ArrowFiles[i], file.path(sampleDirectory, paste0(sampleNames[i], ".arrow")), overwrite = TRUE)
+    }
+    message("")
     ArrowFiles <- file.path(sampleDirectory, paste0(sampleNames, ".arrow"))
   }
 
@@ -103,10 +128,26 @@ ArchRProject <- function(
   names(sampleMetadata) <- sampleNames
 
   #Cell Information
-  metadataList <- lapply(ArrowFiles, .getMetadata)
-  intCols <- Reduce("intersect",lapply(metadataList,colnames))
-  cellColData <- lapply(metadataList, function(x) x[,intCols]) %>% Reduce("rbind",.)
+  message("Getting Cell Metadata...")
+  metadataList <- lapply(seq_along(ArrowFiles), function(x){
+    message(x, " ", appendLF = FALSE)
+    .getMetadata(ArrowFiles[x])
+  })
+  message("")
+  message("Merging Cell Metadata...")
+  allCols <- unique(c("Sample",rev(sort(unique(unlist(lapply(metadataList,colnames)))))))
+  cellColData <- lapply(seq_along(metadataList), function(x){
+    mdx <- metadataList[[x]]
+    idx <- which(allCols %ni% colnames(mdx))
+    if(length(idx) > 0){
+      for(i in seq_along(idx)){
+        mdx[,allCols[idx]] <- NA 
+      }
+    }
+    mdx[, allCols, drop = FALSE]
+  }) %>% Reduce("rbind", .) %>% DataFrame
 
+  message("Initializing ArchRProject...")
   AProj <- new("ArchRProject", 
     projectMetadata = SimpleList(outputDirectory = normalizePath(outputDirectory)),
     projectSummary = SimpleList(),
@@ -175,7 +216,9 @@ saveArchRProject <- function(
 #' This function will load a previously saved ArchRProject and re-normalize paths for usage.
 #' 
 #' @param path A character path to an `ArchRProject` directory that was previously saved using `saveArchRProject()`.
-#' @param force A boolean value indicating whether missing optional `ArchRProject` components (i.e. peak annotations / background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject` will fail unless all components can be found.
+#' @param force A boolean value indicating whether missing optional `ArchRProject` components (i.e. peak annotations /
+#' background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject`
+#' will fail unless all components can be found.
 #' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
 #' @export
 loadArchRProject <- function(
@@ -291,6 +334,9 @@ loadArchRProject <- function(
 
 }
 
+#Accessor methods adapted from Seurat 
+#https://github.com/satijalab/seurat/blob/87e2454817ed1d5d5aa2e9c949b9231f2231802f/R/objects.R
+
 #'Accessing cellColData directly from dollar.sign accessor
 #' 
 #' This function will allow direct access to cellColData with a `$` accessor.
@@ -316,5 +362,92 @@ loadArchRProject <- function(
     return(x@cellColData[[i, drop = TRUE]])
   }
 }
+
+#' Add directly to cellColData directly from dollar.sign accessor
+#' 
+#' This function will allow adding directly to cellColData with a `$` accessor.
+#'
+#' @export
+#'
+"$<-.ArchRProject" <- function(x, i, value){
+  if(object.size(Rle(value)) < 2 * object.size(value)){ #Check if Rle is more efficient for storage purposes...
+    value <- Rle(value)
+  }
+  if(length(value)==1){
+    value <- Rle(value, lengths = nrow(x@cellColData))
+  }
+  x@cellColData[[i]] <- value
+  return(x)
+}
+
+
+#' Subset cells directly from ArchRProject
+#' 
+#' This function will allow adding directly to cellColData with a `$` accessor.
+#'
+#' @export
+#'
+"[.ArchRProject" <- function(x, i, j){
+  cD <- x@cellColData
+  
+  if (missing(i) && missing(j)) {
+    return(x)
+  }
+  
+  if (missing(i)) {
+    i <- rownames(cD)
+  } else if (missing(j)) {
+    j <- colnames(cD)
+  }
+  
+  if (is.logical(i)) {
+    if (length(i) != nrow(cD)) {
+      stop("Incorrect number of logical values provided to subset cells")
+    }
+    i <- rownames(cD)[i]
+  }
+  
+  if (is.logical(j)) {
+    if (length(j) != ncol(cD)) {
+      stop("Incorrect number of logical values provided to subset columns in cellColData")
+    }
+    j <- colnames(cD)[j]
+  }
+  
+  if (is.numeric(i)) {
+    i <- rownames(cD)[i]
+  }
+  
+  if (is.numeric(j)) {
+    j <- colnames(cD)[j]
+  }
+
+  if("Sample" %ni% j){
+    stop("Sample column must be in subsetting by column to continue!")
+  }
+
+  x@cellColData <- cD[i, j, drop=FALSE]
+
+  return(x)
+
+}
+
+setMethod(
+  f = "colnames",
+  signature = c("x" = "ArchRProject"),
+  definition = function(x) {
+    colnames(x@cellColData)
+  }
+)
+
+setMethod(
+  f = "rownames",
+  signature = c("x" = "ArchRProject"),
+  definition = function(x) {
+    rownames(x@cellColData)
+  }
+)
+
+
 
 

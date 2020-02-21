@@ -10,5 +10,5 @@ getOutputDirectory(ArchRProj = NULL)
 \item{ArchRProj}{An \code{ArchRProject} object.}
 }
 \description{
-This function gets the outputDirectory from a given ArchRProject.
+This function gets the outputDirectory from a given ArchRProject. If null this returns "QualityControl" directory.
 }

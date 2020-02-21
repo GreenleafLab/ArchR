@@ -4,19 +4,25 @@
 
 #' Launch ArchR Genome Browser
 #' 
-#' This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.
+#' This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which
+#' enables direct comparison across samples.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
-#' @param loops JJJ A `GRanges` object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods. 
-#' i.e. the set of CoAccessible links obtained using `getCoAccessibility(ArchRProj))` which are added with `addCoAccessibility(ArchRProj))`. 
-#' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.
+#' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
+#' bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
+#' @param loops A `GRanges` object containing the "loops" to be plotted via the "loopTrack".
+#' This `GRanges` object start represents the center position of one loop anchor and the end represents the center position of another loop anchor. 
+#' A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used 
+#' to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
+#' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument
+#' can be used to exclude pseudo-bulk replicates generated from low numbers of cells.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
-#' @param browserTheme A `shinytheme` from shinythemes for viewing the ArchR Browser. If not installed this will be NULL. To install try devtools::install_github("rstudio/shinythemes").
+#' @param browserTheme A `shinytheme` from shinythemes for viewing the ArchR Browser. If not installed this will be NULL.
+#' To install try devtools::install_github("rstudio/shinythemes").
 #' @param threads The number of threads to use for parallel execution.
 #' @export
 ArchRBrowser <- function(
@@ -84,7 +90,7 @@ ArchRBrowser <- function(
   ui <- fluidPage(
     theme = theme,
     titlePanel(
-        h1(div(HTML("<b>ArchR Browser</b>")), align = "left")
+        h1(div(HTML(paste0("<b>ArchR Browser v1 : nCells = ", formatC(nCells(ArchRProj), format="f", big.mark = ",", digits=0), "</b>"))), align = "left")
     ),
     sidebarLayout(
       sidebarPanel(
@@ -197,6 +203,9 @@ ArchRBrowser <- function(
           include = rep(TRUE,length(groups)), 
           group = groups, 
           color = paletteDiscrete(values = groups)[groups], 
+          nCells = as.vector(table(ccd[,input$grouping])[groups]),
+          medianTSS = getGroupSummary(ArchRProj = ArchRProj, select = "TSSEnrichment", summary = "median", groupBy = input$grouping)[groups],
+          medianFragments = getGroupSummary(ArchRProj = ArchRProj, select = "nFrags", summary = "median", groupBy = input$grouping)[groups],
           stringsAsFactors = FALSE
         )
         rownames(mdata) <- NULL
@@ -284,10 +293,13 @@ ArchRBrowser <- function(
             },error=function(x){
               groups <- gtools::mixedsort(unique(ccd[,isolate(input$grouping)]))
               mdata <- data.frame(
-                groupBy = groupBy,
+                groupBy = input$grouping,
                 include = rep(TRUE,length(groups)), 
                 group = groups, 
                 color = paletteDiscrete(values = groups)[groups], 
+                nCells = as.vector(table(ccd[,input$grouping])[groups]),
+                medianTSS = getGroupSummary(ArchRProj = ArchRProj, select = "TSSEnrichment", summary = "median", groupBy = input$grouping)[groups],
+                medianFragments = getGroupSummary(ArchRProj = ArchRProj, select = "nFrags", summary = "median", groupBy = input$grouping)[groups],
                 stringsAsFactors = FALSE
               )
               rownames(mdata) <- NULL
@@ -580,23 +592,39 @@ ArchRBrowser <- function(
 
 #' Plot an ArchR Region Track
 #' 
-#' This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal which enables direct comparison across samples.
+#' This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal
+#' which enables direct comparison across samples.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object, all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the transcription start site of the supplied gene.
-#' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata column will be grouped together and the average signal will be plotted.
-#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`. This limits the groups to be plotted.
-#' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal), "featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes are on the minus strand and red-colored genes are on the plus strand).
-#' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`. The order must be the same as `plotSummary`.
-#' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
-#' @param loops JJJ A `GRanges` object containing the "loops" to be plotted via the "loopTrack". This should be thought of as a looping track like with chromosome conformation methods. 
-#' i.e. the set of CoAccessible links obtained using `getCoAccessibility(ArchRProj))` which are added with `addCoAccessibility(ArchRProj))`. 
+#' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object,
+#' all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the
+#' transcription start site of the supplied gene.
+#' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or
+#' user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata
+#' column will be grouped together and the average signal will be plotted.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in
+#' `cellColData`. This limits the groups to be plotted.
+#' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
+#' "featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
+#' are on the minus strand and red-colored genes are on the plus strand).
+#' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`.
+#' The order must be the same as `plotSummary`.
+#' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
+#' bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
+#' @param loops A `GRanges` object containing the "loops" to be plotted via the "loopTrack".
+#' This `GRanges` object start represents the center position of one loop anchor and the end represents the center position of another loop anchor. 
+#' A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used 
+#' to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
 #' @param geneSymbol If `region` is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.
-#' @param upstream The number of basepairs upstream of the transcription start site of `geneSymbol` to extend the plotting window. If `region` is supplied, this argument is ignored.
-#' @param downstream The number of basepairs downstream of the transcription start site of `geneSymbol` to extend the plotting window. If `region` is supplied, this argument is ignored.
+#' @param upstream The number of basepairs upstream of the transcription start site of `geneSymbol` to extend the plotting window.
+#' If `region` is supplied, this argument is ignored.
+#' @param downstream The number of basepairs downstream of the transcription start site of `geneSymbol` to extend the plotting window.
+#' If `region` is supplied, this argument is ignored.
 #' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.
-#' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be used to exclude pseudo-bulk replicates generated from low numbers of cells.
-#' @param normMethod The name of the column in `cellColData` by which normalization should be performed. The recommended and default value is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
+#' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be
+#' used to exclude pseudo-bulk replicates generated from low numbers of cells.
+#' @param normMethod The name of the column in `cellColData` by which normalization should be performed. The recommended and default value
+#' is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
 #' @param threads The number of threads to use for parallel execution.
 #' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
@@ -681,7 +709,7 @@ ArchRBrowserTrack <- function(
     # Bulk Tracks
     ##########################################################
     if("bulktrack" %in% tolower(plotSummary)){
-      .messageDiffTime("Adding Bulk Tracks", tstart)
+      .messageDiffTime(sprintf("Adding Bulk Tracks (%s of %s)",x,length(region)), tstart)
       plotList$bulktrack <- .bulkTracks(
         ArchRProj = ArchRProj, 
         region = region[x], 
@@ -706,7 +734,7 @@ ArchRBrowserTrack <- function(
     ##########################################################
     if("featuretrack" %in% tolower(plotSummary)){
       if(!is.null(features)){
-        .messageDiffTime("Adding Feature Tracks", tstart)
+        .messageDiffTime(sprintf("Adding Feature Tracks (%s of %s)",x,length(region)), tstart)
         plotList$featuretrack <- .featureTracks(
             features = features, 
             region = region[x], 
@@ -721,7 +749,7 @@ ArchRBrowserTrack <- function(
     ##########################################################
     if("looptrack" %in% tolower(plotSummary)){
       if(!is.null(loops)){
-        .messageDiffTime("Adding Loop Tracks", tstart)
+        .messageDiffTime(sprintf("Adding Loop Tracks (%s of %s)",x,length(region)), tstart)
         plotList$looptrack <- .loopTracks(
             loops = loops, 
             region = region[x], 
@@ -736,7 +764,7 @@ ArchRBrowserTrack <- function(
     # Gene Tracks
     ##########################################################
     if("genetrack" %in% tolower(plotSummary)){
-      .messageDiffTime("Adding Gene Tracks", tstart)
+      .messageDiffTime(sprintf("Adding Gene Tracks (%s of %s)",x,length(region)), tstart)
       plotList$genetrack <- .geneTracks(
         geneAnnotation = geneAnnotation, 
         region = region[x], 
@@ -761,8 +789,12 @@ ArchRBrowserTrack <- function(
 
   })
 
-  if(length(ggList) == 1){
-    ggList <- ggList[[1]]
+  if(!is.null(mcols(region)$symbol)){
+    names(ggList) <- mcols(region)$symbol
+  }else{
+    if(length(ggList) == 1){
+      ggList <- ggList[[1]]
+    }
   }
 
   ggList
@@ -793,7 +825,7 @@ ArchRBrowserTrack <- function(
   verbose = FALSE
   ){
 
-  .requirePackage("ggplot2")
+  .requirePackage("ggplot2", source = "cran")
 
   if(is.null(tstart)){
     tstart <- Sys.time()
@@ -1168,8 +1200,8 @@ ArchRBrowserTrack <- function(
   colorPlus = "red"
   ){
 
-  .requirePackage("ggplot2")
-  .requirePackage("ggrepel")
+  .requirePackage("ggplot2", source = "cran")
+  .requirePackage("ggrepel", source = "cran")
 
   #only take first region
   region <- .validGRanges(region)
@@ -1302,7 +1334,7 @@ ArchRBrowserTrack <- function(
   hideY = FALSE
   ){
 
-  .requirePackage("ggplot2")
+  .requirePackage("ggplot2", source = "cran")
 
   #only take first region
   region <- .validGRanges(region)

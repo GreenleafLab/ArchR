@@ -2,7 +2,7 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{enrichHeatmap}
 \alias{enrichHeatmap}
-\title{Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
+\title{Plot a Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
 enrichHeatmap(
   seEnrich = NULL,
@@ -13,24 +13,36 @@ enrichHeatmap(
   clusterCols = TRUE,
   binaryClusterRows = TRUE,
   labelRows = TRUE,
-  transpose = TRUE
+  rastr = TRUE,
+  transpose = FALSE,
+  returnMatrix = FALSE
 )
 }
 \arguments{
+\item{seEnrich}{A \code{SummarizedExperiment} object containing peak enrichment information returned by \code{peakAnnoEnrichment()}.}
+
 \item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}
 
-\item{n}{The number of top enriched peakAnnotations per column from the \code{seMarker} to display in the heatmap. This number can be lowered to improve visibility of the heatmap.}
+\item{n}{The number of top enriched peakAnnotations per column from the \code{seMarker} to display in the heatmap. This number can
+be lowered to improve visibility of the heatmap.}
+
+\item{cutOff}{A numeric cutOff that indicates the minimum P-adj enrichment to be included in the heatmap.}
+
+\item{pMax}{A numeric representing the maximum P-adj for plotting in the heatmap.}
 
 \item{clusterCols}{A boolean indicating whether or not to cluster columns in the heatmap.}
 
+\item{binaryClusterRows}{A boolean indicating whether or not to cluster rows using binary classification in the heatmap.}
+
 \item{labelRows}{A boolean indicating whether or not to label all rows in the heatmap.}
 
-\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{peakAnnoEnrichment()}.}
+\item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize
+lines and labels, just the internal portions of the plot.}
 
-\item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
+\item{transpose}{A boolean determining whether to transpose heatmap in plot.}
 
-\item{clusterRows}{A boolean indicating whether or not to cluster rows in the heatmap.}
+\item{returnMatrix}{A boolean determining whether to return matrix in heatmap rather than a plot.}
 }
 \description{
-This function will plot a heatmap of hypergeometric enrichment of peakAnnotation within the defined marker peaks.
+This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.
 }

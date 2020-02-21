@@ -3,40 +3,52 @@
 # ggPlot Wrapper Methods For Easy Plotting
 ##########################################################################################
 
-#' A ggplot-based dot plot wrapper function JJJ
+#' A ggplot-based dot plot wrapper function
 #'
 #' This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.
 #'
 #' @param x A numeric vector containing the x-axis values for each point.
 #' @param y A numeric vector containing the y-axis values for each point.
-#' @param color A numeric/categorical vector containing coloring information for each point.
+#' @param color A numeric/categorical vector used to determine the coloration for each point.
 #' @param discrete A boolean value indicating whether the supplied data is discrete (`TRUE`) or continuous (`FALSE`).
 #' @param discreteSet The name of a custom palette from `ArchRPalettes` to use for categorical/discrete color.
+#' This argument is only used if `discrete` is set to `TRUE`.
 #' @param continuousSet The name of a custom palette from `ArchRPalettes` to use for numeric color.
+#' This argument is only used if `discrete` is set to `FALSE`.
 #' @param labelMeans A boolean value indicating whether the mean of each categorical/discrete color should be labeled.
 #' @param pal A custom palette used to override discreteSet/continuousSet for coloring vector.
 #' @param defaultColor The default color for points that do not have another color applied (i.e. `NA` values).
-#' @param colorDensity A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If `TRUE`, continuousSet is used as the color palette.
+#' @param colorDensity A boolean value indicating whether the density of points on the plot should be indicated colorimetrically.
+#' If `TRUE`, continuousSet is used as the color palette.
 #' @param size The numeric size of the points to be plotted.
 #' @param xlim A numeric vector of two values indicating the lower and upper bounds of the x-axis on the plot.
 #' @param ylim A numeric vector of two values indicating the lower and upper bounds of the y-axis on the plot.
-#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.
+#' @param extend A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum
+#' values if `xlim` and `ylim` are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.
 #' @param randomize A boolean value indicating whether to randomize the order of the points when plotting.
 #' @param seed A numeric seed number for use in randomization.
 #' @param colorTitle A title to be added to the legend if `color` is supplied.
-#' @param colorOrder If you want to control the order of `color` supplied as a factor to `ggplot2`. For example if you have `color` as c("a","b","c") and want to have the first color selected from the palette be for "c" then "b" and then "a", you would supply the `colorOrder` as c("c", "b", "a").
-#' @param colorLimits A numeric vector of two values indicating the lower and upper bounds of colors if numeric.
+#' @param colorOrder A vector that allows you to control the order of palette colors associated with the values in `color`.
+#' For example if you have `color` as `c("a","b","c")` and want to have the first color selected from the palette be used for
+#' "c", the second color for "b", and the third color for "a", you would supply the `colorOrder` as `c("c", "b", "a")`.
+#' @param colorLimits A numeric vector of two values indicating the lower and upper bounds of colors if numeric. Values
+#' beyond these limits are thresholded.
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
 #' @param baseSize The base font size (in points) to use in the plot.
+#' @param legendSize This represents the color legend size in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
+#' @param labelAsFactors A boolean indicating whether to label as a factor numeric rather than labeling with a character string.
 #' @param fgColor The foreground color of the plot.
 #' @param bgColor The background color of the plot.
+#' @param bgWidth The background width of the halos in the labeling.
 #' @param labelSize The numeric font size of labels.
-#' @param addFit A string indicating if a fit/regression line (see `ggplot2::geom_smooth()` methods) should be included in the plot and what method to use for this fit.
-#' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize lines and labels, just the internal portions of the plot.
+#' @param addFit A string indicating the method to use for adding a fit/regression line to the plot (see `ggplot2::geom_smooth()` methods).
+#' If set to `NULL`, no fit/regression line is added.
+#' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
+#' lines and labels, just the internal portions of the plot.
 #' @param dpi The resolution in dots per inch to use for the plot.
 #' @export
 ggPoint <- function(
@@ -143,7 +155,7 @@ ggPoint <- function(
     ratioXY <- ratioYX * diff(xlim)/diff(ylim)
 
     #Plot
-    .requirePackage("ggplot2")
+    .requirePackage("ggplot2", source = "cran")
 
     if (is.null(color) & !colorDensity) {
 
@@ -229,9 +241,10 @@ ggPoint <- function(
         
         if(!requireNamespace("ggrastr", quietly = TRUE)){
           message("ggrastr is not available for rastr of points, continuing without rastr!")
+          message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
           p <- p + geom_point(size = size, alpha = alpha)
         }else{
-          .requirePackage("ggrastr")
+          .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
           p <- p + geom_point_rast(
               size = size, raster.dpi = dpi, alpha = alpha, 
               raster.width=par('fin')[1], 
@@ -257,7 +270,7 @@ ggPoint <- function(
           if (labelMeans) {
               
               dfMean <- split(df, df$color) %>% lapply(., function(x) {
-                data.frame(x = mean(x[, 1]), y = mean(x[, 2]), color = x[1, 3])
+                data.frame(x = median(x[, 1]), y = median(x[, 2]), color = x[1, 3])
               }) %>% Reduce("rbind", .)
 
               if(labelAsFactors){
@@ -459,11 +472,12 @@ ggOneToOne <- function (
 #' @param ylabel The label to plot for the y-axis.
 #' @param title The title of the plot.
 #' @param colorTitle The label to use for the legend corresponding to `color`.
-#' @param baseSize The base font size to use in the plot.
+#' @param baseSize The base font size (in points) to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param FUN The function to use for summarizing data into hexagons. Typically "mean" or something similar.
 #' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where a is the upper threshold and b is the lower threshold. For example, quantileCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
 #' @param addPoints A boolean value indicating whether individual points should be shown on the hexplot.
+#' @param ... Additional params for plotting
 #' @export
 ggHex <- function(
   x = NULL, 
@@ -527,10 +541,11 @@ ggHex <- function(
 
     if(addPoints){
       if(requireNamespace("ggrastr", quietly = TRUE)){
-        .requirePackage("ggrastr")
+        .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
         p <- p + geom_point_rast(data = df, aes(x=x,y=y), color = "lightgrey")
       }else{
         message("ggrastr is not available for rastr of points, continuing without points!")
+        message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
       }
     }
 
@@ -562,21 +577,26 @@ ggHex <- function(
 
 }
 
-#' A ggplot-based violin plot wrapper function JJJ
+#' A ggplot-based ridge/violin plot wrapper function
 #'
-#' This function is a wrapper around ggplot geom_violin to allow for plotting violin plots in ArchR.
+#' This function is a wrapper around ggplot geom_density_ridges or geom_violin to allow for plotting group distribution plots in ArchR.
 #' 
 #' @param x A character vector containing the categorical x-axis values for each y-axis value.
 #' @param y A numeric vector containing the y-axis values for each point.
 #' @param xlabel The label to plot for the x-axis.
 #' @param ylabel The label to plot for the y-axis.
-#' @param groupOrder A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible values of `x` in the desired order.
+#' @param groupOrder A character vector indicating a custom order for plotting x-axis categorical values. Should contain all possible
+#' values of `x` in the desired order.
+#' @param groupSort A boolean indicating whether to sort groups based on the average value of the group.
 #' @param size The line width for boxplot/summary lines.
-#' @param baseSize The base font (in points) size to use in the plot.
+#' @param baseSize The base font size (in points) to use in the plot.
+#' @param ridgeScale A numeric indicating the relative size for each ridge in the ridgeplot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param sampleRatio The fraction of the total number of points to be displayed over violins. A value of 0.1 would plot 10 percent of the total data points over the violin.
+#' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
 #' @param title The title of the plot.
 #' @param pal A named custom palette (see `paletteDiscrete()` and `ArchRPalettes`) for discrete coloring.
+#' @param addBoxPlot A boolean indicating whether to add a boxplot to the plot if `plotAs="violin"`.
+#' @param ... Additional parameters to pass to `ggplot2` for plotting.
 #' @export
 ggGroup <- function(
   x = NULL, 
@@ -592,33 +612,44 @@ ggGroup <- function(
   alpha = 1,
   title = "", 
   pal = paletteDiscrete(values=x, set = "stallion"),
-  addBoxPlot = FALSE,
-  plotAs = "ridges"
+  addBoxPlot = TRUE,
+  plotAs = "ridges",
+  ...
   ){
 
   .validInput(input = x, name = "x", valid = c("character"))
   .validInput(input = y, name = "y", valid = c("numeric"))
   .validInput(input = xlabel, name = "xlabel", valid = c("character", "null"))
   .validInput(input = ylabel, name = "ylabel", valid = c("character", "null"))
-  #.validInput(input = xOrder, name = "xOrder", valid = c("character", "null"))
+  .validInput(input = groupOrder, name = "groupOrder", valid = c("character", "null"))
+  .validInput(input = groupSort, name = "groupSort", valid = c("boolean"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = ridgeScale, name = "ridgeScale", valid = c("numeric"))
   .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
+  .validInput(input = alpha, name = "alpha", valid = c("numeric"))
+  .validInput(input = title, name = "title", valid = c("character"))
   .validInput(input = pal, name = "pal", valid = c("character"))
-  
+  .validInput(input = addBoxPlot, name = "addBoxPlot", valid = c("boolean"))
+  .validInput(input = plotAs, name = "plotAs", valid = c("character"))
+
   names(y) <- x
   dm <- stats::aggregate(y ~ names(y), FUN = mean)
   df <- data.frame(x, y)
 
   if(!is.null(groupOrder)){
     if(!all(x %in% groupOrder)){
-      stop("Not all x values are present in xOrder!")
+      stop("Not all x values are present in groupOrder!")
     }
   }else{
     if(groupSort){
       groupOrder <- paste0(dm[,1])[order(dm[,2], decreasing= FALSE)]
     }else{
-      groupOrder <- gtools::mixedsort(unique(x))
+      if(tolower(plotAs) == "ridges"){
+        groupOrder <- rev(gtools::mixedsort(unique(x)))
+      }else{
+        groupOrder <- gtools::mixedsort(unique(x))
+      }
     }
   }
 
@@ -633,10 +664,11 @@ ggGroup <- function(
     if(!requireNamespace("ggridges", quietly = TRUE)){
       type <- "violin"
       message("ggridges is not available for plotting, continuing with geom_violin!")
+      message("To install ggrastr try : install.packages('ggridges')")
       p <- p + geom_violin(aes_string(fill="x"), alpha = alpha)
     }else{
       type <- "ridges"
-      .requirePackage("ggridges")
+      .requirePackage("ggridges", source = "cran")
       #p <- p + 
       #  stat_density_ridges(aes_string(x = "y", y = "x", fill = "x"), 
       #    quantile_lines = TRUE, quantiles = c(0.5), alpha = alpha, color = "black",
@@ -728,7 +760,7 @@ ggAlignPlots <- function(
 
   #http://stackoverflow.com/a/21503904
 
-  .requirePackage("gtable")
+  .requirePackage("gtable", source = "cran")
 
   if(is.null(plotList)){
     plotList <- list(...)
@@ -799,7 +831,7 @@ ggAlignPlots <- function(
 #' This function returns a ggplot2 theme that is black borded with black font.
 #' 
 #' @param color The color to be used for text, lines, ticks, etc for the plot.
-#' @param baseSize The base font size to use in the plot.
+#' @param baseSize The base font size (in points) to use in the plot.
 #' @param baseLineSize The base line width (in points) to be used throughout the plot.
 #' @param baseRectSize The base line width (in points) to use for rectangular boxes throughout the plot.
 #' @param plotMarginCm The width in centimeters of the whitespace margin around the plot.

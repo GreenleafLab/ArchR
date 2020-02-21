@@ -30,6 +30,48 @@
 '%bcni%' <- function(x, table) !(S4Vectors::match(x, table, nomatch = 0) > 0)
 
 ##########################################################################################
+# Helper to try to reformat fragment files appropriately if a bug is found
+##########################################################################################
+
+#' Reformat Fragment Files to be Tabix and Chr Sorted JJJ
+#'
+#' This function provides help in reformatting Fragment Files for reading in createArrowFiles.
+#' It will handle weird anomalies found that cause errors in reading tabix bgzip'd fragment files.
+#'
+#' @param fragmentFiles a character vector of paths to fragment files to be reformatted
+#' @param seqnamesIsChr a boolean describing to check if seqnames containt "chr".
+#' @export
+reformatFragmentFiles <- function(
+  fragmentFiles = NULL,
+  seqnamesIsChr = TRUE
+  ){
+  options(scipen = 999)
+  .requirePackage("data.table")
+  .requirePackage("Rsamtools")
+  for(i in seq_along(fragmentFiles)){
+    message(i, " of ", length(fragmentFiles))
+    dt <- data.table::fread(fragmentFiles[i])
+    dt <- dt[order(dt$V1,dt$V2,dt$V3), ]
+    if(seqnamesIsChr){
+      idxRemove1 <- which(substr(dt$V1,1,3) != "chr")
+    }else{
+      idxRemove1 <- c()
+    }
+    idxRemove2 <- which(dt$V2 != as.integer(dt$V2))
+    idxRemove3 <- which(dt$V3 != as.integer(dt$V3))
+    #get all
+    idxRemove <- unique(c(idxRemove1, idxRemove2, idxRemove3))
+    if(length(idxRemove) > 0){
+      dt <- dt[-idxRemove,]
+    }
+    fileNew <- gsub(".tsv.bgz|.tsv.gz", "-Reformat.tsv", fragmentFiles[i])
+    data.table::fwrite(dt, fileNew, sep = "\t", col.names = FALSE)
+    Rsamtools::bgzip(fileNew)
+    ArchR:::.fileRename(paste0(fileNew, ".bgz"), paste0(fileNew, ".gz"))
+  }
+}
+
+##########################################################################################
 # Validation Methods
 ##########################################################################################
 .validInput <- function(input = NULL, name = NULL, valid = NULL){
@@ -139,6 +181,10 @@
 
       cv <- inherits(input, "SummarizedExperiment")
 
+    }else if(vi == "seurat" | vi == "seuratobject"){
+
+      cv <- inherits(input, "Seurat")
+
     }else if(vi == "txdb"){
 
       cv <- inherits(input, "TxDb")
@@ -158,6 +204,8 @@
     }else if(vi == "archrproj" | vi == "archrproject"){
 
       cv <- inherits(input, "ArchRProject")
+      ###validObject(input) check this doesnt break anything if we
+      ###add it. Useful to make sure all ArrowFiles exist! JJJ
 
     }else{
 
@@ -193,7 +241,8 @@
 #' 
 #' This function will attempt to get or validate an input as a BSgenome.
 #' 
-#' @param genome This option must be one of the following: (i) the name of a valid genome (for example "hg38", "hg19", or "mm10"), (ii) the name of a `BSgenome` package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a `BSgenome` object.
+#' @param genome This option must be one of the following: (i) the name of a valid genome (for example "hg38", "hg19", or "mm10"),
+#' (ii) the name of a `BSgenome` package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a `BSgenome` object.
 #' @param masked A boolean describing whether or not to access the masked version of the selected genome. See `BSgenome::getBSgenome()`.
 #' @export
 validBSgenome <- function(genome = NULL, masked = FALSE){
@@ -326,7 +375,7 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   return(paramInput)
 }
 
-.requirePackage <- function(x = NULL, load = TRUE, installInfo = NULL){
+.requirePackage <- function(x = NULL, load = TRUE, installInfo = NULL, source = NULL){
   if(x %in% rownames(installed.packages())){
     if(load){
       suppressPackageStartupMessages(require(x, character.only = TRUE))
@@ -334,6 +383,15 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
       return(0)
     }
   }else{
+    if(!is.null(source) & is.null(installInfo)){
+      if(tolower(source) == "cran"){
+        installInfo <- paste0('install.packages("',x,'")')
+      }else if(tolower(source) == "bioc"){
+        installInfo <- paste0('BiocManager::install("',x,'")')
+      }else{
+        stop("Unrecognized package source, available are cran/bioc!")
+      }
+    }
     if(!is.null(installInfo)){
       stop(paste0("Required package : ", x, " is not installed/found!\n  Package Can Be Installed : ", installInfo))
     }else{
@@ -818,7 +876,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
   #If error try
   #brew install fontconfig
 
-  library(pdftools)
+  .requirePackage("pdftools", source = "cran")
 
   if(!is.null(ArchRProj)){
     paths <- c(paths, file.path(getOutputDirectory(ArchRProj), "Plots"))
