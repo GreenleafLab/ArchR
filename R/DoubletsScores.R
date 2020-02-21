@@ -540,6 +540,7 @@ addDoubletScores <- function(
       out$doubletScoreLSI <- rep(-1, nrow(LSI$matSVD))
       out$doubletEnrichUMAP <- rep(-1, nrow(LSI$matSVD))
       out$doubletScoreUMAP <- rep(-1, nrow(LSI$matSVD))
+      return(out)
     }
   }
 
