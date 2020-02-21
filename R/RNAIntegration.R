@@ -4,8 +4,8 @@
 
 #' Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject
 #' 
-#' QQQ IS THIS CORRECT? This function, for each sample, will independently compute counts for each tile
-#' per cell and then infer gene activity scores.
+#' This function, for each sample, will independently integrate with a scRNA experiment, compute matched scRNA profiles and
+#' then store this in each samples ArrowFile.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param seRNA A scRNA-seq `SummarizedExperiment` or `SeuratObject` to integrated with the scATAC-seq data.
@@ -20,11 +20,8 @@
 #' @param nGenes The number of variable genes determined by `Seurat::FindVariableGenes()` to use for integration.
 #' @param useImputation A boolean value indicating whether to use imputation for creating the Gene Score Matrix prior to integration.
 #' @param reduction The Seurat reduction method to use for integrating modalities. See `Seurat::FindTransferAnchors()` for possible reduction methods.
-#' @param addToArrow QQQ A boolean value indicating whether to add the QQQ transcript counts from the integrated matched RNA to the ArrowFiles.
+#' @param addToArrow A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the ArrowFiles.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param subThreading QQQ A boolean value indicating whether the computational architecture being used can allow for the use of threads within
-#' each multi-threaded subprocess if QQQ is greater than the number of input samples.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the given `input`.
 #' @export
 addGeneIntegrationMatrix <- function(
@@ -39,6 +36,8 @@ addGeneIntegrationMatrix <- function(
   reduction = "cca",
   addToArrow = TRUE,
   threads = getArchRThreads(),
+  nameGroup = "predictedGroup",
+  nameScore = "predictedScore",
   transferParams = list(),
   force = FALSE,
   verboseHeader = TRUE,
@@ -68,7 +67,7 @@ addGeneIntegrationMatrix <- function(
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
-  if(!is.null(sampleRNA)){
+  if(!is.null(sampleRNA) & length(sampleList) > 0){
     sampleList2 <- sampleList
     sampleList <- lapply(sampleList, function(x){
       if(length(x) > sampleRNA){
@@ -83,11 +82,11 @@ addGeneIntegrationMatrix <- function(
 
   idx <- which(names(ArrowFiles) %ni% names(sampleList))
   if(length(idx) > 1){
-    for(x in seq_along(sampleList)){
+    for(x in seq_along(idx)){
       if(ncol(seRNA) > sampleRNA){
-        sampleList[[names(ArrowFiles)]] <- sample(colnames(seRNA), sampleRNA)
+        sampleList[[names(ArrowFiles)[x]]] <- sample(colnames(seRNA), sampleRNA)
       }else{
-        sampleList[[names(ArrowFiles)]] <- colnames(seRNA)
+        sampleList[[names(ArrowFiles)[x]]] <- colnames(seRNA)
       }
     }
   }
@@ -319,7 +318,7 @@ addGeneIntegrationMatrix <- function(
     ArchRProj = ArchRProj, 
     cells = dfAll$cellNames, 
     data = dfAll$predictedGroup,
-    name = "predictedGroup",
+    name = nameGroup,
     force = TRUE
   )
   
@@ -327,7 +326,7 @@ addGeneIntegrationMatrix <- function(
     ArchRProj = ArchRProj, 
     cells = dfAll$cellNames, 
     data = dfAll$predictionScore,
-    name = "predictionScore",
+    name = nameScore,
     force = TRUE
   )
 
@@ -372,7 +371,7 @@ addPeak2GeneLinks <- function(
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
-  maxDist = 250000,
+  maxDist = 150000,
   scaleTo = 10^4,
   log2Norm = TRUE,
   predictionCutoff = 0.4,
@@ -395,8 +394,21 @@ addPeak2GeneLinks <- function(
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
-
-  stop("not functional yet")
+  ArchRProj = projHeme5
+  reducedDims = "IterativeLSI"
+  dimsToUse = 1:30
+  scaleDims = NULL
+  corCutOff = 0.75
+  k = 100
+  knnIteration = 500
+  overlapCutoff = 0.8
+  maxDist = 150000
+  scaleTo = 10^4
+  log2Norm = TRUE
+  predictionCutoff = 0.4
+  seed = 1
+  knnMethod = NULL
+  threads = getArchRThreads()
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
@@ -447,7 +459,7 @@ addPeak2GeneLinks <- function(
 
   #Create Ranges
   peakSummits <- resize(peakSet, 1, "center")
-  peakWindows <- resize(peakSummits, maxDist, "center")
+  geneWindows <- resize(geneStart, maxDist, "center")
 
   #Create Pairwise Things to Test
   o <- DataFrame(findOverlaps(peakSummits, peakWindows, ignore.strand = TRUE))

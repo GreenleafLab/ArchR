@@ -59,7 +59,7 @@ addDoubletScores <- function(
   .validInput(input = nTrials, name = "nTrials", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
-  #QQQ add scaleDims
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean"))
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
   .validInput(input = LSIParams, name = "LSIParams", valid = c("list"))
@@ -153,7 +153,7 @@ addDoubletScores <- function(
   tstart = NULL
   ){
 
-  if(!is.null(tstart)){
+  if(is.null(tstart)){
     tstart <- Sys.time()
   }
 
@@ -247,7 +247,7 @@ addDoubletScores <- function(
     LSI = LSI, 
     sampleRatio1 = c(1/2), 
     sampleRatio2 = c(1/2), 
-    nTrials = floor(nTrials * nCells(proj) / nSample), 
+    nTrials = nTrials * max( floor(nCells(proj) / nSample), 1 ), 
     nSample = nSample, 
     k = k, 
     uwotUmap = uwotUmap,
@@ -533,13 +533,14 @@ addDoubletScores <- function(
     projectionCorrelation = corProjection
   )
 
-  if(mean(corProjection[[2]]) < 0.8){
+  if(mean(corProjection[[2]]) < 0.9){
     if(!force){
-      warning("Correlation of UMAP Projection is below 0.8 (normally this is ~0.99)\nThis means there is either little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
+      message("Correlation of UMAP Projection is below 0.9 (normally this is ~0.99)\nThis means there is little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
       out$doubletEnrichLSI <- rep(-1, nrow(LSI$matSVD))
       out$doubletScoreLSI <- rep(-1, nrow(LSI$matSVD))
       out$doubletEnrichUMAP <- rep(-1, nrow(LSI$matSVD))
       out$doubletScoreUMAP <- rep(-1, nrow(LSI$matSVD))
+      return(out)
     }
   }
 

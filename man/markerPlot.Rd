@@ -15,9 +15,11 @@ markerPlot(
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
-\item{name}{The name of a column (ie cell grouping in \code{groupBy}/\code{useGroups} for \code{markerFeatures()}) in \code{seMarker} to be plotted. To see available options try \code{colnames(seMarker)}.}
+\item{name}{The name of a column in \code{seMarker} (i.e. cell grouping in \code{groupBy} or \code{useGroups} for \code{markerFeatures()}) to be plotted.
+To see available options try \code{colnames(seMarker)}.}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted.
+\code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{plotAs}{A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").}
 }

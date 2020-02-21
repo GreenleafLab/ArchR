@@ -8,9 +8,10 @@
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param peakAnnotation The name of the `peakAnnotation` stored in the `ArchRProject`.
-#' @param matches QQQ A custom `peakAnnotation` matches object used as input for the hypergeometric test. See
+#' @param matches A custom `peakAnnotation` matches object used as input for the hypergeometric test. See
 #' `motifmatchr::matchmotifs()` for additional information.
-#' @param bgdPeaks QQQ
+#' @param bgdPeaks A `SummarizedExperiment` that contains for each peak a set of background peaks matched by biases such as total accessibility
+#' and GC nucleotide content. This can be computed using `addBgdPeaks` and accessed by `getBgdPeaks`.
 #' @param matrixName The name to be used for storage of the deviations matrix in the provided `ArchRProject`.
 #' @param out A string or character vector that indicates whether to save the ouptut matrices as deviations ("deviations")
 #' z-scores ("z"), or both (c("deviations","z")).

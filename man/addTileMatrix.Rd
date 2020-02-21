@@ -19,9 +19,11 @@ addTileMatrix(
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
 
-\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve this from the \code{ArchRProject} using \code{getChromSizes()}.}
+\item{chromSizes}{A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve
+this from the \code{ArchRProject} using \code{getChromSizes()}.}
 
-\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist counting in these tiles. The default behavior is to retrieve this from the \code{ArchRProject} using \code{getBlacklist()}.}
+\item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist counting in these tiles. The default behavior
+is to retrieve this from the \code{ArchRProject} using \code{getBlacklist()}.}
 
 \item{tileSize}{The size of the tiles used for binning counts in the "TileMatrix".}
 

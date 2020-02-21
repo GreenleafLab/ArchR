@@ -34,7 +34,8 @@ addGroupCoverages(
 
 \item{maxCells}{The maximum number of cells to use during insertion coverage file generation.}
 
-\item{maxFragments}{The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation of excessively large files which would negatively impact memory requirements.}
+\item{maxFragments}{The maximum number of fragments per cell group to use in insertion coverage file generation. This prevents the generation
+of excessively large files which would negatively impact memory requirements.}
 
 \item{minReplicates}{The minimum number of pseudo-bulk replicates to be generated.}
 
@@ -46,16 +47,20 @@ addGroupCoverages(
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{returnGroups}{A boolean whether to just return sample-guided cell-groupings without creating coverages. This is used mainly in addReproduciblePeakSet when calling peaks with TileMatrix.}
+\item{returnGroups}{A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
+This is used mainly in \code{addReproduciblePeakSet()} when MACS2 is not being used to call peaks but rather peaks are called from a
+TileMatrix (\code{peakMethod = "Tiles"}).}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if insertion coverage / pseudo-bulk replicate information already exists.}
+\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if
+insertion coverage / pseudo-bulk replicate information already exists.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 }
 \description{
-This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then merge these replicates into a single insertion coverage file.
+This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then
+merge these replicates into a single insertion coverage file.
 }

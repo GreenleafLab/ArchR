@@ -1,4 +1,3 @@
-
 ##########################################################################################
 # Annotation Methods
 ##########################################################################################
@@ -795,6 +794,7 @@ peakAnnoEnrichment <- function(
     eval(parse(text=paste0(an, " <- ", "SummarizedExperiment::assays(seMarker)[['", an, "']]")))
   }
   passMat <- eval(parse(text=cutOff))
+  passMat[is.na(passMat)] <- FALSE
   for(an in assayNames){
     eval(parse(text=paste0("rm(",an,")")))
   }
@@ -867,7 +867,7 @@ peakAnnoEnrichment <- function(
   }) %>% unlist %>% round(4)
 
   #Minus Log10 Padj
-  pOut$mlog10Padj <- pOut$mlog10p - log10(ncol(pOut))
+  pOut$mlog10Padj <- pmax(pOut$mlog10p - log10(ncol(pOut)), 0)
   pOut <- pOut[order(pOut$mlog10p, decreasing = TRUE), , drop = FALSE]
 
   pOut
@@ -878,19 +878,19 @@ peakAnnoEnrichment <- function(
 #' 
 #' This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.
 #' 
-#' @param seEnrich QQQ A `SummarizedExperiment` object QQQ returned by `peakAnnoEnrichment()`.
+#' @param seEnrich A `SummarizedExperiment` object containing peak enrichment information returned by `peakAnnoEnrichment()`.
 #' @param pal A custom continuous palette (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param n The number of top enriched peakAnnotations per column from the `seMarker` to display in the heatmap. This number can
 #' be lowered to improve visibility of the heatmap.
-#' @param cutOff QQQ
-#' @param pMax QQQ
+#' @param cutOff A numeric cutOff that indicates the minimum P-adj enrichment to be included in the heatmap.
+#' @param pMax A numeric representing the maximum P-adj for plotting in the heatmap.
 #' @param clusterCols A boolean indicating whether or not to cluster columns in the heatmap.
-#' @param binaryClusterRows QQQ A boolean indicating whether or not to cluster rows in the heatmap.
+#' @param binaryClusterRows A boolean indicating whether or not to cluster rows using binary classification in the heatmap.
 #' @param labelRows A boolean indicating whether or not to label all rows in the heatmap.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
 #' lines and labels, just the internal portions of the plot.
-#' @param transpose QQQ
-#' @param returnMatrix QQQ
+#' @param transpose A boolean determining whether to transpose heatmap in plot.
+#' @param returnMatrix A boolean determining whether to return matrix in heatmap rather than a plot.
 #' @export
 enrichHeatmap <- function(
   seEnrich = NULL,

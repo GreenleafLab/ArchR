@@ -2,7 +2,7 @@
 % Please edit documentation in R/CoAccessibility.R
 \name{getCoAccessibility}
 \alias{getCoAccessibility}
-\title{Get the peak coAccessibility from an ArchRProject}
+\title{Get the peak co-accessibility from an ArchRProject}
 \usage{
 getCoAccessibility(
   ArchRProj = NULL,
@@ -18,8 +18,9 @@ getCoAccessibility(
 
 \item{resolution}{A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.}
 
-\item{returnLoops}{A boolean indicating to regurn CoAccessibility as loops designed for \code{ArchRBrowser} or \code{ArchRRegionTrack}.}
+\item{returnLoops}{A boolean indicating to return the co-accessibility signal as a \code{GRanges} "loops" object designed for use with
+the \code{ArchRBrowser()} or as an \code{ArchRRegionTrack()}.}
 }
 \description{
-This function gets the peak set as a GRanges object from an ArchRProject.
+This function obtains co-accessibility data from an ArchRProject.
 }

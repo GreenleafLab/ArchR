@@ -22,7 +22,8 @@ getBgdPeaks(
 
 \item{binSize}{The precision with which the similarity is computed. See \code{chromVAR::getBackgroundPeaks()}.}
 
-\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used
+so that you can reproduce results downstream.}
 
 \item{force}{A boolean value indicating whether to force the file indicated by \code{outFile} to be overwritten if it already exists.}
 }

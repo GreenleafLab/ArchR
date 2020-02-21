@@ -30,6 +30,48 @@
 '%bcni%' <- function(x, table) !(S4Vectors::match(x, table, nomatch = 0) > 0)
 
 ##########################################################################################
+# Helper to try to reformat fragment files appropriately if a bug is found
+##########################################################################################
+
+#' Reformat Fragment Files to be Tabix and Chr Sorted JJJ
+#'
+#' This function provides help in reformatting Fragment Files for reading in createArrowFiles.
+#' It will handle weird anomalies found that cause errors in reading tabix bgzip'd fragment files.
+#'
+#' @param fragmentFiles a character vector of paths to fragment files to be reformatted
+#' @param seqnamesIsChr a boolean describing to check if seqnames containt "chr".
+#' @export
+reformatFragmentFiles <- function(
+  fragmentFiles = NULL,
+  seqnamesIsChr = TRUE
+  ){
+  options(scipen = 999)
+  .requirePackage("data.table")
+  .requirePackage("Rsamtools")
+  for(i in seq_along(fragmentFiles)){
+    message(i, " of ", length(fragmentFiles))
+    dt <- data.table::fread(fragmentFiles[i])
+    dt <- dt[order(dt$V1,dt$V2,dt$V3), ]
+    if(seqnamesIsChr){
+      idxRemove1 <- which(substr(dt$V1,1,3) != "chr")
+    }else{
+      idxRemove1 <- c()
+    }
+    idxRemove2 <- which(dt$V2 != as.integer(dt$V2))
+    idxRemove3 <- which(dt$V3 != as.integer(dt$V3))
+    #get all
+    idxRemove <- unique(c(idxRemove1, idxRemove2, idxRemove3))
+    if(length(idxRemove) > 0){
+      dt <- dt[-idxRemove,]
+    }
+    fileNew <- gsub(".tsv.bgz|.tsv.gz", "-Reformat.tsv", fragmentFiles[i])
+    data.table::fwrite(dt, fileNew, sep = "\t", col.names = FALSE)
+    Rsamtools::bgzip(fileNew)
+    ArchR:::.fileRename(paste0(fileNew, ".bgz"), paste0(fileNew, ".gz"))
+  }
+}
+
+##########################################################################################
 # Validation Methods
 ##########################################################################################
 .validInput <- function(input = NULL, name = NULL, valid = NULL){

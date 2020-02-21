@@ -2,15 +2,20 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getArchRGenome}
 \alias{getArchRGenome}
-\title{Get a globally defined genome to all ArchR functions. JJJ}
+\title{Get the globally defined genome, the geneAnnotation, or genomeAnnotation objects associated with the globally defined genome.}
 \usage{
 getArchRGenome(geneAnnotation = FALSE, genomeAnnotation = FALSE)
 }
 \arguments{
-\item{geneAnnotation}{Export geneAnnotation set with addArchRGenome. The geneAnnotation (see \code{createGeneAnnotation()}) to associate with the ArrowFiles. This is used downstream to calculate TSS Enrichment Scores etc.}
+\item{geneAnnotation}{A boolean value indicating whether the \code{geneAnnotation} associated with the ArchRGenome should be returned
+instead of the globally defined genome. The \code{geneAnnotation} is used downstream to calculate things like TSS Enrichment Scores.
+This function is not meant to be run with both \code{geneAnnotation} and \code{genomeAnnotation} set to \code{TRUE} (it is an either/or return value).}
 
-\item{genomeAnnotation}{Export genomeAnnotation set with addArchRGenome. The genomeAnnotation (see \code{createGenomeAnnotation()}) to associate with the ArrowFiles. This is used downstream to collect chromosome sizes and nucleotide information etc.}
+\item{genomeAnnotation}{A boolean value indicating whether the \code{genomeAnnotation} associated with the ArchRGenome should be returned
+instead of the globally defined genome. The \code{genomeAnnotation} is used downstream to determine things like chromosome sizes and nucleotide content.
+This function is not meant to be run with both \code{geneAnnotation} and \code{genomeAnnotation} set to \code{TRUE} (it is an either/or return value).}
 }
 \description{
-This function will get the genome across all ArchR functions. Additionally can return geneAnnotation and genomeAnnotation associated with ArchRGenome if desired.
+This function will retrieve the genome that is currently in use by ArchR. Alternatively, this function can return either the \code{geneAnnotation}
+or the \code{genomeAnnotation} associated with the globally defined genome if desired.
 }

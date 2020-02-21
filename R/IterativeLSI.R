@@ -13,17 +13,18 @@
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
-#' #' @param scaleDims QQQ A boolean value indicating whether to rescale the total variance for each principal component by QQQ. This is useful for
-#' minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead
-#' to stronger sample-specific biases since it is over-weighting latent PCs.
+#' @param scaleDims A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
+#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
+#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
 #' to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when
 #' working with insertion counts.
 #' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
 #' @param topFeatures The number of N top accessible features to use for LSI.
-#' @param totalFeatures QQQ I DONT UNDERSTAND THE SECOND SENTENCE The number of features to consider for use in LSI after ranking the features by the total insertion counts.
-#' These are an equivalent when using a `TileMatrix` to a defined peakSet.
+#' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total insertion counts. 
+#' This represents a sort of "pre-filtering" of tiles/peaks prior to focus on. JJJ
 #' @param filterQuantile A number between 0 and 1 that indicates the quantile above which features should be removed based on insertion counts
 #' prior to the LSI reduction. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts
 #' will be ignored for LSI reduction.
@@ -49,6 +50,7 @@ addLSI <- function(
   filterQuantile = 0.995,
   threads = getArchRThreads(),
   seed = 1,
+  excludeChr = c(),
   verboseHeader = TRUE,
   verboseAll = FALSE,
   force = FALSE
@@ -79,9 +81,10 @@ addLSI <- function(
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
-#' @param scaleDims A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing
-#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
-#' biases since it is over-weighting latent PCs.
+#' @param scaleDims A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
+#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
+#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
@@ -128,6 +131,7 @@ addIterativeLSI <- function(
   scaleTo = 10000,
   totalFeatures = 500000,
   filterQuantile = 0.995,
+  excludeChr = c(),
   saveIterations = TRUE,
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
   nPlot = 10000,
@@ -223,6 +227,11 @@ addIterativeLSI <- function(
   )
   cellDepth <- log10(cellDepth + 1)
 
+  #Filter Chromosomes
+  if(length(excludeChr) > 0){
+    totalAcc <- totalAcc[BiocGenerics::which(totalAcc$seqnames %bcni% excludeChr), , drop = FALSE]
+  }
+
   #Identify the top features to be used here
   .messageDiffTime("Computing Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
   nFeature <- varFeatures[1]
@@ -273,7 +282,13 @@ addIterativeLSI <- function(
   }
   clusters <- do.call(addClusters, parClust)
   nClust <- length(unique(clusters))
-  .messageDiffTime(sprintf("Identified %s Clusters",nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+  .messageDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+
+  if(nClust == 1){
+    .messageDiffTime("Identified 1 Cluster, returning the current LSI iteration! Try picking a lower resolution or k!", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    ArchRProj@reducedDims[[name]] <- outLSI
+    return(ArchRProj)
+  }
 
   #Save Output
   if(saveIterations){
@@ -434,6 +449,12 @@ addIterativeLSI <- function(
       clusters <- do.call(addClusters, parClust)
       nClust <- length(unique(clusters))
       .messageDiffTime(sprintf("Identified %s Clusters",nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+
+      if(nClust == 1){
+        .messageDiffTime("Identified 1 Cluster, returning the current LSI iteration! Try picking a lower resolution or k!", tstart, addHeader = verboseAll, verbose = verboseHeader)
+        ArchRProj@reducedDims[[name]] <- outLSI
+        return(ArchRProj)
+      }
 
       #Save Output
       if(saveIterations){
@@ -855,76 +876,9 @@ addIterativeLSI <- function(
 }
 
 
-#' Add Harmony Batch Corrected Reduced Dims to an ArchRProject
-#' 
-#' This function will add the Harmony batch-corrected reduced dimensions to an ArchRProject.
-#' 
-#' @param ArchRProj An `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims`.
-#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
-#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
-#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
-#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
-#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
-#' to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param name QQQ WHEN WOULD NAME NOT BE AN ARCHRPROJECT. IF THIS IS POSSIBLE IT SHOULD BE INDICATED UNDER NAME. The column name of the cluster label column to be added to `cellColData` if `input` is an `ArchRProject` object.
-#' @param groupBy QQQ The name of the column in `cellColData` to use for grouping cells together for QQQ.
-#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
-#' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already
-#' exists as a column name in `cellColData`.
-#' @param ... Additional arguments to be provided to harmony::HarmonyMatrix
-#' @export
-#'
-addHarmony <- function(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  dimsToUse = NULL,
-  scaleDims = NULL, 
-  corCutOff = 0.75,
-  name = "Harmony",
-  groupBy = "Sample",
-  verbose = TRUE,
-  force = FALSE,
-  ...
-  ){
 
-  if(!is.null(ArchRProj@reducedDims[[name]])){
-    if(!force){
-      stop("Error name in reducedDims Already Exists! Set force = TRUE or pick a different name!")
-    }
-  }
 
-  .requirePackage("harmony", installInfo = 'devtools::install_github("immunogenomics/harmony")')
-  harmonyParams <- list(...)
-  harmonyParams$data_mat <- getReducedDims(
-    ArchRProj = ArchRProj, 
-    reducedDims = reducedDims, 
-    dimsToUse = dimsToUse, 
-    scaleDims = scaleDims, 
-    corCutOff = corCutOff
-  )
-  harmonyParams$verbose <- verbose
-  harmonyParams$meta_data <- data.frame(getCellColData(
-    ArchRProj = ArchRProj, 
-    select = groupBy)[rownames(harmonyParams$data_mat), , drop = FALSE])
-  harmonyParams$do_pca <- FALSE
-  harmonyParams$vars_use <- groupBy
-  harmonyParams$plot_convergence <- FALSE
 
-  #Call Harmony
-  harmonyMat <- do.call(HarmonyMatrix, harmonyParams)
-  harmonyParams$data_mat <- NULL
-  ArchRProj@reducedDims[[name]] <- SimpleList(
-    matDR = harmonyMat, 
-    params = harmonyParams,
-    date = Sys.time(),
-    scaleDims = NA, #Do not scale dims after
-    corToDepth = NA
-  )
 
-  ArchRProj
-
-}
 
 

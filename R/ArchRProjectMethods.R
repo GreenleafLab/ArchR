@@ -63,12 +63,12 @@ getArchRThreads <- function(){
 #' 
 #' This function will set the genome across all ArchR functions.
 #' 
-#' @param genome QQQ DOUBLECHECK A string indicating the default genome to be used for all ArchR functions.
+#' @param genome A string indicating the default genome to be used for all ArchR functions.
 #' Currently supported values include "hg19","hg38","mm9", and "mm10".
 #' This value is stored as a global environment variable, not part of the `ArchRProject`.
 #' This can be overwritten on a per-function basis using the given function's `geneAnnotation`and `genomeAnnotation` parameter.
 #' For something other than one of the currently supported, see `createGeneAnnnotation()` and `createGenomeAnnnotation()`.
-#' @param install QQQ DOUBLECHECK A boolean value indicating whether the `BSgenome` object associated with the provided `genome` should be
+#' @param install  A boolean value indicating whether the `BSgenome` object associated with the provided `genome` should be
 #' automatically installed if it is not currently installed. This is useful for helping reduce user download requirements.
 #' @export
 addArchRGenome <- function(genome = NULL, install = TRUE){
@@ -167,7 +167,11 @@ getArchRGenome <- function(
       if(tolower(ag) %in% supportedGenomes){
         
         genome <- paste(toupper(substr(ag, 1, 1)), substr(ag, 2, nchar(ag)), sep="")
-        #QQQ might be good to add a check for both geneAnnotation and genomeAnnotation being set to TRUE
+
+        if(geneAnnotation & genomeAnnotation){
+          stop("Please request either geneAnnotation or genomeAnnotation, not both!")
+        }
+
         if(geneAnnotation){
 
           message("Using GeneAnnotation set by addArchRGenome!")
@@ -589,6 +593,51 @@ nCells <- function(input = NULL){
 
 }
 
+#' Get the number of cells from an ArchRProject/ArrowFile JJJ
+#' 
+#' This function gets number of cells from an ArchRProject or ArrowFile
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param select A character vector containing the column names to select from `cellColData`.
+#' @export
+getGroupSummary <- function(
+  ArchRProj = NULL,
+  groupBy = "Sample",
+  select = "TSSEnrichment",
+  summary = "median",
+  na.rm = TRUE
+  ){
+
+  message("Getting ", summary, " of ", select, " for ", groupBy)
+
+  groups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
+  select <- getCellColData(ArchRProj, select = select, drop = TRUE)
+
+  if(!is.numeric(select)){
+    stop("Select must be a numeric column!")
+  }
+
+  splitSelect <- split(select, groups)
+
+  summarySelect <- lapply(seq_along(splitSelect), function(x){
+    if(tolower(summary) == "median"){
+      median(splitSelect[[x]], na.rm = na.rm)
+    }else if(tolower(summary) == "mean"){
+      mean(splitSelect[[x]], na.rm = na.rm)
+    }else if(tolower(summary) == "sum"){
+      sum(splitSelect[[x]], na.rm = na.rm)
+    }else{
+      stop("Summary Method Not Supported!")
+    }
+  }) %>% unlist
+
+  names(summarySelect) <- names(splitSelect)
+  summarySelect <- summarySelect[gtools::mixedsort(names(summarySelect))]
+
+  summarySelect
+  
+}
+
 #' Get sampleColData from an ArchRProject
 #' 
 #' This function gets the sampleColData from a given ArchRProject.
@@ -827,6 +876,7 @@ getGenomeAnnotation <- function(ArchRProj = NULL){
     if(!is.null(genomeAnnotation)){
       return(genomeAnnotation)
     }
+    stop("getGenomeAnnotation : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation)
@@ -844,6 +894,7 @@ getBlacklist <- function(ArchRProj = NULL){
     if(!is.null(genomeAnnotation)){
       return(genomeAnnotation$blacklist)
     }
+    stop("getBlacklist : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$blacklist)
@@ -861,6 +912,7 @@ getGenome <- function(ArchRProj = NULL){
     if(!is.null(genomeAnnotation)){
       return(genomeAnnotation$genome)
     }
+    stop("getGenome : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$genome)
@@ -878,6 +930,7 @@ getChromSizes <- function(ArchRProj = NULL){
     if(!is.null(genomeAnnotation)){
       return(genomeAnnotation$chromSizes)
     }
+    stop("getChromSizes : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   return(ArchRProj@genomeAnnotation$chromSizes)
@@ -898,6 +951,7 @@ getChromLengths <- function(ArchRProj = NULL){
       names(cL) <- paste0(seqnames(cS))
       return(cL)
     }
+    stop("getChromLengths : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   cS <- ArchRProj@genomeAnnotation$chromSizes
@@ -929,6 +983,7 @@ getGeneAnnotation <- function(ArchRProj = NULL){
     if(!is.null(geneAnnotation)){
       return(geneAnnotation)
     }
+    stop("getGeneAnnotation : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   ArchRProj@geneAnnotation
@@ -946,6 +1001,7 @@ getTSS <- function(ArchRProj = NULL){
     if(!is.null(geneAnnotation)){
       return(geneAnnotation$TSS)
     }
+    stop("getTSS : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   ArchRProj@geneAnnotation$TSS
@@ -971,6 +1027,7 @@ getGenes <- function(ArchRProj = NULL, symbols = NULL){
       }
       return(genes)
     }
+    stop("getGenes : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -1005,6 +1062,7 @@ getExons <- function(ArchRProj = NULL, symbols = NULL){
       }
       return(exons)
     }
+    stop("getExons : ArchRPRoj is NULL and there is no genome set with addArchRGenome!")
   }
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -1296,6 +1354,19 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
   if(is.null(plotList)){
     plotList <- list(...)
+    plotList2 <- list()
+    for(i in seq_along(plotList)){
+      if(inherits(plotList[[i]], "list")){
+        for(j in seq_along(plotList[[i]])){
+          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
+        }
+      }else{
+        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
+      }
+    }
+    plotList <- plotList2
+    rm(plotList2)
+    gc()
   }else{
     plotList2 <- list()
     for(i in seq_along(plotList)){
@@ -1359,7 +1430,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
           grid::grid.newpage()
         }
       }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
-        padding <- 45
+        padding <- 15
         draw(plotList[[i]], 
           padding = unit(c(padding, padding, padding, padding), "mm"), 
           heatmap_legend_side = "bot", 
@@ -1399,8 +1470,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
 #' 
 #' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".
 #' "Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
-#' This dataset is made up of cells from peripheral blood, bone marrow, and QQQ.
-#' QQQ I REMOVED THE INFO CORRESPONDING TO THE OTHER TUTORIAL DATASETS. IF YOU ADD THEM AS OPTIONS DOWN THE LINE WE CAN ADD THEM BACK
+#' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.
 #' @export
 getTutorialData <- function(tutorial = "hematopoiesis"){
 

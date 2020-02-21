@@ -9,7 +9,7 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use.
-#' @param scaleDims QQQ DOUBLE CHECK A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
+#' @param scaleDims A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
 #' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
 #' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
 #' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
@@ -32,7 +32,7 @@ addImputeWeights <- function(
   corCutOff = 0.75, 
   td = 3,
   ka = 4,
-  sampleCells = max(5000, floor(nCells(ArchRProj) / 10)),
+  sampleCells = max(5000, floor(nCells(ArchRProj) / 50)),
   k = 15,
   epsilon = 1
   ){

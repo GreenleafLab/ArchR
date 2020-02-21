@@ -40,12 +40,12 @@ addDoubletScores(
 \item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
 Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
 
-\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
-(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
-This idea was introduced by Timothy Stuart.}
+\item{scaleDims}{A boolean that indicates whether to z-score the reduced dimensions for each cell during the LSI
+method performed for doublet determination. This is useful for minimizing the contribution of strong biases (dominating early PCs)
+and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
+to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{knnMethod}{The name of the dimensionality reduction method to be used for k-nearest neighbors calculation. Possible values are "UMAP" or "LSI".}
 
@@ -57,7 +57,9 @@ This idea was introduced by Timothy Stuart.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{force}{If \code{force=FALSE} the umap projection is not accurate R < 0.8 return doubletScores and doubletEnrichments as -1. If \code{force=TRUE} it will bypass this warning and continue (not recommended).}
+\item{force}{If the UMAP projection is not accurate (when R < 0.8 for the reprojection of the training data - this occurs when you
+have a very homogenous population of cells), setting \code{force=FALSE} will return -1 for all doubletScores and doubletEnrichments. If you would like to
+override this (not recommended!), you can bypass this warning by setting \code{force=TRUE}.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 

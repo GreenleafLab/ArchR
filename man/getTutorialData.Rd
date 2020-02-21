@@ -2,13 +2,15 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getTutorialData}
 \alias{getTutorialData}
-\title{Get Relevant Data For ArchR Tutorials JJJ}
+\title{Get Relevant Data For ArchR Tutorials}
 \usage{
 getTutorialData(tutorial = "hematopoiesis")
 }
 \arguments{
-\item{tutorial}{The name of the available tutorial for which to retreive the tutorial data. Options are "Hematopoiesis" for now. "Hematopoiesis" refers to hematopoieitic scATAC hierarchy. "PBMC" refers to a small standard PBMC scATAC dataset. "FreshFrozen" refers to a PBMC fresh and frozen scATAC dataset.}
+\item{tutorial}{The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".
+"Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
+This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.}
 }
 \description{
-This function will download data for a given tutorial and return the input files required for ArchR
+This function will download data for a given tutorial and return the input files required for ArchR.
 }

@@ -14,11 +14,12 @@ getMarkers(
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker}. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker}. \code{cutoff} can contain any
+of the \code{assayNames} from \code{seMarker}.}
 
-\item{n}{An integer describing the maximum number of features to return per group.}
+\item{n}{An integer that indicates the maximum number of features to return per group.}
 
-\item{returnGR}{A boolean describing whether to return as a \code{GRanges}. Only valid when \code{seMarker} is computed for a PeakMatrix.}
+\item{returnGR}{A boolean indicating whether to return as a \code{GRanges} object. Only valid when \code{seMarker} is computed for a PeakMatrix.}
 }
 \description{
 This function will identify Markers and return a List of Features or a GRangesList for each group of significant marker features.

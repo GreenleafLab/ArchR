@@ -96,7 +96,11 @@ ArchRProject <- function(
   ArrowFiles <- unlist(lapply(ArrowFiles, .validArrow))
 
   message("Getting SampleNames...")
-  sampleNames <- unlist(lapply(seq_along(ArrowFiles), function(x) .sampleName(ArrowFiles[x])))
+  sampleNames <- unlist(lapply(seq_along(ArrowFiles), function(x){
+    message(x, " ", appendLF = FALSE)
+    .sampleName(ArrowFiles[x])
+  }))
+  message("")
 
   if(any(duplicated(sampleNames))){
     stop("Error cannot have duplicate sampleNames, please add sampleNames that will overwrite the current sample name in Arrow file!")
@@ -110,7 +114,11 @@ ArchRProject <- function(
 
   if(copyArrows){
     message("Copying ArrowFiles to Ouptut Directory! If you want to save disk space set copyArrows = FALSE")
-    cf <- file.copy(ArrowFiles, file.path(sampleDirectory, paste0(sampleNames, ".arrow")), overwrite = TRUE)
+    for(i in seq_along(ArrowFiles)){
+      message(i, " ", appendLF = FALSE)
+      cf <- file.copy(ArrowFiles[i], file.path(sampleDirectory, paste0(sampleNames[i], ".arrow")), overwrite = TRUE)
+    }
+    message("")
     ArrowFiles <- file.path(sampleDirectory, paste0(sampleNames, ".arrow"))
   }
 
@@ -120,11 +128,26 @@ ArchRProject <- function(
   names(sampleMetadata) <- sampleNames
 
   #Cell Information
-  metadataList <- lapply(ArrowFiles, .getMetadata)
-  intCols <- Reduce("intersect",lapply(metadataList,colnames))
-  cellColData <- lapply(metadataList, function(x) x[,intCols]) %>% Reduce("rbind",.)
-  cellColData <- DataFrame(cellColData)
+  message("Getting Cell Metadata...")
+  metadataList <- lapply(seq_along(ArrowFiles), function(x){
+    message(x, " ", appendLF = FALSE)
+    .getMetadata(ArrowFiles[x])
+  })
+  message("")
+  message("Merging Cell Metadata...")
+  allCols <- unique(c("Sample",rev(sort(unique(unlist(lapply(metadataList,colnames)))))))
+  cellColData <- lapply(seq_along(metadataList), function(x){
+    mdx <- metadataList[[x]]
+    idx <- which(allCols %ni% colnames(mdx))
+    if(length(idx) > 0){
+      for(i in seq_along(idx)){
+        mdx[,allCols[idx]] <- NA 
+      }
+    }
+    mdx[, allCols, drop = FALSE]
+  }) %>% Reduce("rbind", .) %>% DataFrame
 
+  message("Initializing ArchRProject...")
   AProj <- new("ArchRProject", 
     projectMetadata = SimpleList(outputDirectory = normalizePath(outputDirectory)),
     projectSummary = SimpleList(),
@@ -424,5 +447,7 @@ setMethod(
     rownames(x@cellColData)
   }
 )
+
+
 
 

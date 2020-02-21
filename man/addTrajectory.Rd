@@ -23,23 +23,28 @@ addTrajectory(
 
 \item{name}{A string indicating the name of the fitted trajectory to be added in \code{cellColData}.}
 
-\item{trajectory}{The order of cell groups to be used for constraining the initial supervised fitting procedure. For example, to get a trajectory from Cluster1 to Cluster2 to Cluster3, input should be c("Cluster1", "Cluster2", "Cluster3"). Cells will then be used from these 3 groups to constrain an initial fit in the group order.}
+\item{trajectory}{The order of cell groups to be used for constraining the initial supervised fitting procedure.
+For example, to get a trajectory from Cluster1 to Cluster2 to Cluster3, input should be c("Cluster1", "Cluster2", "Cluster3").
+Cells will then be used from these 3 groups to constrain an initial fit in the group order.}
 
-\item{groupBy}{A string indicating the column name from \code{cellColData} that contains the cell group definitions used in \code{trajectory} to constrain the initial supervised fitting procedure.}
+\item{groupBy}{A string indicating the column name from \code{cellColData} that contains the cell group definitions used in
+\code{trajectory} to constrain the initial supervised fitting procedure.}
 
 \item{reducedDims}{A string indicating the name of the \code{reducedDims} object from the \code{ArchRProject} that should be used for distance computation.}
 
 \item{embedding}{A string indicating the name of the \code{embedding} object from the \code{ArchRProject} that should be used for distance computation.}
 
-\item{preFilterQ}{Prior to the initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center is above the provided quantile will be excluded.}
+\item{preFilterQ}{Prior to the initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping
+center is above the provided quantile will be excluded.}
 
-\item{postFilterQ}{After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center is above the provided quantile will be excluded.}
+\item{postFilterQ}{After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center
+is above the provided quantile will be excluded.}
 
 \item{dof}{The number of degrees of freedom to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
 \item{spar}{The sparsity to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
-\item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exist in the given \code{ArchRProject}.}
+\item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exists in the given \code{ArchRProject}.}
 }
 \description{
 This function will fit a supervised trajectory in a lower dimensional space that

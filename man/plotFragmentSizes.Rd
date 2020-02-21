@@ -2,11 +2,11 @@
 % Please edit documentation in R/QualityControl.R
 \name{plotFragmentSizes}
 \alias{plotFragmentSizes}
-\title{Plot fragment size distribution for each sample JJJ}
+\title{Plot the fragment size distribution for each sample}
 \usage{
 plotFragmentSizes(
   ArchRProj = NULL,
-  nbp = 750,
+  maxSize = 750,
   returnDF = FALSE,
   threads = getArchRThreads()
 )
@@ -14,13 +14,13 @@ plotFragmentSizes(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{nbp}{Number of basepairs to plot fragment size distribution.}
+\item{maxSize}{The maximum fragment size (in basepairs) to be included when plotting the fragment size distribution.}
 
-\item{returnDF}{A boolean for return plot as a \code{data.frame} instead.}
+\item{returnDF}{A boolean value that indicates whether to return a \code{data.frame} containing the plot information
+instead of plotting the fragment size distribution.}
 
-\item{threads}{An integer specifying the number of threads to use for calculation. By default this uses threads set by \code{addArchRThreads}.}
+\item{threads}{An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by \code{addArchRThreads()}.}
 }
 \description{
-This function will plot a fragment size distribution for each sample. Cells in \code{ArchRProject} are the only ones
-used when making this plot.
+This function will plot a fragment size distribution for each sample. Only cells in the \code{ArchRProject} are used when making this plot.
 }

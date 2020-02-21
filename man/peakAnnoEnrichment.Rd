@@ -20,9 +20,11 @@ peakAnnoEnrichment(
 
 \item{peakAnnotation}{A \code{peakAnnotation} object in the provided \code{ArchRProject} to be used for hypergeometric testing.}
 
-\item{matches}{A custom \code{peakAnnotation} matches object used as input for the hypergeometric test. See \code{motifmatchr::matchmotifs()} for additional information.}
+\item{matches}{A custom \code{peakAnnotation} matches object used as input for the hypergeometric test. See
+\code{motifmatchr::matchmotifs()} for additional information.}
 
-\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} to use. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
+\item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} to use.
+\code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{background}{A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").}
 }

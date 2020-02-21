@@ -36,13 +36,15 @@ addIterativeLSI(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{useMatrix}{The name of the data matrix to retrieve from the ArrowFiles associated with the \code{ArchRProject}. Valid options are "TileMatrix" or "PeakMatrix".}
+\item{useMatrix}{The name of the data matrix to retrieve from the ArrowFiles associated with the \code{ArchRProject}. Valid options are
+"TileMatrix" or "PeakMatrix".}
 
 \item{name}{The name to use for storage of the IterativeLSI dimensionality reduction in the \code{ArchRProject} as a \code{reducedDims} object.}
 
 \item{iterations}{The number of LSI iterations to perform.}
 
-\item{clusterParams}{Additional parameters to be passed to \code{addClusters()} for clustering within each iteration. These must be either length 1 or the total number of \code{iterations} - 1.}
+\item{clusterParams}{Additional parameters to be passed to \code{addClusters()} for clustering within each iteration. These must be either
+length 1 or the total number of \code{iterations} - 1.}
 
 \item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
 
@@ -51,25 +53,35 @@ addIterativeLSI(
 \item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
 Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}
 
-\item{scaleDims}{A boolean describing whether to rescale the total variance for each principal component. This is useful for minimizing the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.}
+\item{scaleDims}{A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
+of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
+originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 
 \item{sampleCells}{An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.}
 
-\item{selectionMethod}{The selection method to be used for identifying the top variable features. Valid options are "var" for log-variability or "vmr" for variance-to-mean ratio.}
+\item{selectionMethod}{The selection method to be used for identifying the top variable features. Valid options are "var" for
+log-variability or "vmr" for variance-to-mean ratio.}
 
-\item{scaleTo}{Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo} prior to variance calculation and TF-IDF normalization.}
+\item{scaleTo}{Each column in the matrix designated by \code{useMatrix} will be normalized to a column sum designated by \code{scaleTo} prior to
+variance calculation and TF-IDF normalization.}
 
-\item{totalFeatures}{The number of features to consider for use in LSI after ranking the features by the total number of insertions. These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
+\item{totalFeatures}{The number of features to consider for use in LSI after ranking the features by the total number of insertions.
+These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
 
-\item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior to the first iteration of the iterative LSI paradigm. For example, if \code{filterQuantile = 0.99}, any features above the 99th percentile in insertion counts will be ignored for the first LSI iteration.}
+\item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior
+to the first iteration of the iterative LSI paradigm. For example, if \code{filterQuantile = 0.99}, any features above the 99th percentile in
+insertion counts will be ignored for the first LSI iteration.}
 
-\item{saveIterations}{A boolean value indicating whether the results of each LSI iterations should be saved as compressed \code{.rds} files in the designated \code{outDir}.}
+\item{saveIterations}{A boolean value indicating whether the results of each LSI iterations should be saved as compressed \code{.rds} files in
+the designated \code{outDir}.}
 
-\item{UMAPParams}{The list of parameters to pass to the UMAP function if "UMAP" if \code{saveIterations=TRUE}. See the function \code{umap} in the uwot package.}
+\item{UMAPParams}{The list of parameters to pass to the UMAP function if "UMAP" if \code{saveIterations=TRUE}. See the function \code{uwot::umap()}.}
 
 \item{nPlot}{If \code{saveIterations=TRUE}, how many cells to sample make a UMAP and plot for each iteration.}
 
@@ -77,7 +89,8 @@ Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logid
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+reproduce results downstream.}
 
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 

@@ -16,6 +16,7 @@ addClusters(
   corCutOff = 0.75,
   knnAssign = 10,
   nOutlier = 5,
+  prefix = "Cluster",
   verbose = TRUE,
   tstart = NULL,
   force = FALSE,
@@ -23,36 +24,47 @@ addClusters(
 )
 }
 \arguments{
-\item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims} or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.}
+\item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}
+or (ii) a dimensionality reduction matrix. This object will be used for cluster identification.}
 
-\item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}. Not required if input is a matrix.}
+\item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.
+Not required if input is a matrix.}
 
 \item{name}{The column name of the cluster label column to be added to \code{cellColData} if \code{input} is an \code{ArchRProject} object.}
 
-\item{sampleCells}{An integer specifying the number of cells to subsample and perform clustering on. The remaining cells that were not subsampled will be assigned to the cluster of the nearest subsampled cell. This enables a decrease in run time but can sacrifice granularity of clusters.}
+\item{sampleCells}{An integer specifying the number of cells to subsample and perform clustering on. The remaining cells
+that were not subsampled will be assigned to the cluster of the nearest subsampled cell. This enables a decrease in run time
+but can sacrifice granularity of clusters.}
 
-\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track of the seed used so that you can reproduce results downstream.}
+\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended
+to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{method}{A string indicating the clustering method to be used. Supported methods are "Seurat" and "Scran".}
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
-(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
-This idea was introduced by Timothy Stuart.}
+\item{scaleDims}{A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
+of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
+originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{knnAssign}{The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).}
 
-\item{nOutlier}{The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach this threshold, then the cells will be considered outliers and assigned to nearby clusters.}
+\item{nOutlier}{The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
+this threshold, then the cells will be considered outliers and assigned to nearby clusters.}
+
+\item{prefix}{A character string to be added before each cluster identity. Ie if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
-\item{tstart}{JJJ A timestamp to measure how long the clustering analysis has been running relative to a start time. Useful for keeping track of how long clustering relative to a start time, for example this is used in "IterativeLSI".}
+\item{tstart}{A timestamp that is typically passed internally from another function (for ex. "IterativeLSI") to measure how long the clustering analysis
+has been running relative to the start time when this process was initiated in another function. This argument is rarely manually specified.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already exists as a column name in \code{cellColData}.}
+\item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already
+exists as a column name in \code{cellColData}.}
 
 \item{...}{Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)}
 }

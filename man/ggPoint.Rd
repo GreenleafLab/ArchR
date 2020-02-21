@@ -2,7 +2,7 @@
 % Please edit documentation in R/GgplotHelper.R
 \name{ggPoint}
 \alias{ggPoint}
-\title{A ggplot-based dot plot wrapper function JJJ}
+\title{A ggplot-based dot plot wrapper function}
 \usage{
 ggPoint(
   x = NULL,
@@ -47,13 +47,15 @@ ggPoint(
 
 \item{y}{A numeric vector containing the y-axis values for each point.}
 
-\item{color}{A numeric/categorical vector containing coloring information for each point.}
+\item{color}{A numeric/categorical vector used to determine the coloration for each point.}
 
 \item{discrete}{A boolean value indicating whether the supplied data is discrete (\code{TRUE}) or continuous (\code{FALSE}).}
 
-\item{discreteSet}{The name of a custom palette from \code{ArchRPalettes} to use for categorical/discrete color.}
+\item{discreteSet}{The name of a custom palette from \code{ArchRPalettes} to use for categorical/discrete color.
+This argument is only used if \code{discrete} is set to \code{TRUE}.}
 
-\item{continuousSet}{The name of a custom palette from \code{ArchRPalettes} to use for numeric color.}
+\item{continuousSet}{The name of a custom palette from \code{ArchRPalettes} to use for numeric color.
+This argument is only used if \code{discrete} is set to \code{FALSE}.}
 
 \item{labelMeans}{A boolean value indicating whether the mean of each categorical/discrete color should be labeled.}
 
@@ -61,7 +63,8 @@ ggPoint(
 
 \item{defaultColor}{The default color for points that do not have another color applied (i.e. \code{NA} values).}
 
-\item{colorDensity}{A boolean value indicating whether the density of points on the plot should be indicated colorimetrically. If \code{TRUE}, continuousSet is used as the color palette.}
+\item{colorDensity}{A boolean value indicating whether the density of points on the plot should be indicated colorimetrically.
+If \code{TRUE}, continuousSet is used as the color palette.}
 
 \item{size}{The numeric size of the points to be plotted.}
 
@@ -69,7 +72,8 @@ ggPoint(
 
 \item{ylim}{A numeric vector of two values indicating the lower and upper bounds of the y-axis on the plot.}
 
-\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.}
+\item{extend}{A numeric value indicating the fraction to extend the x-axis and y-axis beyond the maximum and minimum
+values if \code{xlim} and \code{ylim} are not provided. For example, 0.05 will extend the x-axis and y-axis by 5 percent on each end.}
 
 \item{xlabel}{The label to plot for the x-axis.}
 
@@ -83,25 +87,36 @@ ggPoint(
 
 \item{colorTitle}{A title to be added to the legend if \code{color} is supplied.}
 
-\item{colorOrder}{If you want to control the order of \code{color} supplied as a factor to \code{ggplot2}. For example if you have \code{color} as c("a","b","c") and want to have the first color selected from the palette be for "c" then "b" and then "a", you would supply the \code{colorOrder} as c("c", "b", "a").}
+\item{colorOrder}{A vector that allows you to control the order of palette colors associated with the values in \code{color}.
+For example if you have \code{color} as \code{c("a","b","c")} and want to have the first color selected from the palette be used for
+"c", the second color for "b", and the third color for "a", you would supply the \code{colorOrder} as \code{c("c", "b", "a")}.}
 
-\item{colorLimits}{A numeric vector of two values indicating the lower and upper bounds of colors if numeric.}
+\item{colorLimits}{A numeric vector of two values indicating the lower and upper bounds of colors if numeric. Values
+beyond these limits are thresholded.}
 
 \item{alpha}{A number indicating the transparency to use for each point. See \code{ggplot2} for more details.}
 
 \item{baseSize}{The base font size (in points) to use in the plot.}
 
+\item{legendSize}{This represents the color legend size in the plot.}
+
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
+
+\item{labelAsFactors}{A boolean indicating whether to label as a factor numeric rather than labeling with a character string.}
 
 \item{fgColor}{The foreground color of the plot.}
 
 \item{bgColor}{The background color of the plot.}
 
+\item{bgWidth}{The background width of the halos in the labeling.}
+
 \item{labelSize}{The numeric font size of labels.}
 
-\item{addFit}{A string indicating if a fit/regression line (see \code{ggplot2::geom_smooth()} methods) should be included in the plot and what method to use for this fit.}
+\item{addFit}{A string indicating the method to use for adding a fit/regression line to the plot (see \code{ggplot2::geom_smooth()} methods).
+If set to \code{NULL}, no fit/regression line is added.}
 
-\item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize lines and labels, just the internal portions of the plot.}
+\item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize
+lines and labels, just the internal portions of the plot.}
 
 \item{dpi}{The resolution in dots per inch to use for the plot.}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/IterativeLSI.R
 \name{addHarmony}
 \alias{addHarmony}
-\title{Add Harmony Batch Correction Reduced Dims to ArchRProject JJJ}
+\title{Add Harmony Batch Corrected Reduced Dims to an ArchRProject}
 \usage{
 addHarmony(
   ArchRProj = NULL,
@@ -24,21 +24,25 @@ addHarmony(
 
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
-\item{scaleDims}{A boolean describing whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution of strong biases
-(dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since it is over-weighting latent PCs.
-If \code{NULL} this will scale the dimensions depending on if this were set true when the \code{reducedDims} were created by the dimensionality reduction method.
-This idea was introduced by Timothy Stuart.}
+\item{scaleDims}{A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
+of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
+it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
+originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
 
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
+to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{name}{The column name of the cluster label column to be added to \code{cellColData} if \code{input} is an \code{ArchRProject} object.}
+\item{name}{The name to store harmony output as a \code{reducedDims} in the \code{ArchRProject} object.}
+
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for vars in harmony batch correction.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already exists as a column name in \code{cellColData}.}
+\item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already
+exists as a column name in \code{cellColData}.}
 
 \item{...}{Additional arguments to be provided to harmony::HarmonyMatrix}
 }
 \description{
-This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
+This function will add the Harmony batch-corrected reduced dimensions to an ArchRProject.
 }

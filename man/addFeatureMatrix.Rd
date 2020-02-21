@@ -24,7 +24,8 @@ addFeatureMatrix(
 
 \item{ceiling}{The maximum counts per feature allowed. This is used to prevent large biases in feature counts.}
 
-\item{binarize}{A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for downstream analyses when working with insertion counts.}
+\item{binarize}{A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for
+downstream analyses when working with insertion counts.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

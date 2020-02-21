@@ -20,7 +20,7 @@ theme_ArchR(
 \arguments{
 \item{color}{The color to be used for text, lines, ticks, etc for the plot.}
 
-\item{baseSize}{The base font size to use in the plot.}
+\item{baseSize}{The base font size (in points) to use in the plot.}
 
 \item{baseLineSize}{The base line width (in points) to be used throughout the plot.}
 
