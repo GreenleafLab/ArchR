@@ -569,7 +569,7 @@ addIterativeLSI <- function(
    
     set.seed(1)
     .messageDiffTime("Sampling Cells for Estimated LSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    sampleN <- floor(sampleCells * table(sampleNames) / length(sampleNames))
+    sampleN <- ceiling(sampleCells * table(sampleNames) / length(sampleNames))
     splitCells <- split(cellNames, sampleNames)
     sampledCellNames <- lapply(seq_along(splitCells), function(x){
       sample(splitCells[[x]], sampleN[names(splitCells)[x]])
