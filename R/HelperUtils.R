@@ -856,11 +856,11 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 # Developer Utils
 ########
 
-.devMode <- function(){
-  fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
+.devMode <- function(package = "ArchR"){
+  fn <<- unclass(lsf.str(envir = asNamespace(package), all = TRUE))
   for(i in seq_along(fn)){
     tryCatch({
-      eval(parse(text=paste0(fn[i], '<-ArchR:::', fn[i])))
+      eval(parse(text=paste0(fn[i], paste0('<<-',package,':::'), fn[i])))
     }, error = function(x){
     })
   }

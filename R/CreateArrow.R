@@ -294,7 +294,7 @@ createArrowFiles <- function(
       stop("Error only supported inputs are tabix and bam!")
       readMethod <- "tsv"
     }
-  }else if(fe == "bam"){
+  }else if(.isBam(inputFile)){
     readMethod <- "bam"
   }else{
     stop(sprintf("Read Method for %s Not Recognized!", fe))
@@ -729,7 +729,7 @@ createArrowFiles <- function(
 }
 
 #########################################################################################################
-# Methods to Turn Input File into a Temp File that can then be Efficiently converted to an Arrow!
+# Validate Input Files!
 #########################################################################################################
 .isTabix <- function(file = NULL){
   tryCatch({
@@ -745,6 +745,29 @@ createArrowFiles <- function(
     })
   })
 }
+
+.isBam <- function(file = NULL){
+  tryCatch({
+    bf <- BamFile(file)
+    if(file.exists(paste0(file, ".bai"))){
+      return(TRUE) 
+    }else{
+      stop("Bam File Index Does Not Exist! Trying again...")
+    }
+  }, error = function(x){
+    tryCatch({
+      message("Attempting to index ", file," as bam...")
+      indexBam(file)
+      TRUE
+    }, error = function(y){
+      FALSE
+    })
+  })
+}
+
+#########################################################################################################
+# Methods to Turn Input File into a Temp File that can then be Efficiently converted to an Arrow!
+#########################################################################################################
 
 .tabixToTmp <- function(
   tabixFile = NULL, 
