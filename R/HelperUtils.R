@@ -857,13 +857,20 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 ########
 
 .devMode <- function(package = "ArchR"){
-  fn <<- unclass(lsf.str(envir = asNamespace(package), all = TRUE))
+  fn <- unclass(lsf.str(envir = asNamespace(package), all = TRUE))
   for(i in seq_along(fn)){
     tryCatch({
-      eval(parse(text=paste0(fn[i], paste0('<<-',package,':::'), fn[i])))
+      assign(fn[i], paste0(package,':::', fn[i]), envir=globalenv())
+      #eval(parse(text=paste0(fn[i], paste0('<<-',package,':::'), fn[i])))
     }, error = function(x){
     })
   }
+}
+
+#https://stackoverflow.com/questions/42734547/generating-random-strings
+.randomStr <- function(letters = 10, n = 1){
+  a <- do.call(paste0, replicate(letters, sample(LETTERS, n, TRUE), FALSE))
+  paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
 }
 
 .convertToPNG <- function(

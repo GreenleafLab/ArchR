@@ -108,6 +108,8 @@ addUMAP <- function(
   #############################################################################################
   # Add Embedding to Project
   #############################################################################################
+  nc <- ncol(embeddingParams$X)
+  nr <- nrow(embeddingParams$X)
 
   if(saveModel){
     dir.create(file.path(getOutputDirectory(ArchRProj), "Embeddings"), showWarnings = FALSE)
@@ -121,31 +123,45 @@ addUMAP <- function(
     colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
     rownames(dfEmbedding) <- rownames(embeddingParams$X)
     embeddingParams$X <- NULL
-    ArchRProj@embeddings[[name]] <- SimpleList(df = dfEmbedding, params = embeddingParams, uwotModel = modelFile)
+    ArchRProj@embeddings[[name]] <- SimpleList(
+      df = dfEmbedding, 
+      params = c(
+        embeddingParams,
+        dimsToUse = NULL,
+        scaleDims = NULL,
+        corCutOff = 0.75,
+        nr=nr,
+        nc=nc,
+        uwotModel = modelFile
+      )
+    )
   }else{
     dfEmbedding <- data.frame(uwot_umap)    
     colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
     rownames(dfEmbedding) <- rownames(embeddingParams$X)
     embeddingParams$X <- NULL
-    ArchRProj@embeddings[[name]] <- SimpleList(df = dfEmbedding, params = embeddingParams, uwotModel = NA)
+    ArchRProj@embeddings[[name]] <- SimpleList(
+      df = dfEmbedding, 
+      params = c(
+        embeddingParams,
+        dimsToUse = NULL,
+        scaleDims = NULL,
+        corCutOff = 0.75,
+        nr=nr,
+        nc=nc,
+        uwotModel = NA
+      )
+    )
   }   
 
-  
   return(ArchRProj)
 
 }
 
-#https://stackoverflow.com/questions/42734547/generating-random-strings
-.randomStr <- function(letters = 10, n = 1){
-  a <- do.call(paste0, replicate(letters, sample(LETTERS, n, TRUE), FALSE))
-  paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
-}
-
 #save_uwot does not work because tarring doesnt work for some reason on Stanford's compute server
-#The following code will do a similar job assumming system commands work
 #Adapted from save_uwot
 .saveUWOT <- function(model, file){
-
+  file <- file.path(normalizePath(dirname(file)), basename(file))
   wd <- getwd()
   mod_dir <- tempfile(pattern = "dir")
   dir.create(mod_dir)
@@ -155,7 +171,6 @@ addUMAP <- function(
   saveRDS(model, file = model_tmpfname)
   metrics <- names(model$metric)
   n_metrics <- length(metrics)
-  
   for (i in seq_len(n_metrics)) {
       nn_tmpfname <- file.path(uwot_dir, paste0("nn", i))
       if (n_metrics == 1) {
@@ -169,14 +184,60 @@ addUMAP <- function(
           model$nn_index[[i]]$load(nn_tmpfname)
       }
   }
-
   setwd(mod_dir)
-  system("tar -cvf uwot.tar uwot")
+  system2("tar", "-cvf uwot.tar uwot", stdout = NULL, stderr = NULL)
   o <- .fileRename("uwot.tar", file)
   setwd(wd)
-
+  if (file.exists(mod_dir)) {
+      unlink(mod_dir, recursive = TRUE)
+  }
   return(o)
-  
+}
+
+#Adapted from load_uwot
+.loadUWOT <- function(file, nDim = NULL){
+    model <- NULL
+    tryCatch({
+        mod_dir <- tempfile(pattern = "dir")
+        dir.create(mod_dir)
+        utils::untar(file, exdir = mod_dir)
+        model_fname <- file.path(mod_dir, "uwot/model")
+        if (!file.exists(model_fname)) {
+            stop("Can't find model in ", file)
+        }
+        model <- readRDS(file = model_fname)
+        metrics <- names(model$metric)
+        n_metrics <- length(metrics)
+        for (i in seq_len(n_metrics)){
+            nn_fname <- file.path(mod_dir, paste0("uwot/nn", i))
+            if (!file.exists(nn_fname)) {
+                stop("Can't find nearest neighbor index ", nn_fname, " in ", file)
+            }
+            metric <- metrics[[i]]
+            if(length(model$metric[[i]]) == 0){
+              if(!is.null(nDim)){
+                nDim2 <- nDim
+              }else{
+                nDim2 <- length(model$metric[[i]])
+              }
+            }
+            if(!is.null(nDim)){
+              nDim2 <- nDim
+            }
+            ann <- uwot:::create_ann(metric, ndim = nDim2)
+            ann$load(nn_fname)
+            if (n_metrics == 1) {
+                model$nn_index <- ann
+            }else{
+                model$nn_index[[i]] <- ann
+            }
+        }
+    }, finally = {
+        if (file.exists(mod_dir)) {
+            unlink(mod_dir, recursive = TRUE)
+        }
+    })
+    model 
 }
 
 #' Add a TSNE embedding of a reduced dimensions object to an ArchRProject
