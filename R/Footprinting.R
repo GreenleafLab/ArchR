@@ -229,9 +229,12 @@ plotFootprints <- function(
 
   #Norm Foot By Bias
   if(tolower(normMethod) == "none"){
+    title <- ""
   }else if(tolower(normMethod) == "subtract"){
+    title <- "Tn5 Bias Subtracted\n"
     footMat <- footMat - biasMat
   }else if(tolower(normMethod) == "divide"){
+    title <- "Tn5 Bias Divided\n"
     footMat <- footMat / biasMat
   }else{
     stop("normMethod not recognized!")
@@ -276,31 +279,31 @@ plotFootprints <- function(
   plotMax$x <- 25
 
   ggFoot <- ggplot(plotFootDF, aes(x = x, y = mean, color = group)) + 
+    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
     geom_line() + 
     scale_color_manual(values = pal) + 
     scale_fill_manual(values = pal) + 
-    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
-    xlab("Distance to motif center (BP)") +
+    xlab("Distance to motif center (bp)") +
     coord_cartesian(
       expand = FALSE, 
       ylim = c(quantile(plotFootDF$mean, 0.0001), 1.15*quantile(plotFootDF$mean, 0.999)), 
       xlim = c(min(plotFootDF$x),max(plotFootDF$x))
     ) + theme_ArchR(baseSize = baseSize) + ggtitle(name) +
     guides(fill = FALSE) + 
-    guides(color = FALSE) + ylab("Footprint Normalized Mean") +
+    guides(color = FALSE) + ylab(paste0(title,"Normalized Insertions")) +
     ggrepel::geom_label_repel(data = plotMax, aes(label = group), size = 3, xlim = c(75, NA))
 
   ggBias <- ggplot(plotBiasDF, aes(x = x, y = mean, color = group)) + 
+    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
     geom_line() + 
     scale_color_manual(values = pal) + 
     scale_fill_manual(values = pal) + 
-    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
-    xlab("Distance to motif center (BP)") +
+    xlab("Distance to motif center (bp)") +
     coord_cartesian(
       expand = FALSE, 
       ylim = c(quantile(plotBiasDF$mean, 0.0001), 1.05*quantile(plotBiasDF$mean, 0.999)), 
       xlim = c(min(plotBiasDF$x),max(plotBiasDF$x))
-    ) + theme_ArchR(baseSize = baseSize) + ylab("Bias Normalized Mean") + 
+    ) + theme_ArchR(baseSize = baseSize) + ylab("Tn5-Bias Normalized Insertions") + 
     theme(legend.position = "bottom", legend.box.background = element_rect(color = NA)) 
        
   ggAlignPlots(ggFoot, .ggSmallLegend(ggBias), sizes=c(2,1), draw = FALSE)

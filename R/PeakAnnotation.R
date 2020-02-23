@@ -206,7 +206,7 @@ addPeakAnnotations <- function(
 
 }
 
-#' Add motif annotations to an ArchRProject
+#' Add motif annotations to an ArchRProject JJJ
 #' 
 #' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value
 #' is stored indicating whether each motif is observed within the peak region.
@@ -223,6 +223,7 @@ addPeakAnnotations <- function(
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
 #' (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
+#' @param version An integer specifying version 1 or version 2 of chromVARmotifs see github for more info GreenleafLab/chromVARmotifs.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if
 #' it already exists in the given `ArchRProject`.
 #' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a PWM object.
@@ -235,6 +236,7 @@ addMotifAnnotations <- function(
   collection = "CORE",
   cutOff = 5e-05, 
   width = 7,
+  version = 2,
   force = FALSE,
   ...
   ){
@@ -310,14 +312,32 @@ addMotifAnnotations <- function(
 
     .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
     if(tolower(species) == "mus musculus"){
-      data("mouse_pwms_v2")
-      motifs <- mouse_pwms_v2
+      if(version == 1){
+        message("Using version 1 motifs!")
+        data("mouse_pwms_v1")
+        motifs <- mouse_pwms_v1        
+      }else if(version == 2){
+        message("Using version 2 motifs!")
+        data("mouse_pwms_v2")
+        motifs <- mouse_pwms_v2
+      }else{
+        stop("Only versions 1 and 2 exist!")
+      }
       obj <- .summarizeChromVARMotifs(motifs)
       motifs <- obj$motifs
       motifSummary <- obj$motifSummary
     }else if(tolower(species) == "homo sapiens"){
-      data("human_pwms_v2")
-      motifs <- human_pwms_v2
+      if(version == 1){
+        message("Using version 1 motifs!")
+        data("human_pwms_v1")
+        motifs <- human_pwms_v1        
+      }else if(version == 2){
+        message("Using version 2 motifs!")
+        data("human_pwms_v2")
+        motifs <- human_pwms_v2
+      }else{
+        stop("Only versions 1 and 2 exist!")
+      }
       obj <- .summarizeChromVARMotifs(motifs)
       motifs <- obj$motifs
       motifSummary <- obj$motifSummary

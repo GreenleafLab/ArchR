@@ -191,13 +191,21 @@ addIterativeLSI <- function(
     }
   }
 
-  #Check if Matrix is supported
+  #Check if Matrix is supported and check type
   stopifnot(any(tolower(useMatrix) %in% c("tilematrix","peakmatrix")))
   if(tolower(useMatrix) == "tilematrix"){
     useMatrix <- "TileMatrix"
+    tileSizes <- lapply(ArrowFiles, function(x){
+      h5read(x, "TileMatrix/Info/Params/")$tileSize[1]
+    }) %>% unlist
+    if(length(unique(tileSizes)) != 1){
+      stop("Error not all TileMatrices are the same tileSize!")
+    }
+    tileSize <- unique(tileSizes)
   }
   if(tolower(useMatrix) == "peakmatrix"){
     useMatrix <- "PeakMatrix"
+    tileSize <- NA
   }
 
   tstart <- Sys.time()
@@ -257,6 +265,7 @@ addIterativeLSI <- function(
     tstart = tstart
     )
   outLSI$scaleDims <- scaleDims
+  outLSI$useMatrix <- useMatrix
   gc()
 
   if(scaleDims){
@@ -416,6 +425,7 @@ addIterativeLSI <- function(
       tstart = tstart
       )
     outLSI$scaleDims <- scaleDims
+    outLSI$useMatrix <- useMatrix
 
     if(scaleDims){
       dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]

@@ -39,7 +39,7 @@ addUMAP <- function(
   dimsToUse = NULL,
   scaleDims = NULL,
   corCutOff = 0.75,
-  saveModel = FALSE,
+  saveModel = TRUE,
   verbose = TRUE,
   seed = 1,
   force = FALSE,
@@ -88,11 +88,11 @@ addUMAP <- function(
   embeddingParams$verbose <- verbose
 
   if(saveModel){
-    message("Saving UMAP model not currently supported (will be shortly), running without model!")
-    #embeddingParams$ret_nn <- TRUE
-    #embeddingParams$ret_model <- TRUE
-    embeddingParams$ret_nn <- FALSE
-    embeddingParams$ret_model <- FALSE    
+    #message("Saving UMAP model not currently supported (will be shortly), running without model!")
+    embeddingParams$ret_nn <- TRUE
+    embeddingParams$ret_model <- TRUE
+    #embeddingParams$ret_nn <- FALSE
+    #embeddingParams$ret_model <- FALSE    
   }else{
     embeddingParams$ret_nn <- FALSE
     embeddingParams$ret_model <- FALSE      
@@ -110,18 +110,73 @@ addUMAP <- function(
   #############################################################################################
 
   if(saveModel){
+    dir.create(file.path(getOutputDirectory(ArchRProj), "Embeddings"), showWarnings = FALSE)
+    modelFile <- file.path(getOutputDirectory(ArchRProj), "Embeddings", paste0("Save-Uwot-UMAP-Params-",reducedDims,"-",.randomStr(),".tar"))
+    saveModelTmp <- .saveUWOT(uwot_umap, modelFile)
+    if(!file.exists(modelFile)){
+      warning("Model was not saved properly, continuing without saving model!")
+      modelFile <- NA
+    }
     dfEmbedding <- data.frame(uwot_umap[[1]])
+    colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
+    rownames(dfEmbedding) <- rownames(embeddingParams$X)
+    embeddingParams$X <- NULL
+    ArchRProj@embeddings[[name]] <- SimpleList(df = dfEmbedding, params = embeddingParams, uwotModel = modelFile)
   }else{
     dfEmbedding <- data.frame(uwot_umap)    
+    colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
+    rownames(dfEmbedding) <- rownames(embeddingParams$X)
+    embeddingParams$X <- NULL
+    ArchRProj@embeddings[[name]] <- SimpleList(df = dfEmbedding, params = embeddingParams, uwotModel = NA)
   }   
-  colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
-  rownames(dfEmbedding) <- rownames(embeddingParams$X)
 
-  embeddingParams$X <- NULL
-  ArchRProj@embeddings[[name]] <- SimpleList(df = dfEmbedding, params = embeddingParams)
   
   return(ArchRProj)
 
+}
+
+#https://stackoverflow.com/questions/42734547/generating-random-strings
+.randomStr <- function(letters = 10, n = 1){
+  a <- do.call(paste0, replicate(letters, sample(LETTERS, n, TRUE), FALSE))
+  paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
+}
+
+#save_uwot does not work because tarring doesnt work for some reason on Stanford's compute server
+#The following code will do a similar job assumming system commands work
+#Adapted from save_uwot
+.saveUWOT <- function(model, file){
+
+  wd <- getwd()
+  mod_dir <- tempfile(pattern = "dir")
+  dir.create(mod_dir)
+  uwot_dir <- file.path(mod_dir, "uwot")
+  dir.create(uwot_dir)
+  model_tmpfname <- file.path(uwot_dir, "model")
+  saveRDS(model, file = model_tmpfname)
+  metrics <- names(model$metric)
+  n_metrics <- length(metrics)
+  
+  for (i in seq_len(n_metrics)) {
+      nn_tmpfname <- file.path(uwot_dir, paste0("nn", i))
+      if (n_metrics == 1) {
+          model$nn_index$save(nn_tmpfname)
+          model$nn_index$unload()
+          model$nn_index$load(nn_tmpfname)
+      }
+      else {
+          model$nn_index[[i]]$save(nn_tmpfname)
+          model$nn_index[[i]]$unload()
+          model$nn_index[[i]]$load(nn_tmpfname)
+      }
+  }
+
+  setwd(mod_dir)
+  system("tar -cvf uwot.tar uwot")
+  o <- .fileRename("uwot.tar", file)
+  setwd(wd)
+
+  return(o)
+  
 }
 
 #' Add a TSNE embedding of a reduced dimensions object to an ArchRProject
