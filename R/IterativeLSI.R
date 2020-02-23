@@ -217,7 +217,7 @@ addIterativeLSI <- function(
 
   #Compute Row Sums Across All Samples
   .messageDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
+  totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = TRUE)
   gc()
 
   cellDepth <- tryCatch({
@@ -266,6 +266,7 @@ addIterativeLSI <- function(
     )
   outLSI$scaleDims <- scaleDims
   outLSI$useMatrix <- useMatrix
+  outLSI$tileSize <- tileSize
   gc()
 
   if(scaleDims){
@@ -426,7 +427,8 @@ addIterativeLSI <- function(
       )
     outLSI$scaleDims <- scaleDims
     outLSI$useMatrix <- useMatrix
-
+    outLSI$tileSize <- tileSize
+    
     if(scaleDims){
       dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
     }else{
