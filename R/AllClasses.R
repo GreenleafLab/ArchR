@@ -359,7 +359,8 @@ loadArchRProject <- function(
   if(i=="cellNames"){
     return(rownames(x@cellColData))
   }else{
-    return(x@cellColData[[i, drop = TRUE]])
+    val <- x@cellColData[[i, drop = TRUE]]
+    return(as.vector(val))
   }
 }
 
