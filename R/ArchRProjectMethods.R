@@ -32,7 +32,7 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force =
   }
   
   message("Setting default number of Parallel threads to ", threads, ".")
-  assign(".ArchRThreads", as.integer(threads), envir = .GlobalEnv)
+  options(ArchR.threads = as.integer(round(threads)))
 
 }
 
@@ -42,11 +42,12 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force =
 #' 
 #' @export
 getArchRThreads <- function(){
-  if(exists(".ArchRThreads")){
-    if(!is.integer(.ArchRThreads)){
-      message(".ArchRThreads : ", .ArchRThreads, " is not an integer. \nDid you mistakenly set this to a value without addArchRThreads? Deleting .ArchRThreads from global environment.")
-      rm(list=".ArchRThreads", envir = .GlobalEnv ) # Remove this.
-      1
+  .ArchRThreads <- options()[["ArchR.threads"]]
+  if(!is.null(.ArchRThreads)){
+    if(!.isWholenumber(.ArchRThreads)){
+      message("option(ArchR.threads) : ", .ArchRThreads, " is not an integer. \nDid you mistakenly set this to a value without addArchRThreads? Reseting to default!")
+      addArchRThreads()
+      options()[["ArchR.threads"]]
     }else{
       .ArchRThreads
     }
@@ -127,8 +128,9 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
     genome <- paste(toupper(substr(genome, 1, 1)), substr(genome, 2, nchar(genome)), sep="")
     
     message("Setting default genome to ", genome, ".")
-    assign(".ArchRGenome", genome, envir = .GlobalEnv)
-    
+    #assign(".ArchRGenome", genome, envir = .GlobalEnv)
+    options(ArchR.genome = genome)
+
   }
 
   invisible(0)
@@ -153,8 +155,9 @@ getArchRGenome <- function(
   ){
 
   supportedGenomes <- c("hg19","hg38","mm9","mm10")
+  .ArchRGenome <- options()[["ArchR.genome"]]
 
-  if(exists(".ArchRGenome")){
+  if(!is.null(.ArchRGenome)){
 
     ag <- .ArchRGenome
     
@@ -196,8 +199,7 @@ getArchRGenome <- function(
 
       }else{
         
-        rm(list=".ArchRGenome", envir = .GlobalEnv ) # Remove this.
-        stop(".ArchRGenome : ", ag, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
+        stop("option(ArchR.genome) : ", ag, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
       
       }
     }

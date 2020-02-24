@@ -857,11 +857,18 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 ########
 
 .devMode <- function(package = "ArchR"){
-  fn <- unclass(lsf.str(envir = asNamespace(package), all = TRUE))
+  # fn <- unclass(lsf.str(envir = asNamespace(package), all = TRUE))
+  # for(i in seq_along(fn)){
+  #   tryCatch({
+  #     assign(fn[i], paste0(package,':::', fn[i]), envir=globalenv())
+  #     #eval(parse(text=paste0(fn[i], paste0('<<-',package,':::'), fn[i])))
+  #   }, error = function(x){
+  #   })
+  # }
+  fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
   for(i in seq_along(fn)){
     tryCatch({
-      assign(fn[i], paste0(package,':::', fn[i]), envir=globalenv())
-      #eval(parse(text=paste0(fn[i], paste0('<<-',package,':::'), fn[i])))
+      eval(parse(text=paste0(fn[i], '<-ArchR:::', fn[i])))
     }, error = function(x){
     })
   }
@@ -872,6 +879,9 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
   a <- do.call(paste0, replicate(letters, sample(LETTERS, n, TRUE), FALSE))
   paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
 }
+
+#https://stackoverflow.com/questions/3476782/check-if-the-number-is-integer
+.isWholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
 
 .convertToPNG <- function(
   ArchRProj = NULL,
