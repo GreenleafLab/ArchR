@@ -790,7 +790,6 @@ addIterativeLSI <- function(
       stop("LSIMethod unrecognized please select valid method!")
 
     }
-
     gc()
 
     #Calc SVD then LSI
