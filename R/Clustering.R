@@ -43,7 +43,7 @@ addClusters <- function(
   sampleCells = NULL,
   seed = 1, 
   method = "Seurat",
-  outlierQ = c(0.02, 0.98),
+  outlierQ = c(0.01, 0.99),
   outlierCol = "nFrags",
   outlierVals = NULL,
   dimsToUse = NULL,
@@ -57,6 +57,7 @@ addClusters <- function(
   force = FALSE,
   nn.method = "annoy", 
   annoy.metric = "cosine",
+  k = 40,
   ...
   ){
 
@@ -156,6 +157,7 @@ addClusters <- function(
       clustParams$tstart <- tstart
       clustParams$nn.method <- nn.method
       clustParams$annoy.metric <- annoy.metric
+      clustParams$k.param <- k
       clust <- .clustSeurat(mat = matDR, clustParams = clustParams)
 
   }else if(grepl("scran",tolower(method))){
@@ -165,7 +167,7 @@ addClusters <- function(
       clustParams$tstart <- tstart
       clustParams$x <- t(matDR)
       clustParams$d <- ncol(matDR)
-      clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
+      clustParams$k <- k
       clust <- .clustScran(clustParams)
 
   }else if(grepl("louvainjaccard",tolower(method))){

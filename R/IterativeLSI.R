@@ -75,7 +75,13 @@ addIterativeLSI <- function(
   filterQuantile = 0.995,
   excludeChr = c(),
   saveIterations = TRUE,
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
+  UMAPParams = list(
+    n_neighbors = 40, 
+    min_dist = 0.4, 
+    metric = "cosine", 
+    verbose = FALSE, 
+    fast_sgd = TRUE
+  ),
   nPlot = 10000,
   outDir = getOutputDirectory(ArchRProj),
   threads = getArchRThreads(),
