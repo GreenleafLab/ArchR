@@ -21,6 +21,9 @@
 #' to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when
 #' working with insertion counts.
+#' @param outlierQ Two numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI. 
+#' For example a value of c(0.025, 0.975) results in the cells in the bottom 2.5 percent and upper 97.5 to be filtered prior to LSI. 
+#' These cells are then projected back in the LSI subspace to prevent spurious clusters.
 #' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
 #' @param topFeatures The number of N top accessible features to use for LSI.
 #' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total insertion counts. 
@@ -44,6 +47,7 @@ addLSI <- function(
   scaleDims = TRUE,
   corCutOff = 0.75,
   binarize = TRUE,
+  outlierQ = c(0.1, 0.9),
   sampleCells = NULL,
   topFeatures = 25000,
   totalFeatures = 500000,
@@ -88,6 +92,9 @@ addLSI <- function(
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
+#' @param outlierQ A numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI. 
+#' For example a value of 0.025 results in the cells in the bottom 2.5 percent and upper 97.5 to be filtered prior to LSI. These cells
+#' are then projected back in the LSI subspace to prevent spurious clusters.
 #' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
 #' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for
 #' log-variability or "vmr" for variance-to-mean ratio.
@@ -126,6 +133,7 @@ addIterativeLSI <- function(
   scaleDims = TRUE,
   corCutOff = 0.75,
   binarize = TRUE,
+  outlierQ = c(0.1, 0.9),
   sampleCells = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
@@ -191,6 +199,9 @@ addIterativeLSI <- function(
     }
   }
 
+  #MatrixFiles
+  ArrowFiles <- getSampleColData(ArchRProj)[,"ArrowFiles"]
+
   #Check if Matrix is supported and check type
   stopifnot(any(tolower(useMatrix) %in% c("tilematrix","peakmatrix")))
   if(tolower(useMatrix) == "tilematrix"){
@@ -208,12 +219,10 @@ addIterativeLSI <- function(
     tileSize <- NA
   }
 
+  chrToRun <- .availableSeqnames(ArrowFiles, subGroup = useMatrix)
+  
   tstart <- Sys.time()
   .messageDiffTime(paste0("Running LSI (1 of ",iterations,") on Top Features"), tstart, addHeader = TRUE, verbose = verboseHeader)
-
-  #MatrixFiles
-  ArrowFiles <- getSampleColData(ArchRProj)[,"ArrowFiles"]
-  chrToRun <- .availableSeqnames(ArrowFiles, subGroup = useMatrix)
 
   #Compute Row Sums Across All Samples
   .messageDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
@@ -259,11 +268,14 @@ addIterativeLSI <- function(
     scaleTo = scaleTo,
     dimsToUse = dimsToUse, 
     binarize = binarize, 
+    outlierQ = outlierQ,
     sampleCells = sampleCells,
     threads = threads,
     useIndex = FALSE,
-    tstart = tstart
-    )
+    tstart = tstart,
+    verboseHeader = verboseHeader,
+    verboseAll = verboseAll
+  )
   outLSI$scaleDims <- scaleDims
   outLSI$useMatrix <- useMatrix
   outLSI$tileSize <- tileSize
@@ -419,12 +431,15 @@ addIterativeLSI <- function(
       LSIMethod = LSIMethod, 
       scaleTo = scaleTo, 
       dimsToUse = dimsToUse,
-      binarize = binarize, 
+      binarize = binarize,
+      outlierQ = outlierQ, 
       sampleCells = sampleCells,
       threads = threads,
       useIndex = FALSE,
-      tstart = tstart
-      )
+      tstart = tstart,
+      verboseHeader = verboseHeader,
+      verboseAll = verboseAll
+    )
     outLSI$scaleDims <- scaleDims
     outLSI$useMatrix <- useMatrix
     outLSI$tileSize <- tileSize
@@ -536,6 +551,7 @@ addIterativeLSI <- function(
   sampleNames = NULL, 
   dimsToUse = NULL, 
   binarize = TRUE, 
+  outlierQ = c(0.1, 0.9),
   LSIMethod = FALSE,
   scaleTo = 10^4,
   sampleCells = 5000, 
@@ -573,6 +589,7 @@ addIterativeLSI <- function(
      scaleTo = scaleTo,
      nDimensions = max(dimsToUse),
      binarize = binarize, 
+     outlierQ = outlierQ,
      verbose = verboseAll, 
      tstart = tstart
      )
@@ -580,12 +597,14 @@ addIterativeLSI <- function(
   }else{
    
     set.seed(1)
-    .messageDiffTime("Sampling Cells for Estimated LSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
     sampleN <- ceiling(sampleCells * table(sampleNames) / length(sampleNames))
     splitCells <- split(cellNames, sampleNames)
+    splitDepth <- split(cellDepth, sampleNames)
     sampledCellNames <- lapply(seq_along(splitCells), function(x){
-      sample(splitCells[[x]], sampleN[names(splitCells)[x]])
+      .filterSample(x = splitCells[[x]], n = sampleN[names(splitCells)[x]], vals = splitDepth[[x]], outlierQ = outlierQ, factor = 2)
+      #sample(splitCells[[x]], sampleN[names(splitCells)[x]])
     }) %>% unlist %>% sort
+    .messageDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(unlist(splitCells))), tstart, addHeader = verboseAll, verbose = verboseHeader)
 
     #Construct Sampled Matrix
     .messageDiffTime("Creating Sampled Partial Matrix of Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
@@ -613,6 +632,7 @@ addIterativeLSI <- function(
        scaleTo = scaleTo,
        nDimensions = max(dimsToUse),
        binarize = binarize, 
+       outlierQ = outlierQ,
        verbose = verboseAll, 
        tstart = tstart
       )
@@ -645,12 +665,33 @@ addIterativeLSI <- function(
 
 }
 
+# .densitySample <- function(x, n, vals = x, invert = TRUE, ...){
+#   valDensity <- density(vals, ...)
+#   sampleProbs <- approx(x = valDensity$x, y = valDensity$y, xout = vals)$y
+#   if(invert){
+#     sampleProbs <- 1 / sampleProbs
+#   }
+#   sampleProbs <- sampleProbs / sum(sampleProbs)
+#   sort(sample(x, size = n, prob = sampleProbs))
+# }
+
+.filterSample <- function(x, n, vals = x, outlierQ = c(0.1, 0.9), factor = 2, ...){
+  quant <- quantile(vals, probs = c(min(outlierQ) / factor, 1 - ((1-max(outlierQ)) / factor)))
+  idx <- which(vals >= quant[1] & vals <= quant[2])
+  if(length(idx) >= n){
+    sample(x = x[idx], size = n)
+  }else{
+    sample(x = x, size = n)
+  }
+}
+
 .computeLSI <- function(
   mat = NULL, 
   LSIMethod = 1,
   scaleTo = 10^4,
   nDimensions = 50, 
   binarize = TRUE, 
+  outlierQ = c(0.1, 0.9),
   seed = 1, 
   verbose = TRUE, 
   tstart = NULL
@@ -681,11 +722,25 @@ addIterativeLSI <- function(
     .messageDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose)
     colSm <- Matrix::colSums(mat)
     if(any(colSm == 0)){
-      exclude <- which(colSm==0)
-      mat <- mat[,-exclude]
-      colSm <- colSm[-exclude]
+      exclude <- colnames(mat)[which(colSm==0)]
+      mat <- mat[,-exclude, drop = FALSE]
+      colSm <- colSm[-exclude, drop = FALSE]
     }else{
       exclude <- c()
+    }
+
+    cn <- colnames(mat)
+    filterOutliers <- 0
+    if(!is.null(outlierQ)){
+      qCS <- quantile(colSm, probs = c(min(outlierQ), max(outlierQ)))
+      idxOutlier <- which(colSm <= qCS[1] | colSm >= qCS[2])
+      if(length(idxOutlier) > 0){
+        .messageDiffTime("Filtering Outliers Based On Counts", tstart, addHeader = FALSE, verbose = verbose)
+        matO <- mat[, idxOutlier, drop = FALSE]
+        mat <- mat[, -idxOutlier, drop = FALSE]
+        colSm <- colSm[-idxOutlier]
+        filterOutliers <- 1       
+      }
     }
     mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
 
@@ -748,11 +803,10 @@ addIterativeLSI <- function(
     colnames(matSVD) <- paste0("PC",seq_len(ncol(matSVD)))
 
     #Return Object
-    .messageDiffTime("Finished LSI (TF-IDF SVD) using irlba", tstart, addHeader = FALSE, verbose = verbose)
     out <- SimpleList(
         matSVD = matSVD, 
         rowSm = rowSm, 
-        colSm = colSm,
+        nCol = length(colSm),
         exclude = exclude, 
         idx = idx, 
         svd = svd, 
@@ -764,10 +818,20 @@ addIterativeLSI <- function(
         seed = seed
       )
 
+    if(filterOutliers == 1){
+      .messageDiffTime("Projecting Outliers with LSI-Projection (Granja et al 2019)", tstart, addHeader = FALSE, verbose = verbose)
+      outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose)
+      allLSI <- rbind(out[[1]], outlierLSI)
+      allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
+      out[[1]] <- allLSI
+    }
+    .messageDiffTime("Finished LSI (TF-IDF SVD) using irlba", tstart, addHeader = FALSE, verbose = verbose)
+
     rm(mat)
     gc()
 
     out
+
 }
 
 .projectLSI <- function(
@@ -783,6 +847,14 @@ addIterativeLSI <- function(
     
     if(is.null(tstart)){
       tstart <- Sys.time()
+    }
+
+    if(is.null(LSI$nCol)){
+      if(!is.null(LSI$nCol)){
+        LSI$nCol <- length(LSI$colSum)
+      }else{
+        stop("Error LSI nCol and colSm are null! Projection cannot proceed wihtout either of these values!")
+      }
     }
 
     .messageDiffTime(sprintf("Projecting LSI, Input Matrix = %s GB", round(object.size(mat)/10^9, 3)), tstart, addHeader = verbose, verbose = verbose)
@@ -813,7 +885,7 @@ addIterativeLSI <- function(
 
       #LogIDF
       .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
-      idf   <- as(log(1 + length(LSI$colSm) / LSI$rowSm), "sparseVector")
+      idf   <- as(log(1 + LSI$nCol / LSI$rowSm), "sparseVector")
 
       #TF-LogIDF
       .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
@@ -825,7 +897,7 @@ addIterativeLSI <- function(
 
       #IDF
       .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
-      idf   <- as(length(LSI$colSm) / LSI$rowSm, "sparseVector")
+      idf   <- as(LSI$nCol / LSI$rowSm, "sparseVector")
 
       #TF-IDF
       .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
@@ -841,7 +913,7 @@ addIterativeLSI <- function(
 
       #LogIDF
       .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
-      idf   <- as(log(1 + length(LSI$colSm) / LSI$rowSm), "sparseVector")
+      idf   <- as(log(1 + LSI$nCol / LSI$rowSm), "sparseVector")
 
       #TF-IDF
       .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
@@ -886,7 +958,6 @@ addIterativeLSI <- function(
 
     return(out)
 }
-
 
 
 
