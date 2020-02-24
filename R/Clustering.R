@@ -122,6 +122,7 @@ addClusters <- function(
   }
 
   if(!is.null(outlierQ)){
+    .messageDiffTime("Filtering Outliers", tstart, verbose = verbose)
     quant <- quantile(outlierVals, probs = c(min(outlierQ), max(outlierQ)))
     idx <- which(outlierVals >= quant[1] & outlierVals <= quant[2])
     if(!is.null(sampleCells)){

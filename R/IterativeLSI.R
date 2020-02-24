@@ -755,8 +755,9 @@ addIterativeLSI <- function(
   }
 
   if(!is.null(outlierQ)){
-    factor <- 2
-    parClust$outlierQ <- c(min(outlierQ) / factor, 1 - ((1-max(outlierQ)) / factor))
+    #Use Defaults in addCluster for Outlier Quantiles
+    #factor <- 2
+    #parClust$outlierQ <- c(min(outlierQ) / factor, 1 - ((1-max(outlierQ)) / factor))
     parClust$outlierVals <- data.frame(row.names = cellNames, cellDepth = cellDepth)[rownames(outLSI$matSVD), 1]
   }
 
