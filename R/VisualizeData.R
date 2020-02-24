@@ -52,6 +52,7 @@ plotEmbedding <- function(
   keepAxis = FALSE,
   baseSize = 10,
   plotAs = NULL,
+  threads = getArchRThreads(),
   ...
   ){
 
@@ -127,7 +128,7 @@ plotEmbedding <- function(
       log2Norm <- TRUE
     }
 
-    colorMat <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[,rownames(df), drop=FALSE]
+    colorMat <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm, threads = threads)[,rownames(df), drop=FALSE]
 
     colorList <- lapply(seq_len(nrow(colorMat)), function(x){
       colorParams <- list()
@@ -264,6 +265,7 @@ plotGroups <- function(
   ratioYX = NULL,
   ridgeScale = 1,
   plotAs = "ridges",
+  threads = getArchRThreads(),
   ...
   ){
   
@@ -311,7 +313,7 @@ plotGroups <- function(
           log2Norm <- TRUE
         }
       }
-      values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
+      values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm, threads = threads)[1, names(groupNames)]
     }
 
     if(!is.null(imputeWeights)){
@@ -351,7 +353,7 @@ plotGroups <- function(
 
 }
 
-.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = TRUE){
+.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = TRUE, threads = getArchRThreads()){
   
   o <- h5closeAll()
 
@@ -401,7 +403,7 @@ plotGroups <- function(
   #Get Values for FeatureName
   cellNamesList <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
   
-  values <- lapply(seq_along(cellNamesList), function(x){
+  values <- .safelapply(seq_along(cellNamesList), function(x){
     message(x, " ", appendLF = FALSE)
     o <- h5closeAll()
     ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
@@ -410,11 +412,12 @@ plotGroups <- function(
         featureDF = featureDF,
         binarize = FALSE, 
         useMatrix = matrixName, 
-        cellNames = cellNamesList[[x]]
+        cellNames = cellNamesList[[x]],
+        threads = 1
       )
     colnames(valuesx) <- cellNamesList[[x]]
     valuesx
-  }) %>% Reduce("cbind", .)
+  }, threads = threads) %>% Reduce("cbind", .)
   message("")
   gc()
 
