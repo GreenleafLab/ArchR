@@ -1271,6 +1271,9 @@ getMarkers <- function(
       rrx <- rr[idx]
       rrx$Log2FC <- SummarizedExperiment::assays(seMarker[idx, ])[["Log2FC"]][, x]
       rrx$FDR <- SummarizedExperiment::assays(seMarker[idx, ])[["FDR"]][, x]
+      if("MeanDiff" %in% assayNames){
+        rrx$MeanDiff <- SummarizedExperiment::assays(seMarker[idx, ])[["MeanDiff"]][, x]
+      }
       rrx <- rrx[order(rrx$FDR),,drop=FALSE]
       if(!is.null(n)){
         if(n < nrow(rrx)){
@@ -1293,6 +1296,9 @@ getMarkers <- function(
       rrx <- SummarizedExperiment::rowData(seMarker[idx,])
       rrx$Log2FC <- SummarizedExperiment::assays(seMarker[idx, ])[["Log2FC"]][, x]
       rrx$FDR <- SummarizedExperiment::assays(seMarker[idx, ])[["FDR"]][, x]
+      if("MeanDiff" %in% assayNames){
+        rrx$MeanDiff <- SummarizedExperiment::assays(seMarker[idx, ])[["MeanDiff"]][, x]
+      }
       rrx <- rrx[order(rrx$FDR),,drop=FALSE]
       if(!is.null(n)){
         if(n < nrow(rrx)){
