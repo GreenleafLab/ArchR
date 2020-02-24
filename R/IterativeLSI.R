@@ -2,74 +2,6 @@
 # LSI Dimensionality Reduction Methods
 ##########################################################################################
 
-#' Add an LSI-based dimensionality reduction to an ArchRProject
-#' 
-#' This function will compute an LSI dimensionality reduction on an ArchRProject.
-#'
-#' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix The name of the data matrix to retrieve from the ArrowFiles associated with the `ArchRProject`. Valid options
-#' are "TileMatrix" or "PeakMatrix".
-#' @param name The name to use for storage of the LSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
-#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
-#' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
-#' @param scaleDims A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
-#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
-#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
-#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
-#' to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when
-#' working with insertion counts.
-#' @param outlierQ Two numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI. 
-#' For example a value of c(0.025, 0.975) results in the cells in the bottom 2.5 percent and upper 97.5 to be filtered prior to LSI. 
-#' These cells are then projected back in the LSI subspace to prevent spurious clusters.
-#' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
-#' @param topFeatures The number of N top accessible features to use for LSI.
-#' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total insertion counts. 
-#' This represents a sort of "pre-filtering" of tiles/peaks prior to focus on. JJJ
-#' @param filterQuantile A number between 0 and 1 that indicates the quantile above which features should be removed based on insertion counts
-#' prior to the LSI reduction. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in insertion counts
-#' will be ignored for LSI reduction.
-#' @param threads The number of threads to be used for parallel computing.
-#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so
-#' that you can reproduce results downstream.
-#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
-#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
-#' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
-#' @export
-addLSI <- function(
-  ArchRProj = NULL, 
-  useMatrix = "TileMatrix",
-  name = "LSI",
-  dimsToUse = 1:30,
-  LSIMethod = 2,
-  scaleDims = TRUE,
-  corCutOff = 0.75,
-  binarize = TRUE,
-  outlierQ = c(0.1, 0.9),
-  sampleCells = NULL,
-  topFeatures = 25000,
-  totalFeatures = 500000,
-  filterQuantile = 0.995,
-  threads = getArchRThreads(),
-  seed = 1,
-  excludeChr = c(),
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
-  force = FALSE
-  ){
-
-  args <- mget(names(formals()),sys.frame(sys.nframe()))
-  args$iterations <- 1
-  args$varFeatures <- args$topFeatures
-  args$topFeatures <- NULL
-  args$saveIterations <- FALSE
-  do.call(addIterativeLSI, args)
-
-}
-
-
 #' Add an Iterative LSI-based dimensionality reduction to an ArchRProject
 #' 
 #' This function will compute an iterative LSI dimensionality reduction on an ArchRProject.
@@ -124,7 +56,7 @@ addIterativeLSI <- function(
   iterations = 2,
   clusterParams = list(
       resolution = c(0.2), 
-      sampleCells = 10000, 
+      sampleCells = 10000,
       n.start = 10
   ),
   varFeatures = 25000,
@@ -133,8 +65,10 @@ addIterativeLSI <- function(
   scaleDims = TRUE,
   corCutOff = 0.75,
   binarize = TRUE,
-  outlierQ = c(0.1, 0.9),
-  sampleCells = NULL,
+  outlierQ = c(0.05, 0.95),
+  sampleCellsVar = 10000,
+  projectCellsVar = FALSE,
+  sampleCellsFinal = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
   totalFeatures = 500000,
@@ -151,6 +85,7 @@ addIterativeLSI <- function(
   force = FALSE
   ){
   
+  message("Checking Inputs...")
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = iterations, name = "iterations", valid = c("integer"))
@@ -159,7 +94,7 @@ addIterativeLSI <- function(
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
-  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer","null"))
+  #.validInput(input = sampleCells, name = "sampleCells", valid = c("integer","null"))
   .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
   .validInput(input = selectionMethod, name = "selectionMethod", valid = c("character"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
@@ -193,9 +128,14 @@ addIterativeLSI <- function(
 
   #All the Cell Names
   cellNames <- rownames(getCellColData(ArchRProj))
-  if(!is.null(sampleCells)){
-    if(length(cellNames) < sampleCells){
-      sampleCells <- NULL
+  if(!is.null(sampleCellsVar)){
+    if(length(cellNames) < sampleCellsVar){
+      sampleCellsVar <- NULL
+    }
+  }
+  if(!is.null(sampleCellsFinal)){
+    if(length(cellNames) < sampleCellsFinal){
+      sampleCellsFinal <- NULL
     }
   }
 
@@ -219,11 +159,11 @@ addIterativeLSI <- function(
     tileSize <- NA
   }
 
+  tstart <- Sys.time()  
+  ############################################################################################################################
+  # Organize Information for LSI
+  ############################################################################################################################
   chrToRun <- .availableSeqnames(ArrowFiles, subGroup = useMatrix)
-  
-  tstart <- Sys.time()
-  .messageDiffTime(paste0("Running LSI (1 of ",iterations,") on Top Features"), tstart, addHeader = TRUE, verbose = verboseHeader)
-
   #Compute Row Sums Across All Samples
   .messageDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
   totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = TRUE)
@@ -256,7 +196,20 @@ addIterativeLSI <- function(
   topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
   topFeatures <- totalAcc[sort(topIdx),]
 
-  #Compute Partial Matrix LSI
+  ############################################################################################################################
+  # LSI Iteration 1
+  ############################################################################################################################
+  .messageDiffTime(paste0("Running LSI (1 of ",iterations,") on Top Features"), tstart, addHeader = TRUE, verbose = verboseHeader)
+  j <- 1
+
+  if(!is.null(clusterParams$sampleCells[j])){
+    sampleJ <- clusterParams$sampleCells[j]
+  }else if(!is.null(clusterParams$sampleCells[1])){
+    sampleJ <- clusterParams$sampleCells[1]
+  }else{
+    sampleJ <- sampleCellsVar
+  }
+
   outLSI <- .LSIPartialMatrix(
     ArrowFiles = ArrowFiles, 
     featureDF = topFeatures,
@@ -269,7 +222,8 @@ addIterativeLSI <- function(
     dimsToUse = dimsToUse, 
     binarize = binarize, 
     outlierQ = outlierQ,
-    sampleCells = sampleCells,
+    sampleCells = if(j != iterations) sampleCellsVar else sampleCellsFinal,
+    projectAll = j == iterations | projectCellsVar | sampleJ > sampleCellsVar,
     threads = threads,
     useIndex = FALSE,
     tstart = tstart,
@@ -280,6 +234,491 @@ addIterativeLSI <- function(
   outLSI$useMatrix <- useMatrix
   outLSI$tileSize <- tileSize
   gc()
+
+  if(iterations == 1){
+    .messageDiffTime("Finished Running IterativeLSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    ArchRProj@reducedDims[[name]] <- outLSI    
+  }
+
+  #########################
+  # Identify LSI Clusters
+  #########################
+  clusterDF <- .LSICluster(
+    outLSI = outLSI,
+    outlierQ = outlierQ,
+    cellNames = cellNames,
+    cellDepth = cellDepth,
+    dimsToUse = dimsToUse,
+    scaleDims = scaleDims,
+    corCutOff = corCutOff,
+    clusterParams = clusterParams,
+    j = j,
+    verboseAll = verboseAll,
+    verboseHeader = verboseHeader,
+    tstart = tstart
+  )
+  clusters <- clusterDF$clusters
+  nClust <- length(unique(clusters))
+  .messageDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+
+  #########################
+  # Save LSI Iteration
+  #########################
+  if(saveIterations){
+    .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    .saveIteration(outLSI=outLSI, clusters=clusters, scaleDims = scaleDims, 
+      dimsToUse = dimsToUse, corCutOff = corCutOff, outDir = outDir,
+      nPlot=nPlot, UMAPParams=UMAPParams, ArchRProj=ArchRProj, j = j, threads = threads)
+  }
+
+  ############################################################################################################################
+  # LSI Iteration 2+
+  ############################################################################################################################
+  variableFeatures <- topFeatures
+
+  while(j < iterations){
+
+    #Jth iteration
+    j <- j + 1
+
+    #########################
+    # Identify Features for LSI Iteration
+    #########################
+    variableFeatures <- .identifyVarFeatures(
+      outLSI = outLSI,
+      clusterDF = clusterDF,
+      ArrowFiles = ArrowFiles,
+      useMatrix = useMatrix,
+      prevFeatures = variableFeatures,
+      scaleTo = scaleTo,
+      totalAcc = totalAcc,
+      totalFeatures = totalFeatures,
+      selectionMethod = selectionMethod,
+      varFeatures = varFeatures,
+      tstart = tstart,
+      threads = threads,
+      verboseHeader = verboseHeader,
+      verboseAll = verboseAll
+    )
+
+    #########################
+    # LSI
+    #########################
+    .messageDiffTime(sprintf("Running LSI (%s of %s) on Variable Features", j, iterations), tstart, addHeader = TRUE, verbose = verboseHeader)
+    if(!is.null(clusterParams$sampleCells[j])){
+      sampleJ <- clusterParams$sampleCells[j]
+    }else if(!is.null(clusterParams$sampleCells[1])){
+      sampleJ <- clusterParams$sampleCells[1]
+    }else{
+      sampleJ <- sampleCellsVar
+    }
+
+    #Compute Partial Matrix LSI
+    outLSI <- .LSIPartialMatrix(
+      ArrowFiles = ArrowFiles, 
+      featureDF = variableFeatures,
+      useMatrix = useMatrix,
+      cellNames = cellNames, 
+      cellDepth = cellDepth,
+      sampleNames = getCellColData(ArchRProj)$Sample, 
+      LSIMethod = LSIMethod, 
+      scaleTo = scaleTo, 
+      dimsToUse = dimsToUse,
+      binarize = binarize,
+      outlierQ = outlierQ, 
+      sampleCells = if(j != iterations) sampleCellsVar else sampleCellsFinal,
+      projectAll = j == iterations | projectCellsVar | sampleJ > sampleCellsVar,
+      threads = threads,
+      useIndex = FALSE,
+      tstart = tstart,
+      verboseHeader = verboseHeader,
+      verboseAll = verboseAll
+    )
+    outLSI$scaleDims <- scaleDims
+    outLSI$useMatrix <- useMatrix
+    outLSI$tileSize <- tileSize
+    
+    if(j != iterations){
+
+      #########################
+      # Identify LSI Clusters
+      #########################
+      clusterDF <- .LSICluster(
+        outLSI = outLSI,
+        dimsToUse = dimsToUse,
+        scaleDims = scaleDims,
+        corCutOff = corCutOff,
+        outlierQ = outlierQ,
+        cellNames = cellNames,
+        cellDepth = cellDepth,
+        j = j,
+        clusterParams = clusterParams,
+        verboseAll = verboseAll,
+        verboseHeader = verboseHeader,
+        tstart = tstart
+      )
+      clusters <- clusterDF$clusters
+      nClust <- length(unique(clusters))
+      .messageDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+
+      #########################
+      # Save LSI Iteration
+      #########################
+      if(saveIterations){
+        .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
+        .saveIteration(outLSI=outLSI, clusters=clusters, scaleDims = scaleDims, 
+          dimsToUse = dimsToUse, corCutOff = corCutOff, outDir = outDir,
+          nPlot=nPlot, UMAPParams=UMAPParams, ArchRProj=ArchRProj, j = j, threads = threads)
+      }
+
+    }
+
+    gc()
+
+  }
+
+  #Organize Output
+  .messageDiffTime("Finished Running IterativeLSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
+  ArchRProj@reducedDims[[name]] <- outLSI
+
+  return(ArchRProj)
+
+}
+
+#########################################################################################
+# LSI On Partial Matrix
+#########################################################################################
+.LSIPartialMatrix <- function(
+  ArrowFiles = NULL, 
+  featureDF = NULL, 
+  useMatrix = NULL,
+  cellNames = NULL, 
+  cellDepth = NULL,
+  sampleNames = NULL, 
+  dimsToUse = NULL, 
+  binarize = TRUE, 
+  outlierQ = c(0.025, 0.975),
+  LSIMethod = FALSE,
+  scaleTo = 10^4,
+  sampleCells = 5000, 
+  projectAll = TRUE,
+  threads = 1, 
+  useIndex = FALSE, 
+  tstart = NULL, 
+  verboseHeader = TRUE,
+  verboseAll = FALSE
+  ){
+
+  if(is.null(tstart)){
+    tstart <- Sys.time()
+  }
+
+  if(is.null(sampleCells)){
+    
+    #Construct Matrix
+    .messageDiffTime("Creating Partial Matrix", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    
+    mat <- .getPartialMatrix(
+      ArrowFiles = ArrowFiles,
+      featureDF = featureDF,
+      useMatrix = useMatrix,
+      cellNames = cellNames,
+      doSampleCells = FALSE,
+      threads = threads,
+      verbose = verboseAll
+    )
+
+    #Compute LSI
+    .messageDiffTime("Computing LSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    outLSI <- .computeLSI(
+     mat = mat, 
+     LSIMethod = LSIMethod, 
+     scaleTo = scaleTo,
+     nDimensions = max(dimsToUse),
+     binarize = binarize, 
+     outlierQ = outlierQ,
+     verbose = verboseAll, 
+     tstart = tstart
+    )
+    outLSI$LSIFeatures <- featureDF
+    outLSI$corToDepth <- list(
+      scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
+      none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
+    )
+
+  }else{
+   
+    sampledCellNames <- .sampleBySample(
+      cellNames = cellNames,
+      sampleNames = sampleNames,
+      cellDepth = cellDepth,
+      sampleCells = sampleCells,
+      outlierQ = outlierQ,
+      factor = 2      
+    )
+    .messageDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(sampledCellNames)), tstart, addHeader = verboseAll, verbose = verboseHeader)
+
+    #Construct Sampled Matrix
+    .messageDiffTime("Creating Sampled Partial Matrix", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    o <- h5closeAll()
+    if(!projectAll){
+
+      mat <- .getPartialMatrix(
+        ArrowFiles = ArrowFiles,
+        featureDF = featureDF,
+        useMatrix = useMatrix,
+        cellNames = sampledCellNames,
+        doSampleCells = FALSE,
+        threads = threads,
+        verbose = verboseAll
+      )
+
+      #Compute LSI
+      .messageDiffTime("Computing Estimated LSI (projectAll = FALSE)", tstart, addHeader = verboseAll, verbose = verboseHeader)
+      outLSI <- .computeLSI(
+       mat = mat, 
+       LSIMethod = LSIMethod, 
+       scaleTo = scaleTo,
+       nDimensions = max(dimsToUse),
+       binarize = binarize, 
+       outlierQ = outlierQ,
+       verbose = verboseAll, 
+       tstart = tstart
+      )
+      outLSI$LSIFeatures <- featureDF
+      outLSI$corToDepth <- list(
+        scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
+        none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
+      )
+
+    }else{
+
+      tmpPath <- .tempfile(pattern = "tmp-LSI-PM")
+
+      .messageDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(sampledCellNames)), tstart, addHeader = verboseAll, verbose = verboseHeader)
+      out <- .getPartialMatrix(
+          ArrowFiles = ArrowFiles,
+          featureDF = featureDF,
+          useMatrix = useMatrix,
+          cellNames = cellNames,
+          doSampleCells = TRUE,
+          sampledCellNames = sampledCellNames,
+          tmpPath = tmpPath,
+          useIndex = useIndex,
+          threads = threads,
+          verbose = verboseAll
+        )
+      gc()
+
+      #Perform LSI on Partial Sampled Matrix
+      .messageDiffTime("Computing Estimated LSI (projectAll = TRUE)", tstart, addHeader = verboseAll, verbose = verboseHeader)
+      outLSI <- .computeLSI(
+         mat = out$mat, 
+         LSIMethod = LSIMethod, 
+         scaleTo = scaleTo,
+         nDimensions = max(dimsToUse),
+         binarize = binarize, 
+         outlierQ = outlierQ,
+         verbose = verboseAll, 
+         tstart = tstart
+        )
+
+      tmpMatFiles <- out[[2]]
+      rm(out)
+      gc()
+
+      #Read In Matrices and Project into Manifold
+      .messageDiffTime("Projecting Matrices with LSI-Projection (Granja* et al 2019)", tstart, addHeader = verboseAll, verbose = verboseHeader)
+      pLSI <- lapply(seq_along(tmpMatFiles), function(x){
+        .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart)
+      }) %>% Reduce("rbind", .)
+
+      #Remove Temporary Matrices
+      rmf <- file.remove(tmpMatFiles)
+
+      #Set To LSI the SVD Matrices
+      outLSI$exlcude <- cellNames[which(cellNames %ni% rownames(pLSI))]
+      outLSI$matSVD <- as.matrix(pLSI[cellNames[which(cellNames %in% rownames(pLSI))],])
+
+    }
+
+    outLSI$LSIFeatures <- featureDF
+    outLSI$corToDepth <- list(
+      scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
+      none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
+    )
+
+  }
+
+  return(outLSI)
+
+}
+
+
+#########################################################################################
+# Sampling Helpers
+#########################################################################################
+.filterSample <- function(
+  x = NULL, 
+  n = NULL, 
+  vals = x, 
+  outlierQ = c(0.05, 0.95), 
+  factor = 2, 
+  ...
+  ){
+  if(!is.null(outlierQ)){
+    quant <- quantile(vals, probs = c(min(outlierQ) / factor, 1 - ((1-max(outlierQ)) / factor)))
+    idx <- which(vals >= quant[1] & vals <= quant[2])
+  }else{
+    idx <- seq_along(x)
+  }
+  if(length(idx) >= n){
+    sample(x = x[idx], size = n)
+  }else{
+    sample(x = x, size = n)
+  }
+}
+
+.sampleBySample <- function(
+  cellNames = NULL, 
+  cellDepth = NULL, 
+  sampleNames = NULL, 
+  sampleCells = NULL, 
+  outlierQ = NULL, 
+  factor = 2
+  ){
+
+  if(sampleCells < length(cellNames)){
+
+    sampleN <- ceiling(sampleCells * table(sampleNames) / length(sampleNames))
+    splitCells <- split(cellNames, sampleNames)
+    splitDepth <- split(cellDepth, sampleNames)
+
+    sampledCellNames <- lapply(seq_along(splitCells), function(x){
+      .filterSample(
+        x = splitCells[[x]], 
+        n = sampleN[names(splitCells)[x]], 
+        vals = splitDepth[[x]], 
+        outlierQ = outlierQ, 
+        factor = factor
+      )
+    }) %>% unlist %>% sort
+
+    return(sampledCellNames)
+  
+  }else{
+
+    return(cellNames)
+
+  }
+
+}
+
+
+#########################################################################################
+# Save LSI Iteration
+#########################################################################################
+
+.saveIteration <- function(
+  outLSI = NULL, 
+  clusters = NULL, 
+  nPlot = NULL, 
+  UMAPParams = NULL, 
+  ArchRProj = NULL, 
+  scaleDims = NULL,
+  corCutOff = NULL,
+  dimsToUse = NULL,
+  j = NULL,
+  threads = NULL,
+  outDir = NULL
+  ){
+
+    .requirePackage("uwot", source = "cran")
+
+    if(scaleDims){
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
+    }else{
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
+    }
+
+    if(nrow(outLSI[[1]]) > nPlot){
+      saveIdx <- sample(seq_len(nrow(outLSI[[1]])), nPlot)
+    }else{
+      saveIdx <- seq_len(nrow(outLSI[[1]]))
+    }
+    
+    #Plot Quick UMAP
+    UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE, fast_sgd = TRUE))
+    if(scaleDims){
+      UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])
+    }else{
+      UMAPParams$X <- (outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE]
+    }
+    UMAPParams$ret_nn <- FALSE
+    UMAPParams$ret_model <- FALSE
+    UMAPParams$n_threads <- floor(threads / 2)
+    uwotUmap <- do.call(uwot::umap, UMAPParams)
+    
+    #Plot
+    pdf(file.path(outDir, paste0("Save-LSI-Iteration-",j,".pdf")), width = 6, height = 6)
+    
+    p1 <- ggPoint(
+      uwotUmap[,1], 
+      uwotUmap[,2], 
+      getCellColData(ArchRProj, select = "Sample")[rownames(outLSI[[1]])[saveIdx],], 
+      size = 0.5, 
+      title = paste0("SampleName (nCells Plot = ",nrow(UMAPParams$X),")"),
+      rastr=TRUE
+    )
+    
+    p2 <- ggPoint(
+      uwotUmap[,1], 
+      uwotUmap[,2], 
+      clusters[saveIdx], 
+      size = 0.5, 
+      title = paste0("Clusters (nCells Plot = ",nrow(UMAPParams$X),")"),
+      rastr=TRUE
+    )
+    
+    p1 <- p1 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
+        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+              axis.text.y = element_blank(), axis.ticks.y = element_blank())
+    p2 <- p2 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
+        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+              axis.text.y = element_blank(), axis.ticks.y = element_blank())
+
+    print(.fixPlotSize(p1, plotWidth = 6, plotHeight = 6))
+    grid::grid.newpage()
+    print(.fixPlotSize(p2, plotWidth = 6, plotHeight = 6))
+    dev.off()
+
+    #Save results
+    outj <- SimpleList(LSI = outLSI, clusters = clusters, uwotUmap = uwotUmap)
+    saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-",j,".rds")))
+    rm(UMAPParams, uwotUmap)
+    gc()
+
+    return(0)
+
+}
+
+#########################################################################################
+# Identify Quick Clusters
+#########################################################################################
+.LSICluster <- function(
+  outLSI = NULL, 
+  corCutOff = NULL,
+  dimsToUse = NULL, 
+  scaleDims = NULL, 
+  clusterParams = NULL,
+  verboseHeader = NULL,
+  verboseAll = NULL,
+  j = NULL,
+  outlierQ = NULL,
+  cellNames = NULL,
+  cellDepth = NULL,
+  tstart = NULL
+  ){
 
   if(scaleDims){
     dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
@@ -295,70 +734,66 @@ addIterativeLSI <- function(
 
   #Time to compute clusters
   .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  parClust <- lapply(clusterParams, function(x) x[[1]])
+  parClust <- lapply(clusterParams, function(x){
+    if(length(x) > 1){
+      return(x[[j]])
+    }else{
+      return(x[[1]])
+    }
+  })
   parClust$verbose <- verboseAll
   if(scaleDims){
     parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
   }else{
     parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
   }
+
+  if(!is.null(outlierQ)){
+    factor <- 2
+    parClust$outlierQ <- c(min(outlierQ) / factor, 1 - ((1-max(outlierQ)) / factor))
+    parClust$outlierVals <- data.frame(row.names = cellNames, cellDepth = cellDepth)[rownames(outLSI$matSVD), 1]
+  }
+
   clusters <- do.call(addClusters, parClust)
-  nClust <- length(unique(clusters))
-  .messageDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+  parClust$input <- NULL
+  nClust <- length(unique(clusters))  
+  
+  df <- DataFrame(cellNames = rownames(outLSI$matSVD), clusters = clusters)
+  metadata(df)$parClust <- parClust
+  df
+}
+
+#########################################################################################
+# Identify Variable Features
+#########################################################################################
+.identifyVarFeatures <- function(
+  outLSI = NULL,
+  clusterDF = NULL,
+  prevFeatures = NULL,
+  ArrowFiles = NULL,
+  useMatrix = NULL,
+  totalAcc = NULL,
+  scaleTo = NULL,
+  totalFeatures = NULL,
+  selectionMethod = NULL,
+  varFeatures = NULL,
+  tstart = NULL,
+  threads = NULL,
+  verboseHeader = NULL,
+  verboseAll  = NULL
+  ){
+
+  nClust <- length(unique(clusterDF$clusters))
 
   if(nClust == 1){
-    .messageDiffTime("Identified 1 Cluster, returning the current LSI iteration! Try picking a lower resolution or k!", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    ArchRProj@reducedDims[[name]] <- outLSI
-    return(ArchRProj)
-  }
 
-  #Save Output
-  if(saveIterations){
-    .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    o <- tryCatch({
-      if(nrow(outLSI[[1]]) > nPlot){
-        saveIdx <- sample(seq_len(nrow(outLSI[[1]])), nPlot)
-      }else{
-        saveIdx <- seq_len(nrow(outLSI[[1]]))
-      }
-      #Plot Quick UMAP
-      UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE, fast_sgd = TRUE))
-      if(scaleDims){
-        UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])
-      }else{
-        UMAPParams$X <- (outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE]
-      }
-      UMAPParams$ret_nn <- FALSE
-      UMAPParams$ret_model <- FALSE
-      UMAPParams$n_threads <- floor(threads / 2)
-      uwotUmap <- do.call(uwot::umap, UMAPParams)
-      pdf(file.path(outDir, paste0("UMAP-LSI-Iteration-1.pdf")), width = 6, height = 6)
-      p1 <- ggPoint(uwotUmap[,1], uwotUmap[,2], getCellColData(ArchRProj, select = "Sample")[rownames(outLSI[[1]])[saveIdx],], 
-        size = 0.5, title = paste0("SampleName (N = ",nrow(UMAPParams$X),")"),rastr=TRUE)
-      p2 <- ggPoint(uwotUmap[,1], uwotUmap[,2], clusters[saveIdx], size = 0.5, title = paste0("Clusters (N = ",nrow(UMAPParams$X),")"),rastr=TRUE)
-      p1 <- p1 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
-          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-                axis.text.y = element_blank(), axis.ticks.y = element_blank())
-      p2 <- p2 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
-          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-                axis.text.y = element_blank(), axis.ticks.y = element_blank())
-      print(.fixPlotSize(p1, plotWidth = 6, plotHeight = 6))
-      grid::grid.newpage()
-      print(.fixPlotSize(p2, plotWidth = 6, plotHeight = 6))
-      dev.off()
-      #Save results
-      outj <- SimpleList(LSI = outLSI, clusters = clusters, params = parClust[-length(parClust)], uwotUmap = uwotUmap)
-      saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-1.rds")))
-      rm(UMAPParams, uwotUmap)
-      gc()
-    }, error = function(x){
-      message("An error occured plotting umap and saving LSI iteration, continuing without saving.")
-    })
-  }
+    .messageDiffTime("Identified 1 Cluster, Continuing with Previous Features!", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    return(prevFeatures)
+  
+  }else{
 
-  j <- 1
-  while(j < iterations){
-
+    #Random Sampling for Quick Estimation of Variance
+    parClust <- metadata(clusterDF)$parClust
     if(!is.null(parClust$sampleCells)){
       if(is.numeric(parClust$sampleCells)){
         if(floor(parClust$sampleCells) < nrow(outLSI$matSVD)){
@@ -373,14 +808,8 @@ addIterativeLSI <- function(
       idxSub <- seq_len(nrow(outLSI$matSVD))
     }
 
-    #Jth iteration
-    j <- j + 1
-    
-    .messageDiffTime(sprintf("Running LSI (%s of %s) on Variable Features", j, iterations), tstart, addHeader = TRUE, verbose = verboseHeader)
-    
-    #Create Group Matrix
     .messageDiffTime("Creating Cluster Matrix on the total Group Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    groupList <- SimpleList(split(rownames(outLSI$matSVD)[idxSub], clusters[idxSub]))
+    groupList <- SimpleList(split(clusterDF$cellNames, clusterDF$clusters))
     groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
     groupMat <- .getGroupMatrix(
       ArrowFiles = ArrowFiles, 
@@ -416,282 +845,26 @@ addIterativeLSI <- function(
 
     }else{
 
-      stop("Error Selection Method is not Valid requires var or vmr")
+      stop("Error selectionMethod is not valid requires var or vmr")
 
     }
-
-    #Compute Partial Matrix LSI
-    outLSI <- .LSIPartialMatrix(
-      ArrowFiles = ArrowFiles, 
-      featureDF = variableFeatures,
-      useMatrix = useMatrix,
-      cellNames = cellNames, 
-      cellDepth = cellDepth,
-      sampleNames = getCellColData(ArchRProj)$Sample, 
-      LSIMethod = LSIMethod, 
-      scaleTo = scaleTo, 
-      dimsToUse = dimsToUse,
-      binarize = binarize,
-      outlierQ = outlierQ, 
-      sampleCells = sampleCells,
-      threads = threads,
-      useIndex = FALSE,
-      tstart = tstart,
-      verboseHeader = verboseHeader,
-      verboseAll = verboseAll
-    )
-    outLSI$scaleDims <- scaleDims
-    outLSI$useMatrix <- useMatrix
-    outLSI$tileSize <- tileSize
-    
-    if(scaleDims){
-      dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
-    }else{
-      dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
-    }
-    if(length(dimsPF)!=length(dimsToUse)){
-      message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
-    }
-    if(length(dimsPF) < 2){
-      stop("Dimensions to use after filtering for correlation to depth lower than 2!")
-    }
-
-    if(j != iterations){
-
-      #Time to compute clusters
-      .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
-      parClust <- lapply(clusterParams, function(x){
-        if(length(x) > 1){
-          return(x[[j]])
-        }else{
-          return(x[[1]])
-        }
-      })
-      parClust$verbose <- verboseAll
-      if(scaleDims){
-        parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
-      }else{
-        parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
-      }
-      clusters <- do.call(addClusters, parClust)
-      nClust <- length(unique(clusters))
-      .messageDiffTime(sprintf("Identified %s Clusters",nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
-
-      if(nClust == 1){
-        .messageDiffTime("Identified 1 Cluster, returning the current LSI iteration! Try picking a lower resolution or k!", tstart, addHeader = verboseAll, verbose = verboseHeader)
-        ArchRProj@reducedDims[[name]] <- outLSI
-        return(ArchRProj)
-      }
-
-      #Save Output
-      if(saveIterations){
-        .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
-        .requirePackage("uwot", source = "cran")
-        o <- tryCatch({
-          if(nrow(outLSI[[1]]) > nPlot){
-            saveIdx <- sample(seq_len(nrow(outLSI[[1]])), nPlot)
-          }else{
-            saveIdx <- seq_len(nrow(outLSI[[1]]))
-          }
-          #Plot Quick UMAP
-          UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE, fast_sgd = TRUE))
-          if(scaleDims){
-            UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])
-          }else{
-            UMAPParams$X <- (outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE]
-          }
-          UMAPParams$ret_nn <- FALSE
-          UMAPParams$ret_model <- FALSE
-          UMAPParams$n_threads <- floor(threads / 2)
-          uwotUmap <- do.call(uwot::umap, UMAPParams)
-          pdf(file.path(outDir, paste0("Save-LSI-Iteration-",j,".pdf")), width = 6, height = 6)
-          p1 <- ggPoint(uwotUmap[,1], uwotUmap[,2], getCellColData(ArchRProj, select = "Sample")[rownames(outLSI[[1]])[saveIdx],], 
-            size = 0.5, title = paste0("SampleName (N = ",nrow(UMAPParams$X),")"),rastr=TRUE)
-          p2 <- ggPoint(uwotUmap[,1], uwotUmap[,2], clusters[saveIdx], size = 0.5, title = paste0("Clusters (N = ",nrow(UMAPParams$X),")"),rastr=TRUE)
-          p1 <- p1 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
-              theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-                    axis.text.y = element_blank(), axis.ticks.y = element_blank())
-          p2 <- p2 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
-              theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-                    axis.text.y = element_blank(), axis.ticks.y = element_blank())
-          print(.fixPlotSize(p1, plotWidth = 6, plotHeight = 6))
-          grid::grid.newpage()
-          print(.fixPlotSize(p2, plotWidth = 6, plotHeight = 6))
-          dev.off()
-          #Save results
-          outj <- SimpleList(LSI = outLSI, clusters = clusters, params = parClust[-length(parClust)], uwotUmap = uwotUmap)
-          saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-",j,".rds")))
-          rm(UMAPParams, uwotUmap)
-          gc()
-        }, error = function(x){
-          message("An error occured plotting umap and saving LSI iteration, continuing without saving.")
-        })
-      }
-
-    }
-
-    gc()
 
   }
 
-  #Organize Output
-  .messageDiffTime("Finished Running IterativeLSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  ArchRProj@reducedDims[[name]] <- outLSI
-
-  return(ArchRProj)
+  return(variableFeatures)
 
 }
 
-.LSIPartialMatrix <- function(
-  ArrowFiles = NULL, 
-  featureDF = NULL, 
-  useMatrix = NULL,
-  cellNames = NULL, 
-  cellDepth = NULL,
-  sampleNames = NULL, 
-  dimsToUse = NULL, 
-  binarize = TRUE, 
-  outlierQ = c(0.1, 0.9),
-  LSIMethod = FALSE,
-  scaleTo = 10^4,
-  sampleCells = 5000, 
-  threads = 1, 
-  useIndex = FALSE, 
-  tstart = NULL, 
-  verboseHeader = TRUE,
-  verboseAll = FALSE
-  ){
-
-  if(is.null(tstart)){
-    tstart <- Sys.time()
-  }
-
-  if(is.null(sampleCells)){
-    
-    #Construct Matrix
-    .messageDiffTime("Creating Partial Matrix of Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    
-    mat <- .getPartialMatrix(
-      ArrowFiles = ArrowFiles,
-      featureDF = featureDF,
-      useMatrix = useMatrix,
-      cellNames = cellNames,
-      doSampleCells = FALSE,
-      threads = threads,
-      verbose = verboseAll
-    )
-
-    #Compute LSI
-    .messageDiffTime("Running LSI on the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    outLSI <- .computeLSI(
-     mat = mat, 
-     LSIMethod = LSIMethod, 
-     scaleTo = scaleTo,
-     nDimensions = max(dimsToUse),
-     binarize = binarize, 
-     outlierQ = outlierQ,
-     verbose = verboseAll, 
-     tstart = tstart
-     )
-  
-  }else{
-   
-    set.seed(1)
-    sampleN <- ceiling(sampleCells * table(sampleNames) / length(sampleNames))
-    splitCells <- split(cellNames, sampleNames)
-    splitDepth <- split(cellDepth, sampleNames)
-    sampledCellNames <- lapply(seq_along(splitCells), function(x){
-      .filterSample(x = splitCells[[x]], n = sampleN[names(splitCells)[x]], vals = splitDepth[[x]], outlierQ = outlierQ, factor = 2)
-      #sample(splitCells[[x]], sampleN[names(splitCells)[x]])
-    }) %>% unlist %>% sort
-    .messageDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(unlist(splitCells))), tstart, addHeader = verboseAll, verbose = verboseHeader)
-
-    #Construct Sampled Matrix
-    .messageDiffTime("Creating Sampled Partial Matrix of Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    tmpPath <- .tempfile(pattern = "tmp-LSI-PM")
-    o <- h5closeAll()
-    out <- .getPartialMatrix(
-        ArrowFiles = ArrowFiles,
-        featureDF = featureDF,
-        useMatrix = useMatrix,
-        cellNames = cellNames,
-        doSampleCells = TRUE,
-        sampledCellNames = sampledCellNames,
-        tmpPath = tmpPath,
-        useIndex = useIndex,
-        threads = threads,
-        verbose = verboseAll
-      )
-    gc()
-
-    #Perform LSI on Partial Sampled Matrix
-    .messageDiffTime("Running Sampled LSI on the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    outLSI <- .computeLSI(
-       mat = out$mat, 
-       LSIMethod = LSIMethod, 
-       scaleTo = scaleTo,
-       nDimensions = max(dimsToUse),
-       binarize = binarize, 
-       outlierQ = outlierQ,
-       verbose = verboseAll, 
-       tstart = tstart
-      )
-    tmpMatFiles <- out[[2]]
-    rm(out)
-    gc()
-
-    #Read In Matrices and Project into Manifold
-    .messageDiffTime("Projecting Matrices with the Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    pLSI <- lapply(seq_along(tmpMatFiles), function(x){
-      .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart)
-    }) %>% Reduce("rbind", .)
-
-    #Remove Temporary Matrices
-    rmf <- file.remove(tmpMatFiles)
-
-    #Set To LSI the SVD Matrices
-    outLSI$exlcude <- cellNames[which(cellNames %ni% rownames(pLSI))]
-    outLSI$matSVD <- as.matrix(pLSI[cellNames[which(cellNames %in% rownames(pLSI))],])
-
-  }
-
-  outLSI$LSIFeatures <- featureDF
-  outLSI$corToDepth <- list(
-    scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
-    none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
-  )
-
-  return(outLSI)
-
-}
-
-# .densitySample <- function(x, n, vals = x, invert = TRUE, ...){
-#   valDensity <- density(vals, ...)
-#   sampleProbs <- approx(x = valDensity$x, y = valDensity$y, xout = vals)$y
-#   if(invert){
-#     sampleProbs <- 1 / sampleProbs
-#   }
-#   sampleProbs <- sampleProbs / sum(sampleProbs)
-#   sort(sample(x, size = n, prob = sampleProbs))
-# }
-
-.filterSample <- function(x, n, vals = x, outlierQ = c(0.1, 0.9), factor = 2, ...){
-  quant <- quantile(vals, probs = c(min(outlierQ) / factor, 1 - ((1-max(outlierQ)) / factor)))
-  idx <- which(vals >= quant[1] & vals <= quant[2])
-  if(length(idx) >= n){
-    sample(x = x[idx], size = n)
-  }else{
-    sample(x = x, size = n)
-  }
-}
-
+#########################################################################################
+# LSI Methods
+#########################################################################################
 .computeLSI <- function(
   mat = NULL, 
   LSIMethod = 1,
   scaleTo = 10^4,
   nDimensions = 50, 
   binarize = TRUE, 
-  outlierQ = c(0.1, 0.9),
+  outlierQ = c(0.025, 0.975),
   seed = 1, 
   verbose = TRUE, 
   tstart = NULL
@@ -736,6 +909,7 @@ addIterativeLSI <- function(
       idxOutlier <- which(colSm <= qCS[1] | colSm >= qCS[2])
       if(length(idxOutlier) > 0){
         .messageDiffTime("Filtering Outliers Based On Counts", tstart, addHeader = FALSE, verbose = verbose)
+        #saveRDS(mat, "temp.rds", compress = FALSE)
         matO <- mat[, idxOutlier, drop = FALSE]
         mat <- mat[, -idxOutlier, drop = FALSE]
         colSm <- colSm[-idxOutlier]
@@ -790,6 +964,7 @@ addIterativeLSI <- function(
       stop("LSIMethod unrecognized please select valid method!")
 
     }
+
     gc()
 
     #Calc SVD then LSI
@@ -818,7 +993,7 @@ addIterativeLSI <- function(
       )
 
     if(filterOutliers == 1){
-      .messageDiffTime("Projecting Outliers with LSI-Projection (Granja et al 2019)", tstart, addHeader = FALSE, verbose = verbose)
+      .messageDiffTime("Projecting Outliers with LSI-Projection222 (Granja et al 2019)", tstart, addHeader = FALSE, verbose = verbose)
       outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose)
       allLSI <- rbind(out[[1]], outlierLSI)
       allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
@@ -846,14 +1021,6 @@ addIterativeLSI <- function(
     
     if(is.null(tstart)){
       tstart <- Sys.time()
-    }
-
-    if(is.null(LSI$nCol)){
-      if(!is.null(LSI$nCol)){
-        LSI$nCol <- length(LSI$colSum)
-      }else{
-        stop("Error LSI nCol and colSm are null! Projection cannot proceed wihtout either of these values!")
-      }
     }
 
     .messageDiffTime(sprintf("Projecting LSI, Input Matrix = %s GB", round(object.size(mat)/10^9, 3)), tstart, addHeader = verbose, verbose = verbose)

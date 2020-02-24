@@ -37,301 +37,321 @@
 #' @export
 #'
 addClusters <- function(
-    input = NULL, 
-    reducedDims = "IterativeLSI",
-    name = "Clusters",
-    sampleCells = NULL,
-    seed = 1, 
-    method = "Seurat",
-    dimsToUse = NULL,
-    scaleDims = NULL, 
-    corCutOff = 0.75,
-    knnAssign = 10, 
-    nOutlier = 5, 
-    prefix = "Cluster",
-    verbose = TRUE,
-    tstart = NULL,
-    force = FALSE,
-    ...
-    ){
+  input = NULL, 
+  reducedDims = "IterativeLSI",
+  name = "Clusters",
+  sampleCells = NULL,
+  seed = 1, 
+  method = "Seurat",
+  outlierQ = c(0.02, 0.98),
+  outlierCol = "nFrags",
+  outlierVals = NULL,
+  dimsToUse = NULL,
+  scaleDims = NULL, 
+  corCutOff = 0.75,
+  knnAssign = 10, 
+  nOutlier = 5, 
+  prefix = "Cluster",
+  verbose = TRUE,
+  tstart = NULL,
+  force = FALSE,
+  nn.method = "annoy", 
+  annoy.metric = "cosine",
+  ...
+  ){
 
-    .validInput(input = input, name = "input", valid = c("ArchRProj", "matrix"))
-    .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
-    .validInput(input = name, name = "name", valid = c("character"))
-    .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
-    .validInput(input = seed, name = "seed", valid = c("integer"))
-    .validInput(input = method, name = "method", valid = c("character"))
-    .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
-    .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
-    .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
-    .validInput(input = knnAssign, name = "knnAssign", valid = c("integer"))
-    .validInput(input = nOutlier, name = "nOutlier", valid = c("integer"))
-    .validInput(input = prefix, name = "prefix", valid = c("character"))
-    .validInput(input = verbose, name = "verbose", valid = c("boolean"))
-    .validInput(input = tstart, name = "tstart", valid = c("timestamp","null"))
-    .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = input, name = "input", valid = c("ArchRProj", "matrix"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = method, name = "method", valid = c("character"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = knnAssign, name = "knnAssign", valid = c("integer"))
+  .validInput(input = nOutlier, name = "nOutlier", valid = c("integer"))
+  .validInput(input = prefix, name = "prefix", valid = c("character"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = tstart, name = "tstart", valid = c("timestamp","null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
-    if(is.null(tstart)){
-        tstart <- Sys.time()
-    }
+  if(is.null(tstart)){
+      tstart <- Sys.time()
+  }
 
-    if(inherits(input, "ArchRProject")){
-        #Check
-        input <- addCellColData(
-            ArchRProj = input, 
-            data = rep(NA, nCells(input)), 
-            name = name, 
-            cells = getCellNames(input), 
-            force = force
-        )
+  if(inherits(input, "ArchRProject")){
+      #Check
+      input <- addCellColData(
+          ArchRProj = input, 
+          data = rep(NA, nCells(input)), 
+          name = name, 
+          cells = getCellNames(input), 
+          force = force
+      )
 
-        if(reducedDims %ni% names(input@reducedDims)){
-            stop("Error reducedDims not available!")
+      if(reducedDims %ni% names(input@reducedDims)){
+          stop("Error reducedDims not available!")
+      }
+
+      matDR <- getReducedDims(
+          ArchRProj = input, 
+          reducedDims = reducedDims, 
+          dimsToUse = dimsToUse, 
+          corCutOff = corCutOff, 
+          scaleDims = scaleDims
+      )
+
+      if(is.null(outlierVals)){
+        outlierVals <- getCellColData(ArchRProj = input, select = outlierCol, drop = TRUE)
+      }
+  
+  }else if(inherits(input, "matrix")){
+      matDR <- input
+  }else{
+      stop("Input an ArchRProject or Cell by Reduced Dims Matrix!")
+  }
+
+  #Subset Matrix
+  set.seed(seed)
+  nr <- nrow(matDR)
+
+  if(is.null(outlierVals)){
+    outlierQ <- NULL 
+  }
+
+  if(!is.null(outlierQ)){
+    quant <- quantile(outlierVals, probs = c(min(outlierQ), max(outlierQ)))
+    idx <- which(outlierVals >= quant[1] & outlierVals <= quant[2])
+    if(!is.null(sampleCells)){
+        if(sampleCells < length(idx)){
+          idx <- sample(idx, sampleCells)
         }
-
-        matDR <- getReducedDims(
-            ArchRProj = input, 
-            reducedDims = reducedDims, 
-            dimsToUse = dimsToUse, 
-            corCutOff = corCutOff, 
-            scaleDims = scaleDims
-        )
-    
-    }else if(inherits(input, "matrix")){
-        matDR <- input
-    }else{
-        stop("Input an ArchRProject or Cell by Reduced Dims Matrix!")
     }
-
-    #Subset Matrix
-    set.seed(seed)
-    nr <- nrow(matDR)
-
+  }else{
+    idx <- seq_len(nrow(matDR))
     if(!is.null(sampleCells)){
         if(sampleCells < nrow(matDR)){
-            .messageDiffTime("Estimating Clusters by Sampling", tstart, verbose = verbose)
-            estimatingClusters <- 1
-            idx <- sample(seq_len(nrow(matDR)), sampleCells)
-            matDRAll <- matDR
-            matDR <- matDR[idx,]
-        }else{
-            estimatingClusters <- 0
-        }
-    }else{
-        estimatingClusters <- 0
-    }
-
-
-    #################################################################################
-    # Decide on which clustering setup to use
-    #################################################################################
-    if(grepl("seurat",tolower(method))){
-
-        clustParams <- list(...)
-        clustParams$verbose <- verbose
-        clustParams$tstart <- tstart
-        clust <- .clustSeurat(mat = matDR, clustParams = clustParams)
-
-    }else if(grepl("scran",tolower(method))){
-
-        clustParams <- list(...)
-        clustParams$verbose <- verbose
-        clustParams$tstart <- tstart
-        clustParams$x <- t(matDR)
-        clustParams$d <- ncol(matDR)
-        clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
-        clust <- .clustScran(clustParams)
-
-    }else if(grepl("louvainjaccard",tolower(method))){
-
-        stop("LouvainJaccard method not currently functional!")
-        clust <- .clustLouvain(matDR, ...)
-
-    }else{
-
-        stop("Clustering Method Not Recognized!")
-
-    }
-
-    #################################################################################
-    # If estimating clsuters we will assign to nearest neighbor cluster
-    #################################################################################
-    if(estimatingClusters == 1){
-        .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
-        knnAssigni <- .computeKNN(matDR, matDRAll[-idx,], knnAssign)
-        clustUnique <- unique(clust)
-        clustMatch <- match(clust, clustUnique)
-        knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
-
-        .messageDiffTime("Assigning Nearest Clusters", tstart, verbose = verbose)
-        clustAssign <- lapply(seq_along(clustUnique), function(x){
-            rowSums(knnAssigni == x)
-        }) %>% Reduce("cbind", .) %>% apply(., 1, which.max)
-        clustOld <- clust
-        clust <- rep(NA, nr)
-        clust[idx] <- clustOld
-        clust[-idx] <- clustUnique[clustAssign]
-        matDR <- matDRAll
-        remove(matDRAll)
-        gc()
-    }
-
-    #################################################################################
-    # Test if clusters are outliers identified as cells with fewer than nOutlier
-    #################################################################################
-    .messageDiffTime("Testing Outlier Clusters", tstart, verbose = verbose)
-    tabClust <- table(clust)
-    clustAssign <- which(tabClust < nOutlier)
-    if(length(clustAssign) > 0){
-        .messageDiffTime(sprintf("Assigning Outlier Clusters (n = %s, nOutlier < %s cells) to NN", length(clustAssign), nOutlier), tstart, verbose = verbose)
-        for(i in seq_along(clustAssign)){
-            clusti <- names(clustAssign[i])
-            idxi <- which(clust==clusti)
-            knni <- .computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
-            clustf <- unlist(lapply(seq_len(nrow(knni)), function(x) names(sort(table(clust[-idxi][knni[x,]]),decreasing=TRUE)[1])))
-            clust[idxi] <- clustf
+          idx <- sample(seq_len(nrow(matDR)), sampleCells)
         }
     }
+  }
 
-    #################################################################################
-    # Renaming Clusters based on Proximity in Reduced Dimensions
-    #################################################################################
-    .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
-    
-    if(length(unique(clust)) > 1){
+  if(length(idx) != nrow(matDR)){
+    .messageDiffTime("Estimating Clusters by Sampling", tstart, verbose = verbose)
+    estimatingClusters <- 1
+    matDRAll <- matDR
+    matDR <- matDR[idx,]
+  }else{
+    estimatingClusters <- 0 
+  }
 
-        meanSVD <- t(.groupMeans(t(matDR), clust))
-        meanKNN <- .computeKNN(meanSVD, meanSVD, nrow(meanSVD))
-        idx <- sample(seq_len(nrow(meanSVD)), 1)
-        clustOld <- c()
-        clustNew <- c()
-        for(i in seq_len(nrow(meanSVD))){
-            clustOld[i] <- rownames(meanSVD)[idx]
-            clustNew[i] <- paste0(prefix, i)
-            if(i != nrow(meanSVD)){
-                idx <- meanKNN[idx, ][which(rownames(meanSVD)[meanKNN[idx, ]] %ni% clustOld)][1]
-            }
-        }
-        out <- mapLabels(labels = clust, oldLabels = clustOld, newLabels = clustNew)
+  #################################################################################
+  # Decide on which clustering setup to use
+  #################################################################################
+  if(grepl("seurat",tolower(method))){
 
-    }else{
+      clustParams <- list(...)
+      clustParams$verbose <- verbose
+      clustParams$tstart <- tstart
+      clustParams$nn.method <- nn.method
+      clustParams$annoy.metric <- annoy.metric
+      clust <- .clustSeurat(mat = matDR, clustParams = clustParams)
 
-        out <- rep(paste0(prefix, "1"), length(clust))
+  }else if(grepl("scran",tolower(method))){
 
-    }
+      clustParams <- list(...)
+      clustParams$verbose <- verbose
+      clustParams$tstart <- tstart
+      clustParams$x <- t(matDR)
+      clustParams$d <- ncol(matDR)
+      clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
+      clust <- .clustScran(clustParams)
 
-    if(inherits(input, "ArchRProject")){
-        input <- .suppressAll(addCellColData(
-                input, 
-                data = out, 
-                name = name, 
-                cells = rownames(matDR),
-                force = TRUE
-            ))
-        return(input)
-    }else if(!inherits(input, "ArchRProject")){
-        return(out)
-    }
+  }else if(grepl("louvainjaccard",tolower(method))){
+
+      stop("LouvainJaccard method not currently functional!")
+      clust <- .clustLouvain(matDR, ...)
+
+  }else{
+
+      stop("Clustering Method Not Recognized!")
+
+  }
+
+  #################################################################################
+  # If estimating clsuters we will assign to nearest neighbor cluster
+  #################################################################################
+  if(estimatingClusters == 1){
+      .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
+      knnAssigni <- .computeKNN(matDR, matDRAll[-idx,], knnAssign)
+      clustUnique <- unique(clust)
+      clustMatch <- match(clust, clustUnique)
+      knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
+
+      .messageDiffTime("Assigning Nearest Clusters", tstart, verbose = verbose)
+      clustAssign <- lapply(seq_along(clustUnique), function(x){
+          rowSums(knnAssigni == x)
+      }) %>% Reduce("cbind", .) %>% apply(., 1, which.max)
+      clustOld <- clust
+      clust <- rep(NA, nr)
+      clust[idx] <- clustOld
+      clust[-idx] <- clustUnique[clustAssign]
+      matDR <- matDRAll
+      remove(matDRAll)
+      gc()
+  }
+
+  #################################################################################
+  # Test if clusters are outliers identified as cells with fewer than nOutlier
+  #################################################################################
+  .messageDiffTime("Testing Outlier Clusters", tstart, verbose = verbose)
+  tabClust <- table(clust)
+  clustAssign <- which(tabClust < nOutlier)
+  if(length(clustAssign) > 0){
+      .messageDiffTime(sprintf("Assigning Outlier Clusters (n = %s, nOutlier < %s cells) to NN", length(clustAssign), nOutlier), tstart, verbose = verbose)
+      for(i in seq_along(clustAssign)){
+          clusti <- names(clustAssign[i])
+          idxi <- which(clust==clusti)
+          knni <- .computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
+          clustf <- unlist(lapply(seq_len(nrow(knni)), function(x) names(sort(table(clust[-idxi][knni[x,]]),decreasing=TRUE)[1])))
+          clust[idxi] <- clustf
+      }
+  }
+
+  #################################################################################
+  # Renaming Clusters based on Proximity in Reduced Dimensions
+  #################################################################################
+  .messageDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose)
+  
+  if(length(unique(clust)) > 1){
+
+      meanSVD <- t(.groupMeans(t(matDR), clust))
+      hc <- hclust(dist(as.matrix(meanSVD)))
+      out <- mapLabels(
+        labels = clust, 
+        oldLabels = hc$labels[hc$order], 
+        newLabels = paste0(prefix, seq_along(hc$labels))
+      )
+
+  }else{
+
+      out <- rep(paste0(prefix, "1"), length(clust))
+
+  }
+
+  if(inherits(input, "ArchRProject")){
+      input <- .suppressAll(addCellColData(
+              input, 
+              data = out, 
+              name = name, 
+              cells = rownames(matDR),
+              force = TRUE
+          ))
+      return(input)
+  }else if(!inherits(input, "ArchRProject")){
+      return(out)
+  }
 
 }
 
 #Simply a wrapper on Seurats FindClusters
 .clustSeurat <- function(mat = NULL, clustParams = NULL){
 
-    .requirePackage("Seurat", source = "cran")
-    .messageDiffTime("Running Seurats FindClusters (Stuart et al. Cell 2019)", clustParams$tstart, verbose=clustParams$verbose)
-    set.seed(1)
+  .requirePackage("Seurat", source = "cran")
+  .messageDiffTime("Running Seurats FindClusters (Stuart et al. Cell 2019)", clustParams$tstart, verbose=clustParams$verbose)
+  set.seed(1)
 
-    #Arxiv Seurat 2.3.4 method
-    tmp <- matrix(rnorm(nrow(mat) * 3, 10), ncol = nrow(mat), nrow = 3)
-    colnames(tmp) <- rownames(mat)
-    rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
+  #Arxiv Seurat 2.3.4 method
+  tmp <- matrix(rnorm(nrow(mat) * 3, 10), ncol = nrow(mat), nrow = 3)
+  colnames(tmp) <- rownames(mat)
+  rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
 
-    obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
-    obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
-    clustParams$object <- obj
-    clustParams$reduction <- "pca"
-    clustParams$dims <- seq_len(ncol(mat))
+  obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
+  obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
+  clustParams$object <- obj
+  clustParams$reduction <- "pca"
+  clustParams$dims <- seq_len(ncol(mat))
 
-    obj <- suppressWarnings(do.call(Seurat::FindNeighbors, clustParams))
-    clustParams$object <- obj
+  obj <- suppressWarnings(do.call(Seurat::FindNeighbors, clustParams))
+  clustParams$object <- obj
 
-    cS <- Matrix::colSums(obj@graphs$RNA_snn)
+  cS <- Matrix::colSums(obj@graphs$RNA_snn)
 
-    if(cS[length(cS)] == 1){
+  if(cS[length(cS)] == 1){
 
-        #Error Handling with Singletons
-        idxSingles <- which(cS == 1)
-        idxNonSingles <- which(cS != 1)
+      #Error Handling with Singletons
+      idxSingles <- which(cS == 1)
+      idxNonSingles <- which(cS != 1)
 
-        rn <- rownames(mat) #original order
-        mat <- mat[c(idxSingles, idxNonSingles), ,drop = FALSE]
+      rn <- rownames(mat) #original order
+      mat <- mat[c(idxSingles, idxNonSingles), ,drop = FALSE]
 
-        set.seed(1)
+      set.seed(1)
 
-        tmp <- matrix(rnorm(nrow(mat) * 3, 10), ncol = nrow(mat), nrow = 3)
-        colnames(tmp) <- rownames(mat)
-        rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
+      tmp <- matrix(rnorm(nrow(mat) * 3, 10), ncol = nrow(mat), nrow = 3)
+      colnames(tmp) <- rownames(mat)
+      rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
 
-        obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
-        obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
-        clustParams$object <- obj
-        clustParams$reduction <- "pca"
-        clustParams$dims <- seq_len(ncol(mat))
+      obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
+      obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
+      clustParams$object <- obj
+      clustParams$reduction <- "pca"
+      clustParams$dims <- seq_len(ncol(mat))
 
-        obj <- .suppressAll(do.call(Seurat::FindNeighbors, clustParams))
-        clustParams$object <- obj
+      obj <- .suppressAll(do.call(Seurat::FindNeighbors, clustParams))
+      clustParams$object <- obj
 
-        obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
+      obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
 
-        #Get Output
-        clust <- obj@meta.data[,ncol(obj@meta.data)]
-        clust <- paste0("Cluster",match(clust, unique(clust)))
-        names(clust) <- rownames(mat)
-        clust <- clust[rn]
+      #Get Output
+      clust <- obj@meta.data[,ncol(obj@meta.data)]
+      clust <- paste0("Cluster",match(clust, unique(clust)))
+      names(clust) <- rownames(mat)
+      clust <- clust[rn]
 
-    }else{
+  }else{
 
-        obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
+      obj <- suppressWarnings(do.call(Seurat::FindClusters, clustParams))
 
-        #Get Output
-        clust <- obj@meta.data[,ncol(obj@meta.data)]
-        clust <- paste0("Cluster",match(clust, unique(clust)))
-        names(clust) <- rownames(mat)
+      #Get Output
+      clust <- obj@meta.data[,ncol(obj@meta.data)]
+      clust <- paste0("Cluster",match(clust, unique(clust)))
+      names(clust) <- rownames(mat)
 
-    }
+  }
 
-    clust
+  clust
 
 }
 
 .clustScran <- function(clustParams = NULL){
-    .requirePackage("scran", installInfo='BiocManager::install("scran")')
-    .requirePackage("igraph", installInfo='install.packages("igraph")')
-    #See Scran Vignette!
-    set.seed(1)
-    tstart <- clustParams$tstart
-    verbose <- clustParams$verbose
-    clustParams$tstart <- NULL
-    clustParams$verbose <- NULL
-    #clustParams$x <- matDR
-    .messageDiffTime("Running Scran SNN Graph (Lun et al. Cell 2016)", tstart, verbose=verbose)
-    snn <- do.call(scran::buildSNNGraph, clustParams)
-    .messageDiffTime("Identifying Clusters (Lun et al. Cell 2016)", tstart, verbose=verbose)
-    cluster <- igraph::cluster_walktrap(snn)$membership
-    paste0("Cluster", cluster)
+  .requirePackage("scran", installInfo='BiocManager::install("scran")')
+  .requirePackage("igraph", installInfo='install.packages("igraph")')
+  #See Scran Vignette!
+  set.seed(1)
+  tstart <- clustParams$tstart
+  verbose <- clustParams$verbose
+  clustParams$tstart <- NULL
+  clustParams$verbose <- NULL
+  #clustParams$x <- matDR
+  .messageDiffTime("Running Scran SNN Graph (Lun et al. Cell 2016)", tstart, verbose=verbose)
+  snn <- do.call(scran::buildSNNGraph, clustParams)
+  .messageDiffTime("Identifying Clusters (Lun et al. Cell 2016)", tstart, verbose=verbose)
+  cluster <- igraph::cluster_walktrap(snn)$membership
+  paste0("Cluster", cluster)
 }
 
 #JJJ should i just default to one? Nabor seems faster than RANN and if you install chromVAR
 #you neeed RANN. Seurat uses RANN.
 .computeKNN <- function(
-    data = NULL,
-    query = NULL,
-    k = 50,
-    method = NULL,
-    includeSelf = FALSE,
-    ...
-    ){
+  data = NULL,
+  query = NULL,
+  k = 50,
+  method = NULL,
+  includeSelf = FALSE,
+  ...
+  ){
 
   .validInput(input = data, name = "data", valid = c("dataframe", "matrix"))
   .validInput(input = query, name = "query", valid = c("dataframe", "matrix"))

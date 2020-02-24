@@ -86,6 +86,7 @@ addUMAP <- function(
   embeddingParams$n_neighbors <- nNeighbors
   embeddingParams$min_dist <- minDist
   embeddingParams$verbose <- verbose
+  embeddingParams$metric <- metric
 
   if(saveModel){
     #message("Saving UMAP model not currently supported (will be shortly), running without model!")
