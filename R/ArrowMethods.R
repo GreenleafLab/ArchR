@@ -22,24 +22,26 @@
   matrixName
 }
 
-.availableArrays <- function(ArrowFiles = NULL){
+.availableArrays <- function(ArrowFiles = NULL, threads = getArchRThreads()){
+  threads <- min(threads, length(ArrowFiles))
   o <- h5closeAll()
-  availableArrays <- lapply(seq_along(ArrowFiles), function(x){
+  availableArrays <- .safelapply(seq_along(ArrowFiles), function(x){
     groups <- h5ls(ArrowFiles[x]) %>% {.[.$group=="/" & .$otype=="H5I_GROUP","name"]}
     groups <- groups[!grepl("Fragments|Metadata", groups)]
     groups
-  }) %>% Reduce("intersect", .)
+  }, threads = threads) %>% Reduce("intersect", .)
   o <- h5closeAll()
   return(availableArrays)
 }
 
-.availableSeqnames <- function(ArrowFiles = NULL, subGroup = "Fragments"){
+.availableSeqnames <- function(ArrowFiles = NULL, subGroup = "Fragments", threads = getArchRThreads()){
+  threads <- min(threads, length(ArrowFiles))
   o <- h5closeAll()
-  seqList <- lapply(seq_along(ArrowFiles), function(x){
+  seqList <- .safelapply(seq_along(ArrowFiles), function(x){
     seqnames <- h5ls(ArrowFiles[x]) %>% {.[.$group==paste0("/",subGroup),]$name}
     seqnames <- seqnames[!grepl("Info", seqnames)]
     seqnames
-  })
+  }, threads = threads)
   if(!all(unlist(lapply(seq_along(seqList), function(x) identical(seqList[[x]],seqList[[1]]))))){
     stop("Not All Seqnames Identical!")
   }
@@ -148,7 +150,9 @@
   return(md)
 }
 
-.getFeatureDF <- function(ArrowFiles = NULL, subGroup = "TileMatrix"){
+.getFeatureDF <- function(ArrowFiles = NULL, subGroup = "TileMatrix", threads = getArchRThreads()){
+
+  threads <- min(threads, length(ArrowFiles))
   
   .helpFeatureDF <- function(ArrowFile = NULL, subGroup = NULL){
     o <- h5closeAll()
@@ -162,10 +166,10 @@
 
   if(length(ArrowFiles) > 1){
     ArrowFiles <- ArrowFiles[-1]
-    checkIdentical <- lapply(seq_along(ArrowFiles), function(x){
+    checkIdentical <- .safelapply(seq_along(ArrowFiles), function(x){
         fdfx <- .helpFeatureDF(ArrowFiles[x], subGroup = subGroup)
         identical(fdfx, fdf)
-    }) %>% unlist %>% all
+    }, threads = threads) %>% unlist %>% all
     if(!checkIdentical){
       stop("Error not all FeatureDF for asssay is the same!")
     }
