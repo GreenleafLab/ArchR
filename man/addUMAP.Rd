@@ -14,7 +14,7 @@ addUMAP(
   dimsToUse = NULL,
   scaleDims = NULL,
   corCutOff = 0.75,
-  saveModel = FALSE,
+  saveModel = TRUE,
   verbose = TRUE,
   seed = 1,
   force = FALSE,

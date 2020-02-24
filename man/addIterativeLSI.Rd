@@ -16,11 +16,15 @@ addIterativeLSI(
   scaleDims = TRUE,
   corCutOff = 0.75,
   binarize = TRUE,
-  sampleCells = NULL,
+  outlierQ = c(0.05, 0.95),
+  sampleCellsVar = 10000,
+  projectCellsVar = FALSE,
+  sampleCellsFinal = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
   totalFeatures = 5e+05,
   filterQuantile = 0.995,
+  excludeChr = c(),
   saveIterations = TRUE,
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
     FALSE, fast_sgd = TRUE),
@@ -63,7 +67,9 @@ sequencing depth that is greater than the \code{corCutOff}, it will be excluded 
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 
-\item{sampleCells}{An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.}
+\item{outlierQ}{A numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI.
+For example a value of 0.025 results in the cells in the bottom 2.5 percent and upper 97.5 to be filtered prior to LSI. These cells
+are then projected back in the LSI subspace to prevent spurious clusters.}
 
 \item{selectionMethod}{The selection method to be used for identifying the top variable features. Valid options are "var" for
 log-variability or "vmr" for variance-to-mean ratio.}
@@ -97,6 +103,8 @@ reproduce results downstream.}
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
 
 \item{force}{A boolean value that indicates whether or not to overwrite relevant data in the \code{ArchRProject} object.}
+
+\item{sampleCells}{An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.}
 }
 \description{
 This function will compute an iterative LSI dimensionality reduction on an ArchRProject.

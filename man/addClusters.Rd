@@ -11,6 +11,9 @@ addClusters(
   sampleCells = NULL,
   seed = 1,
   method = "Seurat",
+  outlierQ = c(0.02, 0.98),
+  outlierCol = "nFrags",
+  outlierVals = NULL,
   dimsToUse = NULL,
   scaleDims = NULL,
   corCutOff = 0.75,
@@ -20,6 +23,8 @@ addClusters(
   verbose = TRUE,
   tstart = NULL,
   force = FALSE,
+  nn.method = "annoy",
+  annoy.metric = "cosine",
   ...
 )
 }

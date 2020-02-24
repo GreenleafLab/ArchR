@@ -13,11 +13,10 @@ addDoubletScores(
   LSIMethod = 1,
   scaleDims = FALSE,
   corCutOff = 0.75,
-  sampleCells = NULL,
   knnMethod = "UMAP",
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose =
     FALSE),
-  LSIParams = list(),
+  LSIParams = list(outlierQ = NULL),
   outDir = getOutputDirectory(input),
   threads = getArchRThreads(),
   force = FALSE,
