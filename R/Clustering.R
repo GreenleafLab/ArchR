@@ -231,8 +231,8 @@ addClusters <- function(
         n2 <- colSums(biasBgd <= min(biasQuantiles))
         pval1 <- max(sum(sum(biasQ >= max(biasQuantiles)) < n1) * 2, 1) / length(n1)
         pval2 <- max(sum(sum(biasQ <= min(biasQuantiles)) < n2) * 2, 1) / length(n2)
-        enrich1 <- sum(biasQ >= max(biasQuantiles)) / median(n1)
-        enrich2 <- sum(biasQ <= min(biasQuantiles)) / median(n2)
+        enrich1 <- sum(biasQ >= max(biasQuantiles)) / max(median(n1), 1)
+        enrich2 <- sum(biasQ <= min(biasQuantiles)) / max(median(n2), 1)
         per1 <- sum(biasQ >= max(biasQuantiles)) / length(biasQ)
         per2 <- sum(biasQ <= min(biasQuantiles)) / length(biasQ)
         if(enrich1 > enrich2){

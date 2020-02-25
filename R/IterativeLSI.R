@@ -1016,6 +1016,7 @@ addIterativeLSI <- function(
         scaleTo = scaleTo,
         nDimensions = nDimensions,
         LSIMethod = LSIMethod,
+        outliers = NA,
         date = Sys.Date(),
         seed = seed
       )
@@ -1032,6 +1033,7 @@ addIterativeLSI <- function(
         stop("Error with LSI-projection! Cor less than 0.95 of re-projection. Please report bug to github!")
       }
       #Project LSI Outliers
+      out$outliers <- colnames(matO)
       outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose)
       allLSI <- rbind(out[[1]], outlierLSI)
       allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
