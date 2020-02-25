@@ -48,15 +48,20 @@ addClusters <- function(
   corCutOff = 0.75,
   knnAssign = 10, 
   nOutlier = 5, 
+  testBias = TRUE,
+  filterBias = FALSE,
+  biasClusters = 0.01,
+  biasCol = "nFrags",
+  biasVals = NULL,
   biasQuantiles = c(0.05, 0.95),
-  biasCols = c("nFrags", "TSSEnrichment"),
+  biasEnrich = 10,
+  biasProportion = 0.5,
+  biasPval = 0.05,
+  nPerm = 500,
   prefix = "C",
   verbose = TRUE,
   tstart = NULL,
   force = FALSE,
-  nn.method = "annoy", 
-  annoy.metric = "cosine",
-  k = 40,
   ...
   ){
 
@@ -113,18 +118,17 @@ addClusters <- function(
   nr <- nrow(matDR)
 
   if(!is.null(sampleCells)){
-      if(sampleCells < nrow(matDR)){
-        idx <- sample(seq_len(nrow(matDR)), sampleCells)
-      }
-  }
-
-  if(length(idx) != nrow(matDR)){
-    .messageDiffTime("Estimating Clusters by Sampling", tstart, verbose = verbose)
-    estimatingClusters <- 1
-    matDRAll <- matDR
-    matDR <- matDR[idx,]
+    if(sampleCells < nrow(matDR)){
+      .messageDiffTime("Estimating Clusters by Sampling", tstart, verbose = verbose)
+      estimatingClusters <- 1
+      idx <- sample(seq_len(nrow(matDR)), sampleCells)
+      matDRAll <- matDR
+      matDR <- matDR[idx,]
+    }else{
+      estimatingClusters <- 0
+    }
   }else{
-    estimatingClusters <- 0 
+    estimatingClusters <- 0
   }
 
   #################################################################################
@@ -132,28 +136,25 @@ addClusters <- function(
   #################################################################################
   if(grepl("seurat",tolower(method))){
 
-      clustParams <- list(...)
-      clustParams$verbose <- verbose
-      clustParams$tstart <- tstart
-      clustParams$nn.method <- nn.method
-      clustParams$annoy.metric <- annoy.metric
-      clustParams$k.param <- k
-      clust <- .clustSeurat(mat = matDR, clustParams = clustParams)
+    clustParams <- list(...)
+    clustParams$verbose <- verbose
+    clustParams$tstart <- tstart
+    clust <- .clustSeurat(mat = matDR, clustParams = clustParams)
 
   }else if(grepl("scran",tolower(method))){
 
-      clustParams <- list(...)
-      clustParams$verbose <- verbose
-      clustParams$tstart <- tstart
-      clustParams$x <- t(matDR)
-      clustParams$d <- ncol(matDR)
-      clustParams$k <- k
-      clust <- .clustScran(clustParams)
+    clustParams <- list(...)
+    clustParams$verbose <- verbose
+    clustParams$tstart <- tstart
+    clustParams$x <- t(matDR)
+    clustParams$d <- ncol(matDR)
+    clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
+    clust <- .clustScran(clustParams)
 
   }else if(grepl("louvainjaccard",tolower(method))){
 
-      stop("LouvainJaccard method not currently functional!")
-      clust <- .clustLouvain(matDR, ...)
+    stop("LouvainJaccard method not currently functional!")
+    clust <- .clustLouvain(matDR, ...)
 
   }else{
 
@@ -187,13 +188,96 @@ addClusters <- function(
   }
 
   #################################################################################
+  # Testing Bias
+  #################################################################################
+  if(testBias){
+    if(inherits(input, "ArchRProject")){
+      if(is.null(biasVals)){
+        biasDF <- getCellColData(input, select = biasCol)
+      }else{
+        biasDF <- DataFrame(row.names = rownames(matDR), bias = biasVals)
+      }
+    }else{
+      if(!is.null(biasVals)){
+        biasDF <- DataFrame(row.names = rownames(matDR), bias = biasVals)
+      }else{
+        message("No biasVals for testing bias continuing without bias detection")
+        testBias <- FALSE
+      }
+    }
+  }
+
+  if(testBias){
+    biasDF$Q <- .getQuantiles(biasDF[,1])
+    tabClust <- table(clust)
+    tabClustP <- tabClust / sum(tabClust)
+    idxTest <- which(tabClustP < biasClusters)
+    names(clust) <- rownames(matDR)
+    if(length(idxTest) > 0){
+      .messageDiffTime("Testing Biased Clusters", tstart, verbose = verbose)
+      testDF <- lapply(seq_along(idxTest), function(i){
+        clustTesti <- names(tabClustP)[idxTest[i]]
+        biasQ <- biasDF[names(clust)[which(clust == clustTesti)], 2]
+        biasBgd <- matrix(
+          sample(
+            x = biasDF[names(clust)[which(clust != clustTesti)], 2],
+            size = nPerm * length(biasQ),
+            replace = if(nPerm * length(biasQ) > nrow(biasDF[names(clust)[which(clust != clustTesti)], ])) TRUE else FALSE
+          ), 
+          nrow = length(biasQ), 
+          ncol = nPerm
+        )
+        n1 <- colSums(biasBgd >= max(biasQuantiles))
+        n2 <- colSums(biasBgd <= min(biasQuantiles))
+        pval1 <- max(sum(sum(biasQ >= max(biasQuantiles)) < n1) * 2, 1) / length(n1)
+        pval2 <- max(sum(sum(biasQ <= min(biasQuantiles)) < n2) * 2, 1) / length(n2)
+        enrich1 <- sum(biasQ >= max(biasQuantiles)) / median(n1)
+        enrich2 <- sum(biasQ <= min(biasQuantiles)) / median(n2)
+        per1 <- sum(biasQ >= max(biasQuantiles)) / length(biasQ)
+        per2 <- sum(biasQ <= min(biasQuantiles)) / length(biasQ)
+        if(enrich1 > enrich2){
+          enrichClust <- enrich1
+          enrichPval <- min(pval1, 1)
+          enrichPer <- per1
+        }else{
+          enrichClust <- enrich2
+          enrichPval <- min(pval2, 1)
+          enrichPer <- per2
+        }
+        DataFrame(Cluster = clustTesti, enrichClust = enrichClust, enrichPval = enrichPval, enrichProportion = enrichPer)
+      }) %>% Reduce("rbind", .)
+
+      clustAssign <- testDF[which(testDF$enrichClust > biasEnrich & testDF$enrichProportion > biasProportion & testDF$enrichPval <= biasPval),1]
+      if(length(clustAssign) > 0){
+        if(filterBias){
+          .messageDiffTime(sprintf("Assigning Biased Clusters (n = %s) to Neighbors", length(clustAssign)), tstart, verbose = verbose)
+          for(i in seq_along(clustAssign)){
+            clusti <- clustAssign[i]
+            idxi <- which(clust==clusti)
+            knni <- .computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
+            clustf <- unlist(lapply(seq_len(nrow(knni)), function(x) names(sort(table(clust[-idxi][knni[x,]]),decreasing=TRUE)[1])))
+            clust[idxi] <- clustf
+          }
+        }else{
+          .messageDiffTime(sprintf("Identified Biased Clusters (n = %s) : ", length(clustAssign)), tstart, verbose = verbose)
+          message("Biased Clusters : ", appendLF = FALSE)
+          for(i in seq_along(clustAssign)){
+            message(clustAssign[i], " ", appendLF = FALSE)
+          }
+          message("")
+        }
+      }
+    }
+  }
+  
+  #################################################################################
   # Test if clusters are outliers identified as cells with fewer than nOutlier
   #################################################################################
   .messageDiffTime("Testing Outlier Clusters", tstart, verbose = verbose)
   tabClust <- table(clust)
   clustAssign <- which(tabClust < nOutlier)
   if(length(clustAssign) > 0){
-      .messageDiffTime(sprintf("Assigning Outlier Clusters (n = %s, nOutlier < %s cells) to NN", length(clustAssign), nOutlier), tstart, verbose = verbose)
+      .messageDiffTime(sprintf("Assigning Outlier Clusters (n = %s, nOutlier < %s cells) to Neighbors", length(clustAssign), nOutlier), tstart, verbose = verbose)
       for(i in seq_along(clustAssign)){
           clusti <- names(clustAssign[i])
           idxi <- which(clust==clusti)
@@ -244,9 +328,7 @@ addClusters <- function(
 
   .requirePackage("Seurat", source = "cran")
   .messageDiffTime("Running Seurats FindClusters (Stuart et al. Cell 2019)", clustParams$tstart, verbose=clustParams$verbose)
-  set.seed(1)
 
-  #Arxiv Seurat 2.3.4 method
   tmp <- matrix(rnorm(nrow(mat) * 3, 10), ncol = nrow(mat), nrow = 3)
   colnames(tmp) <- rownames(mat)
   rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
@@ -270,8 +352,6 @@ addClusters <- function(
 
       rn <- rownames(mat) #original order
       mat <- mat[c(idxSingles, idxNonSingles), ,drop = FALSE]
-
-      set.seed(1)
 
       tmp <- matrix(rnorm(nrow(mat) * 3, 10), ncol = nrow(mat), nrow = 3)
       colnames(tmp) <- rownames(mat)
@@ -313,7 +393,6 @@ addClusters <- function(
   .requirePackage("scran", installInfo='BiocManager::install("scran")')
   .requirePackage("igraph", installInfo='install.packages("igraph")')
   #See Scran Vignette!
-  set.seed(1)
   tstart <- clustParams$tstart
   verbose <- clustParams$verbose
   clustParams$tstart <- NULL
@@ -401,6 +480,7 @@ addClusters <- function(
   knnIdx
 
 }
+
 
 
 

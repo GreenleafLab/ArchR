@@ -1,3 +1,4 @@
+
 ##########################################################################################
 # LSI Dimensionality Reduction Methods
 ##########################################################################################
@@ -66,6 +67,7 @@ addIterativeLSI <- function(
   corCutOff = 0.75,
   binarize = TRUE,
   outlierQuantiles = c(0.02, 0.98),
+  testBias = TRUE,
   sampleCellsPre = 10000,
   projectCellsPre = FALSE,
   sampleCellsFinal = NULL,
@@ -172,7 +174,12 @@ addIterativeLSI <- function(
   chrToRun <- .availableSeqnames(ArrowFiles, subGroup = useMatrix)
   #Compute Row Sums Across All Samples
   .messageDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = TRUE)
+  if(useMatrix == "TileMatrix"){
+    totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = FALSE)
+    totalAcc$start <- (totalAcc$idx - 1) * tileSize
+  }else{
+    totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = TRUE)
+  }
   gc()
 
   cellDepth <- tryCatch({
@@ -208,12 +215,16 @@ addIterativeLSI <- function(
   .messageDiffTime(paste0("Running LSI (1 of ",iterations,") on Top Features"), tstart, addHeader = TRUE, verbose = verboseHeader)
   j <- 1
 
-  if(!is.null(clusterParams$sampleCells[j])){
-    sampleJ <- clusterParams$sampleCells[j]
-  }else if(!is.null(clusterParams$sampleCells[1])){
-    sampleJ <- clusterParams$sampleCells[1]
+  if(!is.null(clusterParams$sampleCells)){
+    if(!is.na(clusterParams$sampleCells[j])){
+      sampleJ <- clusterParams$sampleCells[j]
+    }else if(!is.na(clusterParams$sampleCells[1])){
+      sampleJ <- clusterParams$sampleCells[1]
+    }else{
+      sampleJ <- sampleCellsPre
+    }
   }else{
-    sampleJ <- sampleCellsPre
+    sampleJ <- sampleCellsPre 
   }
 
   outLSI <- .LSIPartialMatrix(
@@ -251,7 +262,7 @@ addIterativeLSI <- function(
   #########################
   clusterDF <- .LSICluster(
     outLSI = outLSI,
-    outlierQuantiles = outlierQuantiles,
+    testBias = testBias,
     cellNames = cellNames,
     cellDepth = cellDepth,
     dimsToUse = dimsToUse,
@@ -311,12 +322,16 @@ addIterativeLSI <- function(
     # LSI
     #########################
     .messageDiffTime(sprintf("Running LSI (%s of %s) on Variable Features", j, iterations), tstart, addHeader = TRUE, verbose = verboseHeader)
-    if(!is.null(clusterParams$sampleCells[j])){
-      sampleJ <- clusterParams$sampleCells[j]
-    }else if(!is.null(clusterParams$sampleCells[1])){
-      sampleJ <- clusterParams$sampleCells[1]
+    if(!is.null(clusterParams$sampleCells)){
+      if(!is.na(clusterParams$sampleCells[j])){
+        sampleJ <- clusterParams$sampleCells[j]
+      }else if(!is.na(clusterParams$sampleCells[1])){
+        sampleJ <- clusterParams$sampleCells[1]
+      }else{
+        sampleJ <- sampleCellsPre
+      }
     }else{
-      sampleJ <- sampleCellsPre
+      sampleJ <- sampleCellsPre 
     }
 
     #Compute Partial Matrix LSI
@@ -354,7 +369,7 @@ addIterativeLSI <- function(
         dimsToUse = dimsToUse,
         scaleDims = scaleDims,
         corCutOff = corCutOff,
-        outlierQuantiles = outlierQuantiles,
+        testBias = testBias,
         cellNames = cellNames,
         cellDepth = cellDepth,
         j = j,
@@ -720,7 +735,7 @@ addIterativeLSI <- function(
   verboseHeader = NULL,
   verboseAll = NULL,
   j = NULL,
-  outlierQuantiles = NULL,
+  testBias = NULL,
   cellNames = NULL,
   cellDepth = NULL,
   tstart = NULL
@@ -754,20 +769,23 @@ addIterativeLSI <- function(
     parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
   }
 
-  # if(!is.null(outlierQuantiles)){
-  #   #Use Defaults in addCluster for Outlier Quantiles
-  #   #factor <- 2
-  #   #parClust$outlierQuantiles <- c(min(outlierQuantiles) / factor, 1 - ((1-max(outlierQuantiles)) / factor))
-  #   parClust$outlierVals <- NULL
-  # }
+  parClust$input <- as.matrix(parClust$input)
 
+  if(testBias){
+    parClust$testBias <- testBias
+    parClust$filterBias <- TRUE
+  }
+  parClust$biasVals <- data.frame(row.names = cellNames, x = cellDepth)[rownames(outLSI$matSVD), 1]
+  
   clusters <- do.call(addClusters, parClust)
+  
   parClust$input <- NULL
   nClust <- length(unique(clusters))  
   
   df <- DataFrame(cellNames = rownames(outLSI$matSVD), clusters = clusters)
   metadata(df)$parClust <- parClust
   df
+
 }
 
 #########################################################################################
@@ -891,14 +909,7 @@ addIterativeLSI <- function(
         mat@x[mat@x > 0] <- 1 
     }
 
-    #Clean up zero rows
-    .messageDiffTime("Removing 0 Sum Rows", tstart, addHeader = FALSE, verbose = verbose)
-    rowSm <- Matrix::rowSums(mat)
-    idx <- which(rowSm > 0)
-    mat <- mat[idx,]
-    rowSm <- rowSm[idx]
-
-    #TF
+    #Compute Col Sums
     .messageDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose)
     colSm <- Matrix::colSums(mat)
     if(any(colSm == 0)){
@@ -919,10 +930,20 @@ addIterativeLSI <- function(
         #saveRDS(mat, "temp.rds", compress = FALSE)
         matO <- mat[, idxOutlier, drop = FALSE]
         mat <- mat[, -idxOutlier, drop = FALSE]
+        mat2 <- mat[, head(seq_len(ncol(mat)), 10), drop = FALSE] # A 2nd Matrix to Check Projection is Working
         colSm <- colSm[-idxOutlier]
         filterOutliers <- 1       
       }
     }
+
+    #Clean up zero rows
+    .messageDiffTime("Removing 0 Sum Rows", tstart, addHeader = FALSE, verbose = verbose)
+    rowSm <- Matrix::rowSums(mat)
+    idx <- which(rowSm > 0)
+    mat <- mat[idx, ]
+    rowSm <- rowSm[idx]
+
+    #TF - Normalize
     mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
 
     if(LSIMethod == 1 | tolower(LSIMethod) == "tf-logidf"){
@@ -981,7 +1002,7 @@ addIterativeLSI <- function(
     diag(svdDiag) <- svd$d
     matSVD <- t(svdDiag %*% t(svd$v))
     rownames(matSVD) <- colnames(mat)
-    colnames(matSVD) <- paste0("PC",seq_len(ncol(matSVD)))
+    colnames(matSVD) <- paste0("LSI",seq_len(ncol(matSVD)))
 
     #Return Object
     out <- SimpleList(
@@ -1000,7 +1021,17 @@ addIterativeLSI <- function(
       )
 
     if(filterOutliers == 1){
-      .messageDiffTime("Projecting Outliers with LSI-Projection (Granja et al 2019)", tstart, addHeader = FALSE, verbose = verbose)
+      .messageDiffTime("Projecting Outliers with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose)
+      #Quick Check LSI-Projection Works
+      pCheck <- .projectLSI(mat = mat2, LSI = out, verbose = verbose)
+      pCheck2 <- out[[1]][rownames(pCheck), ]
+      pCheck3 <- lapply(seq_len(ncol(pCheck)), function(x){
+        cor(pCheck[,x], pCheck2[,x])
+      }) %>% unlist
+      if(min(pCheck3) < 0.95){
+        stop("Error with LSI-projection! Cor less than 0.95 of re-projection. Please report bug to github!")
+      }
+      #Project LSI Outliers
       outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose)
       allLSI <- rbind(out[[1]], outlierLSI)
       allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
@@ -1119,7 +1150,7 @@ addIterativeLSI <- function(
     matSVD <- Matrix::t(svdDiag %*% Matrix::t(V))
     matSVD <- as.matrix(matSVD)
     rownames(matSVD) <- colnames(mat)
-    colnames(matSVD) <- paste0("PC",seq_len(ncol(matSVD)))
+    colnames(matSVD) <- paste0("LSI",seq_len(ncol(matSVD)))
 
     if(returnModel){
         .messageDiffTime("Calculating Re-Projected Matrix", tstart, addHeader = FALSE, verbose = verbose)
@@ -1131,6 +1162,9 @@ addIterativeLSI <- function(
 
     return(out)
 }
+
+
+
 
 
 
