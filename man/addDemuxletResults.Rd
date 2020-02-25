@@ -4,7 +4,8 @@
 \alias{addDemuxletResults}
 \title{Add Demuxlet Results to ArchR Project}
 \usage{
-addDemuxletResults(ArchRProj = NULL, bestFiles = NULL, sampleNames = NULL)
+addDemuxletResults(ArchRProj = NULL, bestFiles = NULL,
+  sampleNames = NULL)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

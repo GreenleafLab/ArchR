@@ -4,38 +4,20 @@
 \alias{addIterativeLSI}
 \title{Add an Iterative LSI-based dimensionality reduction to an ArchRProject}
 \usage{
-addIterativeLSI(
-  ArchRProj = NULL,
-  useMatrix = "TileMatrix",
-  name = "IterativeLSI",
-  iterations = 2,
-  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start = 10),
-  varFeatures = 25000,
-  dimsToUse = 1:30,
-  LSIMethod = 2,
-  scaleDims = TRUE,
-  corCutOff = 0.75,
-  binarize = TRUE,
-  outlierQ = c(0.05, 0.95),
-  sampleCellsVar = 10000,
-  projectCellsVar = FALSE,
-  sampleCellsFinal = NULL,
-  selectionMethod = "var",
-  scaleTo = 10000,
-  totalFeatures = 5e+05,
-  filterQuantile = 0.995,
-  excludeChr = c(),
-  saveIterations = TRUE,
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
-    FALSE, fast_sgd = TRUE),
-  nPlot = 10000,
-  outDir = getOutputDirectory(ArchRProj),
-  threads = getArchRThreads(),
-  seed = 1,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
-  force = FALSE
-)
+addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
+  name = "IterativeLSI", iterations = 2,
+  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start
+  = 10), varFeatures = 25000, dimsToUse = 1:30, LSIMethod = 2,
+  scaleDims = TRUE, corCutOff = 0.75, binarize = TRUE,
+  outlierQuantiles = c(0.02, 0.98), sampleCellsPre = 10000,
+  projectCellsPre = FALSE, sampleCellsFinal = NULL,
+  selectionMethod = "var", scaleTo = 10000, totalFeatures = 5e+05,
+  filterQuantile = 0.995, excludeChr = c(), saveIterations = TRUE,
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine",
+  verbose = FALSE, fast_sgd = TRUE), nPlot = 10000,
+  outDir = getOutputDirectory(ArchRProj), threads = getArchRThreads(),
+  seed = 1, verboseHeader = TRUE, verboseAll = FALSE,
+  force = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -67,7 +49,7 @@ sequencing depth that is greater than the \code{corCutOff}, it will be excluded 
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 
-\item{outlierQ}{A numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI.
+\item{outlierQuantiles}{A numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI.
 For example a value of 0.025 results in the cells in the bottom 2.5 percent and upper 97.5 to be filtered prior to LSI. These cells
 are then projected back in the LSI subspace to prevent spurious clusters.}
 

@@ -43,15 +43,14 @@ addClusters <- function(
   sampleCells = NULL,
   seed = 1, 
   method = "Seurat",
-  outlierQ = c(0.01, 0.99),
-  outlierCol = "nFrags",
-  outlierVals = NULL,
   dimsToUse = NULL,
   scaleDims = NULL, 
   corCutOff = 0.75,
   knnAssign = 10, 
   nOutlier = 5, 
-  prefix = "Cluster",
+  biasQuantiles = c(0.05, 0.95),
+  biasCols = c("nFrags", "TSSEnrichment"),
+  prefix = "C",
   verbose = TRUE,
   tstart = NULL,
   force = FALSE,
@@ -102,10 +101,6 @@ addClusters <- function(
           corCutOff = corCutOff, 
           scaleDims = scaleDims
       )
-
-      if(is.null(outlierVals)){
-        outlierVals <- getCellColData(ArchRProj = input, select = outlierCol, drop = TRUE)
-      }
   
   }else if(inherits(input, "matrix")){
       matDR <- input
@@ -117,26 +112,10 @@ addClusters <- function(
   set.seed(seed)
   nr <- nrow(matDR)
 
-  if(is.null(outlierVals)){
-    outlierQ <- NULL 
-  }
-
-  if(!is.null(outlierQ)){
-    .messageDiffTime("Filtering Outliers", tstart, verbose = verbose)
-    quant <- quantile(outlierVals, probs = c(min(outlierQ), max(outlierQ)))
-    idx <- which(outlierVals >= quant[1] & outlierVals <= quant[2])
-    if(!is.null(sampleCells)){
-        if(sampleCells < length(idx)){
-          idx <- sample(idx, sampleCells)
-        }
-    }
-  }else{
-    idx <- seq_len(nrow(matDR))
-    if(!is.null(sampleCells)){
-        if(sampleCells < nrow(matDR)){
-          idx <- sample(seq_len(nrow(matDR)), sampleCells)
-        }
-    }
+  if(!is.null(sampleCells)){
+      if(sampleCells < nrow(matDR)){
+        idx <- sample(seq_len(nrow(matDR)), sampleCells)
+      }
   }
 
   if(length(idx) != nrow(matDR)){
@@ -186,6 +165,7 @@ addClusters <- function(
   # If estimating clsuters we will assign to nearest neighbor cluster
   #################################################################################
   if(estimatingClusters == 1){
+      
       .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
       knnAssigni <- .computeKNN(matDR, matDRAll[-idx,], knnAssign)
       clustUnique <- unique(clust)
@@ -203,6 +183,7 @@ addClusters <- function(
       matDR <- matDRAll
       remove(matDRAll)
       gc()
+
   }
 
   #################################################################################

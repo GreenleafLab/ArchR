@@ -24,7 +24,7 @@
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
-#' @param outlierQ A numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI. 
+#' @param outlierQuantiles A numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI. 
 #' For example a value of 0.025 results in the cells in the bottom 2.5 percent and upper 97.5 to be filtered prior to LSI. These cells
 #' are then projected back in the LSI subspace to prevent spurious clusters.
 #' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
@@ -65,9 +65,9 @@ addIterativeLSI <- function(
   scaleDims = TRUE,
   corCutOff = 0.75,
   binarize = TRUE,
-  outlierQ = c(0.05, 0.95), #JJJ outlierQuantile
-  sampleCellsVar = 10000,   #JJJ sampleCellsPre
-  projectCellsVar = FALSE,  #JJJ projectCellsPre
+  outlierQuantiles = c(0.02, 0.98),
+  sampleCellsPre = 10000,
+  projectCellsPre = FALSE,
   sampleCellsFinal = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
@@ -134,9 +134,9 @@ addIterativeLSI <- function(
 
   #All the Cell Names
   cellNames <- rownames(getCellColData(ArchRProj))
-  if(!is.null(sampleCellsVar)){
-    if(length(cellNames) < sampleCellsVar){
-      sampleCellsVar <- NULL
+  if(!is.null(sampleCellsPre)){
+    if(length(cellNames) < sampleCellsPre){
+      sampleCellsPre <- NULL
     }
   }
   if(!is.null(sampleCellsFinal)){
@@ -213,7 +213,7 @@ addIterativeLSI <- function(
   }else if(!is.null(clusterParams$sampleCells[1])){
     sampleJ <- clusterParams$sampleCells[1]
   }else{
-    sampleJ <- sampleCellsVar
+    sampleJ <- sampleCellsPre
   }
 
   outLSI <- .LSIPartialMatrix(
@@ -227,9 +227,9 @@ addIterativeLSI <- function(
     scaleTo = scaleTo,
     dimsToUse = dimsToUse, 
     binarize = binarize, 
-    outlierQ = outlierQ,
-    sampleCells = if(j != iterations) sampleCellsVar else sampleCellsFinal,
-    projectAll = j == iterations | projectCellsVar | sampleJ > sampleCellsVar,
+    outlierQuantiles = outlierQuantiles,
+    sampleCells = if(j != iterations) sampleCellsPre else sampleCellsFinal,
+    projectAll = j == iterations | projectCellsPre | sampleJ > sampleCellsPre,
     threads = threads,
     useIndex = FALSE,
     tstart = tstart,
@@ -251,7 +251,7 @@ addIterativeLSI <- function(
   #########################
   clusterDF <- .LSICluster(
     outLSI = outLSI,
-    outlierQ = outlierQ,
+    outlierQuantiles = outlierQuantiles,
     cellNames = cellNames,
     cellDepth = cellDepth,
     dimsToUse = dimsToUse,
@@ -316,7 +316,7 @@ addIterativeLSI <- function(
     }else if(!is.null(clusterParams$sampleCells[1])){
       sampleJ <- clusterParams$sampleCells[1]
     }else{
-      sampleJ <- sampleCellsVar
+      sampleJ <- sampleCellsPre
     }
 
     #Compute Partial Matrix LSI
@@ -331,9 +331,9 @@ addIterativeLSI <- function(
       scaleTo = scaleTo, 
       dimsToUse = dimsToUse,
       binarize = binarize,
-      outlierQ = outlierQ, 
-      sampleCells = if(j != iterations) sampleCellsVar else sampleCellsFinal,
-      projectAll = j == iterations | projectCellsVar | sampleJ > sampleCellsVar,
+      outlierQuantiles = outlierQuantiles, 
+      sampleCells = if(j != iterations) sampleCellsPre else sampleCellsFinal,
+      projectAll = j == iterations | projectCellsPre | sampleJ > sampleCellsPre,
       threads = threads,
       useIndex = FALSE,
       tstart = tstart,
@@ -354,7 +354,7 @@ addIterativeLSI <- function(
         dimsToUse = dimsToUse,
         scaleDims = scaleDims,
         corCutOff = corCutOff,
-        outlierQ = outlierQ,
+        outlierQuantiles = outlierQuantiles,
         cellNames = cellNames,
         cellDepth = cellDepth,
         j = j,
@@ -403,7 +403,7 @@ addIterativeLSI <- function(
   sampleNames = NULL, 
   dimsToUse = NULL, 
   binarize = TRUE, 
-  outlierQ = c(0.025, 0.975),
+  outlierQuantiles = c(0.025, 0.975),
   LSIMethod = FALSE,
   scaleTo = 10^4,
   sampleCells = 5000, 
@@ -442,7 +442,7 @@ addIterativeLSI <- function(
      scaleTo = scaleTo,
      nDimensions = max(dimsToUse),
      binarize = binarize, 
-     outlierQ = outlierQ,
+     outlierQuantiles = outlierQuantiles,
      verbose = verboseAll, 
      tstart = tstart
     )
@@ -459,7 +459,7 @@ addIterativeLSI <- function(
       sampleNames = sampleNames,
       cellDepth = cellDepth,
       sampleCells = sampleCells,
-      outlierQ = outlierQ,
+      outlierQuantiles = outlierQuantiles,
       factor = 2      
     )
     .messageDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(sampledCellNames)), tstart, addHeader = verboseAll, verbose = verboseHeader)
@@ -487,7 +487,7 @@ addIterativeLSI <- function(
        scaleTo = scaleTo,
        nDimensions = max(dimsToUse),
        binarize = binarize, 
-       outlierQ = outlierQ,
+       outlierQuantiles = outlierQuantiles,
        verbose = verboseAll, 
        tstart = tstart
       )
@@ -524,7 +524,7 @@ addIterativeLSI <- function(
          scaleTo = scaleTo,
          nDimensions = max(dimsToUse),
          binarize = binarize, 
-         outlierQ = outlierQ,
+         outlierQuantiles = outlierQuantiles,
          verbose = verboseAll, 
          tstart = tstart
         )
@@ -568,12 +568,12 @@ addIterativeLSI <- function(
   x = NULL, 
   n = NULL, 
   vals = x, 
-  outlierQ = c(0.05, 0.95), 
+  outlierQuantiles = c(0.05, 0.95), 
   factor = 2, 
   ...
   ){
-  if(!is.null(outlierQ)){
-    quant <- quantile(vals, probs = c(min(outlierQ) / factor, 1 - ((1-max(outlierQ)) / factor)))
+  if(!is.null(outlierQuantiles)){
+    quant <- quantile(vals, probs = c(min(outlierQuantiles) / factor, 1 - ((1-max(outlierQuantiles)) / factor)))
     idx <- which(vals >= quant[1] & vals <= quant[2])
   }else{
     idx <- seq_along(x)
@@ -590,7 +590,7 @@ addIterativeLSI <- function(
   cellDepth = NULL, 
   sampleNames = NULL, 
   sampleCells = NULL, 
-  outlierQ = NULL, 
+  outlierQuantiles = NULL, 
   factor = 2
   ){
 
@@ -605,7 +605,7 @@ addIterativeLSI <- function(
         x = splitCells[[x]], 
         n = sampleN[names(splitCells)[x]], 
         vals = splitDepth[[x]], 
-        outlierQ = outlierQ, 
+        outlierQuantiles = outlierQuantiles, 
         factor = factor
       )
     }) %>% unlist %>% sort
@@ -720,7 +720,7 @@ addIterativeLSI <- function(
   verboseHeader = NULL,
   verboseAll = NULL,
   j = NULL,
-  outlierQ = NULL,
+  outlierQuantiles = NULL,
   cellNames = NULL,
   cellDepth = NULL,
   tstart = NULL
@@ -754,12 +754,12 @@ addIterativeLSI <- function(
     parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
   }
 
-  if(!is.null(outlierQ)){
-    #Use Defaults in addCluster for Outlier Quantiles
-    #factor <- 2
-    #parClust$outlierQ <- c(min(outlierQ) / factor, 1 - ((1-max(outlierQ)) / factor))
-    parClust$outlierVals <- data.frame(row.names = cellNames, cellDepth = cellDepth)[rownames(outLSI$matSVD), 1]
-  }
+  # if(!is.null(outlierQuantiles)){
+  #   #Use Defaults in addCluster for Outlier Quantiles
+  #   #factor <- 2
+  #   #parClust$outlierQuantiles <- c(min(outlierQuantiles) / factor, 1 - ((1-max(outlierQuantiles)) / factor))
+  #   parClust$outlierVals <- NULL
+  # }
 
   clusters <- do.call(addClusters, parClust)
   parClust$input <- NULL
@@ -871,7 +871,7 @@ addIterativeLSI <- function(
   scaleTo = 10^4,
   nDimensions = 50, 
   binarize = TRUE, 
-  outlierQ = c(0.025, 0.975),
+  outlierQuantiles = c(0.025, 0.975),
   seed = 1, 
   verbose = TRUE, 
   tstart = NULL
@@ -911,8 +911,8 @@ addIterativeLSI <- function(
 
     cn <- colnames(mat)
     filterOutliers <- 0
-    if(!is.null(outlierQ)){
-      qCS <- quantile(colSm, probs = c(min(outlierQ), max(outlierQ)))
+    if(!is.null(outlierQuantiles)){
+      qCS <- quantile(colSm, probs = c(min(outlierQuantiles), max(outlierQuantiles)))
       idxOutlier <- which(colSm <= qCS[1] | colSm >= qCS[2])
       if(length(idxOutlier) > 0){
         .messageDiffTime("Filtering Outliers Based On Counts", tstart, addHeader = FALSE, verbose = verbose)

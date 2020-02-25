@@ -4,29 +4,14 @@
 \alias{addClusters}
 \title{Add cluster information to an ArchRProject}
 \usage{
-addClusters(
-  input = NULL,
-  reducedDims = "IterativeLSI",
-  name = "Clusters",
-  sampleCells = NULL,
-  seed = 1,
-  method = "Seurat",
-  outlierQ = c(0.02, 0.98),
-  outlierCol = "nFrags",
-  outlierVals = NULL,
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  knnAssign = 10,
-  nOutlier = 5,
-  prefix = "Cluster",
-  verbose = TRUE,
-  tstart = NULL,
-  force = FALSE,
-  nn.method = "annoy",
-  annoy.metric = "cosine",
-  ...
-)
+addClusters(input = NULL, reducedDims = "IterativeLSI",
+  name = "Clusters", sampleCells = NULL, seed = 1,
+  method = "Seurat", dimsToUse = NULL, scaleDims = NULL,
+  corCutOff = 0.75, knnAssign = 10, nOutlier = 5,
+  biasQuantiles = c(0.05, 0.95), biasCols = c("nFrags",
+  "TSSEnrichment"), prefix = "C", verbose = TRUE, tstart = NULL,
+  force = FALSE, nn.method = "annoy", annoy.metric = "cosine",
+  k = 40, ...)
 }
 \arguments{
 \item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}

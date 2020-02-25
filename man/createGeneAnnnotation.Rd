@@ -4,14 +4,8 @@
 \alias{createGeneAnnnotation}
 \title{Create a gene annotation object for ArchR}
 \usage{
-createGeneAnnnotation(
-  genome = NULL,
-  TxDb = NULL,
-  OrgDb = NULL,
-  genes = NULL,
-  exons = NULL,
-  TSS = NULL
-)
+createGeneAnnnotation(genome = NULL, TxDb = NULL, OrgDb = NULL,
+  genes = NULL, exons = NULL, TSS = NULL)
 }
 \arguments{
 \item{genome}{A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If \code{genome} is not supplied,

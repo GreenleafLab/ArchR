@@ -4,24 +4,14 @@
 \alias{addGeneScoreMatrix}
 \title{Add GeneScoreMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneScoreMatrix(
-  input = NULL,
-  genes = getGenes(input),
+addGeneScoreMatrix(input = NULL, genes = getGenes(input),
   geneModel = "max(exp(-abs(x)/5000), exp(-1))",
-  matrixName = "GeneScoreMatrix",
-  upstream = c(5000, 1e+05),
-  downstream = c(5000, 1e+05),
-  tileSize = 500,
-  ceiling = 4,
-  useGeneBoundaries = TRUE,
-  scaleTo = 10000,
-  excludeChr = c("chrY", "chrM"),
-  blacklist = getBlacklist(input),
-  threads = getArchRThreads(),
-  parallelParam = NULL,
-  subThreading = TRUE,
-  force = FALSE
-)
+  matrixName = "GeneScoreMatrix", upstream = c(5000, 1e+05),
+  downstream = c(5000, 1e+05), tileSize = 500, ceiling = 4,
+  useGeneBoundaries = TRUE, scaleTo = 10000, excludeChr = c("chrY",
+  "chrM"), blacklist = getBlacklist(input),
+  threads = getArchRThreads(), parallelParam = NULL,
+  subThreading = TRUE, force = FALSE)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
