@@ -65,9 +65,9 @@ addIterativeLSI <- function(
   scaleDims = TRUE,
   corCutOff = 0.75,
   binarize = TRUE,
-  outlierQ = c(0.05, 0.95),
-  sampleCellsVar = 10000,
-  projectCellsVar = FALSE,
+  outlierQ = c(0.05, 0.95), #JJJ outlierQuantile
+  sampleCellsVar = 10000,   #JJJ sampleCellsPre
+  projectCellsVar = FALSE,  #JJJ projectCellsPre
   sampleCellsFinal = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
@@ -1000,7 +1000,7 @@ addIterativeLSI <- function(
       )
 
     if(filterOutliers == 1){
-      .messageDiffTime("Projecting Outliers with LSI-Projection222 (Granja et al 2019)", tstart, addHeader = FALSE, verbose = verbose)
+      .messageDiffTime("Projecting Outliers with LSI-Projection (Granja et al 2019)", tstart, addHeader = FALSE, verbose = verbose)
       outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose)
       allLSI <- rbind(out[[1]], outlierLSI)
       allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
