@@ -67,7 +67,7 @@ addIterativeLSI <- function(
   corCutOff = 0.75,
   binarize = TRUE,
   outlierQuantiles = c(0.02, 0.98),
-  testBias = TRUE,
+  filterBias = TRUE,
   sampleCellsPre = 10000,
   projectCellsPre = FALSE,
   sampleCellsFinal = NULL,
@@ -262,7 +262,7 @@ addIterativeLSI <- function(
   #########################
   clusterDF <- .LSICluster(
     outLSI = outLSI,
-    testBias = testBias,
+    filterBias = filterBias,
     cellNames = cellNames,
     cellDepth = cellDepth,
     dimsToUse = dimsToUse,
@@ -369,7 +369,7 @@ addIterativeLSI <- function(
         dimsToUse = dimsToUse,
         scaleDims = scaleDims,
         corCutOff = corCutOff,
-        testBias = testBias,
+        filterBias = filterBias,
         cellNames = cellNames,
         cellDepth = cellDepth,
         j = j,
@@ -735,7 +735,7 @@ addIterativeLSI <- function(
   verboseHeader = NULL,
   verboseAll = NULL,
   j = NULL,
-  testBias = NULL,
+  filterBias = NULL,
   cellNames = NULL,
   cellDepth = NULL,
   tstart = NULL
@@ -771,8 +771,8 @@ addIterativeLSI <- function(
 
   parClust$input <- as.matrix(parClust$input)
 
-  if(testBias){
-    parClust$testBias <- testBias
+  if(filterBias){
+    parClust$testBias <- TRUE
     parClust$filterBias <- TRUE
   }
   parClust$biasVals <- data.frame(row.names = cellNames, x = cellDepth)[rownames(outLSI$matSVD), 1]

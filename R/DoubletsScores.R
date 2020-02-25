@@ -43,7 +43,7 @@ addDoubletScores <- function(
   corCutOff = 0.75,
   knnMethod = "UMAP",
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose = FALSE),
-  LSIParams = list(outlierQuantiles = NULL),
+  LSIParams = list(outlierQuantiles = NULL, filterBias = FALSE),
   outDir = getOutputDirectory(input),  
   threads = getArchRThreads(),
   force = FALSE,

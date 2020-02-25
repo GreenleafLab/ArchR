@@ -259,7 +259,7 @@ addClusters <- function(
             clust[idxi] <- clustf
           }
         }else{
-          .messageDiffTime(sprintf("Identified Biased Clusters (n = %s) : ", length(clustAssign)), tstart, verbose = verbose)
+          .messageDiffTime(sprintf("Identified Biased Clusters (n = %s), set filterBias = TRUE to re-assign these cells: ", length(clustAssign)), tstart, verbose = verbose)
           message("Biased Clusters : ", appendLF = FALSE)
           for(i in seq_along(clustAssign)){
             message(clustAssign[i], " ", appendLF = FALSE)
