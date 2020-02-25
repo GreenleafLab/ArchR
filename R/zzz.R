@@ -6,28 +6,6 @@ ArchR_Defaults <- list(
   ArchR.genome = NA
 )
 
-ArchR_Depends <- list(
-  c(
-    "ggplot2",
-    "SummarizedExperiment",
-    "data.table",
-    "Matrix",
-    "rhdf5",
-    "magrittr",
-    "S4Vectors",
-    "BiocGenerics",
-    "GenomicRanges"
-  )
-)
-
-.onLoad <- function(libname, pkgname){
-  packageStartupMessage("Loading Packages...")
-  for(i in seq_along(ArchR_Depends)){
-    suppressPackageStartupMessages(requireNamespace(ArchR_Depends[i], quietly = TRUE))
-  }
-  invisible()
-}
-
 .onAttach <- function(libname, pkgname){
   if(!interactive()) return()
   v <- packageVersion("ArchR")

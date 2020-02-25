@@ -1,6 +1,6 @@
 Package: ArchR
 Type: Package
-Date: 2019-02-06
+Date: 2019-02-24
 Title: Analyzing single-cell regulatory chromatin in R.
 Version: 0.1.9
 Authors@R: c(
