@@ -180,7 +180,7 @@ addClusters <- function(
   if(estimatingClusters == 1){
       
       .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
-      knnAssigni <- .computeKNN(matDR, matDRAll[-idx,], knnAssign)
+      knnAssigni <- .computeKNN(matDR, matDRAll[-idx,,drop=FALSE], knnAssign)
       clustUnique <- unique(clust)
       clustMatch <- match(clust, clustUnique)
       knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
@@ -266,7 +266,7 @@ addClusters <- function(
           for(i in seq_along(clustAssign)){
             clusti <- clustAssign[i]
             idxi <- which(clust==clusti)
-            knni <- .computeKNN(matDR[-idxi,], matDR[idxi,], knnAssign)
+            knni <- .computeKNN(matDR[-idxi,,drop=FALSE], matDR[idxi,,drop=FALSE], knnAssign)
             clustf <- unlist(lapply(seq_len(nrow(knni)), function(x) names(sort(table(clust[-idxi][knni[x,]]),decreasing=TRUE)[1])))
             clust[idxi] <- clustf
           }
