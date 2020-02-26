@@ -27,6 +27,18 @@
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
 #' this threshold, then the cells will be considered outliers and assigned to nearby clusters.
+#' @param testBias A boolean indicating whether to test clusters for bias.
+#' @param filterBias A boolean indicating whether to filter clusters that are identified as biased.
+#' @param biasClusters A numeric (0 to 1) indicating clusters that are smaller than this proportion are to be checked for bias. This should be set lower to 0, 
+#' we recommend a default of 0.01 for clusters below 1 percent.
+#' @param biasCol A column in `cellColData` that contains the numeric values used for testing bias enrichment.
+#' @param biasVals A set of numeric values used for testing bias enrichment if input is not an `ArchRProject`.
+#' @param biasQuantiles Two numerical values (between 0 and 1) that describes the lower and upper quantiles of the bias values to use for computing bias enrichment
+#' statistics.
+#' @param biasEnrich A numeric that specifies the minimum enrichment of `biased` cells vs the median of the permuted background sets.
+#' @param biasProportion A numeric (0 to 1) specifying the minimum proportion of cells that are `biased` to use when testing for bias enriched clusters. 
+#' @param biasPval A numeric (0 to 1) specifying the p-value to use when testing for bias enriched clusters.
+#' @param nPerm An integer specifying number of permutations to perform for testing bias enriched clusters.
 #' @param prefix A character string to be added before each cluster identity. Ie if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param tstart A timestamp that is typically passed internally from another function (for ex. "IterativeLSI") to measure how long the clustering analysis

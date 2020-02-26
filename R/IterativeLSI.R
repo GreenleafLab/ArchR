@@ -25,10 +25,17 @@
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
-#' @param outlierQuantiles A numerical value (between 0 and 1) that describes the lower and upper quantiles to filter cell prior to LSI. 
-#' For example a value of 0.025 results in the cells in the bottom 2.5 percent and upper 97.5 to be filtered prior to LSI. These cells
-#' are then projected back in the LSI subspace to prevent spurious clusters.
-#' @param sampleCells An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.
+#' @param outlierQuantiles Two numerical values (between 0 and 1) that describe the lower and upper quantiles of bias (number of acessible regions per cell, determined 
+#' by `nFrags` or `colSums`) to filter cells prior to LSI. For example a value of c(0.02, 0.98) results in the cells in the bottom 2 percent and upper 98 percent to be 
+#' filtered prior to LSI. These cells are then projected back in the LSI subspace. This prevents spurious 'islands' that are identified based on being extremely biased.
+#' These quantiles are also used for sub-sampled LSI when determining which cells are used.
+#' @param filterBias A boolean indicating whether to drop bias clusters when computing clusters during iterativeLSI.
+#' @param sampleCellsPre An integer specifying the number of cells to sample in iterations prior to the last in order to perform a sub-sampled LSI and 
+#' sub-sampled clustering. This greatly reduced memory usage and increases speed for early iterations.
+#' @param projectCellsPre A boolean indicating whether to reproject all cells into the sub-sampled LSI (see `sampleCellsPre`). Setting this to `FALSE`
+#' allows for using the sub-sampled LSI for clustering and variance identification. If `TRUE` the cells are all projected into the sub-sampled LSI
+#' and used for cluster and variance identification.
+#' @param sampleCellsFinal An integer specifying the number of cells to sample in order to perform a sub-sampled LSI in final iteration.
 #' @param selectionMethod The selection method to be used for identifying the top variable features. Valid options are "var" for
 #' log-variability or "vmr" for variance-to-mean ratio.
 #' @param scaleTo Each column in the matrix designated by `useMatrix` will be normalized to a column sum designated by `scaleTo` prior to
@@ -36,6 +43,7 @@
 #' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total number of insertions.
 #' These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a `TileMatrix` to a defined peakSet.
 #' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior
+#' @param excludeChr A string of chromosomes to exclude for iterativeLSI procedure.
 #' to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in
 #' insertion counts will be ignored for the first LSI iteration.
 #' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in
@@ -418,7 +426,7 @@ addIterativeLSI <- function(
   sampleNames = NULL, 
   dimsToUse = NULL, 
   binarize = TRUE, 
-  outlierQuantiles = c(0.025, 0.975),
+  outlierQuantiles = c(0.02, 0.98),
   LSIMethod = FALSE,
   scaleTo = 10^4,
   sampleCells = 5000, 
@@ -583,7 +591,7 @@ addIterativeLSI <- function(
   x = NULL, 
   n = NULL, 
   vals = x, 
-  outlierQuantiles = c(0.05, 0.95), 
+  outlierQuantiles = NULL, 
   factor = 2, 
   ...
   ){
@@ -889,7 +897,7 @@ addIterativeLSI <- function(
   scaleTo = 10^4,
   nDimensions = 50, 
   binarize = TRUE, 
-  outlierQuantiles = c(0.025, 0.975),
+  outlierQuantiles = c(0.02, 0.98),
   seed = 1, 
   verbose = TRUE, 
   tstart = NULL
