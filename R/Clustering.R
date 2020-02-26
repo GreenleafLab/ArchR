@@ -135,7 +135,7 @@ addClusters <- function(
       estimatingClusters <- 1
       idx <- sample(seq_len(nrow(matDR)), sampleCells)
       matDRAll <- matDR
-      matDR <- matDR[idx,]
+      matDR <- matDR[idx,,drop=FALSE]
     }else{
       estimatingClusters <- 0
     }
@@ -180,10 +180,10 @@ addClusters <- function(
   if(estimatingClusters == 1){
       
       .messageDiffTime("Finding Nearest Clusters", tstart, verbose = verbose)
-      knnAssigni <- .computeKNN(matDR, matDRAll[-idx,,drop=FALSE], knnAssign)
+      knnAssigni <- as.matrix(.computeKNN(matDR, matDRAll[-idx,,drop=FALSE], knnAssign))
       clustUnique <- unique(clust)
       clustMatch <- match(clust, clustUnique)
-      knnAssigni <- apply(knnAssigni, 2, function(x) clustMatch[x])
+      knnAssigni <- matrix(apply(knnAssigni, 2, function(x) clustMatch[x]), ncol = knnAssign)
 
       .messageDiffTime("Assigning Nearest Clusters", tstart, verbose = verbose)
       clustAssign <- lapply(seq_along(clustUnique), function(x){
@@ -458,7 +458,7 @@ addClusters <- function(
     .requirePackage("nabor", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- nabor::knn(data = data, query = query, k = k + 1, ...)$nn.idx
-      knnIdx <- knnIdx[,-1]
+      knnIdx <- knnIdx[,-1,drop=FALSE]
     }else{
       knnIdx <- nabor::knn(data = data, query = query, k = k, ...)$nn.idx
     }
@@ -468,7 +468,7 @@ addClusters <- function(
     .requirePackage("RANN", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- RANN::nn2(data = data, query = query, k = k + 1, ...)$nn.idx
-      knnIdx <- knnIdx[,-1]
+      knnIdx <- knnIdx[,-1,drop=FALSE]
     }else{
       knnIdx <- RANN::nn2(data = data, query = query, k = k, ...)$nn.idx
     }
@@ -478,7 +478,7 @@ addClusters <- function(
     .requirePackage("FNN", source = "cran")
     if(searchSelf & !includeSelf){
       knnIdx <- FNN::get.knnx(data = data, query = query, k = k + 1, ...)$nn.index
-      knnIdx <- knnIdx[,-1]
+      knnIdx <- knnIdx[,-1,drop=FALSE]
     }else{
       knnIdx <- FNN::get.knnx(data = data, query = query, k = k, ...)$nn.index
     }
