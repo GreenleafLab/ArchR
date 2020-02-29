@@ -126,7 +126,7 @@ addGeneIntegrationMatrix <- function(
     .messageDiffTime(paste0(prefix, " Running Seurat's Integration Stuart et al 2019"), tstart, verbose = verboseHeader)
 
     #Subset
-    subProj@cellColData <- subProj@cellColData[BiocGenerics::which(subProj$Sample == sampleName), ]
+    subProj@cellColData <- subProj@cellColData[which(subProj$Sample %in% sampleName), ]
 
     #Determine Number of Cells
     cellsUse <- sampleList[[sampleName]]
