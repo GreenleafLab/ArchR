@@ -12,5 +12,5 @@ x \%ni\% table
 \item{table}{The set of values to serve as the base for the match function.}
 }
 \description{
-This function is the reciprocal of %in%. See the match funciton in base R.
+This function is the reciprocal of \%in\%. See the match funciton in base R.
 }

@@ -4,14 +4,28 @@
 \alias{addGeneScoreMatrix}
 \title{Add GeneScoreMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneScoreMatrix(input = NULL, genes = getGenes(input),
-  geneModel = "max(exp(-abs(x)/5000), exp(-1))",
-  matrixName = "GeneScoreMatrix", upstream = c(5000, 1e+05),
-  downstream = c(5000, 1e+05), tileSize = 500, ceiling = 4,
-  useGeneBoundaries = TRUE, scaleTo = 10000, excludeChr = c("chrY",
-  "chrM"), blacklist = getBlacklist(input),
-  threads = getArchRThreads(), parallelParam = NULL,
-  subThreading = TRUE, force = FALSE)
+addGeneScoreMatrix(
+  input = NULL,
+  genes = getGenes(input),
+  geneModel = "exp(-abs(x)/10000) + exp(-1)",
+  matrixName = "GeneScoreMatrix",
+  extendUpstream = c(5000, 1e+05),
+  extendDownstream = c(5000, 1e+05),
+  geneUpstream = 2000,
+  geneDownstream = 0,
+  useGeneBoundaries = TRUE,
+  useTSS = FALSE,
+  tileSize = 500,
+  ceiling = 4,
+  geneScaleFactor = 5,
+  scaleTo = 10000,
+  excludeChr = c("chrY", "chrM"),
+  blacklist = getBlacklist(input),
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  subThreading = TRUE,
+  force = FALSE
+)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
@@ -23,18 +37,18 @@ should be a function of \code{x}, where \code{x} is the stranded distance from t
 
 \item{matrixName}{The name to be used for storage of the gene activity score matrix in the provided \code{ArchRProject} or ArrowFiles.}
 
-\item{upstream}{The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene
+\item{extendUpstream}{The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene
 activity score calculation.}
 
-\item{downstream}{The minimum and maximum number of basepairs downstream of the transcription start site to consider for gene activity score calculation.}
-
-\item{tileSize}{The size of the tiles used for binning counts prior to gene activity score calculation.}
-
-\item{ceiling}{The maximum counts per tile allowed. This is used to prevent large biases in tile counts.}
+\item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site to consider for gene activity score calculation.}
 
 \item{useGeneBoundaries}{A boolean value indicating whether gene boundaries should be employed during gene activity score
 calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene
 if there is a second gene's transcription start site between the tile and the gene of interest.}
+
+\item{tileSize}{The size of the tiles used for binning counts prior to gene activity score calculation.}
+
+\item{ceiling}{The maximum counts per tile allowed. This is used to prevent large biases in tile counts.}
 
 \item{scaleTo}{Each column in the calculated gene score matrix will be normalized to a column sum designated by \code{scaleTo}.}
 

@@ -4,11 +4,19 @@
 \alias{getTrajectory}
 \title{Get Supervised Trajectory from an ArchR Project}
 \usage{
-getTrajectory(ArchRProj = NULL, name = "Trajectory",
-  useMatrix = "GeneScoreMatrix", varCutOff = 0.9,
-  maxFeatures = 25000, groupEvery = 2, threads = getArchRThreads(),
-  log2Norm = TRUE, scaleTo = 10000, smooth = TRUE,
-  smoothFormula = "y ~ s(x, bs = 'cs')")
+getTrajectory(
+  ArchRProj = NULL,
+  name = "Trajectory",
+  useMatrix = "GeneScoreMatrix",
+  varCutOff = 0.9,
+  maxFeatures = 25000,
+  groupEvery = 2,
+  threads = getArchRThreads(),
+  log2Norm = TRUE,
+  scaleTo = 10000,
+  smooth = TRUE,
+  smoothFormula = "y ~ s(x, bs = 'cs')"
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
