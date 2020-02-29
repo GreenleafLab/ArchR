@@ -53,11 +53,21 @@ addFeatureMatrix <- function(
     stop("Error Input Arrow Files do not all exist!")
   }
 
+  #Add Index To Features
+  features <- sort(sortSeqlevels(features), ignore.strand = TRUE)
+  features <- split(features, seqnames(features))
+  features <- lapply(features, function(x){
+    mcols(x)$idx <- seq_along(x)
+    return(x)
+  })
+  features <- Reduce("c",features)
+
   #Add args to list
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
   args$ArrowFiles <- ArrowFiles
   args$allCells <- allCells
   args$X <- seq_along(ArrowFiles)
+  args$features <- features
   args$FUN <- .addFeatureMatrix
   args$registryDir <- file.path(outDir, "CountFeaturesRegistry")
 
@@ -225,6 +235,7 @@ addPeakMatrix <- function(
   ######################################
   # Add To SP Mat Group
   ######################################
+  strand(features) <- "*" #lets make sure nothing strand related occurs
   uniqueChr <- as.character(unique(seqnames(features)@values))
   insertionsInPeaks <- rep(0, length(cellNames))
   names(insertionsInPeaks) <- cellNames

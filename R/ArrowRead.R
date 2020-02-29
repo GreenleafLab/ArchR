@@ -174,7 +174,7 @@ getMatrixFromProject <- function(
   #Need to Make Safer But YOLO for now
   se <- ArchR:::.safelapply(seq_along(ArrowFiles), function(x){
 
-    .messageDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x]), tstart = tstart)
+    .messageDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x]), tstart)
 
     getMatrixFromArrow(
     ArrowFile = ArrowFiles[x],
@@ -188,7 +188,7 @@ getMatrixFromProject <- function(
 
   }, threads = threads) %>% Reduce("cbind", .)
 
-  .messageDiffTime("Finished Matrix Creation", tstart = tstart)
+  .messageDiffTime("Finished Matrix Creation", tstart)
 
   se
 
