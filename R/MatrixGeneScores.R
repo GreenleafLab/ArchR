@@ -32,11 +32,11 @@
 addGeneScoreMatrix <- function(
   input = NULL,
   genes = getGenes(input),
-  geneModel = "exp(-abs(x)/10000) + exp(-1)",
+  geneModel = "exp(-abs(x)/5000) + exp(-1)",
   matrixName = "GeneScoreMatrix",
-  extendUpstream = c(5000, 100000),
-  extendDownstream = c(5000, 100000),
-  geneUpstream = 2000, #New Param
+  extendUpstream = c(1000, 100000),
+  extendDownstream = c(1000, 100000),
+  geneUpstream = 5000, #New Param
   geneDownstream = 0, #New Param
   useGeneBoundaries = TRUE,
   useTSS = FALSE, #New Param

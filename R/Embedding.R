@@ -2,7 +2,7 @@
 # Embedding Methods
 ##########################################################################################
 
-#' Add a UMAP embedding of a reduced dimensions object to an ArchRProject
+#' Add a UMAP embedding of a reduced dimensions object to an ArchRProject JJJ
 #' 
 #' This function will compute a UMAP embedding and add it to an ArchRProject.
 #'
@@ -20,6 +20,9 @@
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param sampleCells An integer specifying the number of cells to subsample and perform UMAP Embedding on. The remaining cells
+#' that were not subsampled will be re-projected using uwot::umap_transform to the UMAP Embedding. This enables a decrease in run time
+#' and memory but can lower the overal quality of the UMAP Embedding. Only recommended for extremely large number of cells.
 #' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding.
 #' @param verbose A boolean value that indicates whether printing UMAP output.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
@@ -39,6 +42,7 @@ addUMAP <- function(
   dimsToUse = NULL,
   scaleDims = NULL,
   corCutOff = 0.75,
+  sampleCells = NULL,
   saveModel = TRUE,
   verbose = TRUE,
   seed = 1,
@@ -88,12 +92,22 @@ addUMAP <- function(
   embeddingParams$verbose <- verbose
   embeddingParams$metric <- metric
 
+  estimateUMAP <- FALSE
+  if(!is.null(sampleCells)){
+    if(sampleCells < nrow(embeddingParams$X)){
+      message("Creating an Estimated UMAP by sub-sampling cells N = ", sampleCells, "!")
+      saveModel <- TRUE
+      idx <- sample(seq_len(nrow(embeddingParams$X)), sampleCells)
+      cellNames <- rownames(embeddingParams$X)
+      saveX <- embeddingParams$X[-idx, , drop = FALSE
+      embeddingParams$X <- embeddingParams$X[idx, , drop = FALSE]
+      estimateUMAP <- TRUE
+    }
+  }
+
   if(saveModel){
-    #message("Saving UMAP model not currently supported (will be shortly), running without model!")
     embeddingParams$ret_nn <- TRUE
-    embeddingParams$ret_model <- TRUE
-    #embeddingParams$ret_nn <- FALSE
-    #embeddingParams$ret_model <- FALSE    
+    embeddingParams$ret_model <- TRUE 
   }else{
     embeddingParams$ret_nn <- FALSE
     embeddingParams$ret_model <- FALSE      
@@ -105,6 +119,10 @@ addUMAP <- function(
   #Seed
   set.seed(seed)
   uwot_umap <- do.call(uwot::umap, embeddingParams)
+
+  if(estimateUMAP){
+    uwot_umap2 <- uwot::umap_transform(X = saveX, model = uwot_umap, n_threads = threads, verbose = verbose)
+  }
 
   #############################################################################################
   # Add Embedding to Project
@@ -124,16 +142,27 @@ addUMAP <- function(
     colnames(dfEmbedding) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding)))
     rownames(dfEmbedding) <- rownames(embeddingParams$X)
     embeddingParams$X <- NULL
+
+    if(estimateUMAP){
+      dfEmbedding2 <- data.frame(uwot_umap2)
+      colnames(dfEmbedding2) <- paste0(reducedDims,"#UMAP_Dimension_",seq_len(ncol(dfEmbedding2)))
+      rownames(dfEmbedding2) <- rownames(saveX)
+      rm(uwot_umap2)
+      dfEmbedding <- rbind(dfEmbedding, dfEmbedding2)
+      dfEmbedding <- dfEmbedding[cellNames,,drop=FALSE]
+    }
+
     ArchRProj@embeddings[[name]] <- SimpleList(
       df = dfEmbedding, 
       params = c(
         embeddingParams,
-        dimsToUse = NULL,
-        scaleDims = NULL,
-        corCutOff = 0.75,
+        dimsToUse = dimsToUse,
+        scaleDims = scaleDims,
+        corCutOff = corCutOff,
         nr=nr,
         nc=nc,
-        uwotModel = modelFile
+        uwotModel = modelFile,
+        estimateUMAP = estimateUMAP
       )
     )
   }else{
@@ -145,12 +174,13 @@ addUMAP <- function(
       df = dfEmbedding, 
       params = c(
         embeddingParams,
-        dimsToUse = NULL,
-        scaleDims = NULL,
-        corCutOff = 0.75,
+        dimsToUse = dimsToUse,
+        scaleDims = scaleDims,
+        corCutOff = corCutOff,
         nr=nr,
         nc=nc,
-        uwotModel = NA
+        uwotModel = NA,
+        estimateUMAP = estimateUMAP
       )
     )
   }   
