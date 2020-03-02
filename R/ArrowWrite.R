@@ -2,10 +2,10 @@
   ArrowFile = NULL,
   Group = NULL,
   Class = "Double",
+  Units = "none",
   cellNames = NULL,
   featureDF = NULL,
   params = NULL,
-  units = "none",
   date = Sys.Date(),
   force = FALSE
   ){
@@ -65,10 +65,10 @@
   ##########
   # Add Units To Class
   ##########
-  if(!is.character(units)){
-    stop("Please provide units when writing matrix to Arrow!")
+  if(!is.character(Units)){
+    stop("Please provide Units as character when writing matrix to Arrow!")
   }
-  o <- h5write(obj = units, file = ArrowFile, name = paste0(Group, "/Info/Units"))  
+  o <- h5write(obj = Units, file = ArrowFile, name = paste0(Group, "/Info/Units"))  
 
   ##########
   # Cell Names in Arrow

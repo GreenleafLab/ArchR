@@ -219,13 +219,16 @@ addPeakMatrix <- function(
   ######################################
   if(binarize){
     Class <- "binary"
+    Units <- "BinarizedCounts"
   }else{
     Class <- "integer"
+    Units <- "Counts"
   }
   o <- .initializeMat(
     ArrowFile = ArrowFile,
     Group = matrixName,
     Class = Class,
+    Units = Units,
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,

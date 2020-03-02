@@ -158,13 +158,16 @@ addTileMatrix <- function(
   ######################################
   if(binarize){
     Class <- "binary"
+    Units <- "BinarizedCounts"
   }else{
     Class <- "integer"
+    Units <- "Counts"
   }
   o <- .initializeMat(
     ArrowFile = ArrowFile,
     Group = "TileMatrix",
     Class = Class,
+    Units = Units,
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,

@@ -249,6 +249,7 @@ addGeneIntegrationMatrix <- function(
         ArrowFile = ArrowFile,
         Group = matrixName,
         Class = "double",
+        Units = "Log2NormalizedCounts",
         cellNames = colnames(matchedRNA),
         params = dfParams,
         featureDF = featureDF,

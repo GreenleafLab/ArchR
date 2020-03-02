@@ -198,14 +198,24 @@ addDeviationsMatrix <- function(
   }
 
   featureDF <- featureDF[order(featureDF[,1]),]
+
+  Units <- c()
+  if("z" %in% tolower(out)){
+    Units <- c(Units, "DeviationScores")
+  }
+  if("deviations" %in% tolower(out)){
+    Units <- c(Units, "Deviations")
+  }
+
   o <- .initializeMat(
     ArrowFile = ArrowFile,
     Group = matrixName,
     Class = "Assays",
+    Units = Units,
     cellNames = colnames(dev),
     params = "chromVAR",
     featureDF = featureDF,
-    force=TRUE
+    force = TRUE
   )
 
   #######################################
