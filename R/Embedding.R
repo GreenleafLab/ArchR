@@ -99,7 +99,7 @@ addUMAP <- function(
       saveModel <- TRUE
       idx <- sample(seq_len(nrow(embeddingParams$X)), sampleCells)
       cellNames <- rownames(embeddingParams$X)
-      saveX <- embeddingParams$X[-idx, , drop = FALSE
+      saveX <- embeddingParams$X[-idx, , drop = FALSE]
       embeddingParams$X <- embeddingParams$X[idx, , drop = FALSE]
       estimateUMAP <- TRUE
     }

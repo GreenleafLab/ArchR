@@ -508,7 +508,7 @@ plotTrajectory <- function(
   pal = NULL,
   size = 0.2,
   rastr = TRUE,
-  quantCut = c(0.05, 0.95),
+  quantCut = c(0.001, 0.999),
   quantHex = 0.5,
   discreteSet = NULL,
   continuousSet = NULL,

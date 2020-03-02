@@ -4,26 +4,13 @@
 \alias{addGeneIntegrationMatrix}
 \title{Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneIntegrationMatrix(
-  ArchRProj = NULL,
-  seRNA = NULL,
-  groupBy = NULL,
-  reducedDims = "IterativeLSI",
-  sampleList = SimpleList(),
-  sampleRNA = 5000,
-  nGenes = 2000,
-  useImputation = TRUE,
-  reduction = "cca",
-  addToArrow = TRUE,
-  threads = getArchRThreads(),
-  nameGroup = "predictedGroup",
-  nameScore = "predictedScore",
-  transferParams = list(),
-  force = FALSE,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
-  ...
-)
+addGeneIntegrationMatrix(ArchRProj = NULL, seRNA = NULL,
+  groupBy = NULL, reducedDims = "IterativeLSI",
+  sampleList = SimpleList(), sampleRNA = 5000, nGenes = 2000,
+  useImputation = TRUE, reduction = "cca", addToArrow = TRUE,
+  threads = getArchRThreads(), nameGroup = "predictedGroup",
+  nameScore = "predictedScore", transferParams = list(),
+  force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

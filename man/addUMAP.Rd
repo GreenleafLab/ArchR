@@ -2,25 +2,13 @@
 % Please edit documentation in R/Embedding.R
 \name{addUMAP}
 \alias{addUMAP}
-\title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject}
+\title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject JJJ}
 \usage{
-addUMAP(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  name = "UMAP",
-  nNeighbors = 40,
-  minDist = 0.4,
-  metric = "cosine",
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  saveModel = TRUE,
-  verbose = TRUE,
-  seed = 1,
-  force = FALSE,
-  threads = max(floor(getArchRThreads()/2), 1),
-  ...
-)
+addUMAP(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  name = "UMAP", nNeighbors = 40, minDist = 0.4, metric = "cosine",
+  dimsToUse = NULL, scaleDims = NULL, corCutOff = 0.75,
+  sampleCells = NULL, saveModel = TRUE, verbose = TRUE, seed = 1,
+  force = FALSE, threads = max(floor(getArchRThreads()/2), 1), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -45,6 +33,10 @@ biases since it is over-weighting latent PCs. If set to \code{NULL} this will sc
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+
+\item{sampleCells}{An integer specifying the number of cells to subsample and perform UMAP Embedding on. The remaining cells
+that were not subsampled will be re-projected using uwot::umap_transform to the UMAP Embedding. This enables a decrease in run time
+and memory but can lower the overal quality of the UMAP Embedding. Only recommended for extremely large number of cells.}
 
 \item{saveModel}{A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding.}
 

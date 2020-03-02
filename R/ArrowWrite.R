@@ -5,6 +5,7 @@
   cellNames = NULL,
   featureDF = NULL,
   params = NULL,
+  units = "none",
   date = Sys.Date(),
   force = FALSE
   ){
@@ -60,6 +61,14 @@
     stop("Matrix Class Not Supported!")
 
   }
+
+  ##########
+  # Add Units To Class
+  ##########
+  if(!is.character(units)){
+    stop("Please provide units when writing matrix to Arrow!")
+  }
+  o <- h5write(obj = units, file = ArrowFile, name = paste0(Group, "/Info/Units"))  
 
   ##########
   # Cell Names in Arrow

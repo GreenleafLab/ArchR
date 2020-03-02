@@ -45,7 +45,7 @@ plotEmbedding <- function(
   size = 0.1,
   sampleCells = NULL,
   rastr = TRUE,
-  quantCut = c(0.01, 0.99),
+  quantCut = c(0.001, 0.999),
   discreteSet = NULL,
   continuousSet = NULL,
   randomize = TRUE,
