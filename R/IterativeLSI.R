@@ -557,10 +557,13 @@ addIterativeLSI <- function(
       gc()
 
       #Read In Matrices and Project into Manifold
+      #Do Threads / 3 just in case of memory here (Needs testing JJJ)
+      threads2 <- max(ceiling(threads / 3), 1)
       .messageDiffTime("Projecting Matrices with LSI-Projection (Granja* et al 2019)", tstart, addHeader = verboseAll, verbose = verboseHeader)
-      pLSI <- lapply(seq_along(tmpMatFiles), function(x){
+      pLSI <- .safelapply(seq_along(tmpMatFiles), function(x){
+        .messageDiffTime(sprintf("Projecting Matrix (%s of %s) with LSI-Projection", x, length(tmpMatFiles)), tstart, addHeader = verboseAll, verbose = verboseAll)
         .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart)
-      }) %>% Reduce("rbind", .)
+      }, threads = threads2) %>% Reduce("rbind", .)
 
       #Remove Temporary Matrices
       rmf <- file.remove(tmpMatFiles)
