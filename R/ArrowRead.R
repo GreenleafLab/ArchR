@@ -753,3 +753,49 @@ getMatrixFromArrow <- function(
   return(res)
 }
 
+.getMatrixClass <- function(
+  ArrowFiles = NULL, 
+  useMatrix = NULL,
+  threads = getArchRThreads()
+  ){
+
+  threads <- min(length(ArrowFiles), threads)
+
+  matrixClass <- ArchR:::.safelapply(seq_along(ArrowFiles), function(i){
+    h5read(ArrowFiles[i], paste0(useMatrix, "/Info/Class"))
+  }, threads = threads) %>% unlist %>% unique
+
+  if(length(matrixClass) != 1){
+    stop("Not all matrix classes are the same!")
+  }
+
+  matrixClass
+
+}
+
+.getMatrixUnits <- function(
+  ArrowFiles = NULL, 
+  useMatrix = NULL,
+  threads = getArchRThreads()
+  ){
+
+  threads <- min(length(ArrowFiles), threads)
+
+  matrixUnits <- ArchR:::.safelapply(seq_along(ArrowFiles), function(i){
+    tryCatch({ #This handles backwards compatibility!
+      h5read(ArrowFiles[i], paste0(useMatrix, "/Info/Units"))
+    }, error = function(x){
+      "None"
+    })
+  }, threads = threads) %>% unlist %>% unique
+
+  if(length(matrixUnits) != 1){
+    stop("Not all matrix units are the same!")
+  }
+
+  matrixUnits
+
+}
+
+
+
