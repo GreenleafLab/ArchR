@@ -429,7 +429,7 @@ addGeneScoreMatrix <- function(
     ArrowFile = ArrowFile,
     Group = matrixName,
     Class = "double",
-    Units = "NormalizedCounts",
+    Units = "NormCounts",
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,
