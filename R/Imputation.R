@@ -226,7 +226,8 @@ getImputeWeights <- function(ArchRProj = NULL){
 imputeMatrix <- function(
   mat = NULL, 
   imputeWeights = NULL,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  verbose = TRUE
   ){
 
   weightList <- imputeWeights$Weights
@@ -243,7 +244,7 @@ imputeMatrix <- function(
   
   imputeMat <- lapply(seq_along(weightList), function(x){
     
-    ArchR:::.messageDiffTime(sprintf("Imputing Matrix (%s of %s)", x, length(weightList)), start)
+    ArchR:::.messageDiffTime(sprintf("Imputing Matrix (%s of %s)", x, length(weightList)), start, verbose = verbose)
 
     if(is.character(weightList[[x]])){
       if(!file.exists(weightList[[x]])){
@@ -291,7 +292,7 @@ imputeMatrix <- function(
   #Compute Average
   imputeMat <- imputeMat / length(weightList)
 
-  ArchR:::.messageDiffTime("Finished Imputing Matrix", start)
+  ArchR:::.messageDiffTime("Finished Imputing Matrix", start, verbose = verbose)
 
   imputeMat
 
