@@ -521,8 +521,7 @@ addGroupCoverages <- function(
   availableChr <- .availableSeqnames(coverageFiles, "Coverage")
 
   biasList <- .safelapply(seq_along(availableChr), function(x){
-    #.messageDiffTime(sprintf("Computing Kmer Bias Chr %s of %s!", x, length(availableChr)), tstart, verbose=verbose)
-    message(".", appendLF = FALSE)
+    message(availableChr[x]," ", appendLF = FALSE)
     chrBS <- BSgenome[[availableChr[x]]]
     exp <- Biostrings::oligonucleotideFrequency(chrBS, width = kmerLength)
     obsList <- lapply(seq_along(coverageFiles), function(y){
@@ -536,7 +535,7 @@ addGroupCoverages <- function(
     SimpleList(expected = exp, observed = obsList)
   }, threads = threads) %>% SimpleList
   names(biasList) <- availableChr
-  message("\n")
+  message("")
 
   #Summarize Bias
   for(i in seq_along(biasList)){

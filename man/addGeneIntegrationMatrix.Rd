@@ -4,30 +4,24 @@
 \alias{addGeneIntegrationMatrix}
 \title{Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneIntegrationMatrix(ArchRProj = NULL, seRNA = NULL,
-  groupBy = NULL, reducedDims = "IterativeLSI",
-  sampleList = SimpleList(), sampleRNA = 5000, nGenes = 2000,
-  useImputation = TRUE, reduction = "cca", addToArrow = TRUE,
-  threads = getArchRThreads(), nameGroup = "predictedGroup",
+addGeneIntegrationMatrix(ArchRProj = NULL,
+  reducedDims = "IterativeLSI", useMatrix = "GeneScoreMatrix",
+  matrixName = "GeneIntegrationMatrix", seRNA = NULL,
+  groupATAC = NULL, groupRNA = NULL, groupList = NULL,
+  embeddingATAC = NULL, embeddingRNA = NULL, sampleCellsATAC = 10000,
+  sampleCellsRNA = 10000, nGenes = 2000, useImputation = TRUE,
+  reduction = "cca", addToArrow = TRUE, scaleTo = 10000,
+  nameCell = "predictedCell", nameGroup = "predictedGroup",
   nameScore = "predictedScore", transferParams = list(),
-  force = FALSE, verboseHeader = TRUE, verboseAll = FALSE, ...)
+  force = FALSE, threads = getArchRThreads(), verboseHeader = TRUE,
+  verboseAll = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{seRNA}{A scRNA-seq \code{SummarizedExperiment} or \code{SeuratObject} to integrated with the scATAC-seq data.}
-
-\item{groupBy}{QQQ UNCLEAR WHAT PREDICTION SCORES ARE The column name in either \code{colData} or \code{metadata} of seRNA to use to compute prediction scores.}
-
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
 
-\item{sampleList}{QQQ THIS COULD BE BETTER DESCRIBED A named list of sampleNames from \code{ArchRProj} containing cell names in \code{seRNA} that are used for constraining data integration.
-For example when integrating hematopoiesis it is useful to perform integration separately for cells derived from different biological contexts
-such as "CD34", "BMMC" and "PBMC" single cells. Performing this integration separately not only provides better linking but
-also increases speed of processing.}
-
-\item{sampleRNA}{The number of cells from \code{seRNA} to be used for integration. This is useful for lowering the memory requirements and
-processing time of \code{Seurat::FindTransferAnchors()} when integrating datasets.}
+\item{seRNA}{A scRNA-seq \code{SummarizedExperiment} or \code{SeuratObject} to integrated with the scATAC-seq data.}
 
 \item{nGenes}{The number of variable genes determined by \code{Seurat::FindVariableGenes()} to use for integration.}
 
@@ -37,9 +31,19 @@ processing time of \code{Seurat::FindTransferAnchors()} when integrating dataset
 
 \item{addToArrow}{A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the ArrowFiles.}
 
+\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the given \code{input}.}
+
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the given \code{input}.}
+\item{groupBy}{QQQ UNCLEAR WHAT PREDICTION SCORES ARE The column name in either \code{colData} or \code{metadata} of seRNA to use to compute prediction scores.}
+
+\item{sampleList}{QQQ THIS COULD BE BETTER DESCRIBED A named list of sampleNames from \code{ArchRProj} containing cell names in \code{seRNA} that are used for constraining data integration.
+For example when integrating hematopoiesis it is useful to perform integration separately for cells derived from different biological contexts
+such as "CD34", "BMMC" and "PBMC" single cells. Performing this integration separately not only provides better linking but
+also increases speed of processing.}
+
+\item{sampleRNA}{The number of cells from \code{seRNA} to be used for integration. This is useful for lowering the memory requirements and
+processing time of \code{Seurat::FindTransferAnchors()} when integrating datasets.}
 }
 \description{
 This function, for each sample, will independently integrate with a scRNA experiment, compute matched scRNA profiles and

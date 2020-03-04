@@ -355,7 +355,7 @@ addGeneIntegrationMatrix <- function(
       query = seuratATAC, 
       reduction = reduction, 
       features = genesUse,
-      verbose = verbose
+      verbose = verbose,
       ...
     ))
 
