@@ -1594,6 +1594,19 @@ getAvailableMatrices <- function(ArchRProj = NULL){
 
 
 
+# addColorPalette <- function(
+#   ArchRProj = NULL,
+#   pal = NULL
+#   ){
+
+# }
+
+# getColorPalette <- function(
+#   ArchRProj = NULL,
+#   name = NULL
+#   ){
+
+# }
 
 
 

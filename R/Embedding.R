@@ -43,6 +43,7 @@ addUMAP <- function(
   scaleDims = NULL,
   corCutOff = 0.75,
   sampleCells = NULL,
+  outlierQuantile = 0.999,
   saveModel = TRUE,
   verbose = TRUE,
   seed = 1,
@@ -93,6 +94,7 @@ addUMAP <- function(
   embeddingParams$metric <- metric
 
   estimateUMAP <- FALSE
+  projectDF <- DataFrame(row.names = rownames(embeddingParams$X), projected = rep(0, nrow(embeddingParams$X))) #Projection ID
   if(!is.null(sampleCells)){
     if(sampleCells < nrow(embeddingParams$X)){
       message("Creating an Estimated UMAP by sub-sampling cells N = ", sampleCells, "!")
@@ -102,6 +104,7 @@ addUMAP <- function(
       saveX <- embeddingParams$X[-idx, , drop = FALSE]
       embeddingParams$X <- embeddingParams$X[idx, , drop = FALSE]
       estimateUMAP <- TRUE
+      projectDF[idx, 1] <- 1
     }
   }
 
@@ -122,6 +125,11 @@ addUMAP <- function(
 
   if(estimateUMAP){
     uwot_umap2 <- uwot::umap_transform(X = saveX, model = uwot_umap, n_threads = threads, verbose = verbose)
+    #We should check the distances
+    knnRef <- as.vector(nabor::knn(data = uwot_umap[[1]], query = uwot_umap[[1]], k = 2)$nn.dists[,-1])
+    knnProj <- as.vector(nabor::knn(data = uwot_umap[[1]], query = uwot_umap2, k = 1)$nn.dists)
+    idxExclude <- which(knnProj >= quantile(knnRef, outlierQuantile))
+    uwot_umap2[idxExclude, ] <- NA
   }
 
   #############################################################################################
@@ -162,7 +170,8 @@ addUMAP <- function(
         nr=nr,
         nc=nc,
         uwotModel = modelFile,
-        estimateUMAP = estimateUMAP
+        estimateUMAP = estimateUMAP,
+        projectID = projectDF
       )
     )
   }else{
@@ -180,7 +189,8 @@ addUMAP <- function(
         nr=nr,
         nc=nc,
         uwotModel = NA,
-        estimateUMAP = estimateUMAP
+        estimateUMAP = estimateUMAP,
+        projectID = projectDF
       )
     )
   }   

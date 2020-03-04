@@ -79,6 +79,14 @@ plotEmbedding <- function(
   # Get Embedding
   ##############################
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+  if(!is.null(sampleCells)){
+    if(sampleCells < nrow(df)){
+      if(!is.null(imputeWeights)){
+        stop("Cannot sampleCells with imputeWeights not equalt to NULL at this time!")
+      }
+      df <- df[sort(sample(seq_len(nrow(df)), sampleCells)), , drop = FALSE]
+    }
+  }
 
   #Parameters
   plotParams <- list(...)
@@ -108,7 +116,7 @@ plotEmbedding <- function(
       
     colorList <- lapply(seq_along(name), function(x){
       colorParams <- list()
-      colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = TRUE))
+      colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = FALSE)[rownames(df), 1])
       colorParams$discrete <- .isDiscrete(colorParams$color)
       colorParams$continuousSet <- "solarExtra"
       colorParams$discreteSet <- "stallion"
@@ -128,7 +136,17 @@ plotEmbedding <- function(
       log2Norm <- TRUE
     }
 
-    colorMat <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm, threads = threads)[,rownames(df), drop=FALSE]
+    colorMat <- .getMatrixValues(
+      ArchRProj = ArchRProj, 
+      name = name, 
+      matrixName = colorBy, 
+      log2Norm = log2Norm, 
+      threads = threads
+    )[,rownames(df), drop=FALSE]
+
+    if(!is.null(imputeWeights)){
+      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = proj@imputeWeights)
+    }
 
     colorList <- lapply(seq_len(nrow(colorMat)), function(x){
       colorParams <- list()
@@ -166,11 +184,6 @@ plotEmbedding <- function(
     if(!plotParamsx$discrete){
 
       plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
-
-      if(!is.null(imputeWeights)){
-        imputeWeights <- imputeWeights$Weights[rownames(df), rownames(df)]
-        plotParamsx$color <- (imputeWeights %*% as(as.matrix(plotParamsx$color), "dgCMatrix"))[,1] 
-      }
 
       plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
 
@@ -317,8 +330,9 @@ plotGroups <- function(
     }
 
     if(!is.null(imputeWeights)){
-      imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
-      values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
+      values <- as.vector(imputeMatrix(mat = as.matrix(values), imputeWeights = imputeWeights))
+      #imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
+      #values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
     }
 
     if(is.null(ylim)){

@@ -32,164 +32,15 @@ addImputeWeights <- function(
   corCutOff = 0.75, 
   td = 3,
   ka = 4,
-  sampleCells = max(5000, floor(nCells(ArchRProj) / 50)),
-  k = 15,
-  epsilon = 1
-  ){
-
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
-  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
-  .validInput(input = td, name = "td", valid = c("integer"))
-  .validInput(input = ka, name = "ka", valid = c("integer"))
-  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer"))
-  .validInput(input = k, name = "k", valid = c("integer"))
-  .validInput(input = epsilon, name = "epsilon", valid = c("numeric"))
-
-  #Adapted From
-  #https://github.com/dpeerlab/magic/blob/master/R/R/run_magic.R
-
-  set.seed(1)
-
-  tstart <- Sys.time()
-  .messageDiffTime("Computing Impute Weights Using Magic (Cell 2018)", tstart)
-
-  #Get Reduced Dims
-  matDR <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
-  N <- nrow(matDR)
-  rn <- rownames(matDR)
-
-  idx <- sample(seq_len(nrow(matDR)), nrow(matDR))
-
-  if(is.null(sampleCells)){
-    sampleCells <- N
-  }
-
-  cutoffs <- lapply(seq_len(1000), function(x){
-    N / x
-  }) %>% unlist
-  binSize <- min(cutoffs[order(abs(cutoffs - sampleCells))[1]] + 1, N)
-
-  blocks <- split(idx, ceiling(seq_along(idx)/binSize))
-
-  Wt <- lapply(seq_along(blocks), function(x){
-
-    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", x, length(blocks)), tstart)
-
-    ix <- blocks[[x]]
-    Nx <- length(ix)
-
-    #Compute KNN
-    if(requireNamespace("nabor", quietly = TRUE)) {
-        knnObj <- nabor::knn(data = matDR[ix,], query = matDR[ix, ], k = k)
-        knnIdx <- knnObj$nn.idx
-        knnDist <- knnObj$nn.dists
-    }else if(requireNamespace("RANN", quietly = TRUE)) {
-        knnObj <- RANN::nn2(data = matDR[ix,], query = matDR[ix, ], k = k)
-        knnIdx <- knnObj$nn.idx
-        knnDist <- knnObj$nn.dists
-    }else if(requireNamespace("FNN", quietly = TRUE)) {
-        knnObj <- FNN::get.knnx(data = matDR[ix,], query = matDR[ix, ], k = k)
-        knnIdx <- knnObj$nn.index
-        knnDist <-knnObj$nn.dist
-    }else{
-        stop("Computing KNN requires package nabor, RANN or FNN")
-    }
-    rm(knnObj)
-
-    if(ka > 0){
-      knnDist <- knnDist / knnDist[,ka]
-    }
-
-    if(epsilon > 0){
-      W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=c(knnDist), dims = c(Nx, Nx))
-    } else {
-      W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=1, dims = c(Nx, Nx)) # unweighted kNN graph
-    }
-    W <- W + Matrix::t(W)
-
-    #Compute Kernel
-    if(epsilon > 0){
-      W@x <- exp(-(W@x / epsilon^2))
-    }
-
-    #Markov normalization
-    W <- W / Matrix::rowSums(W) 
-
-    #Initialize Matrix
-    Wt <- W
-
-    #Computing Diffusion Matrix
-    for(i in seq_len(td)){
-      #message(i, " ", appendLF = FALSE)
-        Wt <- Wt %*% W
-    }
-    #message("\n", appendLF = FALSE)
-
-    Wt <- Matrix::summary(Wt)
-    Wt[,1] <- ix[Wt[,1]]
-    Wt[,2] <- ix[Wt[,2]]
-
-    rm(knnIdx)
-    rm(knnDist)
-    rm(W)
-    gc()
-
-    Wt
-
-  }) %>% Reduce("rbind", .) %>% {Matrix::sparseMatrix(i = .[,1], j = .[,2], x = .[,3], dims = c(N, N))}
-
-  .messageDiffTime(sprintf("Completed Getting Magic Weights (Size = %s GB)!", round(object.size(Wt) / 10^9, 3)), tstart)
-
-  rownames(Wt) <- rownames(matDR)
-  colnames(Wt) <- rownames(matDR)
-
-  ArchRProj@imputeWeights <- SimpleList(
-    Weights = Wt, 
-    Blocks = blocks, 
-    Params = 
-      list(
-        reducedDims = reducedDims, 
-        td = td, 
-        k = k, 
-        ka = ka,
-        epsilon = epsilon
-        )
-      )
-  
-  ArchRProj
-
-}
-
-#' Get Imputation Weights from ArchRProject
-#' 
-#' This function gets imputation weights from an ArchRProject to impute numeric values.
-#' 
-#' @param ArchRProj An `ArchRProject` object.
-#' @export
-getImputeWeights <- function(ArchRProj = NULL){
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  if(length(ArchRProj@imputeWeights) == 0){
-    return(NULL)
-  }
-  ArchRProj@imputeWeights
-}
-
-#' @export
-addImputeWeights2 <- function(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI", 
-  dimsToUse = NULL, 
-  scaleDims = NULL,
-  corCutOff = 0.75, 
-  td = 3,
-  ka = 4,
   sampleCells = 5000,
   nRep = 2,
   k = 15,
   epsilon = 1,
   useHdf5 = TRUE,
-  randomSuffix = FALSE
+  randomSuffix = FALSE,
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  seed = 1
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -197,14 +48,14 @@ addImputeWeights2 <- function(
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = td, name = "td", valid = c("integer"))
   .validInput(input = ka, name = "ka", valid = c("integer"))
-  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = epsilon, name = "epsilon", valid = c("numeric"))
 
   #Adapted From
   #https://github.com/dpeerlab/magic/blob/master/R/R/run_magic.R
 
-  set.seed(1)
+  set.seed(seed)
 
   tstart <- Sys.time()
   .messageDiffTime("Computing Impute Weights Using Magic (Cell 2018)", tstart)
@@ -214,33 +65,43 @@ addImputeWeights2 <- function(
   N <- nrow(matDR)
   rn <- rownames(matDR)
 
-  if(is.null(sampleCells)){
-    sampleCells <- N
+  if(!is.null(sampleCells)){
+    if(sampleCells > nrow(matDR)){
+      sampleCells <- NULL
+    }
   }
-
-  cutoffs <- lapply(seq_len(1000), function(x){
-    N / x
-  }) %>% unlist
-  binSize <- min(cutoffs[order(abs(cutoffs - sampleCells))[1]] + 1, N)
+  if(is.null(sampleCells)){
+    binSize <- N
+    nRep <- 1
+  }else{
+    cutoffs <- lapply(seq_len(1000), function(x){
+      N / x
+    }) %>% unlist
+    binSize <- min(cutoffs[order(abs(cutoffs - sampleCells))[1]] + 1, N)
+  }
 
   if(useHdf5){
     dir.create(file.path(getOutputDirectory(ArchRProj), "ImputeWeights"), showWarnings = FALSE)
     if(randomSuffix){
-      randomString <- ArchR:::.randomStr(n = 1)
-      randomString <- paste0(randomString, "-", seq_len(nRep))
-      weightFiles <- file.path(getOutputDirectory(ArchRProj), "ImputeWeights", paste0("Impute-Weights-Rep-", randomString))
+      weightFiles <- ArchR:::.tempfile("Impute-Weights", tmpdir = file.path(gsub(paste0(getwd(),"/"),"",getOutputDirectory(ArchRProj)), "ImputeWeights"))
+      weightFiles <- paste0(weightFiles, "-Rep-", seq_len(nRep))
     }else{
       weightFiles <- file.path(getOutputDirectory(ArchRProj), "ImputeWeights", paste0("Impute-Weights-Rep-", seq_len(nRep)))
     }
   }
 
+  o <- suppressWarnings(file.remove(weightFiles))
+
   weightList <- ArchR:::.safelapply(seq_len(nRep), function(y){
 
-    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", y, nRep), tstart)
+    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", y, nRep), tstart, verbose = verbose)
 
-    idx <- sample(seq_len(nrow(matDR)), nrow(matDR))
-
-    blocks <- split(rownames(matDR)[idx], ceiling(seq_along(idx)/binSize))
+    if(!is.null(sampleCells)){
+      idx <- sample(seq_len(nrow(matDR)), nrow(matDR))
+      blocks <- split(rownames(matDR)[idx], ceiling(seq_along(idx)/binSize))
+    }else{
+      blocks <- list(rownames(matDR)) 
+    }
 
     weightFile <- weightFiles[y]
 
@@ -249,6 +110,10 @@ addImputeWeights2 <- function(
     }
 
     blockList <- lapply(seq_along(blocks), function(x){
+
+      if(x %% 10 == 0){
+        .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s, Iteration %s of %s)", y, nRep, x, length(blocks)), tstart, verbose = verbose)
+      }
 
       ix <- blocks[[x]]
       Nx <- length(ix)
@@ -316,18 +181,19 @@ addImputeWeights2 <- function(
 
     }) %>% SimpleList
 
-    names(blockList) <- paste0("b",seq_along(blockList))
-
-    blockList
-
-  }) %>% SimpleList
+    if(useHdf5){
+      return(weightFile)
+    }else{
+      names(blockList) <- paste0("b",seq_along(blockList))
+      blockList
+    }
+  }, threads = threads) %>% SimpleList
   names(weightList) <- paste0("w",seq_along(weightList))
 
   .messageDiffTime(sprintf("Completed Getting Magic Weights!", round(object.size(weightList) / 10^9, 3)), tstart)
 
   ArchRProj@imputeWeights <- SimpleList(
     Weights = weightList, 
-    Blocks = blocks, 
     Params = 
       list(
         reducedDims = reducedDims, 
@@ -342,6 +208,20 @@ addImputeWeights2 <- function(
 
 }
 
+#' Get Imputation Weights from ArchRProject
+#' 
+#' This function gets imputation weights from an ArchRProject to impute numeric values.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @export
+getImputeWeights <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  if(length(ArchRProj@imputeWeights) == 0){
+    return(NULL)
+  }
+  ArchRProj@imputeWeights
+}
+
 #' @export
 imputeMatrix <- function(
   mat = NULL, 
@@ -351,7 +231,7 @@ imputeMatrix <- function(
 
   weightList <- imputeWeights$Weights
 
-  if(inherits(weightLis, "dgCMatrix")){
+  if(inherits(weightList, "dgCMatrix")){
     as.matrix(mat) %*% as.matrix(weightList)
   }
 
@@ -382,7 +262,7 @@ imputeMatrix <- function(
         colnames(by) <- bn
 
         #Multiply
-        as.matrix(mat[, paste0(bn)]) %*% by
+        as.matrix(mat[, paste0(bn), drop = FALSE]) %*% by
       
       }, threads = threads) %>% Reduce("cbind", .)
 

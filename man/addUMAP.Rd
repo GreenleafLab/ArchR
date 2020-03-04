@@ -7,8 +7,9 @@
 addUMAP(ArchRProj = NULL, reducedDims = "IterativeLSI",
   name = "UMAP", nNeighbors = 40, minDist = 0.4, metric = "cosine",
   dimsToUse = NULL, scaleDims = NULL, corCutOff = 0.75,
-  sampleCells = NULL, saveModel = TRUE, verbose = TRUE, seed = 1,
-  force = FALSE, threads = max(floor(getArchRThreads()/2), 1), ...)
+  sampleCells = NULL, outlierQuantile = 0.999, saveModel = TRUE,
+  verbose = TRUE, seed = 1, force = FALSE,
+  threads = max(floor(getArchRThreads()/2), 1), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
