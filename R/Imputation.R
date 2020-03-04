@@ -255,7 +255,7 @@ imputeMatrix <- function(
       blocks <- gtools::mixedsort(grep("block",h5df$name,value=TRUE))
       matx <- ArchR:::.safelapply(seq_along(blocks), function(y){
 
-        message(y, " ", appendLF = FALSE)
+        if(verbose) message(y, " ", appendLF = FALSE)
 
         #Read In Weights and Names
         bn <- h5read(weightList[[x]], paste0(blocks[y], "/Names"))
@@ -267,19 +267,19 @@ imputeMatrix <- function(
       
       }, threads = threads) %>% Reduce("cbind", .)
 
-      message("")
+      if(verbose) message("")
 
     }else{
 
       matx <- ArchR:::.safelapply(seq_along(weightList[[x]]), function(y){
         
-        message(y, " ", appendLF = FALSE)
+        if(verbose) message(y, " ", appendLF = FALSE)
 
         as.matrix(mat[, colnames(weightList[[x]][[y]])]) %*% as.matrix(weightList[[x]][[y]])
 
       }, threads = threads) %>% Reduce("cbind", .)
 
-      message("")
+      if(verbose) message("")
 
     }
 

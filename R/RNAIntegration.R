@@ -128,17 +128,17 @@ addGeneIntegrationMatrix <- function(
   #Set up RNA
   if(inherits(seRNA, "SummarizedExperiment")){
     seuratRNA <- CreateSeuratObject(counts = assay(seRNA))
-    if(groupBy %ni% colnames(colData(seRNA))){
-      stop("groupBy not in colData of seRNA")
+    if(groupRNA %ni% colnames(colData(seRNA))){
+      stop("groupRNA not in colData of seRNA")
     }
-    seuratRNA$Group <- colData(seRNA)[, groupBy, drop = TRUE]
+    seuratRNA$Group <- colData(seRNA)[, groupRNA, drop = TRUE]
     rm(seRNA)
   }else{
-    if(groupBy %ni% colnames(seRNA@meta.data)){
-      stop("groupBy not in meta.data of Seurat Object")
+    if(groupRNA %ni% colnames(seRNA@meta.data)){
+      stop("groupRNA not in meta.data of Seurat Object")
     }
     seuratRNA <- seRNA
-    seuratRNA$Group <- seRNA@meta.data[,groupBy]
+    seuratRNA$Group <- seRNA@meta.data[,groupRNA]
     rm(seRNA)
   }
   gc()
@@ -699,7 +699,7 @@ addPeak2GeneLinks <- function(
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
-  ArchRProj = projHeme5
+  ArchRProj = proj
   reducedDims = "IterativeLSI"
   dimsToUse = 1:30
   scaleDims = NULL
@@ -707,7 +707,7 @@ addPeak2GeneLinks <- function(
   k = 100
   knnIteration = 500
   overlapCutoff = 0.8
-  maxDist = 150000
+  maxDist = 250000
   scaleTo = 10^4
   log2Norm = TRUE
   predictionCutoff = 0.4
@@ -717,17 +717,24 @@ addPeak2GeneLinks <- function(
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
-  dfAll <- lapply(seq_along(ArrowFiles), function(x){
+  tstart <- Sys.time()
+
+  dfAll <- .safelapply(seq_along(ArrowFiles), function(x){
     DataFrame(
       cellNames = paste0(names(ArrowFiles)[x], "#", h5read(ArrowFiles[x], "GeneIntegrationMatrix/Info/CellNames")),
       predictionScore = h5read(ArrowFiles[x], "GeneIntegrationMatrix/Info/predictionScore")
     )
-  }) %>% Reduce("rbind", .)
+  }, threads = threads) %>% Reduce("rbind", .)
 
-  keep <- sum(dfAll[,2] > predictionCutoff) / nrow(dfAll)
+  .messageDiffTime(
+    sprintf("Filtered Low Prediction Score Cells (%s of %s, %s)", 
+    sum(dfAll[,2] < predictionCutoff), 
+    nrow(dfAll), 
+    round(sum(dfAll[,2] < predictionCutoff) / nrow(dfAll), 3)
+    ), tstart)
+
+  keep <- sum(dfAll[,2] >= predictionCutoff) / nrow(dfAll)
   dfAll <- dfAll[which(dfAll[,2] > predictionCutoff),]
-
-  tstart <- Sys.time()
 
   set.seed(seed)
 
