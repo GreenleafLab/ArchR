@@ -276,7 +276,7 @@ addGeneIntegrationMatrix <- function(
 
   tstart <- Sys.time()
 
-  threads2 <- max(ceiling(threads/2), 1)
+  threads2 <- max(ceiling(threads * 0.8), 1) #A Little Less here for now
 
   .messageDiffTime(paste0("Computing Integration in ", length(blockList), " Integration Blocks!"), tstart, verbose = verboseHeader)
 
@@ -604,7 +604,7 @@ addGeneIntegrationMatrix <- function(
 
       0
 
-    }, threads = 1)
+    }, threads = threads)
 
     o <- suppressWarnings(file.remove(integrationFiles))
 
