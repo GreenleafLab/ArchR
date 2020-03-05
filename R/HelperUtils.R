@@ -1187,7 +1187,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
   }
   if(!completed){
     message(nameFN, " : Error occured and could not be resolved after ", maxAttempts, " additional attempts!")
-    if(printInfo){
+    if(!is.null(printInfo)){
       message("Error occured at ", printInfo)
     }
     print(tryResult[[1]])
