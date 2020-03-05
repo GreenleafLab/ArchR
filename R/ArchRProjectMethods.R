@@ -550,6 +550,16 @@ getArrowFiles <- function(ArchRProj = NULL){
   af <- ArchRProj@sampleColData$ArrowFiles
   
   names(af) <- rownames(ArchRProj@sampleColData)
+
+  af <- af[unique(ArchRProj$Sample)]
+
+  idx <- tryCatch({
+      order(file.info(af)$size, decreasing = TRUE)
+  }, error = function(x) {
+      seq_along(af)
+  })
+
+  af <- af[idx]
   
   return(af)
 

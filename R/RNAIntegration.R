@@ -274,8 +274,6 @@ addGeneIntegrationMatrix <- function(
     h5disableFileLocking()
   }
 
-  addToArrow <- TRUE
-
   tstart <- Sys.time()
 
   threads2 <- max(ceiling(threads/2), 1)
@@ -348,16 +346,18 @@ addGeneIntegrationMatrix <- function(
     #3. Transfer Anchors  
     ############################################################################################## 
     .messageDiffTime(sprintf("Seurat FindTransferAnchors : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
-    gc()
     verbose <- verboseAll #Force This to Be a Parameter Input
-    transferAnchors <- suppressWarnings(Seurat::FindTransferAnchors(
-      reference = subRNA, 
-      query = seuratATAC, 
-      reduction = reduction, 
-      features = genesUse,
-      verbose = verbose,
-      ...
-    ))
+    transferAnchors <- .retryCatch({ #This sometimes can crash in mclapply so we can just add a re-run parameter
+      gc()
+      Seurat::FindTransferAnchors(
+        reference = subRNA, 
+        query = seuratATAC, 
+        reduction = reduction, 
+        features = genesUse,
+        verbose = verbose,
+        ...
+      )
+    }, maxAttempts = 2)
 
     ##############################################################################################
     #4. Transfer Data
@@ -469,6 +469,7 @@ addGeneIntegrationMatrix <- function(
 
     gc()
 
+    matchDF$Block <- Rle(i)
     matchDF
 
   }, threads = threads2) %>% Reduce("rbind", .)
@@ -603,7 +604,7 @@ addGeneIntegrationMatrix <- function(
 
       0
 
-    }, threads = threads)
+    }, threads = 1)
 
     o <- suppressWarnings(file.remove(integrationFiles))
 
