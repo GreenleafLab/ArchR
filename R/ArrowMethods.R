@@ -287,6 +287,7 @@
     }
 
     gc()
+    
     if(verbose) message("")
 
   }
