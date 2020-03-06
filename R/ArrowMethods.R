@@ -204,7 +204,7 @@
       if(!force){
         stop("Arrow Group already exists! Set force = TRUE to continue!")
       }else{
-        message("Arrow Group already exists! Dropping Group from the ArrowFile! This will take ~10-30 seconds!")
+        message("Arrow Group already exists! Dropping Group from ArrowFile! This will take ~10-30 seconds!")
         o <- .dropGroupsFromArrow(ArrowFile = ArrowFile, dropGroups = group, verbose = verbose)
         h5createGroup(ArrowFile , group)
         invisible(return(0))
