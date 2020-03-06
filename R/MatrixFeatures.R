@@ -166,18 +166,18 @@ addPeakMatrix <- function(
 
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)
-
-  o <- h5closeAll()
   
   #Check
-  if(!suppressMessages(h5createGroup(ArrowFile, matrixName))){
-    if(force){
-      o <- h5delete(file = ArrowFile, name = matrixName)
-      o <- h5createGroup(ArrowFile, matrixName)
-    }else{
-      stop(sprintf("%s Already Exists!, set force = TRUE to override!", matrixName))
-    }
-  }
+  o <- h5closeAll()
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+  # if(!suppressMessages(h5createGroup(ArrowFile, matrixName))){
+  #   if(force){
+  #     o <- h5delete(file = ArrowFile, name = matrixName)
+  #     o <- h5createGroup(ArrowFile, matrixName)
+  #   }else{
+  #     stop(sprintf("%s Already Exists!, set force = TRUE to override!", matrixName))
+  #   }
+  # }
   
   if(!is.null(tstart)){
     tstart <- Sys.time()

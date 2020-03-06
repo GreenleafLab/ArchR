@@ -188,7 +188,7 @@
   ArrowFile = NULL, 
   group = "GeneScoreMatrix", 
   force = FALSE, 
-  verbose = TRUE
+  verbose = FALSE
   ){
   
   ArrowInfo <- .summarizeArrowContent(ArrowFile)
@@ -221,7 +221,7 @@
   ArrowFile = NULL, 
   dropGroups = NULL,
   level = 0,
-  verbose = TRUE
+  verbose = FALSE
   ){
 
   tstart <- Sys.time()

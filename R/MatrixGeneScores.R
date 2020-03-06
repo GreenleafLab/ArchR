@@ -176,16 +176,16 @@ addGeneScoreMatrix <- function(
   }
 
   #Check
-  if(!suppressMessages(h5createGroup(file = ArrowFile, matrixName))){
-    if(force){
-      o <- h5delete(file = ArrowFile, name = matrixName)
-      o <- h5createGroup(ArrowFile, matrixName)
-    }else{
-      stop(matrixName, " Already Exists!, set force = TRUE to override!")
-    }
-  }
-
   o <- h5closeAll()
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+  # if(!suppressMessages(h5createGroup(file = ArrowFile, matrixName))){
+  #   if(force){
+  #     o <- h5delete(file = ArrowFile, name = matrixName)
+  #     o <- h5createGroup(ArrowFile, matrixName)
+  #   }else{
+  #     stop(matrixName, " Already Exists!, set force = TRUE to override!")
+  #   }
+  # }
 
   geneRegions <- genes[BiocGenerics::which(seqnames(genes) %bcni% excludeChr)]
   seqlevels(geneRegions) <- as.character(unique(seqnames(geneRegions)))

@@ -207,6 +207,11 @@ addDeviationsMatrix <- function(
     Units <- c(Units, "Deviations")
   }
 
+  #Check
+  o <- h5closeAll()
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+
+  #Initialize
   o <- .initializeMat(
     ArrowFile = ArrowFile,
     Group = matrixName,
