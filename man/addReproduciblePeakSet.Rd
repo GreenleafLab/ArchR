@@ -4,17 +4,33 @@
 \alias{addReproduciblePeakSet}
 \title{Add a Reproducible Peak Set to an ArchRProject}
 \usage{
-addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
-  peakMethod = "Macs2", reproducibility = "2", peaksPerCell = 500,
-  maxPeaks = 150000, minCells = 25, excludeChr = c("chrM", "chrY"),
-  pathToMacs2 = findMacs2(), genomeSize = NULL, shift = -75,
-  extsize = 150, method = "q", cutOff = 0.1,
-  additionalParams = "--nomodel --nolambda", extendSummits = 250,
+addReproduciblePeakSet(
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  peakMethod = "Macs2",
+  reproducibility = "2",
+  peaksPerCell = 500,
+  maxPeaks = 150000,
+  minCells = 25,
+  excludeChr = c("chrM", "chrY"),
+  pathToMacs2 = findMacs2(),
+  genomeSize = NULL,
+  shift = -75,
+  extsize = 150,
+  method = if (tolower(peakMethod) == "macs2") "q" else "p",
+  cutOff = 0.1,
+  additionalParams = "--nomodel --nolambda",
+  extendSummits = 250,
   promoterDist = 500,
   genomeAnnotation = getGenomeAnnotation(ArchRProj),
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  threads = getArchRThreads(), parallelParam = NULL, force = FALSE,
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  force = FALSE,
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
