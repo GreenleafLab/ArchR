@@ -315,7 +315,7 @@ addGroupCoverages <- function(
     #Dealing with sampling w/o replacement!
     matchRG <- as.vector(S4Vectors::match(mcols(fragik)$RG, names(tableGroupi)))
     fragik <- rep(fragik, tableGroupi[matchRG])
-    nCells <- c(nCells, unique(runValue(mcols(fragik)$RG)))
+    nCells <- c(nCells, unique(mcols(fragik)$RG))
 
     #Compute Rle Coverage
     covk <- coverage(IRanges(start = c( start(fragik), end(fragik) ), width = 1), width = chromLengths[availableChr[k]])
