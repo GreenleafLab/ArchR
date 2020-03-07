@@ -850,13 +850,15 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
   if(threads > 1){
 
-    o <- .modifiedMclapply(..., mc.cores = threads, mc.preschedule = preschedule, stop.on.error = TRUE)
+    # o <- .modifiedMclapply(..., mc.cores = threads, mc.preschedule = preschedule, stop.on.error = TRUE)
 
-    # for(i in seq_along(o)){ #JJJ this doesnt seem to work?
-    #   if(inherits(o[[i]], "try-error")){
-    #     stop(o)
-    #   }
-    # }
+    o <- mclapply(..., mc.cores = threads, mc.preschedule = preschedule)
+
+    for(i in seq_along(o)){ #JJJ this doesnt seem to work?
+      if(inherits(o[[i]], "try-error")){
+        stop(o)
+      }
+    }
 
   }else{
 
