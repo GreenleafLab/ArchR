@@ -545,7 +545,7 @@ addGeneIntegrationMatrix <- function(
         ArrowFile = ArrowFiles[sample],
         Group = matrixName,
         Class = "double",
-        Units = "Log2NormCounts",
+        Units = "NormCounts",
         cellNames = colnames(sampleMat),
         params = dfParams,
         featureDF = featureDF,

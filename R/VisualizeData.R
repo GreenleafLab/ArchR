@@ -131,21 +131,35 @@ plotEmbedding <- function(
     })
 
   }else{
+
+    units <- tryCatch({
+        .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
+      },error=function(e){
+        "values"
+    })
     
     if(is.null(log2Norm) & tolower(colorBy) == "genescorematrix"){
       log2Norm <- TRUE
+    }
+
+    if(is.null(log2Norm)){
+      log2Norm <- FALSE
     }
 
     colorMat <- .getMatrixValues(
       ArchRProj = ArchRProj, 
       name = name, 
       matrixName = colorBy, 
-      log2Norm = log2Norm, 
+      log2Norm = FALSE, 
       threads = threads
     )[,rownames(df), drop=FALSE]
 
     if(!is.null(imputeWeights)){
       colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = proj@imputeWeights)
+      if(!inherits(colorMat, "matrix")){
+        colorMat <- matrix(colorMat, ncol = nrow(df))
+        colnames(colorMat) <- rownames(df)
+      }
     }
 
     colorList <- lapply(seq_len(nrow(colorMat)), function(x){
@@ -195,6 +209,13 @@ plotEmbedding <- function(
 
       if(is.null(plotAs)){
         plotAs <- "hexplot"
+      }
+
+      if(log2Norm){
+        plotParamsx$color <- log2(plotParamsx$color + 1)
+        plotParamsx$colorTitle <- paste0("Log2(",units," + 1)")
+      }else{
+        plotParamsx$colorTitle <- units
       }
 
       if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
@@ -367,7 +388,7 @@ plotGroups <- function(
 
 }
 
-.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = TRUE, threads = getArchRThreads()){
+.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = FALSE, threads = getArchRThreads()){
   
   o <- h5closeAll()
 
@@ -435,9 +456,15 @@ plotGroups <- function(
   message("")
   gc()
 
+  if(!inherits(values, "matrix")){
+    values <- matrix(as.matrix(values), ncol = nCells(ArchRProj))
+    colnames(values) <- unlist(cellNamesList)
+  }
+
   #Values Summary
   if(!is.null(log2Norm)){
     if(log2Norm){
+      message("Log2 Normalizing...")
       values <- log2(values + 1)
     }
   }
