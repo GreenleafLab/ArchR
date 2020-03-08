@@ -612,6 +612,12 @@ addPeak2GeneLinks <- function(
   #Get Peak Set
   peakSet <- getPeakSet(ArchRProj)
 
+  b <- .getFeatureDF(ArrowFiles, "GeneScoreMatrix", threads = threads)
+
+  #Gene Info
+  geneSet <- .getFeatureDF(ArrowFiles, "GeneIntegrationMatrix", threads = threads)
+  geneStart <- GRanges(geneSet$seqnames, IRanges(geneSet$start, width = 1), name = geneSet$name, idx = geneSet$idx)
+
   #Get Reduced Dims
   rD <- getReducedDims(ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
 
@@ -636,38 +642,101 @@ addPeak2GeneLinks <- function(
   }) %>% SimpleList
 
   #Check Chromosomes
-  chri <- gtools::mixedsort(.availableChr(getArrowFiles(ArchRProj), subGroup = "PeakMatrix"))
-  chrj <- gtools::mixedsort(unique(paste0(seqnames(getPeakSet(ArchRProj)))))
-  stopifnot(identical(chri,chrj))
+  chri <- gtools::mixedsort(unique(paste0(seqnames(peakSet))))
+  chrj <- gtools::mixedsort(unique(paste0(seqnames(geneStart))))
+  chrij <- intersect(chri, chrj)
 
   #Create Ranges
   peakSummits <- resize(peakSet, 1, "center")
-  geneWindows <- resize(geneStart, maxDist, "center")
+  geneWindows <- .suppressAll(resize(geneStart, maxDist, "center"))
+
+  #Add IDs
+  mcols(peakSummits)$uniqueID <- seq_along(peakSummits)
+  mcols(geneWindows)$uniqueID <- seq_along(geneWindows)
 
   #Create Pairwise Things to Test
-  o <- DataFrame(findOverlaps(peakSummits, peakWindows, ignore.strand = TRUE))
-  o <- o[o[,1] != o[,2],]
+  o <- DataFrame(findOverlaps(peakSummits, geneWindows, ignore.strand = TRUE))
   o$seqnames <- seqnames(peakSet)[o[,1]]
-  o$idx1 <- peakSet$idx[o[,1]]
-  o$idx2 <- peakSet$idx[o[,2]]
   o$correlation <- NA
+  o$idx1 <- mcols(peakSummits)$idx[o[,1]]
+  o$idx2 <- mcols(geneWindows)$idx[o[,2]]
+
+  #Get Null Correlations
+  splitPeaks <- split(peakSummits, seqnames(peakSummits))
+  splitGenes <- split(geneWindows, seqnames(geneWindows))
+
+  oNull <- lapply(seq_along(chrij), function(x){
+    chrx <- chrij[x]
+    genesx <- splitGenes[[chrx]]
+    peaksx <- splitPeaks[[chrx]]
+    idx1 <- sample(seq_along(genesx), 50000, replace = TRUE)
+    idx2 <- sample(seq_along(peaksx), 50000, replace = TRUE)
+    idx3 <- which(distance(genesx[idx1], peaksx[idx1]) > maxDist)
+    DataFrame(peakIdx = peaksx$uniqueID[idx2[idx3]], geneIdx = genesx$uniqueID[idx1[idx3]], seqnames = Rle(chrx), correlation = NA)
+  }) %>% Reduce("rbind", .) 
+  oNull <- oNull[order(oNull[,1], oNull[,2]), ]
+  oNull$idx1 <- mcols(peakSummits)$idx[oNull[,1]]
+  oNull$idx2 <- mcols(geneWindows)$idx[oNull[,2]]
 
   #Peak Matrix ColSums
-  cS <- .getColSums(getArrowFiles(ArchRProj), chri, verbose = FALSE, useMatrix = "PeakMatrix")
+  cS <- .getColSums(getArrowFiles(ArchRProj), chrij, verbose = FALSE, useMatrix = "PeakMatrix", threads = threads)
   gS <- unlist(lapply(seq_along(knnObj), function(x) sum(cS[knnObj[[x]]], na.rm=TRUE)))
 
-  for(x in seq_along(chri)){
+
+  #Features
+  geneDF <- mcols(geneStart)
+  peakDF <- mcols(peakSet)
+  geneDF$seqnames <- chrij[x]
+  peakDF$seqnames <- chrij[x]
+
+  #Group Matrix RNA
+  message("RNA ", appendLF = FALSE)
+  groupMatRNA <- .getGroupMatrix(
+    ArrowFiles = getArrowFiles(ArchRProj), 
+    featureDF = geneDF, 
+    groupList = knnObj, 
+    useMatrix = "GeneIntegrationMatrix",
+    threads = threads,
+    verbose = TRUE
+  )
+
+  #Group Matrix ATAC
+  message("ATAC ", appendLF = FALSE)
+  groupMatATAC <- .getGroupMatrix(
+    ArrowFiles = getArrowFiles(ArchRProj), 
+    featureDF = peakDF, 
+    groupList = knnObj, 
+    useMatrix = "PeakMatrix",
+    threads = threads,
+    verbose = TRUE
+  )
+
+  for(x in seq_along(chrij)){
   
-    .messageDiffTime(sprintf("Computing Co-Accessibility %s (%s of %s)", chri[x], x, length(chri)), tstart)
+    .messageDiffTime(sprintf("Computing Peak-2-Gene Links %s (%s of %s)", chri[x], x, length(chri)), tstart)
 
     #Features
-    featureDF <- mcols(peakSet)[BiocGenerics::which(seqnames(peakSet) == chri[x]),]
-    featureDF$seqnames <- chri[x]
+    geneDF <- mcols(geneStart)[BiocGenerics::which(seqnames(geneStart) == chrij[x]),]
+    peakDF <- mcols(peakSet)[BiocGenerics::which(seqnames(peakSet) == chrij[x]),]
+    geneDF$seqnames <- chrij[x]
+    peakDF$seqnames <- chrij[x]
 
-    #Group Matrix
-    groupMat <- .getGroupMatrix(
+    #Group Matrix RNA
+    message("RNA ", appendLF = FALSE)
+    groupMatRNA <- .getGroupMatrix(
       ArrowFiles = getArrowFiles(ArchRProj), 
-      featureDF = featureDF, 
+      featureDF = geneDF, 
+      groupList = knnObj, 
+      useMatrix = "GeneIntegrationMatrix",
+      threads = threads,
+      verbose = FALSE
+    )
+
+    #Group Matrix ATAC
+    message("ATAC ", appendLF = FALSE)
+    groupMatATAC <- .getGroupMatrix(
+      ArrowFiles = getArrowFiles(ArchRProj), 
+      featureDF = peakDF, 
       groupList = knnObj, 
       useMatrix = "PeakMatrix",
       threads = threads,
@@ -675,15 +744,25 @@ addPeak2GeneLinks <- function(
     )
     
     #Scale
-    groupMat <- t(t(groupMat) / gS) * scaleTo
+    groupMatATAC <- t(t(groupMatATAC) / gS) * scaleTo
 
     if(log2Norm){
-      groupMat <- log2(groupMat + 1)
+      groupMatRNA  <- log2(groupMatRNA + 1)
+      groupMatATAC <- log2(groupMatATAC + 1)
     }
 
     #Correlations
-    idx <- BiocGenerics::which(o$seqnames==chri[x])
-    o[idx,]$correlation <- ArchR:::rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = groupMat, Y = groupMat)
+    message("Correlating", appendLF = FALSE)
+    idx <- BiocGenerics::which(o$seqnames==chrij[x])
+    o[idx,]$correlation <- ArchR:::rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = groupMatATAC, Y = groupMatRNA)
+
+    idx <- BiocGenerics::which(oNull$seqnames==chrij[x])
+    oNull[idx,]$correlation <- ArchR:::rowCorCpp(idxX = oNull[idx,]$idx1, idxY = oNull[idx,]$idx2, X = groupMatATAC, Y = groupMatRNA)
+
+    message("")
+
+    rm(groupMatATAC, groupMatRNA)
+    gc()
 
   }
   
