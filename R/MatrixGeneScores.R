@@ -320,10 +320,12 @@ addGeneScoreMatrix <- function(
         )
       e <- pmax(pmaxGene + pForwardMin, e)
 
-      extendedGeneRegion <- IRanges(start = s, end = e, 
-        gStart = pminGene, gEnd = pmaxGene, 
-        gWidth = width(geneRegioni), gStrand = strand(geneRegioni))
-
+      extendedGeneRegion <- IRanges(start = s, end = e)
+      mcols(extendedGeneRegion)$gStart <- pminGene
+      mcols(extendedGeneRegion)$gEnd <- pmaxGene
+      mcols(extendedGeneRegion)$gWidth <- width(geneRegioni)
+      mcols(extendedGeneRegion)$gStrand <- strand(geneRegioni)
+      
       idx1 <- which(pminGene - pReverseMin < start(extendedGeneRegion))
       if(length(idx1) > 0){
         stop("Error in gene boundaries minError")
