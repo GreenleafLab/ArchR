@@ -1618,7 +1618,78 @@ getAvailableMatrices <- function(ArchRProj = NULL){
 
 # }
 
+# JJJ
+#' @param ArchRProj An `ArchRProject` object.
+#' @export
+addFeatureCounts <- function(
+  ArchRProj = NULL,
+  features = NULL,
+  name = NULL,
+  addRatio = TRUE,
+  threads = getArchRThreads()
+  ){
 
+  tstart <- Sys.time()
+  ArrowFiles <- getArrowFiles(ArchRProj)
+  cellNames <- ArchRProj$cellNames
+  featuresList <- split(features, seqnames(features))
 
+  h5disableFileLocking()
 
+  countsDF <- ArchR:::.safelapply(seq_along(featuresList), function(i){
+
+    chri <- names(featuresList)[i]
+    cellTotal <- rep(0, length(cellNames))
+    names(cellTotal) <- cellNames
+    featuresi <- ranges(featuresList[[i]])
+    ArchR:::.messageDiffTime(paste0("Counting in ",chri," (", i, " of ", length(featuresList), ")"), tstart)
+
+    for(j in seq_along(ArrowFiles)){
+
+      fragmentsij <- ArchR:::.getFragsFromArrow(
+        ArrowFile = ArrowFiles[j], 
+        chr = chri, 
+        out = "IRanges", 
+        cellNames = cellNames
+      )
+      if(length(fragmentsij) > 0){
+        
+        #Set To Integers
+        mcols(fragmentsij)$RG@values <- match(mcols(fragmentsij)$RG@values, cellNames)
+
+        for(y in seq_len(2)){   
+          if(y==1){
+            temp <- IRanges(start(fragmentsij), width = 1)
+          }else if(y==2){
+            temp <- IRanges(end(fragmentsij), width = 1)
+          }
+          stopifnot(length(temp) == length(fragmentsij))
+          tabSum <- S4Vectors:::tabulate(mcols(fragmentsij)$RG[queryHits(findOverlaps(temp, featuresi))])
+          cellTotal[seq_along(tabSum)] <- cellTotal[seq_along(tabSum)] + tabSum
+        }
+
+      }
+
+      if(j %% 3 == 0){
+        gc()
+      }
+
+    }
+
+    cellTotal
+
+  }, threads = threads) %>% Reduce("rbind", .)
+
+  totalCounts <- colSums(countsDF)
+  countRatio <- totalCounts / (2 * ArchRProj$nFrags)
+
+  ArchR:::.messageDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Counts")), tstart)
+  ArchRProj <- addCellColData(ArchRProj, data = totalCounts, cells = names(totalCounts),  name = paste0(name,"Counts"), force = TRUE)
+ 
+  ArchR:::.messageDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Ratio")), tstart)
+  ArchRProj <- addCellColData(ArchRProj, data = countRatio, cells = names(totalCounts),  name = paste0(name,"Ratio"), force = TRUE)
+
+  ArchRProj
+
+}
 

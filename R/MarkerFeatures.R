@@ -728,7 +728,7 @@ markerHeatmap <- function(
   scaleTo = 10^4,
   scaleRows = TRUE,
   plotLog2FC = FALSE,
-  limits = c(-2,2),
+  limits = c(-2, 2),
   grepExclude = NULL,
   pal = NULL,
   binaryClusterRows = TRUE,
@@ -992,10 +992,15 @@ markerHeatmap <- function(
   if (!is.null(limits)) {
     mat[mat > max(limits)] <- max(limits)
     mat[mat < min(limits)] <- min(limits)
-    breaks <- seq(min(limits), max(limits), length.out = length(color))
-    color <- circlize::colorRamp2(breaks, color)
+  }else{
+    limits <- c(round(min(mat),2), round(max(mat),2))
   }
-  
+
+  #Scale Values 0 - 1
+  mat <- (mat - min(limits)) / (max(limits) - min(limits))
+  breaks <- seq(0, 1, length.out = length(color))
+  color <- circlize::colorRamp2(breaks, color)
+
   if(exists('anno_mark', where='package:ComplexHeatmap', mode='function')){
     anno_check_version_rows <- ComplexHeatmap::anno_mark
     anno_check_version_cols <- ComplexHeatmap::anno_mark
@@ -1062,9 +1067,12 @@ markerHeatmap <- function(
     
     #Heatmap Legend
     heatmap_legend_param = 
-      list(color_bar = "continuous", 
+      list(
+           at = c(0, 1),
+           labels = c(round(min(limits),2), round(max(limits),2)),
+           color_bar = "continuous", 
            legend_direction = "horizontal",
-           legend_width = unit(5, "cm")
+           legend_width = unit(3, "cm")
       ), 
     rect_gp = gpar(col = borderColor), 
     
@@ -1112,6 +1120,7 @@ markerHeatmap <- function(
   }
 
 }
+
 
 .colorMapForCH <- function(colorMap = NULL, colData = NULL){
   colorMap <- colorMap[which(names(colorMap) %in% colnames(colData))]
