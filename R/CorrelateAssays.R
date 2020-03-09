@@ -467,7 +467,7 @@ getCoAccessibility <- function(
 
       loops <- loops[order(mcols(loops)$value, decreasing=TRUE)]
       loops <- unique(loops)
-      loops <- loops[width(loops) >= resolution]
+      loops <- loops[width(loops) > 0]
       loops <- sort(sortSeqlevels(loops))
 
       loops <- GenomicRangesList(CoAccessibility = loops)
@@ -511,6 +511,23 @@ getCoAccessibility <- function(
 # Peak2Gene Links Methods
 ##########################################################################################
 
+ArchRProj = proj
+reducedDims = "IterativeLSI"
+dimsToUse = 1:30
+scaleDims = NULL
+corCutOff = 0.75
+k = 100
+knnIteration = 500
+overlapCutoff = 0.8
+maxDist = 250000
+scaleTo = 10^4
+log2Norm = TRUE
+predictionCutoff = 0.4
+seed = 1
+knnMethod = NULL
+threads = getArchRThreads()
+
+
 #' Add Peak2GeneLinks to an ArchRProject JJJ
 #' 
 #' This function will add co-accessibility scores to peaks in a given ArchRProject
@@ -547,7 +564,7 @@ addPeak2GeneLinks <- function(
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
-  maxDist = 150000,
+  maxDist = 250000,
   scaleTo = 10^4,
   log2Norm = TRUE,
   predictionCutoff = 0.4,
@@ -570,21 +587,17 @@ addPeak2GeneLinks <- function(
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
-  ArchRProj = proj
-  reducedDims = "IterativeLSI"
-  dimsToUse = 1:30
-  scaleDims = NULL
-  corCutOff = 0.75
-  k = 100
-  knnIteration = 500
-  overlapCutoff = 0.8
-  maxDist = 250000
-  scaleTo = 10^4
-  log2Norm = TRUE
-  predictionCutoff = 0.4
-  seed = 1
-  knnMethod = NULL
-  threads = getArchRThreads()
+  tstart <- Sys.time()
+  .messageDiffTime("Getting Available Matrices", tstart)
+  AvailableMatrices <- getAvailableMatrices(ArchRProj)
+
+  if("PeakMatrix" %ni% AvailableMatrices){
+    stop("PeakMatrix not in AvailableMatrices")
+  }
+
+  if("GeneIntegrationMatrix" %ni% AvailableMatrices){
+    stop("GeneIntegrationMatrix not in AvailableMatrices")
+  }
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
@@ -611,8 +624,6 @@ addPeak2GeneLinks <- function(
 
   #Get Peak Set
   peakSet <- getPeakSet(ArchRProj)
-
-  b <- .getFeatureDF(ArrowFiles, "GeneScoreMatrix", threads = threads)
 
   #Gene Info
   geneSet <- .getFeatureDF(ArrowFiles, "GeneIntegrationMatrix", threads = threads)
@@ -646,134 +657,331 @@ addPeak2GeneLinks <- function(
   chrj <- gtools::mixedsort(unique(paste0(seqnames(geneStart))))
   chrij <- intersect(chri, chrj)
 
-  #Create Ranges
-  peakSummits <- resize(peakSet, 1, "center")
-  geneWindows <- .suppressAll(resize(geneStart, maxDist, "center"))
-
-  #Add IDs
-  mcols(peakSummits)$uniqueID <- seq_along(peakSummits)
-  mcols(geneWindows)$uniqueID <- seq_along(geneWindows)
-
-  #Create Pairwise Things to Test
-  o <- DataFrame(findOverlaps(peakSummits, geneWindows, ignore.strand = TRUE))
-  o$seqnames <- seqnames(peakSet)[o[,1]]
-  o$correlation <- NA
-  o$idx1 <- mcols(peakSummits)$idx[o[,1]]
-  o$idx2 <- mcols(geneWindows)$idx[o[,2]]
-
-  #Get Null Correlations
-  splitPeaks <- split(peakSummits, seqnames(peakSummits))
-  splitGenes <- split(geneWindows, seqnames(geneWindows))
-
-  oNull <- lapply(seq_along(chrij), function(x){
-    chrx <- chrij[x]
-    genesx <- splitGenes[[chrx]]
-    peaksx <- splitPeaks[[chrx]]
-    idx1 <- sample(seq_along(genesx), 50000, replace = TRUE)
-    idx2 <- sample(seq_along(peaksx), 50000, replace = TRUE)
-    idx3 <- which(distance(genesx[idx1], peaksx[idx1]) > maxDist)
-    DataFrame(peakIdx = peaksx$uniqueID[idx2[idx3]], geneIdx = genesx$uniqueID[idx1[idx3]], seqnames = Rle(chrx), correlation = NA)
-  }) %>% Reduce("rbind", .) 
-  oNull <- oNull[order(oNull[,1], oNull[,2]), ]
-  oNull$idx1 <- mcols(peakSummits)$idx[oNull[,1]]
-  oNull$idx2 <- mcols(geneWindows)$idx[oNull[,2]]
-
-  #Peak Matrix ColSums
-  cS <- .getColSums(getArrowFiles(ArchRProj), chrij, verbose = FALSE, useMatrix = "PeakMatrix", threads = threads)
-  gS <- unlist(lapply(seq_along(knnObj), function(x) sum(cS[knnObj[[x]]], na.rm=TRUE)))
-
-
   #Features
   geneDF <- mcols(geneStart)
   peakDF <- mcols(peakSet)
-  geneDF$seqnames <- chrij[x]
-  peakDF$seqnames <- chrij[x]
+  geneDF$seqnames <- seqnames(geneStart)
+  peakDF$seqnames <- seqnames(peakSet)
 
   #Group Matrix RNA
-  message("RNA ", appendLF = FALSE)
+  .messageDiffTime("Getting Group RNA Matrix", tstart)
   groupMatRNA <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = geneDF, 
     groupList = knnObj, 
     useMatrix = "GeneIntegrationMatrix",
     threads = threads,
-    verbose = TRUE
+    verbose = FALSE
   )
 
   #Group Matrix ATAC
-  message("ATAC ", appendLF = FALSE)
+  .messageDiffTime("Getting Group ATAC Matrix", tstart)
   groupMatATAC <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = peakDF, 
     groupList = knnObj, 
     useMatrix = "PeakMatrix",
     threads = threads,
-    verbose = TRUE
+    verbose = FALSE
   )
 
-  for(x in seq_along(chrij)){
-  
-    .messageDiffTime(sprintf("Computing Peak-2-Gene Links %s (%s of %s)", chri[x], x, length(chri)), tstart)
+  .messageDiffTime("Normalizing Group Matrices", tstart)
 
-    #Features
-    geneDF <- mcols(geneStart)[BiocGenerics::which(seqnames(geneStart) == chrij[x]),]
-    peakDF <- mcols(peakSet)[BiocGenerics::which(seqnames(peakSet) == chrij[x]),]
-    geneDF$seqnames <- chrij[x]
-    peakDF$seqnames <- chrij[x]
+  groupMatRNA <- t(t(groupMatRNA) / colSums(groupMatRNA)) * scaleTo
+  groupMatATAC <- t(t(groupMatATAC) / colSums(groupMatATAC)) * scaleTo
 
-    #Group Matrix RNA
-    message("RNA ", appendLF = FALSE)
-    groupMatRNA <- .getGroupMatrix(
-      ArrowFiles = getArrowFiles(ArchRProj), 
-      featureDF = geneDF, 
-      groupList = knnObj, 
-      useMatrix = "GeneIntegrationMatrix",
-      threads = threads,
-      verbose = FALSE
-    )
-
-    #Group Matrix ATAC
-    message("ATAC ", appendLF = FALSE)
-    groupMatATAC <- .getGroupMatrix(
-      ArrowFiles = getArrowFiles(ArchRProj), 
-      featureDF = peakDF, 
-      groupList = knnObj, 
-      useMatrix = "PeakMatrix",
-      threads = threads,
-      verbose = FALSE
-    )
-    
-    #Scale
-    groupMatATAC <- t(t(groupMatATAC) / gS) * scaleTo
-
-    if(log2Norm){
-      groupMatRNA  <- log2(groupMatRNA + 1)
-      groupMatATAC <- log2(groupMatATAC + 1)
-    }
-
-    #Correlations
-    message("Correlating", appendLF = FALSE)
-    idx <- BiocGenerics::which(o$seqnames==chrij[x])
-    o[idx,]$correlation <- ArchR:::rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = groupMatATAC, Y = groupMatRNA)
-
-    idx <- BiocGenerics::which(oNull$seqnames==chrij[x])
-    oNull[idx,]$correlation <- ArchR:::rowCorCpp(idxX = oNull[idx,]$idx1, idxY = oNull[idx,]$idx2, X = groupMatATAC, Y = groupMatRNA)
-
-    message("")
-
-    rm(groupMatATAC, groupMatRNA)
-    gc()
-
+  if(log2Norm){
+    groupMatRNA  <- log2(groupMatRNA + 1)
+    groupMatATAC <- log2(groupMatATAC + 1)    
   }
-  
-  o$idx1 <- NULL
-  o$idx2 <- NULL
-  o <- o[!is.na(o$correlation),]
-  mcols(peakSet) <- NULL
-  o@metadata$peakSet <- peakSet
 
-  metadata(ArchRProj@peakSet)$CoAccessibility <- o
+  seRNA <- SummarizedExperiment(
+    assays = SimpleList(RNA = groupMatRNA), 
+    rowRanges = geneStart
+  )
+  metadata(seRNA)$KNNList <- knnObj
+
+  seATAC <- SummarizedExperiment(
+    assays = SimpleList(ATAC = groupMatATAC), 
+    rowRanges = peakSet
+  )
+  metadata(seATAC)$KNNList <- knnObj
+
+  rm(groupMatRNA, groupMatATAC)
+  gc()
+
+  #Overlaps
+  .messageDiffTime("Finding Peak Gene Pairings", tstart)
+  o <- DataFrame(
+    findOverlaps(
+      .suppressAll(resize(seRNA, 2 * maxDist + 1, "center")), 
+      resize(rowRanges(seATAC), 1, "center"), 
+      ignore.strand = TRUE
+    )
+  )
+
+  #Get Distance from Fixed point A B 
+  o$distance <- distance(rowRanges(seRNA)[o[,1]] , rowRanges(seATAC)[o[,2]] )
+  colnames(o) <- c("B", "A", "distance")
+
+  #Null Correlations
+  #.messageDiffTime("Computing Background Correlations", tstart)
+  #nullCor <- .getNullCorrelations(seATAC, seRNA, o, 1000)
+
+  .messageDiffTime("Computing Correlations", tstart)
+  o$Correlation <- rowCorCpp(as.integer(o$A), as.integer(o$B), assay(seATAC), assay(seRNA))
+  o$VarAssayA <- .getQuantiles(matrixStats::rowVars(assay(seATAC)))[o$A]
+  o$VarAssayB <- .getQuantiles(matrixStats::rowVars(assay(seRNA)))[o$B]
+  o$TStat <- (o$Correlation / sqrt((1-o$Correlation^2)/(ncol(seATAC)-2))) #T-statistic P-value
+  o$Pval <- 2*pt(-abs(o$TStat), ncol(seATAC) - 2)
+  o$FDR <- p.adjust(o$Pval, method = "fdr")
+  #o$EmpPval <- 2*pnorm(-abs(((o$Correlation - mean(nullCor[[2]])) / sd(nullCor[[2]]))))
+  #o$EmpFDR <- p.adjust(o$EmpPval, method = "fdr")
   
+  out <- o[, c("A", "B", "Correlation", "FDR", "VarAssayA", "VarAssayB")]
+  colnames(out) <- c("idxATAC", "idxRNA", "Correlation", "FDR", "VarQATAC", "VarQRNA")
+  mcols(peakSet) <- NULL
+  names(peakSet) <- NULL
+  metadata(out)$peakSet <- peakSet
+  metadata(out)$geneSet <- geneStart
+
+  #Save Group Matrices
+  dir.create(file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks"), showWarnings = FALSE)
+  outATAC <- file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks", "seATAC-Group-KNN.rds")
+  saveRDS(seATAC, outATAC, compress = FALSE)
+  outRNA <- file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks", "seRNA-Group-KNN.rds")
+  saveRDS(seRNA, outRNA, compress = FALSE)
+  metadata(out)$seATAC <- outATAC
+  metadata(out)$seRNA <- outRNA
+
+  metadata(ArchRProj@peakSet)$Peak2GeneLinks <- out
+
+  .messageDiffTime("Completed Peak2Gene Correlations!", tstart)
+
   ArchRProj
 
 }
+
+.getNullCorrelations <- function(seA, seB, o, n){
+
+  o$seq <- seqnames(seA)[o$A]
+
+  nullCor <- lapply(seq_along(unique(o$seq)), function(i){
+
+    #Get chr from olist
+    chri <- unique(o$seq)[i]
+    #message(chri, " ", appendLF = FALSE)
+
+    #Randomly get n seA
+    id <- which(as.character(seqnames(seA)) != chri)
+    if(length(id) > n){
+      transAidx <- sample(id, n)
+    }else{
+      transAidx <- id
+    }
+
+    #Calculate Correlations
+    grid <- expand.grid(transAidx, unique(o[o$seq==chri,]$B))
+
+    idxA <- unique(grid[,1])
+    idxB <- unique(grid[,2])
+
+    seSubA <- seA[idxA]
+    seSubB <- seB[idxB]
+
+    grid[,3] <- match(grid[,1], idxA)
+    grid[,4] <- match(grid[,2], idxB)
+
+    colnames(grid) <- c("A", "B")
+    out <- rowCorCpp(grid[,3], grid[,4], assay(seSubA), assay(seSubB))
+    out <- na.omit(out)
+
+    return(out)
+
+  }) %>% SimpleList
+  #message("")
+
+  summaryDF <- lapply(nullCor, function(x){
+    data.frame(mean = mean(x), sd = sd(x), median = median(x), n = length(x))
+  }) %>% Reduce("rbind",.)
+
+  return(list(summaryDF, unlist(nullCor)))
+
+}
+
+#' Get the peak co-accessibility from an ArchRProject
+#' 
+#' This function obtains co-accessibility data from an ArchRProject.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
+#' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
+#' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
+#' the `ArchRBrowser()` or as an `ArchRRegionTrack()`.
+#' @export
+getPeak2GeneLinks <- function(
+  ArchRProj = NULL, 
+  corCutOff = 0.45, 
+  FDRCutOff = 0.0001,
+  resolution = 1000, 
+  returnLoops = TRUE
+  ){
+  
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+  .validInput(input = corCutOff, name = "corCutOff", valid = "numeric")
+  .validInput(input = resolution, name = "resolution", valid = c("integer", "null"))
+  .validInput(input = returnLoops, name = "returnLoops", valid = "boolean")
+  
+  if(is.null(ArchRProj@peakSet)){
+    return(NULL)
+  }
+
+  if(is.null(metadata(ArchRProj@peakSet)$Peak2GeneLinks)){
+  
+    return(NULL)
+  
+  }else{
+   
+    p2g <- metadata(ArchRProj@peakSet)$Peak2GeneLinks
+    p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
+
+    if(returnLoops){
+      
+      peakSummits <- resize(metadata(p2g)$peakSet, 1, "center")
+      geneStarts <- resize(metadata(p2g)$geneSet, 1, "start")
+
+      if(!is.null(resolution)){
+        summitTiles <- floor(start(peakSummits) / resolution) * resolution + floor(resolution / 2)
+        geneTiles <- floor(start(geneStarts) / resolution) * resolution + floor(resolution / 2)
+      }else{
+        summitTiles <- start(peakSummits)
+        geneTiles <- start(geneTiles)
+      }
+    
+      loops <- .constructGR(
+        seqnames = seqnames(peakSummits[p2g$idxATAC]),
+        start = summitTiles[p2g$idxATAC],
+        end = geneTiles[p2g$idxRNA]
+      )
+      mcols(loops)$value <- p2g$Correlation
+      mcols(loops)$FDR <- p2g$FDR
+
+      loops <- loops[order(mcols(loops)$value, decreasing=TRUE)]
+      loops <- unique(loops)
+      loops <- loops[width(loops) > 0]
+      loops <- sort(sortSeqlevels(loops))
+
+      loops <- GRangesList(Peak2GeneLinks = loops)
+
+      return(loops)
+
+    }else{
+
+      return(p2g)
+
+    }
+
+  }
+
+}
+
+#' Get the peak co-accessibility from an ArchRProject
+#' 
+#' This function obtains co-accessibility data from an ArchRProject.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
+#' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
+#' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
+#' the `ArchRBrowser()` or as an `ArchRRegionTrack()`.
+#' @export
+peak2GeneHeatmap <- function(
+  ArchRProj = NULL, 
+  corCutOff = 0.45, 
+  FDRCutOff = 0.0001,
+  k = 25,
+  nPlot = 10000,
+  limitsATAC = c(-2, 2),
+  limitsRNA = c(-2, 2),
+  groupBy = "Clusters",
+  palGroup = NULL,
+  palATAC = paletteContinuous("solarExtra"),
+  palRNA = paletteContinuous("blueYellow")
+  ){
+
+  tstart <- Sys.time()
+
+  if(is.null(metadata(ArchRProj@peakSet)$Peak2GeneLinks)){
+    stop("No Peak2GeneLinks Found! Try addPeak2GeneLinks!")
+  }
+
+  ccd <- getCellColData(ArchRProj, select = groupBy)
+  p2g <- metadata(ArchRProj@peakSet)$Peak2GeneLinks
+  p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
+
+  mATAC <- assay(readRDS(metadata(p2g)$seATAC)[p2g$idxATAC, ])
+  mRNA <- assay(readRDS(metadata(p2g)$seRNA)[p2g$idxRNA, ])
+  gc()
+
+  mATAC <- .rowZscores(mATAC)
+  mRNA <- .rowZscores(mRNA)
+  rownames(mATAC) <- NULL
+  rownames(mRNA) <- NULL
+  colnames(mATAC) <- paste0("K", seq_len(ncol(mATAC)))
+  colnames(mRNA) <- paste0("K", seq_len(ncol(mRNA)))
+  rownames(mATAC) <- paste0("P2G", seq_len(nrow(mATAC)))
+  rownames(mRNA) <- paste0("P2G", seq_len(nrow(mRNA)))
+
+  .messageDiffTime("Ordering Peak2Gene Links!", tstart)
+  k1 <- kmeans(mATAC, k)
+  if(nrow(matATAC) > nPlot){
+    nPK <- nPlot * table(k1$cluster) / length(k1$cluster) 
+    splitK <- split(seq_len(nrow(mATAC)), k1$cluster)
+    kDF <- lapply(seq_along(splitK), function(x){
+      DataFrame(k=x,idx=sample(splitK[[x]], floor(nPK[x])))
+    }) %>% Reduce("rbind", .)
+  }else{
+    kDF <- DataFrame(k = k1$cluster, idx = seq_len(nrow(mATAC))
+  }
+  bS <- .binarySort(t(.groupMeans(t(mATAC[kDF[,2],]), kDF[,1])),  clusterCols = TRUE)
+  rowOrder <- rownames(bS[[1]])
+  colOrder <- colnames(bS[[1]])
+  kDF[,3] <- as.integer(mapLabels(paste0(kDF[,1]), newLabels = paste0(seq_along(rowOrder)), oldLabels = rowOrder))
+
+  .messageDiffTime("Constructing ATAC Heatmap!", tstart)
+  htATAC <- .ArchRHeatmap(
+    mat = mATAC[kDF[,2],colOrder],#[rowOrder, colOrder],
+    scale = FALSE,
+    limits = limitsATAC,
+    color = palATAC, 
+    clusterCols = FALSE,
+    clusterRows = FALSE,
+    split = kDF[,3],
+    labelRows = FALSE,
+    labelCols = FALSE,
+    draw = FALSE,
+    name = paste0("ATAC Z-Scores\n", nrow(mATAC), " P2GLinks")
+  )
+
+  .messageDiffTime("Constructing RNA Heatmap!", tstart)
+  htRNA <- .ArchRHeatmap(
+    mat = mRNA[kDF[,2],colOrder], #mRNA[rowOrder, colOrder],
+    scale = FALSE,
+    limits = limitsRNA,
+    color = palRNA, 
+    clusterCols = FALSE,
+    clusterRows = FALSE,
+    split = kDF[,3],
+    labelRows = FALSE,
+    labelCols = FALSE,
+    draw = FALSE,
+    name = paste0("RNA Z-Scores\n", nrow(mRNA), " P2GLinks")
+  )
+
+  htATAC + htRNA
+
+}
+
+
+
+

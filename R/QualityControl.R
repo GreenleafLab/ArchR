@@ -89,8 +89,9 @@ plotTSSEnrichment <- function(
   }else{
 
     plotDF <- data.frame(x=dfTSS$x,v=dfTSS$smoothValue,sampleName=dfTSS$sampleName)
+    plotDF <- plotDF[sort(unique(c(1,seq_len(1,nrow(plotDF),11),nrow(plotDF)))), , drop = FALSE]
     
-    p <- ggplot(plotDF, aes(x,v,color=sampleName)) + 
+    p <- ggplot(plotDF, aes(x,v,color=sampleName)) +
       geom_line(size = 1) +
       theme_ArchR() +
       xlab("Distance From Center (bp)") +
