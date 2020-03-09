@@ -19,6 +19,7 @@ plotGroups(
   ratioYX = NULL,
   ridgeScale = 1,
   plotAs = "ridges",
+  threads = getArchRThreads(),
   ...
 )
 }

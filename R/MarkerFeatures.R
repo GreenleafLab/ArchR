@@ -2,7 +2,7 @@
 # Marker Feature Methods
 ##########################################################################################
 
-#' Identify Marker Features for each cell grouping
+#' Identify Marker Features for each cell grouping JJJ
 #' 
 #' This function will identify features that are definitional of each provided cell grouping where possible
 #' 
@@ -95,11 +95,11 @@ markerFeatures <- function(
     maxCells = 500,
     scaleTo = 10^4,
     bufferRatio = 0.8,
-    useSeqnames = NULL,
     bias = NULL,
     k = 100,
     threads = 8,
     binarize = FALSE,
+    useSeqnames = NULL,
     testMethod = "wilcoxon",
     useMatrix = "GeneScoreMatrix",
     markerParams = list(),
@@ -116,18 +116,29 @@ markerFeatures <- function(
     featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
     matrixClass <- as.character(h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class")))
 
+    seqnames <- unique(as.vector(featureDF$seqnames))
+    useSeqnames <- useSeqnames[useSeqnames %in% seqnames]
+    if(length(useSeqnames)==0){
+      useSeqnames <- NULL
+    }
+
     if(!is.null(useSeqnames)){
       if(length(useSeqnames) == 1){
         featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
       }else{
-        if(matrixClass == "Sparse.Assays.Matrix"){
-          stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames!\nPlease specify 1 seqname in useSeqnames to continue!\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available seqnames for input!")
-        }
+        message("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
+          "Continuing with first seqname '", seqnames[1], "'!\n",
+          "If confused, try getFeatures(ArchRProj, '", useqMatrix,"'') to list out available seqnames for input!")
+        useSeqnames <- seqnames[1]
         featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
       }
     }else{
       if(matrixClass == "Sparse.Assays.Matrix"){
-        stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames!\nPlease specify 1 seqname in useSeqnames to continue!\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available seqnames for input!")
+        message("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
+          "Continuing with first seqname '", seqnames[1], "'!\n",
+          "If confused, try getFeatures(ArchRProj, '", useqMatrix,"'') to list out available seqnames for input!")
+        useSeqnames <- seqnames[1]
+        featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
       }
     }
     if(!(nrow(featureDF) > 1)){
@@ -154,7 +165,14 @@ markerFeatures <- function(
     #####################################################
     # Pairwise Test Per Seqnames
     #####################################################
-    mColSums <- suppressMessages(.getColSums(ArrowFiles, seqnames = featureDF$seqnames@values, useMatrix = useMatrix, threads = threads))
+    mColSums <- tryCatch({
+      suppressMessages(.getColSums(ArrowFiles, seqnames = featureDF$seqnames@values, useMatrix = useMatrix, threads = threads))
+    }, error = function(x){
+      rep(1, nCells(ArchRProj))
+    })
+    if(all(mColSums==1) & is.null(normBy)){
+      normBy <- "none"
+    }
     
     if(is.null(normBy)){
       if(tolower(testMethod) == "binomial"){
@@ -209,6 +227,7 @@ markerFeatures <- function(
               Log2FC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$log2FC)) %>% Reduce("cbind",.),
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
+              MeanDiff = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1 - diffList[[x]]$mean2)) %>% Reduce("cbind",.),
               AUC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$auc)) %>% Reduce("cbind",.),
               MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
             ),
@@ -222,6 +241,7 @@ markerFeatures <- function(
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               Variance = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
+              MeanDiff = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1 - diffList[[x]]$mean2)) %>% Reduce("cbind",.),
               MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.),
               VarianceBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$var2)) %>% Reduce("cbind",.)
             ),
@@ -234,6 +254,7 @@ markerFeatures <- function(
               Log2FC = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$log2FC)) %>% Reduce("cbind",.),
               Mean = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1)) %>% Reduce("cbind",.),
               FDR = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$fdr)) %>% Reduce("cbind",.),
+              MeanDiff = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean1 - diffList[[x]]$mean2)) %>% Reduce("cbind",.),
               MeanBGD = lapply(seq_along(diffList), function(x) data.frame(x = diffList[[x]]$mean2)) %>% Reduce("cbind",.)
             ),
           rowData = featureDF
@@ -293,6 +314,7 @@ markerFeatures <- function(
     }
 
     args <- list()
+
     if(!is.null(normFactors)){
       args$mat1 <- Matrix::t(Matrix::t(scMaty[, cellsx, drop = FALSE]) * cellNF)
       args$mat2 <- Matrix::t(Matrix::t(scMaty[, bgdx, drop = FALSE]) * bgdNF)
@@ -400,8 +422,8 @@ markerFeatures <- function(
       log2FC = log2FC,
       fdr = fdr, 
       pval = pvalue, 
-      mean1 = m1, 
-      mean2 = m2, 
+      mean1 = m1 / n1, 
+      mean2 = m2 / n2, 
       var1 = v2,
       var2 = v2,
       n = n1
@@ -706,7 +728,7 @@ markerHeatmap <- function(
   scaleTo = 10^4,
   scaleRows = TRUE,
   plotLog2FC = FALSE,
-  limits = c(-2,2),
+  limits = c(-2, 2),
   grepExclude = NULL,
   pal = NULL,
   binaryClusterRows = TRUE,
@@ -970,10 +992,15 @@ markerHeatmap <- function(
   if (!is.null(limits)) {
     mat[mat > max(limits)] <- max(limits)
     mat[mat < min(limits)] <- min(limits)
-    breaks <- seq(min(limits), max(limits), length.out = length(color))
-    color <- circlize::colorRamp2(breaks, color)
+  }else{
+    limits <- c(round(min(mat),2), round(max(mat),2))
   }
-  
+
+  #Scale Values 0 - 1
+  mat <- (mat - min(limits)) / (max(limits) - min(limits))
+  breaks <- seq(0, 1, length.out = length(color))
+  color <- circlize::colorRamp2(breaks, color)
+
   if(exists('anno_mark', where='package:ComplexHeatmap', mode='function')){
     anno_check_version_rows <- ComplexHeatmap::anno_mark
     anno_check_version_cols <- ComplexHeatmap::anno_mark
@@ -1040,9 +1067,12 @@ markerHeatmap <- function(
     
     #Heatmap Legend
     heatmap_legend_param = 
-      list(color_bar = "continuous", 
+      list(
+           at = c(0, 1),
+           labels = c(round(min(limits),2), round(max(limits),2)),
+           color_bar = "continuous", 
            legend_direction = "horizontal",
-           legend_width = unit(5, "cm")
+           legend_width = unit(3, "cm")
       ), 
     rect_gp = gpar(col = borderColor), 
     
@@ -1090,6 +1120,7 @@ markerHeatmap <- function(
   }
 
 }
+
 
 .colorMapForCH <- function(colorMap = NULL, colData = NULL){
   colorMap <- colorMap[which(names(colorMap) %in% colnames(colData))]
@@ -1249,6 +1280,9 @@ getMarkers <- function(
       rrx <- rr[idx]
       rrx$Log2FC <- SummarizedExperiment::assays(seMarker[idx, ])[["Log2FC"]][, x]
       rrx$FDR <- SummarizedExperiment::assays(seMarker[idx, ])[["FDR"]][, x]
+      if("MeanDiff" %in% assayNames){
+        rrx$MeanDiff <- SummarizedExperiment::assays(seMarker[idx, ])[["MeanDiff"]][, x]
+      }
       rrx <- rrx[order(rrx$FDR),,drop=FALSE]
       if(!is.null(n)){
         if(n < nrow(rrx)){
@@ -1271,6 +1305,9 @@ getMarkers <- function(
       rrx <- SummarizedExperiment::rowData(seMarker[idx,])
       rrx$Log2FC <- SummarizedExperiment::assays(seMarker[idx, ])[["Log2FC"]][, x]
       rrx$FDR <- SummarizedExperiment::assays(seMarker[idx, ])[["FDR"]][, x]
+      if("MeanDiff" %in% assayNames){
+        rrx$MeanDiff <- SummarizedExperiment::assays(seMarker[idx, ])[["MeanDiff"]][, x]
+      }
       rrx <- rrx[order(rrx$FDR),,drop=FALSE]
       if(!is.null(n)){
         if(n < nrow(rrx)){
@@ -1328,23 +1365,29 @@ markerPlot <- function(
     name <- colnames(seMarker)[1]
   }
   
-  LFC <- assays(seMarker[,name])$Log2FC
-  LFC <- as.vector(as.matrix(LFC))
-  qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4) * 1.05
-
   FDR <- assays(seMarker[,name])$FDR
   FDR <- as.vector(as.matrix(FDR))
   FDR[is.na(FDR)] <- 1
 
-  LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBGD)/2 + 1)
-  LM <- as.vector(as.matrix(LM))
+  if(tolower(plotAs) == "volcanodiff"){
+    Diff <- assays(seMarker[,name])$MeanDiff
+    Diff <- as.vector(as.matrix(Diff))
+    qDiff <- max(quantile(abs(Diff), probs = 0.999, na.rm=TRUE), 4) * 1.05
+    color <- ifelse(passMat[, name], "Differential", "Not-Differential")
+    color[color == "Differential"] <- ifelse(Diff[color == "Differential"] > 0, "Up-Regulated", "Down-Regulated")
+  }else{
+    LFC <- assays(seMarker[,name])$Log2FC
+    LFC <- as.vector(as.matrix(LFC))
+    qLFC <- max(quantile(abs(LFC), probs = 0.999, na.rm=TRUE), 4) * 1.05
+    LM <- log2((assays(seMarker[,name])$Mean + assays(seMarker[,name])$MeanBGD)/2 + 1)
+    LM <- as.vector(as.matrix(LM))
+    color <- ifelse(passMat[, name], "Differential", "Not-Differential")
+    color[color == "Differential"] <- ifelse(LFC[color == "Differential"] > 0, "Up-Regulated", "Down-Regulated")
+  }
 
-  color <- ifelse(passMat[, name], "Differential", "Not-Differential")
-  color[color == "Differential"] <- ifelse(LFC[color == "Differential"] > 0, "Up-Regulated", "Down-Regulated")
   pal <- c("Up-Regulated" = "firebrick3", "Not-Differential" = "lightgrey", "Down-Regulated" = "dodgerblue3")
 
   idx <- c(which(!passMat[, name]), which(passMat[, name]))
-
   title <- sprintf("Number of features = %s\nNumber Up-Regulated = %s (%s Percent)\nNumber Down-Regulated = %s (%s Percent)",
     nrow(seMarker), sum(color=="Up-Regulated"), 
     round(100 * sum(color=="Up-Regulated") / nrow(seMarker), 2),
@@ -1386,6 +1429,22 @@ markerPlot <- function(
       title = title
     ) + geom_vline(xintercept = 0, lty = "dashed") + 
     scale_x_continuous(breaks = seq(-100, 100, 2), limits = c(-qLFC, qLFC), expand = c(0,0))
+  }else if(tolower(plotAs) == "volcanodiff"){
+    ggPoint(
+      x = Diff[idx],
+      y = -log10(FDR[idx]), 
+      color = color[idx], 
+      xlim = c(-qDiff, qDiff),
+      extend = 0,
+      size = 1,
+      rastr = TRUE, 
+      labelMeans = FALSE,
+      labelAsFactors = FALSE,
+      pal = pal,
+      xlabel = "Mean Difference",
+      ylabel = "-Log10 FDR",
+      title = title
+    ) + geom_vline(xintercept = 0, lty = "dashed")
   }else{
     stop("plotAs not recognized")
   }

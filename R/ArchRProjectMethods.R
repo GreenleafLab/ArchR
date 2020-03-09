@@ -32,7 +32,7 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force =
   }
   
   message("Setting default number of Parallel threads to ", threads, ".")
-  assign(".ArchRThreads", as.integer(threads), envir = .GlobalEnv)
+  options(ArchR.threads = as.integer(round(threads)))
 
 }
 
@@ -42,11 +42,12 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force =
 #' 
 #' @export
 getArchRThreads <- function(){
-  if(exists(".ArchRThreads")){
-    if(!is.integer(.ArchRThreads)){
-      message(".ArchRThreads : ", .ArchRThreads, " is not an integer. \nDid you mistakenly set this to a value without addArchRThreads? Deleting .ArchRThreads from global environment.")
-      rm(list=".ArchRThreads", envir = .GlobalEnv ) # Remove this.
-      1
+  .ArchRThreads <- options()[["ArchR.threads"]]
+  if(!is.null(.ArchRThreads)){
+    if(!.isWholenumber(.ArchRThreads)){
+      message("option(ArchR.threads) : ", .ArchRThreads, " is not an integer. \nDid you mistakenly set this to a value without addArchRThreads? Reseting to default!")
+      addArchRThreads()
+      options()[["ArchR.threads"]]
     }else{
       .ArchRThreads
     }
@@ -127,8 +128,9 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
     genome <- paste(toupper(substr(genome, 1, 1)), substr(genome, 2, nchar(genome)), sep="")
     
     message("Setting default genome to ", genome, ".")
-    assign(".ArchRGenome", genome, envir = .GlobalEnv)
-    
+    #assign(".ArchRGenome", genome, envir = .GlobalEnv)
+    options(ArchR.genome = genome)
+
   }
 
   invisible(0)
@@ -153,8 +155,9 @@ getArchRGenome <- function(
   ){
 
   supportedGenomes <- c("hg19","hg38","mm9","mm10")
+  .ArchRGenome <- options()[["ArchR.genome"]]
 
-  if(exists(".ArchRGenome")){
+  if(!is.null(.ArchRGenome)){
 
     ag <- .ArchRGenome
     
@@ -196,8 +199,7 @@ getArchRGenome <- function(
 
       }else{
         
-        rm(list=".ArchRGenome", envir = .GlobalEnv ) # Remove this.
-        stop(".ArchRGenome : ", ag, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
+        stop("option(ArchR.genome) : ", ag, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
       
       }
     }
@@ -548,6 +550,16 @@ getArrowFiles <- function(ArchRProj = NULL){
   af <- ArchRProj@sampleColData$ArrowFiles
   
   names(af) <- rownames(ArchRProj@sampleColData)
+
+  af <- af[unique(ArchRProj$Sample)]
+
+  idx <- tryCatch({
+      order(file.info(af)$size, decreasing = TRUE)
+  }, error = function(x) {
+      seq_along(af)
+  })
+
+  af <- af[idx]
   
   return(af)
 
@@ -1592,8 +1604,92 @@ getAvailableMatrices <- function(ArchRProj = NULL){
 
 
 
+# addColorPalette <- function(
+#   ArchRProj = NULL,
+#   pal = NULL
+#   ){
 
+# }
 
+# getColorPalette <- function(
+#   ArchRProj = NULL,
+#   name = NULL
+#   ){
 
+# }
 
+# JJJ
+#' @param ArchRProj An `ArchRProject` object.
+#' @export
+addFeatureCounts <- function(
+  ArchRProj = NULL,
+  features = NULL,
+  name = NULL,
+  addRatio = TRUE,
+  threads = getArchRThreads()
+  ){
+
+  tstart <- Sys.time()
+  ArrowFiles <- getArrowFiles(ArchRProj)
+  cellNames <- ArchRProj$cellNames
+  featuresList <- split(features, seqnames(features))
+
+  h5disableFileLocking()
+
+  countsDF <- ArchR:::.safelapply(seq_along(featuresList), function(i){
+
+    chri <- names(featuresList)[i]
+    cellTotal <- rep(0, length(cellNames))
+    names(cellTotal) <- cellNames
+    featuresi <- ranges(featuresList[[i]])
+    ArchR:::.messageDiffTime(paste0("Counting in ",chri," (", i, " of ", length(featuresList), ")"), tstart)
+
+    for(j in seq_along(ArrowFiles)){
+
+      fragmentsij <- ArchR:::.getFragsFromArrow(
+        ArrowFile = ArrowFiles[j], 
+        chr = chri, 
+        out = "IRanges", 
+        cellNames = cellNames
+      )
+      if(length(fragmentsij) > 0){
+        
+        #Set To Integers
+        mcols(fragmentsij)$RG@values <- match(mcols(fragmentsij)$RG@values, cellNames)
+
+        for(y in seq_len(2)){   
+          if(y==1){
+            temp <- IRanges(start(fragmentsij), width = 1)
+          }else if(y==2){
+            temp <- IRanges(end(fragmentsij), width = 1)
+          }
+          stopifnot(length(temp) == length(fragmentsij))
+          tabSum <- S4Vectors:::tabulate(mcols(fragmentsij)$RG[queryHits(findOverlaps(temp, featuresi))])
+          cellTotal[seq_along(tabSum)] <- cellTotal[seq_along(tabSum)] + tabSum
+        }
+
+      }
+
+      if(j %% 3 == 0){
+        gc()
+      }
+
+    }
+
+    cellTotal
+
+  }, threads = threads) %>% Reduce("rbind", .)
+
+  totalCounts <- colSums(countsDF)
+  countRatio <- totalCounts / (2 * ArchRProj$nFrags)
+
+  ArchR:::.messageDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Counts")), tstart)
+  ArchRProj <- addCellColData(ArchRProj, data = totalCounts, cells = names(totalCounts),  name = paste0(name,"Counts"), force = TRUE)
+ 
+  ArchR:::.messageDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Ratio")), tstart)
+  ArchRProj <- addCellColData(ArchRProj, data = countRatio, cells = names(totalCounts),  name = paste0(name,"Ratio"), force = TRUE)
+
+  ArchRProj
+
+}
 

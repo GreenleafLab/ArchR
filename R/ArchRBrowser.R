@@ -1147,7 +1147,7 @@ ArchRBrowserTrack <- function(
       chr = paste0(seqnames(region)), 
       cellNames = cellNames, 
       out = "GRanges"
-    ) %>% subsetByOverlaps(., region, ignore.strand = FALSE)
+    ) %>% subsetByOverlaps(., region, ignore.strand = TRUE)
   
   #Starts
   ts <- match(trunc(start(cellFragsRegion)/tileSize) * tileSize, regionTiles, nomatch = 0)

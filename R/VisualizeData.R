@@ -45,13 +45,14 @@ plotEmbedding <- function(
   size = 0.1,
   sampleCells = NULL,
   rastr = TRUE,
-  quantCut = c(0.01, 0.99),
+  quantCut = c(0.001, 0.999),
   discreteSet = NULL,
   continuousSet = NULL,
   randomize = TRUE,
   keepAxis = FALSE,
   baseSize = 10,
   plotAs = NULL,
+  threads = getArchRThreads(),
   ...
   ){
 
@@ -78,6 +79,14 @@ plotEmbedding <- function(
   # Get Embedding
   ##############################
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+  if(!is.null(sampleCells)){
+    if(sampleCells < nrow(df)){
+      if(!is.null(imputeWeights)){
+        stop("Cannot sampleCells with imputeWeights not equalt to NULL at this time!")
+      }
+      df <- df[sort(sample(seq_len(nrow(df)), sampleCells)), , drop = FALSE]
+    }
+  }
 
   #Parameters
   plotParams <- list(...)
@@ -107,7 +116,7 @@ plotEmbedding <- function(
       
     colorList <- lapply(seq_along(name), function(x){
       colorParams <- list()
-      colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = TRUE))
+      colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = FALSE)[rownames(df), 1])
       colorParams$discrete <- .isDiscrete(colorParams$color)
       colorParams$continuousSet <- "solarExtra"
       colorParams$discreteSet <- "stallion"
@@ -122,12 +131,36 @@ plotEmbedding <- function(
     })
 
   }else{
+
+    units <- tryCatch({
+        .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
+      },error=function(e){
+        "values"
+    })
     
     if(is.null(log2Norm) & tolower(colorBy) == "genescorematrix"){
       log2Norm <- TRUE
     }
 
-    colorMat <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[,rownames(df), drop=FALSE]
+    if(is.null(log2Norm)){
+      log2Norm <- FALSE
+    }
+
+    colorMat <- .getMatrixValues(
+      ArchRProj = ArchRProj, 
+      name = name, 
+      matrixName = colorBy, 
+      log2Norm = FALSE, 
+      threads = threads
+    )[,rownames(df), drop=FALSE]
+
+    if(!is.null(imputeWeights)){
+      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = proj@imputeWeights)
+      if(!inherits(colorMat, "matrix")){
+        colorMat <- matrix(colorMat, ncol = nrow(df))
+        colnames(colorMat) <- rownames(df)
+      }
+    }
 
     colorList <- lapply(seq_len(nrow(colorMat)), function(x){
       colorParams <- list()
@@ -166,11 +199,6 @@ plotEmbedding <- function(
 
       plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
 
-      if(!is.null(imputeWeights)){
-        imputeWeights <- imputeWeights$Weights[rownames(df), rownames(df)]
-        plotParamsx$color <- (imputeWeights %*% as(as.matrix(plotParamsx$color), "dgCMatrix"))[,1] 
-      }
-
       plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
 
       if(!is.null(pal)){
@@ -181,6 +209,13 @@ plotEmbedding <- function(
 
       if(is.null(plotAs)){
         plotAs <- "hexplot"
+      }
+
+      if(log2Norm){
+        plotParamsx$color <- log2(plotParamsx$color + 1)
+        plotParamsx$colorTitle <- paste0("Log2(",units," + 1)")
+      }else{
+        plotParamsx$colorTitle <- units
       }
 
       if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
@@ -264,6 +299,7 @@ plotGroups <- function(
   ratioYX = NULL,
   ridgeScale = 1,
   plotAs = "ridges",
+  threads = getArchRThreads(),
   ...
   ){
   
@@ -311,12 +347,13 @@ plotGroups <- function(
           log2Norm <- TRUE
         }
       }
-      values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm)[1, names(groupNames)]
+      values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm, threads = threads)[1, names(groupNames)]
     }
 
     if(!is.null(imputeWeights)){
-      imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
-      values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
+      values <- as.vector(imputeMatrix(mat = as.matrix(values), imputeWeights = imputeWeights))
+      #imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
+      #values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
     }
 
     if(is.null(ylim)){
@@ -351,7 +388,7 @@ plotGroups <- function(
 
 }
 
-.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = TRUE){
+.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = FALSE, threads = getArchRThreads()){
   
   o <- h5closeAll()
 
@@ -401,7 +438,7 @@ plotGroups <- function(
   #Get Values for FeatureName
   cellNamesList <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
   
-  values <- lapply(seq_along(cellNamesList), function(x){
+  values <- .safelapply(seq_along(cellNamesList), function(x){
     message(x, " ", appendLF = FALSE)
     o <- h5closeAll()
     ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
@@ -410,17 +447,24 @@ plotGroups <- function(
         featureDF = featureDF,
         binarize = FALSE, 
         useMatrix = matrixName, 
-        cellNames = cellNamesList[[x]]
+        cellNames = cellNamesList[[x]],
+        threads = 1
       )
     colnames(valuesx) <- cellNamesList[[x]]
     valuesx
-  }) %>% Reduce("cbind", .)
+  }, threads = threads) %>% Reduce("cbind", .)
   message("")
   gc()
+
+  if(!inherits(values, "matrix")){
+    values <- matrix(as.matrix(values), ncol = nCells(ArchRProj))
+    colnames(values) <- unlist(cellNamesList)
+  }
 
   #Values Summary
   if(!is.null(log2Norm)){
     if(log2Norm){
+      message("Log2 Normalizing...")
       values <- log2(values + 1)
     }
   }

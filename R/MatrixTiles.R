@@ -108,19 +108,18 @@ addTileMatrix <- function(
 
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)
-
-  o <- h5closeAll()
   
   #Check
-  if(!suppressMessages(h5createGroup(file = ArrowFile, "TileMatrix"))){
-    if(force){
-      o <- h5delete(file = ArrowFile, name = "TileMatrix")
-      o <- h5createGroup(ArrowFile, "TileMatrix")
-    }else{
-      stop("TileMatrix Already Exists!, set force = TRUE to override!")
-    }
-  }
-
+  o <- h5closeAll()
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+  # if(!suppressMessages(h5createGroup(file = ArrowFile, "TileMatrix"))){
+  #   if(force){
+  #     o <- h5delete(file = ArrowFile, name = "TileMatrix")
+  #     o <- h5createGroup(ArrowFile, "TileMatrix")
+  #   }else{
+  #     stop("TileMatrix Already Exists!, set force = TRUE to override!")
+  #   }
+  # }
 
   tstart <- Sys.time()
   if(!is.null(blacklist)){
@@ -158,13 +157,16 @@ addTileMatrix <- function(
   ######################################
   if(binarize){
     Class <- "binary"
+    Units <- "BinarizedCounts"
   }else{
     Class <- "integer"
+    Units <- "Counts"
   }
   o <- .initializeMat(
     ArrowFile = ArrowFile,
     Group = "TileMatrix",
     Class = Class,
+    Units = Units,
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,

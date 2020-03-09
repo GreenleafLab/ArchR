@@ -17,7 +17,7 @@ addReproduciblePeakSet(
   genomeSize = NULL,
   shift = -75,
   extsize = 150,
-  method = "q",
+  method = if (tolower(peakMethod) == "macs2") "q" else "p",
   cutOff = 0.1,
   additionalParams = "--nomodel --nolambda",
   extendSummits = 250,

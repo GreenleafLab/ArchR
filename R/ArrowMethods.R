@@ -22,24 +22,26 @@
   matrixName
 }
 
-.availableArrays <- function(ArrowFiles = NULL){
+.availableArrays <- function(ArrowFiles = NULL, threads = getArchRThreads()){
+  threads <- min(threads, length(ArrowFiles))
   o <- h5closeAll()
-  availableArrays <- lapply(seq_along(ArrowFiles), function(x){
+  availableArrays <- .safelapply(seq_along(ArrowFiles), function(x){
     groups <- h5ls(ArrowFiles[x]) %>% {.[.$group=="/" & .$otype=="H5I_GROUP","name"]}
     groups <- groups[!grepl("Fragments|Metadata", groups)]
     groups
-  }) %>% Reduce("intersect", .)
+  }, threads = threads) %>% Reduce("intersect", .)
   o <- h5closeAll()
   return(availableArrays)
 }
 
-.availableSeqnames <- function(ArrowFiles = NULL, subGroup = "Fragments"){
+.availableSeqnames <- function(ArrowFiles = NULL, subGroup = "Fragments", threads = getArchRThreads()){
+  threads <- min(threads, length(ArrowFiles))
   o <- h5closeAll()
-  seqList <- lapply(seq_along(ArrowFiles), function(x){
+  seqList <- .safelapply(seq_along(ArrowFiles), function(x){
     seqnames <- h5ls(ArrowFiles[x]) %>% {.[.$group==paste0("/",subGroup),]$name}
     seqnames <- seqnames[!grepl("Info", seqnames)]
     seqnames
-  })
+  }, threads = threads)
   if(!all(unlist(lapply(seq_along(seqList), function(x) identical(seqList[[x]],seqList[[1]]))))){
     stop("Not All Seqnames Identical!")
   }
@@ -148,7 +150,9 @@
   return(md)
 }
 
-.getFeatureDF <- function(ArrowFiles = NULL, subGroup = "TileMatrix"){
+.getFeatureDF <- function(ArrowFiles = NULL, subGroup = "TileMatrix", threads = getArchRThreads()){
+
+  threads <- min(threads, length(ArrowFiles))
   
   .helpFeatureDF <- function(ArrowFile = NULL, subGroup = NULL){
     o <- h5closeAll()
@@ -162,10 +166,10 @@
 
   if(length(ArrowFiles) > 1){
     ArrowFiles <- ArrowFiles[-1]
-    checkIdentical <- lapply(seq_along(ArrowFiles), function(x){
+    checkIdentical <- .safelapply(seq_along(ArrowFiles), function(x){
         fdfx <- .helpFeatureDF(ArrowFiles[x], subGroup = subGroup)
         identical(fdfx, fdf)
-    }) %>% unlist %>% all
+    }, threads = threads) %>% unlist %>% all
     if(!checkIdentical){
       stop("Error not all FeatureDF for asssay is the same!")
     }
@@ -177,3 +181,122 @@
   
 }
 
+#####################################################################
+# Dropping Group From Hdf5 File
+#####################################################################
+.createArrowGroup <- function(
+  ArrowFile = NULL, 
+  group = "GeneScoreMatrix", 
+  force = FALSE, 
+  verbose = FALSE
+  ){
+  
+  ArrowInfo <- .summarizeArrowContent(ArrowFile)
+  if(group == "Fragments"){ #This shouldnt happen but just in case
+    stop("Cannot create Group over Fragments in Arrow!")
+  }
+
+  if(group %in% names(ArrowInfo)){
+    #We Should Check How Big it is if it exists
+    ArrowGroup <- ArrowInfo[[group]]
+    ArrowGroup <- ArrowGroup[names(ArrowGroup) %ni% c("Info")]
+    if(length(ArrowGroup) > 0){
+      if(!force){
+        stop("Arrow Group already exists! Set force = TRUE to continue!")
+      }else{
+        message("Arrow Group already exists! Dropping Group from ArrowFile! This will take ~10-30 seconds!")
+        o <- .dropGroupsFromArrow(ArrowFile = ArrowFile, dropGroups = group, verbose = verbose)
+        h5createGroup(ArrowFile , group)
+        invisible(return(0))
+      }
+    }
+  }else{
+    h5createGroup(ArrowFile , group)
+    invisible(return(0))
+  }
+
+}
+
+.dropGroupsFromArrow <- function(
+  ArrowFile = NULL, 
+  dropGroups = NULL,
+  level = 0,
+  verbose = FALSE
+  ){
+
+  tstart <- Sys.time()
+
+  #Summarize Arrow Content
+  ArrowInfo <- .summarizeArrowContent(ArrowFile)
+
+  #We need to transfer first
+  outArrow <- ArchR:::.tempfile(fileext = ".arrow")
+  o <- h5closeAll()
+  o <- h5createFile(outArrow)
+
+  #1. Metadata First
+  groupName <- "Metadata"
+  o <- h5createGroup(outArrow, groupName)
+  mData <- ArrowInfo[[groupName]]
+  
+  for(i in seq_len(nrow(mData))){
+    h5name <- paste0(groupName, "/", mData$name[i])
+    h5write(.h5read(ArrowFile, h5name), file = outArrow, name = h5name)
+  }
+
+  groupsToTransfer <- names(ArrowInfo)
+  groupsToTransfer <- groupsToTransfer[groupsToTransfer %ni% "Metadata"]
+  if(!is.null(dropGroups)){
+    groupsToTransfer <- groupsToTransfer[tolower(groupsToTransfer) %ni% tolower(dropGroups)]
+  }
+
+  for(k in seq_along(groupsToTransfer)){
+
+    if(verbose) .messageDiffTime(paste0("Transferring ", groupsToTransfer[k]), tstart)
+
+    #Create Group
+    groupName <- groupsToTransfer[k]
+    o <- h5createGroup(outArrow, groupName)
+    
+    #Sub Data
+    mData <- ArrowInfo[[groupName]]
+    
+    #Get Order Of Sub Groups (Mostly Related to Seqnames)
+    seqOrder <- sort(names(mData))
+    if(any(grepl("chr", seqOrder))){
+      seqOrder <- c(seqOrder[!grepl("chr", seqOrder)], seqOrder[grepl("chr", seqOrder)])
+    }
+    
+    for(j in seq_along(seqOrder)){
+
+      if(verbose) message(j, " ", appendLF = FALSE)
+
+      #Create Group
+      groupJ <- paste0(groupName, "/", seqOrder[j])
+      o <- h5createGroup(outArrow, groupJ)
+
+      #Sub mData
+      mDataj <- mData[[seqOrder[j]]]
+
+      #Transfer Components
+      for(i in seq_len(nrow(mDataj))){
+        h5name <- paste0(groupJ, "/", mDataj$name[i])
+        .suppressAll(h5write(.h5read(ArrowFile, h5name), file = outArrow, name = h5name, level = level))
+      }
+
+    }
+
+    gc()
+    
+    if(verbose) message("")
+
+  }
+
+  rmf <- file.remove(ArrowFile)
+  out <- .fileRename(from = outArrow, to = ArrowFile)
+  
+  if(verbose) .messageDiffTime("Completed Dropping of Group(s)", tstart)
+
+  ArrowFile
+
+}

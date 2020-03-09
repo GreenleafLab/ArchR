@@ -315,7 +315,7 @@ addGroupCoverages <- function(
     #Dealing with sampling w/o replacement!
     matchRG <- as.vector(S4Vectors::match(mcols(fragik)$RG, names(tableGroupi)))
     fragik <- rep(fragik, tableGroupi[matchRG])
-    nCells <- c(nCells, unique(runValue(mcols(fragik)$RG)))
+    nCells <- c(nCells, unique(mcols(fragik)$RG))
 
     #Compute Rle Coverage
     covk <- coverage(IRanges(start = c( start(fragik), end(fragik) ), width = 1), width = chromLengths[availableChr[k]])
@@ -521,8 +521,7 @@ addGroupCoverages <- function(
   availableChr <- .availableSeqnames(coverageFiles, "Coverage")
 
   biasList <- .safelapply(seq_along(availableChr), function(x){
-    #.messageDiffTime(sprintf("Computing Kmer Bias Chr %s of %s!", x, length(availableChr)), tstart, verbose=verbose)
-    message(".", appendLF = FALSE)
+    message(availableChr[x]," ", appendLF = FALSE)
     chrBS <- BSgenome[[availableChr[x]]]
     exp <- Biostrings::oligonucleotideFrequency(chrBS, width = kmerLength)
     obsList <- lapply(seq_along(coverageFiles), function(y){
@@ -536,7 +535,7 @@ addGroupCoverages <- function(
     SimpleList(expected = exp, observed = obsList)
   }, threads = threads) %>% SimpleList
   names(biasList) <- availableChr
-  message("\n")
+  message("")
 
   #Summarize Bias
   for(i in seq_along(biasList)){

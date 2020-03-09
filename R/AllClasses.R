@@ -359,7 +359,8 @@ loadArchRProject <- function(
   if(i=="cellNames"){
     return(rownames(x@cellColData))
   }else{
-    return(x@cellColData[[i, drop = TRUE]])
+    val <- x@cellColData[[i, drop = TRUE]]
+    return(as.vector(val))
   }
 }
 
@@ -370,11 +371,22 @@ loadArchRProject <- function(
 #' @export
 #'
 "$<-.ArchRProject" <- function(x, i, value){
+  if(i == "Sample"){
+    stop("Sample is a protected column in cellColData. Please do not try to overwrite this column!")
+  }
+  if(i == "cellNames"){
+    stop("cellNames is a protected column in cellColData. Please do not try to overwrite this column!")
+  }
+  if(i == "nFrags"){
+    stop("nFrags is a protected column in cellColData. Please do not try to overwrite this column!")
+  }
   if(object.size(Rle(value)) < 2 * object.size(value)){ #Check if Rle is more efficient for storage purposes...
     value <- Rle(value)
   }
-  if(length(value)==1){
-    value <- Rle(value, lengths = nrow(x@cellColData))
+  if(!is.null(value)){
+    if(length(value)==1){
+      value <- Rle(value, lengths = nrow(x@cellColData))
+    }
   }
   x@cellColData[[i]] <- value
   return(x)
@@ -390,14 +402,12 @@ loadArchRProject <- function(
 "[.ArchRProject" <- function(x, i, j){
   cD <- x@cellColData
   
-  if (missing(i) && missing(j)) {
+  if(missing(i)){
     return(x)
   }
-  
-  if (missing(i)) {
-    i <- rownames(cD)
-  } else if (missing(j)) {
-    j <- colnames(cD)
+
+  if(!missing(j)){
+    message("Subsetting columns not supported this way to remove columns set them to NULL.\nEx. ArchRProj$Clusters <- NULL\nContinuing just with cell subsetting.")
   }
   
   if (is.logical(i)) {
@@ -407,26 +417,11 @@ loadArchRProject <- function(
     i <- rownames(cD)[i]
   }
   
-  if (is.logical(j)) {
-    if (length(j) != ncol(cD)) {
-      stop("Incorrect number of logical values provided to subset columns in cellColData")
-    }
-    j <- colnames(cD)[j]
-  }
-  
   if (is.numeric(i)) {
     i <- rownames(cD)[i]
   }
-  
-  if (is.numeric(j)) {
-    j <- colnames(cD)[j]
-  }
 
-  if("Sample" %ni% j){
-    stop("Sample column must be in subsetting by column to continue!")
-  }
-
-  x@cellColData <- cD[i, j, drop=FALSE]
+  x@cellColData <- cD[i, , drop=FALSE]
 
   return(x)
 
@@ -447,6 +442,8 @@ setMethod(
     rownames(x@cellColData)
   }
 )
+
+
 
 
 

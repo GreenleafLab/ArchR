@@ -164,6 +164,24 @@ addDeviationsMatrix <- function(
     cellNames <- cellNames[cellNames %in% allCells]
   }
 
+  #Check
+  completed <- tryCatch({
+      h5read(ArrowFile, paste0(matrixName,"/Info/Completed")) #Check if completed
+      return(TRUE)
+    },error = function(y){
+      return(FALSE)
+  })
+  if(completed){
+    if(!force){
+      message("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations.")
+      return(0)
+    }else{
+      message("Previous Run Completed Successfully, continuing since force = TRUE!")
+    }
+  }
+  o <- h5closeAll()
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+
   #Get Matrix and Run ChromVAR!
   .messageDiffTime(sprintf("chromVAR deviations %s Schep (2017)", prefix), tstart, addHeader = TRUE)
   dev <- .getMatFromArrow(
@@ -198,14 +216,25 @@ addDeviationsMatrix <- function(
   }
 
   featureDF <- featureDF[order(featureDF[,1]),]
+
+  Units <- c()
+  if("z" %in% tolower(out)){
+    Units <- c(Units, "DeviationScores")
+  }
+  if("deviations" %in% tolower(out)){
+    Units <- c(Units, "Deviations")
+  }
+
+  #Initialize
   o <- .initializeMat(
     ArrowFile = ArrowFile,
     Group = matrixName,
     Class = "Assays",
+    Units = Units,
     cellNames = colnames(dev),
     params = "chromVAR",
     featureDF = featureDF,
-    force=TRUE
+    force = TRUE
   )
 
   #######################################
@@ -237,7 +266,11 @@ addDeviationsMatrix <- function(
     )    
   }
 
+  #Add Completion Mark
+  o <- h5write(obj = "Finished", file = ArrowFile, name = paste0(matrixName,"/Info/Completed"))
+
   .messageDiffTime("Finished Computing Deviations!", tstart)
+
   return(0)
 
 }

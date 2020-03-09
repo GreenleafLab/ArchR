@@ -1,4 +1,3 @@
-
 ##########################################################################################
 # ggPlot Wrapper Methods For Easy Plotting
 ##########################################################################################
@@ -495,7 +494,7 @@ ggHex <- function(
   baseSize = 6,
   ratioYX = 1, 
   FUN = "mean", 
-  quantCut = c(0.01, 0.99),
+  hexCut = c(0.01, 0.99),
   addPoints = FALSE,
   ...
   ){
@@ -514,7 +513,7 @@ ggHex <- function(
     .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
     .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
     .validInput(input = FUN, name = "FUN", valid = c("character"))
-    .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+    .validInput(input = hexCut, name = "quantCut", valid = c("numeric", "null"))
     .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
     df <- data.frame(x = x, y = y)
@@ -550,8 +549,11 @@ ggHex <- function(
     }
 
     values <- ggplot_build(p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA))$data[[1]]$value
-
-    limits <- quantile(values, c(min(quantCut), max(quantCut)), na.rm=TRUE)
+    if(!is.null(hexCut)){
+      limits <- quantile(values, c(min(hexCut), max(hexCut)), na.rm=TRUE)
+    }else{
+      limits <- c(min(values), max(values))
+    }
 
     p <- p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA) +
         scale_fill_gradientn(
@@ -565,7 +567,7 @@ ggHex <- function(
         theme_ArchR(baseSize = baseSize) +
         coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = FALSE) +
         theme(legend.direction="horizontal", legend.box.background = element_rect(color = NA)) +
-        labs(color = colorTitle)
+        labs(fill = colorTitle)
 
     p <- p + theme(legend.position = "bottom")
     
