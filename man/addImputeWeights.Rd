@@ -12,9 +12,15 @@ addImputeWeights(
   corCutOff = 0.75,
   td = 3,
   ka = 4,
-  sampleCells = max(5000, floor(nCells(ArchRProj)/50)),
+  sampleCells = 5000,
+  nRep = 2,
   k = 15,
-  epsilon = 1
+  epsilon = 1,
+  useHdf5 = TRUE,
+  randomSuffix = FALSE,
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  seed = 1
 )
 }
 \arguments{

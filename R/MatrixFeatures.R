@@ -53,11 +53,21 @@ addFeatureMatrix <- function(
     stop("Error Input Arrow Files do not all exist!")
   }
 
+  #Add Index To Features
+  features <- sort(sortSeqlevels(features), ignore.strand = TRUE)
+  features <- split(features, seqnames(features))
+  features <- lapply(features, function(x){
+    mcols(x)$idx <- seq_along(x)
+    return(x)
+  })
+  features <- Reduce("c",features)
+
   #Add args to list
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
   args$ArrowFiles <- ArrowFiles
   args$allCells <- allCells
   args$X <- seq_along(ArrowFiles)
+  args$features <- features
   args$FUN <- .addFeatureMatrix
   args$registryDir <- file.path(outDir, "CountFeaturesRegistry")
 
@@ -156,18 +166,18 @@ addPeakMatrix <- function(
 
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)
-
-  o <- h5closeAll()
   
   #Check
-  if(!suppressMessages(h5createGroup(ArrowFile, matrixName))){
-    if(force){
-      o <- h5delete(file = ArrowFile, name = matrixName)
-      o <- h5createGroup(ArrowFile, matrixName)
-    }else{
-      stop(sprintf("%s Already Exists!, set force = TRUE to override!", matrixName))
-    }
-  }
+  o <- h5closeAll()
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+  # if(!suppressMessages(h5createGroup(ArrowFile, matrixName))){
+  #   if(force){
+  #     o <- h5delete(file = ArrowFile, name = matrixName)
+  #     o <- h5createGroup(ArrowFile, matrixName)
+  #   }else{
+  #     stop(sprintf("%s Already Exists!, set force = TRUE to override!", matrixName))
+  #   }
+  # }
   
   if(!is.null(tstart)){
     tstart <- Sys.time()
@@ -209,13 +219,16 @@ addPeakMatrix <- function(
   ######################################
   if(binarize){
     Class <- "binary"
+    Units <- "BinarizedCounts"
   }else{
     Class <- "integer"
+    Units <- "Counts"
   }
   o <- .initializeMat(
     ArrowFile = ArrowFile,
     Group = matrixName,
     Class = Class,
+    Units = Units,
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,
@@ -225,6 +238,7 @@ addPeakMatrix <- function(
   ######################################
   # Add To SP Mat Group
   ######################################
+  strand(features) <- "*" #lets make sure nothing strand related occurs
   uniqueChr <- as.character(unique(seqnames(features)@values))
   insertionsInPeaks <- rep(0, length(cellNames))
   names(insertionsInPeaks) <- cellNames

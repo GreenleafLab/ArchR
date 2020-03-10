@@ -2,7 +2,7 @@
 % Please edit documentation in R/MarkerFeatures.R
 \name{markerFeatures}
 \alias{markerFeatures}
-\title{Identify Marker Features for each cell grouping}
+\title{Identify Marker Features for each cell grouping JJJ}
 \usage{
 markerFeatures(
   ArchRProj = NULL,

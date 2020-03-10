@@ -41,7 +41,7 @@ plotFootprints <- function(
   pal = NULL,
   flank = 250,
   flankNorm = 50,
-  smoothWindow = 10,
+  smoothWindow = NULL,
   minCells = 25,
   nTop = NULL,
   normMethod = "none",
@@ -63,7 +63,7 @@ plotFootprints <- function(
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = flank, name = "flank", valid = c("integer"))
   .validInput(input = flankNorm, name = "flankNorm", valid = c("integer"))
-  .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer", "null"))
   .validInput(input = minCells, name = "minCells", valid = c("integer"))
   .validInput(input = nTop, name = "nTop", valid = c("integer", "null"))
   .validInput(input = normMethod, name = "normMethod", valid = c("character"))
@@ -75,6 +75,10 @@ plotFootprints <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+
+  if(flank < 50){
+    stop("flank must be at least 50 bp!")
+  }
 
   tstart <- Sys.time()
 
@@ -219,8 +223,10 @@ plotFootprints <- function(
   biasDF <- rowDF[BiocGenerics::which(rowDF[,2]=="bias"),]
 
   #Smooth Foot and Bias Mat because of sparsity
-  footMat <- apply(footMat, 2, function(x) .centerRollMean(x, smoothWindow))
-  biasMat <- apply(biasMat, 2, function(x) .centerRollMean(x, smoothWindow))
+  if(!is.null(smoothWindow)){
+    footMat <- apply(footMat, 2, function(x) .centerRollMean(x, smoothWindow))
+    biasMat <- apply(biasMat, 2, function(x) .centerRollMean(x, smoothWindow))
+  }
 
   #Normalize Foot and Bias Mat
   idx <- which(abs(footDF$x) >= flank - flankNorm)
@@ -229,9 +235,12 @@ plotFootprints <- function(
 
   #Norm Foot By Bias
   if(tolower(normMethod) == "none"){
+    title <- ""
   }else if(tolower(normMethod) == "subtract"){
+    title <- "Tn5 Bias Subtracted\n"
     footMat <- footMat - biasMat
   }else if(tolower(normMethod) == "divide"){
+    title <- "Tn5 Bias Divided\n"
     footMat <- footMat / biasMat
   }else{
     stop("normMethod not recognized!")
@@ -242,15 +251,17 @@ plotFootprints <- function(
   footMatSd <- .groupSds(footMat, SummarizedExperiment::colData(seFoot)$Group)
   biasMatMean <- .groupMeans(biasMat, SummarizedExperiment::colData(seFoot)$Group)
   biasMatSd <- .groupSds(biasMat, SummarizedExperiment::colData(seFoot)$Group)
+  smoothFoot <- rowMaxs(apply(footMatMean, 2, function(x) .centerRollMean(x, 11)))
 
   #Create Plot Data Frames
+  plotIdx <- seq_len(nrow(footMatMean)) #sort(unique(c(1, seq(1, nrow(footMatMean), smoothWindow), nrow(footMatMean))))
   plotFootDF <- lapply(seq_len(ncol(footMatMean)), function(x){
     data.frame(
       x = footDF$x, 
       mean = footMatMean[,x], 
       sd = footMatSd[,x], 
       group = colnames(footMatMean)[x]
-      )
+      )[plotIdx,,drop=FALSE]
   }) %>% Reduce("rbind",. )
   plotFootDF$group <- factor(paste0(plotFootDF$group), levels = unique(gtools::mixedsort(paste0(plotFootDF$group))))
 
@@ -260,7 +271,7 @@ plotFootprints <- function(
       mean = biasMatMean[,x], 
       sd = biasMatSd[,x], 
       group = colnames(biasMatMean)[x]
-      )
+      )[plotIdx,,drop=FALSE]
   }) %>% Reduce("rbind",. )
   plotBiasDF$group <- factor(paste0(plotBiasDF$group), levels = unique(gtools::mixedsort(paste0(plotBiasDF$group))))
 
@@ -270,37 +281,37 @@ plotFootprints <- function(
   }
 
   plotMax <- plotFootDF[order(plotFootDF$mean,decreasing=TRUE),]
-  plotMax <- plotMax[abs(plotMax$x) <= flank - flankNorm,]
+  plotMax <- plotMax[abs(plotMax$x) > 20 & abs(plotMax$x) < 50, ] #<= flank - flankNorm,]
   plotMax <- plotMax[!duplicated(plotMax$group),]
   plotMax <- plotMax[seq_len(ceiling(nrow(plotMax) / 4)), ]
   plotMax$x <- 25
 
   ggFoot <- ggplot(plotFootDF, aes(x = x, y = mean, color = group)) + 
+    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
     geom_line() + 
     scale_color_manual(values = pal) + 
     scale_fill_manual(values = pal) + 
-    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
-    xlab("Distance to motif center (BP)") +
+    xlab("Distance to motif center (bp)") +
     coord_cartesian(
       expand = FALSE, 
-      ylim = c(quantile(plotFootDF$mean, 0.0001), 1.15*quantile(plotFootDF$mean, 0.999)), 
+      ylim = c(quantile(plotFootDF$mean, 0.0001), 1.15*quantile(smoothFoot, 0.999)), 
       xlim = c(min(plotFootDF$x),max(plotFootDF$x))
     ) + theme_ArchR(baseSize = baseSize) + ggtitle(name) +
     guides(fill = FALSE) + 
-    guides(color = FALSE) + ylab("Footprint Normalized Mean") +
+    guides(color = FALSE) + ylab(paste0(title,"Normalized Insertions")) +
     ggrepel::geom_label_repel(data = plotMax, aes(label = group), size = 3, xlim = c(75, NA))
 
   ggBias <- ggplot(plotBiasDF, aes(x = x, y = mean, color = group)) + 
+    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
     geom_line() + 
     scale_color_manual(values = pal) + 
     scale_fill_manual(values = pal) + 
-    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
-    xlab("Distance to motif center (BP)") +
+    xlab("Distance to motif center (bp)") +
     coord_cartesian(
       expand = FALSE, 
       ylim = c(quantile(plotBiasDF$mean, 0.0001), 1.05*quantile(plotBiasDF$mean, 0.999)), 
       xlim = c(min(plotBiasDF$x),max(plotBiasDF$x))
-    ) + theme_ArchR(baseSize = baseSize) + ylab("Bias Normalized Mean") + 
+    ) + theme_ArchR(baseSize = baseSize) + ylab("Tn5-Bias Normalized Insertions") + 
     theme(legend.position = "bottom", legend.box.background = element_rect(color = NA)) 
        
   ggAlignPlots(ggFoot, .ggSmallLegend(ggBias), sizes=c(2,1), draw = FALSE)

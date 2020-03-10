@@ -32,9 +32,15 @@ addImputeWeights <- function(
   corCutOff = 0.75, 
   td = 3,
   ka = 4,
-  sampleCells = max(5000, floor(nCells(ArchRProj) / 50)),
+  sampleCells = 5000,
+  nRep = 2,
   k = 15,
-  epsilon = 1
+  epsilon = 1,
+  useHdf5 = TRUE,
+  randomSuffix = FALSE,
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  seed = 1
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -42,14 +48,14 @@ addImputeWeights <- function(
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = td, name = "td", valid = c("integer"))
   .validInput(input = ka, name = "ka", valid = c("integer"))
-  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = epsilon, name = "epsilon", valid = c("numeric"))
 
   #Adapted From
   #https://github.com/dpeerlab/magic/blob/master/R/R/run_magic.R
 
-  set.seed(1)
+  set.seed(seed)
 
   tstart <- Sys.time()
   .messageDiffTime("Computing Impute Weights Using Magic (Cell 2018)", tstart)
@@ -59,94 +65,135 @@ addImputeWeights <- function(
   N <- nrow(matDR)
   rn <- rownames(matDR)
 
-  idx <- sample(seq_len(nrow(matDR)), nrow(matDR))
-
+  if(!is.null(sampleCells)){
+    if(sampleCells > nrow(matDR)){
+      sampleCells <- NULL
+    }
+  }
   if(is.null(sampleCells)){
-    sampleCells <- N
+    binSize <- N
+    nRep <- 1
+  }else{
+    cutoffs <- lapply(seq_len(1000), function(x){
+      N / x
+    }) %>% unlist
+    binSize <- min(cutoffs[order(abs(cutoffs - sampleCells))[1]] + 1, N)
   }
 
-  cutoffs <- lapply(seq_len(1000), function(x){
-    N / x
-  }) %>% unlist
-  binSize <- min(cutoffs[order(abs(cutoffs - sampleCells))[1]] + 1, N)
-
-  blocks <- split(idx, ceiling(seq_along(idx)/binSize))
-
-  Wt <- lapply(seq_along(blocks), function(x){
-
-    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", x, length(blocks)), tstart)
-
-    ix <- blocks[[x]]
-    Nx <- length(ix)
-
-    #Compute KNN
-    if(requireNamespace("nabor", quietly = TRUE)) {
-        knnObj <- nabor::knn(data = matDR[ix,], query = matDR[ix, ], k = k)
-        knnIdx <- knnObj$nn.idx
-        knnDist <- knnObj$nn.dists
-    }else if(requireNamespace("RANN", quietly = TRUE)) {
-        knnObj <- RANN::nn2(data = matDR[ix,], query = matDR[ix, ], k = k)
-        knnIdx <- knnObj$nn.idx
-        knnDist <- knnObj$nn.dists
-    }else if(requireNamespace("FNN", quietly = TRUE)) {
-        knnObj <- FNN::get.knnx(data = matDR[ix,], query = matDR[ix, ], k = k)
-        knnIdx <- knnObj$nn.index
-        knnDist <-knnObj$nn.dist
+  if(useHdf5){
+    dir.create(file.path(getOutputDirectory(ArchRProj), "ImputeWeights"), showWarnings = FALSE)
+    if(randomSuffix){
+      weightFiles <- ArchR:::.tempfile("Impute-Weights", tmpdir = file.path(gsub(paste0(getwd(),"/"),"",getOutputDirectory(ArchRProj)), "ImputeWeights"))
+      weightFiles <- paste0(weightFiles, "-Rep-", seq_len(nRep))
     }else{
-        stop("Computing KNN requires package nabor, RANN or FNN")
+      weightFiles <- file.path(getOutputDirectory(ArchRProj), "ImputeWeights", paste0("Impute-Weights-Rep-", seq_len(nRep)))
     }
-    rm(knnObj)
+  }
 
-    if(ka > 0){
-      knnDist <- knnDist / knnDist[,ka]
-    }
+  o <- suppressWarnings(file.remove(weightFiles))
 
-    if(epsilon > 0){
-      W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=c(knnDist), dims = c(Nx, Nx))
-    } else {
-      W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=1, dims = c(Nx, Nx)) # unweighted kNN graph
-    }
-    W <- W + Matrix::t(W)
+  weightList <- ArchR:::.safelapply(seq_len(nRep), function(y){
 
-    #Compute Kernel
-    if(epsilon > 0){
-      W@x <- exp(-(W@x / epsilon^2))
+    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", y, nRep), tstart, verbose = verbose)
+
+    if(!is.null(sampleCells)){
+      idx <- sample(seq_len(nrow(matDR)), nrow(matDR))
+      blocks <- split(rownames(matDR)[idx], ceiling(seq_along(idx)/binSize))
+    }else{
+      blocks <- list(rownames(matDR)) 
     }
 
-    #Markov normalization
-    W <- W / Matrix::rowSums(W) 
+    weightFile <- weightFiles[y]
 
-    #Initialize Matrix
-    Wt <- W
-
-    #Computing Diffusion Matrix
-    for(i in seq_len(td)){
-      #message(i, " ", appendLF = FALSE)
-        Wt <- Wt %*% W
+    if(useHdf5){
+      o <- h5createFile(weightFile)
     }
-    #message("\n", appendLF = FALSE)
 
-    Wt <- Matrix::summary(Wt)
-    Wt[,1] <- ix[Wt[,1]]
-    Wt[,2] <- ix[Wt[,2]]
+    blockList <- lapply(seq_along(blocks), function(x){
 
-    rm(knnIdx)
-    rm(knnDist)
-    rm(W)
-    gc()
+      if(x %% 10 == 0){
+        .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s, Iteration %s of %s)", y, nRep, x, length(blocks)), tstart, verbose = verbose)
+      }
 
-    Wt
+      ix <- blocks[[x]]
+      Nx <- length(ix)
 
-  }) %>% Reduce("rbind", .) %>% {Matrix::sparseMatrix(i = .[,1], j = .[,2], x = .[,3], dims = c(N, N))}
+      #Compute KNN
+      if(requireNamespace("nabor", quietly = TRUE)) {
+          knnObj <- nabor::knn(data = matDR[ix,], query = matDR[ix, ], k = k)
+          knnIdx <- knnObj$nn.idx
+          knnDist <- knnObj$nn.dists
+      }else if(requireNamespace("RANN", quietly = TRUE)) {
+          knnObj <- RANN::nn2(data = matDR[ix,], query = matDR[ix, ], k = k)
+          knnIdx <- knnObj$nn.idx
+          knnDist <- knnObj$nn.dists
+      }else if(requireNamespace("FNN", quietly = TRUE)) {
+          knnObj <- FNN::get.knnx(data = matDR[ix,], query = matDR[ix, ], k = k)
+          knnIdx <- knnObj$nn.index
+          knnDist <-knnObj$nn.dist
+      }else{
+          stop("Computing KNN requires package nabor, RANN or FNN")
+      }
+      rm(knnObj)
 
-  .messageDiffTime(sprintf("Completed Getting Magic Weights (Size = %s GB)!", round(object.size(Wt) / 10^9, 3)), tstart)
+      if(ka > 0){
+        knnDist <- knnDist / knnDist[,ka]
+      }
 
-  rownames(Wt) <- rownames(matDR)
-  colnames(Wt) <- rownames(matDR)
+      if(epsilon > 0){
+        W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=c(knnDist), dims = c(Nx, Nx))
+      } else {
+        W <- Matrix::sparseMatrix(rep(seq_len(Nx), k), c(knnIdx), x=1, dims = c(Nx, Nx)) # unweighted kNN graph
+      }
+      W <- W + Matrix::t(W)
+
+      #Compute Kernel
+      if(epsilon > 0){
+        W@x <- exp(-(W@x / epsilon^2))
+      }
+
+      #Markov normalization
+      W <- W / Matrix::rowSums(W) 
+
+      #Initialize Matrix
+      Wt <- W
+
+      #Computing Diffusion Matrix
+      for(i in seq_len(td)){
+          Wt <- Wt %*% W
+      }
+      rownames(Wt) <- rownames(matDR)[ix]
+      colnames(Wt) <- rownames(matDR)[ix]
+
+      rm(knnIdx)
+      rm(knnDist)
+      rm(W)
+      gc()
+
+      if(useHdf5){
+        o <- ArchR:::.suppressAll(h5createGroup(file = weightFile, paste0("block", x)))      
+        o <- ArchR:::.suppressAll(h5write(obj = ix, file = weightFile, name = paste0("block", x, "/Names"), level = 0))
+        o <- ArchR:::.suppressAll(h5write(obj = as.matrix(Wt), file = weightFile, name = paste0("block", x, "/Weights"), level = 0))
+        return(weightFile)
+      }else{
+        Wt
+      }
+
+    }) %>% SimpleList
+
+    if(useHdf5){
+      return(weightFile)
+    }else{
+      names(blockList) <- paste0("b",seq_along(blockList))
+      blockList
+    }
+  }, threads = threads) %>% SimpleList
+  names(weightList) <- paste0("w",seq_along(weightList))
+
+  .messageDiffTime(sprintf("Completed Getting Magic Weights!", round(object.size(weightList) / 10^9, 3)), tstart)
 
   ArchRProj@imputeWeights <- SimpleList(
-    Weights = Wt, 
-    Blocks = blocks, 
+    Weights = weightList, 
     Params = 
       list(
         reducedDims = reducedDims, 
@@ -174,5 +221,83 @@ getImputeWeights <- function(ArchRProj = NULL){
   }
   ArchRProj@imputeWeights
 }
+
+#' @export
+imputeMatrix <- function(
+  mat = NULL, 
+  imputeWeights = NULL,
+  threads = getArchRThreads(),
+  verbose = TRUE
+  ){
+
+  weightList <- imputeWeights$Weights
+
+  if(inherits(weightList, "dgCMatrix")){
+    as.matrix(mat) %*% as.matrix(weightList)
+  }
+
+  if(!inherits(weightList, "SimpleList") & !inherits(weightList, "list")){
+    stop("Weights are not a list, Please re-run addImputeWeights (update)!")
+  }
+
+  start <- Sys.time()
+  
+  imputeMat <- lapply(seq_along(weightList), function(x){
+    
+    ArchR:::.messageDiffTime(sprintf("Imputing Matrix (%s of %s)", x, length(weightList)), start, verbose = verbose)
+
+    if(is.character(weightList[[x]])){
+      if(!file.exists(weightList[[x]])){
+        message("Weight File Does Not Exist! Please re-run addImputeWeights!")
+      }
+
+      h5df <- h5ls(weightList[[x]])
+      blocks <- gtools::mixedsort(grep("block",h5df$name,value=TRUE))
+      matx <- ArchR:::.safelapply(seq_along(blocks), function(y){
+
+        if(verbose) message(y, " ", appendLF = FALSE)
+
+        #Read In Weights and Names
+        bn <- h5read(weightList[[x]], paste0(blocks[y], "/Names"))
+        by <- h5read(weightList[[x]], paste0(blocks[y], "/Weights"))
+        colnames(by) <- bn
+
+        #Multiply
+        as.matrix(mat[, paste0(bn), drop = FALSE]) %*% by
+      
+      }, threads = threads) %>% Reduce("cbind", .)
+
+      if(verbose) message("")
+
+    }else{
+
+      matx <- ArchR:::.safelapply(seq_along(weightList[[x]]), function(y){
+        
+        if(verbose) message(y, " ", appendLF = FALSE)
+
+        as.matrix(mat[, colnames(weightList[[x]][[y]])]) %*% as.matrix(weightList[[x]][[y]])
+
+      }, threads = threads) %>% Reduce("cbind", .)
+
+      if(verbose) message("")
+
+    }
+
+    matx[, colnames(mat)] #Return Ordered
+  
+  }) %>% Reduce("+", .)
+
+  Sys.time() - start
+
+  #Compute Average
+  imputeMat <- imputeMat / length(weightList)
+
+  ArchR:::.messageDiffTime("Finished Imputing Matrix", start, verbose = verbose)
+
+  imputeMat
+
+}
+
+
 
 

@@ -57,7 +57,7 @@ addReproduciblePeakSet <- function(
 	genomeSize = NULL, 
 	shift = -75, 
 	extsize = 150, 
-	method = "q",
+	method = if(tolower(peakMethod)=="macs2") "q" else "p", #P-Method for Tiles Results Better Agree w/ Macs2
 	cutOff = 0.1, 
 	additionalParams = "--nomodel --nolambda",
 	extendSummits = 250,
@@ -255,6 +255,7 @@ addReproduciblePeakSet <- function(
 			minCells = minCells,
 			...
 		)[[1]]$cellGroups
+    print(cellGroups)
 
 		#####################################################
 		# Peak Calling Summary
@@ -312,75 +313,75 @@ addReproduciblePeakSet <- function(
 		#Group Matrix
 		#Consider reading in group-wise if this is getting too large?
 		.messageDiffTime("Computing Pseudo-Grouped Tile Matrix", tstart, addHeader = verboseAll, verbose = verboseHeader)
-	    groupMat <- .getGroupMatrix(
-	      ArrowFiles = ArrowFiles, 
-	      featureDF = topFeatures,
-	      useMatrix = useMatrix, 
-	      threads = threads,
-	      groupList = unlist(cellGroups),
-	      useIndex = FALSE,
-	      asSparse = TRUE,
-	      verbose = verboseAll
-	    )
-		.messageDiffTime(sprintf("Created Pseudo-Grouped Tile Matrix (%s GB)", round(object.size(groupMat) / 10^9, 3)), tstart, addHeader = verboseAll, verbose = verboseHeader)
+    groupMat <- .getGroupMatrix(
+      ArrowFiles = ArrowFiles, 
+      featureDF = topFeatures,
+      useMatrix = useMatrix, 
+      threads = threads,
+      groupList = unlist(cellGroups),
+      useIndex = FALSE,
+      asSparse = TRUE,
+      verbose = verboseAll
+    )
+	.messageDiffTime(sprintf("Created Pseudo-Grouped Tile Matrix (%s GB)", round(object.size(groupMat) / 10^9, 3)), tstart, addHeader = verboseAll, verbose = verboseHeader)
 
 		#Expectation, we lowered the expectation (by 25%) to better match 
 		#the results between macs2 and tile peak calling methods.
-	    #exp <- 0.75 * Matrix::colSums(groupMat) / nTiles
-	    exp <- Matrix::colSums(groupMat) / nTiles
+    #exp <- 0.75 * Matrix::colSums(groupMat) / nTiles
+    exp <- Matrix::colSums(groupMat) / nTiles
 
 		#####################################################
 		# Peak Calling Per Group
 		#####################################################
 
-	    groupPeaks <- .safelapply(seq_along(cellGroups), function(i){
+    groupPeaks <- .safelapply(seq_along(cellGroups), function(i){
 
-	    	.messageDiffTime(sprintf("Computing Peaks from Tile Matrix Group (%s of %s)", i, length(cellGroups)), tstart, addHeader = verboseAll, verbose = verboseHeader)
+    	.messageDiffTime(sprintf("Computing Peaks from Tile Matrix Group (%s of %s)", i, length(cellGroups)), tstart, addHeader = verboseAll, verbose = verboseHeader)
 
-	    	gx <- grep(paste0(names(cellGroups)[i],"."), colnames(groupMat))
-		    
-		    pMat <- lapply(seq_along(gx), function(x){
-			    pval <- ppois(q = groupMat[,gx[x]]-1, lambda = exp[gx[x]], lower.tail = FALSE, log=FALSE)
-			    if(tolower(method) == "q"){
-			    	pval <- p.adjust(pval, method = "fdr", n = nTiles)
-			    }else if(tolower(method)=="p"){
-			    }else{
-			    	stop("method should be either p for p-value or q for adjusted p-value!")
-			    }
-			    as(as.matrix(-log10(pmax(pval, 10^-250))), "dgCMatrix")
-		    }) %>% Reduce("cbind", .)
-
-		    n <- ncol(pMat)
-		    passPeaks <- Matrix::rowSums(pMat >= -log10(cutOff)) >= eval(parse(text=reproducibility))
-		    mlogp <- Matrix::rowSums(Matrix::t(Matrix::t(pMat) / Matrix::colSums(pMat)) * 10^6) / ncol(pMat)
-
-		    rm(pMat)
-		    gc()
-
-		    passPeaks <- passPeaks[order(mlogp, decreasing=TRUE)]
-		    mlogp <- mlogp[order(mlogp, decreasing=TRUE)]
-
-		    nMax <- groupSummary[names(cellGroups)[i], "maxPeaks"]
-		    passPeaks <- head(passPeaks, nMax)
-		    mlogp <- head(mlogp, nMax)
-
-		    mlogp <- mlogp[which(passPeaks)]
-		    passPeaks <- passPeaks[which(passPeaks)]
-
-		    if(length(passPeaks) > 0){
-			    DataFrame(
-			    	Group = Rle(names(cellGroups)[i]), 
-			    	peaks = names(passPeaks), 
-			    	mlog10p = mlogp, 
-			    	normmlogp = 10^6 * mlogp / sum(mlogp)
-			    )
+    	gx <- grep(paste0(names(cellGroups)[i],"."), colnames(groupMat))
+	    
+	    pMat <- lapply(seq_along(gx), function(x){
+		    pval <- ppois(q = groupMat[,gx[x]]-1, lambda = exp[gx[x]], lower.tail = FALSE, log=FALSE)
+		    if(tolower(method) == "q"){
+		    	pval <- p.adjust(pval, method = "fdr", n = nTiles)
+		    }else if(tolower(method)=="p"){
 		    }else{
-		    	NULL
+		    	stop("method should be either p for p-value or q for adjusted p-value!")
 		    }
+		    as(as.matrix(-log10(pmax(pval, 10^-250))), "dgCMatrix")
+	    }) %>% Reduce("cbind", .)
 
-	    }, threads = threads) %>% Reduce("rbind", .)
+	    n <- ncol(pMat)
+	    passPeaks <- Matrix::rowSums(pMat >= -log10(cutOff)) >= eval(parse(text=reproducibility))
+	    mlogp <- Matrix::rowSums(Matrix::t(Matrix::t(pMat) / Matrix::colSums(pMat)) * 10^6) / ncol(pMat)
 
-	    groupPeaks <- groupPeaks[order(groupPeaks$normmlogp, decreasing=TRUE), ]
+	    rm(pMat)
+	    gc()
+
+	    passPeaks <- passPeaks[order(mlogp, decreasing=TRUE)]
+	    mlogp <- mlogp[order(mlogp, decreasing=TRUE)]
+
+	    nMax <- groupSummary[names(cellGroups)[i], "maxPeaks"]
+	    passPeaks <- head(passPeaks, nMax)
+	    mlogp <- head(mlogp, nMax)
+
+	    mlogp <- mlogp[which(passPeaks)]
+	    passPeaks <- passPeaks[which(passPeaks)]
+
+	    if(length(passPeaks) > 0){
+		    DataFrame(
+		    	Group = Rle(names(cellGroups)[i]), 
+		    	peaks = names(passPeaks), 
+		    	mlog10p = mlogp, 
+		    	normmlogp = 10^6 * mlogp / sum(mlogp)
+		    )
+	    }else{
+	    	NULL
+	    }
+
+    }, threads = threads) %>% Reduce("rbind", .)
+
+    groupPeaks <- groupPeaks[order(groupPeaks$normmlogp, decreasing=TRUE), ]
 
 		#####################################################
 		# BSgenome for Add Nucleotide Frequencies!
@@ -504,7 +505,7 @@ addReproduciblePeakSet <- function(
 
 	.messageDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart)
 
-    suppressWarnings(sink())
+  suppressWarnings(sink())
 
 	return(ArchRProj)
 
@@ -530,7 +531,11 @@ addReproduciblePeakSet <- function(
     geom_bar(stat = "identity") + 
     theme_ArchR(xText90 = TRUE) +
     ylab("Number of Peaks (x10^3)") +
-    xlab("") + theme(legend.position = "bottom", legend.key = element_rect(size = 2), legend.box.background = element_rect(color = NA)) +
+    xlab("") + 
+    theme(legend.position = "bottom", 
+      legend.key = element_rect(size = 2), 
+      legend.box.background = element_rect(color = NA)
+    ) +
     scale_fill_manual(values=pal) +
     scale_y_continuous(
       breaks = seq(0, lengthMax * 2,50), 
@@ -590,9 +595,9 @@ addReproduciblePeakSet <- function(
 .identifyReproduciblePeaks <- function(
 	summitFiles = NULL,
 	summitNames = NULL,
-    reproducibility = 0.51,
-    extendSummits = 250,
-    blacklist
+  reproducibility = 0.51,
+  extendSummits = 250,
+  blacklist
   ){
 
   start <- Sys.time()

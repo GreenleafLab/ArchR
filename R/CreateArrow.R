@@ -1609,7 +1609,11 @@ createArrowFiles <- function(
   
   tryCatch({
     
-    .suppressAll(file.rename(from, to))
+    o <- .suppressAll(file.rename(from, to))
+
+    if(!o){
+      stop("retry with mv")
+    }
     
   }, error = function(x){
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{addMotifAnnotations}
 \alias{addMotifAnnotations}
-\title{Add motif annotations to an ArchRProject}
+\title{Add motif annotations to an ArchRProject JJJ}
 \usage{
 addMotifAnnotations(
   ArchRProj = NULL,
@@ -12,6 +12,7 @@ addMotifAnnotations(
   collection = "CORE",
   cutOff = 5e-05,
   width = 7,
+  version = 2,
   force = FALSE,
   ...
 )
@@ -35,6 +36,8 @@ collection to be used. See \code{getMatrixSet()} from \code{TFBSTools} for all o
 (see \code{MOODS} for more details on this determination).}
 
 \item{width}{The width in basepairs to consider for motif matches. See the \code{motimatchr} package for more information.}
+
+\item{version}{An integer specifying version 1 or version 2 of chromVARmotifs see github for more info GreenleafLab/chromVARmotifs.}
 
 \item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if
 it already exists in the given \code{ArchRProject}.}

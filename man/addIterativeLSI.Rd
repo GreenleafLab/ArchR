@@ -16,11 +16,16 @@ addIterativeLSI(
   scaleDims = TRUE,
   corCutOff = 0.75,
   binarize = TRUE,
-  sampleCells = NULL,
+  outlierQuantiles = c(0.02, 0.98),
+  filterBias = TRUE,
+  sampleCellsPre = 10000,
+  projectCellsPre = FALSE,
+  sampleCellsFinal = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
   totalFeatures = 5e+05,
   filterQuantile = 0.995,
+  excludeChr = c(),
   saveIterations = TRUE,
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
     FALSE, fast_sgd = TRUE),
@@ -63,7 +68,21 @@ sequencing depth that is greater than the \code{corCutOff}, it will be excluded 
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.}
 
-\item{sampleCells}{An integer specifying the number of cells to sample in order to perform a sub-sampled LSI and sub-sampled clustering.}
+\item{outlierQuantiles}{Two numerical values (between 0 and 1) that describe the lower and upper quantiles of bias (number of acessible regions per cell, determined
+by \code{nFrags} or \code{colSums}) to filter cells prior to LSI. For example a value of c(0.02, 0.98) results in the cells in the bottom 2 percent and upper 98 percent to be
+filtered prior to LSI. These cells are then projected back in the LSI subspace. This prevents spurious 'islands' that are identified based on being extremely biased.
+These quantiles are also used for sub-sampled LSI when determining which cells are used.}
+
+\item{filterBias}{A boolean indicating whether to drop bias clusters when computing clusters during iterativeLSI.}
+
+\item{sampleCellsPre}{An integer specifying the number of cells to sample in iterations prior to the last in order to perform a sub-sampled LSI and
+sub-sampled clustering. This greatly reduced memory usage and increases speed for early iterations.}
+
+\item{projectCellsPre}{A boolean indicating whether to reproject all cells into the sub-sampled LSI (see \code{sampleCellsPre}). Setting this to \code{FALSE}
+allows for using the sub-sampled LSI for clustering and variance identification. If \code{TRUE} the cells are all projected into the sub-sampled LSI
+and used for cluster and variance identification.}
+
+\item{sampleCellsFinal}{An integer specifying the number of cells to sample in order to perform a sub-sampled LSI in final iteration.}
 
 \item{selectionMethod}{The selection method to be used for identifying the top variable features. Valid options are "var" for
 log-variability or "vmr" for variance-to-mean ratio.}
@@ -74,7 +93,9 @@ variance calculation and TF-IDF normalization.}
 \item{totalFeatures}{The number of features to consider for use in LSI after ranking the features by the total number of insertions.
 These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
 
-\item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior
+\item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior}
+
+\item{excludeChr}{A string of chromosomes to exclude for iterativeLSI procedure.
 to the first iteration of the iterative LSI paradigm. For example, if \code{filterQuantile = 0.99}, any features above the 99th percentile in
 insertion counts will be ignored for the first LSI iteration.}
 

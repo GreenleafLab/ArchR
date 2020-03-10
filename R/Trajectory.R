@@ -32,7 +32,8 @@ addTrajectory <- function(
   reducedDims = "IterativeLSI",
   embedding = NULL,
   preFilterQ = 0.9, 
-  postFilterQ = 0.9, 
+  postFilterQ = 0.9,
+  useAll = TRUE, 
   dof = 250,
   spar = 1,
   force = FALSE
@@ -158,38 +159,43 @@ addTrajectory <- function(
     ######################################################
     # 2. Fit cells not in trajectory clusters
     ######################################################
-    if(is.null(embedding)){
-      mat2 <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
+    if(useAll){
+      if(is.null(embedding)){
+        mat2 <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
+      }else{
+        mat2 <- getEmbedding(ArchRProj = ArchRProj, embedding = embedding)
+      }
+      groupDF <- getCellColData(ArchRProj = ArchRProj, select = groupBy)
+      groupDF <- groupDF[groupDF[,1] %ni% trajectory,,drop=FALSE]
+      mat2 <- mat2[rownames(groupDF),,drop = FALSE]
+
+      #Nearest Neighbors
+      knnObj2 <- knnMethod(
+          data =  matSpline,
+          query = mat2, 
+          k = 3
+      )
+
+      #Estimate place along trajectory
+      knnIdx2 <- knnObj2[[1]]
+      knnDist2 <- knnObj2[[2]]
+      knnDiff2 <- ifelse(knnIdx2[,2] > knnIdx2[,3], 1, -1)
+      knnDistQ2 <- .getQuantiles(knnDist2[,1])
+
+      #Keep Cells that are within the maximum distance of a cluster
+      idxKeep <- which(knnDist2[,1] < max(dfTrajectory[,1]))
+      dfTrajectory2 <- DataFrame(
+          row.names = rownames(mat2),
+          Distance = knnDist2[, 1],
+          DistanceIdx = knnIdx2[, 1] + knnDistQ2
+      )[idxKeep, , drop = FALSE]
+
+      #Final Output
+      dfTrajectory3 <- rbind(dfTrajectory, dfTrajectory2)
     }else{
-      mat2 <- getEmbedding(ArchRProj = ArchRProj, embedding = embedding)
+      dfTrajectory3 <- dfTrajectory
     }
-    groupDF <- getCellColData(ArchRProj = ArchRProj, select = groupBy)
-    groupDF <- groupDF[groupDF[,1] %ni% trajectory,,drop=FALSE]
-    mat2 <- mat2[rownames(groupDF),,drop = FALSE]
-
-    #Nearest Neighbors
-    knnObj2 <- knnMethod(
-        data =  matSpline,
-        query = mat2, 
-        k = 3
-    )
-
-    #Estimate place along trajectory
-    knnIdx2 <- knnObj2[[1]]
-    knnDist2 <- knnObj2[[2]]
-    knnDiff2 <- ifelse(knnIdx2[,2] > knnIdx2[,3], 1, -1)
-    knnDistQ2 <- .getQuantiles(knnDist2[,1])
-
-    #Keep Cells that are within the maximum distance of a cluster
-    idxKeep <- which(knnDist2[,1] < max(dfTrajectory[,1]))
-    dfTrajectory2 <- DataFrame(
-        row.names = rownames(mat2),
-        Distance = knnDist2[, 1],
-        DistanceIdx = knnIdx2[, 1] + knnDistQ2
-    )[idxKeep, , drop = FALSE]
-
-    #Final Output
-    dfTrajectory3 <- rbind(dfTrajectory, dfTrajectory2)
+    
     dfTrajectory3$Trajectory <- 100 * .getQuantiles(dfTrajectory3[,2])
     
     #Add To ArchR Project
@@ -508,7 +514,7 @@ plotTrajectory <- function(
   pal = NULL,
   size = 0.2,
   rastr = TRUE,
-  quantCut = c(0.05, 0.95),
+  quantCut = c(0.001, 0.999),
   quantHex = 0.5,
   discreteSet = NULL,
   continuousSet = NULL,
@@ -682,11 +688,16 @@ plotTrajectory <- function(
 
   attr(out2, "ratioYX") <- 0.5
 
+
   if(addArrow){
-    dfArrow <- .splitEvery(dfT, floor(nrow(dfT) / 15)) %>% 
+ 
+    dfArrow <-  split(dfT, floor(dfT$PseudoTime / 1.01)) %>% 
       lapply(colMeans) %>% Reduce("rbind",.) %>% data.frame
+    dfArrow$x <- .centerRollMean(dfArrow$x, 5)
+    dfArrow$y <- .centerRollMean(dfArrow$y, 5)
+
     out <- out + geom_path(
-            data = data.frame(dfArrow), aes(x, y, color=NULL), size= 1, 
+            data = dfArrow, aes(x, y, color=NULL), size= 1, 
             arrow = arrow(type = "open", angle = 30, length = unit(0.1, "inches"))
           )
   }

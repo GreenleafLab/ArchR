@@ -142,6 +142,58 @@ getFragmentsFromArrow <- function(
 # Reading Matrices/Arrays from Arrow Files
 ####################################################################
 
+#' Get a data matrix stored in an ArrowFile JJJ
+#' 
+#' This function gets a given data matrix from an individual ArrowFile.
+#'
+#' @param ArrowFile The path to an ArrowFile from which the selected data matrix should be obtained.
+#' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
+#' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
+#' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
+#' the provided ArrowFile using `getCellNames()`.
+#' @param ArchRProj An `ArchRProject` object to be used for getting additional information for cells in `cellColData`.
+#' In some cases, data exists within the `ArchRProject` object that does not exist within the ArrowFiles. To access this data, you can
+#' provide the `ArchRProject` object here.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
+#' @export
+getMatrixFromProject <- function(
+  ArchRProj = NULL, 
+  useMatrix = "GeneScoreMatrix",
+  useSeqnames = NULL,
+  verbose = TRUE,
+  binarize = FALSE,
+  threads = getArchRThreads()
+  ){
+
+  tstart <- Sys.time()
+
+  ArrowFiles <- getArrowFiles(ArchRProj)
+
+  #Need to Make Safer But YOLO for now
+  se <- ArchR:::.safelapply(seq_along(ArrowFiles), function(x){
+
+    .messageDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x]), tstart)
+
+    getMatrixFromArrow(
+    ArrowFile = ArrowFiles[x],
+    useMatrix = useMatrix,
+    useSeqnames = useSeqnames,
+    cellNames = ArchRProj$cellNames, 
+    ArchRProj = ArchRProj,
+    verbose = verbose,
+    binarize = binarize
+    )
+
+  }, threads = threads) %>% Reduce("cbind", .)
+
+  .messageDiffTime("Finished Matrix Creation", tstart)
+
+  se
+
+}
+
 #' Get a data matrix stored in an ArrowFile
 #' 
 #' This function gets a given data matrix from an individual ArrowFile.
@@ -422,6 +474,8 @@ getMatrixFromArrow <- function(
     if(asSparse){
       matChr <- as(matChr, "dgCMatrix")
     }
+
+    .messageDiffTime(sprintf("Finished Group Matrix %s of %s", x, length(seqnames)), tstart, verbose = verbose)
     
     matChr
 
@@ -700,4 +754,50 @@ getMatrixFromArrow <- function(
   o <- h5closeAll()
   return(res)
 }
+
+.getMatrixClass <- function(
+  ArrowFiles = NULL, 
+  useMatrix = NULL,
+  threads = getArchRThreads()
+  ){
+
+  threads <- min(length(ArrowFiles), threads)
+
+  matrixClass <- ArchR:::.safelapply(seq_along(ArrowFiles), function(i){
+    h5read(ArrowFiles[i], paste0(useMatrix, "/Info/Class"))
+  }, threads = threads) %>% unlist %>% unique
+
+  if(length(matrixClass) != 1){
+    stop("Not all matrix classes are the same!")
+  }
+
+  matrixClass
+
+}
+
+.getMatrixUnits <- function(
+  ArrowFiles = NULL, 
+  useMatrix = NULL,
+  threads = getArchRThreads()
+  ){
+
+  threads <- min(length(ArrowFiles), threads)
+
+  matrixUnits <- ArchR:::.safelapply(seq_along(ArrowFiles), function(i){
+    tryCatch({ #This handles backwards compatibility!
+      h5read(ArrowFiles[i], paste0(useMatrix, "/Info/Units"))
+    }, error = function(x){
+      "None"
+    })
+  }, threads = threads) %>% unlist %>% unique
+
+  if(length(matrixUnits) != 1){
+    stop("Not all matrix units are the same!")
+  }
+
+  matrixUnits
+
+}
+
+
 

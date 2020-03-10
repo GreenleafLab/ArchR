@@ -16,7 +16,17 @@ addClusters(
   corCutOff = 0.75,
   knnAssign = 10,
   nOutlier = 5,
-  prefix = "Cluster",
+  testBias = TRUE,
+  filterBias = FALSE,
+  biasClusters = 0.01,
+  biasCol = "nFrags",
+  biasVals = NULL,
+  biasQuantiles = c(0.05, 0.95),
+  biasEnrich = 10,
+  biasProportion = 0.5,
+  biasPval = 0.05,
+  nPerm = 500,
+  prefix = "C",
   verbose = TRUE,
   tstart = NULL,
   force = FALSE,
@@ -55,6 +65,28 @@ sequencing depth that is greater than the \code{corCutOff}, it will be excluded 
 
 \item{nOutlier}{The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
 this threshold, then the cells will be considered outliers and assigned to nearby clusters.}
+
+\item{testBias}{A boolean indicating whether to test clusters for bias.}
+
+\item{filterBias}{A boolean indicating whether to filter clusters that are identified as biased.}
+
+\item{biasClusters}{A numeric (0 to 1) indicating clusters that are smaller than this proportion are to be checked for bias. This should be set lower to 0,
+we recommend a default of 0.01 for clusters below 1 percent.}
+
+\item{biasCol}{A column in \code{cellColData} that contains the numeric values used for testing bias enrichment.}
+
+\item{biasVals}{A set of numeric values used for testing bias enrichment if input is not an \code{ArchRProject}.}
+
+\item{biasQuantiles}{Two numerical values (between 0 and 1) that describes the lower and upper quantiles of the bias values to use for computing bias enrichment
+statistics.}
+
+\item{biasEnrich}{A numeric that specifies the minimum enrichment of \code{biased} cells vs the median of the permuted background sets.}
+
+\item{biasProportion}{A numeric (0 to 1) specifying the minimum proportion of cells that are \code{biased} to use when testing for bias enriched clusters.}
+
+\item{biasPval}{A numeric (0 to 1) specifying the p-value to use when testing for bias enriched clusters.}
+
+\item{nPerm}{An integer specifying number of permutations to perform for testing bias enriched clusters.}
 
 \item{prefix}{A character string to be added before each cluster identity. Ie if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.}
 
