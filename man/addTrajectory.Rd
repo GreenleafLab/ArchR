@@ -13,6 +13,7 @@ addTrajectory(
   embedding = NULL,
   preFilterQ = 0.9,
   postFilterQ = 0.9,
+  useAll = TRUE,
   dof = 250,
   spar = 1,
   force = FALSE

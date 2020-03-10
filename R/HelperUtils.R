@@ -780,7 +780,9 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 }
 
 #https://stackoverflow.com/questions/3476782/check-if-the-number-is-integer
-.isWholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+.isWholenumber <- function(x, tol = .Machine$double.eps^0.5){
+  abs(x - round(x)) < tol
+}
 
 .convertToPNG <- function(
   ArchRProj = NULL,

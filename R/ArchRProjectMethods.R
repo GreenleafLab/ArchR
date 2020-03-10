@@ -1621,7 +1621,10 @@ getAvailableMatrices <- function(ArchRProj = NULL){
 
 # }
 
-# JJJ
+#' This function will add total counts of scATAC cells in provided features into ArchRProject.
+#' 
+#' This function will add total counts of scATAC cells in provided features into ArchRProject.
+#' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 addFeatureCounts <- function(
