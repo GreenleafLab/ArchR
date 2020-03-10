@@ -474,6 +474,8 @@ getMatrixFromArrow <- function(
     if(asSparse){
       matChr <- as(matChr, "dgCMatrix")
     }
+
+    .messageDiffTime(sprintf("Finished Group Matrix %s of %s", x, length(seqnames)), tstart, verbose = verbose)
     
     matChr
 

@@ -2,6 +2,36 @@
 # Assay Correlation Methods
 ##########################################################################################
 
+#' Correlate Matrices within an ArchRProject
+#' 
+#' This function will correlate 2 matrices within an ArchRProject by name matching.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix1 A character describing the first matrix to use. See `getAvailableMatrices` for valid options.
+#' @param useMatrix2 A character describing the second matrix to use. See `getAvailableMatrices` for valid options.
+#' @param useSeqnames1 A character vector describing which seqnames to use in matrix 1.
+#' @param useSeqnames2 A character vector describing which seqnames to use in matrix 2.
+#' @param removeFromName1 A character vector describing how to filter names in matrix 1. 
+#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' @param removeFromName2 A character vector describing how to filter names in matrix 2. 
+#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' @param log2Norm1 A boolean describing whether to log2 normalize matrix 1.
+#' @param log2Norm2 A boolean describing whether to log2 normalize matrix 2.
+#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
+#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+#' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param k An `ArchRProject` object.
+#' @param knnIteration An `ArchRProject` object.
+#' @param overlapCutoff An `ArchRProject` object.
+#' @param seed An `ArchRProject` object.
+#' @param knnMethod An `ArchRProject` object.
+#' @param threads The number of threads to be used for parallel computing.
+#' @export
 correlateMatrices <- function(
   ArchRProj = NULL,
   useMatrix1 = NULL,
@@ -267,10 +297,10 @@ correlateMatrices <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
-#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
-#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
-#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
+#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
@@ -419,7 +449,7 @@ addCoAccessibility <- function(
 #' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
 #' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
 #' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
-#' the `ArchRBrowser()` or as an `ArchRRegionTrack()`.
+#' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
 #' @export
 getCoAccessibility <- function(
   ArchRProj = NULL, 
@@ -530,16 +560,15 @@ threads = getArchRThreads()
 
 #' Add Peak2GeneLinks to an ArchRProject JJJ
 #' 
-#' This function will add co-accessibility scores to peaks in a given ArchRProject
-#' QQQ IM NOT CLEAR ON HOW THIS IS DIFFERENT FROM addCoAccessibility? THE FUNCTION DESCRIPTION IS IDENTICAL
+#' This function will add peak-to-gene links to a given ArchRProject
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
-#' @param scaleDims QQQ DOUBLE CHECK A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing the contribution
-#' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
-#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
-#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
+#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
 #' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
@@ -550,6 +579,7 @@ threads = getArchRThreads()
 #' @param scaleTo The total insertion counts from the designated group of single cells is summed across all relevant peak regions
 #' from the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
+#' @param predictionCutoff A numeric describing the cutoff for RNA integration to use when picking cells for groupings.
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended
 #' to keep track of the seed used so that you can reproduce results downstream.
 #' @param knnMethod The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.
@@ -570,7 +600,7 @@ addPeak2GeneLinks <- function(
   predictionCutoff = 0.4,
   seed = 1, 
   knnMethod = NULL,
-  threads = getArchRThreads()
+  threads = max(floor(getArchRThreads() / 2), 1)
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -671,7 +701,7 @@ addPeak2GeneLinks <- function(
     groupList = knnObj, 
     useMatrix = "GeneIntegrationMatrix",
     threads = threads,
-    verbose = FALSE
+    verbose = TRUE
   )
 
   #Group Matrix ATAC
@@ -682,7 +712,7 @@ addPeak2GeneLinks <- function(
     groupList = knnObj, 
     useMatrix = "PeakMatrix",
     threads = threads,
-    verbose = FALSE
+    verbose = TRUE
   )
 
   .messageDiffTime("Normalizing Group Matrices", tstart)
@@ -809,15 +839,16 @@ addPeak2GeneLinks <- function(
 
 }
 
-#' Get the peak co-accessibility from an ArchRProject
+#' Get the peak-to-gene links from an ArchRProject
 #' 
-#' This function obtains co-accessibility data from an ArchRProject.
+#' This function obtains peak-to-gene links from an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
+#' @param corCutOff A numeric describing the minimum numeric peak-to-gene correlation to return.
+#' @param FDRCutOff A numeric describing the maximum numeric peak-to-gene false discovery rate to return.
 #' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
-#' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
-#' the `ArchRBrowser()` or as an `ArchRRegionTrack()`.
+#' @param returnLoops A boolean indicating to return the peak-to-gene links as a `GRanges` "loops" object designed for use with
+#' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
 #' @export
 getPeak2GeneLinks <- function(
   ArchRProj = NULL, 
@@ -885,22 +916,28 @@ getPeak2GeneLinks <- function(
 
 }
 
-#' Get the peak co-accessibility from an ArchRProject
+#' Plot Peak2Gene Heatmap from an ArchRProject
 #' 
-#' This function obtains co-accessibility data from an ArchRProject.
+#' This function plots side by side heatmaps of linked ATAC and Gene regions from `addPeak2GeneLinks`.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
-#' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
-#' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
-#' the `ArchRBrowser()` or as an `ArchRRegionTrack()`.
+#' @param corCutOff A numeric describing the minimum numeric peak-to-gene correlation to return.
+#' @param FDRCutOff A numeric describing the maximum numeric peak-to-gene false discovery rate to return.
+#' @param k An integer describing the number of k-means clusters to group peak-to-gene links prior to plotting heatmaps.
+#' @param nPlot An integer describing the maximum number of peak-to-gene links to plot in heatmap.
+#' @param limitsATAC An integer describing the maximum number of peak-to-gene links to plot in heatmap.
+#' @param limitsRNA An integer describing the maximum number of peak-to-gene links to plot in heatmap.
+#' @param groupBy The name of the column in `cellColData` to use for labeling KNN groupings. The maximum group appeared in the KNN groupings is used.
+#' @param palGroup A color palette describing the colors in `groupBy`. For example, if groupBy = "Clusters" try paletteDiscrete(ArchRProj$Clusters) for a color palette.
+#' @param palATAC A color palette describing the colors to be used for the ATAC heatmap. For example, paletteContinuous("solarExtra").
+#' @param palRNA A color palette describing the colors to be used for the RNA heatmap. For example, paletteContinuous("blueYellow").
 #' @export
 peak2GeneHeatmap <- function(
   ArchRProj = NULL, 
   corCutOff = 0.45, 
   FDRCutOff = 0.0001,
   k = 25,
-  nPlot = 10000,
+  nPlot = 25000,
   limitsATAC = c(-2, 2),
   limitsRNA = c(-2, 2),
   groupBy = "Clusters",
@@ -914,7 +951,10 @@ peak2GeneHeatmap <- function(
   if(is.null(metadata(ArchRProj@peakSet)$Peak2GeneLinks)){
     stop("No Peak2GeneLinks Found! Try addPeak2GeneLinks!")
   }
-
+  
+  #########################################
+  # Get Inputs
+  #########################################
   ccd <- getCellColData(ArchRProj, select = groupBy)
   p2g <- metadata(ArchRProj@peakSet)$Peak2GeneLinks
   p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
@@ -923,6 +963,26 @@ peak2GeneHeatmap <- function(
   mRNA <- assay(readRDS(metadata(p2g)$seRNA)[p2g$idxRNA, ])
   gc()
 
+  #########################################
+  # Determine Groups from KNN
+  #########################################
+  .messageDiffTime("Determining KNN Groups!", tstart)
+  KNNList <- as(metadata(readRDS(metadata(p2g)$seRNA))$KNNList, "list")
+  KNNGroups <- lapply(seq_along(KNNList), function(x){
+    KNNx <- KNNList[[x]]
+    names(sort(table(ccd[KNNx, 1, drop = TRUE]), decreasing = TRUE))[1]
+  }) %>% unlist
+  cD <- DataFrame(row.names=paste0("K", seq_len(ncol(mATAC))), groupBy = KNNGroups)
+  pal <- paletteDiscrete(values=gtools::mixedsort(unique(ccd[,1])))
+  if(!is.null(palGroup)){
+    pal[names(palGroup)[names(palGroup) %in% names(pal)]] <- palGroup[names(palGroup) %in% names(pal)]
+  }
+  colorMap <- list(groupBy = pal)
+  attr(colorMap[[1]], "discrete") <- TRUE
+
+  #########################################
+  # Organize Matrices
+  #########################################
   mATAC <- .rowZscores(mATAC)
   mRNA <- .rowZscores(mRNA)
   rownames(mATAC) <- NULL
@@ -934,26 +994,31 @@ peak2GeneHeatmap <- function(
 
   .messageDiffTime("Ordering Peak2Gene Links!", tstart)
   k1 <- kmeans(mATAC, k)
-  if(nrow(matATAC) > nPlot){
+  if(nrow(mATAC) > nPlot){
     nPK <- nPlot * table(k1$cluster) / length(k1$cluster) 
     splitK <- split(seq_len(nrow(mATAC)), k1$cluster)
     kDF <- lapply(seq_along(splitK), function(x){
-      DataFrame(k=x,idx=sample(splitK[[x]], floor(nPK[x])))
+      DataFrame(k = x, idx = sample(splitK[[x]], floor(nPK[x])))
     }) %>% Reduce("rbind", .)
   }else{
-    kDF <- DataFrame(k = k1$cluster, idx = seq_len(nrow(mATAC))
+    kDF <- DataFrame(k = k1$cluster, idx = seq_len(nrow(mATAC)))
   }
-  bS <- .binarySort(t(.groupMeans(t(mATAC[kDF[,2],]), kDF[,1])),  clusterCols = TRUE)
+  bS <- .binarySort(t(.groupMeans(t(mATAC[kDF[,2],]), kDF[,1])),  clusterCols = TRUE, cutOff = 1)
   rowOrder <- rownames(bS[[1]])
   colOrder <- colnames(bS[[1]])
   kDF[,3] <- as.integer(mapLabels(paste0(kDF[,1]), newLabels = paste0(seq_along(rowOrder)), oldLabels = rowOrder))
 
+  #########################################
+  # Plot Heatmaps
+  #########################################
   .messageDiffTime("Constructing ATAC Heatmap!", tstart)
   htATAC <- .ArchRHeatmap(
     mat = mATAC[kDF[,2],colOrder],#[rowOrder, colOrder],
     scale = FALSE,
     limits = limitsATAC,
     color = palATAC, 
+    colData = cD[colOrder,,drop=FALSE],
+    colorMap = colorMap,
     clusterCols = FALSE,
     clusterRows = FALSE,
     split = kDF[,3],
@@ -969,6 +1034,8 @@ peak2GeneHeatmap <- function(
     scale = FALSE,
     limits = limitsRNA,
     color = palRNA, 
+    colData = cD[colOrder,,drop=FALSE],
+    colorMap = colorMap,
     clusterCols = FALSE,
     clusterRows = FALSE,
     split = kDF[,3],
@@ -981,6 +1048,12 @@ peak2GeneHeatmap <- function(
   htATAC + htRNA
 
 }
+
+
+
+
+
+
 
 
 
