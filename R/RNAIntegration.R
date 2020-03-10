@@ -4,39 +4,55 @@
 
 #' Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject
 #' 
-#' This function, for each sample, will independently integrate with a scRNA experiment, compute matched scRNA profiles and
+#' This function, will integrate multiple subsets of scATAC cells with a scRNA experiment, compute matched scRNA profiles and
 #' then store this in each samples ArrowFile.
 #'
 #' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix A character describing which matrix to use for Gene Scores for RNA integration.
+#' @param matrixName A character describing the output matrix name for scRNA integration.
 #' @param seRNA A scRNA-seq `SummarizedExperiment` or `SeuratObject` to integrated with the scATAC-seq data.
-#' @param groupBy QQQ UNCLEAR WHAT PREDICTION SCORES ARE The column name in either `colData` or `metadata` of seRNA to use to compute prediction scores.
-#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`. 
-#' @param sampleList QQQ THIS COULD BE BETTER DESCRIBED A named list of sampleNames from `ArchRProj` containing cell names in `seRNA` that are used for constraining data integration.
-#' For example when integrating hematopoiesis it is useful to perform integration separately for cells derived from different biological contexts
-#' such as "CD34", "BMMC" and "PBMC" single cells. Performing this integration separately not only provides better linking but
-#' also increases speed of processing.
-#' @param sampleRNA The number of cells from `seRNA` to be used for integration. This is useful for lowering the memory requirements and
-#' processing time of `Seurat::FindTransferAnchors()` when integrating datasets.
+#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
+#' This `reducedDims` will be used in weighting the transfer of data to scRNA to scATAC. See `Seurat::TransferData` for more info.
+#' @param groupATAC A column in `cellColData` that can be used for subgroupings in `groupList`. This is useful for constraining integrations.
+#' @param groupRNA The column name in either `colData` or `metadata` of seRNA to use to compute prediction scores. These scores represent the assignment accuracy
+#' of the group in the RNA cells. Lower scores represent ambiguous predictions and higher scores represent precise predictions. 
+#' @param groupList A list of ATAC and RNA groupings to be used for RNA ATAC integration. This is useful for constraining integrations.
+#' @param sampleCellsATAC An integer describing the number of scATAC cells to be used for integration. 
+#' This number will be evenly divided across the total number of cells in the ArchRProject.
+#' For example if 99,000 cells are present with a 10,000 sampleCellsATAC the number of cells used would be
+#' closer to 9,900 to make sure subgroupings are close the the same number of cells.
+#' @param sampleCellsRNA An integer describing the number of scRNA cells to be used for integration.
+#' @param embeddingATAC A data.frame of cell embeddings such as a UMAP for scATAC cells to be used for density sampling.
+#' @param embeddingRNA A data.frame of cell embeddings such as a UMAP for scRNA cells to be used for density sampling.
 #' @param nGenes The number of variable genes determined by `Seurat::FindVariableGenes()` to use for integration.
 #' @param useImputation A boolean value indicating whether to use imputation for creating the Gene Score Matrix prior to integration.
 #' @param reduction The Seurat reduction method to use for integrating modalities. See `Seurat::FindTransferAnchors()` for possible reduction methods.
 #' @param addToArrow A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the ArrowFiles.
+#' @param scaleTo Each column in the integrated RNA matrix will be normalized to a column sum designated by `scaleTo` prior to adding to ArrowFiles.
+#' @param nameCell A column name to add the predicted scRNA cell to in the ArchRProject. This is useful for identifying which cell was closest to the scATAC cell.
+#' @param nameGroup A column name to add the predicted scRNA group to in the ArchRProject. See `groupRNA` for more details.
+#' @param nameScore A column name to add the predicted scRNA score to in the ArchRProject. This value represents the accuracy of assignment based on the 
+#' 'purity' of cell assignment to a group in seRNA.
+#' @param transferParams Additional params to be added to `Seurat::TransferData`.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
+#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the given `input`.
+#' @param ... Additional params to be added to `Seurat::FindTransferAnchors`
 #' @export
 addGeneIntegrationMatrix <- function(
   ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
   useMatrix = "GeneScoreMatrix",
   matrixName = "GeneIntegrationMatrix",
+  reducedDims = "IterativeLSI",
   seRNA = NULL,
   groupATAC = NULL,
   groupRNA = NULL,
   groupList = NULL,
-  embeddingATAC = NULL,
-  embeddingRNA = NULL,
   sampleCellsATAC = 10000,
   sampleCellsRNA = 10000,
+  embeddingATAC = NULL,
+  embeddingRNA = NULL,
   nGenes = 2000,
   useImputation = TRUE,
   reduction = "cca",
@@ -46,10 +62,10 @@ addGeneIntegrationMatrix <- function(
   nameGroup = "predictedGroup",
   nameScore = "predictedScore",
   transferParams = list(),
-  force = FALSE,
   threads = getArchRThreads(),
   verboseHeader = TRUE,
   verboseAll = FALSE,
+  force = FALSE,
   ...
   ){
 

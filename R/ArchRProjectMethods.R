@@ -605,12 +605,15 @@ nCells <- function(input = NULL){
 
 }
 
-#' Get the number of cells from an ArchRProject/ArrowFile JJJ
+#' Get summary for Groups in ArchRProject
 #' 
-#' This function gets number of cells from an ArchRProject or ArrowFile
+#' This function summarizes a numeric cellColData entry across groupings in a ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' @param groupBy The name of the column in `cellColData` to use for grouping multiple cells together for summarizing information.
 #' @param select A character vector containing the column names to select from `cellColData`.
+#' @param summary A character vector describing which method for summarizing across group. Options include "median", "mean", or "sum".
+#' @param na.rm Remove NA's from summary method.
 #' @export
 getGroupSummary <- function(
   ArchRProj = NULL,
@@ -1494,7 +1497,7 @@ getTutorialData <- function(tutorial = "hematopoiesis"){
     
     if(!dir.exists("HemeFragments")){
       download.file(
-        url = "https://jeffgranja.s3.amazonaws.com/ArchR-Tutorial-Data/Heme/HemeFragments.zip", 
+        url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments.zip", 
         destfile = "HemeFragments.zip"
       )
       unzip("HemeFragments.zip")

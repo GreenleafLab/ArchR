@@ -23,6 +23,8 @@
 #' @param sampleCells An integer specifying the number of cells to subsample and perform UMAP Embedding on. The remaining cells
 #' that were not subsampled will be re-projected using uwot::umap_transform to the UMAP Embedding. This enables a decrease in run time
 #' and memory but can lower the overal quality of the UMAP Embedding. Only recommended for extremely large number of cells.
+#' @param outlierQuantile A numeric (0 to 1) describing the distance quantile in the subsampled cels (see `sampleCells`) to use to filter poor quality re-projections.
+#' This is necessary because there are lots of outliers if undersampled significantly.
 #' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding.
 #' @param verbose A boolean value that indicates whether printing UMAP output.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
@@ -43,7 +45,7 @@ addUMAP <- function(
   scaleDims = NULL,
   corCutOff = 0.75,
   sampleCells = NULL,
-  outlierQuantile = 0.999,
+  outlierQuantile = 0.9,
   saveModel = TRUE,
   verbose = TRUE,
   seed = 1,
