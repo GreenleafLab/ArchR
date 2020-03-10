@@ -40,5 +40,3 @@ Depends:
     S4Vectors (>= 0.9.25),
     BiocGenerics,
     GenomicRanges
-Collate: 
-    'HelperUtils.R'
