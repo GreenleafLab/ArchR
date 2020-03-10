@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectMethods.R
 \name{getGroupSummary}
 \alias{getGroupSummary}
-\title{Get summary for Groups in ArchRProject}
+\title{Get the number of cells from an ArchRProject/ArrowFile JJJ}
 \usage{
 getGroupSummary(
   ArchRProj = NULL,
@@ -15,14 +15,8 @@ getGroupSummary(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{groupBy}{The name of the column in \code{cellColData} to use for grouping multiple cells together for summarizing information.}
-
 \item{select}{A character vector containing the column names to select from \code{cellColData}.}
-
-\item{summary}{A character vector describing which method for summarizing across group. Options include "median", "mean", or "sum".}
-
-\item{na.rm}{Remove NA's from summary method.}
 }
 \description{
-This function summarizes a numeric cellColData entry across groupings in a ArchRProject.
+This function gets number of cells from an ArchRProject or ArrowFile
 }

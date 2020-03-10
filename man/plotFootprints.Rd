@@ -13,7 +13,7 @@ plotFootprints(
   pal = NULL,
   flank = 250,
   flankNorm = 50,
-  smoothWindow = NULL,
+  smoothWindow = 10,
   minCells = 25,
   nTop = NULL,
   normMethod = "none",
