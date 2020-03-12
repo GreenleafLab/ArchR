@@ -111,7 +111,7 @@ addTileMatrix <- function(
   
   #Check
   o <- h5closeAll()
-  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = "TileMatrix", force = force)
   # if(!suppressMessages(h5createGroup(file = ArrowFile, "TileMatrix"))){
   #   if(force){
   #     o <- h5delete(file = ArrowFile, name = "TileMatrix")

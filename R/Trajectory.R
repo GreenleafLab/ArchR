@@ -16,9 +16,9 @@
 #' `trajectory` to constrain the initial supervised fitting procedure.
 #' @param reducedDims A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for distance computation.
 #' @param embedding A string indicating the name of the `embedding` object from the `ArchRProject` that should be used for distance computation.
-#' @param preFilterQ Prior to the initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping
+#' @param preFilterQuantile Prior to the initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping
 #' center is above the provided quantile will be excluded.
-#' @param postFilterQ After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center
+#' @param postFilterQuantile After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center
 #' is above the provided quantile will be excluded.
 #' @param dof The number of degrees of freedom to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param spar The sparsity to be used in the spline fit. See `stats::smooth.spline()` for more information.
@@ -31,8 +31,8 @@ addTrajectory <- function(
   groupBy = "Clusters",
   reducedDims = "IterativeLSI",
   embedding = NULL,
-  preFilterQ = 0.9, 
-  postFilterQ = 0.9,
+  preFilterQuantile = 0.9, 
+  postFilterQuantile = 0.9,
   useAll = TRUE, 
   dof = 250,
   spar = 1,
@@ -45,8 +45,8 @@ addTrajectory <- function(
     .validInput(input = groupBy, name = "groupBy", valid = c("character"))
     .validInput(input = reducedDims, name = "reducedDims", valid = c("character", "null"))
     .validInput(input = embedding, name = "reducedDims", valid = c("character", "null"))
-    .validInput(input = preFilterQ, name = "preFilterQ", valid = c("numeric"))
-    .validInput(input = postFilterQ, name = "postFilterQ", valid = c("numeric"))
+    .validInput(input = preFilterQuantile, name = "preFilterQuantile", valid = c("numeric"))
+    .validInput(input = postFilterQuantile, name = "postFilterQuantile", valid = c("numeric"))
     .validInput(input = dof, name = "dof", valid = c("integer"))
     .validInput(input = spar, name = "spar", valid = c("numeric"))
     .validInput(input = force, name = "force", valid = c("boolean"))
@@ -86,7 +86,7 @@ addTrajectory <- function(
         #Filter Distance
         matMeanx <- colMeans(matx)
         diffx <- sqrt(colSums((t(matx) - matMeanx)^2))
-        idxKeep <- which(diffx <= quantile(diffx, preFilterQ))
+        idxKeep <- which(diffx <= quantile(diffx, preFilterQuantile))
         
         #Filter
         list(mat = matx[idxKeep,,drop=FALSE], groups = groupsx[idxKeep])
@@ -149,11 +149,11 @@ addTrajectory <- function(
     knnDistQ <- .getQuantiles(knnDist[,1])
 
     #Filter Outlier Cells to Trajectory for High Resolution
-    idxKeep <- which(knnDist[,1] <= quantile(knnDist[,1], postFilterQ))
+    idxKeep <- which(knnDist[,1] <= quantile(knnDist[,1], postFilterQuantile))
     dfTrajectory <- DataFrame(
         row.names = rownames(mat),
         Distance = knnDist[, 1],
-        DistanceIdx = knnIdx[, 1] + knnDistQ
+        DistanceIdx = knnIdx[, 1] + knnDiff * knnDistQ
     )[idxKeep, , drop = FALSE]
 
     ######################################################
@@ -187,7 +187,7 @@ addTrajectory <- function(
       dfTrajectory2 <- DataFrame(
           row.names = rownames(mat2),
           Distance = knnDist2[, 1],
-          DistanceIdx = knnIdx2[, 1] + knnDistQ2
+          DistanceIdx = knnIdx2[, 1] + knnDiff2 * knnDistQ2
       )[idxKeep, , drop = FALSE]
 
       #Final Output
@@ -211,6 +211,7 @@ addTrajectory <- function(
 
 }
 
+
 #' Get Supervised Trajectory from an ArchR Project
 #' 
 #' This function will get a supervised trajectory from an `ArchRProject` (see `addTrajectory`), get data
@@ -233,35 +234,26 @@ addTrajectory <- function(
 #' @param scaleTo Once the sequential trajectory matrix is created, each column in that matrix will be normalized to a column sum
 #' indicated by `scaleTo`. Setting this to `NULL` will prevent any normalization and should be done in certain circumstances
 #' (for ex. if you are using a "MotifMatrix").
-#' @param smooth A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.
-#' @param smoothFormula The smoothing formula to use in the generalized additive model. See the `formula` parameter in
-#' `mgcv::gam()` for additional information.
+#' @param smoothWindow A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.
 #' @export
 getTrajectory <- function(
   ArchRProj = NULL,
   name = "Trajectory",
   useMatrix = "GeneScoreMatrix",
-  varCutOff = 0.9,
-  maxFeatures = 25000,
-  groupEvery = 2,
+  groupEvery = 1,
   threads = getArchRThreads(),
   log2Norm = TRUE,
   scaleTo = 10000,
-  smooth = TRUE,
-  smoothFormula = "y ~ s(x, bs = 'cs')"
+  smoothWindow = 3
   ){
 
     .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
     .validInput(input = name, name = "name", valid = c("character"))
     .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
-    .validInput(input = varCutOff, name = "varCutOff", valid = c("numeric"))
-    .validInput(input = maxFeatures, name = "maxFeatures", valid = c("numeric"))
     .validInput(input = groupEvery, name = "groupEvery", valid = c("numeric"))
     .validInput(input = threads, name = "threads", valid = c("integer"))
     .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
     .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
-    .validInput(input = smooth, name = "smooth", valid = c("boolean"))
-    .validInput(input = smoothFormula, name = "smoothFormula", valid = c("character"))
 
     trajectory <- getCellColData(ArchRProj, name)
     trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
@@ -305,61 +297,270 @@ getTrajectory <- function(
       }
     }
 
-    if(!is.null(varCutOff)){
-      rV <- matrixStats::rowVars(groupMat)
-      idx <- head(order(rV, decreasing = TRUE), nrow(groupMat) * (1-varCutOff))
-      groupMat <- groupMat[idx, ,drop=FALSE]
-    }
-
-    if(nrow(groupMat) > maxFeatures){
-      rV <- matrixStats::rowVars(groupMat)
-      idx2 <- head(order(rV, decreasing = TRUE), nrow(groupMat) * (1-varCutOff))
-      idx <- idx[idx2]
-      groupMat <- groupMat[idx2, ,drop=FALSE]
-    }
-
-    if(smooth){
+    if(!is.null(smoothWindow)){
       
-      message("Smoothing with mgcv::gam formula : ", smoothFormula)
-
-      t <- breaks[-length(breaks)] + 0.5 * groupEvery
-      groupMat2 <- matrix(NA, nrow=nrow(groupMat),ncol=ncol(groupMat))
-      colnames(groupMat2) <- colnames(groupMat)
-      rownames(groupMat2) <- rownames(groupMat)
-      n <- ncol(groupMat2)
-
-      pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
-      for(x in seq_len(nrow(groupMat))){
-        setTxtProgressBar(pb,round(x*100/nrow(groupMat),0))
-        groupMat2[x, ] <- stats::predict(
-            mgcv::gam(formula = eval(parse(text=smoothFormula)), data = data.frame(x = t, y = groupMat[x, ])), 
-            newdata = data.frame(x = t), 
-            se.fit = FALSE,
-            level = 0.95, 
-            interval = "confidence"
-          )
+      message("Smoothing...")
+      smoothGroupMat <- as.matrix(t(apply(groupMat, 1, function(x) .centerRollMean(x, k = smoothWindow))))
+      
+      #Create SE
+      seTrajectory <- SummarizedExperiment(
+          assays = SimpleList(
+            smoothMat = smoothGroupMat, 
+            mat = groupMat
+          ), 
+          rowData = featureDF
+      )
+      if("name" %in% colnames(featureDF)){
+        rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$name)
+      }else{
+        rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$start, "_", featureDF$end)
       }
 
-      #Rename and remove
-      groupMat <- groupMat2
-      rm(groupMat2)
-      gc()
+    }else{
 
-      message("\n")
+      #Create SE
+      seTrajectory <- SummarizedExperiment(
+          assays = SimpleList(
+            mat = groupMat
+          ), 
+          rowData = featureDF
+      )
+      if("name" %in% colnames(featureDF)){
+        rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$name)
+      }else{
+        rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$start, "_", featureDF$end)
+      }
 
     }
 
-    #Create SE
-    seTrajectory <- SummarizedExperiment(
-        assays = SimpleList(mat = groupMat), 
-        rowData = featureDF[idx, ,drop = FALSE]
+    metadata(seTrajectory)$Params <- list(
+      useMatrix = useMatrix, 
+      scaleTo = scaleTo, 
+      log2Norm = log2Norm, 
+      smoothWindow = smoothWindow, 
+      date = Sys.Date()
     )
-    metadata(seTrajectory)$Params <- list(useMatrix = useMatrix, 
-      scaleTo = scaleTo, log2Norm = log2Norm, smooth = smooth, smoothFormula = smoothFormula, date = Sys.Date())
 
     seTrajectory
 
 }
+
+correlateTrajectories <- function(
+  seTrajectory1 = NULL,
+  seTrajectory2 = NULL,
+  corCutOff = 0.5,
+  varCutOff1 = 0.8,
+  varCutOff2 = 0.8,
+  removeFromName1 = c("underscore", "dash"),
+  removeFromName2 = c("underscore", "dash"),
+  useRanges = FALSE,
+  fix1 = "center",
+  fix2 = "start",
+  maxDist = 250000,
+  log2Norm1 = TRUE,
+  log2Norm2 = TRUE,
+  force = FALSE
+  ){
+
+  featureDF1 <- rowData(seTrajectory1)
+  featureDF2 <- rowData(seTrajectory2)
+
+  if("name" %in% colnames(featureDF1)){
+    rownames(featureDF1) <- paste0(featureDF1$seqnames, ":", featureDF1$name)
+    rownames(seTrajectory1) <- paste0(featureDF1$seqnames, ":", featureDF1$name)
+  }else{
+    if(!useRanges){
+      stop("seTrajectory1 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!")
+    }
+    rownames(featureDF1) <- paste0(featureDF1$seqnames, ":", featureDF1$start, "_", featureDF1$end)
+    rownames(seTrajectory1) <- paste0(featureDF1$seqnames, ":", featureDF1$start, "_", featureDF1$end)
+  }
+
+  if("name" %in% colnames(featureDF2)){
+    rownames(featureDF2) <- paste0(featureDF2$seqnames, ":", featureDF2$name)
+    rownames(seTrajectory2) <- paste0(featureDF2$seqnames, ":", featureDF2$name)
+  }else{
+    if(!useRanges){
+      stop("seTrajectory2 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!")
+    }
+    rownames(featureDF2) <- paste0(featureDF2$seqnames, ":", featureDF2$start, "_", featureDF2$end)
+    rownames(seTrajectory2) <- paste0(featureDF2$seqnames, ":", featureDF2$start, "_", featureDF2$end)
+  }
+
+  if(useRanges){
+
+    if("start" %ni% colnames(featureDF1)){
+      stop("start is not in seTrajectory1, this is not a ranges object. Please set useRanges = FALSE")
+    }
+
+    if("start" %ni% colnames(featureDF2)){
+      stop("start is not in seTrajectory2, this is not a ranges object. Please set useRanges = FALSE")
+    }
+
+    if("strand" %in% colnames(featureDF1)){
+      ranges1 <- GRanges(
+        seqnames = featureDF1$seqnames, 
+        IRanges(
+          ifelse(featureDF1$strand == 2, featureDF1$end, featureDF1$start),
+          ifelse(featureDF1$strand == 2, featureDF1$start, featureDF1$end)
+        ),
+        strand = ifelse(featureDF1$strand == 2, "-", "+")
+      )
+    }else{
+      ranges1 <- GRanges(featureDF1$seqnames, IRanges(featureDF1$start, featureDF1$end))
+    }
+    #mcols(ranges1) <- featureDF1
+    names(ranges1) <- rownames(featureDF1)
+    rowRanges(seTrajectory1) <- ranges1
+    rm(ranges1)
+
+    if("strand" %in% colnames(featureDF2)){
+      ranges2 <- GRanges(
+        seqnames = featureDF2$seqnames, 
+        IRanges(
+          ifelse(featureDF2$strand == 2, featureDF2$end, featureDF2$start),
+          ifelse(featureDF2$strand == 2, featureDF2$start, featureDF2$end)
+        ),
+        strand = ifelse(featureDF2$strand == 2, "-", "+")
+      )
+    }else{
+      ranges2 <- GRanges(featureDF2$seqnames, IRanges(featureDF2$start, featureDF2$end))
+    }
+    #mcols(ranges2) <- featureDF2
+    names(ranges2) <- rownames(featureDF2)
+    rowRanges(seTrajectory2) <- ranges2
+    rm(ranges2)
+
+    #Find Associations to test
+    isStranded1 <- any(as.integer(strand(seTrajectory1)) == 2)
+    isStranded2 <- any(as.integer(strand(seTrajectory2)) == 2)
+
+    if(fix1 == "center" & isStranded1){
+      if(!force){
+        stop("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.")
+      }else{
+        message("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Continuing since force = TRUE")
+      }         
+    }
+
+    if(fix1 != "center" & !isStranded1){
+      if(!force){
+        stop("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.")
+      }else{
+        message("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Continuing since force = TRUE") 
+      }         
+    }
+
+    if(fix2 == "center" & isStranded2){
+      if(!force){
+        stop("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.")
+      }else{
+        message("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Continuing since force = TRUE")
+      }         
+    }
+
+    if(fix2 != "center" & !isStranded2){
+      if(!force){
+        stop("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.")
+      }else{
+        message("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Continuing since force = TRUE") 
+      }         
+    }
+
+    #Overlaps
+    mappingDF <- DataFrame(
+      findOverlaps( 
+        resize(rowRanges(seTrajectory1), 1, fix1), 
+        .suppressAll(resize(resize(seTrajectory2, 1, fix2), 2 * maxDist + 1, "center")),
+        ignore.strand = TRUE
+      )
+    )
+
+    #Get Distance 
+    mappingDF$distance <- distance(
+      x = ranges(rowRanges(seTrajectory1)[mappingDF[,1]]), 
+      y = ranges(rowRanges(resize(seTrajectory2, 1, fix2))[mappingDF[,2]])
+    )
+
+  }else{
+
+    #Create Match Names
+    featureDF1$matchName <- featureDF1$name
+    if("underscore" %in% tolower(removeFromName1)){
+      featureDF1$matchName <- gsub("\\_.*","",featureDF1$matchName)
+    }
+    if("dash" %in% tolower(removeFromName1)){
+      featureDF1$matchName <- gsub("\\-.*","",featureDF1$matchName)
+    }
+    if("numeric" %in% tolower(removeFromName1)){
+      featureDF1$matchName <- gsub("[0-9]+","",featureDF1$matchName)
+    }
+
+    featureDF2$matchName <- featureDF2$name
+    if("underscore" %in% tolower(removeFromName2)){
+      featureDF2$matchName <- gsub("\\_.*","",featureDF2$matchName)
+    }
+    if("dash" %in% tolower(removeFromName2)){
+      featureDF2$matchName <- gsub("\\-.*","",featureDF2$matchName)
+    }
+    if("numeric" %in% tolower(removeFromName2)){
+      featureDF2$matchName <- gsub("[0-9]+","",featureDF2$matchName)
+    }
+    
+    #Now Lets see how many matched pairings
+    matchP <- sum(featureDF1$matchName %in% featureDF2$matchName) / nrow(featureDF1)
+    if(sum(featureDF1$matchName %in% featureDF2$matchName) == 0){
+      stop("Matching of seTrajectory1 and seTrajectory2 resulted in no mappings!")
+    }
+    if(matchP < 0.05){
+      if(force){
+        stop("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Set force = TRUE to continue!")
+      }else{
+        message("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Continuing since force = TRUE.")
+      }
+    }
+
+    #Create Mappings
+    mappingDF <- lapply(seq_len(nrow(featureDF1)), function(x){
+      idx <- which(paste0(featureDF2$matchName) %in% paste0(featureDF1$matchName[x]))
+      if(length(idx) > 0){
+        expand.grid(x, idx)
+      }else{
+        NULL
+      }
+    }) %>% Reduce("rbind", .)
+
+  }
+
+  colnames(mappingDF)[1:2] <- c("idx1", "idx2")
+  mappingDF <- DataFrame(mappingDF)
+
+  mappingDF$Correlation <- rowCorCpp(
+    idxX = as.integer(mappingDF[,1]), 
+    idxY = as.integer(mappingDF[,2]), 
+    X = assays(seTrajectory1)[["mat"]], 
+    Y = assays(seTrajectory2)[["mat"]]
+  )
+  mappingDF$VarAssay1 <- .getQuantiles(matrixStats::rowVars(assays(seTrajectory1)[["mat"]]))[as.integer(mappingDF[,1])]
+  mappingDF$VarAssay2 <- .getQuantiles(matrixStats::rowVars(assays(seTrajectory2)[["mat"]]))[as.integer(mappingDF[,2])]
+  mappingDF$TStat <- (mappingDF$Correlation / sqrt((1-mappingDF$Correlation^2)/(ncol(seTrajectory1)-2))) #T-statistic P-value
+  mappingDF$Pval <- 2 * pt(-abs(mappingDF$TStat), ncol(seTrajectory1) - 2)
+  mappingDF$FDR <- p.adjust(mappingDF$Pval, method = "fdr")
+
+  idxPF <- which(mappingDF$Correlation > corCutOff & mappingDF$VarAssay1 > varCutOff1 & mappingDF$VarAssay2 > varCutOff2)
+  message("Found ", length(idxPF), " Correlated Pairings!")
+
+  out <- SimpleList(
+    correlatedMappings = mappingDF[which(mappingDF$Correlation > corCutOff & mappingDF$VarAssay1 > varCutOff1 & mappingDF$VarAssay2 > varCutOff2),],
+    allMappings = mappingDF,
+    seTrajectory1 = seTrajectory1,
+    seTrajectory2 = seTrajectory2
+  )
+
+  out
+
+}
+
 
 #' Plot a Heatmap of Features across a Trajectory
 #' 
@@ -378,6 +579,8 @@ getTrajectory <- function(
 #' @export
 trajectoryHeatmap <- function(
   seTrajectory = NULL,
+  varCutOff = 0.9,
+  maxFeatures = 25000,
   scaleRows = TRUE,
   limits = c(-2,2),
   grepExclude = NULL,
@@ -399,12 +602,33 @@ trajectoryHeatmap <- function(
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
 
-
   mat <- assay(seTrajectory)
-  rownames(mat) <- rowData(seTrajectory)$name
+  varQ <- .getQuantiles(matrixStats::rowVars(assays(seTrajectory)[["mat"]]))
+  orderedVar <- FALSE
+  if(is.null(rowOrder)){
+    mat <- mat[order(varQ, decreasing = TRUE), ]
+    orderedVar <- TRUE
+    if(is.null(varCutOff) & is.null(maxFeatures)){
+      n <- nrow(mat)
+    }else if(is.null(varCutOff)){
+      n <- maxFeatures
+    }else if(is.null(maxFeatures)){
+      n <- (1-varCutOff) * nrow(mat)
+    }else{
+      n <- min((1-varCutOff) * nrow(mat), maxFeatures)
+    }
+    n <- min(n, nrow(mat))
+    mat <- mat[head(seq_len(nrow(mat)), n ),]
+  }
+
+  #rownames(mat) <- rowData(seTrajectory)$name
   
   if(!is.null(labelTop)){
-    idxLabel <- rownames(mat)[seq_len(labelTop)]
+    if(orderedVar){
+      idxLabel <- rownames(mat)[seq_len(labelTop)]
+    }else{
+      idxLabel <- rownames(mat)[order(varQ,decreasing=TRUE)][seq_len(labelTop)]
+    }
   }else{
     idxLabel <- NULL
   }
@@ -455,6 +679,7 @@ trajectoryHeatmap <- function(
     labelCols = FALSE,
     customRowLabel = match(idxLabel, rownames(mat[idx,])),
     showColDendrogram = TRUE,
+    name = metadata(seTrajectory)$Params$useMatrix,
     draw = FALSE
   )
 
@@ -523,6 +748,7 @@ plotTrajectory <- function(
   baseSize = 6,
   addArrow = TRUE,
   plotAs = NULL,
+  smoothWindow = 5,
   plotParams = list()
   ){
 
@@ -693,12 +919,13 @@ plotTrajectory <- function(
  
     dfArrow <-  split(dfT, floor(dfT$PseudoTime / 1.01)) %>% 
       lapply(colMeans) %>% Reduce("rbind",.) %>% data.frame
-    dfArrow$x <- .centerRollMean(dfArrow$x, 5)
-    dfArrow$y <- .centerRollMean(dfArrow$y, 5)
+    dfArrow$x <- .centerRollMean(dfArrow$x, smoothWindow)
+    dfArrow$y <- .centerRollMean(dfArrow$y, smoothWindow)
+    dfArrow <- rbind(dfArrow, dfT[nrow(dfT), ,drop = FALSE])
 
     out <- out + geom_path(
             data = dfArrow, aes(x, y, color=NULL), size= 1, 
-            arrow = arrow(type = "open", angle = 30, length = unit(0.1, "inches"))
+            arrow = arrow(type = "open", length = unit(0.1, "inches")) # angle = 30,
           )
   }
 
