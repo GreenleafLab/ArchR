@@ -106,7 +106,7 @@ plotEmbedding <- function(
   if(length(colorBy) > 1){
     stop("colorBy must be of length 1!")
   }
-  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)))
+  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)[1:2]))
   if(tolower(colorBy) %ni% tolower(allColorBy)){
     stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
   }
@@ -291,13 +291,16 @@ plotGroups <- function(
   colorBy = "colData", 
   name = "TSSEnrichment",
   imputeWeights = if(!grepl("coldata",tolower(colorBy[1]))) getImputeWeights(ArchRProj),
+  maxCells = 1000,
+  quantCut = c(0.002, 0.998),
   log2Norm = NULL,
   pal = NULL,
+  discreteSet = "stallion",
   ylim = NULL, 
   size = 0.5, 
   baseSize = 6, 
   ratioYX = NULL,
-  ridgeScale = 1,
+  ridgeScale = 2,
   plotAs = "ridges",
   threads = getArchRThreads(),
   ...
@@ -323,7 +326,7 @@ plotGroups <- function(
   if(length(colorBy) > 1){
     stop("colorBy must be of length 1!")
   }
-  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)))
+  allColorBy <-  c("colData", "cellColData", .availableArrays(head(getArrowFiles(ArchRProj), 2)))
   if(tolower(colorBy) %ni% tolower(allColorBy)){
     stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
   }
@@ -332,37 +335,103 @@ plotGroups <- function(
   groups <- getCellColData(ArchRProj, groupBy, drop = FALSE)
   groupNames <- groups[,1]
   names(groupNames) <- rownames(groups)
+  groupNames2 <- gtools::mixedsort(unique(groupNames))
+
 
   plotParams <- list(...)
 
-  pl <- lapply(seq_along(name), function(x){
+  if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
+      
+    colorList <- lapply(seq_along(name), function(x){
+      colorParams <- list()
+      colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = TRUE))
+      if(!is.numeric(colorParams$color)){
+        stop(paste0("colorBy = cellColData, name = ", name[x], " : name must correspond to a numeric column!"))
+      }
+      if(!is.null(discreteSet)){
+        colorParams$pal <- paletteDiscrete(values = groupNames2, set = discreteSet)
+      }
+      if(!is.null(pal)){
+        colorParams$pal <- pal
+      }
+      colorParams
+    })
+
+  }else{
+
+    units <- tryCatch({
+        .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
+      },error=function(e){
+        "values"
+    })
+    
+    if(is.null(log2Norm) & tolower(colorBy) == "genescorematrix"){
+      log2Norm <- TRUE
+    }
+
+    if(is.null(log2Norm)){
+      log2Norm <- FALSE
+    }
+
+    colorMat <- .getMatrixValues(
+      ArchRProj = ArchRProj, 
+      name = name, 
+      matrixName = colorBy, 
+      log2Norm = FALSE, 
+      threads = threads
+    )
+
+    if(!is.null(imputeWeights)){
+      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights)
+      if(!inherits(colorMat, "matrix")){
+        colorMat <- matrix(colorMat, ncol = nCells(ArchRProj))
+        colnames(colorMat) <- ArchRProj$cellNames
+      }
+    }
+
+    colorList <- lapply(seq_len(nrow(colorMat)), function(x){
+      colorParams <- list()
+      colorParams$color <- colorMat[x, ]
+      if(!is.null(discreteSet)){
+        colorParams$pal <- suppressMessages(paletteDiscrete(values = groupNames2, set = discreteSet))
+      }
+      if(!is.null(pal)){
+        colorParams$pal <- pal
+      }
+      colorParams
+    })
+
+  }
+
+  if(!is.null(maxCells)){
+    splitGroup <- split(names(groupNames), groupNames)
+    useCells <- lapply(splitGroup, function(x){
+      if(length(x) > maxCells){
+        sample(x, maxCells)
+      }else{
+        x
+      }
+    }) %>% unlist %>% as.vector
+    idx <- match(useCells, names(groupNames))
+  }else{
+    idx <- seq_along(groupNames)
+  }
+
+  pl <- lapply(seq_along(colorList), function(x){
 
     message(paste0(x, " "), appendLF = FALSE)
 
-    if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
-      values <- getCellColData(ArchRProj, name[x], drop = TRUE)
-    }else{
-      if(tolower(colorBy) == "genescorematrix"){
-        if(is.null(log2Norm)){
-          log2Norm <- TRUE
-        }
-      }
-      values <- .getMatrixValues(ArchRProj, name = name[x], matrixName = colorBy, log2Norm = log2Norm, threads = threads)[1, names(groupNames)]
-    }
-
-    if(!is.null(imputeWeights)){
-      values <- as.vector(imputeMatrix(mat = as.matrix(values), imputeWeights = imputeWeights))
-      #imputeWeights <- imputeWeights$Weights[names(groupNames), names(groupNames)]
-      #values <- (imputeWeights %*% as(as.matrix(values), "dgCMatrix"))[,1] 
-    }
-
     if(is.null(ylim)){
-      ylim <- range(values) %>% extendrange(f = 0.05)
+      ylim <- range(colorList[[x]]$color,na.rm=TRUE) %>% extendrange(f = 0.05)
     }
 
     plotParamsx <- plotParams
-    plotParamsx$x <- groupNames
-    plotParamsx$y <- values
+    plotParamsx$x <- groupNames[idx]
+    if(!is.null(quantCut)){
+      plotParamsx$y <- .quantileCut(colorList[[x]]$color[idx], min(quantCut), max(quantCut))
+    }else{
+      plotParamsx$y <- colorList[[x]]$color[idx]
+    }
     plotParamsx$xlabel <- groupBy
     plotParamsx$ylabel <- name[x]
     plotParamsx$baseSize <- baseSize
@@ -370,15 +439,16 @@ plotGroups <- function(
     plotParamsx$ratioYX <- ratioYX
     plotParamsx$size <- size
     plotParamsx$plotAs <- plotAs
+    plotParamsx$pal <- colorList[[x]]$pal
 
     p <- do.call(ggGroup, plotParamsx)
 
     p
 
   })
-  names(pl) <- name
 
-  message("\n")
+  names(pl) <- name
+  message("")
   
   if(length(name)==1){
     pl[[1]]
@@ -453,6 +523,7 @@ plotGroups <- function(
     colnames(valuesx) <- cellNamesList[[x]]
     valuesx
   }, threads = threads) %>% Reduce("cbind", .)
+  values <- values[, ArchRProj$cellNames, drop = FALSE]
   message("")
   gc()
 
@@ -637,5 +708,4 @@ plotGroups <- function(
 .isDiscrete <- function(x = NULL){
   is.factor(x) || is.character(x) || is.logical(x)
 }
-
 
