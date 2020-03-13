@@ -1031,6 +1031,7 @@ ArchRBrowserTrack <- function(
   normMethod = NULL,
   verbose = NULL,
   minCells = 25,
+  maxCells = 500,
   threads = NULL
   ){
 
@@ -1045,6 +1046,21 @@ ArchRBrowserTrack <- function(
     cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
   }
   tabGroups <- table(cellGroups)
+  
+  if(any(tabGroups) > maxCells){
+    splitGroups <- split(rownames(cellGroups), cellGroups[,1])
+    useCells <- lapply(seq_along(splitGroups), function(x){
+      if(length(splitGroups[[x]]) > maxCells){
+        sample(splitGroups[[x]], maxCells)
+      }else{
+        splitGroups[[x]]
+      }
+    }) %>% unlist
+    ArchRProj@cellColData <- ArchRProj@cellColData[useCells,,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+    tabGroups <- table(cellGroups)
+  }
+
   cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, "Sample", drop = TRUE))
   groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
   uniqueGroups <- gtools::mixedsort(unique(cellGroups))

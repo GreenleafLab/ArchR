@@ -929,11 +929,7 @@ plotTrajectory <- function(
           )
   }
 
-  if(name == trajectory){
-    out
-  }else{
-    list(out, out2)
-  }
+  list(out, out2)
 
 }
 

@@ -36,6 +36,7 @@ setClass("ArchRProject",
 setValidity("ArchRProject", .validArrowFiles)
 
 setMethod("show", "ArchRProject",
+  
   function(object) {
     scat <- function(fmt, vals=character(), exdent=2, n = 5, ...){
             vals <- ifelse(nzchar(vals), vals, "''")
@@ -43,16 +44,32 @@ setMethod("show", "ArchRProject",
             txt <- sprintf(fmt, length(vals), lbls)
             cat(strwrap(txt, exdent=exdent, ...), sep="\n")
     }
-      .ArchRLogo(ascii = "Package")
-      cat("class:", class(object), "\n")
-      cat("outputDirectory:", object@projectMetadata$outputDirectory, "\n")
-      scat("samples(%d): %s\n", rownames(object@sampleColData))
-      scat("sampleColData names(%d): %s\n", names(object@sampleColData))
-      scat("cellColData names(%d): %s\n", names(object@cellColData))
-      scat("numberOfCells(%d): %s\n", nrow(object@cellColData))
-      scat("medianTSS(%d): %s\n", median(object@cellColData$TSSEnrichment))
-      scat("medianFrags(%d): %s\n", median(object@cellColData$nFrags))
+    .ArchRLogo(ascii = "Package")
+    cat("class:", class(object), "\n")
+    cat("outputDirectory:", object@projectMetadata$outputDirectory, "\n")
+
+    o <- tryCatch({
+      object@cellColData$Sample
+    }, error = function(x){
+      stop(paste0("\nError accessing sample info from ArchRProject.",
+        "\nThis is most likely the issue with saving the ArchRProject as an RDS",
+        "\nand not with save/loadArchRProject. This bug has mostly been attributed",
+        "\nto bioconductors DataFrame saving cross-compatability. We added a fix to this.",
+        "\nPlease Try:",
+        "\n\trecoverArchRProject(ArchRProj)",
+        "\n\nIf that does not work please report to Github: https://github.com/GreenleafLab/ArchR/issues"
+      ))
+    })
+
+    scat("samples(%d): %s\n", rownames(object@sampleColData))
+    scat("sampleColData names(%d): %s\n", names(object@sampleColData))
+    scat("cellColData names(%d): %s\n", names(object@cellColData))
+    scat("numberOfCells(%d): %s\n", nrow(object@cellColData))
+    scat("medianTSS(%d): %s\n", median(object@cellColData$TSSEnrichment))
+    scat("medianFrags(%d): %s\n", median(object@cellColData$nFrags))
+
   }
+
 )
 
 #' Create ArchRProject from ArrowFiles
@@ -173,6 +190,149 @@ ArchRProject <- function(
 
 }
 
+#' Recover ArchRProject if Broken sampleColData/cellColData
+#' 
+#' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param copyArrows A boolean indicating whether to copy (`TRUE`) or copy + remove (`FALSE`) original ArrowFiles prior to saving the `ArchRProject`.
+#' @export
+recoverArchRProject <- function(ArchRProj){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
+
+  if(!inherits(ArchRProj@cellColData, "DataFrame")){
+    if(inherits(ArchRProj@cellColData, "DFrame")){
+      ArchRProj@cellColData <- .recoverDataFrame(ArchRProj@cellColData)
+    }else{
+      stop("Unrecognized object for DataFrame in cellColData")
+    }
+  }
+
+  if(!inherits(ArchRProj@sampleColData, "DataFrame")){
+    if(inherits(ArchRProj@sampleColData, "DFrame")){
+      ArchRProj@sampleColData <- .recoverDataFrame(ArchRProj@sampleColData)
+    }else{
+      stop("Unrecognized object for DataFrame in sampleColData")
+    }
+  }
+
+  if(inherits(ArchRProj@peakSet, "GRanges")){
+
+    peakSet <- tryCatch({
+   
+      ArchRProj@peakSet[1]
+   
+    }, error = function(x){
+      
+      pSet <- ArchRProj@peakSet
+      pSet@elementMetadata <- .recoverDataFrame(pSet@elementMetadata)
+      mdata <- pSet@metadata
+      mdata <- lapply(seq_along(mdata), function(x){
+        if(inherits(mdata[[x]], "DFrame")){
+          .recoverDataFrame(mdata[[x]])
+        }else{
+          mdata[[x]]
+        }
+      })
+      names(mdata) <- names(pSet@metadata)
+      pSet@metadata <- mdata
+      pSet
+
+    })
+
+    ArchRProj@peakSet <- peakSet
+
+  }
+
+  ArchRProj
+
+}
+
+.recoverDataFrame <- function(DF){
+  
+  DFO <- DF
+
+  rnNull <- (attr(DF, "rownames") == "\001NULL\001")[1]
+  
+  if(!rnNull){
+    rn <- attr(DF, "rownames")
+    DF <- DataFrame(row.names = attr(DF, "rownames"), attr(DF,"listData"))
+  }else{
+    DF <- DataFrame(attr(DF,"listData"))
+  }
+  
+  if(length(attr(DFO, "metadata")) != 0){
+    
+    mdata <- attr(DFO, "metadata")
+
+    mdata <- lapply(seq_along(mdata), function(x){
+      
+      mx <- mdata[[x]]
+      
+      if(inherits(mx, "DFrame")){
+        rnNullx <- (attr(mx, "rownames") == "\001NULL\001")[1]
+        if(!rnNull){
+          rnx <- attr(mx, "rownames")
+          mx <- DataFrame(row.names = attr(mx, "rownames"), attr(mx,"listData"))
+        }else{
+          mx <- DataFrame(attr(mx,"listData"))
+        }
+      }
+
+      if(inherits(mx, "GRanges")){
+        mx <- .recoverGRanges(mx)
+      }
+
+      mx
+
+    })
+
+    names(mdata) <- names(attr(DFO, "metadata"))
+    metadata(DF) <- mdata
+
+  }
+
+  DF
+
+}
+
+.recoverGRanges <- function(GR){
+
+  GRO <- tryCatch({
+  
+    GR[1]
+
+    GR
+  
+  }, error = function(x){
+
+    GR@elementMetadata <- .recoverDataFrame(GR@elementMetadata)
+    mdata <- GR@metadata
+    mdata <- lapply(seq_along(mdata), function(x){
+      if(inherits(mdata[[x]], "DFrame")){
+        .recoverDataFrame(mdata[[x]])
+      }else{
+        mdata[[x]]
+      }
+    })
+    names(mdata) <- names(GR@metadata)
+    GR@metadata <- mdata    
+
+    GR
+
+  })
+
+  GR <- GRanges(seqnames = GRO@seqnames, ranges = GRO@ranges, strand = GRO@strand)
+  metadata(GR) <- GRO@metadata
+  if(nrow(GRO@elementMetadata) > 0){
+    mcols(GR) <- GRO@elementMetadata
+  }
+  
+  GR
+
+}
+
 #' Save ArchRProject for Later Usage
 #' 
 #' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
@@ -237,8 +397,7 @@ loadArchRProject <- function(
     stop("Could not find previously saved ArchRProject in the path specified!")
   }
 
-  ArchRProj <- readRDS(path2Proj)
-
+  ArchRProj <- recoverArchRProject(readRDS(path2Proj))
   outputDir <- getOutputDirectory(ArchRProj)
   outputDirNew <- normalizePath(path)
 

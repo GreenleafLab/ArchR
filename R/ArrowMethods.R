@@ -233,10 +233,12 @@
   outArrow <- ArchR:::.tempfile(fileext = ".arrow")
   o <- h5closeAll()
   o <- h5createFile(outArrow)
+  o <- h5write(obj = "Arrow", file = outArrow, name = "Class")
 
   #1. Metadata First
   groupName <- "Metadata"
   o <- h5createGroup(outArrow, groupName)
+
   mData <- ArrowInfo[[groupName]]
   
   for(i in seq_len(nrow(mData))){

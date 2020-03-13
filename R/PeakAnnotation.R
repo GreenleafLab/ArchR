@@ -111,7 +111,7 @@ addPeakAnnotations <- function(
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
+  #.validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
@@ -133,23 +133,28 @@ addPeakAnnotations <- function(
 
     regionPositions <- lapply(seq_along(regions), function(x){
       
-      if(inherits(regions[x], "GRanges")){
+      if(inherits(regions[[x]], "GRanges")){
 
-          gr <- .validGRanges(regions[x])
+          gr <- .validGRanges(regions[[x]])
 
-      }else if(is.character(regions[x])){
+      }else if(is.character(regions[[x]])){
         
+        if(!file.exists(regions[[x]])){
+          stop(paste0("Region provided is a path (", regions[[x]], ") that does not exist! Exiting..."))
+        }
+
         gr <- tryCatch({
           makeGRangesFromDataFrame(
-            df = data.frame(data.table::fread(regions[x])), 
-            keep.extra.columns = TRUE,
+            df = data.frame(data.table::fread(regions[[x]])), 
+            keep.extra.columns = FALSE,
             seqnames.field = "V1",
             start.field = "V2",
             end.field = "V3"
           )
         }, error = function(y){
 
-          print(paste0("Could not successfully get region : ", regions[x]))
+          print(paste0("Could not successfully get region : ", regions[[x]]))
+          stop()
 
         })
 
