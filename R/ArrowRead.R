@@ -209,10 +209,10 @@ getMatrixFromProject <- function(
 
   #Assays
   nAssays <- names(assays(seL[[1]]))
-  asy <- lapply(nAssays, function(i){
+  asy <- lapply(seq_along(nAssays), function(i){
     .messageDiffTime(sprintf("Organizing Assays (%s of %s)", i, length(nAssays)), tstart, verbose = verbose)
     lapply(seq_along(seL), function(j){
-      assays(seL[[j]])[[i]]
+      assays(seL[[j]])[[nAssays[i]]]
     }) %>% Reduce("cbind", .)
   }) %>% SimpleList()
   names(asy) <- nAssays
