@@ -25,6 +25,7 @@ plotTrajectory(
   baseSize = 6,
   addArrow = TRUE,
   plotAs = NULL,
+  smoothWindow = 5,
   plotParams = list()
 )
 }

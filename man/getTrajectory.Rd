@@ -8,14 +8,11 @@ getTrajectory(
   ArchRProj = NULL,
   name = "Trajectory",
   useMatrix = "GeneScoreMatrix",
-  varCutOff = 0.9,
-  maxFeatures = 25000,
-  groupEvery = 2,
+  groupEvery = 1,
   threads = getArchRThreads(),
   log2Norm = TRUE,
   scaleTo = 10000,
-  smooth = TRUE,
-  smoothFormula = "y ~ s(x, bs = 'cs')"
+  smoothWindow = 3
 )
 }
 \arguments{
@@ -25,12 +22,6 @@ getTrajectory(
 
 \item{useMatrix}{The name of the data matrix from the \code{ArrowFiles} to get numerical values for each cell from. Recommended
 matrices are "GeneScoreMatrix", "PeakMatrix", or "MotifMatrix".}
-
-\item{varCutOff}{The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory.
-Only features with a variance above the provided quantile will be retained.}
-
-\item{maxFeatures}{The maximum number of features, ordered by variance, to consider from \code{useMatrix} when generating a trajectory.
-This prevents smoothing a large number number of features which can be very time consuming.}
 
 \item{groupEvery}{The number of sequential percentiles to group together when generating a trajectory. This is similar to smoothing
 via a non-overlapping sliding window across pseudo-time. If \code{groupEvery = 2}, the values for percentiles \link{1 and 2}, \link{3 and 4},
@@ -45,10 +36,13 @@ a "MotifMatrix" set to FALSE.}
 indicated by \code{scaleTo}. Setting this to \code{NULL} will prevent any normalization and should be done in certain circumstances
 (for ex. if you are using a "MotifMatrix").}
 
-\item{smooth}{A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.}
+\item{smoothWindow}{A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.}
 
-\item{smoothFormula}{The smoothing formula to use in the generalized additive model. See the \code{formula} parameter in
-\code{mgcv::gam()} for additional information.}
+\item{varCutOff}{The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory.
+Only features with a variance above the provided quantile will be retained.}
+
+\item{maxFeatures}{The maximum number of features, ordered by variance, to consider from \code{useMatrix} when generating a trajectory.
+This prevents smoothing a large number number of features which can be very time consuming.}
 }
 \description{
 This function will get a supervised trajectory from an \code{ArchRProject} (see \code{addTrajectory}), get data

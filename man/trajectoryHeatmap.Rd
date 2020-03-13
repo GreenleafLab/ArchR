@@ -6,6 +6,8 @@
 \usage{
 trajectoryHeatmap(
   seTrajectory = NULL,
+  varCutOff = 0.9,
+  maxFeatures = 25000,
   scaleRows = TRUE,
   limits = c(-2, 2),
   grepExclude = NULL,
