@@ -155,7 +155,7 @@ plotEmbedding <- function(
     )[,rownames(df), drop=FALSE]
 
     if(!is.null(imputeWeights)){
-      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = proj@imputeWeights)
+      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights)
       if(!inherits(colorMat, "matrix")){
         colorMat <- matrix(colorMat, ncol = nrow(df))
         colnames(colorMat) <- rownames(df)
