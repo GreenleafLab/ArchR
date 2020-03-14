@@ -20,32 +20,30 @@
       dt <- abs(round(difftime(t2, t1, units = units),precision))
       if(addHeader){
         msg <- sprintf("%s\n%s : %s, %s %s %s\n%s", header, Sys.time(), main, dt, units, tail, header)
-        message(msg)
       }else{
         msg <- sprintf("%s : %s, %s %s %s", Sys.time(), main, dt, units, tail)
-        message(msg)
       }
+      message(msg)
     }, error = function(x){
       message("Time Error : ", x)
     })
 
   }
-
-  logStamp <- tryCatch({
-    dt <- abs(round(difftime(t2, t1, units = units),precision))
-    if(addHeader){
-      msg <- sprintf("%s\n%s : %s, %s %s %s\n%s", header, Sys.time(), main, dt, units, tail, header)
-    }else{
-      msg <- sprintf("%s : %s, %s %s %s", Sys.time(), main, dt, units, tail)
-    }
-    if(!is.null(logFile)){
-      if(file.exists(logFile)){
+  if(!is.null(logFile)){
+    if(file.exists(logFile)){
+      logStamp <- tryCatch({
+        dt <- abs(round(difftime(t2, t1, units = units),precision))
+        if(addHeader){
+          msg <- sprintf("%s\n%s : %s, %s %s %s\n%s", header, Sys.time(), main, dt, units, tail, header)
+        }else{
+          msg <- sprintf("%s : %s, %s %s %s", Sys.time(), main, dt, units, tail)
+        }
         cat(paste0(msg,"\n"), file = logFile, append = TRUE)
-      }
+      }, error = function(x){
+        0
+      })
     }
-  }, error = function(x){
-    0
-  })
+  }
   
   return(invisible(0))
 
@@ -195,8 +193,12 @@
 
 }
 
-.endLogging <- function(logFile){
+.endLogging <- function(logFile = NULL){
   
+  if(is.null(logFile)){
+      return(invisible(0))
+  }
+
   rL <- readLines(logFile)
   t1 <- gsub("Start Time : ","", grep("Start Time", rL, ignore.case = TRUE, value = TRUE))
   mn <- as.numeric(difftime(Sys.time(), as.POSIXct(t1), units = "mins"))
@@ -207,6 +209,7 @@
   cat(paste0("\nElapsed Time Hours = ", hr), file = logFile, append = TRUE)
   cat("\n\n-------\n\n\n\n", file = logFile, append = TRUE)
   message("ArchR logging successful to : ", logFile)
+  
   return(invisible(0))
 
 }
