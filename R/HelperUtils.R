@@ -400,34 +400,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }
 }
 
-.messageDiffTime <- function(
-  main = "",
-  t1 = NULL,
-  verbose = TRUE,
-  addHeader = FALSE,
-  t2 = Sys.time(),
-  units = "mins",
-  header = "###########",
-  tail = "elapsed..",
-  precision = 3
-  ){
-
-  if(verbose){
-    timeStamp <- tryCatch({
-      dt <- abs(round(difftime(t2, t1, units = units),precision))
-      if(addHeader){
-        message(sprintf("%s\n%s : %s, %s %s %s\n%s", header, Sys.time(), main, dt, units, tail, header))
-      }else{
-        message(sprintf("%s : %s, %s %s %s", Sys.time(), main, dt, units, tail))
-      }
-    }, error = function(x){
-      message("Time Error : ", x)
-    })
-  }
-  return(0)
-}
-
-
 #' @export
 #JJJ
 mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabels)){
@@ -711,7 +683,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
 }
 
-.ArchRLogo <- function(ascii = "Logo"){
+.ArchRLogo <- function(ascii = "Logo", messageLogo = TRUE){
   Ascii <- list(
     Package = c("
            ___      .______        ______  __    __  .______      
@@ -747,9 +719,14 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
       /__/     \\__\\ | _| `._____| \\______||__|  |__| | _| `._____|
     ")
   )
-  message(Ascii[[ascii]])
-}
 
+  if(messageLogo){
+    message(Ascii[[ascii]])
+  }else{
+    Ascii[[ascii]]
+  }
+
+}
 
 ########
 # Developer Utils
