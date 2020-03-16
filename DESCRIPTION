@@ -63,6 +63,7 @@ Collate:
     'Harmony.R'
     'Imputation.R'
     'IterativeLSI.R'
+    'LoggerUtils.R'
     'MarkerFeatures.R'
     'MatrixDeviations.R'
     'MatrixFeatures.R'
