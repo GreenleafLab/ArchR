@@ -674,7 +674,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
   dir.create(tmpdir, showWarnings = FALSE)
 
   if(addDOC){
-    doc <- paste0("Date-", Sys.Date(), "_Time-", gsub(":","-", stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2]))
+    doc <- paste0("-Date-", Sys.Date(), "_Time-", gsub(":","-", stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2]))
   }else{
     doc <- ""
   }

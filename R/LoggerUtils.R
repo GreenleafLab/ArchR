@@ -1,7 +1,64 @@
 ####################################
 # Log Tools
 ####################################
-.messageDiffTime <- function(
+
+#' Set ArchR Logging
+#' 
+#' This function will set ArchR logging
+#'
+#' @param useLogs A boolean describing whether to use logging with ArchR.
+#' @export
+addArchRLogging <- function(useLogs = TRUE){
+  .validInput(input = useLogs, name = "useLogs", valid = "boolean")
+  message("Setting ArchRLogging = ", useLogs)
+  options(ArchR.logging = useLogs)
+  return(invisible(0))
+}
+
+#' Get ArchR Logging
+#' 
+#' This function will get ArchR logging
+#'
+#' @export
+getArchRLogging <- function(){
+  ArchRLogging <- options()[["ArchR.logging"]]
+  if(!is.logical(ArchRLogging)){
+    options(ArchR.logging = TRUE)
+    return(TRUE)
+  }
+  ArchRLogging
+}
+
+#' Create a Log File for ArchR
+#' 
+#' This function will create a log file for ArchR functions. If ArchRLogging is not TRUE
+#' this function will return NULL.
+#'
+#' @param name A character string to add a more descriptive name in logFile
+#' @param logDir A path to a directory where logFiles should be written to
+#' @export
+createLogFile <- function(
+    name = NULL,
+    logDir = "ArchRLogs",
+    useLogs = getArchRLogging()
+  ){
+  if(!useLogs){
+    return(NULL)
+  }
+  dir.create(logDir, showWarnings = FALSE)
+  if(is.null(name)){
+    logFile <- .tempfile(pattern = "ArchR", fileext = ".log", tmpdir = logDir)
+  }else{
+    logFile <- .tempfile(pattern = paste0("ArchR-", name), fileext = ".log", tmpdir = logDir)
+  }
+  logFile
+}
+
+.messageDiffTime <- function(...){ #Depreciated
+  .logDiffTime(...)
+}
+
+.logDiffTime <- function(
   main = "",
   t1 = NULL,
   verbose = TRUE,
@@ -9,9 +66,10 @@
   t2 = Sys.time(),
   units = "mins",
   header = "###########",
-  tail = "elapsed..",
+  tail = "elapsed.",
   precision = 3,
-  logFile = NULL
+  logFile = NULL,
+  useLogs = getArchRLogging()
   ){
 
   if(verbose){
@@ -29,6 +87,11 @@
     })
 
   }
+
+  if(!useLogs){
+    return(invisible(0))
+  }
+
   if(!is.null(logFile)){
     if(file.exists(logFile)){
       logStamp <- tryCatch({
@@ -50,7 +113,14 @@
 }
 
 
-.startLogging <- function(logFile = NULL){
+.startLogging <- function(
+  logFile = NULL, 
+  useLogs = getArchRLogging()
+  ){
+
+  if(!useLogs){
+    return(invisible(0))
+  }
 
   if(is.null(logFile)){
     return(invisible(0))
@@ -112,8 +182,16 @@
 
 }
 
-.logHeader <- function(name = NULL, logFile = NULL){
+.logHeader <- function(
+  name = NULL, 
+  logFile = NULL,   
+  useLogs = getArchRLogging()
+  ){
   
+  if(!useLogs){
+    return(invisible(0))
+  }
+
   if(is.null(logFile)){
     return(invisible(0))
   }
@@ -128,8 +206,18 @@
   return(invisible(0))
 }
 
-.logThis <- function(x, name = NULL, logFile = NULL, collapse = ", "){
+.logThis <- function(
+    x = NULL, 
+    name = NULL, 
+    logFile = NULL, 
+    collapseDelim = ", ",
+    useLogs = getArchRLogging()
+  ){
   
+  if(!useLogs){
+    return(invisible(0))
+  }
+
   if(is.null(logFile)){
       return(invisible(0))
   }
@@ -193,10 +281,17 @@
 
 }
 
-.endLogging <- function(logFile = NULL){
+.endLogging <- function(
+  logFile = NULL, 
+  useLogs = getArchRLogging()
+  ){
   
+  if(!useLogs){
+    return(invisible(0))
+  }
+
   if(is.null(logFile)){
-      return(invisible(0))
+    return(invisible(0))
   }
 
   rL <- readLines(logFile)
@@ -208,10 +303,24 @@
   cat(paste0("Elapsed Time Minutes = ", mn), file = logFile, append = TRUE)
   cat(paste0("\nElapsed Time Hours = ", hr), file = logFile, append = TRUE)
   cat("\n\n-------\n\n\n\n", file = logFile, append = TRUE)
-  message("ArchR logging successful to : ", logFile)
+
+  tryCatch({
+    R.utils::gzip(logFile, paste0(logFile, ".gz"))
+    message("ArchR logging successful to : ", paste0(logFile, ".gz"))
+  }, error = function(x){
+  })
   
   return(invisible(0))
 
 }
+
+
+
+
+
+
+
+
+
 
 
