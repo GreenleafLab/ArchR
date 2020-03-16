@@ -4,7 +4,8 @@
 \alias{nonOverlappingGR}
 \title{Retreive a non-overlapping set of regions from a Genomic Ranges object}
 \usage{
-nonOverlappingGR(gr = NULL, by = "score", decreasing = TRUE, verbose = FALSE)
+nonOverlappingGR(gr = NULL, by = "score", decreasing = TRUE,
+  verbose = FALSE)
 }
 \arguments{
 \item{gr}{A \code{GRanges} object.}

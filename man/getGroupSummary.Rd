@@ -4,13 +4,8 @@
 \alias{getGroupSummary}
 \title{Get summary for Groups in ArchRProject}
 \usage{
-getGroupSummary(
-  ArchRProj = NULL,
-  groupBy = "Sample",
-  select = "TSSEnrichment",
-  summary = "median",
-  na.rm = TRUE
-)
+getGroupSummary(ArchRProj = NULL, groupBy = "Sample",
+  select = "TSSEnrichment", summary = "median", na.rm = TRUE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

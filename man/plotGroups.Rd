@@ -4,27 +4,13 @@
 \alias{plotGroups}
 \title{Visualize Groups from ArchR Project}
 \usage{
-plotGroups(
-  ArchRProj = NULL,
-  groupBy = "Sample",
-  colorBy = "colData",
-  name = "TSSEnrichment",
-  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-    getImputeWeights(ArchRProj),
-  maxCells = 1000,
-  quantCut = c(0.002, 0.998),
-  log2Norm = NULL,
-  pal = NULL,
-  discreteSet = "stallion",
-  ylim = NULL,
-  size = 0.5,
-  baseSize = 6,
-  ratioYX = NULL,
-  ridgeScale = 2,
-  plotAs = "ridges",
-  threads = getArchRThreads(),
-  ...
-)
+plotGroups(ArchRProj = NULL, groupBy = "Sample", colorBy = "colData",
+  name = "TSSEnrichment", imputeWeights = if (!grepl("coldata",
+  tolower(colorBy[1]))) getImputeWeights(ArchRProj), maxCells = 1000,
+  quantCut = c(0.002, 0.998), log2Norm = NULL, pal = NULL,
+  discreteSet = "stallion", ylim = NULL, size = 0.5, baseSize = 6,
+  ratioYX = NULL, ridgeScale = 2, plotAs = "ridges",
+  threads = getArchRThreads(), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

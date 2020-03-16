@@ -49,6 +49,7 @@ Collate:
     'ArrowMethods.R'
     'ArrowRead.R'
     'ArrowWrite.R'
+    'BulkProjection.R'
     'Clustering.R'
     'ColorPalettes.R'
     'CorrelateAssays.R'

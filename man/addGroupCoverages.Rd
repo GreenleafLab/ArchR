@@ -4,24 +4,12 @@
 \alias{addGroupCoverages}
 \title{Add Group Coverages to an ArchRProject object}
 \usage{
-addGroupCoverages(
-  ArchRProj = NULL,
-  groupBy = "Clusters",
-  useLabels = TRUE,
-  minCells = 40,
-  maxCells = 500,
-  maxFragments = 25 * 10^6,
-  minReplicates = 2,
-  maxReplicates = 5,
-  sampleRatio = 0.8,
-  kmerLength = 6,
-  threads = getArchRThreads(),
-  returnGroups = FALSE,
-  parallelParam = NULL,
-  force = FALSE,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
-)
+addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
+  useLabels = TRUE, minCells = 40, maxCells = 500,
+  maxFragments = 25 * 10^6, minReplicates = 2, maxReplicates = 5,
+  sampleRatio = 0.8, kmerLength = 6, threads = getArchRThreads(),
+  returnGroups = FALSE, parallelParam = NULL, force = FALSE,
+  verboseHeader = TRUE, verboseAll = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

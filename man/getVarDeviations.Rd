@@ -4,7 +4,8 @@
 \alias{getVarDeviations}
 \title{Get Variable Deviations across cells in ArchRProject.}
 \usage{
-getVarDeviations(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE, n = 25)
+getVarDeviations(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE,
+  n = 25)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
