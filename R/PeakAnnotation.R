@@ -967,14 +967,19 @@ enrichHeatmap <- function(
 
   mat2 <- mat[[1]] * 100
 
-  if(binaryClusterRows){
-    #cn <- order(colMeans(mat2), decreasing=TRUE)
-    bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = clusterCols)
-    mat2 <- bS[[1]][,colnames(mat2)]
-    clusterRows <- FALSE
-    clusterCols <- bS[[2]]
+  if(nrow(mat2) > 1 & ncol(mat2) > 1){
+    if(binaryClusterRows){
+      #cn <- order(colMeans(mat2), decreasing=TRUE)
+      bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = clusterCols)
+      mat2 <- bS[[1]][,colnames(mat2)]
+      clusterRows <- FALSE
+      clusterCols <- bS[[2]]
+    }else{
+      clusterRows <- TRUE
+    }
   }else{
-    clusterRows <- TRUE
+    clusterCols <- NULL
+    clusterRows <- FALSE
   }
 
   if(nrow(mat2) > 100){
@@ -986,12 +991,10 @@ enrichHeatmap <- function(
   if(transpose){
 
     if(!is.null(clusterCols)){
-      mat2 <- t(mat2[,clusterCols$order])
+      mat2 <- t(mat2[,clusterCols$order,drop=FALSE])
     }else{
       mat2 <- t(mat2)
     }
-
-    #mat2 <- t(mat2[rev(seq_len(nrow(mat2))), ])
 
     if(returnMatrix){
       return(mat2)
