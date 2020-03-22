@@ -5,7 +5,12 @@
 .validArrow <- function(ArrowFile = NULL){
   o <- h5closeAll()
   if(h5read(ArrowFile,"Class")!="Arrow"){
-    stop("Not Valid Arrow!")
+    warning(
+      "This file is not a valid ArrowFile, this most likely is a bug with previous function where the class was not added.\n",
+      "To fix your ArrowFiles :\n",
+      "\tlapply(getArrowFiles(ArchRProj), function(x) h5write(obj = 'Arrow', file = x, name = 'Class'))",
+      "\nThis will be an error in future versions."
+    )
   }
   o <- h5closeAll()
   return(ArrowFile)
