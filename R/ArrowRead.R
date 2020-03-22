@@ -211,9 +211,11 @@ getMatrixFromProject <- function(
   nAssays <- names(assays(seL[[1]]))
   asy <- lapply(seq_along(nAssays), function(i){
     .messageDiffTime(sprintf("Organizing Assays (%s of %s)", i, length(nAssays)), tstart, verbose = verbose)
-    lapply(seq_along(seL), function(j){
+    m <- lapply(seq_along(seL), function(j){
       assays(seL[[j]])[[nAssays[i]]]
     }) %>% Reduce("cbind", .)
+    m <- as.matrix(m) #Make sure this is a matrix
+    m
   }) %>% SimpleList()
   names(asy) <- nAssays
   
@@ -302,6 +304,9 @@ getMatrixFromArrow <- function(
     mat <- SimpleList(mat)
     names(mat) <- useMatrix    
   }
+  matn <- names(mat)
+  mat <- SimpleList(lapply(mat, as.matrix))
+  names(mat) <- matn
 
   colData <- .getMetadata(ArrowFile)
   colData <- colData[colnames(mat[[1]]),,drop=FALSE]
