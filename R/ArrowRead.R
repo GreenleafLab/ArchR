@@ -296,7 +296,11 @@ getMatrixFromArrow <- function(
 
   if(matrixClass == "Sparse.Assays.Matrix"){
     rownames(mat) <- paste0(featureDF$name)
-    mat <- as(split(mat, featureDF$seqnames), "SimpleList")
+    splitIdx <- split(seq_len(nrow(mat)), featureDF$seqnames)
+    mat <- lapply(seq_along(splitIdx), function(x){
+      mat[splitIdx[[x]], , drop = FALSE]
+    }) %>% SimpleList
+    names(mat) <- names(splitIdx)
     featureDF <- featureDF[!duplicated(paste0(featureDF$name)), ,drop = FALSE]
     featureDF <- featureDF[,which(colnames(featureDF) %ni% "seqnames"), drop=FALSE]
     rownames(featureDF) <- paste0(featureDF$name)
@@ -304,9 +308,6 @@ getMatrixFromArrow <- function(
     mat <- SimpleList(mat)
     names(mat) <- useMatrix    
   }
-  matn <- names(mat)
-  mat <- SimpleList(lapply(mat, as.matrix))
-  names(mat) <- matn
 
   colData <- .getMetadata(ArrowFile)
   colData <- colData[colnames(mat[[1]]),,drop=FALSE]
