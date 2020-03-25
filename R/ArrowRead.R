@@ -214,7 +214,6 @@ getMatrixFromProject <- function(
     m <- lapply(seq_along(seL), function(j){
       assays(seL[[j]])[[nAssays[i]]]
     }) %>% Reduce("cbind", .)
-    m <- as.matrix(m) #Make sure this is a matrix
     m
   }) %>% SimpleList()
   names(asy) <- nAssays
