@@ -4,19 +4,10 @@
 \alias{enrichHeatmap}
 \title{Plot a Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
-enrichHeatmap(
-  seEnrich = NULL,
-  pal = paletteContinuous(set = "comet", n = 100),
-  n = 10,
-  cutOff = 20,
-  pMax = Inf,
-  clusterCols = TRUE,
-  binaryClusterRows = TRUE,
-  labelRows = TRUE,
-  rastr = TRUE,
-  transpose = FALSE,
-  returnMatrix = FALSE
-)
+enrichHeatmap(seEnrich = NULL, pal = paletteContinuous(set = "comet", n
+  = 100), n = 10, cutOff = 20, pMax = Inf, clusterCols = TRUE,
+  binaryClusterRows = TRUE, labelRows = TRUE, rastr = TRUE,
+  transpose = FALSE, returnMatrix = FALSE)
 }
 \arguments{
 \item{seEnrich}{A \code{SummarizedExperiment} object containing peak enrichment information returned by \code{peakAnnoEnrichment()}.}

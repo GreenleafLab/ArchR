@@ -4,28 +4,13 @@
 \alias{plotFootprints}
 \title{Plot footprints for an ArchRProject}
 \usage{
-plotFootprints(
-  ArchRProj = NULL,
-  positions = NULL,
-  plotName = "Plot-Footprints",
-  groupBy = "Clusters",
-  useGroups = NULL,
-  pal = NULL,
-  flank = 250,
-  flankNorm = 50,
-  smoothWindow = NULL,
-  minCells = 25,
-  nTop = NULL,
-  normMethod = "none",
-  inputSE = NULL,
-  height = 6,
-  width = 4,
-  addDOC = TRUE,
-  useSink = TRUE,
-  threads = getArchRThreads(),
-  verboseHeader = TRUE,
-  verboseAll = FALSE
-)
+plotFootprints(ArchRProj = NULL, positions = NULL,
+  plotName = "Plot-Footprints", groupBy = "Clusters",
+  useGroups = NULL, pal = NULL, flank = 250, flankNorm = 50,
+  smoothWindow = NULL, minCells = 25, nTop = NULL,
+  normMethod = "none", inputSE = NULL, height = 6, width = 4,
+  addDOC = TRUE, useSink = TRUE, threads = getArchRThreads(),
+  verboseHeader = TRUE, verboseAll = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

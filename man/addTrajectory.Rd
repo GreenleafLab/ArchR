@@ -4,20 +4,11 @@
 \alias{addTrajectory}
 \title{Add a Supervised Trajectory to an ArchR Project}
 \usage{
-addTrajectory(
-  ArchRProj = NULL,
-  name = "Trajectory",
-  trajectory = NULL,
-  groupBy = "Clusters",
-  reducedDims = "IterativeLSI",
-  embedding = NULL,
-  preFilterQ = 0.9,
-  postFilterQ = 0.9,
-  useAll = TRUE,
-  dof = 250,
-  spar = 1,
-  force = FALSE
-)
+addTrajectory(ArchRProj = NULL, name = "Trajectory",
+  trajectory = NULL, groupBy = "Clusters",
+  reducedDims = "IterativeLSI", embedding = NULL,
+  preFilterQuantile = 0.9, postFilterQuantile = 0.9, useAll = TRUE,
+  dof = 250, spar = 1, force = FALSE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -35,10 +26,10 @@ Cells will then be used from these 3 groups to constrain an initial fit in the g
 
 \item{embedding}{A string indicating the name of the \code{embedding} object from the \code{ArchRProject} that should be used for distance computation.}
 
-\item{preFilterQ}{Prior to the initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping
+\item{preFilterQuantile}{Prior to the initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping
 center is above the provided quantile will be excluded.}
 
-\item{postFilterQ}{After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center
+\item{postFilterQuantile}{After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center
 is above the provided quantile will be excluded.}
 
 \item{dof}{The number of degrees of freedom to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}

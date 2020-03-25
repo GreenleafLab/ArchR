@@ -49,6 +49,7 @@ plotFootprints <- function(
   height = 6,
   width = 4,
   addDOC = TRUE,
+  plot = TRUE,
   useSink = TRUE,
   threads = getArchRThreads(),
   verboseHeader = TRUE,
@@ -138,6 +139,10 @@ plotFootprints <- function(
   ############################################################################################
   # Plot Helper
   ############################################################################################
+
+  if(!plot){
+    return(seFoot)
+  }
 
   .messageDiffTime("Plotting Footprints", tstart, addHeader = verboseAll)
 

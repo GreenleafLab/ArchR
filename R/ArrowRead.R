@@ -171,24 +171,59 @@ getMatrixFromProject <- function(
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
-  #Need to Make Safer But YOLO for now
-  se <- ArchR:::.safelapply(seq_along(ArrowFiles), function(x){
+  seL <- ArchR:::.safelapply(seq_along(ArrowFiles), function(x){
 
-    .messageDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x]), tstart)
+    .messageDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), tstart, verbose = verbose)
 
-    getMatrixFromArrow(
-    ArrowFile = ArrowFiles[x],
-    useMatrix = useMatrix,
-    useSeqnames = useSeqnames,
-    cellNames = ArchRProj$cellNames, 
-    ArchRProj = ArchRProj,
-    verbose = verbose,
-    binarize = binarize
+    o <- getMatrixFromArrow(
+      ArrowFile = ArrowFiles[x],
+      useMatrix = useMatrix,
+      useSeqnames = useSeqnames,
+      cellNames = ArchRProj$cellNames, 
+      ArchRProj = ArchRProj,
+      verbose = verbose,
+      binarize = binarize
     )
 
-  }, threads = threads) %>% Reduce("cbind", .)
+    .messageDiffTime(paste0("Completed ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), tstart, verbose = verbose)
 
-  .messageDiffTime("Finished Matrix Creation", tstart)
+    o
+
+  }, threads = threads) 
+
+  #ColData
+  .messageDiffTime("Organizing colData", tstart, verbose = verbose)
+  cD <- lapply(seq_along(seL), function(x){
+    colData(seL[[x]])
+  }) %>% Reduce("rbind", .)
+  
+  #RowData
+  .messageDiffTime("Organizing rowData", tstart, verbose = verbose)
+  rD1 <- rowData(seL[[1]])
+  rD <- lapply(seq_along(seL), function(x){
+    identical(rowData(seL[[x]]), rD1)
+  }) %>% unlist %>% all
+  if(!rD){
+    stop("Error with rowData being equal for every sample!")
+  }
+
+  #Assays
+  nAssays <- names(assays(seL[[1]]))
+  asy <- lapply(seq_along(nAssays), function(i){
+    .messageDiffTime(sprintf("Organizing Assays (%s of %s)", i, length(nAssays)), tstart, verbose = verbose)
+    m <- lapply(seq_along(seL), function(j){
+      assays(seL[[j]])[[nAssays[i]]]
+    }) %>% Reduce("cbind", .)
+    m
+  }) %>% SimpleList()
+  names(asy) <- nAssays
+  
+  .messageDiffTime("Constructing SummarizedExperiment", tstart, verbose = verbose)
+  se <- SummarizedExperiment(assays = asy, colData = cD, rowData = rD1)  
+  rm(seL)
+  gc()
+
+  .messageDiffTime("Finished Matrix Creation", tstart, verbose = verbose)
 
   se
 
@@ -228,6 +263,8 @@ getMatrixFromArrow <- function(
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
 
+  tstart <- Sys.time()
+
   ArrowFile <- .validArrow(ArrowFile)
 
   seqnames <- .availableSeqnames(ArrowFile, subGroup = useMatrix)
@@ -243,6 +280,7 @@ getMatrixFromArrow <- function(
 
   featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames), ]
 
+  .messageDiffTime(paste0("Getting ",useMatrix," from ArrowFile : ", basename(ArrowFile)), tstart)
   mat <- .getMatFromArrow(
     ArrowFile = ArrowFile, 
     featureDF = featureDF, 
@@ -252,11 +290,16 @@ getMatrixFromArrow <- function(
     useIndex = FALSE
   )
 
+  .messageDiffTime(paste0("Organizing SE ",useMatrix," from ArrowFile : ", basename(ArrowFile)), tstart)
   matrixClass <- h5read(ArrowFile, paste0(useMatrix, "/Info/Class"))
 
   if(matrixClass == "Sparse.Assays.Matrix"){
     rownames(mat) <- paste0(featureDF$name)
-    mat <- as(split(mat, featureDF$seqnames), "SimpleList")
+    splitIdx <- split(seq_len(nrow(mat)), featureDF$seqnames)
+    mat <- lapply(seq_along(splitIdx), function(x){
+      mat[splitIdx[[x]], , drop = FALSE]
+    }) %>% SimpleList
+    names(mat) <- names(splitIdx)
     featureDF <- featureDF[!duplicated(paste0(featureDF$name)), ,drop = FALSE]
     featureDF <- featureDF[,which(colnames(featureDF) %ni% "seqnames"), drop=FALSE]
     rownames(featureDF) <- paste0(featureDF$name)

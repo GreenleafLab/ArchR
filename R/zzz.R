@@ -3,6 +3,7 @@
 ########################################################
 ArchR_Defaults <- list(
   ArchR.threads = 1,
+  ArchR.logging = TRUE,
   ArchR.genome = NA
 )
 

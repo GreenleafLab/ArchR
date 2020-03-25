@@ -111,7 +111,7 @@ addPeakAnnotations <- function(
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
+  #.validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
@@ -133,23 +133,28 @@ addPeakAnnotations <- function(
 
     regionPositions <- lapply(seq_along(regions), function(x){
       
-      if(inherits(regions[x], "GRanges")){
+      if(inherits(regions[[x]], "GRanges")){
 
-          gr <- .validGRanges(regions[x])
+          gr <- .validGRanges(regions[[x]])
 
-      }else if(is.character(regions[x])){
+      }else if(is.character(regions[[x]])){
         
+        if(!file.exists(regions[[x]])){
+          stop(paste0("Region provided is a path (", regions[[x]], ") that does not exist! Exiting..."))
+        }
+
         gr <- tryCatch({
           makeGRangesFromDataFrame(
-            df = data.frame(data.table::fread(regions[x])), 
-            keep.extra.columns = TRUE,
+            df = data.frame(data.table::fread(regions[[x]])), 
+            keep.extra.columns = FALSE,
             seqnames.field = "V1",
             start.field = "V2",
             end.field = "V3"
           )
         }, error = function(y){
 
-          print(paste0("Could not successfully get region : ", regions[x]))
+          print(paste0("Could not successfully get region : ", regions[[x]]))
+          stop()
 
         })
 
@@ -962,14 +967,19 @@ enrichHeatmap <- function(
 
   mat2 <- mat[[1]] * 100
 
-  if(binaryClusterRows){
-    #cn <- order(colMeans(mat2), decreasing=TRUE)
-    bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = clusterCols)
-    mat2 <- bS[[1]][,colnames(mat2)]
-    clusterRows <- FALSE
-    clusterCols <- bS[[2]]
+  if(nrow(mat2) > 1 & ncol(mat2) > 1){
+    if(binaryClusterRows){
+      #cn <- order(colMeans(mat2), decreasing=TRUE)
+      bS <- .binarySort(mat2, lmat = passMat[rownames(mat2), colnames(mat2)], clusterCols = clusterCols)
+      mat2 <- bS[[1]][,colnames(mat2)]
+      clusterRows <- FALSE
+      clusterCols <- bS[[2]]
+    }else{
+      clusterRows <- TRUE
+    }
   }else{
-    clusterRows <- TRUE
+    clusterCols <- NULL
+    clusterRows <- FALSE
   }
 
   if(nrow(mat2) > 100){
@@ -981,12 +991,10 @@ enrichHeatmap <- function(
   if(transpose){
 
     if(!is.null(clusterCols)){
-      mat2 <- t(mat2[,clusterCols$order])
+      mat2 <- t(mat2[,clusterCols$order,drop=FALSE])
     }else{
       mat2 <- t(mat2)
     }
-
-    #mat2 <- t(mat2[rev(seq_len(nrow(mat2))), ])
 
     if(returnMatrix){
       return(mat2)
