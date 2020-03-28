@@ -4,9 +4,15 @@
 \alias{exportGroupSE}
 \title{Export Group Summarized Experiment JJJ}
 \usage{
-exportGroupSE(ArchRProj = NULL, useMatrix = NULL, groupBy = "Sample",
-  divideN = TRUE, scaleTo = NULL, threads = getArchRThreads(),
-  verbose = TRUE)
+exportGroupSE(
+  ArchRProj = NULL,
+  useMatrix = NULL,
+  groupBy = "Sample",
+  divideN = TRUE,
+  scaleTo = NULL,
+  threads = getArchRThreads(),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

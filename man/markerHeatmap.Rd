@@ -4,13 +4,26 @@
 \alias{markerHeatmap}
 \title{Plot a Heatmap of Identified Marker Features}
 \usage{
-markerHeatmap(seMarker = NULL, cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
-  log2Norm = TRUE, scaleTo = 10^4, scaleRows = TRUE,
-  plotLog2FC = FALSE, limits = c(-2, 2), grepExclude = NULL,
-  pal = NULL, binaryClusterRows = TRUE, clusterCols = TRUE,
-  labelMarkers = NULL, nLabel = NULL, nPrint = 20,
-  labelRows = FALSE, returnMat = FALSE, transpose = FALSE,
-  invert = FALSE)
+markerHeatmap(
+  seMarker = NULL,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
+  log2Norm = TRUE,
+  scaleTo = 10^4,
+  scaleRows = TRUE,
+  plotLog2FC = FALSE,
+  limits = c(-2, 2),
+  grepExclude = NULL,
+  pal = NULL,
+  binaryClusterRows = TRUE,
+  clusterCols = TRUE,
+  labelMarkers = NULL,
+  nLabel = NULL,
+  nPrint = 20,
+  labelRows = FALSE,
+  returnMat = FALSE,
+  transpose = FALSE,
+  invert = FALSE
+)
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{markerFeatures()}.}
@@ -44,9 +57,9 @@ rownames from \code{seMarker} to be excluded from the heatmap.}
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
 \item{invert}{JJJ. A boolean value that indicates whether the heatmap will display the features with the
-lowest \code{log2(fold change)}. In this case, the heatmap will display features that are specifically lower in the given cell
+lowest \verb{log2(fold change)}. In this case, the heatmap will display features that are specifically lower in the given cell
 group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
-looking for down-regulated markers (\code{log2(fold change) < 0}) instead of up-regulated markers (\code{log2(fold change) > 0}).}
+looking for down-regulated markers (\verb{log2(fold change) < 0}) instead of up-regulated markers (\verb{log2(fold change) > 0}).}
 }
 \description{
 This function will plot a heatmap of the results from markerFeatures

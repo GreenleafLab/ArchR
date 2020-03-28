@@ -4,9 +4,13 @@
 \alias{markerPlot}
 \title{Plot Differential Markers}
 \usage{
-markerPlot(seMarker = NULL, name = NULL,
-  cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5", plotAs = "Volcano",
-  scaleTo = 10^4)
+markerPlot(
+  seMarker = NULL,
+  name = NULL,
+  cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
+  plotAs = "Volcano",
+  scaleTo = 10^4
+)
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
