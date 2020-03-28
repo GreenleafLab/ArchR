@@ -62,6 +62,7 @@
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param cleamTmp A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.
+#' @param logFile A file path to write ArchR logging output to.
 #' @export
 #' 
 createArrowFiles <- function(
@@ -1948,10 +1949,13 @@ createArrowFiles <- function(
 
     H5Fclose(fid)
 
+    #Remove all sub-linked tmp files
+    rmf <- file.remove(list.files(dirname(tmpFile), pattern = paste0(gsub(".arrow", "", basename(tmpFile)), ".chr"), full.names=TRUE))
+
   }
 
-  #Remove Tmp and all sub-linked tmp files
-  rmf <- file.remove(list.files(dirname(tmpFile), pattern = paste0(gsub(".arrow", "", basename(tmpFile)), ".chr"), full.names=TRUE))
+  #Remove tmp file
+  rmf <- file.remove(tmpFile)
   .logDiffTime(sprintf("%s Successful creation of Arrow File", prefix), logFile = logFile, t1 = tstart, verbose = verbose)
 
   return(outArrow)
