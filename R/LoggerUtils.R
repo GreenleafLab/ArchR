@@ -167,16 +167,40 @@ createLogFile <- function(
     cat(paste0("\nTotal Cores = ", detectCores()), file = logFile, append = TRUE)
   }, error = function(x){
   })
-  tryCatch({
-      cat(paste0("\nTotal RAM = ", .getRam()), file = logFile, append = TRUE)
-  }, error = function(x){
-  })
+  # tryCatch({
+  #     cat(paste0("\nTotal RAM = ", .getRam()), file = logFile, append = TRUE)
+  # }, error = function(x){
+  # })
   cat("\n\n", file = logFile, append = TRUE)
 
   #Session Info
   cat("------- Session Info\n\n", file = logFile, append = TRUE)
   utils::capture.output(sessionInfo(), file = logFile, append = TRUE)
   cat("\n\n------- Log Info\n\n", file = logFile, append = TRUE)
+
+  return(invisible(0))
+
+}
+
+.logMessage <- function(
+  msg = NULL, 
+  logFile = NULL,   
+  useLogs = getArchRLogging()
+  ){
+
+  if(!useLogs){
+    return(invisible(0))
+  }
+
+  if(is.null(logFile)){
+    return(invisible(0))
+  }
+
+  if(is.null(msg)){
+    stop("Message must be provided when logging!")
+  }
+    
+  cat(sprintf("\n%s : %s\n", Sys.time(), msg), file = logFile, append = TRUE)
 
   return(invisible(0))
 
@@ -205,6 +229,54 @@ createLogFile <- function(
 
   return(invisible(0))
 }
+
+
+.logError <- function(
+  e = NULL,
+  fn = NULL,
+  info = NULL, 
+  errorList = NULL,
+  logFile = NULL,   
+  useLogs = getArchRLogging(),
+  throwError = TRUE
+  ){
+
+  header <- "************************************************************"
+
+  #To Console
+  cat(sprintf("\n%s\n%s : ERROR Found in %s for %s \n\n", header, Sys.time(), fn, info))
+
+  print(e)
+
+  cat(sprintf("\n%s\n\n", header))
+
+  if(!useLogs){
+    if(throwError) stop("Exiting See Error Above")
+    return(invisible(0))
+  }
+
+  if(is.null(logFile)){
+    if(throwError) stop("Exiting See Error Above")
+    return(invisible(0))
+  }
+
+  #To Log File
+  cat(sprintf("\n%s\n%s : ERROR Found in %s for %s \n\n", header, Sys.time(), fn, info), file = logFile, append = TRUE)
+
+  utils::capture.output(print(e), file = logFile, append = TRUE)
+
+  if(!is.null(errorList)){
+    .logThis(errorList, name = "errorList", logFile)
+  }
+
+  cat(sprintf("\n%s\n\n", header), file = logFile, append = TRUE)
+  
+  if(throwError) stop("Exiting See Error Above")
+
+  return(invisible(0))
+
+}
+
 
 .logThis <- function(
     x = NULL, 

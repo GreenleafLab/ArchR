@@ -49,7 +49,8 @@ addGeneScoreMatrix <- function(
   threads = getArchRThreads(),
   parallelParam = NULL,
   subThreading = TRUE,
-  force = FALSE
+  force = FALSE,
+  logFile = createLogFile("addGeneScoreMatrix")
   ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -147,7 +148,8 @@ addGeneScoreMatrix <- function(
   force = FALSE,
   tmpFile = NULL,
   subThreads = 1,
-  tstart = NULL
+  tstart = NULL,
+  logFile = NULL
   ){
 
   .validInput(input = i, name = "i", valid = c("integer"))

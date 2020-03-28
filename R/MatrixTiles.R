@@ -25,10 +25,11 @@ addTileMatrix <- function(
   blacklist = if(inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
   tileSize = 500, 
   binarize = TRUE, 
-  excludeChr = c("chrM","chrY"),
+  excludeChr = c("chrM", "chrY"),
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = FALSE
+  force = FALSE,
+  logFile = createLogFile("addTileMatrix")
   ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -87,12 +88,13 @@ addTileMatrix <- function(
   allCells = NULL,
   tileSize = 500, 
   binarize = TRUE, 
-  excludeChr = "chrY", 
+  excludeChr = c("chrM", "chrY"), 
   blacklist = NULL, 
   chromLengths = NULL, 
   force = FALSE,
   subThreads = 1,
-  tstart = NULL
+  tstart = NULL,
+  logFile = NULL
   ){
 
   .validInput(input = i, name = "i", valid = c("integer"))
