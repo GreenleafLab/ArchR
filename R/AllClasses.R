@@ -91,7 +91,8 @@ ArchRProject <- function(
   copyArrows = TRUE,
   geneAnnotation = getGeneAnnotation(),
   genomeAnnotation = getGenomeAnnotation(),
-  showLogo = TRUE
+  showLogo = TRUE,
+  threads = getArchRThreads()
   ){
 
   .validInput(input = ArrowFiles, name = "ArrowFiles", valid = "character")
@@ -105,6 +106,8 @@ ArchRProject <- function(
     stop("Need to Provide Arrow Files!")
   }
 
+  threads <- min(threads, length(ArrowFiles))
+
   #Validate
   message("Validating Arrows...")
   if(any(!file.exists(ArrowFiles))){
@@ -113,10 +116,10 @@ ArchRProject <- function(
   ArrowFiles <- unlist(lapply(ArrowFiles, .validArrow))
 
   message("Getting SampleNames...")
-  sampleNames <- unlist(lapply(seq_along(ArrowFiles), function(x){
+  sampleNames <- unlist(.safelapply(seq_along(ArrowFiles), function(x){
     message(x, " ", appendLF = FALSE)
     .sampleName(ArrowFiles[x])
-  }))
+  }, threads = threads))
   message("")
 
   if(any(duplicated(sampleNames))){
@@ -146,10 +149,10 @@ ArchRProject <- function(
 
   #Cell Information
   message("Getting Cell Metadata...")
-  metadataList <- lapply(seq_along(ArrowFiles), function(x){
+  metadataList <- .safelapply(seq_along(ArrowFiles), function(x){
     message(x, " ", appendLF = FALSE)
     .getMetadata(ArrowFiles[x])
-  })
+  }, threads = threads)
   message("")
   message("Merging Cell Metadata...")
   allCols <- unique(c("Sample",rev(sort(unique(unlist(lapply(metadataList,colnames)))))))

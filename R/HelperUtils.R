@@ -64,9 +64,12 @@ reformatFragmentFiles <- function(
     if(length(idxRemove) > 0){
       dt <- dt[-idxRemove,]
     }
+    #Make sure no spaces or #
+    dt$V4 <- gsub(" |#", ".", dt$V4)
     fileNew <- gsub(".tsv.bgz|.tsv.gz", "-Reformat.tsv", fragmentFiles[i])
     data.table::fwrite(dt, fileNew, sep = "\t", col.names = FALSE)
     Rsamtools::bgzip(fileNew)
+    file.remove(fileNew)
     ArchR:::.fileRename(paste0(fileNew, ".bgz"), paste0(fileNew, ".gz"))
   }
 }
