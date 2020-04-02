@@ -211,11 +211,13 @@ plotEmbedding <- function(
         plotAs <- "hexplot"
       }
 
-      if(log2Norm){
-        plotParamsx$color <- log2(plotParamsx$color + 1)
-        plotParamsx$colorTitle <- paste0("Log2(",units," + 1)")
-      }else{
-        plotParamsx$colorTitle <- units
+      if(!is.null(log2Norm)){
+        if(log2Norm){
+          plotParamsx$color <- log2(plotParamsx$color + 1)
+          plotParamsx$colorTitle <- paste0("Log2(",units," + 1)")
+        }else{
+          plotParamsx$colorTitle <- units
+        }
       }
 
       if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
