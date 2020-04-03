@@ -437,10 +437,13 @@ getMatrixFromArrow <- function(
   mat <- mat[rownames(featureDF), , drop = FALSE]
   rownames(mat) <- NULL
 
+  if(!is.null(cellNames)){
+    mat <- mat[,cellNames,drop=FALSE]
+  }
+
   return(mat)
 
 }
-
 
 ####################################################################
 # Helper read functioning
