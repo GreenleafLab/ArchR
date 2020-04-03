@@ -129,18 +129,18 @@ addGeneScoreMatrix <- function(
   i = NULL,
   ArrowFiles = NULL,
   genes = NULL,
-  geneModel = "max(exp(-abs(x)/5000), exp(-1))",
+  geneModel = "exp(-abs(x)/5000) + exp(-1)",
   matrixName = "GeneScoreMatrix",
-  extendUpstream = c(5000, 100000),
-  extendDownstream = c(5000, 100000),
-  tileSize = 500,
-  ceiling = 4,
-  useTSS = FALSE, #New Param
-  geneUpstream = 2000, #New Param
+  extendUpstream = c(1000, 100000),
+  extendDownstream = c(1000, 100000),
+  geneUpstream = 5000, #New Param
   geneDownstream = 0, #New Param
   useGeneBoundaries = TRUE,
-  scaleTo = 10000,
+  useTSS = FALSE, #New Param
+  tileSize = 500,
+  ceiling = 4,
   geneScaleFactor = 5, #New Param
+  scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
   blacklist = NULL,
   cellNames = NULL,
@@ -194,8 +194,6 @@ addGeneScoreMatrix <- function(
   geneRegions <- geneRegions[!is.na(mcols(geneRegions)$symbol)]
 
   #Create Gene Regions Then Remove Strand Column
-  #useTSS <- FALSE
-  #geneScaleFactor <- 5
   if(useTSS){
     distMethod <- "GenePromoter"
     geneRegions$geneStart <- start(resize(geneRegions, 1, "start"))

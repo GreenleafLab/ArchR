@@ -53,6 +53,7 @@ plotEmbedding <- function(
   baseSize = 10,
   plotAs = NULL,
   threads = getArchRThreads(),
+  logFile = createLogFile("plotEmbedding"),
   ...
   ){
 
@@ -75,10 +76,15 @@ plotEmbedding <- function(
 
   .requirePackage("ggplot2", source = "cran")
 
+  .startLogging(logFile = logFile)
+
   ##############################
   # Get Embedding
   ##############################
+  .logMessage("Getting UMAP Embedding", logFile = logFile)
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+
+  .logThis(df, name = "Embedding data.frame", logFile)
   if(!is.null(sampleCells)){
     if(sampleCells < nrow(df)){
       if(!is.null(imputeWeights)){
@@ -106,11 +112,13 @@ plotEmbedding <- function(
   if(length(colorBy) > 1){
     stop("colorBy must be of length 1!")
   }
-  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)[1:2]))
+  allColorBy <-  c("colData", "cellColData", .availableArrays(head(getArrowFiles(ArchRProj), 2)))
   if(tolower(colorBy) %ni% tolower(allColorBy)){
     stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
   }
   colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
+
+  .logMessage(paste0("ColorBy = ", colorBy), logFile = logFile)
 
   if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
       
@@ -127,8 +135,12 @@ plotEmbedding <- function(
       if(!is.null(discreteSet)){
         colorParams$discreteSet <- discreteSet
       }
+      if(x == 1){
+        .logThis(colorParams, name = "ColorParams 1", logFile)
+      }
       colorParams
     })
+
 
   }else{
 
@@ -162,6 +174,8 @@ plotEmbedding <- function(
       }
     }
 
+    .logThis(colorMat, name = "ColorMatrix", logFile)
+
     colorList <- lapply(seq_len(nrow(colorMat)), function(x){
       colorParams <- list()
       colorParams$color <- colorMat[x, ]
@@ -177,6 +191,9 @@ plotEmbedding <- function(
       }
       if(!is.null(discreteSet)){
         colorParams$discreteSet <- discreteSet
+      }
+      if(x == 1){
+        .logThis(colorParams, name = "ColorParams 1", logFile)
       }
       colorParams
     })
@@ -228,10 +245,12 @@ plotEmbedding <- function(
         plotParamsx$size <- NULL
         plotParamsx$randomize <- NULL
 
+        .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
         gg <- do.call(ggHex, plotParamsx)
 
       }else{
 
+        .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
         gg <- do.call(ggPoint, plotParamsx)
 
       }
@@ -242,6 +261,7 @@ plotEmbedding <- function(
         plotParamsx$pal <- pal
       }
 
+      .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
       gg <- do.call(ggPoint, plotParamsx)
 
     }
@@ -259,6 +279,8 @@ plotEmbedding <- function(
   if(length(ggList) == 1){
     ggList <- ggList[[1]]
   }
+
+  .endLogging(logFile = logFile)
 
   ggList
 
@@ -710,4 +732,3 @@ plotGroups <- function(
 .isDiscrete <- function(x = NULL){
   is.factor(x) || is.character(x) || is.logical(x)
 }
-
