@@ -167,10 +167,17 @@ createLogFile <- function(
     cat(paste0("\nTotal Cores = ", detectCores()), file = logFile, append = TRUE)
   }, error = function(x){
   })
+<<<<<<< HEAD
   # tryCatch({
   #     cat(paste0("\nTotal RAM = ", .getRam()), file = logFile, append = TRUE)
   # }, error = function(x){
   # })
+=======
+  tryCatch({
+      cat(paste0("\nTotal RAM = ", .getRam()), file = logFile, append = TRUE)
+  }, error = function(x){
+  })
+>>>>>>> master
   cat("\n\n", file = logFile, append = TRUE)
 
   #Session Info
@@ -182,6 +189,7 @@ createLogFile <- function(
 
 }
 
+<<<<<<< HEAD
 .logMessage <- function(
   msg = NULL, 
   logFile = NULL,   
@@ -206,6 +214,8 @@ createLogFile <- function(
 
 }
 
+=======
+>>>>>>> master
 .logHeader <- function(
   name = NULL, 
   logFile = NULL,   
@@ -230,6 +240,7 @@ createLogFile <- function(
   return(invisible(0))
 }
 
+<<<<<<< HEAD
 
 .logError <- function(
   e = NULL,
@@ -278,6 +289,8 @@ createLogFile <- function(
 }
 
 
+=======
+>>>>>>> master
 .logThis <- function(
     x = NULL, 
     name = NULL, 

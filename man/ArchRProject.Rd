@@ -4,14 +4,9 @@
 \alias{ArchRProject}
 \title{Create ArchRProject from ArrowFiles}
 \usage{
-ArchRProject(
-  ArrowFiles = NULL,
-  outputDirectory = "ArchR_Output",
-  copyArrows = TRUE,
-  geneAnnotation = getGeneAnnotation(),
-  genomeAnnotation = getGenomeAnnotation(),
-  showLogo = TRUE
-)
+ArchRProject(ArrowFiles = NULL, outputDirectory = "ArchR_Output",
+  copyArrows = TRUE, geneAnnotation = getGeneAnnotation(),
+  genomeAnnotation = getGenomeAnnotation(), showLogo = TRUE)
 }
 \arguments{
 \item{ArrowFiles}{A character vector containing the relative paths to the ArrowFiles to be used.}

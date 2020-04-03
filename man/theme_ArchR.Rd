@@ -4,18 +4,10 @@
 \alias{theme_ArchR}
 \title{ggplot2 default theme for ArchR}
 \usage{
-theme_ArchR(
-  color = "black",
-  baseSize = 10,
-  baseLineSize = 0.5,
-  baseRectSize = 0.5,
-  plotMarginCm = 1,
-  legendPosition = "bottom",
-  legendTextSize = 5,
-  axisTickCm = 0.1,
-  xText90 = FALSE,
-  yText90 = FALSE
-)
+theme_ArchR(color = "black", baseSize = 10, baseLineSize = 0.5,
+  baseRectSize = 0.5, plotMarginCm = 1, legendPosition = "bottom",
+  legendTextSize = 5, axisTickCm = 0.1, xText90 = FALSE,
+  yText90 = FALSE)
 }
 \arguments{
 \item{color}{The color to be used for text, lines, ticks, etc for the plot.}

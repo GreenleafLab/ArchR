@@ -112,7 +112,11 @@ plotEmbedding <- function(
   if(length(colorBy) > 1){
     stop("colorBy must be of length 1!")
   }
+<<<<<<< HEAD
   allColorBy <-  c("colData", "cellColData", .availableArrays(head(getArrowFiles(ArchRProj), 2)))
+=======
+  allColorBy <-  c("colData", "cellColData", .availableArrays(getArrowFiles(ArchRProj)[1:2]))
+>>>>>>> master
   if(tolower(colorBy) %ni% tolower(allColorBy)){
     stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
   }
@@ -732,3 +736,7 @@ plotGroups <- function(
 .isDiscrete <- function(x = NULL){
   is.factor(x) || is.character(x) || is.logical(x)
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
