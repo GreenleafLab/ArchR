@@ -171,23 +171,37 @@ getMatrixFromProject <- function(
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
+  cellNames <- ArchRProj$cellNames
+
+
   seL <- ArchR:::.safelapply(seq_along(ArrowFiles), function(x){
 
     .messageDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), tstart, verbose = verbose)
 
-    o <- getMatrixFromArrow(
-      ArrowFile = ArrowFiles[x],
-      useMatrix = useMatrix,
-      useSeqnames = useSeqnames,
-      cellNames = ArchRProj$cellNames, 
-      ArchRProj = ArchRProj,
-      verbose = verbose,
-      binarize = binarize
-    )
+    allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)
+    allCells <- allCells[allCells %in% cellNames]
 
-    .messageDiffTime(paste0("Completed ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), tstart, verbose = verbose)
+    if(length(allCells) != 0){
 
-    o
+      o <- getMatrixFromArrow(
+        ArrowFile = ArrowFiles[x],
+        useMatrix = useMatrix,
+        useSeqnames = useSeqnames,
+        cellNames = allCells, 
+        ArchRProj = ArchRProj,
+        verbose = verbose,
+        binarize = binarize
+      )
+
+      .messageDiffTime(paste0("Completed ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), tstart, verbose = verbose)
+
+      o
+
+    }else{
+
+      NULL
+      
+    }
 
   }, threads = threads) 
 
@@ -281,6 +295,14 @@ getMatrixFromArrow <- function(
   featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames), ]
 
   .messageDiffTime(paste0("Getting ",useMatrix," from ArrowFile : ", basename(ArrowFile)), tstart)
+
+  if(!is.null(cellNames)){
+    allCells <- .availableCells(ArrowFile = ArrowFile, subGroup = useMatrix)
+    if(!all(cellNames %in% allCells)){
+      stop("cellNames must all be within the ArrowFile!!!!")
+    }
+  }
+
   mat <- .getMatFromArrow(
     ArrowFile = ArrowFile, 
     featureDF = featureDF, 
