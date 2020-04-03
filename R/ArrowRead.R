@@ -474,6 +474,16 @@ getMatrixFromArrow <- function(
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check JJJ
 
+  allCellsList <- lapply(seq_along(ArrowFiles), function(x){
+    allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)
+    allCells <- allCells[allCells %in% cellNames]
+    if(length(allCells) != 0){
+      allCells
+    }else{
+      NULL
+    }
+  })
+
   mat <- .safelapply(seq_along(seqnames), function(x){
 
     .messageDiffTime(sprintf("Constructing Group Matrix %s of %s", x, length(seqnames)), tstart, verbose = verbose)
@@ -487,29 +497,36 @@ getMatrixFromArrow <- function(
     rownames(matChr) <- rownames(featureDFx)
 
     for(y in seq_along(ArrowFiles)){
-     
-      maty <- .getMatFromArrow(
-        ArrowFile = ArrowFiles[y], 
-        useMatrix = useMatrix,
-        featureDF = featureDFx, 
-        cellNames = cellNames, 
-        useIndex = useIndex
-      )
 
-      for(z in seq_along(groupList)){
+      allCells <- allCellsList[[y]]
+      
+      if(!is.null(allCells)){
 
-        #Check Cells In Group
-        cellsGroupz <- groupList[[z]]
-        idx <- BiocGenerics::which(colnames(maty) %in% cellsGroupz)
+        maty <- .getMatFromArrow(
+          ArrowFile = ArrowFiles[y], 
+          useMatrix = useMatrix,
+          featureDF = featureDFx, 
+          cellNames = cellNames, 
+          useIndex = useIndex
+        )
 
-        #If In Group RowSums
-        if(length(idx) > 0){
-          matChr[,z] <- matChr[,z] + Matrix::rowSums(maty[,idx,drop=FALSE])
+        for(z in seq_along(groupList)){
+
+          #Check Cells In Group
+          cellsGroupz <- groupList[[z]]
+          idx <- BiocGenerics::which(colnames(maty) %in% cellsGroupz)
+
+          #If In Group RowSums
+          if(length(idx) > 0){
+            matChr[,z] <- matChr[,z] + Matrix::rowSums(maty[,idx,drop=FALSE])
+          }
+
         }
 
-      }
+        rm(maty)
 
-      rm(maty)
+      }
+     
 
       if(y %% 20 == 0 | y %% length(ArrowFiles) == 0){
         gc()
@@ -567,11 +584,22 @@ getMatrixFromArrow <- function(
     
     .messageDiffTime(sprintf("Getting Partial Matrix %s of %s", x, length(ArrowFiles)), tstart, verbose = verbose)
 
+    allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)
+    allCells <- allCells[allCells %in% cellNames]
+
+    if(length(allCells) == 0){
+      if(doSampleCells){
+        return(list(mat = NULL, out = NULL))
+      }else{
+        return(NULL)
+      }
+    }
+
     o <- h5closeAll()
     matx <- .getMatFromArrow(
       ArrowFile = ArrowFiles[x], 
       featureDF = featureDF, 
-      cellNames = cellNames,
+      cellNames = allCells,
       useMatrix = useMatrix, 
       useIndex = useIndex
     )
