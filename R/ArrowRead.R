@@ -528,7 +528,7 @@ getMatrixFromArrow <- function(
           ArrowFile = ArrowFiles[y], 
           useMatrix = useMatrix,
           featureDF = featureDFx, 
-          cellNames = cellNames, 
+          cellNames = allCells, 
           useIndex = useIndex
         )
 
