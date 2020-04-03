@@ -553,7 +553,7 @@ plotGroups <- function(
 
   if(!inherits(values, "matrix")){
     values <- matrix(as.matrix(values), ncol = nCells(ArchRProj))
-    colnames(values) <- unlist(cellNamesList)
+    colnames(values) <- ArchRProj$cellNames
   }
 
   #Values Summary
@@ -569,7 +569,6 @@ plotGroups <- function(
   return(values)
 
 }
-
 
 .fixPlotSize <- function(
   p = NULL, 
