@@ -177,7 +177,7 @@ getArchRGenome <- function(
 
         if(geneAnnotation){
 
-          message("Using GeneAnnotation set by addArchRGenome!")
+          message("Using GeneAnnotation set by addArchRGenome(",ag,")!")
 
           geneAnno <- paste0("geneAnno", genome)
           eval(parse(text=paste0("data(geneAnno",genome,")")))
@@ -185,7 +185,7 @@ getArchRGenome <- function(
         
         }else if(genomeAnnotation){
 
-          message("Using GenomeAnnotation set by addArchRGenome!")
+          message("Using GeneAnnotation set by addArchRGenome(",ag,")!")
 
           genomeAnno <- paste0("genomeAnno", genome)
           eval(parse(text=paste0("data(genomeAnno",genome,")")))
@@ -321,8 +321,33 @@ createGeneAnnnotation <- function(
     ###########################
     message("Getting Genes..")
     genes <- GenomicFeatures::genes(TxDb)
-    mcols(genes)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, 
-        column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
+    isEntrez <- mcols(genes)$symbol <- tryCatch({
+      AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENTREZID", multiVals = "first")
+      TRUE
+    }, error = function(x){
+      FALSE
+    })
+
+    isEnsembl <- mcols(genes)$symbol <- tryCatch({
+      AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENSEMBL", multiVals = "first")
+      TRUE
+    }, error = function(x){
+      FALSE
+    })
+
+    if(isEntrez){
+      annoStyle <- "ENTREZID"
+    }else if(isEnsembl){
+      annoStyle <- "ENSEMBL"
+    }else{
+      stop("Could not identify keytype for annotation format!")
+    }
+
+    message("Determined Annotation Style = ", annoStyle)
+
+    ###########################
+    mcols(genes)$symbol <- AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = annoStyle, multiVals = "first")
+    mcols(genes)$symbol[is.na(mcols(genes)$symbol)] <- paste0("NA_", mcols(genes)$gene_id)[is.na(mcols(genes)$symbol)]
     names(genes) <- NULL
     genes <- sort(sortSeqlevels(genes), ignore.strand = TRUE)
 
@@ -330,11 +355,10 @@ createGeneAnnnotation <- function(
     message("Getting Exons..")
     exons <- unlist(GenomicFeatures::exonsBy(TxDb, by = "tx"))
     exons$tx_id <- names(exons)
-    mcols(exons)$gene_id <- suppressMessages(AnnotationDbi::select(TxDb, keys = paste0(mcols(exons)$tx_id), 
-        column = "GENEID", keytype = "TXID")[, "GENEID"])
+    mcols(exons)$gene_id <- AnnotationDbi::select(TxDb, keys = paste0(mcols(exons)$tx_id), column = "GENEID", keytype = "TXID")[, "GENEID"]
     exons <- exons[!is.na(mcols(exons)$gene_id), ]
-    mcols(exons)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(exons)$gene_id, 
-        column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
+    mcols(exons)$symbol <- AnnotationDbi::mapIds(OrgDb, keys = mcols(exons)$gene_id, column = "SYMBOL", keytype = annoStyle, multiVals = "first")
+    mcols(exons)$symbol[is.na(mcols(exons)$symbol)] <- paste0("NA_", mcols(exons)$gene_id)[is.na(mcols(exons)$symbol)]
     names(exons) <- NULL
     mcols(exons)$exon_id <- NULL
     mcols(exons)$exon_name <- NULL
@@ -1487,7 +1511,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
 #' "Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
 #' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.
 #' @export
-getTutorialData <- function(tutorial = "hematopoiesis"){
+getTutorialData <- function(tutorial = "hematopoiesis", threads = getArchRThreads()){
 
   #Validate
   .validInput(input = tutorial, name = "tutorial", valid = "character")
@@ -1496,16 +1520,22 @@ getTutorialData <- function(tutorial = "hematopoiesis"){
   if(tolower(tutorial) %in% c("heme","hematopoiesis")){
     
     if(!dir.exists("HemeFragments")){
-      download.file(
-        url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments.zip", 
-        destfile = "HemeFragments.zip"
+
+      filesUrl <- c(
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_BMMC_R1.fragments.tsv.gz",
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_CD34_BMMC_R1.fragments.tsv.gz",
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_PBMC_R1.fragments.tsv.gz"
       )
-      unzip("HemeFragments.zip")
-      if(dir.exists("HemeFragments")){
-        file.remove("HemeFragments.zip")
-      }else{
-        stop("Download May Not Have Worked!")
-      }
+
+      dir.create("HemeFragments", showWarnings = FALSE)
+
+      downloadFiles <- .safelapply(seq_along(filesUrl), function(x){
+        download.file(
+          url = filesUrl[x], 
+          destfile = file.path("HemeFragments", basename(filesUrl[x]))
+        )        
+      }, threads = min(threads, length(filesUrl)))
+
     }
     pathFragments <- "HemeFragments"
 
