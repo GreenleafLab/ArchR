@@ -197,6 +197,8 @@ createArrowFiles <- function(
     h5enableFileLocking()
   }
 
+  .endLogging(logFile = logFile)
+
   return(outArrows)
 
 }
