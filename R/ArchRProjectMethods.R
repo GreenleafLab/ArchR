@@ -322,14 +322,14 @@ createGeneAnnnotation <- function(
     message("Getting Genes..")
     genes <- GenomicFeatures::genes(TxDb)
     isEntrez <- mcols(genes)$symbol <- tryCatch({
-      AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENTREZID", multiVals = "first")
+      suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
       TRUE
     }, error = function(x){
       FALSE
     })
 
     isEnsembl <- mcols(genes)$symbol <- tryCatch({
-      AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENSEMBL", multiVals = "first")
+      suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENSEMBL", multiVals = "first"))
       TRUE
     }, error = function(x){
       FALSE
@@ -346,7 +346,7 @@ createGeneAnnnotation <- function(
     message("Determined Annotation Style = ", annoStyle)
 
     ###########################
-    mcols(genes)$symbol <- AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = annoStyle, multiVals = "first")
+    mcols(genes)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = annoStyle, multiVals = "first"))
     mcols(genes)$symbol[is.na(mcols(genes)$symbol)] <- paste0("NA_", mcols(genes)$gene_id)[is.na(mcols(genes)$symbol)]
     names(genes) <- NULL
     genes <- sort(sortSeqlevels(genes), ignore.strand = TRUE)
@@ -355,9 +355,9 @@ createGeneAnnnotation <- function(
     message("Getting Exons..")
     exons <- unlist(GenomicFeatures::exonsBy(TxDb, by = "tx"))
     exons$tx_id <- names(exons)
-    mcols(exons)$gene_id <- AnnotationDbi::select(TxDb, keys = paste0(mcols(exons)$tx_id), column = "GENEID", keytype = "TXID")[, "GENEID"]
+    mcols(exons)$gene_id <- suppressMessages(AnnotationDbi::select(TxDb, keys = paste0(mcols(exons)$tx_id), column = "GENEID", keytype = "TXID")[, "GENEID"])
     exons <- exons[!is.na(mcols(exons)$gene_id), ]
-    mcols(exons)$symbol <- AnnotationDbi::mapIds(OrgDb, keys = mcols(exons)$gene_id, column = "SYMBOL", keytype = annoStyle, multiVals = "first")
+    mcols(exons)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(exons)$gene_id, column = "SYMBOL", keytype = annoStyle, multiVals = "first"))
     mcols(exons)$symbol[is.na(mcols(exons)$symbol)] <- paste0("NA_", mcols(exons)$gene_id)[is.na(mcols(exons)$symbol)]
     names(exons) <- NULL
     mcols(exons)$exon_id <- NULL

@@ -1152,6 +1152,7 @@ createArrowFiles <- function(
   o <- h5createGroup(tmpFile, paste0("Fragments"))
   o <- h5createGroup(tmpFile, paste0("Metadata"))
   o <- h5write(obj = "Arrow", file = tmpFile, name = "Class")
+  o <- h5write(obj = packageVersion("ArchR"), file = tmpFile, name = "ArchRVersion")
   o <- h5write(obj = "tmp", file = tmpFile, name = "Metadata/Sample")
 
   tileChromSizes <- unlist(GenomicRanges::tile(chromSizes, nChunk))
@@ -1304,6 +1305,7 @@ createArrowFiles <- function(
     o <- h5createGroup(fid, paste0("Fragments"))
     o <- h5createGroup(fid, paste0("Metadata"))
     o <- h5write(obj = "Arrow", file = fid, name = "Class")
+    o <- h5write(obj = packageVersion("ArchR"), file = fid, name = "ArchRVersion")
     o <- h5write(obj = "tmp", file = fid, name = "Metadata/Sample")
 
     tmpChrFiles <- lapply(readTiledChrom, function(x) x$tmpChrFile) %>% unlist
@@ -1400,6 +1402,7 @@ createArrowFiles <- function(
   o <- h5createGroup(tmpFile, paste0("Fragments"))
   o <- h5createGroup(tmpFile, paste0("Metadata"))
   o <- h5write(obj = "Arrow", file = tmpFile, name = "Class")
+  o <- h5write(obj = packageVersion("ArchR"), file = tmpFile, name = "ArchRVersion")
   o <- h5write(obj = "tmp", file = tmpFile, name = "Metadata/Sample")
 
   tileChromSizes <- unlist(tile(chromSizes, nChunk))
@@ -1605,6 +1608,7 @@ createArrowFiles <- function(
     o <- h5createGroup(fid, paste0("Fragments"))
     o <- h5createGroup(fid, paste0("Metadata"))
     o <- h5write(obj = "Arrow", file = fid, name = "Class")
+    o <- h5write(obj = packageVersion("ArchR"), file = fid, name = "ArchRVersion")
     o <- h5write(obj = "tmp", file = fid, name = "Metadata/Sample")
 
     tmpChrFiles <- lapply(readTiledChrom, function(x) x$tmpChrFile) %>% unlist
@@ -1691,6 +1695,7 @@ createArrowFiles <- function(
   o <- h5closeAll()
   o <- h5createFile(outArrow)
   o <- h5write(obj = "Arrow", file = outArrow, name = "Class")
+  o <- h5write(obj = packageVersion("ArchR"), file = outArrow, name = "ArchRVersion")
   o <- h5createGroup(outArrow, paste0("Metadata"))
   o <- h5write(obj = sampleName, file = outArrow, name = "Metadata/Sample")
   o <- h5write(obj = paste0(Sys.Date()), file = outArrow, name = "Metadata/Date")
@@ -1917,6 +1922,7 @@ createArrowFiles <- function(
     o <- h5createGroup(fid, paste0("Fragments"))
     o <- h5createGroup(fid, paste0("Metadata"))
     o <- h5write(obj = "Arrow", file = fid, name = "Class")
+    o <- h5write(obj = packageVersion("ArchR"), file = fid, name = "ArchRVersion")
     o <- h5write(obj = sampleName, file = fid, name = "Metadata/Sample")
     o <- h5write(obj = paste0(Sys.Date()), file = fid, name = "Metadata/Date")
     o <- h5write(obj = as.character(bcPass), file = fid, name = "Metadata/CellNames")
@@ -1988,6 +1994,7 @@ createArrowFiles <- function(
   o <- h5closeAll()
   o <- h5createFile(outArrow)
   o <- h5write(obj = "Arrow", file = outArrow, name = "Class")
+  o <- h5write(obj = packageVersion("ArchR"), file = outArrow, name = "ArchRVersion")
   o <- h5createGroup(outArrow, paste0("Metadata"))
   o <- h5write(obj = paste0(Sys.Date()), file = outArrow, name = "Metadata/Date")
   o <- h5write(obj = .sampleName(inArrow), file = outArrow, name = "Metadata/Sample")
