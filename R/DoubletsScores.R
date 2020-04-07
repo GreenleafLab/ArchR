@@ -105,10 +105,10 @@ addDoubletScores <- function(
   .logThis(args, name = "Input-Arguments", logFile = logFile)
 
   #Run With Parallel or lapply
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
   outList <- tryCatch({
     .batchlapply(args, sequential = TRUE)
   }, error = function(e){
-    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
     .logError(e, fn = "addDoubletScores", info = "", errorList = errorList, logFile = logFile)
   })
   names(outList) <- names(ArrowFiles)
@@ -516,6 +516,7 @@ addDoubletScores <- function(
   }
 
   set.seed(seed)
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
   simLSI <- tryCatch({
     .safelapply(seq_len(nTrials), function(y){
       if(y %% 5 == 0){
@@ -535,7 +536,6 @@ addDoubletScores <- function(
     }, threads = threads) %>% Reduce("rbind", .)
 
   }, error = function(e){
-    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
     .logError(e, fn = "Simulate LSI Project Doublets", info = prefix, errorList = errorList, logFile = logFile)
   })
 

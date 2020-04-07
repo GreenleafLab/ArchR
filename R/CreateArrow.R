@@ -173,6 +173,7 @@ createArrowFiles <- function(
   }
 
   #Run With Parallel or lapply
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
   outArrows <- tryCatch({
     unlist(.batchlapply(args))
   },error = function(x){
@@ -187,8 +188,6 @@ createArrowFiles <- function(
         })
       }
     }
-
-    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
     .logError(x, fn = "createArrowFiles", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
     paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
   })
