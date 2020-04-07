@@ -573,7 +573,7 @@ addDoubletScores <- function(
   }, error = function(e){
     errorList <- list(X = allLSI, model = uwotUmap)
     .logError(e, fn = "uwot::umap_transform", info = prefix, errorList = errorList, logFile = logFile)    
-  }
+  })
 
   corProjection <- list(
     LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(allLSI[-seq_len(nSimLSI), x], LSI$matSVD[, x]) )),
