@@ -107,9 +107,9 @@ addDoubletScores <- function(
   #Run With Parallel or lapply
   outList <- tryCatch({
     .batchlapply(args, sequential = TRUE)
-  }, error = function(x){
+  }, error = function(e){
     errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
-    .logError(x, fn = "addDoubletScores", info = "", errorList = errorList, logFile = logFile)
+    .logError(e, fn = "addDoubletScores", info = "", errorList = errorList, logFile = logFile)
   })
   names(outList) <- names(ArrowFiles)
 
@@ -170,7 +170,7 @@ addDoubletScores <- function(
   dir.create(outDir, showWarnings = FALSE)
   prefix <- sprintf("%s (%s of %s) : ", sampleName, i, length(ArrowFiles))
 
-  .logDiffTime(sprintf("%s Computing Doublet Statistics", prefix), tstart, addHeader = FALSE, verbose = verbose)
+  .logDiffTime(sprintf("%s Computing Doublet Statistics", prefix), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
 
   #################################################
   # 1. Create ArchRProject For Iterative LSI
@@ -214,7 +214,7 @@ addDoubletScores <- function(
   #################################################
   # 3. Get LSI Partial Matrix For Simulation
   #################################################
-  .logDiffTime("Constructing Partial Matrix for Projection", tstart, addHeader = FALSE, verbose = FALSE)
+  .logDiffTime("Constructing Partial Matrix for Projection", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
   LSI <- getReducedDims(
     ArchRProj = proj, 
     reducedDims = "IterativeLSI", 
@@ -257,7 +257,7 @@ addDoubletScores <- function(
   #################################################
   # 4. Run UMAP for LSI-Projection
   #################################################
-  .logDiffTime("Running LSI UMAP", tstart, addHeader = FALSE, verbose = FALSE)
+  .logDiffTime("Running LSI UMAP", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
   set.seed(1) # Always do this prior to UMAP
   UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="euclidean", verbose=FALSE))
   UMAPParams$X <- LSI$matSVD
@@ -275,7 +275,7 @@ addDoubletScores <- function(
   #################################################
   # 5. Simulate and Project Doublets
   #################################################
-  .logDiffTime("Simulating and Projecting Doublets", tstart, addHeader = FALSE, verbose = FALSE)
+  .logDiffTime("Simulating and Projecting Doublets", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
   simDoubletsSave <- tryCatch({
     .simulateProjectDoublets(
       mat = mat, 
@@ -461,9 +461,9 @@ addDoubletScores <- function(
 
     dev.off()
 
-  }, error = function(x){
+  }, error = function(e){
     errorList <- list(df=df,dfDoub=dfDoub)
-    .logError(x, fn = "ggplot", info = prefix, errorList = errorList, logFile = logFile, throwError = FALSE)
+    .logError(e, fn = "ggplot", info = prefix, errorList = errorList, logFile = logFile, throwError = FALSE)
   })
 
   #################################################

@@ -801,6 +801,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
   for(i in seq_along(pdfFiles)){
     print(i)
+    system(paste0("cp ", pdfFiles[i], file.path(outDir, basename(pdfFiles[i]))))
     tryCatch({
       pdf_convert(
         pdfFiles[i], 
