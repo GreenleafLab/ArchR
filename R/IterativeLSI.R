@@ -1,4 +1,3 @@
-
 ##########################################################################################
 # LSI Dimensionality Reduction Methods
 ##########################################################################################
@@ -124,6 +123,10 @@ addIterativeLSI <- function(
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+
+  if(varFeatures < 1000){
+    stop("Please provide more than 1000 varFeatures!")
+  }
 
   .startLogging(logFile = logFile)
   .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
@@ -252,7 +255,8 @@ addIterativeLSI <- function(
     threads = threads,
     useIndex = FALSE,
     tstart = tstart,
-    verbose = verbose
+    verbose = verbose,
+    logFile = logFile
   )
   outLSI$scaleDims <- scaleDims
   outLSI$useMatrix <- useMatrix
@@ -449,6 +453,8 @@ addIterativeLSI <- function(
     tstart <- Sys.time()
   }
 
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+
   outLSI2 <- tryCatch({
 
     if(is.null(sampleCells)){
@@ -462,7 +468,8 @@ addIterativeLSI <- function(
         useMatrix = useMatrix,
         cellNames = cellNames,
         doSampleCells = FALSE,
-        threads = threads
+        threads = threads,
+        verbose = FALSE
       )
 
       #Compute LSI
@@ -475,7 +482,8 @@ addIterativeLSI <- function(
        binarize = binarize, 
        outlierQuantiles = outlierQuantiles,
        verbose = FALSE, 
-       tstart = tstart
+       tstart = tstart,
+       logFile = logFile
       )
       outLSI$LSIFeatures <- featureDF
       outLSI$corToDepth <- list(
@@ -507,6 +515,7 @@ addIterativeLSI <- function(
           cellNames = sampledCellNames,
           doSampleCells = FALSE,
           threads = threads,
+          verbose = FALSE
         )
 
         #Compute LSI
@@ -518,7 +527,8 @@ addIterativeLSI <- function(
          nDimensions = max(dimsToUse),
          binarize = binarize, 
          outlierQuantiles = outlierQuantiles,
-         tstart = tstart
+         tstart = tstart,
+         logFile = logFile
         )
         outLSI$LSIFeatures <- featureDF
         outLSI$corToDepth <- list(
@@ -541,6 +551,7 @@ addIterativeLSI <- function(
             tmpPath = tmpPath,
             useIndex = useIndex,
             threads = threads,
+            verbose = FALSE
           )
         gc()
 
@@ -553,7 +564,8 @@ addIterativeLSI <- function(
            nDimensions = max(dimsToUse),
            binarize = binarize, 
            outlierQuantiles = outlierQuantiles,
-           tstart = tstart
+           tstart = tstart,
+           logFile = logFile
           )
 
         tmpMatFiles <- out[[2]]
@@ -566,7 +578,7 @@ addIterativeLSI <- function(
         .logDiffTime("Projecting Matrices with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         pLSI <- .safelapply(seq_along(tmpMatFiles), function(x){
           .logDiffTime(sprintf("Projecting Matrix (%s of %s) with LSI-Projection", x, length(tmpMatFiles)), tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
-          .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart)
+          .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart, logFile = logFile)
         }, threads = threads2) %>% Reduce("rbind", .)
 
         #Remove Temporary Matrices
@@ -586,9 +598,13 @@ addIterativeLSI <- function(
 
     }
 
+    outLSI
+
   }, error = function(e){
 
-    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+    errorList$outLSI <- if(exists("outLSI", inherits = FALSE)) outLSI else "Error with outLSI!"
+    errorList$matSVD <- if(exists("outLSI", inherits = FALSE)) outLSI[[1]] else "Error with matSVD!"
+
     .logError(e, fn = ".LSIPartialMatrix", info = "", errorList = errorList, logFile = logFile)
 
   })
@@ -677,6 +693,8 @@ addIterativeLSI <- function(
   logFile = NULL
   ){
 
+    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+
     o <- tryCatch({
 
       .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Save iteration", logFile=logFile)
@@ -735,9 +753,9 @@ addIterativeLSI <- function(
           theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
                 axis.text.y = element_blank(), axis.ticks.y = element_blank())
 
-      print(.fixPlotSize(p1, plotWidth = 6, plotHeight = 6))
+      .fixPlotSize(p1, plotWidth = 6, plotHeight = 6)
       grid::grid.newpage()
-      print(.fixPlotSize(p2, plotWidth = 6, plotHeight = 6))
+      .fixPlotSize(p2, plotWidth = 6, plotHeight = 6)
       dev.off()
 
       #Save results
@@ -748,7 +766,6 @@ addIterativeLSI <- function(
 
     }, error = function(e){
 
-      errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
       .logError(e, fn = ".saveIteration", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
 
     })
@@ -776,6 +793,7 @@ addIterativeLSI <- function(
   ){
 
   .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Cluster Params", logFile=logFile)
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
   df2 <- tryCatch({
 
@@ -827,7 +845,6 @@ addIterativeLSI <- function(
 
   }, error = function(e){
 
-    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
     .logError(e, fn = ".LSICluster", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
 
   })
@@ -855,6 +872,8 @@ addIterativeLSI <- function(
   verbose = NULL,
   logFile = NULL
   ){
+
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
   variableFeatures2 <- tryCatch({
 
@@ -930,8 +949,7 @@ addIterativeLSI <- function(
 
   }, error = function(e){
 
-    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
-    .logError(e, fn = ".identifyVarFeatures", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
+    .logError(e, fn = ".identifyVarFeatures", info = "", errorList = errorList, logFile = logFile)
 
   })
 
@@ -950,7 +968,7 @@ addIterativeLSI <- function(
   binarize = TRUE, 
   outlierQuantiles = c(0.02, 0.98),
   seed = 1, 
-  verbose = TRUE, 
+  verbose = FALSE, 
   tstart = NULL,
   logFile = NULL
   ){
@@ -1088,7 +1106,7 @@ addIterativeLSI <- function(
     if(filterOutliers == 1){
       .logDiffTime("Projecting Outliers with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       #Quick Check LSI-Projection Works
-      pCheck <- .projectLSI(mat = mat2, LSI = out, verbose = verbose)
+      pCheck <- .projectLSI(mat = mat2, LSI = out, verbose = verbose, logFile = logFile)
       pCheck2 <- out[[1]][rownames(pCheck), ]
       pCheck3 <- lapply(seq_len(ncol(pCheck)), function(x){
         cor(pCheck[,x], pCheck2[,x])
@@ -1098,7 +1116,7 @@ addIterativeLSI <- function(
       }
       #Project LSI Outliers
       out$outliers <- colnames(matO)
-      outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose)
+      outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose, logFile = logFile)
       allLSI <- rbind(out[[1]], outlierLSI)
       allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
       out[[1]] <- allLSI
@@ -1108,18 +1126,20 @@ addIterativeLSI <- function(
     rm(mat)
     gc()
 
+    out
+
   }, error = function(e){
     
     errorList <- list(
       mat = mat,
-      colSm = if(exists("colSm", inherits = FALSE)) fragx else "Error with colSm!",
-      idf = if(exists("idf", inherits = FALSE)) fragx else "Error with idf!",
-      V = if(exists("V", inherits = FALSE)) fragx else "Error with V!",
-      matSVD = if(exists("matSVD", inherits = FALSE)) fragx else "Error with matSVD!",
-      out = if(exists("out", inherits = FALSE)) fragx else "Error with out!"
+      colSm = if(exists("colSm", inherits = FALSE)) colSm else "Error with colSm!",
+      idf = if(exists("idf", inherits = FALSE)) idf else "Error with idf!",
+      V = if(exists("V", inherits = FALSE)) V else "Error with V!",
+      matSVD = if(exists("matSVD", inherits = FALSE)) matSVD else "Error with matSVD!",
+      out = if(exists("out", inherits = FALSE)) out else "Error with out!"
     )
 
-    .logError(e, fn = ".computeLSI", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
+    .logError(e, fn = ".computeLSI", info = "", errorList = errorList, logFile = logFile)
 
   })
 
@@ -1141,7 +1161,7 @@ addIterativeLSI <- function(
   out2 <- tryCatch({
    
     require(Matrix)
-    setverboseseed(LSI$seed)
+    set.seed(LSI$seed)
     
     if(is.null(tstart)){
       tstart <- Sys.time()
@@ -1246,18 +1266,20 @@ addIterativeLSI <- function(
         out <- matSVD
     }
 
+    out
+
 
   }, error = function(e){
 
     errorList <- list(
       mat = mat,
-      colSm = if(exists("colSm", inherits = FALSE)) fragx else "Error with colSm!",
-      idf = if(exists("idf", inherits = FALSE)) fragx else "Error with idf!",
-      V = if(exists("V", inherits = FALSE)) fragx else "Error with V!",
-      matSVD = if(exists("matSVD", inherits = FALSE)) fragx else "Error with matSVD!"
+      colSm = if(exists("colSm", inherits = FALSE)) colSm else "Error with colSm!",
+      idf = if(exists("idf", inherits = FALSE)) idf else "Error with idf!",
+      V = if(exists("V", inherits = FALSE)) V else "Error with V!",
+      matSVD = if(exists("matSVD", inherits = FALSE)) matSVD else "Error with matSVD!"
     )
 
-    .logError(e, fn = ".projectLSI", info = "", errorList = errorList, logFile = logFile, throwError = FALSE, logFile = logFile)
+    .logError(e, fn = ".projectLSI", info = "", errorList = errorList, logFile = logFile)
 
   })
 

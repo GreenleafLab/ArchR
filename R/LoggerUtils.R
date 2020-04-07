@@ -243,34 +243,34 @@ createLogFile <- function(
 
   header <- "************************************************************"
 
+  if(is.null(logFile)){
+    useLogs <- FALSE
+  }
+
+  if(useLogs){
+    #To Log File
+    cat(sprintf("\n%s\n%s : ERROR Found in %s for %s \nLogFile = %s\n\n", header, Sys.time(), fn, info, logFile), file = logFile, append = TRUE)
+
+    utils::capture.output(print(e), file = logFile, append = TRUE)
+
+    if(!is.null(errorList)){
+      tryCatch({
+        .logThis(errorList, name = "errorList", logFile)
+      }, error = function(e){
+        cat("Error recording errorList", file = logFile, append = TRUE)
+      })
+    }
+
+    cat(sprintf("\n%s\n\n", header), file = logFile, append = TRUE)
+  }
+  
   #To Console
-  cat(sprintf("\n%s\n%s : ERROR Found in %s for %s \n\n", header, Sys.time(), fn, info))
+  cat(sprintf("\n%s\n%s : ERROR Found in %s for %s \nLogFile = %s\n\n", header, Sys.time(), fn, info, logFile))
 
   print(e)
 
   cat(sprintf("\n%s\n\n", header))
 
-  if(!useLogs){
-    if(throwError) stop("Exiting See Error Above")
-    return(invisible(0))
-  }
-
-  if(is.null(logFile)){
-    if(throwError) stop("Exiting See Error Above")
-    return(invisible(0))
-  }
-
-  #To Log File
-  cat(sprintf("\n%s\n%s : ERROR Found in %s for %s \n\n", header, Sys.time(), fn, info), file = logFile, append = TRUE)
-
-  utils::capture.output(print(e), file = logFile, append = TRUE)
-
-  if(!is.null(errorList)){
-    .logThis(errorList, name = "errorList", logFile)
-  }
-
-  cat(sprintf("\n%s\n\n", header), file = logFile, append = TRUE)
-  
   if(throwError) stop("Exiting See Error Above")
 
   return(invisible(0))
@@ -305,44 +305,77 @@ createLogFile <- function(
   if(is.matrix(x)){
     
     px <- x[head(seq_len(nrow(x)), 5), head(seq_len(ncol(x)), 5), drop = FALSE]
-    utils::capture.output(print(px), file = logFile, append = TRUE)
+    suppressMessages(utils::capture.output(print(px), file = logFile, append = TRUE))
     cat("\n", file = logFile, append = TRUE)
     cat(paste0(name, ": nRows = ", nrow(x), ", nCols = ", ncol(x), "\n"), file = logFile, append = TRUE)
 
   }else if(is.data.frame(x)){
 
-    utils::capture.output(print(head(x)), file = logFile, append = TRUE)
+    suppressMessages(utils::capture.output(print(head(x)), file = logFile, append = TRUE))
     cat("\n", file = logFile, append = TRUE)
     cat(paste0(name, ": nRows = ", nrow(x), ", nCols = ", ncol(x), "\n"), file = logFile, append = TRUE)
 
   }else if(is(x, "dgCMatrix")){
     
     px <- x[head(seq_len(nrow(x)), 5), head(seq_len(ncol(x)), 5), drop = FALSE]
-    utils::capture.output(print(px), file = logFile, append = TRUE)
+    suppressMessages(utils::capture.output(print(px), file = logFile, append = TRUE))
     cat("\n", file = logFile, append = TRUE)
     cat(paste0(name, ": nRows = ", nrow(x), ", nCols = ", ncol(x), "\n"), file = logFile, append = TRUE)
     cat(paste0(name, ": NonZeroEntries = ", length(x@x), ", EntryRange = [ ", paste0(range(x@x), collapse=" , "), " ]\n"), file = logFile, append = TRUE)
 
   }else if(is(x, "GRanges")){
 
-    utils::capture.output(print(x), file = logFile, append = TRUE)
+    suppressMessages(utils::capture.output(print(x), file = logFile, append = TRUE))
 
   }else if(is(x, "SummarizedExperiment")){
 
-    utils::capture.output(print(x), file = logFile, append = TRUE)
+    suppressMessages(utils::capture.output(print(x), file = logFile, append = TRUE))
 
   }else if(is(x, "DataFrame")){
 
-    utils::capture.output(print(x), file = logFile, append = TRUE)
+    suppressMessages(utils::capture.output(print(x), file = logFile, append = TRUE))
 
   }else if(is(x, "ArchRProj")){
 
-    utils::capture.output(print(x), file = logFile, append = TRUE)      
+    suppressMessages(utils::capture.output(print(proj), file = logFile, append = TRUE))
+
+  }else if(is(x, "SimpleList") | is(x, "list")){
+
+    for(i in seq_along(x)){
+
+      y <- x[[i]]
+
+      if(is.matrix(y)){
+        
+        px <- y[head(seq_len(nrow(y)), 5), head(seq_len(ncol(y)), 5), drop = FALSE]
+        suppressMessages(utils::capture.output(print(px), file = logFile, append = TRUE))
+        cat("\n", file = logFile, append = TRUE)
+        cat(paste0(paste0(name,"$", names(x[i])), ": nRows = ", nrow(y), ", nCols = ", ncol(y), "\n"), file = logFile, append = TRUE)
+
+      }else if(is.data.frame(y)){
+
+        suppressMessages(utils::capture.output(print(head(y)), file = logFile, append = TRUE))
+        cat("\n", file = logFile, append = TRUE)
+        cat(paste0(paste0(name,"$", names(x[i])), ": nRows = ", nrow(y), ", nCols = ", ncol(y), "\n"), file = logFile, append = TRUE)
+
+      }else if(is(y, "dgCMatrix")){
+        
+        px <- y[head(seq_len(nrow(y)), 5), head(seq_len(ncol(y)), 5), drop = FALSE]
+        suppressMessages(utils::capture.output(print(px), file = logFile, append = TRUE))
+        cat("\n", file = logFile, append = TRUE)
+        cat(paste0(paste0(name,"$", names(x[i])), ": nRows = ", nrow(y), ", nCols = ", ncol(y), "\n"), file = logFile, append = TRUE)
+        cat(paste0(paste0(name,"$", names(x[i])), ": NonZeroEntries = ", length(y@x), ", EntryRange = [ ", paste0(range(y@x), collapse=" , "), " ]\n"), file = logFile, append = TRUE)
+
+      }else{
+        suppressMessages(utils::capture.output(print(head(x[[i]])), file = logFile, append = TRUE))
+      }
+
+    }
 
   }else{
 
     tryCatch(
-      utils::capture.output(print(head(x)), file = logFile, append = TRUE)
+      suppressMessages(utils::capture.output(print(head(x)), file = logFile, append = TRUE))
     , error = function(x){
     })
 

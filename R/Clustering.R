@@ -163,7 +163,7 @@ addClusters <- function(
       clustParams <- list(...)
       clustParams$verbose <- verbose
       clustParams$tstart <- tstart
-      clust <- .clustSeurat(mat = matDR, clustParams = clustParams)
+      clust <- .clustSeurat(mat = matDR, clustParams = clustParams, logFile = logFile)
 
     }else if(grepl("scran",tolower(method))){
 
@@ -173,7 +173,7 @@ addClusters <- function(
       clustParams$x <- t(matDR)
       clustParams$d <- ncol(matDR)
       clustParams$k <- ifelse(exists("...$k"), ...$k, 25)
-      clust <- .clustScran(clustParams)
+      clust <- .clustScran(clustParams = clustParams, logFile = logFile)
 
     }
 
@@ -361,7 +361,7 @@ addClusters <- function(
 }
 
 #Simply a wrapper on Seurats FindClusters
-.clustSeurat <- function(mat = NULL, clustParams = NULL){
+.clustSeurat <- function(mat = NULL, clustParams = NULL, logFile = NULL){
 
   .requirePackage("Seurat", source = "cran")
   .logDiffTime("Running Seurats FindClusters (Stuart et al. Cell 2019)", clustParams$tstart, verbose=clustParams$verbose, logFile = logFile)
