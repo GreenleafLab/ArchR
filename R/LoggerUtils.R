@@ -377,27 +377,27 @@ createLogFile <- function(
             px <- z[head(seq_len(nrow(z)), 5), head(seq_len(ncol(z)), 5), drop = FALSE]
             suppressMessages(utils::capture.output(print(px), file = logFile, append = TRUE))
             cat("\n", file = logFile, append = TRUE)
-            cat(paste0(paste0(name,"$", names(y[i])), ": nRows = ", nrow(z), ", nCols = ", ncol(z), "\n"), file = logFile, append = TRUE)
+            cat(paste0(paste0(name,"$", names(y[j])), ": nRows = ", nrow(z), ", nCols = ", ncol(z), "\n"), file = logFile, append = TRUE)
 
           }else if(is.data.frame(z)){
 
             suppressMessages(utils::capture.output(print(head(z)), file = logFile, append = TRUE))
             cat("\n", file = logFile, append = TRUE)
-            cat(paste0(paste0(name,"$", names(y[i])), ": nRows = ", nrow(z), ", nCols = ", ncol(z), "\n"), file = logFile, append = TRUE)
+            cat(paste0(paste0(name,"$", names(y[j])), ": nRows = ", nrow(z), ", nCols = ", ncol(z), "\n"), file = logFile, append = TRUE)
 
           }else if(is(z, "dgCMatrix")){
             
             px <- z[head(seq_len(nrow(z)), 5), head(seq_len(ncol(z)), 5), drop = FALSE]
             suppressMessages(utils::capture.output(print(px), file = logFile, append = TRUE))
             cat("\n", file = logFile, append = TRUE)
-            cat(paste0(paste0(name,"$", names(y[i])), ": nRows = ", nrow(z), ", nCols = ", ncol(z), "\n"), file = logFile, append = TRUE)
-            cat(paste0(paste0(name,"$", names(y[i])), ": NonZeroEntries = ", length(z@x), ", EntrzRange = [ ", paste0(range(z@x), collapse=" , "), " ]\n"), file = logFile, append = TRUE)
+            cat(paste0(paste0(name,"$", names(y[j])), ": nRows = ", nrow(z), ", nCols = ", ncol(z), "\n"), file = logFile, append = TRUE)
+            cat(paste0(paste0(name,"$", names(y[j])), ": NonZeroEntries = ", length(z@x), ", EntrzRange = [ ", paste0(range(z@x), collapse=" , "), " ]\n"), file = logFile, append = TRUE)
 
           }
 
         }
       }
-      
+
     }
 
   }else{
