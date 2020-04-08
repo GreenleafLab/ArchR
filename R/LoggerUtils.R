@@ -302,6 +302,11 @@ createLogFile <- function(
   }
   cat(paste0("\n", Sys.time(), " : ", name, ", Class = ", class(x), "\n"), file = logFile, append = TRUE)
 
+  if(missing(x)){
+    cat("Data is Missing\n\n", file = logFile, append = TRUE)
+    return(invisible(0))
+  }
+
   if(is.matrix(x)){
     
     px <- x[head(seq_len(nrow(x)), 5), head(seq_len(ncol(x)), 5), drop = FALSE]
@@ -345,6 +350,10 @@ createLogFile <- function(
 
       y <- x[[i]]
 
+      if(missing(y)){
+        next
+      }
+
       if(is.matrix(y)){
         
         px <- y[head(seq_len(nrow(y)), 5), head(seq_len(ncol(y)), 5), drop = FALSE]
@@ -371,6 +380,10 @@ createLogFile <- function(
         for(j in seq_along(y)){
 
           z <- y[[j]]
+
+          if(missing(z)){
+            next
+          }
 
           if(is.matrix(z)){
             
@@ -446,12 +459,6 @@ createLogFile <- function(
   return(invisible(0))
 
 }
-
-
-
-
-
-
 
 
 

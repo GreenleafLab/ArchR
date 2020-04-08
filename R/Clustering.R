@@ -455,9 +455,9 @@ addClusters <- function(
   verbose <- clustParams$verbose
   clustParams$tstart <- NULL
   clustParams$verbose <- NULL
-  .logDiffTime("Running Scran SNN Graph (Lun et al. Cell 2016)", tstart, verbose=verbose, logFile = logFile)
+  .logDiffTime("Running Scran SNN Graph (Lun et al. F1000Res. 2016)", tstart, verbose=verbose, logFile = logFile)
   snn <- do.call(scran::buildSNNGraph, clustParams)
-  .logDiffTime("Identifying Clusters (Lun et al. Cell 2016)", tstart, verbose=verbose, logFile = logFile)
+  .logDiffTime("Identifying Clusters (Lun et al. F1000Res. 2016)", tstart, verbose=verbose, logFile = logFile)
   cluster <- igraph::cluster_walktrap(snn)$membership
   paste0("Cluster", cluster)
 }
