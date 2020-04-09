@@ -177,7 +177,7 @@ plotEmbedding <- function(
     .logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
 
     if(!is.null(imputeWeights)){
-      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights)
+      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights, logFile = logFile)
       if(!inherits(colorMat, "matrix")){
         colorMat <- matrix(colorMat, ncol = nrow(df))
         colnames(colorMat) <- rownames(df)
