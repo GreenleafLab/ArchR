@@ -247,6 +247,8 @@ imputeMatrix <- function(
     stop("Weights are not a list, Please re-run addImputeWeights (update)!")
   }
 
+  .startLogging(logFile = logFile)
+
   weightList <- imputeWeights$Weights
   .logThis(mat, "mat", logFile = logFile)
   .logThis(weightList, "weightList", logFile = logFile)
