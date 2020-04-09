@@ -241,7 +241,7 @@ imputeMatrix <- function(
   ){
 
 
-  if(!inherits(weightList, "SimpleList") & !inherits(weightList, "list")){
+  if(!inherits(imputeWeights$Weights, "SimpleList") & !inherits(imputeWeights$Weights, "list")){
     .logMessage("Weights are not a list, Please re-run addImputeWeights (update)!", logFile = logFile)
     stop("Weights are not a list, Please re-run addImputeWeights (update)!")
   }
