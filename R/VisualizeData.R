@@ -84,7 +84,7 @@ plotEmbedding <- function(
   .logMessage("Getting UMAP Embedding", logFile = logFile)
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
 
-  .logThis(df, name = "Embedding data.frame", logFile)
+  .logThis(df, name = "Embedding data.frame", logFile = logFile)
   if(!is.null(sampleCells)){
     if(sampleCells < nrow(df)){
       if(!is.null(imputeWeights)){
@@ -143,6 +143,8 @@ plotEmbedding <- function(
 
 
   }else{
+
+    suppressMessages(message(logFile))
 
     units <- tryCatch({
         .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
@@ -256,12 +258,12 @@ plotEmbedding <- function(
         plotParamsx$size <- NULL
         plotParamsx$randomize <- NULL
 
-        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile)
+        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
         gg <- do.call(ggHex, plotParamsx)
 
       }else{
 
-        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile)
+        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
         gg <- do.call(ggPoint, plotParamsx)
 
       }
@@ -272,7 +274,7 @@ plotEmbedding <- function(
         plotParamsx$pal <- pal
       }
 
-      .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile)
+      .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
       gg <- do.call(ggPoint, plotParamsx)
 
     }
