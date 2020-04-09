@@ -118,7 +118,7 @@
   stopifnot(inherits(mat, "dgCMatrix"))
 
   checkCells <- .availableCells(ArrowFile, dirname(Group))
-  if(!identical(colnames(mat), checkCells)){
+  if(!identical(paste0(colnames(mat)), paste0(checkCells))){
     .logThis(colnames(mat), "colnames", logFile=logFile)
     .logThis(checkCells, "cellNames", logFile=logFile)
     .logMessage(paste0("Mismatch = ", sum(colnames(mat) != checkCells)))
