@@ -4,12 +4,23 @@
 \alias{addPeak2GeneLinks}
 \title{Add Peak2GeneLinks to an ArchRProject JJJ}
 \usage{
-addPeak2GeneLinks(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  dimsToUse = 1:30, scaleDims = NULL, corCutOff = 0.75, k = 100,
-  knnIteration = 500, overlapCutoff = 0.8, maxDist = 250000,
-  scaleTo = 10^4, log2Norm = TRUE, predictionCutoff = 0.4,
-  seed = 1, knnMethod = NULL,
-  threads = max(floor(getArchRThreads()/2), 1))
+addPeak2GeneLinks(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  dimsToUse = 1:30,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  k = 100,
+  knnIteration = 500,
+  overlapCutoff = 0.8,
+  maxDist = 250000,
+  scaleTo = 10^4,
+  log2Norm = TRUE,
+  predictionCutoff = 0.4,
+  seed = 1,
+  knnMethod = NULL,
+  threads = max(floor(getArchRThreads()/2), 1)
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

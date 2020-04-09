@@ -4,8 +4,14 @@
 \alias{getBgdPeaks}
 \title{Get Background Peaks from an ArchRProject}
 \usage{
-getBgdPeaks(ArchRProj = NULL, nIterations = 50, w = 0.1,
-  binSize = 50, seed = 1, force = FALSE)
+getBgdPeaks(
+  ArchRProj = NULL,
+  nIterations = 50,
+  w = 0.1,
+  binSize = 50,
+  seed = 1,
+  force = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

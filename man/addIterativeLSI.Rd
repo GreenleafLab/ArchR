@@ -4,20 +4,39 @@
 \alias{addIterativeLSI}
 \title{Add an Iterative LSI-based dimensionality reduction to an ArchRProject}
 \usage{
-addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
-  name = "IterativeLSI", iterations = 2,
-  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start
-  = 10), varFeatures = 25000, dimsToUse = 1:30, LSIMethod = 2,
-  scaleDims = TRUE, corCutOff = 0.75, binarize = TRUE,
-  outlierQuantiles = c(0.02, 0.98), filterBias = TRUE,
-  sampleCellsPre = 10000, projectCellsPre = FALSE,
-  sampleCellsFinal = NULL, selectionMethod = "var", scaleTo = 10000,
-  totalFeatures = 5e+05, filterQuantile = 0.995, excludeChr = c(),
-  saveIterations = TRUE, UMAPParams = list(n_neighbors = 40, min_dist =
-  0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
-  nPlot = 10000, outDir = getOutputDirectory(ArchRProj),
-  threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
-  verboseAll = FALSE, force = FALSE)
+addIterativeLSI(
+  ArchRProj = NULL,
+  useMatrix = "TileMatrix",
+  name = "IterativeLSI",
+  iterations = 2,
+  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start = 10),
+  varFeatures = 25000,
+  dimsToUse = 1:30,
+  LSIMethod = 2,
+  scaleDims = TRUE,
+  corCutOff = 0.75,
+  binarize = TRUE,
+  outlierQuantiles = c(0.02, 0.98),
+  filterBias = TRUE,
+  sampleCellsPre = 10000,
+  projectCellsPre = FALSE,
+  sampleCellsFinal = NULL,
+  selectionMethod = "var",
+  scaleTo = 10000,
+  totalFeatures = 5e+05,
+  filterQuantile = 0.995,
+  excludeChr = c(),
+  saveIterations = TRUE,
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
+    FALSE, fast_sgd = TRUE),
+  nPlot = 10000,
+  outDir = getOutputDirectory(ArchRProj),
+  threads = getArchRThreads(),
+  seed = 1,
+  verbose = TRUE,
+  force = FALSE,
+  logFile = createLogFile("addIterativeLSI")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -94,9 +113,7 @@ the designated \code{outDir}.}
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 reproduce results downstream.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
-
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{force}{A boolean value that indicates whether or not to overwrite relevant data in the \code{ArchRProject} object.}
 }

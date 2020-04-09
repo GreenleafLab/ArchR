@@ -2,6 +2,12 @@
 # Marker Feature Methods
 ##########################################################################################
 
+#' @export
+markerFeatures <- function(...){
+    .Deprecated("getMarkerFeatures")
+    getMarkerFeatures(...)
+}
+
 #' Identify Marker Features for each cell grouping JJJ
 #' 
 #' This function will identify features that are definitional of each provided cell grouping where possible
@@ -36,7 +42,7 @@
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
 #' @export
-markerFeatures <- function(
+getMarkerFeatures <- function(
   ArchRProj = NULL,
   groupBy = "Clusters",
   useGroups = NULL,
@@ -53,7 +59,8 @@ markerFeatures <- function(
   binarize = FALSE,
   useSeqnames = NULL,
   verboseHeader = TRUE,
-  verboseAll = FALSE
+  verboseAll = FALSE,
+  logFile = createLogFile("getMarkerFeatures")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -75,6 +82,8 @@ markerFeatures <- function(
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
   
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+  .startLogging(logFile = logFile)
+  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
   out <- do.call(.MarkersSC, args)
 
   metadata(out)$Params <- args
@@ -87,24 +96,25 @@ markerFeatures <- function(
 # Single Cell Implementation!
 ##################################################################################################
 .MarkersSC <- function(
-    ArchRProj = NULL,
-    groupBy = "Clusters",
-    useGroups = NULL,
-    bgdGroups = NULL,
-    normBy = NULL,
-    maxCells = 500,
-    scaleTo = 10^4,
-    bufferRatio = 0.8,
-    bias = NULL,
-    k = 100,
-    threads = 8,
-    binarize = FALSE,
-    useSeqnames = NULL,
-    testMethod = "wilcoxon",
-    useMatrix = "GeneScoreMatrix",
-    markerParams = list(),
-    verboseHeader = TRUE,
-    verboseAll = FALSE
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  useGroups = NULL,
+  bgdGroups = NULL,
+  normBy = NULL,
+  maxCells = 500,
+  scaleTo = 10^4,
+  bufferRatio = 0.8,
+  bias = NULL,
+  k = 100,
+  threads = 1,
+  binarize = FALSE,
+  useSeqnames = NULL,
+  testMethod = "wilcoxon",
+  useMatrix = "GeneScoreMatrix",
+  markerParams = list(),
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  logFile = NULL
   ){
 
     tstart <- Sys.time()
@@ -113,8 +123,11 @@ markerFeatures <- function(
     # Feature Info
     #####################################################
     ArrowFiles <- getArrowFiles(ArchRProj)
-    featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
+    featureDF <- .getFeatureDF(head(ArrowFiles, 2), useMatrix)
     matrixClass <- as.character(h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class")))
+
+    .logThis(featureDF, "FeatureDF", logFile=logFile)
+    .logMessage(paste0("MatrixClass = ", matrixClass), logFile=logFile)
 
     seqnames <- unique(as.vector(featureDF$seqnames))
     useSeqnames <- useSeqnames[useSeqnames %in% seqnames]
@@ -159,7 +172,8 @@ markerFeatures <- function(
       bgdGroups = bgdGroups,
       bias = bias,
       k = k,
-      n = maxCells
+      n = maxCells,
+      logFile = logFile
     )
 
     #####################################################
@@ -487,7 +501,8 @@ markerFeatures <- function(
   bias = NULL,
   k = 100,
   n = 500,
-  bufferRatio = 0.8
+  bufferRatio = 0.8,
+  logFile = NULL
   ){
 
   #Summary Function
@@ -669,6 +684,7 @@ markerFeatures <- function(
         group = groupx
       )
 
+    .logThis(out, paste0("MatchSummary ", useGroups[x]), logFile = logFile)
     return(out)
 
   }) %>% SimpleList

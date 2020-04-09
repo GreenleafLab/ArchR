@@ -58,7 +58,7 @@ addImputeWeights <- function(
   set.seed(seed)
 
   tstart <- Sys.time()
-  .messageDiffTime("Computing Impute Weights Using Magic (Cell 2018)", tstart)
+  .logDiffTime("Computing Impute Weights Using Magic (Cell 2018)", tstart)
 
   #Get Reduced Dims
   matDR <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
@@ -83,7 +83,7 @@ addImputeWeights <- function(
   if(useHdf5){
     dir.create(file.path(getOutputDirectory(ArchRProj), "ImputeWeights"), showWarnings = FALSE)
     if(randomSuffix){
-      weightFiles <- ArchR:::.tempfile("Impute-Weights", tmpdir = file.path(gsub(paste0(getwd(),"/"),"",getOutputDirectory(ArchRProj)), "ImputeWeights"))
+      weightFiles <- .tempfile("Impute-Weights", tmpdir = file.path(gsub(paste0(getwd(),"/"),"",getOutputDirectory(ArchRProj)), "ImputeWeights"))
       weightFiles <- paste0(weightFiles, "-Rep-", seq_len(nRep))
     }else{
       weightFiles <- file.path(getOutputDirectory(ArchRProj), "ImputeWeights", paste0("Impute-Weights-Rep-", seq_len(nRep)))
@@ -92,9 +92,9 @@ addImputeWeights <- function(
 
   o <- suppressWarnings(file.remove(weightFiles))
 
-  weightList <- ArchR:::.safelapply(seq_len(nRep), function(y){
+  weightList <- .safelapply(seq_len(nRep), function(y){
 
-    .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", y, nRep), tstart, verbose = verbose)
+    .logDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", y, nRep), tstart, verbose = verbose)
 
     if(!is.null(sampleCells)){
       idx <- sample(seq_len(nrow(matDR)), nrow(matDR))
@@ -112,7 +112,7 @@ addImputeWeights <- function(
     blockList <- lapply(seq_along(blocks), function(x){
 
       if(x %% 10 == 0){
-        .messageDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s, Iteration %s of %s)", y, nRep, x, length(blocks)), tstart, verbose = verbose)
+        .logDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s, Iteration %s of %s)", y, nRep, x, length(blocks)), tstart, verbose = verbose)
       }
 
       ix <- blocks[[x]]
@@ -171,9 +171,9 @@ addImputeWeights <- function(
       gc()
 
       if(useHdf5){
-        o <- ArchR:::.suppressAll(h5createGroup(file = weightFile, paste0("block", x)))      
-        o <- ArchR:::.suppressAll(h5write(obj = ix, file = weightFile, name = paste0("block", x, "/Names"), level = 0))
-        o <- ArchR:::.suppressAll(h5write(obj = as.matrix(Wt), file = weightFile, name = paste0("block", x, "/Weights"), level = 0))
+        o <- .suppressAll(h5createGroup(file = weightFile, paste0("block", x)))      
+        o <- .suppressAll(h5write(obj = ix, file = weightFile, name = paste0("block", x, "/Names"), level = 0))
+        o <- .suppressAll(h5write(obj = as.matrix(Wt), file = weightFile, name = paste0("block", x, "/Weights"), level = 0))
         return(weightFile)
       }else{
         Wt
@@ -190,7 +190,7 @@ addImputeWeights <- function(
   }, threads = threads) %>% SimpleList
   names(weightList) <- paste0("w",seq_along(weightList))
 
-  .messageDiffTime(sprintf("Completed Getting Magic Weights!", round(object.size(weightList) / 10^9, 3)), tstart)
+  .logDiffTime(sprintf("Completed Getting Magic Weights!", round(object.size(weightList) / 10^9, 3)), tstart)
 
   ArchRProj@imputeWeights <- SimpleList(
     Weights = weightList, 
@@ -222,40 +222,55 @@ getImputeWeights <- function(ArchRProj = NULL){
   ArchRProj@imputeWeights
 }
 
+#' Impute a matrix with impute weights
+#' 
+#' This function gets imputation weights from an ArchRProject to impute a numerical matrix
+#' 
+#' @param mat a matrix or sparseMatrix of class dgCMatrix
+#' @param imputeWeights imputeWeights from getImputeWeights(ArchRProj), see addImputeWeights for more details.
+#' @param threads number of threads for parallel computing, see getArchRThreads for more information.
+#' @param verbose print output during analysis.
+#' @param logFile log file for storing important information.
 #' @export
 imputeMatrix <- function(
   mat = NULL, 
   imputeWeights = NULL,
   threads = getArchRThreads(),
-  verbose = TRUE
+  verbose = FALSE,
+  logFile = createLogFile("imputeMatrix")
   ){
 
   weightList <- imputeWeights$Weights
 
-  if(inherits(weightList, "dgCMatrix")){
-    as.matrix(mat) %*% as.matrix(weightList)
-  }
+  .logThis(mat, "mat", logFile = logFile)
+  .logThis(weightList, "weightList", logFile = logFile)
 
   if(!inherits(weightList, "SimpleList") & !inherits(weightList, "list")){
+    .logMessage("Weights are not a list, Please re-run addImputeWeights (update)!", logFile = logFile)
     stop("Weights are not a list, Please re-run addImputeWeights (update)!")
   }
 
-  start <- Sys.time()
+  tstart <- Sys.time()
   
   imputeMat <- lapply(seq_along(weightList), function(x){
     
-    ArchR:::.messageDiffTime(sprintf("Imputing Matrix (%s of %s)", x, length(weightList)), start, verbose = verbose)
+    .logDiffTime(sprintf("Imputing Matrix (%s of %s)", x, length(weightList)), tstart, verbose = verbose, logFile = logFile)
 
     if(is.character(weightList[[x]])){
+
+      .logMessage("Using weights on disk", logFile = logFile)
+
       if(!file.exists(weightList[[x]])){
-        message("Weight File Does Not Exist! Please re-run addImputeWeights!")
+        .logMessage("Weight File Does Not Exist! Please re-run addImputeWeights!", logFile = logFile)
+        stop("Weight File Does Not Exist! Please re-run addImputeWeights!")
       }
 
       h5df <- h5ls(weightList[[x]])
       blocks <- gtools::mixedsort(grep("block",h5df$name,value=TRUE))
-      matx <- ArchR:::.safelapply(seq_along(blocks), function(y){
+      matx <- .safelapply(seq_along(blocks), function(y){
 
         if(verbose) message(y, " ", appendLF = FALSE)
+        .logMessage(paste0(y, " of ", length(blocks)),  logFile = logFile)
 
         #Read In Weights and Names
         bn <- h5read(weightList[[x]], paste0(blocks[y], "/Names"))
@@ -263,6 +278,11 @@ imputeMatrix <- function(
         colnames(by) <- bn
 
         #Multiply
+        if(!all(paste0(bn) %in% colnames(mat))){
+          .logMessage("Not all cellNames from imputeWeights are present. If you subsetted cells from the original imputation, please re-run with addImputeWeights!")
+          stop("Not all cellNames from imputeWeights are present. If you subsetted cells from the original imputation, please re-run with addImputeWeights!")
+        }
+
         as.matrix(mat[, paste0(bn), drop = FALSE]) %*% by
       
       }, threads = threads) %>% Reduce("cbind", .)
@@ -271,9 +291,12 @@ imputeMatrix <- function(
 
     }else{
 
-      matx <- ArchR:::.safelapply(seq_along(weightList[[x]]), function(y){
+      .logMessage("Using weights in memory", logFile = logFile)
+
+      matx <- .safelapply(seq_along(weightList[[x]]), function(y){
         
         if(verbose) message(y, " ", appendLF = FALSE)
+        .logMessage(paste0(y, " of ", length(weightList[[x]])), logFile = logFile)
 
         as.matrix(mat[, colnames(weightList[[x]][[y]])]) %*% as.matrix(weightList[[x]][[y]])
 
@@ -287,12 +310,10 @@ imputeMatrix <- function(
   
   }) %>% Reduce("+", .)
 
-  Sys.time() - start
-
   #Compute Average
   imputeMat <- imputeMat / length(weightList)
 
-  ArchR:::.messageDiffTime("Finished Imputing Matrix", start, verbose = verbose)
+  .logDiffTime("Finished Imputing Matrix", tstart, verbose = verbose, logFile = logFile)
 
   imputeMat
 

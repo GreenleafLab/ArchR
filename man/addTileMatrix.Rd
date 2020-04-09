@@ -4,11 +4,18 @@
 \alias{addTileMatrix}
 \title{Add TileMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addTileMatrix(input = NULL, chromSizes = if (inherits(input,
-  "ArchRProject")) getChromSizes(input) else NULL, blacklist = if
-  (inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
-  tileSize = 500, binarize = TRUE, excludeChr = c("chrM", "chrY"),
-  threads = getArchRThreads(), parallelParam = NULL, force = FALSE)
+addTileMatrix(
+  input = NULL,
+  chromSizes = if (inherits(input, "ArchRProject")) getChromSizes(input) else NULL,
+  blacklist = if (inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
+  tileSize = 500,
+  binarize = TRUE,
+  excludeChr = c("chrM", "chrY"),
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  force = FALSE,
+  logFile = createLogFile("addTileMatrix")
+)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}

@@ -12,5 +12,5 @@ x \%bcni\% table
 \item{table}{The set of \code{S4Vector} objects to serve as the base for the match function.}
 }
 \description{
-This function provides the reciprocal of %bcin% for S4Vector objects primarily to avoid ambiguity.
+This function provides the reciprocal of \%bcin\% for S4Vector objects primarily to avoid ambiguity.
 }

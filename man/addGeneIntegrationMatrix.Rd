@@ -4,16 +4,34 @@
 \alias{addGeneIntegrationMatrix}
 \title{Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneIntegrationMatrix(ArchRProj = NULL,
-  useMatrix = "GeneScoreMatrix", matrixName = "GeneIntegrationMatrix",
-  reducedDims = "IterativeLSI", seRNA = NULL, groupATAC = NULL,
-  groupRNA = NULL, groupList = NULL, sampleCellsATAC = 10000,
-  sampleCellsRNA = 10000, embeddingATAC = NULL, embeddingRNA = NULL,
-  nGenes = 2000, useImputation = TRUE, reduction = "cca",
-  addToArrow = TRUE, scaleTo = 10000, nameCell = "predictedCell",
-  nameGroup = "predictedGroup", nameScore = "predictedScore",
-  transferParams = list(), threads = getArchRThreads(),
-  verboseHeader = TRUE, verboseAll = FALSE, force = FALSE, ...)
+addGeneIntegrationMatrix(
+  ArchRProj = NULL,
+  useMatrix = "GeneScoreMatrix",
+  matrixName = "GeneIntegrationMatrix",
+  reducedDims = "IterativeLSI",
+  seRNA = NULL,
+  groupATAC = NULL,
+  groupRNA = NULL,
+  groupList = NULL,
+  sampleCellsATAC = 10000,
+  sampleCellsRNA = 10000,
+  embeddingATAC = NULL,
+  embeddingRNA = NULL,
+  nGenes = 2000,
+  useImputation = TRUE,
+  reduction = "cca",
+  addToArrow = TRUE,
+  scaleTo = 10000,
+  nameCell = "predictedCell",
+  nameGroup = "predictedGroup",
+  nameScore = "predictedScore",
+  transferParams = list(),
+  threads = getArchRThreads(),
+  verboseHeader = TRUE,
+  verboseAll = FALSE,
+  force = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

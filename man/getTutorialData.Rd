@@ -4,7 +4,7 @@
 \alias{getTutorialData}
 \title{Get Relevant Data For ArchR Tutorials}
 \usage{
-getTutorialData(tutorial = "hematopoiesis")
+getTutorialData(tutorial = "hematopoiesis", threads = getArchRThreads())
 }
 \arguments{
 \item{tutorial}{The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".

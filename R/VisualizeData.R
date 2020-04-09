@@ -163,8 +163,18 @@ plotEmbedding <- function(
       name = name, 
       matrixName = colorBy, 
       log2Norm = FALSE, 
-      threads = threads
-    )[,rownames(df), drop=FALSE]
+      threads = threads,
+      logFile = logFile
+    )
+
+    if(!all(rownames(df) %in% colnames(colorMat))){
+      .logMessage("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.", logFile = logFile)
+      stop("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.")
+    }
+
+    colorMat <- colorMat[,rownames(df), drop=FALSE]
+
+    .logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
 
     if(!is.null(imputeWeights)){
       colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights)
@@ -174,7 +184,7 @@ plotEmbedding <- function(
       }
     }
 
-    .logThis(colorMat, name = "ColorMatrix", logFile)
+    .logThis(colorMat, "colorMat-After-Impute", logFile = logFile)
 
     colorList <- lapply(seq_len(nrow(colorMat)), function(x){
       colorParams <- list()
@@ -245,12 +255,12 @@ plotEmbedding <- function(
         plotParamsx$size <- NULL
         plotParamsx$randomize <- NULL
 
-        .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
+        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile)
         gg <- do.call(ggHex, plotParamsx)
 
       }else{
 
-        .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
+        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile)
         gg <- do.call(ggPoint, plotParamsx)
 
       }
@@ -261,7 +271,7 @@ plotEmbedding <- function(
         plotParamsx$pal <- pal
       }
 
-      .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
+      .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile)
       gg <- do.call(ggPoint, plotParamsx)
 
     }
@@ -482,18 +492,28 @@ plotGroups <- function(
 
 }
 
-.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = FALSE, threads = getArchRThreads()){
+.getMatrixValues <- function(
+  ArchRProj = NULL, 
+  name = NULL, 
+  matrixName = NULL, 
+  log2Norm = FALSE, 
+  threads = getArchRThreads(),
+  logFile = NULL
+  ){
   
   o <- h5closeAll()
 
   message("Getting Matrix Values...")
+  .logMessage("Getting Matrix Values...", logFile = logFile)
 
-  featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), matrixName)
+  featureDF <- .getFeatureDF(head(getArrowFiles(ArchRProj), 2), matrixName)
+  .logThis(featureDF, "FeatureDF", logFile = logFile)
 
   matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(matrixName, "/Info/Class"))
 
   if(matrixClass == "Sparse.Assays.Matrix"){
     if(!all(unlist(lapply(name, function(x) grepl(":",x))))){
+      .logMessage("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!", logFile = logFile)
       stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!")
     }
   }
@@ -506,6 +526,7 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))
       if(length(ix)==0){
+        .logMessage(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]), logFile = logFile)
         stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]))
       }
       ix
@@ -516,6 +537,7 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- which(tolower(name[x]) == tolower(featureDF$name))[1]
       if(length(ix)==0){
+        .logMessage(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]), logFile = logFile)
         stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]))
       }
       ix
@@ -524,32 +546,48 @@ plotGroups <- function(
   }
 
   if(any(is.na(idx))){
+    .logMessage(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]), logFile = logFile)
     stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[which(is.na(idx))]))
   }
 
   featureDF <- featureDF[idx, ,drop=FALSE]
+  .logThis(featureDF, "FeatureDF-Subset", logFile = logFile)
 
   #Get Values for FeatureName
   cellNamesList <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
   
   values <- .safelapply(seq_along(cellNamesList), function(x){
     message(x, " ", appendLF = FALSE)
-    o <- h5closeAll()
-    ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
-    valuesx <- .getMatFromArrow(
-        ArrowFile = ArrowFile, 
-        featureDF = featureDF,
-        binarize = FALSE, 
-        useMatrix = matrixName, 
-        cellNames = cellNamesList[[x]],
-        threads = 1
+    valuesx <- tryCatch({
+      o <- h5closeAll()
+      ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
+      valuesx <- .getMatFromArrow(
+          ArrowFile = ArrowFile, 
+          featureDF = featureDF,
+          binarize = FALSE, 
+          useMatrix = matrixName, 
+          cellNames = cellNamesList[[x]],
+          threads = 1
+        )
+      colnames(valuesx) <- cellNamesList[[x]]
+      valuesx
+    }, error = function(e){
+      errorList <- list(
+        x = x,
+        ArrowFile = ArrowFile,
+        ArchRProj = ArchRProj, 
+        cellNames = ArchRProj$cellNames, 
+        cellNamesList = cellNamesList, 
+        featureDF = featureDF
       )
-    colnames(valuesx) <- cellNamesList[[x]]
+      .logError(e, fn = ".getMatFromArrow", info = "", errorList = errorList, logFile = logFile)  
+    })
     valuesx
   }, threads = threads) %>% Reduce("cbind", .)
   values <- values[, ArchRProj$cellNames, drop = FALSE]
   message("")
   gc()
+  .logThis(values, "Feature-Matrix", logFile = logFile)
 
   if(!inherits(values, "matrix")){
     values <- matrix(as.matrix(values), ncol = nCells(ArchRProj))
