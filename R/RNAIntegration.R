@@ -564,6 +564,8 @@ addGeneIntegrationMatrix <- function(
       ######################################
       # Initialize SP Mat Group
       ######################################
+      o <- .createArrowGroup(ArrowFile = ArrowFiles[sample], group = matrixName, force = force)
+
       o <- .initializeMat(
         ArrowFile = ArrowFiles[sample],
         Group = matrixName,
