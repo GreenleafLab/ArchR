@@ -85,7 +85,7 @@ getMarkerFeatures <- function(
   .startLogging(logFile = logFile)
   .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
   out <- do.call(.MarkersSC, args)
-
+  .endLogging(logFile = logFile)
   metadata(out)$Params <- args
 
   return(out)

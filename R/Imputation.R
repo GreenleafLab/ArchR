@@ -240,15 +240,15 @@ imputeMatrix <- function(
   logFile = createLogFile("imputeMatrix")
   ){
 
-  weightList <- imputeWeights$Weights
-
-  .logThis(mat, "mat", logFile = logFile)
-  .logThis(weightList, "weightList", logFile = logFile)
 
   if(!inherits(weightList, "SimpleList") & !inherits(weightList, "list")){
     .logMessage("Weights are not a list, Please re-run addImputeWeights (update)!", logFile = logFile)
     stop("Weights are not a list, Please re-run addImputeWeights (update)!")
   }
+
+  weightList <- imputeWeights$Weights
+  .logThis(mat, "mat", logFile = logFile)
+  .logThis(weightList, "weightList", logFile = logFile)
 
   tstart <- Sys.time()
   

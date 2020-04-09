@@ -136,7 +136,7 @@ plotEmbedding <- function(
         colorParams$discreteSet <- discreteSet
       }
       if(x == 1){
-        .logThis(colorParams, name = "ColorParams 1", logFile)
+        .logThis(colorParams, name = "ColorParams 1", logFile = logFile)
       }
       colorParams
     })
@@ -203,7 +203,7 @@ plotEmbedding <- function(
         colorParams$discreteSet <- discreteSet
       }
       if(x == 1){
-        .logThis(colorParams, name = "ColorParams 1", logFile)
+        .logThis(colorParams, name = "ColorParams 1", logFile = logFile)
       }
       colorParams
     })
