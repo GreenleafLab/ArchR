@@ -111,13 +111,18 @@
   addColSums = FALSE,
   addRowMeans = FALSE,
   addRowVars = FALSE,
-  addRowVarsLog2 = FALSE
+  addRowVarsLog2 = FALSE,
+  logFile = NULL
   ){
 
   stopifnot(inherits(mat, "dgCMatrix"))
 
   checkCells <- .availableCells(ArrowFile, dirname(Group))
   if(!identical(colnames(mat), checkCells)){
+    .logThis(colnames(mat), "colnames", logFile=logFile)
+    .logThis(checkCells, "cellNames", logFile=logFile)
+    .logMessage(paste0("Mismatch = ", sum(colnames(mat) != checkCells)))
+    .logMessage("CellNames in Matrix Group do not Match CellNames in Matrix Being Written!",logFile=logFile)
     stop("CellNames in Matrix Group do not Match CellNames in Matrix Being Written!")
   }
 

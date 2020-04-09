@@ -35,8 +35,7 @@
 #' 'purity' of cell assignment to a group in seRNA.
 #' @param transferParams Additional params to be added to `Seurat::TransferData`.
 #' @param threads The number of threads to be used for parallel computing.
-#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
-#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the given `input`.
 #' @param ... Additional params to be added to `Seurat::FindTransferAnchors`
 #' @export
@@ -63,14 +62,15 @@ addGeneIntegrationMatrix <- function(
   nameScore = "predictedScore",
   transferParams = list(),
   threads = getArchRThreads(),
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
+  verbose = TRUE,
   force = FALSE,
+  logFile = createLogFile("addGeneIntegrationMatrix"),
   ...
   ){
 
   tstart <- Sys.time()
-  .messageDiffTime("Running Seurat's Integration Stuart* et al 2019", tstart, verbose = verboseHeader)
+  .startLogging(logFile = logFile)
+  .logDiffTime("Running Seurat's Integration Stuart* et al 2019", tstart, verbose = verbose, logFile = logFile)
 
   .requirePackage("Seurat", source = "cran")
 
@@ -84,8 +84,9 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = addToArrow, name = "addToArrow", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
-  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+
+  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
 
   if(is.null(groupList)){ #If null use all cells (blocking will still occur)
     groupList <- SimpleList()
@@ -98,7 +99,7 @@ addGeneIntegrationMatrix <- function(
   #########################################################################################
   # 1. Check All ATAC is Accounted For!
   #########################################################################################
-  .messageDiffTime("Checking ATAC Input", tstart, verbose = verboseHeader)
+  .logDiffTime("Checking ATAC Input", tstart, verbose = verbose, logFile = logFile)
 
   if(!is.null(groupATAC)){
     dfATAC <- getCellColData(ArchRProj = ArchRProj, select = groupATAC, drop = FALSE)
@@ -133,24 +134,27 @@ addGeneIntegrationMatrix <- function(
   }
 
   if(!all(nCell == 1)){
+    .logMessage(paste0("Missing ", length(which(nCell == 0)), " Overlapping ", length(which(nCell > 1))," cells from ArchRProj in groupList!"), logFile = logFile)
     stop("Missing ", length(which(nCell == 0)), " Overlapping ", length(which(nCell > 1))," cells from ArchRProj in groupList!")
   }
 
   #########################################################################################
   # 2. Check All RNA is a Cell Name 
   #########################################################################################
-  .messageDiffTime("Checking RNA Input", tstart, verbose = verboseHeader)
+  .logDiffTime("Checking RNA Input", tstart, verbose = verbose, logFile = logFile)
 
   #Set up RNA
   if(inherits(seRNA, "SummarizedExperiment")){
     seuratRNA <- CreateSeuratObject(counts = assay(seRNA))
     if(groupRNA %ni% colnames(colData(seRNA))){
+      .logMessage("groupRNA not in colData of seRNA", logFile = logFile)
       stop("groupRNA not in colData of seRNA")
     }
     seuratRNA$Group <- colData(seRNA)[, groupRNA, drop = TRUE]
     rm(seRNA)
   }else{
     if(groupRNA %ni% colnames(seRNA@meta.data)){
+      .logMessage("groupRNA not in meta.data of Seurat Object", logFile = logFile)
       stop("groupRNA not in meta.data of Seurat Object")
     }
     seuratRNA <- seRNA
@@ -187,16 +191,17 @@ addGeneIntegrationMatrix <- function(
 
   cellRNA <- unlist(lapply(groupList, function(x) x$RNA))
   if(!all(cellRNA %in% colnames(seuratRNA))){
+    .logMessage("Found cells for RNA not in colnames(seRNA)! Please retry your input!", logFile = logFile)
     stop("Found cells for RNA not in colnames(seRNA)! Please retry your input!")
   }
 
   seuratRNA <- seuratRNA[, unique(cellRNA)]
-  seuratRNA <- NormalizeData(object = seuratRNA, verbose = verboseAll)
+  seuratRNA <- NormalizeData(object = seuratRNA, verbose = FALSE)
 
   #########################################################################################
   # 3. Create Integration Blocks
   #########################################################################################
-  .messageDiffTime("Creating Integration Blocks", tstart, verbose = verboseHeader)
+  .logDiffTime("Creating Integration Blocks", tstart, verbose = verbose, logFile = logFile)
 
   blockList <- SimpleList()
 
@@ -261,7 +266,7 @@ addGeneIntegrationMatrix <- function(
   #########################################################################################
   # 4. Begin Integration
   #########################################################################################
-  .messageDiffTime("Prepping Interation Data", tstart, verbose = verboseHeader)
+  .logDiffTime("Prepping Interation Data", tstart, verbose = verbose, logFile = logFile)
 
   #Clean Project For Parallel
   subProj <- ArchRProj
@@ -283,7 +288,7 @@ addGeneIntegrationMatrix <- function(
   allChr <- unique(featureDF$seqnames)
 
   #Temp File Prefix
-  tmpFile <- ArchR:::.tempfile()
+  tmpFile <- .tempfile()
   o <- suppressWarnings(file.remove(paste0(tmpFile, "-IntegrationBlock-", seq_along(blockList), ".h5")))
 
   if(threads > 1){
@@ -294,12 +299,14 @@ addGeneIntegrationMatrix <- function(
 
   threads2 <- max(ceiling(threads * 0.8), 1) #A Little Less here for now
 
-  .messageDiffTime(paste0("Computing Integration in ", length(blockList), " Integration Blocks!"), tstart, verbose = verboseHeader)
+  .logDiffTime(paste0("Computing Integration in ", length(blockList), " Integration Blocks!"), tstart, verbose = verbose, logFile = logFile)
 
   #Integration
   dfAll <- .safelapply(seq_along(blockList), function(i){
 
-    .messageDiffTime(sprintf("Computing Integration : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
+    prefix <- sprintf("Block (%s of %s) :", i , length(blockList))
+
+    .logDiffTime(sprintf("%s Computing Integration", prefix), tstart, verbose = verbose, logFile = logFile)
     blocki <- blockList[[i]]
 
     #Subset ATAC
@@ -315,34 +322,34 @@ addGeneIntegrationMatrix <- function(
     ##############################################################################################
     #1. Create Seurat RNA and Normalize
     ##############################################################################################
-    .messageDiffTime(sprintf("Identifying Variable Genes for Integration : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
-    subRNA <- FindVariableFeatures(object = subRNA, nfeatures = nGenes, verbose = verboseAll)
-    subRNA <- ScaleData(object = subRNA, verbose = verboseAll)
+    .logDiffTime(sprintf("%s Identifying Variable Genes", prefix), tstart, verbose = verbose, logFile = logFile)
+    subRNA <- FindVariableFeatures(object = subRNA, nfeatures = nGenes, verbose = FALSE)
+    subRNA <- ScaleData(object = subRNA, verbose = FALSE)
     genesUse <- VariableFeatures(object = subRNA)
 
     ##############################################################################################
     #2. Get Gene Score Matrix and Create Seurat ATAC
     ##############################################################################################
-    .messageDiffTime(sprintf("Creating ATAC Gene Score Matrix : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
+    .logDiffTime(sprintf("%s Getting GeneScoreMatrix", prefix), tstart, verbose = verbose, logFile = logFile)
     mat <- .getPartialMatrix(
       getArrowFiles(subProj), 
       featureDF = geneDF[geneDF$name %in% genesUse,], 
       threads = 1,
       cellNames = subProj$cellNames,
       useMatrix = useMatrix,
-      verbose = verboseAll
+      verbose = FALSE
     )
     rownames(mat) <- geneDF[geneDF$name %in% genesUse, "name"]
 
     #Impute Matrix (its already scaled internally in ArrowFiles)
     if(useImputation){
-      .messageDiffTime(sprintf("Imputing ATAC Gene Score Matrix : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
+      .logDiffTime(sprintf("%s Imputing GeneScoreMatrix", prefix), tstart, verbose = verbose, logFile = logFile)
       imputeParams <- list()
       imputeParams$ArchRProj <- subProj
       imputeParams$randomSuffix <- TRUE
       imputeParams$threads <- 1
       subProj <- do.call(addImputeWeights, imputeParams)
-      mat <- imputeMatrix(mat = mat, imputeWeights = getImputeWeights(subProj), verbose = verboseAll)
+      mat <- imputeMatrix(mat = mat, imputeWeights = getImputeWeights(subProj), verbose = FALSE, logFile = logFile)
       o <- suppressWarnings(file.remove(unlist(getImputeWeights(subProj)[[1]]))) #Clean Up Space
     }
 
@@ -356,13 +363,12 @@ addGeneIntegrationMatrix <- function(
     
     #Set Default Assay
     DefaultAssay(seuratATAC) <- "GeneScore"
-    seuratATAC <- Seurat::ScaleData(seuratATAC, verbose = verboseAll)
+    seuratATAC <- Seurat::ScaleData(seuratATAC, verbose = FALSE)
 
     ##############################################################################################
     #3. Transfer Anchors  
     ############################################################################################## 
-    .messageDiffTime(sprintf("Seurat FindTransferAnchors : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
-    verbose <- verboseAll #Force This to Be a Parameter Input
+    .logDiffTime(sprintf("%s Seurat FindTransferAnchors", prefix), tstart, verbose = verbose, logFile = logFile)
     transferAnchors <- .retryCatch({ #This sometimes can crash in mclapply so we can just add a re-run parameter
       gc()
       Seurat::FindTransferAnchors(
@@ -370,7 +376,7 @@ addGeneIntegrationMatrix <- function(
         query = seuratATAC, 
         reduction = reduction, 
         features = genesUse,
-        verbose = verbose,
+        verbose = FALSE,
         ...
       )
     }, maxAttempts = 2)
@@ -378,7 +384,7 @@ addGeneIntegrationMatrix <- function(
     ##############################################################################################
     #4. Transfer Data
     ##############################################################################################
-    .messageDiffTime(sprintf("Seurat TransferData Labels : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
+    .logDiffTime(sprintf("%s Seurat TransferData Cell Labels", prefix), tstart, verbose = verbose, logFile = logFile)
     transferParams$anchorset <- transferAnchors
     transferParams$weight.reduction <- CreateDimReducObject(
       embeddings = getReducedDims(
@@ -388,7 +394,7 @@ addGeneIntegrationMatrix <- function(
       key = "LSI_", 
       assay = DefaultAssay(seuratATAC)
     )
-    transferParams$verbose <- verboseAll
+    transferParams$verbose <- FALSE
     
     #Group
     transferParams$refdata <- subRNA$Group
@@ -399,7 +405,7 @@ addGeneIntegrationMatrix <- function(
     rnaLabels2 <- do.call(Seurat::TransferData, transferParams)[,1]
 
     if(addToArrow){
-      .messageDiffTime(sprintf("Seurat TransferData Matrix : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
+      .logDiffTime(sprintf("%s Seurat TransferData GeneMatrix", prefix), tstart, verbose = verbose, logFile = logFile)
       transferParams$refdata <- GetAssayData(subRNA, assay = "RNA", slot = "data")
       gc()
       matchedRNA <- do.call(Seurat::TransferData, transferParams)
@@ -425,7 +431,7 @@ addGeneIntegrationMatrix <- function(
 
     if(addToArrow){
 
-      .messageDiffTime(sprintf("Transferring Paired RNA to Temp File : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
+      .logDiffTime(sprintf("%s Transferring Paired RNA to Temp File", prefix), tstart, verbose = verbose, logFile = logFile)
 
       #Quickly Write to A Temp Hdf5 File Split By Sample to Then Enable Writing to Each Arrow File
 
@@ -433,7 +439,7 @@ addGeneIntegrationMatrix <- function(
       o <- h5createFile(tmpFilei)
       sampleNames <- getCellColData(subProj, "Sample")[matchDF$cellNames, ]
       uniqueSamples <- unique(sampleNames)
-      matchedRNA <- ArchR:::.safeSubset( #If Rownames disappeared this will catch that!
+      matchedRNA <- .safeSubset( #If Rownames disappeared this will catch that!
         mat = matchedRNA, 
         subsetRows = paste0(featureDF$name), 
         subsetCols = matchDF$cellNames
@@ -481,7 +487,7 @@ addGeneIntegrationMatrix <- function(
 
     }
 
-    .messageDiffTime(sprintf("Completed Integration : Block (%s of %s)", i, length(blockList)), tstart, verbose = verboseHeader)
+    .logDiffTime(sprintf("%s Completed Integration", prefix), tstart, verbose = verbose, logFile = logFile)
 
     gc()
 
@@ -496,11 +502,12 @@ addGeneIntegrationMatrix <- function(
 
   if(addToArrow){
 
-    .messageDiffTime("Transferring Data to ArrowFiles", tstart, verbose = verboseHeader)
+    .logDiffTime("Transferring Data to ArrowFiles", tstart, verbose = verbose, logFile = logFile)
 
     integrationFiles <- paste0(tmpFile, "-IntegrationBlock-", seq_along(blockList), ".h5")
 
     if(!all(file.exists(integrationFiles))){
+      .logMessage("Something went wrong with integration as not all temporary files containing integrated RNA exist!", logFile = logFile)
       stop("Something went wrong with integration as not all temporary files containing integrated RNA exist!")
     }
 
@@ -511,13 +518,13 @@ addGeneIntegrationMatrix <- function(
     ArrowFiles <- getArrowFiles(ArchRProj)
     allSamples <- names(ArrowFiles)
 
-    o <- ArchR:::.safelapply(seq_along(allSamples), function(y){
+    o <- .safelapply(seq_along(allSamples), function(y){
 
       sample <- allSamples[y]
 
       prefix <- sprintf("%s (%s of %s)", sample, y, length(ArrowFiles))
 
-      .messageDiffTime(sprintf("%s Getting GeneIntegrationMatrix From TempFiles!", prefix), tstart, verbose = verboseHeader)
+      .logDiffTime(sprintf("%s Getting GeneIntegrationMatrix From TempFiles!", prefix), tstart, verbose = verbose, logFile = logFile)
 
       sampleIF <- lapply(seq_along(h5list), function(x){
         if(any(h5list[[x]]$group==paste0("/",sample))){
@@ -586,13 +593,13 @@ addGeneIntegrationMatrix <- function(
         name = paste0(matrixName, "/Info/predictedCell")
       )
 
-      .messageDiffTime(sprintf("%s Adding GeneIntegrationMatrix to ArrowFile!", prefix), tstart, verbose = verboseHeader)
+      .logDiffTime(sprintf("%s Adding GeneIntegrationMatrix to ArrowFile!", prefix), tstart, verbose = verbose, logFile = logFile)
 
       for(z in seq_along(allChr)){
 
         chrz <- allChr[z]
 
-        .messageDiffTime(sprintf("Adding GeneIntegrationMatrix to %s for Chr (%s of %s)!", sample, z, length(allChr)), tstart, verbose = verboseAll)
+        .logDiffTime(sprintf("Adding GeneIntegrationMatrix to %s for Chr (%s of %s)!", sample, z, length(allChr)), tstart, verbose = FALSE, logFile = logFile)
 
         idz <- BiocGenerics::which(featureDF$seqnames %bcin% chrz)
         matz <- sampleMat[idz, ,drop=FALSE]
@@ -606,7 +613,8 @@ addGeneIntegrationMatrix <- function(
           binarize = FALSE,
           addColSums = TRUE,
           addRowSums = TRUE,
-          addRowVarsLog2 = TRUE
+          addRowVarsLog2 = TRUE,
+          logFile = logFile
         )
 
         #Clean Memory
@@ -626,7 +634,7 @@ addGeneIntegrationMatrix <- function(
 
   }
 
-  .messageDiffTime("Completed Integration with RNA Matrix", tstart, verbose = verboseHeader)
+  .logDiffTime("Completed Integration with RNA Matrix", tstart, verbose = verbose, logFile = logFile)
 
   ArchRProj <- addCellColData(
     ArchRProj = ArchRProj, 
@@ -651,6 +659,8 @@ addGeneIntegrationMatrix <- function(
     name = nameScore,
     force = TRUE
   )
+
+  .endLogging(logFile = logFile)
 
   return(ArchRProj)
 

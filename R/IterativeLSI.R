@@ -267,7 +267,7 @@ addIterativeLSI <- function(
   if(iterations == 1){
     .logDiffTime("Finished Running IterativeLSI", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     ArchRProj@reducedDims[[name]] <- outLSI
-    .endLogging(logFile = logFile)
+    #.endLogging(logFile = logFile)
     return(ArchRProj)
   }
 
@@ -419,7 +419,7 @@ addIterativeLSI <- function(
   .logDiffTime("Finished Running IterativeLSI", tstart, addHeader = FALSE, verbose = verbose)
   ArchRProj@reducedDims[[name]] <- outLSI
 
-  .endLogging(logFile = logFile)
+  #.endLogging(logFile = logFile)
 
   return(ArchRProj)
 
@@ -995,9 +995,9 @@ addIterativeLSI <- function(
     .logDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     colSm <- Matrix::colSums(mat)
     if(any(colSm == 0)){
-      exclude <- colnames(mat)[which(colSm==0)]
+      exclude <- which(colSm==0)
       mat <- mat[,-exclude, drop = FALSE]
-      colSm <- colSm[-exclude, drop = FALSE]
+      colSm <- colSm[-exclude]
     }else{
       exclude <- c()
     }
