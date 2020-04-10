@@ -192,7 +192,7 @@ addDeviationsMatrix <- function(
     }
   }
   o <- h5closeAll()
-  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force, logFile = logFile)
 
   #Get Matrix and Run ChromVAR!
   .logDiffTime(sprintf("chromVAR deviations %s Schep (2017)", prefix), tstart, addHeader = TRUE)
