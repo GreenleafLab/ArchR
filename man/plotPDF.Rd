@@ -12,8 +12,7 @@ plotPDF(
   ArchRProj = NULL,
   addDOC = TRUE,
   useDingbats = FALSE,
-  plotList = NULL,
-  useSink = TRUE
+  plotList = NULL
 )
 }
 \arguments{
@@ -35,8 +34,6 @@ for preventing overwritting of old plots.}
 
 \item{plotList}{A \code{list} of plots to be printed to the output PDF file. Each element of \code{plotList} should be a printable plot formatted
 object (ggplot2, plot, heatmap, etc).}
-
-\item{useSink}{A boolean value that indicates whether the \code{sink} function from base R should be used to hide messages during plotting.}
 }
 \description{
 This function will save a plot or set of plots as a PDF file in the outputDirectory of a given ArchRProject.

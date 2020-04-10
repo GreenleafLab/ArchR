@@ -27,9 +27,9 @@ addGeneIntegrationMatrix(
   nameScore = "predictedScore",
   transferParams = list(),
   threads = getArchRThreads(),
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
+  verbose = TRUE,
   force = FALSE,
+  logFile = createLogFile("addGeneIntegrationMatrix"),
   ...
 )
 }
@@ -84,9 +84,7 @@ closer to 9,900 to make sure subgroupings are close the the same number of cells
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
-
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the given \code{input}.}
 

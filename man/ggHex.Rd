@@ -19,8 +19,8 @@ ggHex(
   colorTitle = "values",
   baseSize = 6,
   ratioYX = 1,
-  FUN = "mean",
-  hexCut = c(0.01, 0.99),
+  FUN = "median",
+  hexCut = c(0.02, 0.98),
   addPoints = FALSE,
   ...
 )

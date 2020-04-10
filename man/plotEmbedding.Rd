@@ -16,7 +16,7 @@ plotEmbedding(
   size = 0.1,
   sampleCells = NULL,
   rastr = TRUE,
-  quantCut = c(0.001, 0.999),
+  quantCut = c(0.01, 0.99),
   discreteSet = NULL,
   continuousSet = NULL,
   randomize = TRUE,

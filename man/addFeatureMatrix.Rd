@@ -10,9 +10,11 @@ addFeatureMatrix(
   matrixName = "FeatureMatrix",
   ceiling = 10^9,
   binarize = FALSE,
+  verbose = TRUE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = TRUE
+  force = TRUE,
+  logFile = createLogFile("addFeatureMatrix")
 )
 }
 \arguments{

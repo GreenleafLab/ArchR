@@ -8,9 +8,11 @@ addPeakMatrix(
   ArchRProj = NULL,
   ceiling = 4,
   binarize = FALSE,
+  verbose = TRUE,
   threads = getArchRThreads(),
   parallelParam = NULL,
-  force = TRUE
+  force = TRUE,
+  logFile = createLogFile("addPeakMatrix")
 )
 }
 \arguments{

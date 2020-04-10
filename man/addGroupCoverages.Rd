@@ -19,8 +19,8 @@ addGroupCoverages(
   returnGroups = FALSE,
   parallelParam = NULL,
   force = FALSE,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
+  verbose = TRUE,
+  logFile = createLogFile("addGroupCoverages")
 )
 }
 \arguments{
@@ -56,9 +56,7 @@ TileMatrix (\code{peakMethod = "Tiles"}).}
 \item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if
 insertion coverage / pseudo-bulk replicate information already exists.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
-
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 }
 \description{
 This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then

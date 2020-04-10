@@ -13,8 +13,10 @@ addDeviationsMatrix(
   out = c("z", "deviations"),
   binarize = FALSE,
   threads = getArchRThreads(),
+  verbose = TRUE,
   parallelParam = NULL,
-  force = FALSE
+  force = FALSE,
+  logFile = createLogFile("addDeviationsMatrix")
 )
 }
 \arguments{
