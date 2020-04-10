@@ -138,10 +138,6 @@ addPeakAnnotations <- function(
           gr <- .validGRanges(regions[[x]])
 
       }else if(is.character(regions[[x]])){
-        
-        if(!file.exists(regions[[x]])){
-          stop(paste0("Region provided is a path (", regions[[x]], ") that does not exist! Exiting..."))
-        }
 
         gr <- tryCatch({
           makeGRangesFromDataFrame(
@@ -154,6 +150,11 @@ addPeakAnnotations <- function(
         }, error = function(y){
 
           print(paste0("Could not successfully get region : ", regions[[x]]))
+
+          if(!file.exists(regions[[x]])){
+            stop(paste0("If region provided is a path it does not exist!"))
+          }
+          
           stop()
 
         })
