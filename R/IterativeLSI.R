@@ -129,7 +129,7 @@ addIterativeLSI <- function(
   }
 
   .startLogging(logFile = logFile)
-  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
 
   .requirePackage("Matrix", source = "cran")
   tstart <- Sys.time()
