@@ -449,12 +449,13 @@ createLogFile <- function(
   cat(paste0("Elapsed Time Minutes = ", mn), file = logFile, append = TRUE)
   cat(paste0("\nElapsed Time Hours = ", hr), file = logFile, append = TRUE)
   cat("\n\n-------\n\n\n\n", file = logFile, append = TRUE)
-
-  tryCatch({
-    R.utils::gzip(logFile, paste0(logFile, ".gz"))
-    message("ArchR logging successful to : ", paste0(logFile, ".gz"))
-  }, error = function(x){
-  })
+  message("ArchR logging successful to : ", logFile)
+  
+  # tryCatch({
+  #   R.utils::gzip(logFile, paste0(logFile, ".gz"))
+  #   message("ArchR logging successful to : ", paste0(logFile, ".gz"))
+  # }, error = function(x){
+  # })
   
   return(invisible(0))
 
