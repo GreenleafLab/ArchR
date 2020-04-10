@@ -39,7 +39,7 @@ addGroupCoverages <- function(
   parallelParam = NULL,
   force = FALSE,
   verbose = TRUE,
-  logFile = createLogFile("addIterativeLSI")
+  logFile = createLogFile("addGroupCoverages")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -61,6 +61,8 @@ addGroupCoverages <- function(
   }
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+
   Params <- SimpleList(
     groupBy = groupBy,
     minCells = minCells,
@@ -239,6 +241,7 @@ addGroupCoverages <- function(
   ArchRProj@projectMetadata$GroupCoverages[[groupBy]] <- SimpleList(Params = Params, coverageMetadata = coverageMetadata)
 
   .logDiffTime(sprintf("Finished Creation of Coverage Files!"), tstart, addHeader = FALSE)
+  .endLogging(logFile = logFile)
 
   ArchRProj
 
@@ -261,10 +264,11 @@ addGroupCoverages <- function(
   covDir = NULL, 
   tstart = NULL, 
   subThreads = 1,
-  verbose = TRUE
+  verbose = TRUE,
+  logFile = NULL
   ){
 
-  prefix <- paste0("Group (%s of %s) :", i, length(cellGroups))
+  prefix <- sprintf("Group (%s of %s) :", i, length(cellGroups))
 
   .logDiffTime(sprintf("%s Creating Group Coverage", prefix), tstart, verbose = verbose, logFile = logFile)
 
@@ -373,13 +377,13 @@ addGroupCoverages <- function(
   samplesPassFilter <- sum(nCellsPerSample >= minCells)   
   samplesThatCouldBeMergedToPass <- floor(sum(nCellsPerSample[nCellsPerSample < minCells]) / minCells)
 
-  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+  errorList <- mget(names(formals()),sys.frame(sys.nframe()))
   errorList$nCells <- nCells
   errorList$nCellsPerSample <- nCellsPerSample
   errorList$samplesPassFilter <- samplesPassFilter
   errorList$samplesThatCouldBeMergedToPass <- samplesThatCouldBeMergedToPass
 
-  cellGroupsPass <- tryCatch({
+  cellGroupsPass2 <- tryCatch({
 
     if(nCells >= minCells * minReplicates & useLabels){
         ############################################################
@@ -472,7 +476,7 @@ addGroupCoverages <- function(
       }    
     }
 
-    .logThis(cellGroupsPass, paste0(prefix, " CellGroups"), logFile = logFile)
+    cellGroupsPass
 
   }, error = function(e){
 
@@ -480,7 +484,10 @@ addGroupCoverages <- function(
 
   })
 
-  return(cellGroupsPass)
+  .logMessage(paste0(prefix, " CellGroups N = ", length(cellGroupsPass2)), logFile = logFile)
+  #.logThis(cellGroupsPass2, paste0(prefix, " CellGroups"), logFile = logFile)
+
+  return(cellGroupsPass2)
   
 }
 

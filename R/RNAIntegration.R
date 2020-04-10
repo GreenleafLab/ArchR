@@ -504,6 +504,8 @@ addGeneIntegrationMatrix <- function(
 
     .logDiffTime("Transferring Data to ArrowFiles", tstart, verbose = verbose, logFile = logFile)
 
+    matrixName <- .isProtectedArray(matrixName)
+
     integrationFiles <- paste0(tmpFile, "-IntegrationBlock-", seq_along(blockList), ".h5")
 
     if(!all(file.exists(integrationFiles))){

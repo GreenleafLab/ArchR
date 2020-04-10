@@ -193,11 +193,13 @@
   ArrowFile = NULL, 
   group = "GeneScoreMatrix", 
   force = FALSE, 
-  verbose = FALSE
+  verbose = FALSE,
+  logFile = NULL
   ){
   
   ArrowInfo <- .summarizeArrowContent(ArrowFile)
   if(group == "Fragments"){ #This shouldnt happen but just in case
+    .logMessage(".createArrowGroup : Cannot create Group over Fragments in Arrow!", logFile = logFile)
     stop("Cannot create Group over Fragments in Arrow!")
   }
 
@@ -207,10 +209,12 @@
     ArrowGroup <- ArrowGroup[names(ArrowGroup) %ni% c("Info")]
     if(length(ArrowGroup) > 0){
       if(!force){
+        .logMessage(".createArrowGroup : Arrow Group already exists! Set force = TRUE to continue!", logFile = logFile)
         stop("Arrow Group already exists! Set force = TRUE to continue!")
       }else{
-        message("Arrow Group already exists! Dropping Group from ArrowFile! This will take ~10-30 seconds!")
-        o <- .dropGroupsFromArrow(ArrowFile = ArrowFile, dropGroups = group, verbose = verbose)
+        .logMessage(".createArrowGroup : Arrow Group already exists! Dropping Group from ArrowFile! This will take ~10-30 seconds!", logFile = logFile)
+        if(verbose) message("Arrow Group already exists! Dropping Group from ArrowFile! This will take ~10-30 seconds!")
+        o <- .dropGroupsFromArrow(ArrowFile = ArrowFile, dropGroups = group, verbose = verbose, logFile = logFile)
         h5createGroup(ArrowFile , group)
         invisible(return(0))
       }
@@ -226,7 +230,8 @@
   ArrowFile = NULL, 
   dropGroups = NULL,
   level = 0,
-  verbose = FALSE
+  verbose = FALSE,
+  logFile = NULL
   ){
 
   tstart <- Sys.time()
@@ -234,13 +239,17 @@
   #Summarize Arrow Content
   ArrowInfo <- .summarizeArrowContent(ArrowFile)
 
+  .logMessage(".dropGroupsFromArrow : Initializing Temp ArrowFile", logFile = logFile)
+
   #We need to transfer first
-  outArrow <- ArchR:::.tempfile(fileext = ".arrow")
+  outArrow <- .tempfile(fileext = ".arrow")
   o <- h5closeAll()
   o <- h5createFile(outArrow)
   o <- h5write(obj = "Arrow", file = outArrow, name = "Class")
+  o <- h5write(obj = paste0(packageVersion("ArchR")), file = outArrow, name = "ArchRVersion")
 
   #1. Metadata First
+  .logMessage(".dropGroupsFromArrow : Adding Metadata to Temp ArrowFile", logFile = logFile)
   groupName <- "Metadata"
   o <- h5createGroup(outArrow, groupName)
 
@@ -251,6 +260,9 @@
     h5write(.h5read(ArrowFile, h5name), file = outArrow, name = h5name)
   }
 
+  #2. Other Groups
+  .logMessage(".dropGroupsFromArrow : Adding SubGroups to Temp ArrowFile", logFile = logFile)
+
   groupsToTransfer <- names(ArrowInfo)
   groupsToTransfer <- groupsToTransfer[groupsToTransfer %ni% "Metadata"]
   if(!is.null(dropGroups)){
@@ -259,7 +271,7 @@
 
   for(k in seq_along(groupsToTransfer)){
 
-    if(verbose) .messageDiffTime(paste0("Transferring ", groupsToTransfer[k]), tstart)
+    .logDiffTime(paste0("Transferring ", groupsToTransfer[k]), tstart, verbose = verbose, logFile = logFile)
 
     #Create Group
     groupName <- groupsToTransfer[k]
@@ -299,10 +311,12 @@
 
   }
 
+  .logMessage(".dropGroupsFromArrow : Move Temp ArrowFile to ArrowFile", logFile = logFile)
+
   rmf <- file.remove(ArrowFile)
   out <- .fileRename(from = outArrow, to = ArrowFile)
   
-  if(verbose) .messageDiffTime("Completed Dropping of Group(s)", tstart)
+  .logDiffTime("Completed Dropping of Group(s)", tstart, logFile = logFile, verbose = verbose)
 
   ArrowFile
 
