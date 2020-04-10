@@ -27,7 +27,6 @@
 #' @param width The width in inches to be used for the output PDF file.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
 #' preventing overwritting of old plots.
-#' @param useSink A boolean value that indicates whether the `sink` function from base R should be used to hide messages during plotting.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
@@ -50,7 +49,6 @@ plotFootprints <- function(
   width = 4,
   addDOC = TRUE,
   plot = TRUE,
-  useSink = TRUE,
   threads = getArchRThreads(),
   verboseHeader = TRUE,
   verboseAll = FALSE
@@ -72,7 +70,6 @@ plotFootprints <- function(
   .validInput(input = height, name = "height", valid = "integer")
   .validInput(input = width, name = "width", valid = "integer")
   .validInput(input = addDOC, name = "addDOC", valid = "boolean")
-  .validInput(input = useSink, name = "useSink", valid = "boolean")
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
@@ -152,10 +149,6 @@ plotFootprints <- function(
   }
 
   o <- tryCatch({
-    if(useSink){
-      tmpFile <- .tempfile()
-      sink(tmpFile)
-    }
 
     name <- gsub("\\.pdf", "", plotName)
     if(is.null(ArchRProj)){
@@ -193,14 +186,8 @@ plotFootprints <- function(
     }
     dev.off()
 
-    if(useSink){
-      sink()
-      file.remove(tmpFile)
-    }
-
   }, error = function(x){
 
-    suppressWarnings(sink())
     message(x)
 
   })

@@ -1374,11 +1374,10 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
 #' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted
 #' object (ggplot2, plot, heatmap, etc).
-#' @param useSink A boolean value that indicates whether the `sink` function from base R should be used to hide messages during plotting.
 #' @export
 plotPDF <- function(..., name = "Plot", width = 6, 
   height = 6, ArchRProj = NULL, addDOC = TRUE, 
-  useDingbats = FALSE, plotList = NULL, useSink = TRUE){
+  useDingbats = FALSE, plotList = NULL){
 
   #Validate
   .validInput(input = name, name = "name", valid = "character")
@@ -1388,7 +1387,6 @@ plotPDF <- function(..., name = "Plot", width = 6,
   .validInput(input = addDOC, name = "addDOC", valid = "boolean")
   .validInput(input = useDingbats, name = "useDingbats", valid = "boolean")
   .validInput(input = plotList, name = "plotList", valid = c("list","null"))
-  .validInput(input = useSink, name = "useSink", valid = "boolean")
   #########
 
   if(is.null(plotList)){
@@ -1438,11 +1436,6 @@ plotPDF <- function(..., name = "Plot", width = 6,
     filename <- file.path(outDir, paste0(name, ".pdf"))
   }
 
-  if(useSink){
-    tmpFile <- .tempfile()
-    sink(tmpFile)
-  }
-
   o <- tryCatch({
 
     pdf(filename, width = width, height = height, useDingbats = useDingbats)
@@ -1453,9 +1446,9 @@ plotPDF <- function(..., name = "Plot", width = 6,
         print("plotting ggplot!")
 
         if(!is.null(attr(plotList[[i]], "ratioYX"))){
-          print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE))
+          .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE)
         }else{
-          print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
+          .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE)
         }
 
         if(i != length(plotList)){
@@ -1478,7 +1471,7 @@ plotPDF <- function(..., name = "Plot", width = 6,
 
       }else{
 
-        print("plotting with print")
+        print("Plotting with print")
        
         print(plotList[[i]])
 
@@ -1487,14 +1480,9 @@ plotPDF <- function(..., name = "Plot", width = 6,
     }
     dev.off()
 
-    if(useSink){
-      sink()
-      file.remove(tmpFile)
-    }
 
   }, error = function(x){
 
-    suppressWarnings(sink())
     message(x)
 
   })
