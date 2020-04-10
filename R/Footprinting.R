@@ -358,8 +358,8 @@ plotFootprints <- function(
   seFoot = NULL,
   names = NULL,
   pal = NULL,
-  flank = NULL,
-  flankNorm = NULL,
+  flank = 250,
+  flankNorm = 50,
   normMethod = "Subtract",
   smoothWindow = NULL,
   baseSize = 6,
@@ -368,16 +368,26 @@ plotFootprints <- function(
   plotName = paste0("Plot-Footprints-", normMethod),
   height = 6,
   width = 4,
-  addDOC = TRUE
+  addDOC = TRUE,
+  logFile = createLogFile("plotFootprints")
   ){
+
+  tstart <- Sys.time()
+  .startLogging(logFile = logFile)
 
   if(is.null(names)){
     names <- names(assays(seFoot))
   }
 
   if(length(names) > 25){
-    if(force){
-      message("Plotting more than 25 footprints can create large storage of ggplots")
+    if(!plot){
+      if(force){
+        .logMessage("Plotting more than 25 footprints can create large storage of ggplots. Continuing since force = TRUE", logFile = logFile)
+        message("Plotting more than 25 footprints can create large storage of ggplots. Continuing since force = TRUE")
+      }else{
+        .logMessage("Plotting more than 25 footprints can create large storage of ggplots. Stopping since force = FALSE", logFile = logFile)
+        stop("Plotting more than 25 footprints can create large storage of ggplots. Stopping since force = FALSE")
+      }
     }
   }
 
@@ -405,17 +415,18 @@ plotFootprints <- function(
 
   ggList <- lapply(seq_along(names), function(x){
 
-    message(sprintf("Plotting Footprint : %s (%s of %s)", names[x], x, length(names)))
+    .logDiffTime(sprintf("Plotting Footprint : %s (%s of %s)", names[x], x, length(names)), tstart, logFile = logFile)
 
     gg <- .ggFootprint(
       seFoot = seFoot,
-      name = name,
+      name = names[x],
       pal = pal,
       smoothWindow = smoothWindow,
       flank = flank,
       flankNorm = flankNorm,
       baseSize = baseSize,
-      normMethod = normMethod
+      normMethod = normMethod,
+      logFile = logFile
     )
 
     if(plot){
@@ -430,10 +441,13 @@ plotFootprints <- function(
 
   })
   
+  .endLogging(logFile = logFile)
+
   if(!plot){
     names(ggList) <- names
     ggList
   }else{
+    dev.off()
     return(invisible(0))
   }
 
@@ -447,8 +461,11 @@ plotFootprints <- function(
   flank = NULL,
   flankNorm = NULL,
   baseSize = 6,
-  normMethod = NULL
+  normMethod = NULL,
+  logFile = NULL
   ){
+
+  errorList <- list()
 
   #Get Footprint Info
   rowDF <- SummarizedExperiment::rowData(seFoot)
@@ -457,16 +474,26 @@ plotFootprints <- function(
   footDF <- rowDF[BiocGenerics::which(rowDF[,2]=="footprint"),]
   biasDF <- rowDF[BiocGenerics::which(rowDF[,2]=="bias"),]
 
+  errorList$footMat <- footMat
+  errorList$biasMat <- biasMat
+  errorList$footDF <- footDF
+  errorList$biasDF <- biasDF
+
   #Smooth Foot and Bias Mat because of sparsity
   if(!is.null(smoothWindow)){
+    .logMessage("Applying smoothing window to footprint", logFile = logFile)
     footMat <- apply(footMat, 2, function(x) .centerRollMean(x, smoothWindow))
     biasMat <- apply(biasMat, 2, function(x) .centerRollMean(x, smoothWindow))
   }
 
   #Normalize Foot and Bias Mat
+  .logMessage("Normalizing by flanking regions", logFile = logFile)
   idx <- which(abs(footDF$x) >= flank - flankNorm)
   footMat <- t(t(footMat) / colMeans(footMat[idx, ,drop=FALSE]))
   biasMat <- t(t(biasMat) / colMeans(biasMat[idx, ,drop=FALSE]))
+
+  errorList$footMatNorm <- footMat
+  errorList$biasMatNorm <- footMat
 
   #Norm Foot By Bias
   if(tolower(normMethod) == "none"){
@@ -480,6 +507,7 @@ plotFootprints <- function(
   }else{
     stop("normMethod not recognized!")
   }
+  .logMessage(paste0("NormMethod = ", normMethod), logFile = logFile)
 
   #Get Mean and SD for each Assay
   footMatMean <- .groupMeans(footMat, SummarizedExperiment::colData(seFoot)$Group)
@@ -487,6 +515,12 @@ plotFootprints <- function(
   biasMatMean <- .groupMeans(biasMat, SummarizedExperiment::colData(seFoot)$Group)
   biasMatSd <- .groupSds(biasMat, SummarizedExperiment::colData(seFoot)$Group)
   smoothFoot <- rowMaxs(apply(footMatMean, 2, function(x) .centerRollMean(x, 11)))
+
+  errorList$footMatMean <- footMatMean
+  errorList$footMatSd <- footMatSd
+  errorList$biasMatMean <- biasMatMean
+  errorList$biasMatSd <- biasMatSd
+  errorList$smoothFoot <- smoothFoot
 
   #Create Plot Data Frames
   plotIdx <- seq_len(nrow(footMatMean)) #sort(unique(c(1, seq(1, nrow(footMatMean), smoothWindow), nrow(footMatMean))))
@@ -510,46 +544,59 @@ plotFootprints <- function(
   }) %>% Reduce("rbind",. )
   plotBiasDF$group <- factor(paste0(plotBiasDF$group), levels = unique(gtools::mixedsort(paste0(plotBiasDF$group))))
 
-  #Plot GG
-  if(is.null(pal)){
-    pal <- paletteDiscrete(values=gtools::mixedsort(SummarizedExperiment::colData(seFoot)$Group))
-  }
+  errorList$plotFootDF <- plotFootDF
+  errorList$plotBiasDF <- plotBiasDF
 
-  plotMax <- plotFootDF[order(plotFootDF$mean,decreasing=TRUE),]
-  plotMax <- plotMax[abs(plotMax$x) > 20 & abs(plotMax$x) < 50, ] #<= flank - flankNorm,]
-  plotMax <- plotMax[!duplicated(plotMax$group),]
-  plotMax <- plotMax[seq_len(ceiling(nrow(plotMax) / 4)), ]
-  plotMax$x <- 25
+  out <- tryCatch({
 
-  ggFoot <- ggplot(plotFootDF, aes(x = x, y = mean, color = group)) + 
-    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
-    geom_line() + 
-    scale_color_manual(values = pal) + 
-    scale_fill_manual(values = pal) + 
-    xlab("Distance to motif center (bp)") +
-    coord_cartesian(
-      expand = FALSE, 
-      ylim = c(quantile(plotFootDF$mean, 0.0001), 1.15*quantile(smoothFoot, 0.999)), 
-      xlim = c(min(plotFootDF$x),max(plotFootDF$x))
-    ) + theme_ArchR(baseSize = baseSize) + ggtitle(name) +
-    guides(fill = FALSE) + 
-    guides(color = FALSE) + ylab(paste0(title,"Normalized Insertions")) +
-    ggrepel::geom_label_repel(data = plotMax, aes(label = group), size = 3, xlim = c(75, NA))
+    #Plot GG
+    if(is.null(pal)){
+      pal <- paletteDiscrete(values=gtools::mixedsort(SummarizedExperiment::colData(seFoot)$Group))
+    }
 
-  ggBias <- ggplot(plotBiasDF, aes(x = x, y = mean, color = group)) + 
-    geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
-    geom_line() + 
-    scale_color_manual(values = pal) + 
-    scale_fill_manual(values = pal) + 
-    xlab("Distance to motif center (bp)") +
-    coord_cartesian(
-      expand = FALSE, 
-      ylim = c(quantile(plotBiasDF$mean, 0.0001), 1.05*quantile(plotBiasDF$mean, 0.999)), 
-      xlim = c(min(plotBiasDF$x),max(plotBiasDF$x))
-    ) + theme_ArchR(baseSize = baseSize) + ylab("Tn5-Bias Normalized Insertions") + 
-    theme(legend.position = "bottom", legend.box.background = element_rect(color = NA)) 
-       
-  ggAlignPlots(ggFoot, .ggSmallLegend(ggBias), sizes=c(2,1), draw = FALSE)
+    plotMax <- plotFootDF[order(plotFootDF$mean,decreasing=TRUE),]
+    plotMax <- plotMax[abs(plotMax$x) > 20 & abs(plotMax$x) < 50, ] #<= flank - flankNorm,]
+    plotMax <- plotMax[!duplicated(plotMax$group),]
+    plotMax <- plotMax[seq_len(ceiling(nrow(plotMax) / 4)), ]
+    plotMax$x <- 25
+
+    ggFoot <- ggplot(plotFootDF, aes(x = x, y = mean, color = group)) + 
+      geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
+      geom_line() + 
+      scale_color_manual(values = pal) + 
+      scale_fill_manual(values = pal) + 
+      xlab("Distance to motif center (bp)") +
+      coord_cartesian(
+        expand = FALSE, 
+        ylim = c(quantile(plotFootDF$mean, 0.0001), 1.15*quantile(smoothFoot, 0.999)), 
+        xlim = c(min(plotFootDF$x),max(plotFootDF$x))
+      ) + theme_ArchR(baseSize = baseSize) + ggtitle(name) +
+      guides(fill = FALSE) + 
+      guides(color = FALSE) + ylab(paste0(title,"Normalized Insertions")) +
+      ggrepel::geom_label_repel(data = plotMax, aes(label = group), size = 3, xlim = c(75, NA))
+
+    ggBias <- ggplot(plotBiasDF, aes(x = x, y = mean, color = group)) + 
+      geom_ribbon(aes(ymin = mean - sd, ymax = mean + sd, linetype = NA, fill = group), alpha = 0.4) +
+      geom_line() + 
+      scale_color_manual(values = pal) + 
+      scale_fill_manual(values = pal) + 
+      xlab("Distance to motif center (bp)") +
+      coord_cartesian(
+        expand = FALSE, 
+        ylim = c(quantile(plotBiasDF$mean, 0.0001), 1.05*quantile(plotBiasDF$mean, 0.999)), 
+        xlim = c(min(plotBiasDF$x),max(plotBiasDF$x))
+      ) + theme_ArchR(baseSize = baseSize) + ylab("Tn5-Bias Normalized Insertions") + 
+      theme(legend.position = "bottom", legend.box.background = element_rect(color = NA)) 
+         
+    ggAlignPlots(ggFoot, .ggSmallLegend(ggBias), sizes=c(2,1), draw = FALSE)
+
+  }, error = function(e){
+
+    .logError(e, fn = ".ggFootprint", info = name, errorList = errorList, logFile = logFile)
+
+  })
+
+  out
 
 }
 

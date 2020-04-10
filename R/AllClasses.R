@@ -87,7 +87,7 @@ setMethod("show", "ArchRProject",
 #' @export
 ArchRProject <- function(
   ArrowFiles = NULL, 
-  outputDirectory = "ArchR_Output", 
+  outputDirectory = "ArchROutput", 
   copyArrows = TRUE,
   geneAnnotation = getGeneAnnotation(),
   genomeAnnotation = getGenomeAnnotation(),
