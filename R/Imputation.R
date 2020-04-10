@@ -119,21 +119,9 @@ addImputeWeights <- function(
       Nx <- length(ix)
 
       #Compute KNN
-      if(requireNamespace("nabor", quietly = TRUE)) {
-          knnObj <- nabor::knn(data = matDR[ix,], query = matDR[ix, ], k = k)
-          knnIdx <- knnObj$nn.idx
-          knnDist <- knnObj$nn.dists
-      }else if(requireNamespace("RANN", quietly = TRUE)) {
-          knnObj <- RANN::nn2(data = matDR[ix,], query = matDR[ix, ], k = k)
-          knnIdx <- knnObj$nn.idx
-          knnDist <- knnObj$nn.dists
-      }else if(requireNamespace("FNN", quietly = TRUE)) {
-          knnObj <- FNN::get.knnx(data = matDR[ix,], query = matDR[ix, ], k = k)
-          knnIdx <- knnObj$nn.index
-          knnDist <-knnObj$nn.dist
-      }else{
-          stop("Computing KNN requires package nabor, RANN or FNN")
-      }
+      knnObj <- nabor::knn(data = matDR[ix,], query = matDR[ix, ], k = k)
+      knnIdx <- knnObj$nn.idx
+      knnDist <- knnObj$nn.dists
       rm(knnObj)
 
       if(ka > 0){
@@ -216,7 +204,9 @@ addImputeWeights <- function(
 #' @export
 getImputeWeights <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  message("Getting ImputeWeights")
   if(length(ArchRProj@imputeWeights) == 0){
+    message("No imputeWeights found, returning NULL")
     return(NULL)
   }
   ArchRProj@imputeWeights
@@ -279,14 +269,18 @@ imputeMatrix <- function(
         bn <- h5read(weightList[[x]], paste0(blocks[y], "/Names"))
         by <- h5read(weightList[[x]], paste0(blocks[y], "/Weights"))
         colnames(by) <- bn
+        rownames(by) <- bn
 
         #Multiply
         if(!all(paste0(bn) %in% colnames(mat))){
+          .logThis(paste0(bn), "Block cellNames", logFile = logFile)
+          .logThis(colnames(mat), "Matrix cellNames", logFile = logFile)
+          .logThis(paste0(bn)[paste0(bn) %ni% colnames(mat)], "Block cellNames not in matrix", logFile = logFile)
           .logMessage("Not all cellNames from imputeWeights are present. If you subsetted cells from the original imputation, please re-run with addImputeWeights!")
           stop("Not all cellNames from imputeWeights are present. If you subsetted cells from the original imputation, please re-run with addImputeWeights!")
         }
 
-        as.matrix(mat[, paste0(bn), drop = FALSE]) %*% by
+        t(by %*% t(mat[, paste0(bn), drop = FALSE]))
       
       }, threads = threads) %>% Reduce("cbind", .)
 
@@ -300,8 +294,7 @@ imputeMatrix <- function(
         
         if(verbose) message(y, " ", appendLF = FALSE)
         .logMessage(paste0(y, " of ", length(weightList[[x]])), logFile = logFile)
-
-        as.matrix(mat[, colnames(weightList[[x]][[y]])]) %*% as.matrix(weightList[[x]][[y]])
+        t(as.matrix(weightList[[x]][[y]]) %*% t(mat[, paste0(colnames(weightList[[x]][[y]])), drop = FALSE]))
 
       }, threads = threads) %>% Reduce("cbind", .)
 

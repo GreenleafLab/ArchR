@@ -435,7 +435,7 @@ addGeneScoreMatrix <- function(
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,
-    force = force
+    force = TRUE
   )
 
   #Clean Memory

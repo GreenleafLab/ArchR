@@ -77,6 +77,7 @@ plotEmbedding <- function(
   .requirePackage("ggplot2", source = "cran")
 
   .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
 
   ##############################
   # Get Embedding

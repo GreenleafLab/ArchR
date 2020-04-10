@@ -36,178 +36,202 @@ addTrajectory <- function(
   useAll = TRUE, 
   dof = 250,
   spar = 1,
-  force = FALSE
+  force = FALSE,
+  logFile = createLogFile("addTrajectory"),
+  seed = 1
   ){
 
-    .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-    .validInput(input = name, name = "name", valid = c("character"))
-    .validInput(input = trajectory, name = "trajectory", valid = c("character"))
-    .validInput(input = groupBy, name = "groupBy", valid = c("character"))
-    .validInput(input = reducedDims, name = "reducedDims", valid = c("character", "null"))
-    .validInput(input = embedding, name = "reducedDims", valid = c("character", "null"))
-    .validInput(input = preFilterQuantile, name = "preFilterQuantile", valid = c("numeric"))
-    .validInput(input = postFilterQuantile, name = "postFilterQuantile", valid = c("numeric"))
-    .validInput(input = dof, name = "dof", valid = c("integer"))
-    .validInput(input = spar, name = "spar", valid = c("numeric"))
-    .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = trajectory, name = "trajectory", valid = c("character"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character", "null"))
+  .validInput(input = embedding, name = "reducedDims", valid = c("character", "null"))
+  .validInput(input = preFilterQuantile, name = "preFilterQuantile", valid = c("numeric"))
+  .validInput(input = postFilterQuantile, name = "postFilterQuantile", valid = c("numeric"))
+  .validInput(input = dof, name = "dof", valid = c("integer"))
+  .validInput(input = spar, name = "spar", valid = c("numeric"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
 
-    set.seed(1)
+  if(!is.null(seed)) set.seed(seed)
 
-    #Knn Method
-    if(requireNamespace("nabor", quietly = TRUE)){
-        knnMethod <- nabor::knn
-    }else if(requireNamespace("RANN", quietly = TRUE)){
-        knnMethod <- RANN::nn2
-    }else if(requireNamespace("FNN", quietly = TRUE)){
-        knnMethod <- FNN::get.knnx
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
+  
+  groupDF <- getCellColData(ArchRProj = ArchRProj, select = groupBy)
+  groupDF <- groupDF[groupDF[,1] %in% trajectory,,drop=FALSE]
+
+  if(sum(unique(groupDF[,1]) %in% trajectory)==0){
+    .logMessage("trajectory does not span any groups in groupBy! Are you sure your input is correct?", logFile = logFile)
+    stop("trajectory does not span any groups in groupBy! Are you sure your input is correct?")
+  }
+
+  if(sum(unique(groupDF[,1]) %in% trajectory) < 3){
+    .logMessage("trajectory must span at least 3 groups in groupBy!", logFile = logFile)
+    stop("trajectory must span at least 3 groups in groupBy!")
+  }
+
+  if(is.null(embedding)){
+    mat <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
+  }else{
+    mat <- getEmbedding(ArchRProj = ArchRProj, embedding = embedding)
+  }
+  mat <- mat[rownames(groupDF),,drop = FALSE]
+
+  ######################################################
+  #Filter Outliers
+  ######################################################
+  .logMessage("Filtering outliers", logFile = logFile)
+  filterObj <- lapply(seq_along(trajectory), function(x){
+      
+      #Subset
+      groupsx <- rownames(groupDF)[groupDF[,1]==trajectory[x]]
+      matx <- mat[groupsx,,drop = FALSE]
+
+      #Filter Distance
+      matMeanx <- colMeans(matx)
+      diffx <- sqrt(colSums((t(matx) - matMeanx)^2))
+      idxKeep <- which(diffx <= quantile(diffx, preFilterQuantile))
+      
+      #Filter
+      list(mat = matx[idxKeep,,drop=FALSE], groups = groupsx[idxKeep])
+
+  })
+
+  matFilter <- lapply(seq_along(filterObj), function(x) filterObj[[x]]$mat) %>% Reduce("rbind", .)
+  groupsFilter <- groupDF[lapply(seq_along(filterObj), function(x) filterObj[[x]]$groups) %>% Reduce("c", .),,drop=FALSE]
+
+  ######################################################
+  #Now Initial Alignment
+  ######################################################
+  .logMessage("Initial Alignment Before Spline Fit", logFile = logFile)
+  initialTime <- lapply(seq_along(trajectory), function(x){
+      
+      groupsx <- rownames(groupsFilter)[groupsFilter[,1] == trajectory[x]]
+      matx <- matFilter[groupsx,,drop = FALSE]
+      
+      #Get Differences
+      if(x != length(trajectory)){
+          groupsxp1 <- rownames(groupsFilter)[groupsFilter[,1] == trajectory[x + 1]]
+          meanx <- colMeans(matFilter[groupsxp1,,drop = FALSE])
+          diffx <- sqrt(colSums((t(matx) - meanx)^2))
+          timex <- (1 - .getQuantiles(diffx)) + x
+      }else{
+          groupsxm1 <- rownames(groupsFilter)[groupsFilter[,1] == trajectory[x - 1]]
+          meanx <- colMeans(matFilter[groupsxm1,,drop = FALSE])
+          diffx <- sqrt(colSums((t(matx) - meanx)^2))
+          timex <- .getQuantiles(diffx) + x
+      }
+      
+      timex
+
+  }) %>% unlist
+
+  ######################################################
+  #Fit Cubic Splines
+  ######################################################
+  .logMessage("Spline Fit", logFile = logFile)
+  matSpline <- lapply(seq_len(ncol(matFilter)), function(x){
+    tryCatch({
+      stats::smooth.spline(
+          x = initialTime, 
+          y = matFilter[names(initialTime), x], 
+          df = dof, 
+          spar = spar
+      )[[2]]
+    }, error = function(e){
+      errorList <- list(
+        it = x,
+        x = initialTime, 
+        y = matFilter[names(initialTime), x], 
+        df = dof, 
+        spar = spar
+      )
+      .logError(e, fn = "smooth.spline", info = "", errorList = errorList, logFile = logFile)      
+    })
+  }) %>% Reduce("cbind",.) %>% data.frame()
+
+  ######################################################
+  # 1. KNN Fit vs Actual
+  ######################################################
+  .logMessage("KNN to Spline", logFile = logFile)
+  knnObj <- nabor::knn(
+      data =  matSpline,
+      query = mat, 
+      k = 3
+  )
+
+  #Estimate place along trajectory
+  knnIdx <- knnObj[[1]]
+  knnDist <- knnObj[[2]]
+  knnDiff <- ifelse(knnIdx[,2] > knnIdx[,3], 1, -1)
+  knnDistQ <- .getQuantiles(knnDist[,1])
+
+  #Filter Outlier Cells to Trajectory for High Resolution
+  idxKeep <- which(knnDist[,1] <= quantile(knnDist[,1], postFilterQuantile))
+  dfTrajectory <- DataFrame(
+      row.names = rownames(mat),
+      Distance = knnDist[, 1],
+      DistanceIdx = knnIdx[, 1] + knnDiff * knnDistQ
+  )[idxKeep, , drop = FALSE]
+
+  ######################################################
+  # 2. Fit cells not in trajectory clusters
+  ######################################################
+  if(useAll){
+    .logMessage("Aligning cells not in trajectory", logFile = logFile)
+    
+    if(is.null(embedding)){
+      mat2 <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
     }else{
-        stop("Computing KNN requires package nabor, RANN or FNN")
+      mat2 <- getEmbedding(ArchRProj = ArchRProj, embedding = embedding)
     }
     
     groupDF <- getCellColData(ArchRProj = ArchRProj, select = groupBy)
-    groupDF <- groupDF[groupDF[,1] %in% trajectory,,drop=FALSE]
+    groupDF <- groupDF[groupDF[,1] %ni% trajectory,,drop=FALSE]
+    mat2 <- mat2[rownames(groupDF),,drop = FALSE]
 
-    if(is.null(embedding)){
-      mat <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
-    }else{
-      mat <- getEmbedding(ArchRProj = ArchRProj, embedding = embedding)
-    }
-    mat <- mat[rownames(groupDF),,drop = FALSE]
-
-    ######################################################
-    #Filter Outliers
-    ######################################################
-    filterObj <- lapply(seq_along(trajectory), function(x){
-        
-        #Subset
-        groupsx <- rownames(groupDF)[groupDF[,1]==trajectory[x]]
-        matx <- mat[groupsx,,drop = FALSE]
-
-        #Filter Distance
-        matMeanx <- colMeans(matx)
-        diffx <- sqrt(colSums((t(matx) - matMeanx)^2))
-        idxKeep <- which(diffx <= quantile(diffx, preFilterQuantile))
-        
-        #Filter
-        list(mat = matx[idxKeep,,drop=FALSE], groups = groupsx[idxKeep])
-
-    })
-
-    matFilter <- lapply(seq_along(filterObj), function(x) filterObj[[x]]$mat) %>% Reduce("rbind", .)
-    groupsFilter <- groupDF[lapply(seq_along(filterObj), function(x) filterObj[[x]]$groups) %>% Reduce("c", .),,drop=FALSE]
-
-    ######################################################
-    #Now Initial Alignment
-    ######################################################
-    initialTime <- lapply(seq_along(trajectory), function(x){
-        
-        groupsx <- rownames(groupsFilter)[groupsFilter[,1] == trajectory[x]]
-        matx <- matFilter[groupsx,,drop = FALSE]
-        
-        #Get Differences
-        if(x != length(trajectory)){
-            groupsxp1 <- rownames(groupsFilter)[groupsFilter[,1] == trajectory[x + 1]]
-            meanx <- colMeans(matFilter[groupsxp1,,drop = FALSE])
-            diffx <- sqrt(colSums((t(matx) - meanx)^2))
-            timex <- (1 - .getQuantiles(diffx)) + x
-        }else{
-            groupsxm1 <- rownames(groupsFilter)[groupsFilter[,1] == trajectory[x - 1]]
-            meanx <- colMeans(matFilter[groupsxm1,,drop = FALSE])
-            diffx <- sqrt(colSums((t(matx) - meanx)^2))
-            timex <- .getQuantiles(diffx) + x
-        }
-        
-        timex
-
-    }) %>% unlist
-
-    ######################################################
-    #Fit Cubic Splines
-    ######################################################
-    matSpline <- lapply(seq_len(ncol(matFilter)), function(x){
-        smooth.spline(
-            x = initialTime, 
-            y = matFilter[names(initialTime), x], 
-            df = dof, 
-            spar = spar
-        )[[2]]
-    }) %>% Reduce("cbind",.) %>% data.frame()
-
-    ######################################################
-    # 1. KNN Fit vs Actual
-    ######################################################
-    knnObj <- knnMethod(
+    #Nearest Neighbors
+    knnObj2 <- nabor::knn(
         data =  matSpline,
-        query = mat, 
+        query = mat2, 
         k = 3
     )
 
     #Estimate place along trajectory
-    knnIdx <- knnObj[[1]]
-    knnDist <- knnObj[[2]]
-    knnDiff <- ifelse(knnIdx[,2] > knnIdx[,3], 1, -1)
-    knnDistQ <- .getQuantiles(knnDist[,1])
+    knnIdx2 <- knnObj2[[1]]
+    knnDist2 <- knnObj2[[2]]
+    knnDiff2 <- ifelse(knnIdx2[,2] > knnIdx2[,3], 1, -1)
+    knnDistQ2 <- .getQuantiles(knnDist2[,1])
 
-    #Filter Outlier Cells to Trajectory for High Resolution
-    idxKeep <- which(knnDist[,1] <= quantile(knnDist[,1], postFilterQuantile))
-    dfTrajectory <- DataFrame(
-        row.names = rownames(mat),
-        Distance = knnDist[, 1],
-        DistanceIdx = knnIdx[, 1] + knnDiff * knnDistQ
+    #Keep Cells that are within the maximum distance of a cluster
+    idxKeep <- which(knnDist2[,1] < max(dfTrajectory[,1]))
+    dfTrajectory2 <- DataFrame(
+        row.names = rownames(mat2),
+        Distance = knnDist2[, 1],
+        DistanceIdx = knnIdx2[, 1] + knnDiff2 * knnDistQ2
     )[idxKeep, , drop = FALSE]
 
-    ######################################################
-    # 2. Fit cells not in trajectory clusters
-    ######################################################
-    if(useAll){
-      if(is.null(embedding)){
-        mat2 <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims)
-      }else{
-        mat2 <- getEmbedding(ArchRProj = ArchRProj, embedding = embedding)
-      }
-      groupDF <- getCellColData(ArchRProj = ArchRProj, select = groupBy)
-      groupDF <- groupDF[groupDF[,1] %ni% trajectory,,drop=FALSE]
-      mat2 <- mat2[rownames(groupDF),,drop = FALSE]
+    #Final Output
+    dfTrajectory3 <- rbind(dfTrajectory, dfTrajectory2)
+  }else{
+    dfTrajectory3 <- dfTrajectory
+  }
+  
+  dfTrajectory3$Trajectory <- 100 * .getQuantiles(dfTrajectory3[,2])
+  
+  #Add To ArchR Project
+  ArchRProj <- addCellColData(
+      ArchRProj = ArchRProj,
+      data = dfTrajectory3$Trajectory,
+      name = name,
+      cells = rownames(dfTrajectory3),
+      force = force
+  )
 
-      #Nearest Neighbors
-      knnObj2 <- knnMethod(
-          data =  matSpline,
-          query = mat2, 
-          k = 3
-      )
+  .endLogging(logFile = logFile)
 
-      #Estimate place along trajectory
-      knnIdx2 <- knnObj2[[1]]
-      knnDist2 <- knnObj2[[2]]
-      knnDiff2 <- ifelse(knnIdx2[,2] > knnIdx2[,3], 1, -1)
-      knnDistQ2 <- .getQuantiles(knnDist2[,1])
-
-      #Keep Cells that are within the maximum distance of a cluster
-      idxKeep <- which(knnDist2[,1] < max(dfTrajectory[,1]))
-      dfTrajectory2 <- DataFrame(
-          row.names = rownames(mat2),
-          Distance = knnDist2[, 1],
-          DistanceIdx = knnIdx2[, 1] + knnDiff2 * knnDistQ2
-      )[idxKeep, , drop = FALSE]
-
-      #Final Output
-      dfTrajectory3 <- rbind(dfTrajectory, dfTrajectory2)
-    }else{
-      dfTrajectory3 <- dfTrajectory
-    }
-    
-    dfTrajectory3$Trajectory <- 100 * .getQuantiles(dfTrajectory3[,2])
-    
-    #Add To ArchR Project
-    ArchRProj <- addCellColData(
-        ArchRProj = ArchRProj,
-        data = dfTrajectory3$Trajectory,
-        name = name,
-        cells = rownames(dfTrajectory3),
-        force = force
-    )
-
-    ArchRProj
+  ArchRProj
 
 }
 
@@ -247,101 +271,101 @@ getTrajectory <- function(
   smoothWindow = 3
   ){
 
-    .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-    .validInput(input = name, name = "name", valid = c("character"))
-    .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
-    .validInput(input = groupEvery, name = "groupEvery", valid = c("numeric"))
-    .validInput(input = threads, name = "threads", valid = c("integer"))
-    .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
-    .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = groupEvery, name = "groupEvery", valid = c("numeric"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
 
-    trajectory <- getCellColData(ArchRProj, name)
-    trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
-    breaks <- seq(0, 100, groupEvery)
+  trajectory <- getCellColData(ArchRProj, name)
+  trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
+  breaks <- seq(0, 100, groupEvery)
 
-    groupList <- lapply(seq_along(breaks), function(x){
-        if(x == 1){
-            NULL
-        }else{
-            rownames(trajectory)[which(trajectory[,1] > breaks[x - 1] & trajectory[,1] <= breaks[x])]
-        }
-    })[-1]
-    names(groupList) <- paste0("T.", breaks[-length(breaks)], "_", breaks[-1])
-
-    featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
-
-    message("Creating Trajectory Group Matrix..")
-    groupMat <- .getGroupMatrix(
-        ArrowFiles = getArrowFiles(ArchRProj), 
-        featureDF = featureDF,
-        groupList = groupList, 
-        threads = threads, 
-        verbose = FALSE, 
-        useMatrix = useMatrix
-    )
-
-    #Scale
-    if(!is.null(scaleTo)){
-      if(any(groupMat < 0)){
-        message("Some values are below 0, this could be a DeviationsMatrix in which scaleTo should be set = NULL.\nContinuing without depth normalization!")
+  groupList <- lapply(seq_along(breaks), function(x){
+      if(x == 1){
+          NULL
       }else{
-        groupMat <- t(t(groupMat) / colSums(groupMat)) * scaleTo
+          rownames(trajectory)[which(trajectory[,1] > breaks[x - 1] & trajectory[,1] <= breaks[x])]
       }
-    }
+  })[-1]
+  names(groupList) <- paste0("T.", breaks[-length(breaks)], "_", breaks[-1])
 
-    if(log2Norm){
-      if(any(groupMat < 0)){
-        message("Some values are below 0, this could be a DeviationsMatrix in which log2Norm should be set = FALSE.\nContinuing without log2 normalization!")
-      }else{
-        groupMat <- log2(groupMat + 1)
-      }
-    }
+  featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
 
-    if(!is.null(smoothWindow)){
-      
-      message("Smoothing...")
-      smoothGroupMat <- as.matrix(t(apply(groupMat, 1, function(x) .centerRollMean(x, k = smoothWindow))))
-      
-      #Create SE
-      seTrajectory <- SummarizedExperiment(
-          assays = SimpleList(
-            smoothMat = smoothGroupMat, 
-            mat = groupMat
-          ), 
-          rowData = featureDF
-      )
-      if("name" %in% colnames(featureDF)){
-        rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$name)
-      }else{
-        rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$start, "_", featureDF$end)
-      }
+  message("Creating Trajectory Group Matrix..")
+  groupMat <- .getGroupMatrix(
+      ArrowFiles = getArrowFiles(ArchRProj), 
+      featureDF = featureDF,
+      groupList = groupList, 
+      threads = threads, 
+      verbose = FALSE, 
+      useMatrix = useMatrix
+  )
 
+  #Scale
+  if(!is.null(scaleTo)){
+    if(any(groupMat < 0)){
+      message("Some values are below 0, this could be a DeviationsMatrix in which scaleTo should be set = NULL.\nContinuing without depth normalization!")
     }else{
+      groupMat <- t(t(groupMat) / colSums(groupMat)) * scaleTo
+    }
+  }
 
-      #Create SE
-      seTrajectory <- SummarizedExperiment(
-          assays = SimpleList(
-            mat = groupMat
-          ), 
-          rowData = featureDF
-      )
-      if("name" %in% colnames(featureDF)){
-        rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$name)
-      }else{
-        rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$start, "_", featureDF$end)
-      }
+  if(log2Norm){
+    if(any(groupMat < 0)){
+      message("Some values are below 0, this could be a DeviationsMatrix in which log2Norm should be set = FALSE.\nContinuing without log2 normalization!")
+    }else{
+      groupMat <- log2(groupMat + 1)
+    }
+  }
 
+  if(!is.null(smoothWindow)){
+    
+    message("Smoothing...")
+    smoothGroupMat <- as.matrix(t(apply(groupMat, 1, function(x) .centerRollMean(x, k = smoothWindow))))
+    
+    #Create SE
+    seTrajectory <- SummarizedExperiment(
+        assays = SimpleList(
+          smoothMat = smoothGroupMat, 
+          mat = groupMat
+        ), 
+        rowData = featureDF
+    )
+    if("name" %in% colnames(featureDF)){
+      rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$name)
+    }else{
+      rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$start, "_", featureDF$end)
     }
 
-    metadata(seTrajectory)$Params <- list(
-      useMatrix = useMatrix, 
-      scaleTo = scaleTo, 
-      log2Norm = log2Norm, 
-      smoothWindow = smoothWindow, 
-      date = Sys.Date()
-    )
+  }else{
 
-    seTrajectory
+    #Create SE
+    seTrajectory <- SummarizedExperiment(
+        assays = SimpleList(
+          mat = groupMat
+        ), 
+        rowData = featureDF
+    )
+    if("name" %in% colnames(featureDF)){
+      rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$name)
+    }else{
+      rownames(seTrajectory) <- paste0(featureDF$seqnames, ":", featureDF$start, "_", featureDF$end)
+    }
+
+  }
+
+  metadata(seTrajectory)$Params <- list(
+    useMatrix = useMatrix, 
+    scaleTo = scaleTo, 
+    log2Norm = log2Norm, 
+    smoothWindow = smoothWindow, 
+    date = Sys.Date()
+  )
+
+  seTrajectory
 
 }
 
@@ -726,7 +750,7 @@ trajectoryHeatmap <- function(
 #' @param addArrow A boolean value that indicates whether to add a smoothed arrow in the embedding based on the aligned trajectory.
 #' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 #' if `colorBy` is numeric, then `plotAs` is set to "hex".
-#' @param plotParams Additional parameters to pass to `ggPoint()` or `ggHex()`.
+#' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
 #' @export
 plotTrajectory <- function(
   ArchRProj = NULL,
@@ -739,7 +763,7 @@ plotTrajectory <- function(
   pal = NULL,
   size = 0.2,
   rastr = TRUE,
-  quantCut = c(0.001, 0.999),
+  quantCut = c(0.01, 0.99),
   quantHex = 0.5,
   discreteSet = NULL,
   continuousSet = NULL,
@@ -749,7 +773,8 @@ plotTrajectory <- function(
   addArrow = TRUE,
   plotAs = NULL,
   smoothWindow = 5,
-  plotParams = list()
+  logFile = createLogFile("plotTrajectory"),
+  ...
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -771,9 +796,11 @@ plotTrajectory <- function(
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = addArrow, name = "addArrow", valid = c("boolean"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
-  .validInput(input = plotParams, name = "plotParams", valid = c("list"))
 
   .requirePackage("ggplot2", source = "cran")
+
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
 
   #Make Sure ColorBy is valid!
   if(length(colorBy) > 1){
@@ -788,13 +815,6 @@ plotTrajectory <- function(
   ##############################
   # Plot Helpers
   ##############################
-  .quantileCut0 <- function (x = NULL, lo = 0, hi = 0.975, rm0 = TRUE){
-    q <- quantile(x, probs = c(lo, hi), na.rm = TRUE)
-    x[x < q[1]] <- q[1]
-    x[x > q[2]] <- q[2]
-    return(x)
-  }
-
   .summarizeHex <- function(x = NULL){
     quantile(x, quantHex, na.rm = TRUE)
   }
@@ -804,15 +824,18 @@ plotTrajectory <- function(
   ##############################
   dfT <- getCellColData(ArchRProj, select = trajectory)
   idxRemove <- which(is.na(dfT[,1]))
+  .logThis(dfT, "dfT", logFile = logFile)
 
   ##############################
   # Get Embedding
   ##############################
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+  .logThis(df, "embedding", logFile = logFile)
   dfT <- cbind(df, dfT[rownames(df),])
   colnames(dfT) <- c("x", "y", "PseudoTime")
 
   #Parameters
+  plotParams <- list(...)
   plotParams$x <- df[,1]
   plotParams$y <- df[,2]
   plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,1])
@@ -820,7 +843,7 @@ plotTrajectory <- function(
 
   if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
     
-    plotParams$color <- as.vector(getCellColData(ArchRProj)[,name])
+    plotParams$color <- as.vector(getCellColData(ArchRProj, select = name, drop = FALSE)[rownames(df), 1])
     plotParams$discrete <- .isDiscrete(plotParams$color)
     plotParams$continuousSet <- "horizonExtra"
     plotParams$discreteSet <- "stallion"
@@ -830,15 +853,35 @@ plotTrajectory <- function(
     }
 
   }else{
-    if (tolower(colorBy) == "genescorematrix"){
-      if(is.null(log2Norm)){
-        log2Norm <- TRUE
-      }
+
+    units <- tryCatch({
+        .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
+      },error=function(e){
+        "values"
+    })
+
+    plotParams$continuousSet <- "solarExtra"
+
+    if(is.null(log2Norm) & tolower(colorBy) == "genescorematrix"){
+      log2Norm <- TRUE
       plotParams$continuousSet <- "horizonExtra"
-    }else{
-      plotParams$continuousSet <- "solarExtra"
     }
-    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = log2Norm)[1, rownames(df)]
+
+    if(is.null(log2Norm)){
+      log2Norm <- FALSE
+    }
+
+    plotParams$color <- .getMatrixValues(ArchRProj, name = name, matrixName = colorBy, log2Norm = FALSE)
+
+    if(!all(rownames(df) %in% colnames(plotParams$color))){
+      .logMessage("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.", logFile = logFile)
+      stop("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.")
+    }
+
+    plotParams$color <- plotParams$color[, rownames(df), drop = FALSE]
+
+    .logThis(plotParams$color, "colorMat-Before-Impute", logFile = logFile)
+
     plotParams$discrete <- FALSE
     plotParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name)
     if(is.null(plotAs)){
@@ -869,24 +912,50 @@ plotTrajectory <- function(
   }
 
   if(!plotParams$discrete){
+   
     if(!is.null(imputeWeights)){
-      imputeWeights <- imputeWeights$Weights[rownames(df), rownames(df)]
-      plotParams$color <- (imputeWeights %*% as(as.matrix(plotParams$color), "dgCMatrix"))[,1] 
-    }else{
-      plotParams$color <- .quantileCut0(plotParams$color, min(quantCut), max(quantCut))
+      message("Imputing Matrix")
+      mat <- matrix(as.vector(plotParams$color), nrow = 1)
+      colnames(mat) <- rownames(df)
+      plotParams$color <- imputeMatrix(mat = mat, imputeWeights = imputeWeights, logFile = logFile)
+      .logThis(plotParams$color, "colorMat-After-Impute", logFile = logFile)
     }
+
+    plotParams$color <- as.vector(plotParams$color)
+
+    if(name != trajectory){
+      plotParams$color <- .quantileCut(plotParams$color, min(quantCut), max(quantCut))
+    }
+
+    if(!is.null(log2Norm)){
+      if(log2Norm){
+        plotParams$color <- log2(plotParams$color + 1)
+        plotParams$colorTitle <- paste0("Log2(",units," + 1)")
+      }else{
+        plotParams$colorTitle <- units
+      }
+    }
+    
     plotParams$color[idxRemove] <- NA
     plotParams$pal <- paletteContinuous(set = plotParams$continuousSet)
+    
     if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
       plotParams$addPoints <- TRUE
       if(is.null(plotParams$bins)){
         plotParams$bins <- 100
       }
+      message("Plotting")
+      .logThis(plotParams, name = "PlotParams", logFile = logFile)
       out <- do.call(ggHex, plotParams)
     }else{
+      message("Plotting")
+      .logThis(plotParams, name = "PlotParams", logFile = logFile)
       out <- do.call(ggPoint, plotParams)
     }
+  
   }else{
+    message("Plotting")
+    .logThis(plotParams, name = "PlotParams", logFile = logFile)
     out <- do.call(ggPoint, plotParams)
   }
 
@@ -894,10 +963,14 @@ plotTrajectory <- function(
     out <- out + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
   }
 
+  .logMessage("Plotting Trajectory", logFile = logFile)
+
   #Prep Trajectory Vector
   dfT$value <- plotParams$color
   dfT <- dfT[order(dfT$PseudoTime), ]
   dfT <- dfT[!is.na(dfT$PseudoTime), ]
+
+  .logThis(dfT, "TrajectoryDF", logFile = logFile)
 
   #Plot Pseudo-Time
   out2 <- ggPoint(
@@ -916,6 +989,8 @@ plotTrajectory <- function(
 
 
   if(addArrow){
+
+    .logMessage("Adding Inferred Arrow Trajectory to Plot", logFile = logFile)
  
     dfArrow <-  split(dfT, floor(dfT$PseudoTime / 1.01)) %>% 
       lapply(colMeans) %>% Reduce("rbind",.) %>% data.frame
@@ -925,12 +1000,44 @@ plotTrajectory <- function(
 
     out <- out + geom_path(
             data = dfArrow, aes(x, y, color=NULL), size= 1, 
-            arrow = arrow(type = "open", length = unit(0.1, "inches")) # angle = 30,
+            arrow = arrow(type = "open", length = unit(0.1, "inches"))
           )
   }
+
+  .endLogging(logFile = logFile)
 
   list(out, out2)
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
