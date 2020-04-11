@@ -6,7 +6,7 @@
 \usage{
 ArchRProject(
   ArrowFiles = NULL,
-  outputDirectory = "ArchR_Output",
+  outputDirectory = "ArchROutput",
   copyArrows = TRUE,
   geneAnnotation = getGeneAnnotation(),
   genomeAnnotation = getGenomeAnnotation(),

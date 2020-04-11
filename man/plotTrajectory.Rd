@@ -16,7 +16,7 @@ plotTrajectory(
   pal = NULL,
   size = 0.2,
   rastr = TRUE,
-  quantCut = c(0.001, 0.999),
+  quantCut = c(0.01, 0.99),
   quantHex = 0.5,
   discreteSet = NULL,
   continuousSet = NULL,
@@ -26,7 +26,8 @@ plotTrajectory(
   addArrow = TRUE,
   plotAs = NULL,
   smoothWindow = 5,
-  plotParams = list()
+  logFile = createLogFile("plotTrajectory"),
+  ...
 )
 }
 \arguments{
@@ -79,7 +80,7 @@ being present at the front of the plot.}
 \item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 if \code{colorBy} is numeric, then \code{plotAs} is set to "hex".}
 
-\item{plotParams}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
+\item{...}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 }
 \description{
 This function will plot a trajectory that was created onto an embedding.

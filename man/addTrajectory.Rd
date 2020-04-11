@@ -16,7 +16,9 @@ addTrajectory(
   useAll = TRUE,
   dof = 250,
   spar = 1,
-  force = FALSE
+  force = FALSE,
+  logFile = createLogFile("addTrajectory"),
+  seed = 1
 )
 }
 \arguments{

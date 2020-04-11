@@ -8,8 +8,8 @@ plotFootprints(
   seFoot = NULL,
   names = NULL,
   pal = NULL,
-  flank = NULL,
-  flankNorm = NULL,
+  flank = 250,
+  flankNorm = 50,
   normMethod = "Subtract",
   smoothWindow = NULL,
   baseSize = 6,
@@ -18,7 +18,8 @@ plotFootprints(
   plotName = paste0("Plot-Footprints-", normMethod),
   height = 6,
   width = 4,
-  addDOC = TRUE
+  addDOC = TRUE,
+  logFile = createLogFile("plotFootprints")
 )
 }
 \arguments{
