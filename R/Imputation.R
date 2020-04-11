@@ -280,7 +280,7 @@ imputeMatrix <- function(
           stop("Not all cellNames from imputeWeights are present. If you subsetted cells from the original imputation, please re-run with addImputeWeights!")
         }
 
-        t(by %*% t(mat[, paste0(bn), drop = FALSE]))
+        Matrix::t(by %*% Matrix::t(mat[, paste0(bn), drop = FALSE]))
       
       }, threads = threads) %>% Reduce("cbind", .)
 
@@ -294,7 +294,7 @@ imputeMatrix <- function(
         
         if(verbose) message(y, " ", appendLF = FALSE)
         .logMessage(paste0(y, " of ", length(weightList[[x]])), logFile = logFile)
-        t(as.matrix(weightList[[x]][[y]]) %*% t(mat[, paste0(colnames(weightList[[x]][[y]])), drop = FALSE]))
+        Matrix::t(as.matrix(weightList[[x]][[y]]) %*% Matrix::t(mat[, paste0(colnames(weightList[[x]][[y]])), drop = FALSE]))
 
       }, threads = threads) %>% Reduce("cbind", .)
 
