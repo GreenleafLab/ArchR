@@ -200,7 +200,7 @@ addDoubletScores <- function(
   LSIParams$threads <- subThreads
   LSIParams$verboseHeader <- FALSE
   LSIParams$force  <- TRUE
-  LSIParams$logFile <- logFiles
+  LSIParams$logFile <- logFile
   proj <- tryCatch({
     do.call(addIterativeLSI, LSIParams)
   }, error = function(e){
