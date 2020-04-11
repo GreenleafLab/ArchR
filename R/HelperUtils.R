@@ -74,6 +74,29 @@ reformatFragmentFiles <- function(
   }
 }
 
+
+##########################################################################################
+# Helper For cluster identity
+##########################################################################################
+
+#' @export
+confusionMatrix <- function(
+  i = NULL, 
+  j = NULL
+  ){
+  ui <- unique(i)
+  uj <- unique(j)
+  m <- Matrix::sparseMatrix(
+    i = match(i, ui),
+    j = match(j, uj),
+    x = rep(1, length(i)),
+    dims = c(length(ui), length(uj))
+  )
+  rownames(m) <- ui
+  colnames(m) <- uj
+  m
+}
+
 ##########################################################################################
 # Validation Methods
 ##########################################################################################
@@ -515,20 +538,6 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
         mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
     }
     return(mat)
-}
-
-.confusionMatrix <- function(i = NULL, j = NULL){
-  ui <- unique(i)
-  uj <- unique(j)
-  m <- Matrix::sparseMatrix(
-    i = match(i, ui),
-    j = match(j, uj),
-    x = rep(1, length(i)),
-    dims = c(length(ui), length(uj))
-  )
-  rownames(m) <- ui
-  colnames(m) <- uj
-  m
 }
 
 .safeSubset <- function(mat = NULL, subsetRows = NULL, subsetCols = NULL){
