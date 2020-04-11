@@ -67,7 +67,7 @@ addDoubletScores <- function(
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
 
   .startLogging(logFile = logFile)
-  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addDoubletScores Input-Parameters", logFile = logFile)
 
   if(tolower(useMatrix) %ni% c("peakmatrix","tilematrix")){
     stop(sprintf("Supported Matrix Names at the moment are PeakMatrix and TileMatrix : ", useMatrix))
@@ -190,6 +190,7 @@ addDoubletScores <- function(
   #################################################
   # 2. Compute Iterative LSI
   #################################################
+  .logDiffTime("Running IterativeLSI", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
   LSIParams$ArchRProj <- proj
   LSIParams$saveIterations <- FALSE
   LSIParams$useMatrix <- useMatrix
@@ -198,14 +199,13 @@ addDoubletScores <- function(
   LSIParams$scaleDims <- scaleDims
   LSIParams$corCutOff <- corCutOff
   LSIParams$threads <- subThreads
-  LSIParams$verboseHeader <- FALSE
+  LSIParams$verbose <- FALSE
   LSIParams$force  <- TRUE
   LSIParams$logFile <- logFile
   proj <- tryCatch({
     do.call(addIterativeLSI, LSIParams)
   }, error = function(e){
-    errorList <- LSIParams
-    .logError(e, fn = "addIterativeLSI", info = prefix, errorList = errorList, logFile = logFile)
+    .logError(e, fn = "addIterativeLSI", info = prefix, errorList = list(ArrowFile = ArrowFile), logFile = logFile)
   })
 
   #################################################
