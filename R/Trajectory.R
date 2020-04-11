@@ -942,7 +942,7 @@ plotTrajectory <- function(
     if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
       plotParams$addPoints <- TRUE
       if(is.null(plotParams$bins)){
-        plotParams$bins <- 100
+        plotParams$bins <- 150
       }
       message("Plotting")
       .logThis(plotParams, name = "PlotParams", logFile = logFile)
