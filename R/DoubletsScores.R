@@ -67,6 +67,7 @@ addDoubletScores <- function(
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
 
   .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile = logFile)
 
   if(tolower(useMatrix) %ni% c("peakmatrix","tilematrix")){
     stop(sprintf("Supported Matrix Names at the moment are PeakMatrix and TileMatrix : ", useMatrix))
@@ -102,15 +103,10 @@ addDoubletScores <- function(
 
   #Make Sure these Args are NULL
   args$input <- NULL
-  .logThis(args, name = "Input-Arguments", logFile = logFile)
 
   #Run With Parallel or lapply
   errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
-  outList <- tryCatch({
-    .batchlapply(args, sequential = TRUE)
-  }, error = function(e){
-    .logError(e, fn = "addDoubletScores", info = "", errorList = errorList, logFile = logFile)
-  })
+  outList <- .batchlapply(args, sequential = TRUE)
   names(outList) <- names(ArrowFiles)
 
   .endLogging(logFile = logFile)
@@ -204,6 +200,7 @@ addDoubletScores <- function(
   LSIParams$threads <- subThreads
   LSIParams$verboseHeader <- FALSE
   LSIParams$force  <- TRUE
+  LSIParams$logFile <- logFiles
   proj <- tryCatch({
     do.call(addIterativeLSI, LSIParams)
   }, error = function(e){
