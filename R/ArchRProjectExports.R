@@ -23,6 +23,14 @@ exportGroupSE <- function(
   verbose = TRUE
   ){
 
+  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  # JJJ .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  # JJJ .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  # JJJ .validInput(input = divideN, name = "divideN", valid = c("boolean"))
+  # JJJ .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  # JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+
   ArrowFiles <- getArrowFiles(ArchRProj)
   featureDF <- .getFeatureDF(ArrowFiles, subGroup = useMatrix)
   Groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = TRUE)

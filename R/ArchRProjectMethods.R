@@ -75,6 +75,7 @@ getArchRThreads <- function(){
 addArchRGenome <- function(genome = NULL, install = TRUE){
   
   .validInput(input = genome, name = "genome", valid = "character")
+  # JJJ .validInput(input = install, name = "install", valid = c("boolean"))
 
   supportedGenomes <- c("hg19","hg38","mm9","mm10")
   
@@ -153,6 +154,9 @@ getArchRGenome <- function(
   geneAnnotation=FALSE, 
   genomeAnnotation=FALSE
   ){
+
+  #JJJ .validInput(input = geneAnnotation, name = "geneAnnotation", valid = "character")
+  #JJJ .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = "character")
 
   supportedGenomes <- c("hg19","hg38","mm9","mm10")
   .ArchRGenome <- options()[["ArchR.genome"]]
@@ -233,7 +237,12 @@ createGenomeAnnotation <- function(
   filterChr = c("chrM")
   ){
 
+  #JJJ .validInput(input = genome, name = "genome", valid = c("character"))
+  #JJJ .validInput(input = chromSizes, name = "chromSizes", valid = c("character"))
+  #JJJ .validInput(input = blacklist, name = "blacklist", valid = c("character"))
+  #JJJ .validInput(input = filter, name = "filter", valid = c("boolean"))
   .validInput(input = filterChr, name = "filterChr", valid = c("character", "null"))
+
 
   if(is.null(genome) | is.null(blacklist) | is.null(chromSizes)){
 
@@ -545,6 +554,8 @@ createGeneAnnnotation <- function(
 #' @export
 getOutputDirectory <- function(ArchRProj = NULL){
 
+  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+
   if(is.null(ArchRProj) | is.character(ArchRProj)){
     return("QualityControl")
   }
@@ -647,6 +658,12 @@ getGroupSummary <- function(
   na.rm = TRUE
   ){
 
+  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  # JJJ .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  # JJJ .validInput(input = select, name = "select", valid = c("character"))
+  # JJJ .validInput(input = summary, name = "summary", valid = c("character"))
+  # JJJ .validInput(input = na.rm, name = "na.rm", valid = c("boolean"))
+
   message("Getting ", summary, " of ", select, " for ", groupBy)
 
   groups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
@@ -722,9 +739,10 @@ addSampleColData <- function(ArchRProj = NULL, data = NULL, name = NULL, samples
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = data, name = "data", valid = c("character", "integer", "numeric", "boolean"))
+  .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = samples, name = "samlpes", valid = c("character"))
   .validInput(input = force, name = "force", valid = "boolean")
-  .validInput(input = name, name = "name", valid = c("character"))
+
 
   if(is.null(samples)){
     stop("Error samples must be provided")
@@ -910,6 +928,7 @@ addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGenomeAnnotation <- function(ArchRProj = NULL){
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -928,6 +947,7 @@ getGenomeAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getBlacklist <- function(ArchRProj = NULL){
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -946,6 +966,7 @@ getBlacklist <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGenome <- function(ArchRProj = NULL){
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -964,6 +985,7 @@ getGenome <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getChromSizes <- function(ArchRProj = NULL){
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -982,6 +1004,7 @@ getChromSizes <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getChromLengths <- function(ArchRProj = NULL){
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -1017,6 +1040,7 @@ getChromLengths <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGeneAnnotation <- function(ArchRProj = NULL){
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
     if(!is.null(geneAnnotation)){
@@ -1035,6 +1059,7 @@ getGeneAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getTSS <- function(ArchRProj = NULL){
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
     if(!is.null(geneAnnotation)){
@@ -1054,7 +1079,7 @@ getTSS <- function(ArchRProj = NULL){
 #' @param symbols A character vector containing the gene symbols to subset from the `geneAnnotation`.
 #' @export
 getGenes <- function(ArchRProj = NULL, symbols = NULL){
-  
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   .validInput(input = symbols, name = "symbols", valid = c("character", "null"))
 
   if(is.null(ArchRProj)){
@@ -1089,7 +1114,7 @@ getGenes <- function(ArchRProj = NULL, symbols = NULL){
 #' @param symbols A character vector containing the gene symbols for the genes where exons should be extracted.
 #' @export
 getExons <- function(ArchRProj = NULL, symbols = NULL){
-
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   .validInput(input = symbols, name = "symbols", valid = c("character", "null"))
 
   if(is.null(ArchRProj)){
@@ -1304,6 +1329,7 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = name, name = "name", valid = "character")
+  #JJJ .validInput(input = summary, name = "summary", valid = c("character","numeric"))
   #########
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -1375,9 +1401,16 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
 #' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted
 #' object (ggplot2, plot, heatmap, etc).
 #' @export
-plotPDF <- function(..., name = "Plot", width = 6, 
-  height = 6, ArchRProj = NULL, addDOC = TRUE, 
-  useDingbats = FALSE, plotList = NULL){
+plotPDF <- function(
+  ...,
+  name = "Plot",
+  width = 6,
+  height = 6,
+  ArchRProj = NULL,
+  addDOC = TRUE,
+  useDingbats = FALSE,
+  plotList = NULL
+  ){
 
   #Validate
   .validInput(input = name, name = "name", valid = "character")
@@ -1498,11 +1531,13 @@ plotPDF <- function(..., name = "Plot", width = 6,
 #' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".
 #' "Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
 #' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.
+#' @param threads The number of threads to be used for parallel computing.
 #' @export
 getTutorialData <- function(tutorial = "hematopoiesis", threads = getArchRThreads()){
 
   #Validate
   .validInput(input = tutorial, name = "tutorial", valid = "character")
+  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
   #########
 
   if(tolower(tutorial) %in% c("heme","hematopoiesis")){
@@ -1644,6 +1679,10 @@ getAvailableMatrices <- function(ArchRProj = NULL){
 #' This function will add total counts of scATAC cells in provided features into ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' @param features JJJ QQQ
+#' @param name JJJ QQQ
+#' @param addRatio JJJ QQQ
+#' @param threads The number of threads to use for parallel execution.
 #' @export
 addFeatureCounts <- function(
   ArchRProj = NULL,
@@ -1652,6 +1691,12 @@ addFeatureCounts <- function(
   addRatio = TRUE,
   threads = getArchRThreads()
   ){
+
+  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  # JJJ .validInput(input = features, name = "features", valid = c("character"))
+  # JJJ .validInput(input = name, name = "name", valid = c("character"))
+  # JJJ .validInput(input = addRatio, name = "addRatio", valid = c("numeric"))
+  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
   ArrowFiles <- getArrowFiles(ArchRProj)
