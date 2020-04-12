@@ -215,12 +215,12 @@
         .logMessage(".createArrowGroup : Arrow Group already exists! Dropping Group from ArrowFile! This will take ~10-30 seconds!", logFile = logFile)
         if(verbose) message("Arrow Group already exists! Dropping Group from ArrowFile! This will take ~10-30 seconds!")
         o <- .dropGroupsFromArrow(ArrowFile = ArrowFile, dropGroups = group, verbose = verbose, logFile = logFile)
-        h5createGroup(ArrowFile , group)
+        tryCatch({h5createGroup(ArrowFile , group)}, error=function(e){})
         invisible(return(0))
       }
     }
   }else{
-    h5createGroup(ArrowFile , group)
+    tryCatch({h5createGroup(ArrowFile , group)}, error=function(e){})
     invisible(return(0))
   }
 

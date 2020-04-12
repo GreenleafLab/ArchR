@@ -845,11 +845,11 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
     o <- mclapply(..., mc.cores = threads, mc.preschedule = preschedule)
 
-    # for(i in seq_along(o)){ #JJJ this doesnt seem to work?
-    #   if(inherits(o[[i]], "try-error")){
-    #     stop(o)
-    #   }
-    # }
+    for(i in seq_along(o)){ #JJJ this doesnt seem to work?
+      if(inherits(o[[i]], "try-error")){
+        stop("Error detected with safelapply! Exiting...")
+      }
+    }
 
   }else{
 
