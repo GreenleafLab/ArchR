@@ -519,7 +519,7 @@ saveArchRProject <- function(
         fin2 <- list.files(fin, full.names = TRUE)
         for(j in seq_along(fin2)){
           if(dir.exists(fin2[j])){
-            dir.create(file.path(outputDirectory, basename(fin), basename(fin2)), showWarnings=FALSE)
+            dir.create(file.path(outputDirectory, basename(fin), basename(fin2)[j]), showWarnings=FALSE)
             fin3 <- list.files(fin2[j], full.names = TRUE)
             for(k in seq_along(fin3)){
               cf <- file.copy(fin3[k], file.path(fout, basename(fin3[k])), overwrite = overwrite)
