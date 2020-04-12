@@ -58,7 +58,7 @@ addTileMatrix <- function(
   }
 
   .startLogging(logFile = logFile)
-  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addTileMatrix Input-Parameters", logFile = logFile)
 
   #Add args to list
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
@@ -148,7 +148,7 @@ addTileMatrix <- function(
     DataFrame(seqnames = names(chromLengths)[x], idx = seq_len(trunc(chromLengths[x])/tileSize + 1))
   }) %>% Reduce("rbind", .)
   featureDF$start <- (featureDF$idx - 1) * tileSize 
-  .logThis(featureDF, pase0(sampleName, " .addTileMatrix FeatureDF"), logFile = logFile)
+  .logThis(featureDF, paste0(sampleName, " .addTileMat FeatureDF"), logFile = logFile)
 
   ######################################
   # Initialize SP Mat Group

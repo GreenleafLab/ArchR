@@ -142,6 +142,7 @@ createArrowFiles <- function(
   dir.create(outDir, showWarnings = FALSE)
 
   .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "createArrowFiles Input-Parameters", logFile = logFile)
 
   if(cleanTmp){
     .logMessage("Cleaning Temporary Files", logFile = logFile)
@@ -173,10 +174,10 @@ createArrowFiles <- function(
   }
 
   #Run With Parallel or lapply
-  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
   outArrows <- tryCatch({
     unlist(.batchlapply(args))
   },error = function(x){
+    .logMessage("createArrowFiles has encountered an error, checking if any ArrowFiles completed..", logFile = logFile)
     message("createArrowFiles has encountered an error, checking if any ArrowFiles completed..")
     for(i in seq_along(args$outputNames)){
       out <- paste0(args$outputNames[i],".arrow")
@@ -188,7 +189,6 @@ createArrowFiles <- function(
         })
       }
     }
-    .logError(x, fn = "createArrowFiles", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
     paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
   })
 
