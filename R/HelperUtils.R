@@ -777,7 +777,8 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
   ArchRProj = NULL,
   paths = c("QualityControl"),
   recursive = TRUE,
-  outDir = "Figures"
+  outDir = "Figures",
+  command = "mv"
   ){
 
   #If error try
@@ -810,7 +811,6 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
   for(i in seq_along(pdfFiles)){
     print(i)
-    system(paste0("cp ", pdfFiles[i], " ", file.path(outDir, basename(pdfFiles[i]))))
     tryCatch({
       pdf_convert(
         pdfFiles[i], 
@@ -822,6 +822,7 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
         upw = "", 
         verbose = TRUE
       )
+    system(paste0(command, " ", pdfFiles[i], " ", file.path(outDir, basename(pdfFiles[i]))))
     },error=function(x){
       0
     })

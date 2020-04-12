@@ -336,44 +336,6 @@ recoverArchRProject <- function(ArchRProj){
 
 }
 
-#' Save ArchRProject for Later Usage
-#' 
-#' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
-#' 
-#' @param ArchRProj An `ArchRProject` object.
-#' @param copyArrows A boolean indicating whether to copy (`TRUE`) or copy + remove (`FALSE`) original ArrowFiles prior to saving the `ArchRProject`.
-#' @export
-saveArchRProject <- function(
-  ArchRProj = NULL, 
-  copyArrows = TRUE
-  ){
-
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
-  .validInput(input = copyArrows, name = "copyArrows", valid = "boolean")
-
-  outputDir <- getOutputDirectory(ArchRProj)
-  
-  #Set Up Arrow Files
-  ArrowDir <- file.path(basename(outputDir), "ArrowFiles")
-  dir.create(ArrowDir, showWarnings = FALSE)
-
-  ArrowFiles <- getArrowFiles(ArchRProj)
-  ArrowFilesNew <- file.path(ArrowDir, basename(ArrowFiles))
-  names(ArrowFilesNew) <- names(ArrowFiles)
-
-  for(i in seq_along(ArrowFiles)){
-    cf <- file.copy(ArrowFiles[i], ArrowFilesNew[i])
-    if(!copyArrows){
-      file.remove(ArrowFiles[i])
-    }
-  }
-
-  ArchRProj@sampleColData$ArrowFiles <- ArrowFilesNew[rownames(ArchRProj@sampleColData)]
-
-  saveRDS(ArchRProj, file.path(outputDir, "Save-ArchR-Project.rds"))
-
-}
-
 #' Load Previous ArchRProject into R
 #' 
 #' This function will load a previously saved ArchRProject and re-normalize paths for usage.
@@ -405,7 +367,7 @@ loadArchRProject <- function(
   outputDirNew <- normalizePath(path)
 
   #1. Arrows Paths
-  ArrowFilesNew <- file.path(outputDirNew, gsub(paste0(basename(outputDir),"/"),"",ArchRProj@sampleColData$ArrowFiles))
+  ArrowFilesNew <- file.path(outputDirNew, "ArrowFiles", basename(ArchRProj@sampleColData$ArrowFiles))
   if(!all(file.exists(ArrowFilesNew))){
     stop("ArrowFiles do not exist in saved ArchRProject!")
   }
@@ -493,6 +455,127 @@ loadArchRProject <- function(
   }  
 
   ArchRProj
+
+}
+
+#' Save ArchRProject for Later Usage
+#' 
+#' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param copyArrows A boolean indicating whether to copy (`TRUE`) or copy + remove (`FALSE`) original ArrowFiles prior to saving the `ArchRProject`.
+#' @export
+saveArchRProject <- function(
+  ArchRProj = NULL,
+  outputDirectory = getOutputDirectory(ArchRProj),
+  overwrite = TRUE,
+  load = TRUE
+  ){
+  
+  outDirOld <- getOutputDirectory(ArchRProj)
+  newProj <- ArchRProj
+  ArrowFiles <- getArrowFiles(ArchRProj)
+  ArrowFiles <- ArrowFiles[names(ArrowFiles) %in% unique(newProj$Sample)]
+
+  dir.create(outputDirectory, showWarnings=FALSE)
+  oldFiles <- list.files(outDirOld)
+  oldFiles <- oldFiles[oldFiles %ni% c("ArrowFiles", "ImputeWeights", "Save-ArchR-Project.rds")]
+
+  dir.create(file.path(outputDirectory, "ArrowFiles"), showWarnings=FALSE)
+  ArrowFilesNew <- file.path(outputDirectory, "ArrowFiles", basename(ArrowFiles))
+  names(ArrowFilesNew) <- names(ArrowFiles)
+
+  if(outputDirectory != outDirOld){
+    message("Copying ArchRProject to new outputDirectory : ", normalizePath(outputDirectory))
+  }
+
+  if(!identical(paste0(ArrowFiles), paste0(ArrowFilesNew))){
+
+    #Copy Arrow Files
+    message("Copying Arrow Files...")
+    for(i in seq_along(ArrowFiles)){
+      message(sprintf("Copying Arrow Files (%s of %s)", i, length(ArrowFiles)))
+      cf <- file.copy(ArrowFiles[i], ArrowFilesNew[i], overwrite = overwrite)
+    }
+
+  }
+
+  if(outputDirectory != outDirOld){
+
+    #Empty Impute Weights If Changing Directory Because This Could Be A Different Set of Cells
+    if(!is.null(getImputeWeights(newProj))){
+      message("Dropping ImputeWeights...")
+      newProj@imputeWeights <- SimpleList()
+    }
+
+    #Copy Other Folders 2 layers nested
+    message("Copying Other Files...")
+    for(i in seq_along(oldFiles)){
+      fin <- file.path(outDirOld, oldFiles[i])
+      fout <- file.path(outputDirectory, oldFiles[i])
+      message(sprintf("Copying Other Files (%s of %s): %s", i, length(oldFiles), basename(fin)))
+      if(dir.exists(fin)){
+        dir.create(file.path(outputDirectory, basename(fin)), showWarnings=FALSE)
+        fin2 <- list.files(fin, full.names = TRUE)
+        for(j in seq_along(fin2)){
+          if(dir.exists(fin2[j])){
+            dir.create(file.path(outputDirectory, basename(fin), basename(fin2)), showWarnings=FALSE)
+            fin3 <- list.files(fin2[j], full.names = TRUE)
+            for(k in seq_along(fin3)){
+              cf <- file.copy(fin3[k], file.path(fout, basename(fin3[k])), overwrite = overwrite)
+            }
+          }else{
+            cf <- file.copy(fin2[j], file.path(fout, basename(fin2[j])), overwrite = overwrite)
+          }
+        }
+      }else{
+        cf <- file.copy(fin, fout, overwrite = overwrite)
+      }
+    }
+    newProj@sampleColData <- newProj@sampleColData[names(ArrowFilesNew), , drop = FALSE]
+    newProj@sampleColData$ArrowFiles <- ArrowFilesNew[rownames(newProj@sampleColData)]
+
+    saveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
+  
+  }
+
+  message("Saving ArchRProject...")
+  saveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
+  
+  if(load){
+    message("Loading ArchRProject...")
+    loadArchRProject(path = outputDirectory)
+  }
+
+}
+
+#' Load Previous ArchRProject into R
+#' 
+#' This function will load a previously saved ArchRProject and re-normalize paths for usage.
+#' 
+#' @param path A character path to an `ArchRProject` directory that was previously saved using `saveArchRProject()`.
+#' @param force A boolean value indicating whether missing optional `ArchRProject` components (i.e. peak annotations /
+#' background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject`
+#' will fail unless all components can be found.
+#' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
+#' @export
+subsetArchRProject <- function(
+  ArchRProj = NULL,
+  cells = getCellNames(ArchRProj),
+  outputDirectory = "ArchRSubset"
+  ){
+
+  outDirOld <- getOutputDirectory(ArchRProj)
+
+  if(outputDirectory == outDirOld){
+    stop("outputDirectory must be different than ArchRProj outputDirectory to properly subset!")
+  }
+
+  saveArchRProject(
+    ArchRProj = ArchRProj[cells, ], 
+    outputDirectory = outputDirectory,
+    load = TRUE
+  )
 
 }
 
