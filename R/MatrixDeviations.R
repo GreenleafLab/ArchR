@@ -341,6 +341,7 @@ addDeviationsMatrix <- function(
   .logThis(expectation, paste0(prefix, " : expectation"))
 
   d <- max(floor(ncol(annotationsMatrix)/20), 1)
+  m <- 0
   results <- .safelapply(seq_len(ncol(annotationsMatrix)), function(x){
     if(x %% d == 0){
       .logDiffTime(sprintf("%s : Deviations for Annotation %s of %s", prefix, x, ncol(annotationsMatrix)), tstart, verbose = verbose, logFile = logFile)
