@@ -196,14 +196,29 @@ addDeviationsMatrix <- function(
 
   #Get Matrix and Run ChromVAR!
   .logDiffTime(sprintf("chromVAR deviations %s Schep (2017)", prefix), tstart, addHeader = FALSE, logFile = logFile)
-  dev <- .getMatFromArrow(
-    ArrowFile, 
-    featureDF = featureDF, 
-    binarize = binarize, 
-    useMatrix = useMatrix,
-    cellNames = cellNames
-    ) %>% {.customDeviations(
-      countsMatrix = .,
+  dev <- tryCatch({
+    
+    .getMatFromArrow(
+      ArrowFile, 
+      featureDF = featureDF, 
+      binarize = binarize, 
+      useMatrix = useMatrix,
+      cellNames = cellNames
+      ) %>% {.customDeviations(
+        countsMatrix = .,
+        annotationsMatrix = annotationsMatrix,
+        prefix = prefix,
+        backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
+        expectation = featureDF$rowSums/sum(featureDF$rowSums),
+        out = out,
+        verbose = verbose,
+        threads = subThreads,
+        logFile = logFile
+      )}
+  
+  }, error = function(e){
+
+    errorList <- list(
       annotationsMatrix = annotationsMatrix,
       prefix = prefix,
       backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
@@ -212,7 +227,11 @@ addDeviationsMatrix <- function(
       verbose = verbose,
       threads = subThreads,
       logFile = logFile
-    )}
+    )
+    
+    .logError(e, fn = ".computeDeviations", info = prefix, errorList = errorList, logFile = logFile)
+
+  })
   gc()
   .logThis(dev, "dev", logFile = logFile)
 

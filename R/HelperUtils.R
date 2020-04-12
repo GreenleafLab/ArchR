@@ -845,10 +845,26 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
     o <- mclapply(..., mc.cores = threads, mc.preschedule = preschedule)
 
-    for(i in seq_along(o)){ #JJJ this doesnt seem to work?
+    errorMsg <- list()
+
+    for(i in seq_along(o)){ #Make Sure this doesnt explode!
       if(inherits(o[[i]], "try-error")){
-        stop("Error detected with safelapply! Exiting...")
+        capOut <- utils::capture.output(o[[i]])
+        capOut <- capOut[!grepl("attr\\(\\,|try-error", capOut)]
+        capOut <- head(capOut, 10)
+        capOut <- unlist(lapply(capOut, function(x) substr(x, 1, 250)))
+        capOut <- paste0("\t", capOut)
+        errorMsg[[length(errorMsg) + 1]] <- paste0(c(paste0("Error Found Iteration ", i, " : "), capOut), "\n")
       }
+    }
+
+    if(length(errorMsg) != 0){
+
+      errorMsg <- unlist(errorMsg)
+      errorMsg <- head(errorMsg, 50)
+      errorMsg[1] <- paste0("\n", errorMsg[1])
+      stop(errorMsg)
+
     }
 
   }else{
