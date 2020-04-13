@@ -175,22 +175,22 @@ addDeviationsMatrix <- function(
   }
 
   #Check
-  completed <- tryCatch({
-      h5read(ArrowFile, paste0(matrixName,"/Info/Completed")) #Check if completed
-      return(TRUE)
-    },error = function(y){
-      return(FALSE)
-  })
-  if(completed){
-    if(!force){
-      .logMessage(paste0("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations."), logFile = logFile)
-      message("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations.")
-      return(0)
-    }else{
-      .logMessage("Previous Run Completed Successfully, continuing since force = TRUE!", logFile = logFile)
-      message("Previous Run Completed Successfully, continuing since force = TRUE!")
-    }
-  }
+  # completed <- tryCatch({
+  #     h5read(ArrowFile, paste0(matrixName,"/Info/Completed")) #Check if completed
+  #     return(TRUE)
+  #   },error = function(y){
+  #     return(FALSE)
+  # })
+  # if(completed){
+  #   if(!force){
+  #     .logMessage(paste0("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations."), logFile = logFile)
+  #     message("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations.")
+  #     return(0)
+  #   }else{
+  #     .logMessage("Previous Run Completed Successfully, continuing since force = TRUE!", logFile = logFile)
+  #     message("Previous Run Completed Successfully, continuing since force = TRUE!")
+  #   }
+  # }
   o <- h5closeAll()
   o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force, logFile = logFile)
 
