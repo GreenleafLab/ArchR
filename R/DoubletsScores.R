@@ -30,6 +30,7 @@
 #' override this (not recommended!), you can bypass this warning by setting `force=TRUE`.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verbose A boolean value that determines whether standard output is printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addDoubletScores <- function(
   input = NULL,
@@ -65,6 +66,8 @@ addDoubletScores <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
+
 
   .startLogging(logFile = logFile)
 

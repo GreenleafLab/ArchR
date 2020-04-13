@@ -46,7 +46,7 @@
 #' has been running relative to the start time when this process was initiated in another function. This argument is rarely manually specified.
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already
 #' exists as a column name in `cellColData`.
-#' @param logFile The name of the log file to be used for logging ArchR output.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)
 #' @export
 #'

@@ -25,7 +25,7 @@
 #' and memory but can lower the overal quality of the UMAP Embedding. Only recommended for extremely large number of cells.
 #' @param outlierQuantile A numeric (0 to 1) describing the distance quantile in the subsampled cels (see `sampleCells`) to use to filter poor quality re-projections.
 #' This is necessary because there are lots of outliers if undersampled significantly.
-#' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding.
+#' @param saveModel JJJ A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.
 #' @param verbose A boolean value that indicates whether printing UMAP output.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
@@ -57,19 +57,19 @@ addUMAP <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
+  .validInput(input = nNeighbors, name = "nNeighbors", valid = c("integer", "null"))
+  .validInput(input = minDist, name = "minDist", valid = c("numeric", "null"))
+  .validInput(input = metric, name = "metric", valid = c("character", "null"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  #JJJ .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
+  #JJJ .validInput(input = outlierQuantile, name = "outlierQuantile", valid = c("numeric", "null"))
   .validInput(input = saveModel, name = "saveModel", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
-
-  #Umap Params
-  .validInput(input = nNeighbors, name = "nNeighbors", valid = c("integer", "null"))
-  .validInput(input = minDist, name = "minDist", valid = c("numeric", "null"))
-  .validInput(input = metric, name = "metric", valid = c("character", "null"))
 
   if(name %in% names(ArchRProj@embeddings)){
     if(!force){
@@ -302,6 +302,7 @@ addUMAP <- function(
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing
 #' depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param saveModel JJJ A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.
 #' @param verbose A boolean value that indicates whether printing TSNE output.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
@@ -331,6 +332,7 @@ addTSNE <- function(
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = method, name = "method", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
   .validInput(input = perplexity, name = "perplexity", valid = c("integer"))
   .validInput(input = maxIterations, name = "maxIterations", valid = c("integer"))
@@ -338,11 +340,11 @@ addTSNE <- function(
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  #JJJ .validInput(input = saveModel, name = "saveModel", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = method, name = "method", valid = c("character"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))  
 
   #TSNE Params
   .validInput(input = perplexity, name = "perplexity", valid = c("integer", "null"))

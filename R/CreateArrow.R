@@ -64,7 +64,7 @@
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param cleamTmp A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.
-#' @param logFile A file path to write ArchR logging output to.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 #' 
 createArrowFiles <- function(

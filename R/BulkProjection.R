@@ -9,7 +9,7 @@
 #' @param n An integer specifying the number of subsampled "pseudo single cells" per bulk sample.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param threads The number of threads used for parallel execution
-#' @param logFile The name of the log file to be used for logging ArchR output.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 #'
 projectBulkATAC <- function(
