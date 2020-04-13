@@ -159,13 +159,20 @@ getFragmentsFromArrow <- function(
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @export
 getMatrixFromProject <- function(
-  ArchRProj = NULL, 
+  ArchRProj = NULL, #JJJ - the function parameters here dont match the params above AND they dont match the variables used in the function. I dont know what to annotate so I left it alone.
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
   verbose = TRUE,
   binarize = FALSE,
   threads = getArchRThreads()
   ){
+
+  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  # JJJ .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  # JJJ .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  # JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  # JJJ .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
 

@@ -7,29 +7,35 @@
 #' This function will correlate 2 matrices within an ArchRProject by name matching.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix1 A character describing the first matrix to use. See `getAvailableMatrices` for valid options.
-#' @param useMatrix2 A character describing the second matrix to use. See `getAvailableMatrices` for valid options.
-#' @param useSeqnames1 A character vector describing which seqnames to use in matrix 1.
-#' @param useSeqnames2 A character vector describing which seqnames to use in matrix 2.
-#' @param removeFromName1 A character vector describing how to filter names in matrix 1. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
-#' @param removeFromName2 A character vector describing how to filter names in matrix 2. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
-#' @param log2Norm1 A boolean describing whether to log2 normalize matrix 1.
-#' @param log2Norm2 A boolean describing whether to log2 normalize matrix 2.
-#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
-#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
-#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' @param useMatrix1 The name of a valid matrix in the `ArchRProject` to use as the first matrix in the correlation comparison.
+#' See `getAvailableMatrices()` for valid options.
+#' @param useMatrix2 The name of a valid matrix in the `ArchRProject` to use as the second matrix in the correlation comparison.
+#' See `getAvailableMatrices()` for valid options.
+#' @param useSeqnames1 JJJ An optional character vector of the subset of `seqnames` (i.e. chromosomes) to use from the matrix identified by `useMatrix1`.
+#' @param useSeqnames2 JJJ An optional character vector of the subset of `seqnames` (i.e. chromosomes) to use from the matrix identified by `useMatrix2`.
+#' @param removeFromName1 JJJ A character vector describing how column names from matrix 1 should be adjusted.  Valid options include "underscore", "dash", and "numeric".
+#' For example, `removeFromName1 = c("dash","underscore")` indicates that all dashes ("-") and underscores ("_") should be removed from the column names of the matrix.
+#' The remainder of each column name will be left untouched. This allows for better matching of column names across diverse input matrices.
+#' @param removeFromName2 JJJ A character vector describing how column names from matrix 2 should be adjusted.  Valid options include "underscore", "dash", and "numeric".
+#' For example, `removeFromName1 = c("dash","underscore")` indicates that all dashes ("-") and underscores ("_") should be removed from the column names of the matrix.
+#' The remainder of each column name will be left untouched. This allows for better matching of column names across diverse input matrices.
+#' @param log2Norm1 A boolean value that indicates whether or not to log2 normalize matrix 1.
+#' @param log2Norm2 A boolean value that indicates whether or not to log2 normalize matrix 2.
+#' @param reducedDims JJJ WHAT IS THIS USED FOR? The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
+#' @param dimsToUse JJJ WHY IS AN EMBEDDING BEING COMPUTED? A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
+#' @param scaleDims JJJ NOT USED IN FUNCTION? A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
 #' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
 #' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param k An `ArchRProject` object.
-#' @param knnIteration An `ArchRProject` object.
-#' @param overlapCutoff An `ArchRProject` object.
-#' @param seed An `ArchRProject` object.
-#' @param knnMethod An `ArchRProject` object.
+#' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
+#' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
+#' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be
+#' added to the group list during k-nearest neighbor calculations.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+#' reproduce results downstream.
+#' @param knnMethod JJJ The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.
 #' @param threads The number of threads to be used for parallel computing.
 #' @export
 correlateMatrices <- function(
@@ -44,7 +50,7 @@ correlateMatrices <- function(
   log2Norm2 = TRUE,
   reducedDims = "IterativeLSI",
   dimsToUse = 1:30,
-  scaleDims = NULL,
+  scaleDims = NULL,#JJJ should this have a default value that isnt NULL?
   corCutOff = 0.75,
   k = 100, 
   knnIteration = 500, 
@@ -53,6 +59,26 @@ correlateMatrices <- function(
   knnMethod = NULL,
   threads = getArchRThreads()
   ){
+
+  #JJJ .validInput(input = input, name = "input", valid = c("ArchRProj", "matrix"))
+  #JJJ .validInput(input = useMatrix1, name = "useMatrix1", valid = c("character"))
+  #JJJ .validInput(input = useMatrix2, name = "useMatrix2", valid = c("character"))
+  #JJJ .validInput(input = useSeqnames1, name = "useSeqnames1", valid = c("character", "null"))
+  #JJJ .validInput(input = useSeqnames2, name = "useSeqnames2", valid = c("character","null"))
+  #JJJ .validInput(input = removeFromName1, name = "removeFromName1", valid = c("character","null"))
+  #JJJ .validInput(input = removeFromName2, name = "removeFromName2", valid = c("character","null"))
+  #JJJ .validInput(input = log2Norm1, name = "log2Norm1", valid = c("boolean"))
+  #JJJ .validInput(input = log2Norm2, name = "log2Norm2", valid = c("boolean"))
+  #JJJ .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  #JJJ .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer"))
+  #JJJ .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean"))
+  #JJJ .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
+  #JJJ .validInput(input = k, name = "k", valid = c("integer"))
+  #JJJ .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
+  #JJJ .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
+  #JJJ .validInput(input = seed, name = "seed", valid = c("numeric"))
+  #JJJ .validInput(input = knnMethod, name = "knnMethod", valid = c("character"))
+  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
 
@@ -345,6 +371,7 @@ addCoAccessibility <- function(
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
+  #JJJ .validInput(input = seed, name = "seed", valid = c("numeric"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
@@ -614,6 +641,8 @@ addPeak2GeneLinks <- function(
   .validInput(input = maxDist, name = "maxDist", valid = c("integer"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
+  #JJJ .validInput(input = predictionCutoff, name = "predictionCutoff", valid = c("numeric"))
+  #JJJ .validInput(input = seed, name = "seed", valid = c("numeric"))
   .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
@@ -860,6 +889,7 @@ getPeak2GeneLinks <- function(
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = corCutOff, name = "corCutOff", valid = "numeric")
+  #JJJ .validInput(input = FDRCutOff, name = "FDRCutOff", valid = "numeric")
   .validInput(input = resolution, name = "resolution", valid = c("integer", "null"))
   .validInput(input = returnLoops, name = "returnLoops", valid = "boolean")
   
@@ -921,16 +951,18 @@ getPeak2GeneLinks <- function(
 #' This function plots side by side heatmaps of linked ATAC and Gene regions from `addPeak2GeneLinks`.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param corCutOff A numeric describing the minimum numeric peak-to-gene correlation to return.
-#' @param FDRCutOff A numeric describing the maximum numeric peak-to-gene false discovery rate to return.
-#' @param k An integer describing the number of k-means clusters to group peak-to-gene links prior to plotting heatmaps.
-#' @param nPlot An integer describing the maximum number of peak-to-gene links to plot in heatmap.
-#' @param limitsATAC An integer describing the maximum number of peak-to-gene links to plot in heatmap.
-#' @param limitsRNA An integer describing the maximum number of peak-to-gene links to plot in heatmap.
-#' @param groupBy The name of the column in `cellColData` to use for labeling KNN groupings. The maximum group appeared in the KNN groupings is used.
-#' @param palGroup A color palette describing the colors in `groupBy`. For example, if groupBy = "Clusters" try paletteDiscrete(ArchRProj$Clusters) for a color palette.
-#' @param palATAC A color palette describing the colors to be used for the ATAC heatmap. For example, paletteContinuous("solarExtra").
-#' @param palRNA A color palette describing the colors to be used for the RNA heatmap. For example, paletteContinuous("blueYellow").
+#' @param corCutOff A numeric describing the minimum numeric peak-to-gene correlation used to define the set of peak-to-gene links to return.
+#' @param FDRCutOff A numeric describing the maximum numeric peak-to-gene false discovery rate used to define the set of peak-to-gene links to return.
+#' @param k An integer describing the number of k-means clusters to create when grouping peak-to-gene links prior to plotting heatmaps.
+#' @param nPlot An integer describing the maximum number of peak-to-gene links to plot in the heatmap.
+#' @param limitsATAC JJJ A numeric vector that determines the upper and lower limits to be used for the color scale for ATAC-seq data. Values below or above these
+#' limits will be thresholded to the value of the specified limit.
+#' @param limitsRNA JJJ A numeric vector that determines the upper and lower limits to be used for the color scale for RNA-seq data. Values below or above these
+#' limits will be thresholded to the value of the specified limit.
+#' @param groupBy JJJ THIS DOESNT MAKE SENSE TO ME. THE K GROUPS ARE GROUPS OF PEAKS RIGHT? The name of the column in `cellColData` to use for labeling KNN groupings. The maximum group appeared in the KNN groupings is used.
+#' @param palGroup A color palette describing the colors in `groupBy`. For example, if `groupBy = "Clusters"` try `paletteDiscrete(ArchRProj$Clusters)` for a color palette.
+#' @param palATAC A color palette describing the colors to be used for the ATAC heatmap. For example, `paletteContinuous("solarExtra")`.
+#' @param palRNA A color palette describing the colors to be used for the RNA heatmap. For example, `paletteContinuous("blueYellow")`.
 #' @export
 peak2GeneHeatmap <- function(
   ArchRProj = NULL, 
@@ -945,6 +977,18 @@ peak2GeneHeatmap <- function(
   palATAC = paletteContinuous("solarExtra"),
   palRNA = paletteContinuous("blueYellow")
   ){
+
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+  #JJJ .validInput(input = corCutOff, name = "corCutOff", valid = "numeric")
+  #JJJ .validInput(input = FDRCutOff, name = "FDRCutOff", valid = "numeric")
+  #JJJ .validInput(input = k, name = "k", valid = c("integer"))
+  #JJJ .validInput(input = nPlot, name = "nPlot", valid = "integer")
+  #JJJ .validInput(input = limitsATAC, name = "limitsATAC", valid = "numeric")
+  #JJJ .validInput(input = limitsRNA, name = "limitsRNA", valid = "numeric")
+  #JJJ .validInput(input = groupBy, name = "groupBy", valid = "character")
+  #JJJ .validInput(input = palGroup, name = "palGroup", valid = "JJJ")
+  #JJJ .validInput(input = palATAC, name = "palATAC", valid = "JJJ")
+  #JJJ .validInput(input = palRNA, name = "palRNA", valid = "JJJ")
 
   tstart <- Sys.time()
 
