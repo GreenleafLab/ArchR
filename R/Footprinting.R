@@ -4,7 +4,7 @@
 
 #' Calculate footprints from an ArchRProject
 #' 
-#' This function will get footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
+#' This function will get footprints for all samples in a given ArchRProject and return a summarized experiment object that can be used for downstream analyses
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param positions A `list` or `GenomicRangesList` of `GRanges` containing the positions to incorporate into the footprint. Each position should be stranded.
@@ -12,23 +12,13 @@
 #' @param groupBy The name of the column in `cellColData` used in the `addGroupCoverages()` function for grouping multiple cells together.
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`.
 #' This limits the groups used to perform footprinting.
-#' @param pal The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
 #' @param flank The number of basepairs from the position center (+/-) to consider as the flank.
-#' @param flankNorm The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.
-#' @param smoothWindow The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
 #' @param minCells The minimum number of cells required in a given cell group to permit footprint generation.
 #' @param nTop The number of genomic regions to consider. Only the top `nTop` genomic regions based on the "score" column in the `GRanges`
 #' object will be considered for the footprint.
-#' @param normMethod The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options
-#' include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.
-#' @param inputSE Input a previous footprint Summarized Experiment (returned after running `plotFootprints`) to be plotted instead of
-#' regenerating the footprinting information.
-#' @param height The height in inches to be used for the output PDF.
-#' @param width The width in inches to be used for the output PDF file.
-#' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
-#' preventing overwritting of old plots.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 getFootprints <- function(
   ArchRProj = NULL,
@@ -49,6 +39,12 @@ getFootprints <- function(
   .validInput(input = plotName, name = "plotName", valid = c("character"))
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
+  #JJJ .validInput(input = flank, name = "groupBy", valid = c("integer"))
+  #JJJ .validInput(input = minCells, name = "groupBy", valid = c("integer"))
+  #JJJ .validInput(input = nTop, name = "groupBy", valid = c("integer"))
+  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
@@ -330,32 +326,26 @@ getFootprints <- function(
 #' 
 #' This function will get footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 #'
-#' @param ArchRProj An `ArchRProject` object.
-#' @param positions A `list` or `GenomicRangesList` of `GRanges` containing the positions to incorporate into the footprint. Each position should be stranded.
-#' @param plotName The prefix to add to the file name for the output PDF file containing the footprint plots.
-#' @param groupBy The name of the column in `cellColData` used in the `addGroupCoverages()` function for grouping multiple cells together.
-#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`.
-#' This limits the groups used to perform footprinting.
+#' @param seFoot JJJ A summarized experiment object containing information on footprints returned by the `getFootprints()` function.
+#' @param names JJJ A character vector containing the names of the transcription factors to be plotted.
 #' @param pal The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
 #' @param flank The number of basepairs from the position center (+/-) to consider as the flank.
 #' @param flankNorm The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.
-#' @param smoothWindow The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
-#' @param minCells The minimum number of cells required in a given cell group to permit footprint generation.
-#' @param nTop The number of genomic regions to consider. Only the top `nTop` genomic regions based on the "score" column in the `GRanges`
-#' object will be considered for the footprint.
 #' @param normMethod The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options
 #' include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.
-#' @param inputSE Input a previous footprint Summarized Experiment (returned after running `plotFootprints`) to be plotted instead of
-#' regenerating the footprinting information.
-#' @param height The height in inches to be used for the output PDF.
+#' @param smoothWindow The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
+#' @param baseSize JJJ
+#' @param plot JJJ A boolean value indicating whether or not the footprints should be plotted (`TRUE`) or JJJ (`FALSE`).
+#' @param ArchRProj JJJ An `ArchRProject` object to be used for JJJ.
+#' @param plotName JJJ A string indicating the name of the file to be used for output plots.
+#' @param height The height in inches to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
 #' preventing overwritting of old plots.
-#' @param threads The number of threads to be used for parallel computing.
-#' @param verbose A boolean value that determines whether standard output includes verbose sections.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 plotFootprints <- function(
-  seFoot = NULL,
+  seFoot = NULL,#JJJ some of the parameters used in the function, namely "force" seem to be missing 
   names = NULL,
   pal = NULL,
   flank = 250,
@@ -371,6 +361,22 @@ plotFootprints <- function(
   addDOC = TRUE,
   logFile = createLogFile("plotFootprints")
   ){
+
+  #JJJ .validInput(input = seFoot, name = "seFoot", valid = c("character"))
+  #JJJ .validInput(input = names, name = "names", valid = c("character"))
+  #JJJ .validInput(input = pal, name = "pal", valid = c("character"))
+  #JJJ .validInput(input = flank, name = "flank", valid = c("integer"))
+  #JJJ .validInput(input = flankNorm, name = "flankNorm", valid = c("integer"))
+  #JJJ .validInput(input = normMethod, name = "normMethod", valid = c("character"))
+  #JJJ .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  #JJJ .validInput(input = baseSize, name = "baseSize", valid = c("integer"))
+  #JJJ .validInput(input = plot, name = "plot", valid = c("character"))
+  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  #JJJ .validInput(input = plotName, name = "plotName", valid = c("character"))
+  #JJJ .validInput(input = height, name = "height", valid = c("numeric"))
+  #JJJ .validInput(input = width, name = "width", valid = c("numeric"))
+  #JJJ .validInput(input = addDOC, name = "addDOC", valid = c("boolean"))
+  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
