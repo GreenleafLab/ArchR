@@ -51,35 +51,43 @@ correlateMatrices <- function(
   overlapCutoff = 0.8, 
   seed = 1, 
   knnMethod = NULL,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  logFile = createLogFile("correlateMatrices")
   ){
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "correlateMatrices Input-Parameters", logFile = logFile)
 
   set.seed(seed)
 
   #Get Available Matrices
-  matrixNames <- getAvailableMatrices(proj)
+  matrixNames <- getAvailableMatrices(ArchRProj)
 
   if(useMatrix1 %ni% matrixNames){
-    stop(paste0("useMatrix1 (",useMatrix1,") not in availableMatrices :\n", paste(matrixNames, collapse = ", ")))
+    .logStop(paste0("useMatrix1 (",useMatrix1,") not in availableMatrices :\n", paste(matrixNames, collapse = ", ")), logFile = logFile)
   }
 
   if(useMatrix2 %ni% matrixNames){
-    stop(paste0("useMatrix2 (",useMatrix2,") not in availableMatrices :\n", paste(matrixNames, collapse = ", ")))
+    .logStop(paste0("useMatrix2 (",useMatrix2,") not in availableMatrices :\n", paste(matrixNames, collapse = ", ")), logFile = logFile)
   }
 
   #Get Matrix Classes
   matrixClass1 <- as.character(h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix1, "/Info/Class")))
   matrixClass2 <- as.character(h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix2, "/Info/Class")))
+  .logThis(matrixClass1, name = "matrixClass1", logFile = logFile)
+  .logThis(matrixClass2, name = "matrixClass2", logFile = logFile)
 
   #Get Feature DFs
   featureDF1 <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix1)
   featureDF2 <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix2)
+  .logThis(featureDF1, name = "featureDF1", logFile = logFile)
+  .logThis(featureDF2, name = "featureDF2", logFile = logFile)
 
   #Check Seqnames
-  featureDF1 <- .checkSeqnames(featureDF1, useMatrix1, useSeqnames1, matrixClass1)
-  featureDF2 <- .checkSeqnames(featureDF2, useMatrix2, useSeqnames2, matrixClass2)
+  featureDF1 <- .checkSeqnames(featureDF1, useMatrix1, useSeqnames1, matrixClass1, logFile)
+  featureDF2 <- .checkSeqnames(featureDF2, useMatrix2, useSeqnames2, matrixClass2, logFile)
 
   #Create Match Names
   featureDF1$matchName <- featureDF1$name
@@ -103,17 +111,25 @@ correlateMatrices <- function(
   if("numeric" %in% tolower(removeFromName2)){
     featureDF2$matchName <- gsub("[0-9]+","",featureDF2$matchName)
   }
-  
+  .logThis(featureDF1, name = "featureDF1", logFile = logFile)
+  .logThis(featureDF2, name = "featureDF2", logFile = logFile)
+
   #Now Lets see how many matched pairings
-  matchP <- sum(featureDF1$matchName %in% featureDF2$matchName) / nrow(featureDF1)
+  matchP1 <- sum(featureDF1$matchName %in% featureDF2$matchName) / nrow(featureDF1)
+  matchP2 <- sum(featureDF2$matchName %in% featureDF1$matchName) / nrow(featureDF2)
+  matchP <- max(matchP1, matchP2)
+
+  .logThis(featureDF1$matchName, "featureDF1$matchName", logFile)
+  .logThis(featureDF2$matchName, "featureDF2$matchName", logFile)
+
   if(sum(featureDF1$matchName %in% featureDF2$matchName) == 0){
-    stop("Matching of useMatrix1 and useMatrix2 resulted in no mappings!")
+    .logStop("Matching of useMatrix1 and useMatrix2 resulted in no mappings!", logFile = logFile)
   }
   if(matchP < 0.05){
     if(force){
-      stop("Matching of useMatrix1 and useMatrix2 resulted in less than 5% mappings! Set force = TRUE to continue!")
+      .logStop("Matching of useMatrix1 and useMatrix2 resulted in less than 5% mappings! Set force = TRUE to continue!", logFile = logFile)
     }else{
-      message("Matching of useMatrix1 and useMatrix2 resulted in less than 5% mappings! Continuing since force = TRUE.")
+      .logMessage("Matching of useMatrix1 and useMatrix2 resulted in less than 5% mappings! Continuing since force = TRUE.", verbose = TRUE, logFile = logFile)
     }
   }
   matchedNames <- intersect(featureDF1$matchName, featureDF2$matchName)
@@ -126,7 +142,7 @@ correlateMatrices <- function(
   }) %>% Reduce("rbind", .)
 
   #Test Mappings
-  message("Testing ", nrow(mappingDF), " Mappings!")
+  .logDiffTime(main=paste0("Testing ", nrow(mappingDF), " Mappings!"), t1=tstart, verbose=verbose, logFile=logFile)
 
   #Get Reduced Dims
   rD <- getReducedDims(ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
@@ -135,24 +151,26 @@ correlateMatrices <- function(
   idx <- sample(seq_len(nrow(rD)), knnIteration, replace = !nrow(rD) >= knnIteration)
 
   #KNN Matrix
-  .messageDiffTime("Computing KNN", tstart)
+  .logDiffTime(main="Computing KNN", t1=tstart, verbose=verbose, logFile=logFile)
   knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
 
   #Determin Overlap
-  .messageDiffTime("Identifying Non-Overlapping KNN pairs", tstart)
-  keepKnn <- ArchR:::determineOverlapCpp(knnObj, floor(overlapCutoff * k))
+  .logDiffTime(main="Identifying Non-Overlapping KNN pairs", t1=tstart, verbose=verbose, logFile=logFile)
+  keepKnn <- determineOverlapCpp(knnObj, floor(overlapCutoff * k))
 
   #Keep Above Cutoff
   knnObj <- knnObj[keepKnn==0,]
-  .messageDiffTime(paste0("Identified ", nrow(knnObj), " Groupings!"), tstart)
+  .logDiffTime(main=paste0("Identified ", nrow(knnObj), " Groupings!"), t1=tstart, verbose=verbose, logFile=logFile)
+  .logThis(knnObj, name = "knnObj", logFile = logFile)
 
   #Convert To Names List
   knnObj <- lapply(seq_len(nrow(knnObj)), function(x){
     rownames(rD)[knnObj[x, ]]
   }) %>% SimpleList
+  .logThis(knnObj, name = "knnObjList", logFile = logFile)
 
   #Get Group Matrices
-  .messageDiffTime("Getting Group Matrix 1", tstart)
+  .logDiffTime(main="Getting Group Matrix 1", t1=tstart, verbose=verbose, logFile=logFile)
   groupMat1 <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = featureDF1m, 
@@ -162,7 +180,7 @@ correlateMatrices <- function(
     verbose = FALSE
   )
  
-  .messageDiffTime("Getting Group Matrix 2", tstart)
+  .logDiffTime(main="Getting Group Matrix 2", t1=tstart, verbose=verbose, logFile=logFile)
   groupMat2 <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = featureDF2m, 
@@ -172,34 +190,45 @@ correlateMatrices <- function(
     verbose = FALSE
   )
 
+  .logThis(groupMat1, name = "groupMat1", logFile = logFile)
+  .logThis(groupMat2, name = "groupMat2", logFile = logFile)
+
   #We need to divide by number of cells for the mean
   groupMat1 <- t(t(groupMat1) / k)
   groupMat2 <- t(t(groupMat2) / k)
 
+  .logThis(groupMat1, name = "groupMat1", logFile = logFile)
+  .logThis(groupMat2, name = "groupMat2", logFile = logFile)
+
   #Now we can normalize
   if(log2Norm1){
     if(any(groupMat1 < 0)){
-      message("Some entries in groupMat1 are less than 0 continuing without Log2 Normalization.\nMost likely this assay is a deviations matrix.")
+      .logMessage("Some entries in groupMat1 are less than 0, continuing without Log2 Normalization.\nMost likely this assay is a deviations matrix.", logFile=logFile)
     }else{
       groupMat1 <- log2(groupMat1 + 1)
     }
   }
   if(log2Norm2){
     if(any(groupMat2 < 0)){
-      message("Some entries in groupMat2 are less than 0 continuing without Log2 Normalization.\nMost likely this assay is a deviations matrix.")
+      .logMessage("Some entries in groupMat2 are less than 0, continuing without Log2 Normalization.\nMost likely this assay is a deviations matrix.", logFile=logFile)
     }else{
       groupMat2 <- log2(groupMat2 + 1)
     }
   }
-  
+ 
+  .logThis(groupMat1, name = "groupMat1", logFile = logFile)
+  .logThis(groupMat2, name = "groupMat2", logFile = logFile)
+
   #Row Correlate
   rowTest <- .rowCorTest(
     X = groupMat1,
     Y = groupMat2,
     idxX = mappingDF[,1],
     idxY = mappingDF[,2],
-    padjMethod = "bonferroni"
+    padjMethod = "bonferroni",
+    logFile = logFile
   )
+  .logThis(rowTest, name = "rowTest", logFile = logFile)
 
   #Output DF
   colnames(featureDF1m) <- paste0(useMatrix1, "_", colnames(featureDF1m))
@@ -212,6 +241,7 @@ correlateMatrices <- function(
   frontOrder <- c(paste0(useMatrix1, "_name"), paste0(useMatrix2, "_name"), "cor", "padj", "pval")
   df <- df[, c(frontOrder, colnames(df)[colnames(df) %ni% frontOrder])]
 
+  .endLogging(logFile = logFile)
 
   return(df)
 
@@ -225,12 +255,13 @@ correlateMatrices <- function(
   padjMethod = "BH", 
   min = 10, 
   use="complete", 
-  threads = 1
+  threads = 1,
+  logFile = NULL
   ){
-  message("Getting Correlations...")
+  .logMessage("Getting Correlations...", verbose = verbose, logFile=logFile)
   corTestList <- .safelapply(seq_along(idxX), function(i){
-    if(i %% 1000 == 0){
-      message("Computing Correlation (",i," of ", length(idxX), ")")
+    if(i %% 250 == 0){
+      .logMessage("Computing Correlation (",i," of ", length(idxX), ")", logFile=logFile)
     }
     if(length(which(!is.na(X[idxX[i],]))) > min && length(which(!is.na(Y[idxY[i],]))) > min){
       corx <- .suppressAll(cor.test(X[idxX[i],],Y[idxY[i],],use=use))
@@ -248,7 +279,13 @@ correlateMatrices <- function(
   return(corTest)
 }
 
-.checkSeqnames <- function(featureDF = NULL, useMatrix = NULL, useSeqnames = NULL, matrixClass = NULL){
+.checkSeqnames <- function(
+  featureDF = NULL, 
+  useMatrix = NULL, 
+  useSeqnames = NULL, 
+  matrixClass = NULL,
+  logFile = NULL
+  ){
 
   seqnames <- unique(as.vector(featureDF$seqnames))
   useSeqnames <- useSeqnames[useSeqnames %in% seqnames]
@@ -260,9 +297,9 @@ correlateMatrices <- function(
     if(length(useSeqnames) == 1){
       featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
     }else{
-      message("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
+      .logMessage("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
         "Continuing with first seqname '", seqnames[1], "'!\n",
-        "If confused, try getFeatures(ArchRProj, '", useMatrix,"') to list out available seqnames for input!")
+        "If confused, try getFeatures(ArchRProj, '", useMatrix,"') to list out available seqnames for input!", logFile=logFile)
       useSeqnames <- seqnames[1]
       featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
     }
@@ -271,15 +308,15 @@ correlateMatrices <- function(
       if(all(seqnames %in% c("deviations", "z"))){
         seqnames <- c("z", "deviations")
       }
-      message("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
+      .logMessage("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
         "Continuing with first seqname '", seqnames[1], "'!\n",
-        "If confused, try getFeatures(ArchRProj, '", useMatrix,"') to list out available seqnames for input!")
+        "If confused, try getFeatures(ArchRProj, '", useMatrix,"') to list out available seqnames for input!", logFile=logFile)
       useSeqnames <- seqnames[1]
       featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
     }
   }
   if(!(nrow(featureDF) > 1)){
-    stop("Less than 1 feature is remaining in featureDF please check input!")
+    .logStop("Less than 1 feature is remaining in featureDF please check input!", logFile=logFile)
   }
 
   featureDF
@@ -330,7 +367,8 @@ addCoAccessibility <- function(
   log2Norm = TRUE,
   seed = 1, 
   knnMethod = NULL,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  logFile = createLogFile("addCoAccessibility")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -348,6 +386,8 @@ addCoAccessibility <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addCoAccessibility Input-Parameters", logFile = logFile)
 
   set.seed(seed)
 
@@ -361,16 +401,16 @@ addCoAccessibility <- function(
   idx <- sample(seq_len(nrow(rD)), knnIteration, replace = !nrow(rD) >= knnIteration)
 
   #KNN Matrix
-  .messageDiffTime("Computing KNN", tstart)
+  .logDiffTime(main="Computing KNN", t1=tstart, verbose=verbose, logFile=logFile)
   knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
 
   #Determin Overlap
-  .messageDiffTime("Identifying Non-Overlapping KNN pairs", tstart)
-  keepKnn <- ArchR:::determineOverlapCpp(knnObj, floor(overlapCutoff * k))
+  .logDiffTime(main="Identifying Non-Overlapping KNN pairs", t1=tstart, verbose=verbose, logFile=logFile)
+  keepKnn <- determineOverlapCpp(knnObj, floor(overlapCutoff * k))
 
   #Keep Above Cutoff
   knnObj <- knnObj[keepKnn==0,]
-  .messageDiffTime(paste0("Identified ", nrow(knnObj), " Groupings!"), tstart)
+  .logDiffTime(paste0("Identified ", nrow(knnObj), " Groupings!"), t1=tstart, verbose=verbose, logFile=logFile)
 
   #Convert To Names List
   knnObj <- lapply(seq_len(nrow(knnObj)), function(x){
@@ -400,7 +440,7 @@ addCoAccessibility <- function(
 
   for(x in seq_along(chri)){
   
-    .messageDiffTime(sprintf("Computing Co-Accessibility %s (%s of %s)", chri[x], x, length(chri)), tstart)
+    .logDiffTime(sprintf("Computing Co-Accessibility %s (%s of %s)", chri[x], x, length(chri)), t1=tstart, verbose=verbose, logFile=logFile)
 
     #Features
     featureDF <- mcols(peakSet)[BiocGenerics::which(seqnames(peakSet) == chri[x]),]
@@ -425,7 +465,7 @@ addCoAccessibility <- function(
 
     #Correlations
     idx <- BiocGenerics::which(o$seqnames==chri[x])
-    o[idx,]$correlation <- ArchR:::rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = groupMat, Y = groupMat)
+    o[idx,]$correlation <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = groupMat, Y = groupMat)
 
   }
   
@@ -437,6 +477,8 @@ addCoAccessibility <- function(
 
   metadata(ArchRProj@peakSet)$CoAccessibility <- o
   
+  .endLogging(logFile = logFile)
+
   ArchRProj
 
 }
@@ -541,23 +583,6 @@ getCoAccessibility <- function(
 # Peak2Gene Links Methods
 ##########################################################################################
 
-ArchRProj = proj
-reducedDims = "IterativeLSI"
-dimsToUse = 1:30
-scaleDims = NULL
-corCutOff = 0.75
-k = 100
-knnIteration = 500
-overlapCutoff = 0.8
-maxDist = 250000
-scaleTo = 10^4
-log2Norm = TRUE
-predictionCutoff = 0.4
-seed = 1
-knnMethod = NULL
-threads = getArchRThreads()
-
-
 #' Add Peak2GeneLinks to an ArchRProject JJJ
 #' 
 #' This function will add peak-to-gene links to a given ArchRProject
@@ -588,6 +613,7 @@ threads = getArchRThreads()
 addPeak2GeneLinks <- function(
   ArchRProj = NULL,
   reducedDims = "IterativeLSI",
+  useMatrix = "GeneIntegrationMatrix",
   dimsToUse = 1:30,
   scaleDims = NULL,
   corCutOff = 0.75,
@@ -600,7 +626,8 @@ addPeak2GeneLinks <- function(
   predictionCutoff = 0.4,
   seed = 1, 
   knnMethod = NULL,
-  threads = max(floor(getArchRThreads() / 2), 1)
+  threads = max(floor(getArchRThreads() / 2), 1),
+  logFile = createLogFile("addPeak2GeneLinks")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -618,15 +645,18 @@ addPeak2GeneLinks <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
-  .messageDiffTime("Getting Available Matrices", tstart)
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addPeak2GeneLinks Input-Parameters", logFile = logFile)
+
+  .logDiffTime(main="Getting Available Matrices", t1=tstart, verbose=verbose, logFile=logFile)
   AvailableMatrices <- getAvailableMatrices(ArchRProj)
 
   if("PeakMatrix" %ni% AvailableMatrices){
     stop("PeakMatrix not in AvailableMatrices")
   }
 
-  if("GeneIntegrationMatrix" %ni% AvailableMatrices){
-    stop("GeneIntegrationMatrix not in AvailableMatrices")
+  if(useMatrix %ni% AvailableMatrices){
+    stop(paste0(useMatrix, " not in AvailableMatrices"))
   }
 
   ArrowFiles <- getArrowFiles(ArchRProj)
@@ -635,17 +665,17 @@ addPeak2GeneLinks <- function(
 
   dfAll <- .safelapply(seq_along(ArrowFiles), function(x){
     DataFrame(
-      cellNames = paste0(names(ArrowFiles)[x], "#", h5read(ArrowFiles[x], "GeneIntegrationMatrix/Info/CellNames")),
-      predictionScore = h5read(ArrowFiles[x], "GeneIntegrationMatrix/Info/predictionScore")
+      cellNames = paste0(names(ArrowFiles)[x], "#", h5read(ArrowFiles[x], paste0(useMatrix, "/Info/CellNames"))),
+      predictionScore = h5read(ArrowFiles[x], paste0(useMatrix, "/Info/predictionScore"))
     )
   }, threads = threads) %>% Reduce("rbind", .)
 
-  .messageDiffTime(
+  .logDiffTime(
     sprintf("Filtered Low Prediction Score Cells (%s of %s, %s)", 
     sum(dfAll[,2] < predictionCutoff), 
     nrow(dfAll), 
     round(sum(dfAll[,2] < predictionCutoff) / nrow(dfAll), 3)
-    ), tstart)
+    ), t1=tstart, verbose=verbose, logFile=logFile)
 
   keep <- sum(dfAll[,2] >= predictionCutoff) / nrow(dfAll)
   dfAll <- dfAll[which(dfAll[,2] > predictionCutoff),]
@@ -656,7 +686,7 @@ addPeak2GeneLinks <- function(
   peakSet <- getPeakSet(ArchRProj)
 
   #Gene Info
-  geneSet <- .getFeatureDF(ArrowFiles, "GeneIntegrationMatrix", threads = threads)
+  geneSet <- .getFeatureDF(ArrowFiles, useMatrix, threads = threads)
   geneStart <- GRanges(geneSet$seqnames, IRanges(geneSet$start, width = 1), name = geneSet$name, idx = geneSet$idx)
 
   #Get Reduced Dims
@@ -666,16 +696,16 @@ addPeak2GeneLinks <- function(
   idx <- sample(seq_len(nrow(rD)), knnIteration, replace = !nrow(rD) >= knnIteration)
 
   #KNN Matrix
-  .messageDiffTime("Computing KNN", tstart)
+  .logDiffTime(main="Computing KNN", t1=tstart, verbose=verbose, logFile=logFile)
   knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
 
   #Determin Overlap
-  .messageDiffTime("Identifying Non-Overlapping KNN pairs", tstart)
-  keepKnn <- ArchR:::determineOverlapCpp(knnObj, floor(overlapCutoff * k))
+  .logDiffTime(main="Identifying Non-Overlapping KNN pairs", t1=tstart, verbose=verbose, logFile=logFile)
+  keepKnn <- determineOverlapCpp(knnObj, floor(overlapCutoff * k))
 
   #Keep Above Cutoff
   knnObj <- knnObj[keepKnn==0,]
-  .messageDiffTime(paste0("Identified ", nrow(knnObj), " Groupings!"), tstart)
+  .logDiffTime(paste0("Identified ", nrow(knnObj), " Groupings!"), t1=tstart, verbose=verbose, logFile=logFile)
 
   #Convert To Names List
   knnObj <- lapply(seq_len(nrow(knnObj)), function(x){
@@ -694,28 +724,28 @@ addPeak2GeneLinks <- function(
   peakDF$seqnames <- seqnames(peakSet)
 
   #Group Matrix RNA
-  .messageDiffTime("Getting Group RNA Matrix", tstart)
+  .logDiffTime(main="Getting Group RNA Matrix", t1=tstart, verbose=verbose, logFile=logFile)
   groupMatRNA <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = geneDF, 
     groupList = knnObj, 
-    useMatrix = "GeneIntegrationMatrix",
+    useMatrix = useMatrix,
     threads = threads,
-    verbose = TRUE
+    verbose = FALSE
   )
 
   #Group Matrix ATAC
-  .messageDiffTime("Getting Group ATAC Matrix", tstart)
+  .logDiffTime(main="Getting Group ATAC Matrix", t1=tstart, verbose=verbose, logFile=logFile)
   groupMatATAC <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = peakDF, 
     groupList = knnObj, 
     useMatrix = "PeakMatrix",
     threads = threads,
-    verbose = TRUE
+    verbose = FALSE
   )
 
-  .messageDiffTime("Normalizing Group Matrices", tstart)
+  .logDiffTime(main="Normalizing Group Matrices", t1=tstart, verbose=verbose, logFile=logFile)
 
   groupMatRNA <- t(t(groupMatRNA) / colSums(groupMatRNA)) * scaleTo
   groupMatATAC <- t(t(groupMatATAC) / colSums(groupMatATAC)) * scaleTo
@@ -741,7 +771,7 @@ addPeak2GeneLinks <- function(
   gc()
 
   #Overlaps
-  .messageDiffTime("Finding Peak Gene Pairings", tstart)
+  .logDiffTime(main="Finding Peak Gene Pairings", t1=tstart, verbose=verbose, logFile=logFile)
   o <- DataFrame(
     findOverlaps(
       .suppressAll(resize(seRNA, 2 * maxDist + 1, "center")), 
@@ -755,10 +785,10 @@ addPeak2GeneLinks <- function(
   colnames(o) <- c("B", "A", "distance")
 
   #Null Correlations
-  #.messageDiffTime("Computing Background Correlations", tstart)
+  #.logDiffTime(main="Computing Background Correlations", t1=tstart, verbose=verbose, logFile=logFile)
   #nullCor <- .getNullCorrelations(seATAC, seRNA, o, 1000)
 
-  .messageDiffTime("Computing Correlations", tstart)
+  .logDiffTime(main="Computing Correlations", t1=tstart, verbose=verbose, logFile=logFile)
   o$Correlation <- rowCorCpp(as.integer(o$A), as.integer(o$B), assay(seATAC), assay(seRNA))
   o$VarAssayA <- .getQuantiles(matrixStats::rowVars(assay(seATAC)))[o$A]
   o$VarAssayB <- .getQuantiles(matrixStats::rowVars(assay(seRNA)))[o$B]
@@ -786,58 +816,59 @@ addPeak2GeneLinks <- function(
 
   metadata(ArchRProj@peakSet)$Peak2GeneLinks <- out
 
-  .messageDiffTime("Completed Peak2Gene Correlations!", tstart)
+  .logDiffTime(main="Completed Peak2Gene Correlations!", t1=tstart, verbose=verbose, logFile=logFile)
+  .endLogging(logFile = logFile)
 
   ArchRProj
 
 }
 
-.getNullCorrelations <- function(seA, seB, o, n){
+# .getNullCorrelations <- function(seA, seB, o, n){
 
-  o$seq <- seqnames(seA)[o$A]
+#   o$seq <- seqnames(seA)[o$A]
 
-  nullCor <- lapply(seq_along(unique(o$seq)), function(i){
+#   nullCor <- lapply(seq_along(unique(o$seq)), function(i){
 
-    #Get chr from olist
-    chri <- unique(o$seq)[i]
-    #message(chri, " ", appendLF = FALSE)
+#     #Get chr from olist
+#     chri <- unique(o$seq)[i]
+#     #message(chri, " ", appendLF = FALSE)
 
-    #Randomly get n seA
-    id <- which(as.character(seqnames(seA)) != chri)
-    if(length(id) > n){
-      transAidx <- sample(id, n)
-    }else{
-      transAidx <- id
-    }
+#     #Randomly get n seA
+#     id <- which(as.character(seqnames(seA)) != chri)
+#     if(length(id) > n){
+#       transAidx <- sample(id, n)
+#     }else{
+#       transAidx <- id
+#     }
 
-    #Calculate Correlations
-    grid <- expand.grid(transAidx, unique(o[o$seq==chri,]$B))
+#     #Calculate Correlations
+#     grid <- expand.grid(transAidx, unique(o[o$seq==chri,]$B))
 
-    idxA <- unique(grid[,1])
-    idxB <- unique(grid[,2])
+#     idxA <- unique(grid[,1])
+#     idxB <- unique(grid[,2])
 
-    seSubA <- seA[idxA]
-    seSubB <- seB[idxB]
+#     seSubA <- seA[idxA]
+#     seSubB <- seB[idxB]
 
-    grid[,3] <- match(grid[,1], idxA)
-    grid[,4] <- match(grid[,2], idxB)
+#     grid[,3] <- match(grid[,1], idxA)
+#     grid[,4] <- match(grid[,2], idxB)
 
-    colnames(grid) <- c("A", "B")
-    out <- rowCorCpp(grid[,3], grid[,4], assay(seSubA), assay(seSubB))
-    out <- na.omit(out)
+#     colnames(grid) <- c("A", "B")
+#     out <- rowCorCpp(grid[,3], grid[,4], assay(seSubA), assay(seSubB))
+#     out <- na.omit(out)
 
-    return(out)
+#     return(out)
 
-  }) %>% SimpleList
-  #message("")
+#   }) %>% SimpleList
+#   #message("")
 
-  summaryDF <- lapply(nullCor, function(x){
-    data.frame(mean = mean(x), sd = sd(x), median = median(x), n = length(x))
-  }) %>% Reduce("rbind",.)
+#   summaryDF <- lapply(nullCor, function(x){
+#     data.frame(mean = mean(x), sd = sd(x), median = median(x), n = length(x))
+#   }) %>% Reduce("rbind",.)
 
-  return(list(summaryDF, unlist(nullCor)))
+#   return(list(summaryDF, unlist(nullCor)))
 
-}
+# }
 
 #' Get the peak-to-gene links from an ArchRProject
 #' 
@@ -931,6 +962,8 @@ getPeak2GeneLinks <- function(
 #' @param palGroup A color palette describing the colors in `groupBy`. For example, if groupBy = "Clusters" try paletteDiscrete(ArchRProj$Clusters) for a color palette.
 #' @param palATAC A color palette describing the colors to be used for the ATAC heatmap. For example, paletteContinuous("solarExtra").
 #' @param palRNA A color palette describing the colors to be used for the RNA heatmap. For example, paletteContinuous("blueYellow").
+#' @param verbose A
+#' @param logFile A
 #' @export
 peak2GeneHeatmap <- function(
   ArchRProj = NULL, 
@@ -943,11 +976,15 @@ peak2GeneHeatmap <- function(
   groupBy = "Clusters",
   palGroup = NULL,
   palATAC = paletteContinuous("solarExtra"),
-  palRNA = paletteContinuous("blueYellow")
+  palRNA = paletteContinuous("blueYellow"),
+  verbose = TRUE,
+  logFile = createLogFile("peak2GeneHeatmap")
   ){
 
   tstart <- Sys.time()
-
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "peak2GeneHeatmap Input-Parameters", logFile = logFile)
+  
   if(is.null(metadata(ArchRProj@peakSet)$Peak2GeneLinks)){
     stop("No Peak2GeneLinks Found! Try addPeak2GeneLinks!")
   }
@@ -966,7 +1003,7 @@ peak2GeneHeatmap <- function(
   #########################################
   # Determine Groups from KNN
   #########################################
-  .messageDiffTime("Determining KNN Groups!", tstart)
+  .logDiffTime(main="Determining KNN Groups!", t1=tstart, verbose=verbose, logFile=logFile)
   KNNList <- as(metadata(readRDS(metadata(p2g)$seRNA))$KNNList, "list")
   KNNGroups <- lapply(seq_along(KNNList), function(x){
     KNNx <- KNNList[[x]]
@@ -992,7 +1029,7 @@ peak2GeneHeatmap <- function(
   rownames(mATAC) <- paste0("P2G", seq_len(nrow(mATAC)))
   rownames(mRNA) <- paste0("P2G", seq_len(nrow(mRNA)))
 
-  .messageDiffTime("Ordering Peak2Gene Links!", tstart)
+  .logDiffTime(main="Ordering Peak2Gene Links!", t1=tstart, verbose=verbose, logFile=logFile)
   k1 <- kmeans(mATAC, k)
   if(nrow(mATAC) > nPlot){
     nPK <- nPlot * table(k1$cluster) / length(k1$cluster) 
@@ -1011,9 +1048,9 @@ peak2GeneHeatmap <- function(
   #########################################
   # Plot Heatmaps
   #########################################
-  .messageDiffTime("Constructing ATAC Heatmap!", tstart)
+  .logDiffTime(main="Constructing ATAC Heatmap!", t1=tstart, verbose=verbose, logFile=logFile)
   htATAC <- .ArchRHeatmap(
-    mat = mATAC[kDF[,2],colOrder],#[rowOrder, colOrder],
+    mat = mATAC[kDF[,2],colOrder],
     scale = FALSE,
     limits = limitsATAC,
     color = palATAC, 
@@ -1028,9 +1065,9 @@ peak2GeneHeatmap <- function(
     name = paste0("ATAC Z-Scores\n", nrow(mATAC), " P2GLinks")
   )
 
-  .messageDiffTime("Constructing RNA Heatmap!", tstart)
+  .logDiffTime(main = "Constructing RNA Heatmap!", t1 = tstart, verbose = verbose, logFile = logFile)
   htRNA <- .ArchRHeatmap(
-    mat = mRNA[kDF[,2],colOrder], #mRNA[rowOrder, colOrder],
+    mat = mRNA[kDF[,2],colOrder], 
     scale = FALSE,
     limits = limitsRNA,
     color = palRNA, 
@@ -1044,6 +1081,8 @@ peak2GeneHeatmap <- function(
     draw = FALSE,
     name = paste0("RNA Z-Scores\n", nrow(mRNA), " P2GLinks")
   )
+
+  .endLogging(logFile = logFile)
 
   htATAC + htRNA
 

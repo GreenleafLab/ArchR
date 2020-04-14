@@ -142,7 +142,13 @@ addUMAP <- function(
 
   if(saveModel){
     dir.create(file.path(getOutputDirectory(ArchRProj), "Embeddings"), showWarnings = FALSE)
-    modelFile <- file.path(getOutputDirectory(ArchRProj), "Embeddings", paste0("Save-Uwot-UMAP-Params-",reducedDims,"-",.randomStr(),".tar"))
+    modelFile <- .tempfile(
+      pattern = paste0("Save-Uwot-UMAP-Params-",reducedDims), 
+      tmpdir = file.path(getOutputDirectory(ArchRProj), "Embeddings"),
+      fileext = ".tar",
+      addDOC = TRUE
+    )
+    #file.path(getOutputDirectory(ArchRProj), "Embeddings", paste0("Save-Uwot-UMAP-Params-",reducedDims,"-",.randomStr(),".tar"))
     saveModelTmp <- .saveUWOT(uwot_umap, modelFile)
     if(!file.exists(modelFile)){
       warning("Model was not saved properly, continuing without saving model!")

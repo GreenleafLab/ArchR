@@ -199,8 +199,7 @@ confusionMatrix <- function(
 
     }else if(vi == "grangeslist" | vi == "grlist"){
 
-      #I think there could be a bug here JJJ
-      cv <- all(unlist(lapply(input, function(x) inherits(x, "GRanges"))))
+      cv <- .isGRList(input)
 
     }else if(vi == "list" | vi == "simplelist"){
 
@@ -263,9 +262,32 @@ confusionMatrix <- function(
 
 }
 
+#https://stackoverflow.com/questions/3476782/check-if-the-number-is-integer
+.isWholenumber <- function(x, tol = .Machine$double.eps^0.5){
+  abs(x - round(x)) < tol
+}
+
 #https://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation
 .isColor <- function(x = NULL){
   unlist(lapply(x, function(y) tryCatch(is.matrix(col2rgb(y)), error = function(e) FALSE)))
+}
+
+.isDiscrete <- function(x = NULL){
+  is.factor(x) || is.character(x) || is.logical(x)
+}
+
+.isGRList <- function(x){
+  isList <- grepl("list", class(x), ignore.case=TRUE)
+  if(!isList){
+    FALSE
+  }else{
+    allGR <- all(unlist(lapply(seq_along(x), function(x) is(x, "GRanges") )))
+    if(allGR){
+      TRUE
+    }else{
+      FALSE
+    }
+  }
 }
 
 #' Get/Validate BSgenome
@@ -775,17 +797,6 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
     }, error = function(x){
     })
   }
-}
-
-#https://stackoverflow.com/questions/42734547/generating-random-strings
-.randomStr <- function(letters = 10, n = 1){
-  a <- do.call(paste0, replicate(letters, sample(LETTERS, n, TRUE), FALSE))
-  paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
-}
-
-#https://stackoverflow.com/questions/3476782/check-if-the-number-is-integer
-.isWholenumber <- function(x, tol = .Machine$double.eps^0.5){
-  abs(x - round(x)) < tol
 }
 
 .convertToPNG <- function(

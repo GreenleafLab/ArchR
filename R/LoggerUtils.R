@@ -117,7 +117,6 @@ createLogFile <- function(
 
 }
 
-
 .startLogging <- function(
   logFile = NULL, 
   useLogs = getArchRLogging()
@@ -188,10 +187,22 @@ createLogFile <- function(
 }
 
 .logMessage <- function(
-  msg = NULL, 
-  logFile = NULL,   
+  ..., 
+  logFile = NULL,
+  verbose = FALSE,   
   useLogs = getArchRLogging()
   ){
+
+  msg <- utils::capture.output(message(...), type = "message")
+  msg <- paste0(msg, collapse = "\n")
+
+  if(is.null(msg)){
+    stop("Message must be provided when logging!")
+  }
+
+  if(verbose){
+    message(sprintf("%s : %s", Sys.time(), msg))
+  }
 
   if(!useLogs){
     return(invisible(0))
@@ -199,10 +210,6 @@ createLogFile <- function(
 
   if(is.null(logFile)){
     return(invisible(0))
-  }
-
-  if(is.null(msg)){
-    stop("Message must be provided when logging!")
   }
     
   cat(sprintf("\n%s : %s\n", Sys.time(), msg), file = logFile, append = TRUE)
@@ -235,6 +242,30 @@ createLogFile <- function(
   return(invisible(0))
 }
 
+.logStop <- function(
+  ..., 
+  logFile = NULL,
+  useLogs = getArchRLogging()
+  ){
+
+  msg <- utils::capture.output(message(...), type = "message")
+  msg <- paste0(msg, collapse = "\n")
+    
+  if(is.null(msg)){
+    stop("Message must be provided when logging!")
+  }
+
+  if(useLogs){
+    if(!is.null(logFile)){
+      cat(sprintf("\n%s : %s\n", Sys.time(), msg), file = logFile, append = TRUE)
+    }
+  }
+
+  stop(sprintf("%s\n", msg), call. = FALSE)
+
+  return(invisible(0))
+
+}
 
 .logError <- function(
   e = NULL,

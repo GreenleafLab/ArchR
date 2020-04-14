@@ -787,6 +787,3 @@ plotGroups <- function(
 
 }
 
-.isDiscrete <- function(x = NULL){
-  is.factor(x) || is.character(x) || is.logical(x)
-}

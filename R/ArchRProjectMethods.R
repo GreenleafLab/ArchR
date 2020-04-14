@@ -155,8 +155,8 @@ getArchRGenome <- function(
   genomeAnnotation=FALSE
   ){
 
-  #JJJ .validInput(input = geneAnnotation, name = "geneAnnotation", valid = "character")
-  #JJJ .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = "character")
+  .validInput(input = geneAnnotation, name = "geneAnnotation", valid = "boolean")
+  .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = "boolean")
 
   supportedGenomes <- c("hg19","hg38","mm9","mm10")
   .ArchRGenome <- options()[["ArchR.genome"]]

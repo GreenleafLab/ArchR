@@ -13,14 +13,14 @@
 #' @export
 #'
 projectBulkATAC <- function(
-    ArchRProj = NULL,
-    seATAC = NULL,
-    reducedDims = "IterativeLSI",
-    embedding = "UMAP",
-    n = 250,
-    verbose = TRUE,
-    threads = getArchRThreads(),
-    logFile = createLogFile("projectBulkATAC")
+  ArchRProj = NULL,
+  seATAC = NULL,
+  reducedDims = "IterativeLSI",
+  embedding = "UMAP",
+  n = 250,
+  verbose = TRUE,
+  threads = getArchRThreads(),
+  logFile = createLogFile("projectBulkATAC")
   ){
 
   # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -40,20 +40,20 @@ projectBulkATAC <- function(
   # Reduced Dimensions
   ##################################################
   rD <- getReducedDims(ArchRProj, reducedDims = reducedDims, returnMatrix = FALSE)
-  ArchR:::.logThis(names(rD), "reducedDimsNames", logFile = logFile)
-  ArchR:::.logThis(rD[[1]], "reducedDimsMat", logFile = logFile)
+  .logThis(names(rD), "reducedDimsNames", logFile = logFile)
+  .logThis(rD[[1]], "reducedDimsMat", logFile = logFile)
   rDFeatures <- rD[[grep("Features", names(rD))]]
   if("end" %in% colnames(rDFeatures)){
     rDGR <- GRanges(seqnames=rDFeatures$seqnames,IRanges(start=rDFeatures$start, end=rDFeatures$end))
   }else{
     rDGR <- GRanges(seqnames=rDFeatures$seqnames,IRanges(start=rDFeatures$start, width = (rDFeatures$start) / (rDFeatures$idx - 1)))
   }
-  ArchR:::.logThis(rDGR, "reducedDimsGRanges", logFile = logFile)
+  .logThis(rDGR, "reducedDimsGRanges", logFile = logFile)
   subATAC <- subsetByOverlaps(seATAC, rDGR, ignore.strand = TRUE)
-  subATAC <- subATAC[order(rowSums(ArchR:::.getAssay(subATAC, "counts")), decreasing = TRUE), ]
+  subATAC <- subATAC[order(rowSums(.getAssay(subATAC, "counts")), decreasing = TRUE), ]
   o <- DataFrame(findOverlaps(subATAC, rDGR, ignore.strand = TRUE))
   sumOverlap <- length(unique(o[,2]))
-  ArchR:::.logThis(o, "overlapATAC", logFile = logFile)
+  .logThis(o, "overlapATAC", logFile = logFile)
 
   if(sumOverlap == 0){
     stop(paste0("No overlaps between bulk ATAC data and reduce dimensions feature found.",
@@ -71,16 +71,16 @@ projectBulkATAC <- function(
   o <- o[!duplicated(o$subjectHits),]
   subATAC <- subATAC[o$queryHits, ]
   rownames(subATAC) <- paste0("f", o$subjectHits)
-  ArchR:::.logThis(subATAC, "subsettedATAC", logFile = logFile)
+  .logThis(subATAC, "subsettedATAC", logFile = logFile)
 
   ##################################################
   # Create Bulk Matrix
   ##################################################
-  bulkMat <- ArchR:::.safeSubset(
-    mat = ArchR:::.getAssay(subATAC, "counts"), 
+  bulkMat <- .safeSubset(
+    mat = .getAssay(subATAC, "counts"), 
     subsetRows = paste0("f", seq_along(rDGR))
   )
-  ArchR:::.logThis(bulkMat, "bulkATACMat", logFile = logFile)
+  .logThis(bulkMat, "bulkATACMat", logFile = logFile)
 
   ##################################################
   # Simulate and Project
@@ -90,8 +90,8 @@ projectBulkATAC <- function(
   n2 <- ceiling(n / nRep)
   ratios <- c(2, 1.5, 1, 0.5, 0.25) #range of ratios of number of fragments
 
-  simRD <- ArchR:::.safelapply(seq_len(ncol(bulkMat)), function(x){
-    ArchR:::.messageDiffTime(sprintf("Projecting Sample (%s of %s)", x, ncol(bulkMat)), tstart, verbose = verbose, logFile = logFile)
+  simRD <- .safelapply(seq_len(ncol(bulkMat)), function(x){
+    .messageDiffTime(sprintf("Projecting Sample (%s of %s)", x, ncol(bulkMat)), tstart, verbose = verbose, logFile = logFile)
     counts <- bulkMat[, x]
     counts <- rep(seq_along(counts), counts)
     simMat <- lapply(seq_len(nRep), function(y){
@@ -102,21 +102,21 @@ projectBulkATAC <- function(
       simMat
     }) %>%  Reduce("rbind", .)
     simMat <- Matrix::sparseMatrix(i = simMat[,2], j = simMat[,1], x = rep(1, nrow(simMat)), dims = c(length(rDGR), n2 * nRep))
-    simRD <- as.matrix(ArchR:::.projectLSI(simMat, LSI = rD, verbose = FALSE))
+    simRD <- as.matrix(.projectLSI(simMat, LSI = rD, verbose = FALSE))
     rownames(simRD) <- paste0(colnames(bulkMat)[x], "#", seq_len(nrow(simRD)))
     simRD
   }, threads = threads) %>% Reduce("rbind", .)
 
   if(is.null(embedding)){
     if(rD$scaleDims){
-      simRD <- ArchR:::.scaleDims(simRD)
+      simRD <- .scaleDims(simRD)
     }
     out <- SimpleList(
       simulatedReducedDims = simRD
     )
     return(out)
   }
-  ArchR:::.logThis(simRD, "simulatedReducedDims", logFile = logFile)
+  .logThis(simRD, "simulatedReducedDims", logFile = logFile)
 
   ##################################################
   # Prep Reduced Dims
@@ -130,7 +130,7 @@ projectBulkATAC <- function(
     scaleDims <- rD$scaleDims
   }
 
-  simRD <- ArchR:::.scaleDims(simRD)
+  simRD <- .scaleDims(simRD)
 
   if(embedding$params$nc != ncol(simRD)){
     
@@ -164,7 +164,7 @@ projectBulkATAC <- function(
   ##################################################
   # Get Previous UMAP Model
   ##################################################
-  umapModel <- ArchR:::.loadUWOT(embedding$params$uwotModel, embedding$params$nc)
+  umapModel <- .loadUWOT(embedding$params$uwotModel, embedding$params$nc)
 
   idx <- sort(sample(seq_len(nrow(rD[[1]])), min(nrow(rD[[1]]), 5000))) #Try to use 5000 or total cells to check validity
   rD2 <- getReducedDims(
@@ -187,7 +187,7 @@ projectBulkATAC <- function(
     n_threads = threads2
   )
   rownames(simUMAP) <- c(rownames(rD2), rownames(simRD))
-  ArchR:::.logThis(simUMAP, "simulatedUMAP", logFile = logFile)
+  .logThis(simUMAP, "simulatedUMAP", logFile = logFile)
 
   #Check if the projection matches using previous data
   c1 <- cor(simUMAP[rownames(rD2), 1], embedding[[1]][rownames(rD2),1])
@@ -210,7 +210,7 @@ projectBulkATAC <- function(
     singleCellUMAP = dfUMAP,
     simulatedReducedDims = simRD
   )
-  ArchR:::.endLogging(logFile = logFile)
+  .endLogging(logFile = logFile)
 
   return(out)
 

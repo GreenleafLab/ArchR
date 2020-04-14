@@ -403,8 +403,7 @@ correlateTrajectories <- function(
     rownames(seTrajectory1) <- paste0(featureDF1$seqnames, ":", featureDF1$name)
   }else{
     if(!useRanges){
-      .logMessage("seTrajectory1 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!", logFile = logFile)
-      stop("seTrajectory1 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!")
+      .logStop("seTrajectory1 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!", logFile = logFile)
     }
     rownames(featureDF1) <- paste0(featureDF1$seqnames, ":", featureDF1$start, "_", featureDF1$end)
     rownames(seTrajectory1) <- paste0(featureDF1$seqnames, ":", featureDF1$start, "_", featureDF1$end)
@@ -415,8 +414,7 @@ correlateTrajectories <- function(
     rownames(seTrajectory2) <- paste0(featureDF2$seqnames, ":", featureDF2$name)
   }else{
     if(!useRanges){
-      .logMessage("seTrajectory2 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!", logFile = logFile)
-      stop("seTrajectory2 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!")
+      .logStop("seTrajectory2 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!", logFile = logFile)
     }
     rownames(featureDF2) <- paste0(featureDF2$seqnames, ":", featureDF2$start, "_", featureDF2$end)
     rownames(seTrajectory2) <- paste0(featureDF2$seqnames, ":", featureDF2$start, "_", featureDF2$end)
@@ -428,13 +426,11 @@ correlateTrajectories <- function(
   if(useRanges){
 
     if("start" %ni% colnames(featureDF1)){
-      .logMessage("start is not in seTrajectory1, this is not a ranges object. Please set useRanges = FALSE", logFile = logFile)
-      stop("start is not in seTrajectory1, this is not a ranges object. Please set useRanges = FALSE")
+      .logStop("start is not in seTrajectory1, this is not a ranges object. Please set useRanges = FALSE", logFile = logFile)
     }
 
     if("start" %ni% colnames(featureDF2)){
-      .logMessage("start is not in seTrajectory2, this is not a ranges object. Please set useRanges = FALSE", logFile = logFile)
-      stop("start is not in seTrajectory2, this is not a ranges object. Please set useRanges = FALSE")
+      .logStop("start is not in seTrajectory2, this is not a ranges object. Please set useRanges = FALSE", logFile = logFile)
     }
 
     if("strand" %in% colnames(featureDF1)){
@@ -480,37 +476,33 @@ correlateTrajectories <- function(
 
     if(fix1 == "center" & isStranded1){
       if(!force){
-        .logMessage("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.", logFile = logFile)
-        stop("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.")
+        .logStop("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.", logFile = logFile)
       }else{
-        message("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Continuing since force = TRUE")
+        .logMessage("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Continuing since force = TRUE", verbose = TRUE, logFile=logFile)
       }         
     }
 
     if(fix1 != "center" & !isStranded1){
       if(!force){
-        .logMessage("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.", logFile = logFile)
-        stop("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.")
+        .logStop("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.", logFile = logFile)
       }else{
-        message("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Continuing since force = TRUE") 
+        .logMessage("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Continuing since force = TRUE", verbose = TRUE, logFile=logFile)
       }         
     }
 
     if(fix2 == "center" & isStranded2){
       if(!force){
-        .logMessage("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.", logFile = logFile)
-        stop("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.")
+        .logStop("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.", logFile = logFile)
       }else{
-        message("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Continuing since force = TRUE")
+        .logMessage("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Continuing since force = TRUE", verbose = TRUE, logFile=logFile)
       }         
     }
 
     if(fix2 != "center" & !isStranded2){
       if(!force){
-        .logMessage("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.", logFile = logFile)
-        stop("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.")
+        .logStop("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.", logFile = logFile)
       }else{
-        message("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Continuing since force = TRUE") 
+        .logMessage("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Continuing since force = TRUE", verbose = TRUE, logFile=logFile)
       }         
     }
 
@@ -568,10 +560,9 @@ correlateTrajectories <- function(
     }
     if(matchP < 0.05){
       if(!force){
-        .logMessage("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Set force = TRUE to continue!", logFile = logFile)
-        stop("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Set force = TRUE to continue!")
+        .logStop("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Set force = TRUE to continue!", logFile=logFile)
       }else{
-        message("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Continuing since force = TRUE.")
+        .logMessage("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Continuing since force = TRUE.", verbose=TRUE, logFile=logFile)
       }
     }
 
@@ -612,7 +603,7 @@ correlateTrajectories <- function(
   mappingDF$FDR <- p.adjust(mappingDF$Pval, method = "fdr")
 
   idxPF <- which(mappingDF$Correlation > corCutOff & mappingDF$VarAssay1 > varCutOff1 & mappingDF$VarAssay2 > varCutOff2)
-  message("Found ", length(idxPF), " Correlated Pairings!")
+  .logMessage("Found ", length(idxPF), " Correlated Pairings!", logFile=logFile, verbose=verbose)
 
   .logThis(mappingDF[idxPF,], "mappingDF-PF", logFile = logFile)
 
