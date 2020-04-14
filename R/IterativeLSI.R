@@ -11,7 +11,7 @@
 #' "TileMatrix" or "PeakMatrix".
 #' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
-#' @param clusterParams Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either
+#' @param clusterParams JJJ THE PART ABOUT THE LENGTH I DONT UNDERSTAND. A list of Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either
 #' length 1 or the total number of `iterations` - 1.
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
@@ -55,6 +55,7 @@
 #' reproduce results downstream.
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addIterativeLSI <- function(
   ArchRProj = NULL, 
@@ -102,27 +103,34 @@ addIterativeLSI <- function(
   if(verbose) message("Checking Inputs...")
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  #JJJ .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = iterations, name = "iterations", valid = c("integer"))
+  .validInput(input = clusterParams, name = "clusterParams", valid = c("list"))
+  .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer"))
+  .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
-  .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
-  #.validInput(input = sampleCells, name = "sampleCells", valid = c("integer","null"))
-  .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
+  #JJJ .validInput(input = outlierQuantiles, name = "outlierQuantiles", valid = c("numeric"))
+  #JJJ .validInput(input = filterBias, name = "filterBias", valid = c("boolean"))
+  #JJJ .validInput(input = sampleCellsPre, name = "sampleCellsPre", valid = c("integer"))
+  #JJJ .validInput(input = sampleCellsFinal, name = "sampleCellsFinal", valid = c("integer"))
   .validInput(input = selectionMethod, name = "selectionMethod", valid = c("character"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = totalFeatures, name = "totalFeatures", valid = c("integer"))
   .validInput(input = filterQuantile, name = "filterQuantile", valid = c("numeric"))
+  #JJJ .validInput(input = excludeChr, name = "excludeChr", valid = c("character"))
   .validInput(input = saveIterations, name = "saveIterations", valid = c("boolean"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
   .validInput(input = nPlot, name = "nPlot", valid = c("integer"))
   .validInput(input = outDir, name = "outDir", valid = c("character"))
-  .validInput(input = clusterParams, name = "clusterParams", valid = c("list"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+
 
   if(varFeatures < 1000){
     stop("Please provide more than 1000 varFeatures!")

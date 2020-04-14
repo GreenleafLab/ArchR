@@ -242,7 +242,7 @@ getImputeWeights <- function(ArchRProj = NULL){
 #' This function gets imputation weights from an ArchRProject to impute a numerical matrix
 #' 
 #' @param mat A matrix or sparseMatrix of class dgCMatrix to be imputed.
-#' @param imputeWeights imputeWeights that are returned by `getImputeWeights(ArchRProj)`. See `addImputeWeights()` for more details.
+#' @param imputeWeights An R object containing impute weights as returned by `getImputeWeights(ArchRProj)`. See `addImputeWeights()` for more details.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param logFile The path to a file to be used for logging ArchR output.

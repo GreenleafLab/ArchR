@@ -31,8 +31,11 @@
 #' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
 #' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example,
 #' `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
-#' @param promoterRegion The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak
+#' @param promoterRegion JJJ THIS IS NOT CORRECT AS WRITTEN! The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak
 #' to be annotated as a "promoter" peak.
+#' JJJ I THINK YOU MEAN - A vector of two integers specifying the distance in basepairs upstream and downstream of a TSS to be included as a promoter region.
+#' Peaks called within one of these regions will be annotated as a "promoter" peak. For example, `promoterRegion = c(2000, 100)` will annotate any peak within the region
+#' 2000 bp upstream and 100 bp downstream of a TSS as a "promoter" peak.
 #' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to be used for generating peak metadata such as nucleotide
 #' information (GC content) or chromosome sizes.
 #' @param geneAnnotation The geneAnnotation (see `createGeneAnnotation()`) to be used for labeling peaks as "promoter", "exonic", etc.
@@ -40,6 +43,7 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to be pass to `addGroupCoverages()` to get sample-guided pseudobulk cell-groupings. Only used for TileMatrix-based
 #' peak calling (not for MACS2). See `addGroupCoverages()` for more info.
 #' @export
@@ -94,12 +98,14 @@ addReproduciblePeakSet <- function(
 	}
 
 	.validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
+	#JJJ .validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
 	geneAnnotation <- .validGeneAnnotation(geneAnnotation)
 	genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
 	.validInput(input = threads, name = "threads", valid = c("integer"))
 	.validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
 	.validInput(input = force, name = "force", valid = c("boolean"))
 	.validInput(input = verbose, name = "verbose", valid = c("boolean"))
+	#JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
 
 	tstart <- Sys.time()
 	.startLogging(logFile = logFile)

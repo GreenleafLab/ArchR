@@ -8,35 +8,40 @@
 #' then store this in each samples ArrowFile.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix A character describing which matrix to use for Gene Scores for RNA integration.
-#' @param matrixName A character describing the output matrix name for scRNA integration.
-#' @param seRNA A scRNA-seq `SummarizedExperiment` or `SeuratObject` to integrated with the scATAC-seq data.
+#' @param useMatrix JJJ The name of a matrix in the `ArchRProject` containing gene scores to be used for RNA integration.
+#' @param matrixName JJJ The name to use for the output matrix containing scRNA-seq integration to be stored in the `ArchRProject`.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
 #' This `reducedDims` will be used in weighting the transfer of data to scRNA to scATAC. See `Seurat::TransferData` for more info.
-#' @param groupATAC A column in `cellColData` that can be used for subgroupings in `groupList`. This is useful for constraining integrations.
-#' @param groupRNA The column name in either `colData` or `metadata` of seRNA to use to compute prediction scores. These scores represent the assignment accuracy
-#' of the group in the RNA cells. Lower scores represent ambiguous predictions and higher scores represent precise predictions. 
-#' @param groupList A list of ATAC and RNA groupings to be used for RNA ATAC integration. This is useful for constraining integrations.
-#' @param sampleCellsATAC An integer describing the number of scATAC cells to be used for integration. 
-#' This number will be evenly divided across the total number of cells in the ArchRProject.
-#' For example if 99,000 cells are present with a 10,000 sampleCellsATAC the number of cells used would be
-#' closer to 9,900 to make sure subgroupings are close the the same number of cells.
-#' @param sampleCellsRNA An integer describing the number of scRNA cells to be used for integration.
-#' @param embeddingATAC A data.frame of cell embeddings such as a UMAP for scATAC cells to be used for density sampling.
-#' @param embeddingRNA A data.frame of cell embeddings such as a UMAP for scRNA cells to be used for density sampling.
+#' @param seRNA JJJ WHERE WOULD THE scRNA SE COME FROM? A `SeuratObject` or a scRNA-seq `SummarizedExperiment` to be integrated with the scATAC-seq data.
+#' @param groupATAC JJJ A column name in `cellColData` that will be used to determine the subgroupings specified in `groupList`.
+#' This is used to constrain the integration to occur across biologically relevant groups.
+#' @param groupRNA JJJ A column name in either `colData` or `metadata` of `seRNA` that will be used to determine the subgroupings specified in `groupList`.
+#' This is used to constrain the integration to occur across biologically relevant groups.
+#' @param groupList JJJ PROVIDE EXPECTED FORMAT. A list of cell groupings for both ATAC-seq and RNA-seq cells to be used for RNA-ATAC integration.
+#' This is used to constrain the integration to occur across biologically relevant groups. The format of this should be JJJ
+#' @param sampleCellsATAC JJJ An integer describing the number of scATAC-seq cells to be used for integration. 
+#' This number will be evenly sampled across the total number of cells in the ArchRProject.
+#' JJJ DOESNT MAKE SENSE TO ME For example if 99,000 cells are present with `sampleCellsATAC = 10000` the number of cells used would be
+#' closer to 9,900 to make sure subgroupings are close to the the same number of cells.
+#' @param sampleCellsRNA An integer describing the number of scRNA-seq cells to be used for integration.
+#' @param embeddingATAC JJJ A `data.frame` of cell embeddings such as a UMAP for scATAC-seq cells to be used for density sampling. The `data.frame` object
+#' should have a row for each single cell and 2 columns, one for each dimension of the embedding.
+#' @param embeddingRNA JJJ A `data.frame` of cell embeddings such as a UMAP for scRNA-seq cells to be used for density sampling. The `data.frame` object
+#' should have a row for each single cell and 2 columns, one for each dimension of the embedding.
 #' @param nGenes The number of variable genes determined by `Seurat::FindVariableGenes()` to use for integration.
 #' @param useImputation A boolean value indicating whether to use imputation for creating the Gene Score Matrix prior to integration.
 #' @param reduction The Seurat reduction method to use for integrating modalities. See `Seurat::FindTransferAnchors()` for possible reduction methods.
-#' @param addToArrow A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the ArrowFiles.
-#' @param scaleTo Each column in the integrated RNA matrix will be normalized to a column sum designated by `scaleTo` prior to adding to ArrowFiles.
-#' @param nameCell A column name to add the predicted scRNA cell to in the ArchRProject. This is useful for identifying which cell was closest to the scATAC cell.
-#' @param nameGroup A column name to add the predicted scRNA group to in the ArchRProject. See `groupRNA` for more details.
-#' @param nameScore A column name to add the predicted scRNA score to in the ArchRProject. This value represents the accuracy of assignment based on the 
-#' 'purity' of cell assignment to a group in seRNA.
-#' @param transferParams Additional params to be added to `Seurat::TransferData`.
+#' @param addToArrow A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the Arrow files.
+#' @param scaleTo Each column in the integrated RNA matrix will be normalized to a column sum designated by `scaleTo` prior to adding to Arrow files.
+#' @param nameCell JJJ A column name to add to `cellColData` for the predicted scRNA-seq cell in the specified `ArchRProject`. This is useful for identifying which cell was closest to the scATAC-seq cell.
+#' @param nameGroup JJJ A column name to add to `cellColData` for the predicted scRNA-seq group in the specified `ArchRProject`. See `groupRNA` for more details.
+#' @param nameScore JJJ A column name to add to `cellColData` for the predicted scRNA-seq score in the specified `ArchRProject`. These scores represent
+#' the assignment accuracy of the group in the RNA cells. Lower scores represent ambiguous predictions and higher scores represent precise predictions. 
+#' @param transferParams Additional params to be passed to `Seurat::TransferData`.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the given `input`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional params to be added to `Seurat::FindTransferAnchors`
 #' @export
 addGeneIntegrationMatrix <- function(
@@ -68,23 +73,37 @@ addGeneIntegrationMatrix <- function(
   ...
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  #JJJ .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  #JJJ .validInput(input = matrixName, name = "matrixName", valid = c("character"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = seRNA, name = "seRNA", valid = c("SummarizedExperiment", "Seurat"))
+  #JJJ .validInput(input = groupATAC, name = "groupATAC", valid = c("character"))
+  #JJJ .validInput(input = groupRNA, name = "groupRNA", valid = c("character"))
+  #JJJ .validInput(input = groupList, name = "groupList", valid = c("list"))
+  #JJJ .validInput(input = sampleCellsATAC, name = "sampleCellsATAC", valid = c("integer"))
+  #JJJ .validInput(input = sampleCellsRNA, name = "sampleCellsRNA", valid = c("integer"))
+  #JJJ .validInput(input = embeddingATAC, name = "embeddingATAC", valid = c("data.frame"))
+  #JJJ .validInput(input = embeddingRNA, name = "embeddingRNA", valid = c("data.frame"))
+  .validInput(input = nGenes, name = "nGenes", valid = c("integer"))
+  .validInput(input = useImputation, name = "useImputation", valid = c("boolean"))
+  .validInput(input = reduction, name = "reduction", valid = c("character"))
+  .validInput(input = addToArrow, name = "addToArrow", valid = c("boolean"))
+  #JJJ .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  #JJJ .validInput(input = nameCell, name = "nameCell", valid = c("character"))
+  #JJJ .validInput(input = nameGroup, name = "nameGroup", valid = c("character"))
+  #JJJ .validInput(input = nameScore, name = "nameScore", valid = c("character"))
+  #JJJ .validInput(input = transferParams, name = "transferParams", valid = c("list"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
   .logDiffTime("Running Seurat's Integration Stuart* et al 2019", tstart, verbose = verbose, logFile = logFile)
 
   .requirePackage("Seurat", source = "cran")
-
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = seRNA, name = "seRNA", valid = c("SummarizedExperiment", "Seurat"))
-  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
-  #JJJ
-  .validInput(input = nGenes, name = "nGenes", valid = c("integer"))
-  .validInput(input = useImputation, name = "useImputation", valid = c("boolean"))
-  .validInput(input = reduction, name = "reduction", valid = c("character"))
-  .validInput(input = addToArrow, name = "addToArrow", valid = c("boolean"))
-  .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = force, name = "force", valid = c("boolean"))
-  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
 
   .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
 

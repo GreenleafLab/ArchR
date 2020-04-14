@@ -18,9 +18,11 @@
 #' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations.
 #' This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it
 #' already exists in the ArrowFiles associated with the given `ArchRProject`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj = NULL,
@@ -45,8 +47,10 @@ addDeviationsMatrix <- function(
   .validInput(input = out, name = "out", valid = c("character"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
