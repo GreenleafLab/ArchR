@@ -17,7 +17,7 @@
 #' @param labelMeans A boolean value indicating whether the mean of each categorical/discrete color should be labeled.
 #' @param pal A custom palette used to override discreteSet/continuousSet for coloring vector.
 #' @param defaultColor The default color for points that do not have another color applied (i.e. `NA` values).
-#' @param colorDensity A boolean value indicating whether the density of points on the plot should be indicated colorimetrically.
+#' @param colorDensity A boolean value indicating whether the density of points on the plot should be indicated by color.
 #' If `TRUE`, continuousSet is used as the color palette.
 #' @param size The numeric size of the points to be plotted.
 #' @param xlim A numeric vector of two values indicating the lower and upper bounds of the x-axis on the plot.
@@ -37,12 +37,12 @@
 #' beyond these limits are thresholded.
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
 #' @param baseSize The base font size (in points) to use in the plot.
-#' @param legendSize This represents the color legend size in the plot.
+#' @param legendSize JJJ The size in inches to use for plotting the color legend.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param labelAsFactors A boolean indicating whether to label as a factor numeric rather than labeling with a character string.
+#' @param labelAsFactors JJJ WHAT IS BEING LABELED? A boolean indicating whether to label the JJJ as a numeric factor (`TRUE`) or with a character string (`FALSE`).
 #' @param fgColor The foreground color of the plot.
 #' @param bgColor The background color of the plot.
-#' @param bgWidth The background width of the halos in the labeling.
+#' @param bgWidth JJJ WHAT ARE THE UNITS OF THE WIDTH? The background width in JJJ of the halos in the labeling.
 #' @param labelSize The numeric font size of labels.
 #' @param addFit A string indicating the method to use for adding a fit/regression line to the plot (see `ggplot2::geom_smooth()` methods).
 #' If set to `NULL`, no fit/regression line is added.
@@ -97,6 +97,7 @@ ggPoint <- function(
     .validInput(input = labelMeans, name = "labelMeans", valid = c("boolean"))
     .validInput(input = pal, name = "pal", valid = c("character", "null"))
     .validInput(input = defaultColor, name = "defaultColor", valid = c("character"))
+    #JJJ .validInput(input = colorDensity, name = "colorDensity", valid = c("boolean"))
     .validInput(input = size, name = "size", valid = c("numeric"))
     .validInput(input = xlim, name = "xlim", valid = c("numeric", "null"))
     .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
@@ -108,11 +109,15 @@ ggPoint <- function(
     .validInput(input = seed, name = "seed", valid = c("integer"))
     .validInput(input = colorTitle, name = "colorTitle", valid = c("character", "null"))
     .validInput(input = colorOrder, name = "colorOrder", valid = c("character", "null"))
+    #JJJ .validInput(input = colorLimits, name = "colorLimits", valid = c("numeric", "null"))
     .validInput(input = alpha, name = "alpha", valid = c("numeric"))
     .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+    #JJJ .validInput(input = legendSize, name = "legendSize", valid = c("numeric"))
     .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
+    #JJJ .validInput(input = labelAsFactors, name = "labelAsFactors", valid = c("boolean"))
     .validInput(input = fgColor, name = "fgColor", valid = c("character", "null"))
     .validInput(input = bgColor, name = "bgColor", valid = c("character"))
+    #JJJ .validInput(input = bgWidth, name = "bgWidth", valid = c("numeric"))
     .validInput(input = labelSize, name = "labelSize", valid = c("numeric"))
     .validInput(input = addFit, name = "addFit", valid = c("character", "null"))
     .validInput(input = rastr, name = "rastr", valid = c("boolean"))
@@ -474,7 +479,7 @@ ggOneToOne <- function (
 #' @param baseSize The base font size (in points) to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param FUN The function to use for summarizing data into hexagons. Typically "mean" or something similar.
-#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution. This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where a is the upper threshold and b is the lower threshold. For example, quantileCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
+#' @param hexCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of values. This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where `a` is the upper threshold and `b` is the lower threshold. For example, quantileCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them to the value of the 97.5th and 2.5th percentile values respectively.
 #' @param addPoints A boolean value indicating whether individual points should be shown on the hexplot.
 #' @param ... Additional params for plotting
 #' @export
@@ -598,6 +603,7 @@ ggHex <- function(
 #' @param title The title of the plot.
 #' @param pal A named custom palette (see `paletteDiscrete()` and `ArchRPalettes`) for discrete coloring.
 #' @param addBoxPlot A boolean indicating whether to add a boxplot to the plot if `plotAs="violin"`.
+#' @param plotAs JJJ A string indicating how the groups should be plotted. Acceptable values are "ridges" (for a `ggrides`-style plot) or "violin" (for a violin plot).
 #' @param ... Additional parameters to pass to `ggplot2` for plotting.
 #' @export
 ggGroup <- function(
