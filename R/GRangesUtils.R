@@ -6,7 +6,7 @@
 #'
 #' This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object
 #'
-#' @param gr A `GRanges` object or another object containing seqlevels.
+#' @param gr A `GRanges` object or another object containing `seqlevels`.
 #' @param remove A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
 #' If no manual removal is desired, `remove` should be set to `NULL`.
 #' @param underscore A boolean value indicating whether to remove all seqlevels whose names contain an underscore (for example "chr11_KI270721v1_random").
