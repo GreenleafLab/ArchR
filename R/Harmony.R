@@ -32,6 +32,16 @@ addHarmony <- function(
   ...
   ){
 
+  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  # JJJ .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  # JJJ .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
+  # JJJ .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  # JJJ .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  # JJJ .validInput(input = name, name = "name", valid = c("character"))
+  # JJJ .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  # JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  # JJJ .validInput(input = force, name = "force", valid = c("boolean"))
+
   if(!is.null(ArchRProj@reducedDims[[name]])){
     if(!force){
       stop("Error name in reducedDims Already Exists! Set force = TRUE or pick a different name!")

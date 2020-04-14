@@ -14,7 +14,7 @@ ArchRPalettes <- list(
   #They are included here for convenience because they help improve plot aesthetics.
 
   #NOTE: all palettes included in the "Primarily Continuous Palettes" section should also work for discrete usage but not vice versa.
-  #Each continuous palette has been ordered colorimetrically to generate a visually appealing discrete palette.
+  #Each continuous palette has been ordered by color to generate a visually appealing discrete palette.
   
   #---------------------------------------------------------------
   # Primarily Discrete Palettes
@@ -97,9 +97,9 @@ ArchRPalettes <- list(
 #' This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most
 #' possible color contrast from the designated color set.
 #'
-#' @param set The name of a color palette provided in the `ArchRPalettes` list object.
 #' @param values A character vector containing the sample names that will be used. Each entry in this character vector will be
 #' given a unique color from the designated palette set.
+#' @param set The name of a color palette provided in the `ArchRPalettes` list object.
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
 #' @export
 paletteDiscrete <- function(
@@ -109,7 +109,7 @@ paletteDiscrete <- function(
   ){
 
   .validInput(input = set, name = "set", valid = c("character"))
-  #.validInput(input = values, name = "values", valid = c("character", ""))
+  #JJJ .validInput(input = values, name = "values", valid = c("character", ""))
   .validInput(input = reverse, name = "reverse", valid = c("boolean"))
   
   values <- gtools::mixedsort(values)

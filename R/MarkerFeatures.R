@@ -41,6 +41,7 @@ markerFeatures <- function(...){
 #' seqnames that are not listed will be ignored. 
 #' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
 #' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 getMarkerFeatures <- function(
   ArchRProj = NULL,
@@ -80,7 +81,8 @@ getMarkerFeatures <- function(
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
-  
+  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
   .startLogging(logFile = logFile)
   .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
@@ -715,7 +717,7 @@ getMarkerFeatures <- function(
 #' 
 #' This function will plot a heatmap of the results from markerFeatures
 #' 
-#' @param seMarker A `SummarizedExperiment` object returned by `markerFeatures()`.
+#' @param seMarker A `SummarizedExperiment` object returned by `getMarkerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted
 #' in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values in
@@ -728,10 +730,13 @@ getMarkerFeatures <- function(
 #' rownames from `seMarker` to be excluded from the heatmap.
 #' @param pal A custom continuous palette from `ArchRPalettes` (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
+#' @param clusterCols JJJ A boolean value that indicates whether the columns of the marker heatmap should be clustered.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
+#' @param nPrint JJJ
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
+#' @param transpose JJJ A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.
 #' @param invert JJJ. A boolean value that indicates whether the heatmap will display the features with the
 #' lowest `log2(fold change)`. In this case, the heatmap will display features that are specifically lower in the given cell
 #' group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
@@ -768,11 +773,13 @@ markerHeatmap <- function(
   .validInput(input = grepExclude, name = "grepExclude", valid = c("character", "null"))
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
+  #JJJ .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
   .validInput(input = nLabel, name = "nLabel", valid = c("integer", "null"))
-  .validInput(input = nLabel, name = "nPrint", valid = c("integer", "null"))
+  .validInput(input = nPrint, name = "nPrint", valid = c("integer", "null"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
+  #JJJ .validInput(input = transpose, name = "transpose", valid = c("boolean"))
   .validInput(input = invert, name = "invert", valid = c("boolean"))
 
   #Evaluate AssayNames
@@ -1255,7 +1262,7 @@ markerHeatmap <- function(
 #' 
 #' This function will identify Markers and return a List of Features or a GRangesList for each group of significant marker features.
 #' 
-#' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
+#' @param seMarker A `SummarizedExperiment` object returned by `getMarkerFeatures()`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker`. `cutoff` can contain any
 #' of the `assayNames` from `seMarker`.
 #' @param n An integer that indicates the maximum number of features to return per group.
@@ -1345,8 +1352,8 @@ getMarkers <- function(
 #' 
 #' This function will plot one group/column of a differential markers as an MA or Volcano plot.
 #' 
-#' @param seMarker A `SummarizedExperiment` object returned by `ArchR::markerFeatures()`.
-#' @param name The name of a column in `seMarker` (i.e. cell grouping in `groupBy` or `useGroups` for `markerFeatures()`) to be plotted.
+#' @param seMarker A `SummarizedExperiment` object returned by `getMarkerFeatures()`.
+#' @param name The name of a column in `seMarker` (i.e. cell grouping in `groupBy` or `useGroups` for `getMarkerFeatures()`) to be plotted.
 #' To see available options try `colnames(seMarker)`.
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted.
 #' `cutoff` can contain any of the `assayNames` from `seMarker`.

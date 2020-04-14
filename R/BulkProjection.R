@@ -9,7 +9,7 @@
 #' @param n An integer specifying the number of subsampled "pseudo single cells" per bulk sample.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param threads The number of threads used for parallel execution
-#' @param logFile The name of the logFile to be used for loggin ArchR output.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 #'
 projectBulkATAC <- function(
@@ -22,6 +22,15 @@ projectBulkATAC <- function(
     threads = getArchRThreads(),
     logFile = createLogFile("projectBulkATAC")
   ){
+
+  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  # JJJ .validInput(input = seATAC, name = "seATAC", valid = c("character"))
+  # JJJ .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  # JJJ .validInput(input = embedding, name = "embedding", valid = c("character"))
+  # JJJ .validInput(input = n, name = "n", valid = c("integer"))
+  # JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  # JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
 

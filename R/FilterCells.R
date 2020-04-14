@@ -30,7 +30,7 @@ subsetCells <- function(
 
 #' Filter Doublets From an ArchRProject
 #'
-#' This function will filter doublets from an ArchRProject after addDoubletScores has been run.
+#' This function will filter doublets from an ArchRProject after addDoubletScores() has been run.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param cutEnrich The minimum numeric cutoff for `DoubletEnrichment`. This number is equivalent to the number of simulated

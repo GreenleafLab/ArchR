@@ -38,13 +38,18 @@
 #' This function provides help in reformatting Fragment Files for reading in createArrowFiles.
 #' It will handle weird anomalies found that cause errors in reading tabix bgzip'd fragment files.
 #'
-#' @param fragmentFiles a character vector of paths to fragment files to be reformatted
-#' @param seqnamesIsChr a boolean describing to check if seqnames containt "chr".
+#' @param fragmentFiles A character vector the paths to fragment files to be reformatted
+#' @param seqnamesIsChr JJJ A boolean value that determines whether seqnames should be checked to contain
+#' "chr". IF set to `TRUE`, any seqnames that do not contain "chr" will be removed from the fragment files.
 #' @export
 reformatFragmentFiles <- function(
   fragmentFiles = NULL,
   seqnamesIsChr = TRUE
   ){
+
+  # JJJ .validInput(input = fragmentFiles, name = "fragmentFiles", valid = c("character"))
+  # JJJ .validInput(input = seqnamesIsChr, name = "seqnamesIsChr", valid = c("character"))
+
   options(scipen = 999)
   .requirePackage("data.table")
   .requirePackage("Rsamtools")
@@ -267,11 +272,15 @@ confusionMatrix <- function(
 #' 
 #' This function will attempt to get or validate an input as a BSgenome.
 #' 
-#' @param genome This option must be one of the following: (i) the name of a valid genome (for example "hg38", "hg19", or "mm10"),
+#' @param genome JJJ This option must be one of the following: (i) the name of a valid ArchR-supported genome ("hg38", "hg19", or "mm10"),
 #' (ii) the name of a `BSgenome` package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a `BSgenome` object.
 #' @param masked A boolean describing whether or not to access the masked version of the selected genome. See `BSgenome::getBSgenome()`.
 #' @export
 validBSgenome <- function(genome = NULL, masked = FALSE){
+  
+  # JJJ .validInput(input = genome, name = "genome", valid = c("character"))
+  # JJJ .validInput(input = masked, name = "masked", valid = c("boolean"))
+
   stopifnot(!is.null(genome))
   if(inherits(genome, "BSgenome")){
     return(genome)
@@ -426,8 +435,14 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }
 }
 
+#' JJJ
+#'
+#' This function JJJ
+#'
+#' @param labels JJJ
+#' @param newLabels JJJ
+#' @param oldLabels JJJ
 #' @export
-#JJJ
 mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabels)){
 
   .validInput(input = labels, name = "labels", valid = c("character"))

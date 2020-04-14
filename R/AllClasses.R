@@ -84,6 +84,7 @@ setMethod("show", "ArchRProject",
 #' @param genomeAnnotation The `genomeAnnotation` object (see `createGenomeAnnotation()`) to be used for downstream analyses requiring
 #' genome information such as nucleotide information or chromosome sizes.
 #' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
+#' @param threads The number of threads to use for parallel execution.
 #' @export
 ArchRProject <- function(
   ArrowFiles = NULL, 
@@ -101,6 +102,8 @@ ArchRProject <- function(
   .validInput(input = geneAnnotation, name = "geneAnnotation", valid = c("list"))
   .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = c("list"))
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
+  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+
 
   if(is.null(ArrowFiles)){
     stop("Need to Provide Arrow Files!")
@@ -193,12 +196,11 @@ ArchRProject <- function(
 
 }
 
-#' Recover ArchRProject if Broken sampleColData/cellColData
+#' Recover ArchRProject if broken sampleColData/cellColData
 #' 
-#' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
+#' This function will recover an ArchRProject if it has broken sampleColData or cellColData.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param copyArrows A boolean indicating whether to copy (`TRUE`) or copy + remove (`FALSE`) original ArrowFiles prior to saving the `ArchRProject`.
 #' @export
 recoverArchRProject <- function(ArchRProj){
 

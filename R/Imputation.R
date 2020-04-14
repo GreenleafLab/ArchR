@@ -21,8 +21,15 @@
 #' @param sampleCells The number of cells to sub-sample to compute an imputation block. An imputation block is a cell x cell matrix that
 #' describes the linear combination for imputation for numerical values within these cells. ArchR creates many blocks to keep this
 #' cell x cell matrix sparse for memory concerns.
+#' @param nRep JJJ
 #' @param k The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).
 #' @param epsilon The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).
+#' @param useHdf5 JJJ A boolean value that indicates whether HDF5 format should be used to store the impute weights.
+#' @param randomSuffix JJJ A boolean value that indicates whether a random suffix should be appended to JJJ.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+#' reproduce results downstream.
 #' @export
 addImputeWeights <- function(
   ArchRProj = NULL,
@@ -46,11 +53,19 @@ addImputeWeights <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
+  #JJJ .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  #JJJ .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = td, name = "td", valid = c("integer"))
   .validInput(input = ka, name = "ka", valid = c("integer"))
   .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
+  #JJJ .validInput(input = nRep, name = "nRep", valid = c("integer"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = epsilon, name = "epsilon", valid = c("numeric"))
+  #JJJ .validInput(input = useHdf5, name = "useHdf5", valid = c("boolean"))
+  #JJJ .validInput(input = randomSuffix, name = "randomSuffix", valid = c("boolean"))
+  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  #JJJ .validInput(input = seed, name = "seed", valid = c("integer"))
 
   #Adapted From
   #https://github.com/dpeerlab/magic/blob/master/R/R/run_magic.R
@@ -216,11 +231,11 @@ getImputeWeights <- function(ArchRProj = NULL){
 #' 
 #' This function gets imputation weights from an ArchRProject to impute a numerical matrix
 #' 
-#' @param mat a matrix or sparseMatrix of class dgCMatrix
-#' @param imputeWeights imputeWeights from getImputeWeights(ArchRProj), see addImputeWeights for more details.
-#' @param threads number of threads for parallel computing, see getArchRThreads for more information.
-#' @param verbose print output during analysis.
-#' @param logFile log file for storing important information.
+#' @param mat A matrix or sparseMatrix of class dgCMatrix to be imputed.
+#' @param imputeWeights An R object containing impute weights as returned by `getImputeWeights(ArchRProj)`. See `addImputeWeights()` for more details.
+#' @param threads The number of threads to be used for parallel computing.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 imputeMatrix <- function(
   mat = NULL, 
@@ -230,6 +245,10 @@ imputeMatrix <- function(
   logFile = createLogFile("imputeMatrix")
   ){
 
+  #JJJ .validInput(input = mat, name = "mat", valid = c("matrix", "sparseMatrix"))
+  #JJJ .validInput(input = imputeWeights, name = "imputeWeights", valid = c("JJJ"))
+  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
 
   if(!inherits(imputeWeights$Weights, "SimpleList") & !inherits(imputeWeights$Weights, "list")){

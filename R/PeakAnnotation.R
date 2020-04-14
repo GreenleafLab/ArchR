@@ -111,7 +111,7 @@ addPeakAnnotations <- function(
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  #.validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
+  #JJJ .validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
@@ -915,8 +915,8 @@ peakAnnoEnrichment <- function(
 #' @param labelRows A boolean indicating whether or not to label all rows in the heatmap.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
 #' lines and labels, just the internal portions of the plot.
-#' @param transpose A boolean determining whether to transpose heatmap in plot.
-#' @param returnMatrix A boolean determining whether to return matrix in heatmap rather than a plot.
+#' @param transpose A boolean determining whether to transpose the heatmap in the plot.
+#' @param returnMatrix A boolean determining whether to return the matrix corresponding to the heatmap rather than generate a plot.
 #' @export
 enrichHeatmap <- function(
   seEnrich = NULL,
@@ -934,11 +934,17 @@ enrichHeatmap <- function(
 
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
   .validInput(input = pal, name = "pal", valid = c("character"))
-  #.validInput(input = limits, name = "limits", valid = c("numeric"))
   .validInput(input = n, name = "n", valid = c("integer"))
+  #JJJ .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
+  #JJJ .validInput(input = pMax, name = "pMax", valid = c("numeric"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
-  #.validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
+  #JJJ .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
+  #JJJ .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  #JJJ .validInput(input = transpose, name = "transpose", valid = c("boolean"))
+  #JJJ .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
+
+  #.validInput(input = limits, name = "limits", valid = c("numeric"))
 
   mat <- assays(seEnrich)[["mlog10Padj"]]
   #mat[mat < min(limits)] <- min(limits)

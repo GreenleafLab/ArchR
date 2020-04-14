@@ -25,11 +25,13 @@
 #' marked as not passing QC and excluded from downstream analyses.
 #' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 #' This is useful for limiting the number of barcodes analyzed.
-#' @param minFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
+#' @param maxFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 #' This is useful for limiting the number of barcodes analyzed.
 #' @param outDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 #' sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
+#' @param promoterRegion JJJ A numeric vector describing the number of basepairs upstream and downstream of the TSS to include as the promoter region for
+#' downstream calculation of things like the fraction of reads in promoters (FIP).
 #' @param TSSParams A list of parameters for computing TSS Enrichment scores. This includes the `window` which is the size in basepairs
 #' of the window centered at each TSS (default 101), the `flank` which is the size in basepairs of the flanking window (default 2000), 
 #' and the `norm` which describes the size in basepairs of the flank window to be used for normalization of the TSS enrichment score (default 100). 
@@ -62,7 +64,7 @@
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param cleamTmp A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.
-#' @param logFile A file path to write ArchR logging output to.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 #' 
 createArrowFiles <- function(
@@ -122,6 +124,8 @@ createArrowFiles <- function(
   .validInput(input = minFrags, name = "minFrags", valid = c("numeric"))
   .validInput(input = maxFrags, name = "maxFrags", valid = c("numeric"))
   .validInput(input = outDir, name = "outDir", valid = c("character"))
+  #JJJ .validInput(input = nucLength, name = "nucLength", valid = c("integer"))
+  #jjj .validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
   .validInput(input = TSSParams, name = "TSSParams", valid = c("list"))
   .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = nChunk, name = "nChunk", valid = c("integer"))
@@ -137,7 +141,10 @@ createArrowFiles <- function(
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
+  #JJJ .validInput(input = subThreading, name = "subThreading", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  #JJJ .validInput(input = cleanTmp, name = "cleanTmp", valid = c("boolean"))
+  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   dir.create(outDir, showWarnings = FALSE)
 

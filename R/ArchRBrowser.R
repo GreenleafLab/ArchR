@@ -39,6 +39,18 @@ ArchRBrowser <- function(
   threads = getArchRThreads()
   ){
 
+  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  # JJJ .validInput(input = features, name = "features", valid = c("character"))
+  # JJJ .validInput(input = loops, name = "loops", valid = c("character"))
+  # JJJ .validInput(input = minCells, name = "minCells", valid = c("integer"))
+  # JJJ .validInput(input = baseSize, name = "baseSize", valid = c("boolean"))
+  # JJJ .validInput(input = borderWidth, name = "borderWidth", valid = c("numeric"))
+  # JJJ .validInput(input = tickWidth, name = "tickWidth", valid = c("numeric"))
+  # JJJ .validInput(input = facetbaseSize, name = "facetbaseSize", valid = c("numeric"))
+  # JJJ .validInput(input = geneAnnotation, name = "geneAnnotation", valid = c("character"))
+  # JJJ .validInput(input = browserTheme, name = "browserTheme", valid = c("character"))
+  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+
   .requirePackage("shiny", installInfo = 'install.packages("shiny")')
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
 
@@ -605,8 +617,8 @@ ArchRBrowser <- function(
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in
 #' `cellColData`. This limits the groups to be plotted.
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
-#' "featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
-#' are on the minus strand and red-colored genes are on the plus strand).
+#' "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
+#' are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).
 #' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`.
 #' The order must be the same as `plotSummary`.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
@@ -665,8 +677,8 @@ ArchRBrowserTrack <- function(
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
   .validInput(input = plotSummary, name = "plotSummary", valid = "character")
   .validInput(input = sizes, name = "sizes", valid = "numeric")
-  #.validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null")) #JJJ 
-  #.validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null")) #JJJ 
+  #JJJ .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
+  #JJJ .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
   .validInput(input = geneSymbol, name = "geneSymbol", valid = c("character", "null"))
   .validInput(input = upstream, name = "upstream", valid = c("integer"))
   .validInput(input = downstream, name = "downstream", valid = c("integer"))

@@ -6,10 +6,10 @@
 #' @param ArchRProj An `ArchRProject` object.
 #' @param TSS A `GRanges` object containing the locations of stranded TSS regions. The default behavior is to try to retrieve
 #' this information from the `geneAnnotation` stored in the `ArchRProject`.
-#' @param flank A number that specifies how far in bp (+/-) to extend the TSS for plotting.
-#' @param norm A number that specifies the number of base pairs from the ends of the flanks to be used for normalization. 
+#' @param flank An integer that specifies how far in bp (+/-) to extend the TSS for plotting.
+#' @param norm An integer that specifies the number of base pairs from the ends of the flanks to be used for normalization. 
 #' For example if `flank=2000` and `norm=100`, the TSS insertions will be normalized by +/- 1900-2000 bp from the TSS.
-#' @param smooth A number that indicates the smoothing window (in basepairs) to be applied to the TSS plot.
+#' @param smooth An integer that indicates the smoothing window (in basepairs) to be applied to the TSS plot.
 #' @param returnDF A boolean value that indicates whether to return a `data.frame` containing the plot information
 #' instead of plotting the TSS enrichment plot.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
@@ -28,6 +28,7 @@ plotTSSEnrichment <- function(
   .validInput(input = TSS, name = "TSS", valid = c("granges"))
   .validInput(input = flank, name = "flank", valid = c("integer"))
   .validInput(input = norm, name = "norm", valid = c("integer"))
+  #JJJ .validInput(input = smooth, name = "smooth", valid = c("integer"))
   .validInput(input = returnDF, name = "returnDF", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 

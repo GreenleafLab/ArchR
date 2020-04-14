@@ -34,14 +34,18 @@ getArchRLogging <- function(){
 #' This function will create a log file for ArchR functions. If ArchRLogging is not TRUE
 #' this function will return NULL.
 #'
-#' @param name A character string to add a more descriptive name in logFile
-#' @param logDir A path to a directory where logFiles should be written to
+#' @param name A character string to add a more descriptive name in log file.
+#' @param logDir The path to a directory where log files should be written.
 #' @export
 createLogFile <- function(
     name = NULL,
     logDir = "ArchRLogs",
     useLogs = getArchRLogging()
   ){
+  
+  #JJJ .validInput(input = name, name = "name", valid = "character")
+  #JJJ .validInput(input = logDir, name = "logDir", valid = "character")
+
   if(!useLogs){
     return(NULL)
   }
@@ -54,7 +58,8 @@ createLogFile <- function(
   logFile
 }
 
-.messageDiffTime <- function(...){ #Depreciated
+.messageDiffTime <- function(...){ #Deprecated
+  #JJJ Not sure if you want this here but i added it .Deprecated("logDiffTime")
   .logDiffTime(...)
 }
 
