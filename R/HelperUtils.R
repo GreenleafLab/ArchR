@@ -281,7 +281,7 @@ confusionMatrix <- function(
   if(!isList){
     FALSE
   }else{
-    allGR <- all(unlist(lapply(seq_along(x), function(x) is(x, "GRanges") )))
+    allGR <- all(unlist(lapply(x, function(x) is(x, "GRanges") )))
     if(allGR){
       TRUE
     }else{
