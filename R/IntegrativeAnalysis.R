@@ -368,6 +368,7 @@ addCoAccessibility <- function(
   seed = 1, 
   knnMethod = NULL,
   threads = getArchRThreads(),
+  verbose = TRUE,
   logFile = createLogFile("addCoAccessibility")
   ){
 

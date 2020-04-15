@@ -102,7 +102,7 @@ ArchRProject <- function(
   .validInput(input = geneAnnotation, name = "geneAnnotation", valid = c("list"))
   .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = c("list"))
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
-  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
 
   if(is.null(ArrowFiles)){
@@ -198,7 +198,7 @@ ArchRProject <- function(
 
 #' Recover ArchRProject if broken sampleColData/cellColData
 #' 
-#' This function will recover an ArchRProject if it has broken sampleColData or cellColData.
+#' This function will recover an ArchRProject if it has broken sampleColData or cellColData due to different versions of bioconductor s4vectors.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
@@ -465,7 +465,9 @@ loadArchRProject <- function(
 #' This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param copyArrows A boolean indicating whether to copy (`TRUE`) or copy + remove (`FALSE`) original ArrowFiles prior to saving the `ArchRProject`.
+#' @param outputDirectory A directory path to save all ArchR output and `ArchRProject` to. Default is outputDirectory of the `ArchRProject`.
+#' @param overwrite When writing to outputDirectory, overwrite existing files with new files.
+#' @param load Load the `ArchRProject` after saving and writing to outputDirectory.
 #' @export
 saveArchRProject <- function(
   ArchRProj = NULL,
@@ -473,6 +475,11 @@ saveArchRProject <- function(
   overwrite = TRUE,
   load = TRUE
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
+  .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
+  .validInput(input = overwrite, name = "overwrite", valid = "boolean")
+  .validInput(input = load, name = "load", valid = "boolean")
   
   outDirOld <- getOutputDirectory(ArchRProj)
   newProj <- ArchRProj
@@ -551,21 +558,23 @@ saveArchRProject <- function(
 
 }
 
-#' Load Previous ArchRProject into R
+#' Subset an ArchRProject for downstream analysis
 #' 
-#' This function will load a previously saved ArchRProject and re-normalize paths for usage.
+#' This function will subset and ArchRProject by cells and save the output to a new directory and re-load the subsetted ArchRProject.
 #' 
-#' @param path A character path to an `ArchRProject` directory that was previously saved using `saveArchRProject()`.
-#' @param force A boolean value indicating whether missing optional `ArchRProject` components (i.e. peak annotations /
-#' background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject`
-#' will fail unless all components can be found.
-#' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param cells A vector of cells to subset `ArchRProject` by. Alternatively can provide a subset `ArchRProject`.
+#' @param outputDirectory A directory path to save all ArchR output and the subsetted `ArchRProject` to.
 #' @export
 subsetArchRProject <- function(
   ArchRProj = NULL,
   cells = getCellNames(ArchRProj),
   outputDirectory = "ArchRSubset"
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
+  .validInput(input = cells, name = "cells", valid = "character")
+  .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
 
   outDirOld <- getOutputDirectory(ArchRProj)
 

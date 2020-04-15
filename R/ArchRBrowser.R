@@ -24,6 +24,8 @@
 #' @param browserTheme A `shinytheme` from shinythemes for viewing the ArchR Browser. If not installed this will be NULL.
 #' To install try devtools::install_github("rstudio/shinythemes").
 #' @param threads The number of threads to use for parallel execution.
+#' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 ArchRBrowser <- function(
   ArchRProj = NULL,
@@ -41,17 +43,19 @@ ArchRBrowser <- function(
   logFile = createLogFile("ArchRBrowser")
   ){
 
-  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  # JJJ .validInput(input = features, name = "features", valid = c("character"))
-  # JJJ .validInput(input = loops, name = "loops", valid = c("character"))
-  # JJJ .validInput(input = minCells, name = "minCells", valid = c("integer"))
-  # JJJ .validInput(input = baseSize, name = "baseSize", valid = c("boolean"))
-  # JJJ .validInput(input = borderWidth, name = "borderWidth", valid = c("numeric"))
-  # JJJ .validInput(input = tickWidth, name = "tickWidth", valid = c("numeric"))
-  # JJJ .validInput(input = facetbaseSize, name = "facetbaseSize", valid = c("numeric"))
-  # JJJ .validInput(input = geneAnnotation, name = "geneAnnotation", valid = c("character"))
-  # JJJ .validInput(input = browserTheme, name = "browserTheme", valid = c("character"))
-  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = minCells, name = "minCells", valid = c("integer"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("integer"))
+  .validInput(input = borderWidth, name = "borderWidth", valid = c("numeric"))
+  .validInput(input = tickWidth, name = "tickWidth", valid = c("numeric"))
+  .validInput(input = facetbaseSize, name = "facetbaseSize", valid = c("numeric"))
+  geneAnnotation <- .validGeneAnnotation(geneAnnotation)
+  .validInput(input = browserTheme, name = "browserTheme", valid = c("character"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "ArchRBrowser Input-Parameters", logFile = logFile)
@@ -658,6 +662,8 @@ ArchRBrowser <- function(
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
+#' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 ArchRBrowserTrack <- function(
   ArchRProj = NULL, 
@@ -692,8 +698,8 @@ ArchRBrowserTrack <- function(
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
   .validInput(input = plotSummary, name = "plotSummary", valid = "character")
   .validInput(input = sizes, name = "sizes", valid = "numeric")
-  #JJJ .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
-  #JJJ .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
   .validInput(input = geneSymbol, name = "geneSymbol", valid = c("character", "null"))
   .validInput(input = upstream, name = "upstream", valid = c("integer"))
   .validInput(input = downstream, name = "downstream", valid = c("integer"))
