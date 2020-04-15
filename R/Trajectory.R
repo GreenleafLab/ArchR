@@ -430,7 +430,7 @@ trajectoryHeatmap <- function(
   }
 
   if(!is.null(useSeqnames)){
-    seTrajectory <- seTrajectory[rowData(seTrajectory)$seqnames %in% useSeqnames, ]
+    seTrajectory <- seTrajectory[paste0(rowData(seTrajectory)$seqnames) %in% paste0(useSeqnames), ]
   }
 
   if(nrow(seTrajectory) == 0){
