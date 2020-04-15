@@ -21,6 +21,7 @@ addPeak2GeneLinks(
   seed = 1,
   knnMethod = NULL,
   threads = max(floor(getArchRThreads()/2), 1),
+  verbose = TRUE,
   logFile = createLogFile("addPeak2GeneLinks")
 )
 }

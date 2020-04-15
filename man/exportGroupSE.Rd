@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArchRProjectExports.R
 \name{exportGroupSE}
 \alias{exportGroupSE}
-\title{Export Group Summarized Experiment JJJ}
+\title{Export Group Summarized Experiment}
 \usage{
 exportGroupSE(
   ArchRProj = NULL,

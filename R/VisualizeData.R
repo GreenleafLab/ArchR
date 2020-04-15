@@ -1,4 +1,147 @@
 ####################################################################
+# Save Visualization Methods
+####################################################################
+
+#' Plot PDF in outputDirectory of an ArchRProject
+#' 
+#' This function will save a plot or set of plots as a PDF file in the outputDirectory of a given ArchRProject.
+#' 
+#' @param ... vector of plots to be plotted (if input is a list use plotList instead)
+#' @param name The file name to be used for the output PDF file.
+#' @param width The width in inches to be used for the output PDF file.
+#' @param height The height in inches to be used for the output PDF.
+#' @param ArchRProj An `ArchRProject` object to be used for retrieving the desired `outputDirectory` which will be used to store the output
+#' plots in a subfolder called "plots".
+#' @param addDOC A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful
+#' for preventing overwritting of old plots.
+#' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
+#' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted
+#' object (ggplot2, plot, heatmap, etc).
+#' @export
+plotPDF <- function(
+  ...,
+  name = "Plot",
+  width = 6,
+  height = 6,
+  ArchRProj = NULL,
+  addDOC = TRUE,
+  useDingbats = FALSE,
+  plotList = NULL
+  ){
+
+  #Validate
+  .validInput(input = name, name = "name", valid = "character")
+  .validInput(input = width, name = "width", valid = "numeric")
+  .validInput(input = height, name = "height", valid = "numeric")
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject", "null"))
+  .validInput(input = addDOC, name = "addDOC", valid = "boolean")
+  .validInput(input = useDingbats, name = "useDingbats", valid = "boolean")
+  .validInput(input = plotList, name = "plotList", valid = c("list","null"))
+  #########
+
+  if(is.null(plotList)){
+    plotList <- list(...)
+    plotList2 <- list()
+    for(i in seq_along(plotList)){
+      if(inherits(plotList[[i]], "list")){
+        for(j in seq_along(plotList[[i]])){
+          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
+        }
+      }else{
+        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
+      }
+    }
+    plotList <- plotList2
+    rm(plotList2)
+    gc()
+  }else{
+    plotList2 <- list()
+    for(i in seq_along(plotList)){
+      if(inherits(plotList[[i]], "list")){
+        for(j in seq_along(plotList[[i]])){
+          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
+        }
+      }else{
+        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
+      }
+    }
+    plotList <- plotList2
+    rm(plotList2)
+    gc()
+  }
+  
+  name <- gsub("\\.pdf", "", name)
+  if(is.null(ArchRProj)){
+    outDir <- "Plots"
+  }else{
+    .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+    outDir <- file.path(getOutputDirectory(ArchRProj), "Plots")
+  }
+  
+  dir.create(outDir, showWarnings = FALSE)
+  if(addDOC){
+    doc <- gsub(":","-",stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2])
+    filename <- file.path(outDir, paste0(name, "_Date-", Sys.Date(), "_Time-", doc, ".pdf"))
+  }else{
+    filename <- file.path(outDir, paste0(name, ".pdf"))
+  }
+
+  o <- tryCatch({
+
+    pdf(filename, width = width, height = height, useDingbats = useDingbats)
+    for(i in seq_along(plotList)){
+      
+      if(inherits(plotList[[i]], "gg")){
+        
+        print("plotting ggplot!")
+
+        if(!is.null(attr(plotList[[i]], "ratioYX"))){
+          .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE)
+        }else{
+          .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE)
+        }
+
+        if(i != length(plotList)){
+          grid::grid.newpage()
+        }
+      
+      }else if(inherits(plotList[[i]], "gtable")){
+        
+        print(grid::grid.draw(plotList[[i]]))
+        if(i != length(plotList)){
+          grid::grid.newpage()
+        }
+      }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
+        padding <- 15
+        draw(plotList[[i]], 
+          padding = unit(c(padding, padding, padding, padding), "mm"), 
+          heatmap_legend_side = "bot", 
+          annotation_legend_side = "bot"
+        )
+
+      }else{
+
+        print("Plotting with print")
+       
+        print(plotList[[i]])
+
+      }
+
+    }
+    dev.off()
+
+
+  }, error = function(x){
+
+    message(x)
+
+  })
+
+  return(0)
+
+}
+
+####################################################################
 # Visualization Methods
 ####################################################################
 

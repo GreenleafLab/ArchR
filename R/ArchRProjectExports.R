@@ -1,7 +1,7 @@
 #' @include HelperUtils.R
 NULL
 
-#' Export Group Summarized Experiment JJJ
+#' Export Group Summarized Experiment 
 #' 
 #' This function will group, summarize and export a summarized experiment for a assay in a ArchRProject.
 #'
@@ -23,13 +23,13 @@ exportGroupSE <- function(
   verbose = TRUE
   ){
 
-  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  # JJJ .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
-  # JJJ .validInput(input = groupBy, name = "groupBy", valid = c("character"))
-  # JJJ .validInput(input = divideN, name = "divideN", valid = c("boolean"))
-  # JJJ .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
-  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
-  # JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = divideN, name = "divideN", valid = c("boolean"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric", "null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
 
   ArrowFiles <- getArrowFiles(ArchRProj)
   featureDF <- .getFeatureDF(ArrowFiles, subGroup = useMatrix)
@@ -39,25 +39,25 @@ exportGroupSE <- function(
   }
   Cells <- ArchRProj$cellNames
 
-    groupMat <- .getGroupMatrix(
-      ArrowFiles = ArrowFiles, 
-      featureDF = featureDF,
-      useMatrix = useMatrix, 
-      threads = threads,
-      groupList = split(Cells, Groups),
-      useIndex = FALSE,
-      verbose = verbose
-    )
+  groupMat <- .getGroupMatrix(
+    ArrowFiles = ArrowFiles, 
+    featureDF = featureDF,
+    useMatrix = useMatrix, 
+    threads = threads,
+    groupList = split(Cells, Groups),
+    useIndex = FALSE,
+    verbose = verbose
+  )
 
-    if(divideN){
-      nCells <- table(Groups)[colnames(groupMat)]
-      groupMat <- t(t(groupMat) / as.vector(nCells))
-    }
+  if(divideN){
+    nCells <- table(Groups)[colnames(groupMat)]
+    groupMat <- t(t(groupMat) / as.vector(nCells))
+  }
 
-    #Normalize
-    if(!is.null(scaleTo)){
-      groupMat <- t(t(groupMat) / colSums(groupMat)) * scaleTo
-    }
+  #Normalize
+  if(!is.null(scaleTo)){
+    groupMat <- t(t(groupMat) / colSums(groupMat)) * scaleTo
+  }
 
   assayList <- SimpleList(
     matrix = groupMat
