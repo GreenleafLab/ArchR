@@ -268,7 +268,7 @@ getTrajectory <- function(
   threads = getArchRThreads(),
   log2Norm = TRUE,
   scaleTo = 10000,
-  smoothWindow = 3
+  smoothWindow = 11
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -639,7 +639,7 @@ trajectoryHeatmap <- function(
   varCutOff = 0.9,
   maxFeatures = 25000,
   scaleRows = TRUE,
-  limits = c(-2,2),
+  limits = c(-1.5, 1.5),
   grepExclude = NULL,
   pal = NULL,
   labelMarkers = NULL,
