@@ -225,6 +225,7 @@ correlateMatrices <- function(
     Y = groupMat2,
     idxX = mappingDF[,1],
     idxY = mappingDF[,2],
+    verbose = verbose,
     padjMethod = "bonferroni",
     logFile = logFile
   )
@@ -255,6 +256,7 @@ correlateMatrices <- function(
   padjMethod = "BH", 
   min = 10, 
   use="complete", 
+  verbose = TRUE,
   threads = 1,
   logFile = NULL
   ){
