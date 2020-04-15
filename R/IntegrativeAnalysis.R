@@ -588,7 +588,7 @@ correlateTrajectories <- function(
   mappingDF$FDR <- p.adjust(mappingDF$Pval, method = "fdr")
 
   idxPF <- which(mappingDF$Correlation > corCutOff & mappingDF$VarAssay1 > varCutOff1 & mappingDF$VarAssay2 > varCutOff2)
-  .logMessage("Found ", length(idxPF), " Correlated Pairings!", logFile=logFile, verbose=verbose)
+  .logMessage("Found ", length(idxPF), " Correlated Pairings!", logFile=logFile, verbose=TRUE)
 
   .logThis(mappingDF[idxPF,], "mappingDF-PF", logFile = logFile)
 
