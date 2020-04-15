@@ -325,6 +325,284 @@ correlateMatrices <- function(
 
 }
 
+
+#' Correlate Trajectories
+#' 
+#' This function will correlate 2 trajectory matrices from getTrajectory.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix1 A character describing the first matrix to use. See `getAvailableMatrices` for valid options.
+#' @param useMatrix2 A character describing the second matrix to use. See `getAvailableMatrices` for valid options.
+#' @param useSeqnames1 A character vector describing which seqnames to use in matrix 1.
+#' @param useSeqnames2 A character vector describing which seqnames to use in matrix 2.
+#' @param removeFromName1 A character vector describing how to filter names in matrix 1. 
+#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' @param removeFromName2 A character vector describing how to filter names in matrix 2. 
+#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' @param log2Norm1 A boolean describing whether to log2 normalize matrix 1.
+#' @param log2Norm2 A boolean describing whether to log2 normalize matrix 2.
+#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
+#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
+#' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param k An `ArchRProject` object.
+#' @param knnIteration An `ArchRProject` object.
+#' @param overlapCutoff An `ArchRProject` object.
+#' @param seed An `ArchRProject` object.
+#' @param knnMethod An `ArchRProject` object.
+#' @param threads The number of threads to be used for parallel computing.
+#' @export
+correlateTrajectories <- function(
+  seTrajectory1 = NULL,
+  seTrajectory2 = NULL,
+  corCutOff = 0.5,
+  varCutOff1 = 0.8,
+  varCutOff2 = 0.8,
+  removeFromName1 = c("underscore", "dash"),
+  removeFromName2 = c("underscore", "dash"),
+  useRanges = FALSE,
+  fix1 = "center",
+  fix2 = "start",
+  maxDist = 250000,
+  log2Norm1 = TRUE,
+  log2Norm2 = TRUE,
+  force = FALSE,
+  logFile = createLogFile("correlateTrajectories")
+  ){
+
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "correlateTrajectories Input-Parameters", logFile=logFile)
+
+  featureDF1 <- rowData(seTrajectory1)
+  featureDF2 <- rowData(seTrajectory2)
+
+  .logThis(featureDF1, "featureDF1", logFile = logFile)
+  .logThis(featureDF2, "featureDF2", logFile = logFile)
+
+  if("name" %in% colnames(featureDF1)){
+    rownames(featureDF1) <- paste0(featureDF1$seqnames, ":", featureDF1$name)
+    rownames(seTrajectory1) <- paste0(featureDF1$seqnames, ":", featureDF1$name)
+  }else{
+    if(!useRanges){
+      .logStop("seTrajectory1 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!", logFile = logFile)
+    }
+    rownames(featureDF1) <- paste0(featureDF1$seqnames, ":", featureDF1$start, "_", featureDF1$end)
+    rownames(seTrajectory1) <- paste0(featureDF1$seqnames, ":", featureDF1$start, "_", featureDF1$end)
+  }
+
+  if("name" %in% colnames(featureDF2)){
+    rownames(featureDF2) <- paste0(featureDF2$seqnames, ":", featureDF2$name)
+    rownames(seTrajectory2) <- paste0(featureDF2$seqnames, ":", featureDF2$name)
+  }else{
+    if(!useRanges){
+      .logStop("seTrajectory2 does not have a name column in rowData. This means most likely the matching format needs useRanges = TRUE!", logFile = logFile)
+    }
+    rownames(featureDF2) <- paste0(featureDF2$seqnames, ":", featureDF2$start, "_", featureDF2$end)
+    rownames(seTrajectory2) <- paste0(featureDF2$seqnames, ":", featureDF2$start, "_", featureDF2$end)
+  }
+
+  .logThis(rownames(featureDF1), "rownames(featureDF1)", logFile = logFile)
+  .logThis(rownames(featureDF2), "rownames(featureDF2)", logFile = logFile)
+
+  if(useRanges){
+
+    if("start" %ni% colnames(featureDF1)){
+      .logStop("start is not in seTrajectory1, this is not a ranges object. Please set useRanges = FALSE", logFile = logFile)
+    }
+
+    if("start" %ni% colnames(featureDF2)){
+      .logStop("start is not in seTrajectory2, this is not a ranges object. Please set useRanges = FALSE", logFile = logFile)
+    }
+
+    if("strand" %in% colnames(featureDF1)){
+      ranges1 <- GRanges(
+        seqnames = featureDF1$seqnames, 
+        IRanges(
+          ifelse(featureDF1$strand == 2, featureDF1$end, featureDF1$start),
+          ifelse(featureDF1$strand == 2, featureDF1$start, featureDF1$end)
+        ),
+        strand = ifelse(featureDF1$strand == 2, "-", "+")
+      )
+    }else{
+      ranges1 <- GRanges(featureDF1$seqnames, IRanges(featureDF1$start, featureDF1$end))
+    }
+    #mcols(ranges1) <- featureDF1
+    names(ranges1) <- rownames(featureDF1)
+    rowRanges(seTrajectory1) <- ranges1
+    rm(ranges1)
+
+    if("strand" %in% colnames(featureDF2)){
+      ranges2 <- GRanges(
+        seqnames = featureDF2$seqnames, 
+        IRanges(
+          ifelse(featureDF2$strand == 2, featureDF2$end, featureDF2$start),
+          ifelse(featureDF2$strand == 2, featureDF2$start, featureDF2$end)
+        ),
+        strand = ifelse(featureDF2$strand == 2, "-", "+")
+      )
+    }else{
+      ranges2 <- GRanges(featureDF2$seqnames, IRanges(featureDF2$start, featureDF2$end))
+    }
+    #mcols(ranges2) <- featureDF2
+    names(ranges2) <- rownames(featureDF2)
+    rowRanges(seTrajectory2) <- ranges2
+    rm(ranges2)
+
+    .logThis(ranges1, "ranges1", logFile = logFile)
+    .logThis(ranges2, "ranges2", logFile = logFile)
+
+    #Find Associations to test
+    isStranded1 <- any(as.integer(strand(seTrajectory1)) == 2)
+    isStranded2 <- any(as.integer(strand(seTrajectory2)) == 2)
+
+    if(fix1 == "center" & isStranded1){
+      if(!force){
+        .logStop("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.", logFile = logFile)
+      }else{
+        .logMessage("fix1 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Continuing since force = TRUE", verbose = TRUE, logFile=logFile)
+      }         
+    }
+
+    if(fix1 != "center" & !isStranded1){
+      if(!force){
+        .logStop("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.", logFile = logFile)
+      }else{
+        .logMessage("fix1 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Continuing since force = TRUE", verbose = TRUE, logFile=logFile)
+      }         
+    }
+
+    if(fix2 == "center" & isStranded2){
+      if(!force){
+        .logStop("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Set force = TRUE to bypass this.", logFile = logFile)
+      }else{
+        .logMessage("fix2 equals center when there is strandedness. Most likely you want this as fix1='start' or fix1='end'. Continuing since force = TRUE", verbose = TRUE, logFile=logFile)
+      }         
+    }
+
+    if(fix2 != "center" & !isStranded2){
+      if(!force){
+        .logStop("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Set force = TRUE to bypass this.", logFile = logFile)
+      }else{
+        .logMessage("fix2 does not equal center when there is no strandedness. Most likely you want this as fix1='center'. Continuing since force = TRUE", verbose = TRUE, logFile=logFile)
+      }         
+    }
+
+    #Overlaps
+    mappingDF <- DataFrame(
+      findOverlaps( 
+        resize(rowRanges(seTrajectory1), 1, fix1), 
+        .suppressAll(resize(resize(seTrajectory2, 1, fix2), 2 * maxDist + 1, "center")),
+        ignore.strand = TRUE
+      )
+    )
+
+    #Get Distance 
+    mappingDF$distance <- distance(
+      x = ranges(rowRanges(seTrajectory1)[mappingDF[,1]]), 
+      y = ranges(rowRanges(resize(seTrajectory2, 1, fix2))[mappingDF[,2]])
+    )
+
+  }else{
+
+    #Create Match Names
+    featureDF1$matchName <- featureDF1$name
+    if("underscore" %in% tolower(removeFromName1)){
+      featureDF1$matchName <- gsub("\\_.*","",featureDF1$matchName)
+    }
+    if("dash" %in% tolower(removeFromName1)){
+      featureDF1$matchName <- gsub("\\-.*","",featureDF1$matchName)
+    }
+    if("numeric" %in% tolower(removeFromName1)){
+      featureDF1$matchName <- gsub("[0-9]+","",featureDF1$matchName)
+    }
+
+    featureDF2$matchName <- featureDF2$name
+    if("underscore" %in% tolower(removeFromName2)){
+      featureDF2$matchName <- gsub("\\_.*","",featureDF2$matchName)
+    }
+    if("dash" %in% tolower(removeFromName2)){
+      featureDF2$matchName <- gsub("\\-.*","",featureDF2$matchName)
+    }
+    if("numeric" %in% tolower(removeFromName2)){
+      featureDF2$matchName <- gsub("[0-9]+","",featureDF2$matchName)
+    }
+    
+    #Now Lets see how many matched pairings
+    matchP1 <- sum(featureDF1$matchName %in% featureDF2$matchName) / nrow(featureDF1)
+    matchP2 <- sum(featureDF2$matchName %in% featureDF1$matchName) / nrow(featureDF2)
+    matchP <- max(matchP1, matchP2)
+
+    .logThis(featureDF1$matchName, "featureDF1$matchName", logFile)
+    .logThis(featureDF2$matchName, "featureDF2$matchName", logFile)
+
+    if(sum(featureDF1$matchName %in% featureDF2$matchName) == 0){
+      .logMessage("Matching of seTrajectory1 and seTrajectory2 resulted in no mappings!", logFile = logFile)
+      stop("Matching of seTrajectory1 and seTrajectory2 resulted in no mappings!")
+    }
+    if(matchP < 0.05){
+      if(!force){
+        .logStop("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Set force = TRUE to continue!", logFile=logFile)
+      }else{
+        .logMessage("Matching of seTrajectory1 and seTrajectory2 resulted in less than 5% mappings! Continuing since force = TRUE.", verbose=TRUE, logFile=logFile)
+      }
+    }
+
+    #Create Mappings
+    mappingDF <- lapply(seq_len(nrow(featureDF1)), function(x){
+      idx <- which(paste0(featureDF2$matchName) %in% paste0(featureDF1$matchName[x]))
+      if(length(idx) > 0){
+        expand.grid(x, idx)
+      }else{
+        NULL
+      }
+    }) %>% Reduce("rbind", .)
+
+  }
+
+  colnames(mappingDF)[1:2] <- c("idx1", "idx2")
+  mappingDF <- DataFrame(mappingDF)
+
+  .logThis(mappingDF, "mappingDF", logFile = logFile)
+
+  if(!useRanges){
+    mappingDF$matchname1 <- featureDF1$matchName[mappingDF$idx1]
+    mappingDF$matchname2 <- featureDF2$matchName[mappingDF$idx2]
+    mappingDF$name1 <- rownames(featureDF1)[mappingDF$idx1]
+    mappingDF$name2 <- rownames(featureDF2)[mappingDF$idx2]
+  }
+
+  mappingDF$Correlation <- rowCorCpp(
+    idxX = as.integer(mappingDF[,1]), 
+    idxY = as.integer(mappingDF[,2]), 
+    X = assays(seTrajectory1)[["mat"]], 
+    Y = assays(seTrajectory2)[["mat"]]
+  )
+  mappingDF$VarAssay1 <- .getQuantiles(matrixStats::rowVars(assays(seTrajectory1)[["mat"]]))[as.integer(mappingDF[,1])]
+  mappingDF$VarAssay2 <- .getQuantiles(matrixStats::rowVars(assays(seTrajectory2)[["mat"]]))[as.integer(mappingDF[,2])]
+  mappingDF$TStat <- (mappingDF$Correlation / sqrt((1-mappingDF$Correlation^2)/(ncol(seTrajectory1)-2))) #T-statistic P-value
+  mappingDF$Pval <- 2 * pt(-abs(mappingDF$TStat), ncol(seTrajectory1) - 2)
+  mappingDF$FDR <- p.adjust(mappingDF$Pval, method = "fdr")
+
+  idxPF <- which(mappingDF$Correlation > corCutOff & mappingDF$VarAssay1 > varCutOff1 & mappingDF$VarAssay2 > varCutOff2)
+  .logMessage("Found ", length(idxPF), " Correlated Pairings!", logFile=logFile, verbose=verbose)
+
+  .logThis(mappingDF[idxPF,], "mappingDF-PF", logFile = logFile)
+
+  out <- SimpleList(
+    correlatedMappings = mappingDF[idxPF,],
+    allMappings = mappingDF,
+    seTrajectory1 = seTrajectory1,
+    seTrajectory2 = seTrajectory2
+  )
+
+  out
+
+}
+
 ##########################################################################################
 # Co-accessibility Methods
 ##########################################################################################
