@@ -48,7 +48,7 @@ addIterativeLSI(
 
 \item{iterations}{The number of LSI iterations to perform.}
 
-\item{clusterParams}{Additional parameters to be passed to \code{addClusters()} for clustering within each iteration. These must be either
+\item{clusterParams}{JJJ THE PART ABOUT THE LENGTH I DONT UNDERSTAND. A list of Additional parameters to be passed to \code{addClusters()} for clustering within each iteration. These must be either
 length 1 or the total number of \code{iterations} - 1.}
 
 \item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
@@ -116,6 +116,8 @@ reproduce results downstream.}
 \item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{force}{A boolean value that indicates whether or not to overwrite relevant data in the \code{ArchRProject} object.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will compute an iterative LSI dimensionality reduction on an ArchRProject.

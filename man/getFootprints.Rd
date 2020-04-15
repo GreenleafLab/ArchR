@@ -41,25 +41,8 @@ object will be considered for the footprint.}
 
 \item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
-\item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for plotting the lines corresponding to the footprints.}
-
-\item{flankNorm}{The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.}
-
-\item{smoothWindow}{The size in basepairs of the sliding window to be used for smoothing of the footprint signal.}
-
-\item{normMethod}{The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options
-include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.}
-
-\item{inputSE}{Input a previous footprint Summarized Experiment (returned after running \code{plotFootprints}) to be plotted instead of
-regenerating the footprinting information.}
-
-\item{height}{The height in inches to be used for the output PDF.}
-
-\item{width}{The width in inches to be used for the output PDF file.}
-
-\item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
-preventing overwritting of old plots.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
-This function will get footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
+This function will get footprints for all samples in a given ArchRProject and return a summarized experiment object that can be used for downstream analyses
 }

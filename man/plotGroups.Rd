@@ -40,9 +40,18 @@ is "GeneScoreMatrix" then \code{name} refers to a gene name which can be listed 
 
 \item{imputeWeights}{The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See \code{addImputationWeights()} and \code{getImutationWeights()} for more information.}
 
+\item{maxCells}{JJJ The maximum cells to consider when making the plot.}
+
+\item{quantCut}{JJJ If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of values.
+This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where \code{a} is the upper threshold and
+\code{b} is the lower threshold. For example, quantCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them
+to the value of the 97.5th and 2.5th percentile values respectively.}
+
 \item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values (if continuous) in plotting.}
 
 \item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override discreteSet/continuousSet for coloring vector.}
+
+\item{discreteSet}{JJJ The name of a discrete palette from \code{ArchRPalettes} for visualizing \code{colorBy} if a discrete color set is desired.}
 
 \item{ylim}{A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.}
 
@@ -55,6 +64,8 @@ is "GeneScoreMatrix" then \code{name} refers to a gene name which can be listed 
 \item{ridgeScale}{The scale factor for the relative heights of each ridge when making a ridgeplot with \code{ggridges}.}
 
 \item{plotAs}{A string that indicates whether a rigdge plot ("ridges") should be plotted or a violin plot ("violin") should be plotted.}
+
+\item{threads}{The number of threads to be used for parallel computing.}
 
 \item{...}{Additional parameters to pass to \code{ggGroup()}.}
 }

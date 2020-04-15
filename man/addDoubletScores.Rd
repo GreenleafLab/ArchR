@@ -63,6 +63,8 @@ override this (not recommended!), you can bypass this warning by setting \code{f
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{verbose}{A boolean value that determines whether standard output is printed.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information

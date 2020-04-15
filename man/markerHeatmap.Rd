@@ -26,7 +26,7 @@ markerHeatmap(
 )
 }
 \arguments{
-\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{markerFeatures()}.}
+\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{getMarkerFeatures()}.}
 
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted
 in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
@@ -48,13 +48,19 @@ rownames from \code{seMarker} to be excluded from the heatmap.}
 
 \item{binaryClusterRows}{A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.}
 
+\item{clusterCols}{JJJ A boolean value that indicates whether the columns of the marker heatmap should be clustered.}
+
 \item{labelMarkers}{A character vector listing the \code{rownames} of \code{seMarker} that should be labeled on the side of the heatmap.}
 
 \item{nLabel}{An integer value that indicates whether the top \code{n} features for each column in \code{seMarker} should be labeled on the side of the heatmap.}
 
+\item{nPrint}{JJJ}
+
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
+
+\item{transpose}{JJJ A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.}
 
 \item{invert}{JJJ. A boolean value that indicates whether the heatmap will display the features with the
 lowest \verb{log2(fold change)}. In this case, the heatmap will display features that are specifically lower in the given cell

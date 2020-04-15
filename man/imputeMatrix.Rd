@@ -13,15 +13,15 @@ imputeMatrix(
 )
 }
 \arguments{
-\item{mat}{a matrix or sparseMatrix of class dgCMatrix}
+\item{mat}{A matrix or sparseMatrix of class dgCMatrix to be imputed.}
 
-\item{imputeWeights}{imputeWeights from getImputeWeights(ArchRProj), see addImputeWeights for more details.}
+\item{imputeWeights}{An R object containing impute weights as returned by \code{getImputeWeights(ArchRProj)}. See \code{addImputeWeights()} for more details.}
 
-\item{threads}{number of threads for parallel computing, see getArchRThreads for more information.}
+\item{threads}{The number of threads to be used for parallel computing.}
 
-\item{verbose}{print output during analysis.}
+\item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
-\item{logFile}{log file for storing important information.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function gets imputation weights from an ArchRProject to impute a numerical matrix

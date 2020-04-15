@@ -49,6 +49,8 @@ See \code{addImputationWeights()} and \code{getImutationWeights()} for more info
 
 \item{size}{A number indicating the size of the points to plot if \code{plotAs} is set to "points".}
 
+\item{sampleCells}{JJJ}
+
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the
 internal portions of the plot.}
 
@@ -70,6 +72,10 @@ uniformly present at the front of the plot.}
 
 \item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 if \code{colorBy} is numeric, then \code{plotAs} is set to "hex".}
+
+\item{threads}{The number of threads to be used for parallel computing.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{...}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 }

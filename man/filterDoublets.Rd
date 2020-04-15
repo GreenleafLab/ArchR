@@ -26,5 +26,5 @@ percentages of doublets because they were run with different cell loading concen
 The higher the \code{filterRatio}, the greater the number of cells potentially removed as doublets.}
 }
 \description{
-This function will filter doublets from an ArchRProject after addDoubletScores has been run.
+This function will filter doublets from an ArchRProject after addDoubletScores() has been run.
 }

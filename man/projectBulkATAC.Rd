@@ -30,7 +30,7 @@ projectBulkATAC(
 
 \item{threads}{The number of threads used for parallel execution}
 
-\item{logFile}{The name of the logFile to be used for loggin ArchR output.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will Project Bulk ATAC-seq data into single cell subspace.

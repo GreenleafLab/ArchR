@@ -29,11 +29,15 @@ addFeatureMatrix(
 \item{binarize}{A boolean value indicating whether the feature matrix should be binarized prior to storage. This can be useful for
 downstream analyses when working with insertion counts.}
 
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
+
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the \code{input}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.

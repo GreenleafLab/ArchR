@@ -26,7 +26,9 @@ ArchRBrowserTrack(
   tickWidth = 0.4,
   facetbaseSize = 7,
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  title = ""
+  title = "",
+  verbose = TRUE,
+  logFile = createLogFile("ArchRBrowserTrack")
 )
 }
 \arguments{
@@ -44,8 +46,8 @@ column will be grouped together and the average signal will be plotted.}
 \code{cellColData}. This limits the groups to be plotted.}
 
 \item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
-"featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
-are on the minus strand and red-colored genes are on the plus strand).}
+"featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
+are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).}
 
 \item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}.
 The order must be the same as \code{plotSummary}.}
@@ -89,6 +91,10 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 \item{geneAnnotation}{The \code{geneAnnotation} object to be used for plotting the "geneTrack" object. See \code{createGeneAnnotation()} for more info.}
 
 \item{title}{The title to add at the top of the plot next to the plot's genomic coordinates.}
+
+\item{verbose}{A boolean value that determines whether standard output should be printed.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal

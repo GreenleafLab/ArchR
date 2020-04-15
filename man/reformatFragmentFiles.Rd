@@ -2,14 +2,15 @@
 % Please edit documentation in R/HelperUtils.R
 \name{reformatFragmentFiles}
 \alias{reformatFragmentFiles}
-\title{Reformat Fragment Files to be Tabix and Chr Sorted JJJ}
+\title{Reformat Fragment Files to be Tabix and Chr Sorted}
 \usage{
 reformatFragmentFiles(fragmentFiles = NULL, seqnamesIsChr = TRUE)
 }
 \arguments{
-\item{fragmentFiles}{a character vector of paths to fragment files to be reformatted}
+\item{fragmentFiles}{A character vector the paths to fragment files to be reformatted}
 
-\item{seqnamesIsChr}{a boolean describing to check if seqnames containt "chr".}
+\item{seqnamesIsChr}{A boolean value that determines whether seqnames should be checked to contain
+"chr". IF set to \code{TRUE}, any seqnames that do not contain "chr" will be removed from the fragment files.}
 }
 \description{
 This function provides help in reformatting Fragment Files for reading in createArrowFiles.

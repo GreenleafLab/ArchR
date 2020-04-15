@@ -13,9 +13,9 @@ markerPlot(
 )
 }
 \arguments{
-\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
+\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{getMarkerFeatures()}.}
 
-\item{name}{The name of a column in \code{seMarker} (i.e. cell grouping in \code{groupBy} or \code{useGroups} for \code{markerFeatures()}) to be plotted.
+\item{name}{The name of a column in \code{seMarker} (i.e. cell grouping in \code{groupBy} or \code{useGroups} for \code{getMarkerFeatures()}) to be plotted.
 To see available options try \code{colnames(seMarker)}.}
 
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker} will be plotted.

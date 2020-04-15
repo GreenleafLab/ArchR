@@ -71,6 +71,8 @@ seqnames that are not listed will be ignored.}
 \item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will identify features that are definitional of each provided cell grouping where possible

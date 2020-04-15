@@ -14,6 +14,14 @@ addFeatureCounts(
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
+
+\item{features}{JJJ QQQ}
+
+\item{name}{JJJ QQQ}
+
+\item{addRatio}{JJJ QQQ}
+
+\item{threads}{The number of threads to use for parallel execution.}
 }
 \description{
 This function will add total counts of scATAC cells in provided features into ArchRProject.

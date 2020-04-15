@@ -10,6 +10,8 @@ getTutorialData(tutorial = "hematopoiesis", threads = getArchRThreads())
 \item{tutorial}{The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".
 "Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
 This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.}
+
+\item{threads}{The number of threads to be used for parallel computing.}
 }
 \description{
 This function will download data for a given tutorial and return the input files required for ArchR.

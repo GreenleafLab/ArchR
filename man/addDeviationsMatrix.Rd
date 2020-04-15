@@ -40,10 +40,14 @@ This is often desired when working with insertion counts.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
+
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it
 already exists in the ArrowFiles associated with the given \code{ArchRProject}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).

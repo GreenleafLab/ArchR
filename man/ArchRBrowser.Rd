@@ -15,7 +15,9 @@ ArchRBrowser(
   facetbaseSize = 12,
   geneAnnotation = getGeneAnnotation(ArchRProj),
   browserTheme = "cosmo",
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  logFile = createLogFile("ArchRBrowser")
 )
 }
 \arguments{
@@ -46,6 +48,10 @@ can be used to exclude pseudo-bulk replicates generated from low numbers of cell
 To install try devtools::install_github("rstudio/shinythemes").}
 
 \item{threads}{The number of threads to use for parallel execution.}
+
+\item{verbose}{A boolean value that determines whether standard output should be printed.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which

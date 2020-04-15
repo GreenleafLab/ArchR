@@ -23,11 +23,15 @@ addPeakMatrix(
 \item{binarize}{A boolean value indicating whether the peak matrix should be binarized prior to storage. This can be useful
 for downstream analyses when working with insertion counts.}
 
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
+
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the "PeakMatrix" to be overwritten if it already exist in the given \code{ArchRProject}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function, for each sample, will independently compute counts for each peak

@@ -23,6 +23,10 @@ plotFootprints(
 )
 }
 \arguments{
+\item{seFoot}{JJJ A summarized experiment object containing information on footprints returned by the \code{getFootprints()} function.}
+
+\item{names}{JJJ A character vector containing the names of the transcription factors to be plotted.}
+
 \item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for plotting the lines corresponding to the footprints.}
 
 \item{flank}{The number of basepairs from the position center (+/-) to consider as the flank.}
@@ -34,35 +38,22 @@ include "none", "subtract", "divide". "Subtract" means subtracting the normalize
 
 \item{smoothWindow}{The size in basepairs of the sliding window to be used for smoothing of the footprint signal.}
 
-\item{ArchRProj}{An \code{ArchRProject} object.}
+\item{baseSize}{JJJ}
 
-\item{plotName}{The prefix to add to the file name for the output PDF file containing the footprint plots.}
+\item{plot}{JJJ A boolean value indicating whether or not the footprints should be plotted (\code{TRUE}) or JJJ (\code{FALSE}).}
 
-\item{height}{The height in inches to be used for the output PDF.}
+\item{ArchRProj}{JJJ An \code{ArchRProject} object to be used for JJJ.}
+
+\item{plotName}{JJJ A string indicating the name of the file to be used for output plots.}
+
+\item{height}{The height in inches to be used for the output PDF file.}
 
 \item{width}{The width in inches to be used for the output PDF file.}
 
 \item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
 preventing overwritting of old plots.}
 
-\item{positions}{A \code{list} or \code{GenomicRangesList} of \code{GRanges} containing the positions to incorporate into the footprint. Each position should be stranded.}
-
-\item{groupBy}{The name of the column in \code{cellColData} used in the \code{addGroupCoverages()} function for grouping multiple cells together.}
-
-\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}.
-This limits the groups used to perform footprinting.}
-
-\item{minCells}{The minimum number of cells required in a given cell group to permit footprint generation.}
-
-\item{nTop}{The number of genomic regions to consider. Only the top \code{nTop} genomic regions based on the "score" column in the \code{GRanges}
-object will be considered for the footprint.}
-
-\item{inputSE}{Input a previous footprint Summarized Experiment (returned after running \code{plotFootprints}) to be plotted instead of
-regenerating the footprinting information.}
-
-\item{threads}{The number of threads to be used for parallel computing.}
-
-\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will get footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment

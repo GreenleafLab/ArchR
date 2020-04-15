@@ -63,7 +63,7 @@ This argument is only used if \code{discrete} is set to \code{FALSE}.}
 
 \item{defaultColor}{The default color for points that do not have another color applied (i.e. \code{NA} values).}
 
-\item{colorDensity}{A boolean value indicating whether the density of points on the plot should be indicated colorimetrically.
+\item{colorDensity}{A boolean value indicating whether the density of points on the plot should be indicated by color.
 If \code{TRUE}, continuousSet is used as the color palette.}
 
 \item{size}{The numeric size of the points to be plotted.}
@@ -98,17 +98,17 @@ beyond these limits are thresholded.}
 
 \item{baseSize}{The base font size (in points) to use in the plot.}
 
-\item{legendSize}{This represents the color legend size in the plot.}
+\item{legendSize}{JJJ The size in inches to use for plotting the color legend.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{labelAsFactors}{A boolean indicating whether to label as a factor numeric rather than labeling with a character string.}
+\item{labelAsFactors}{JJJ WHAT IS BEING LABELED? A boolean indicating whether to label the JJJ as a numeric factor (\code{TRUE}) or with a character string (\code{FALSE}).}
 
 \item{fgColor}{The foreground color of the plot.}
 
 \item{bgColor}{The background color of the plot.}
 
-\item{bgWidth}{The background width of the halos in the labeling.}
+\item{bgWidth}{JJJ WHAT ARE THE UNITS OF THE WIDTH? The background width in JJJ of the halos in the labeling.}
 
 \item{labelSize}{The numeric font size of labels.}
 

@@ -13,7 +13,7 @@ filterChrGR(
 )
 }
 \arguments{
-\item{gr}{A \code{GRanges} object or another object containing seqlevels.}
+\item{gr}{A \code{GRanges} object or another object containing \code{seqlevels}.}
 
 \item{remove}{A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
 If no manual removal is desired, \code{remove} should be set to \code{NULL}.}

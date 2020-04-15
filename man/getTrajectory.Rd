@@ -12,7 +12,7 @@ getTrajectory(
   threads = getArchRThreads(),
   log2Norm = TRUE,
   scaleTo = 10000,
-  smoothWindow = 3
+  smoothWindow = 11
 )
 }
 \arguments{

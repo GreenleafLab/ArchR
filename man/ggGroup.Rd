@@ -53,6 +53,8 @@ values of \code{x} in the desired order.}
 
 \item{addBoxPlot}{A boolean indicating whether to add a boxplot to the plot if \code{plotAs="violin"}.}
 
+\item{plotAs}{JJJ A string indicating how the groups should be plotted. Acceptable values are "ridges" (for a \code{ggrides}-style plot) or "violin" (for a violin plot).}
+
 \item{...}{Additional parameters to pass to \code{ggplot2} for plotting.}
 }
 \description{

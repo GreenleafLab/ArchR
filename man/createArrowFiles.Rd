@@ -70,13 +70,19 @@ is a measurement of signal-to-background in ATAC-seq.}
 excluded entirely from the ArrowFiles. If \code{FALSE} cells that do not pass QC filters will be included in the ArrowFile but will be
 marked as not passing QC and excluded from downstream analyses.}
 
-\item{minFrags}{The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
+\item{minFrags}{The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
+This is useful for limiting the number of barcodes analyzed.}
+
+\item{maxFrags}{The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 This is useful for limiting the number of barcodes analyzed.}
 
 \item{outDir}{The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.}
 
 \item{nucLength}{The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.}
+
+\item{promoterRegion}{A integer vector describing the number of basepairs upstream and downstream \link{c(upstream, downstream)} of the TSS to include
+as the promoter region for downstream calculation of things like the fraction of reads in promoters (FIP).}
 
 \item{TSSParams}{A list of parameters for computing TSS Enrichment scores. This includes the \code{window} which is the size in basepairs
 of the window centered at each TSS (default 101), the \code{flank} which is the size in basepairs of the flanking window (default 2000),
@@ -126,7 +132,7 @@ ATAC-seq signal proximal to the TSS to estimate gene activity.}
 
 \item{verbose}{A boolean value that determines whether standard output should be printed.}
 
-\item{logFile}{A file path to write ArchR logging output to.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{cleamTmp}{A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.}
 }

@@ -39,9 +39,9 @@ be lowered to improve visibility of the heatmap.}
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize
 lines and labels, just the internal portions of the plot.}
 
-\item{transpose}{A boolean determining whether to transpose heatmap in plot.}
+\item{transpose}{A boolean determining whether to transpose the heatmap in the plot.}
 
-\item{returnMatrix}{A boolean determining whether to return matrix in heatmap rather than a plot.}
+\item{returnMatrix}{A boolean determining whether to return the matrix corresponding to the heatmap rather than generate a plot.}
 }
 \description{
 This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.

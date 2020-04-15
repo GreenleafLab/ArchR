@@ -28,6 +28,8 @@ TSS Enrichment Scores, Gene Scores, etc.}
 genome information such as nucleotide information or chromosome sizes.}
 
 \item{showLogo}{A boolean value indicating whether to show the ascii ArchR logo after successful creation of an \code{ArchRProject}.}
+
+\item{threads}{The number of threads to use for parallel execution.}
 }
 \description{
 This function will create an ArchRProject from the provided ArrowFiles.
