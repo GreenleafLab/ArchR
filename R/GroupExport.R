@@ -1,6 +1,12 @@
 #' @include HelperUtils.R
 NULL
 
+#' @export
+exportGroupSE <- function(...){
+    .Deprecated("getGroupSE")
+    getGroupSE(...)
+}
+
 #' Export Group Summarized Experiment 
 #' 
 #' This function will group, summarize and export a summarized experiment for a assay in a ArchRProject.
@@ -14,7 +20,7 @@ NULL
 #' @param verbose A boolean specifying to print messages during computation.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-exportGroupSE <- function(
+getGroupSE <- function(
   ArchRProj = NULL,
   useMatrix = NULL,
   groupBy = "Sample",
