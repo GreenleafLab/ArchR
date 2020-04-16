@@ -80,6 +80,10 @@ being present at the front of the plot.}
 \item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 if \code{colorBy} is numeric, then \code{plotAs} is set to "hex".}
 
+\item{smoothWindow}{An integer value indicating the smoothing window for creating inferred Arrow overlay on to embedding.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
+
 \item{...}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 }
 \description{

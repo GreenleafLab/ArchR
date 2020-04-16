@@ -37,6 +37,8 @@ is to retrieve this from the \code{ArchRProject} using \code{getBlacklist()}.}
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given \code{input}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function, for each sample, will independently compute counts for each tile

@@ -55,10 +55,14 @@ from the \code{peakSet} of the \code{ArchRProject} and normalized to the total d
 
 \item{predictionCutoff}{A numeric describing the cutoff for RNA integration to use when picking cells for groupings.}
 
-\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended
+\item{seed}{A number to be used as the seed for random number generation required in knn determination. It is recommended
 to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
+
+\item{verbose}{A boolean value that determines whether standard output should be printed.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will add peak-to-gene links to a given ArchRProject

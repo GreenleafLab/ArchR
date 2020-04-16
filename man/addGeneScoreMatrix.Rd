@@ -65,6 +65,8 @@ biasing the geneScores for genes nearby that locus.}
 \item{subThreading}{A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{input}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function, for each sample, will independently compute counts for each tile

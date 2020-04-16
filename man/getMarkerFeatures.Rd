@@ -20,8 +20,7 @@ getMarkerFeatures(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
+  verbose = TRUE,
   logFile = createLogFile("getMarkerFeatures")
 )
 }
@@ -68,9 +67,7 @@ the stringency of also maintaining the group proportions from \code{bgdGroups}.}
 \item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from
 seqnames that are not listed will be ignored.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
-
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{verbose}{A boolean value that determines whether standard output is printed.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }

@@ -60,15 +60,21 @@ biases since it is over-weighting latent PCs. If set to \code{NULL} this will sc
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{k}{An \code{ArchRProject} object.}
+\item{k}{The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.}
 
-\item{knnIteration}{An \code{ArchRProject} object.}
+\item{knnIteration}{The number of k-nearest neighbor groupings to test for passing the supplied \code{overlapCutoff}.}
 
-\item{overlapCutoff}{An \code{ArchRProject} object.}
+\item{overlapCutoff}{The maximum allowable overlap between the current group and all previous groups to permit the current group be
+added to the group list during k-nearest neighbor calculations.}
 
-\item{seed}{An \code{ArchRProject} object.}
+\item{seed}{A number to be used as the seed for random number generation required in knn determination. It is recommended to keep track
+of the seed used so that you can reproduce results downstream.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
+
+\item{verbose}{A boolean value that determines whether standard output should be printed.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will correlate 2 matrices within an ArchRProject by name matching.

@@ -11,7 +11,8 @@ getMatrixFromArrow(
   cellNames = NULL,
   ArchRProj = NULL,
   verbose = TRUE,
-  binarize = FALSE
+  binarize = FALSE,
+  logFile = createLogFile("getMatrixFromArrow")
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ provide the \code{ArchRProject} object here.}
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function gets a given data matrix from an individual ArrowFile.

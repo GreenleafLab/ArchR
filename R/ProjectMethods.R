@@ -962,10 +962,10 @@ addFeatureCounts <- function(
   totalCounts <- colSums(countsDF)
   countRatio <- totalCounts / (2 * ArchRProj$nFrags)
 
-  .logDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Counts")), t1 = tstart, verbose = TRUE, logFile = logFile
+  .logDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Counts")), t1 = tstart, verbose = TRUE, logFile = logFile)
   ArchRProj <- addCellColData(ArchRProj, data = totalCounts, cells = names(totalCounts),  name = paste0(name,"Counts"), force = TRUE)
  
-  .logDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Ratio")), t1 = tstart, verbose = TRUE, logFile = logFile
+  .logDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Ratio")), t1 = tstart, verbose = TRUE, logFile = logFile)
   ArchRProj <- addCellColData(ArchRProj, data = countRatio, cells = names(totalCounts),  name = paste0(name,"Ratio"), force = TRUE)
 
   ArchRProj

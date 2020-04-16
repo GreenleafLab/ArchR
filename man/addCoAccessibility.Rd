@@ -51,10 +51,14 @@ the \code{peakSet} of the \code{ArchRProject} and normalized to the total depth 
 
 \item{log2Norm}{A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.}
 
-\item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track
+\item{seed}{A number to be used as the seed for random number generation required in knn determination. It is recommended to keep track
 of the seed used so that you can reproduce results downstream.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
+
+\item{verbose}{A boolean value that determines whether standard output should be printed.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will add co-accessibility scores to peaks in a given ArchRProject

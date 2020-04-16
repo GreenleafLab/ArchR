@@ -9,10 +9,10 @@ getTrajectory(
   name = "Trajectory",
   useMatrix = "GeneScoreMatrix",
   groupEvery = 1,
-  threads = getArchRThreads(),
   log2Norm = TRUE,
   scaleTo = 10000,
-  smoothWindow = 11
+  smoothWindow = 11,
+  threads = getArchRThreads()
 )
 }
 \arguments{
@@ -27,8 +27,6 @@ matrices are "GeneScoreMatrix", "PeakMatrix", or "MotifMatrix".}
 via a non-overlapping sliding window across pseudo-time. If \code{groupEvery = 2}, the values for percentiles \link{1 and 2}, \link{3 and 4},
 \link{5 and 6}, etc. will be grouped together.}
 
-\item{threads}{The number of threads to be used for parallel computing.}
-
 \item{log2Norm}{A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed. If you are using
 a "MotifMatrix" set to FALSE.}
 
@@ -36,13 +34,10 @@ a "MotifMatrix" set to FALSE.}
 indicated by \code{scaleTo}. Setting this to \code{NULL} will prevent any normalization and should be done in certain circumstances
 (for ex. if you are using a "MotifMatrix").}
 
-\item{smoothWindow}{A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.}
+\item{smoothWindow}{An integer value indicating the smoothing window in size (relaive to \code{groupEvery}) for the sequential
+trajectory matrix to better reveal temporal dynamics.}
 
-\item{varCutOff}{The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory.
-Only features with a variance above the provided quantile will be retained.}
-
-\item{maxFeatures}{The maximum number of features, ordered by variance, to consider from \code{useMatrix} when generating a trajectory.
-This prevents smoothing a large number number of features which can be very time consuming.}
+\item{threads}{The number of threads to be used for parallel computing.}
 }
 \description{
 This function will get a supervised trajectory from an \code{ArchRProject} (see \code{addTrajectory}), get data

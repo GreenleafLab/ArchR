@@ -23,8 +23,17 @@ correlateTrajectories(
 )
 }
 \arguments{
-\item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
-sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+\item{seTrajectory1}{A \code{SummarizedExperiment} object that results from calling \code{getTrajectory()}.}
+
+\item{seTrajectory2}{A \code{SummarizedExperiment} object that results from calling \code{getTrajectory()}.}
+
+\item{corCutOff}{A numeric describing the cutoff for determining correlated features.}
+
+\item{varCutOff1}{The "Variance Quantile Cutoff" to be used for identifying the top variable features across \code{seTrajectory1}.
+Only features with a variance above the provided quantile will be retained.}
+
+\item{varCutOff2}{The "Variance Quantile Cutoff" to be used for identifying the top variable features across \code{seTrajectory2}.
+Only features with a variance above the provided quantile will be retained.}
 
 \item{removeFromName1}{A character vector describing how to filter names in matrix 1.
 Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.}
@@ -32,38 +41,23 @@ Options include "underscore", "dash", "numeric". The string portion prior to the
 \item{removeFromName2}{A character vector describing how to filter names in matrix 2.
 Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.}
 
-\item{log2Norm1}{A boolean describing whether to log2 normalize matrix 1.}
+\item{useRanges}{A boolean describing whether to use range overlap matching for correlation analysis.}
 
-\item{log2Norm2}{A boolean describing whether to log2 normalize matrix 2.}
+\item{fix1}{A character describing where to resize the coordinates of \code{seTrajectory1}. Options include "start", "center", "end".}
 
-\item{ArchRProj}{An \code{ArchRProject} object.}
+\item{fix2}{A character describing where to resize the coordinates of \code{seTrajectory2}. Options include "start", "center", "end".}
 
-\item{useMatrix1}{A character describing the first matrix to use. See \code{getAvailableMatrices} for valid options.}
+\item{maxDist}{A integer specifying the maximum distance between the coordinates of \code{seTrajectory1} and \code{seTrajectory2} for
+computing correlations.}
 
-\item{useMatrix2}{A character describing the second matrix to use. See \code{getAvailableMatrices} for valid options.}
+\item{log2Norm1}{A boolean describing whether to log2 normalize \code{seTrajectory1}.}
 
-\item{useSeqnames1}{A character vector describing which seqnames to use in matrix 1.}
+\item{log2Norm2}{A boolean describing whether to log2 normalize \code{seTrajectory2}.}
 
-\item{useSeqnames2}{A character vector describing which seqnames to use in matrix 2.}
+\item{force}{A boolean value that determines whether analysis should continue if resizing coordinates in \code{seTrajectory1} or
+\code{seTrajectory2} does not align with the strandedness. Only when \code{useRanges = TRUE}.}
 
-\item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to use from the designated \code{ArchRProject}.}
-
-\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in computing the embedding.}
-
-\item{scaleDims}{A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
-the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
-biases since it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the
-\code{reducedDims} were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
-
-\item{k}{An \code{ArchRProject} object.}
-
-\item{knnIteration}{An \code{ArchRProject} object.}
-
-\item{overlapCutoff}{An \code{ArchRProject} object.}
-
-\item{seed}{An \code{ArchRProject} object.}
-
-\item{threads}{The number of threads to be used for parallel computing.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will correlate 2 trajectory matrices from getTrajectory.

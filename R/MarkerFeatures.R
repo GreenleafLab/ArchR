@@ -217,7 +217,7 @@ getMarkerFeatures <- function(
     }
     
     diffList <- .safelapply(seq_along(matchObj[[1]]), function(x){
-      .logDiffTime(sprintf("Computing Pairwise Tests (%s of %s)", x, length(matchObj[[1]])), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile
+      .logDiffTime(sprintf("Computing Pairwise Tests (%s of %s)", x, length(matchObj[[1]])), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       .testMarkerSC(
           ArrowFiles = ArrowFiles,
           matchObj = matchObj, 
@@ -232,7 +232,7 @@ getMarkerFeatures <- function(
       )
     }, threads = threads)
 
-    .logDiffTime("Completed Pairwise Tests", tstart, addHeader = TRUE, verbose = verbose, logFile = logFile
+    .logDiffTime("Completed Pairwise Tests", tstart, addHeader = TRUE, verbose = verbose, logFile = logFile)
 
     #####################################################
     # Summarize Output
@@ -521,7 +521,7 @@ getMarkerFeatures <- function(
   n = 500,
   seed = 1,
   bufferRatio = 0.8,
-  logFile = NULL,
+  logFile = NULL
   ){
 
   #Summary Function

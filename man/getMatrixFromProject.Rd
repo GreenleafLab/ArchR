@@ -10,7 +10,8 @@ getMatrixFromProject(
   useSeqnames = NULL,
   verbose = TRUE,
   binarize = FALSE,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  logFile = createLogFile("getMatrixFromProject")
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ getMatrixFromProject(
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function gets a given data matrix from an \code{ArchRProject}.
