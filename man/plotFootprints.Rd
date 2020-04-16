@@ -19,13 +19,14 @@ plotFootprints(
   height = 6,
   width = 4,
   addDOC = TRUE,
+  force = FALSE,
   logFile = createLogFile("plotFootprints")
 )
 }
 \arguments{
-\item{seFoot}{JJJ A summarized experiment object containing information on footprints returned by the \code{getFootprints()} function.}
+\item{seFoot}{A summarized experiment object containing information on footprints returned by the \code{getFootprints()} function.}
 
-\item{names}{JJJ A character vector containing the names of the transcription factors to be plotted.}
+\item{names}{A character vector containing the names of the transcription factors to be plotted. These should match colnames of \code{seFoot}.}
 
 \item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for plotting the lines corresponding to the footprints.}
 
@@ -38,13 +39,13 @@ include "none", "subtract", "divide". "Subtract" means subtracting the normalize
 
 \item{smoothWindow}{The size in basepairs of the sliding window to be used for smoothing of the footprint signal.}
 
-\item{baseSize}{JJJ}
+\item{baseSize}{A numeric specifying the baseSize of font in the plots.}
 
-\item{plot}{JJJ A boolean value indicating whether or not the footprints should be plotted (\code{TRUE}) or JJJ (\code{FALSE}).}
+\item{plot}{A boolean value indicating whether or not the footprints should be plotted (\code{TRUE}) or returned as grob objects (\code{FALSE}).}
 
-\item{ArchRProj}{JJJ An \code{ArchRProject} object to be used for JJJ.}
+\item{ArchRProj}{An \code{ArchRProject} object to be used for plotting directory in \code{getOutputDirectory}.}
 
-\item{plotName}{JJJ A string indicating the name of the file to be used for output plots.}
+\item{plotName}{A string indicating the name/prefix of the file to be used for output plots.}
 
 \item{height}{The height in inches to be used for the output PDF file.}
 
@@ -52,6 +53,9 @@ include "none", "subtract", "divide". "Subtract" means subtracting the normalize
 
 \item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
 preventing overwritting of old plots.}
+
+\item{force}{If many footprints are requested when plot = FALSE, please set force = TRUE.
+This prevents large amount of footprint plots stored as an object.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }

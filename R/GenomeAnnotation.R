@@ -18,12 +18,11 @@ createGenomeAnnotation <- function(
   filterChr = c("chrM")
   ){
 
-  #JJJ .validInput(input = genome, name = "genome", valid = c("character"))
-  #JJJ .validInput(input = chromSizes, name = "chromSizes", valid = c("character"))
-  #JJJ .validInput(input = blacklist, name = "blacklist", valid = c("character"))
-  #JJJ .validInput(input = filter, name = "filter", valid = c("boolean"))
+  .validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
+  .validInput(input = chromSizes, name = "chromSizes", valid = c("granges"))
+  .validInput(input = blacklist, name = "blacklist", valid = c("granges"))
+  .validInput(input = filter, name = "filter", valid = c("boolean"))
   .validInput(input = filterChr, name = "filterChr", valid = c("character", "null"))
-
 
   if(is.null(genome) | is.null(blacklist) | is.null(chromSizes)){
 

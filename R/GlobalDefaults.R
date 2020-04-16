@@ -100,7 +100,7 @@ getArchRThreads <- function(){
 addArchRGenome <- function(genome = NULL, install = TRUE){
   
   .validInput(input = genome, name = "genome", valid = "character")
-  # JJJ .validInput(input = install, name = "install", valid = c("boolean"))
+  .validInput(input = install, name = "install", valid = c("boolean"))
 
   supportedGenomes <- c("hg19","hg38","mm9","mm10")
   

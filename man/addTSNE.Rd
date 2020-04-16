@@ -49,8 +49,6 @@ biases since it is over-weighting latent PCs. If set to \code{NULL} this will sc
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing
 depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{saveModel}{JJJ A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.}
-
 \item{verbose}{A boolean value that indicates whether printing TSNE output.}
 
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can

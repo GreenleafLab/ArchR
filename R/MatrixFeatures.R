@@ -36,11 +36,11 @@ addFeatureMatrix <- function(
   .validInput(input = matrixName, name = "matrixName", valid = c("character"))
   .validInput(input = ceiling, name = "ceiling", valid = c("integer"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
-  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   matrixName <- .isProtectedArray(matrixName)
 
@@ -126,11 +126,11 @@ addPeakMatrix <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = ceiling, name = "ceiling", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
-  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   if(is.null(ArchRProj@peakSet)){
     stop("No peakSet found in ArchRProject!")

@@ -37,12 +37,12 @@
 #' beyond these limits are thresholded.
 #' @param alpha A number indicating the transparency to use for each point. See `ggplot2` for more details.
 #' @param baseSize The base font size (in points) to use in the plot.
-#' @param legendSize JJJ The size in inches to use for plotting the color legend.
+#' @param legendSize The size in inches to use for plotting the color legend.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
-#' @param labelAsFactors JJJ WHAT IS BEING LABELED? A boolean indicating whether to label the JJJ as a numeric factor (`TRUE`) or with a character string (`FALSE`).
+#' @param labelAsFactors A boolean indicating whether to label the `color` input as a numeric factor (`TRUE`) or with a character string (`FALSE`).
 #' @param fgColor The foreground color of the plot.
 #' @param bgColor The background color of the plot.
-#' @param bgWidth JJJ WHAT ARE THE UNITS OF THE WIDTH? The background width in JJJ of the halos in the labeling.
+#' @param bgWidth The background relative width size of the halos in the labeling.
 #' @param labelSize The numeric font size of labels.
 #' @param addFit A string indicating the method to use for adding a fit/regression line to the plot (see `ggplot2::geom_smooth()` methods).
 #' If set to `NULL`, no fit/regression line is added.
@@ -51,294 +51,294 @@
 #' @param dpi The resolution in dots per inch to use for the plot.
 #' @export
 ggPoint <- function(
-    x = NULL, 
-    y = NULL, 
-    color = NULL, 
-    discrete = TRUE, 
-    discreteSet = "stallion",
-    continuousSet = "solarExtra", 
-    labelMeans = TRUE,  
-    pal = NULL, 
-    defaultColor = "lightGrey",
-    colorDensity = FALSE,
-    size = 1, 
-    xlim = NULL, 
-    ylim = NULL, 
-    extend = 0.05, 
-    xlabel = "x", 
-    ylabel = "y", 
-    title = "", 
-    randomize = FALSE, 
-    seed = 1,
-    colorTitle = NULL, 
-    colorOrder = NULL, 
-    colorLimits = NULL,
-    alpha = 1, 
-    baseSize = 10, 
-    legendSize = 3,
-    ratioYX = 1, 
-    labelAsFactors = TRUE,
-    fgColor = "black", 
-    bgColor = "white", 
-    bgWidth = 1,
-    labelSize = 3,
-    addFit = NULL, 
-    rastr = FALSE, 
-    dpi = 300,
-    ...
-    ){
+  x = NULL, 
+  y = NULL, 
+  color = NULL, 
+  discrete = TRUE, 
+  discreteSet = "stallion",
+  continuousSet = "solarExtra", 
+  labelMeans = TRUE,  
+  pal = NULL, 
+  defaultColor = "lightGrey",
+  colorDensity = FALSE,
+  size = 1, 
+  xlim = NULL, 
+  ylim = NULL, 
+  extend = 0.05, 
+  xlabel = "x", 
+  ylabel = "y", 
+  title = "", 
+  randomize = FALSE, 
+  seed = 1,
+  colorTitle = NULL, 
+  colorOrder = NULL, 
+  colorLimits = NULL,
+  alpha = 1, 
+  baseSize = 10, 
+  legendSize = 3,
+  ratioYX = 1, 
+  labelAsFactors = TRUE,
+  fgColor = "black", 
+  bgColor = "white", 
+  bgWidth = 1,
+  labelSize = 3,
+  addFit = NULL, 
+  rastr = FALSE, 
+  dpi = 300,
+  ...
+  ){
 
-    .validInput(input = x, name = "x", valid = c("numeric"))
-    .validInput(input = y, name = "y", valid = c("numeric"))
-    .validInput(input = color, name = "color", valid = c("numeric", "character", "null"))
-    .validInput(input = discrete, name = "discrete", valid = c("boolean"))
-    .validInput(input = discreteSet, name = "discreteSet", valid = c("character"))
-    .validInput(input = continuousSet, name = "continuousSet", valid = c("character"))
-    .validInput(input = labelMeans, name = "labelMeans", valid = c("boolean"))
-    .validInput(input = pal, name = "pal", valid = c("character", "null"))
-    .validInput(input = defaultColor, name = "defaultColor", valid = c("character"))
-    #JJJ .validInput(input = colorDensity, name = "colorDensity", valid = c("boolean"))
-    .validInput(input = size, name = "size", valid = c("numeric"))
-    .validInput(input = xlim, name = "xlim", valid = c("numeric", "null"))
-    .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
-    .validInput(input = extend, name = "extend", valid = c("numeric"))
-    .validInput(input = xlabel, name = "xlabel", valid = c("character"))
-    .validInput(input = ylabel, name = "ylabel", valid = c("character"))
-    .validInput(input = title, name = "title", valid = c("character"))
-    .validInput(input = randomize, name = "randomize", valid = c("boolean"))
-    .validInput(input = seed, name = "seed", valid = c("integer"))
-    .validInput(input = colorTitle, name = "colorTitle", valid = c("character", "null"))
-    .validInput(input = colorOrder, name = "colorOrder", valid = c("character", "null"))
-    #JJJ .validInput(input = colorLimits, name = "colorLimits", valid = c("numeric", "null"))
-    .validInput(input = alpha, name = "alpha", valid = c("numeric"))
-    .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
-    #JJJ .validInput(input = legendSize, name = "legendSize", valid = c("numeric"))
-    .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
-    #JJJ .validInput(input = labelAsFactors, name = "labelAsFactors", valid = c("boolean"))
-    .validInput(input = fgColor, name = "fgColor", valid = c("character", "null"))
-    .validInput(input = bgColor, name = "bgColor", valid = c("character"))
-    #JJJ .validInput(input = bgWidth, name = "bgWidth", valid = c("numeric"))
-    .validInput(input = labelSize, name = "labelSize", valid = c("numeric"))
-    .validInput(input = addFit, name = "addFit", valid = c("character", "null"))
-    .validInput(input = rastr, name = "rastr", valid = c("boolean"))
-    .validInput(input = dpi, name = "dpi", valid = c("numeric"))
+  .validInput(input = x, name = "x", valid = c("numeric"))
+  .validInput(input = y, name = "y", valid = c("numeric"))
+  .validInput(input = color, name = "color", valid = c("numeric", "character", "null"))
+  .validInput(input = discrete, name = "discrete", valid = c("boolean"))
+  .validInput(input = discreteSet, name = "discreteSet", valid = c("character"))
+  .validInput(input = continuousSet, name = "continuousSet", valid = c("character"))
+  .validInput(input = labelMeans, name = "labelMeans", valid = c("boolean"))
+  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = defaultColor, name = "defaultColor", valid = c("character"))
+  .validInput(input = colorDensity, name = "colorDensity", valid = c("boolean"))
+  .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = xlim, name = "xlim", valid = c("numeric", "null"))
+  .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
+  .validInput(input = extend, name = "extend", valid = c("numeric"))
+  .validInput(input = xlabel, name = "xlabel", valid = c("character"))
+  .validInput(input = ylabel, name = "ylabel", valid = c("character"))
+  .validInput(input = title, name = "title", valid = c("character"))
+  .validInput(input = randomize, name = "randomize", valid = c("boolean"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = colorTitle, name = "colorTitle", valid = c("character", "null"))
+  .validInput(input = colorOrder, name = "colorOrder", valid = c("character", "null"))
+  .validInput(input = colorLimits, name = "colorLimits", valid = c("numeric", "null"))
+  .validInput(input = alpha, name = "alpha", valid = c("numeric"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = legendSize, name = "legendSize", valid = c("numeric"))
+  .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
+  .validInput(input = labelAsFactors, name = "labelAsFactors", valid = c("boolean"))
+  .validInput(input = fgColor, name = "fgColor", valid = c("character", "null"))
+  .validInput(input = bgColor, name = "bgColor", valid = c("character"))
+  .validInput(input = bgWidth, name = "bgWidth", valid = c("numeric"))
+  .validInput(input = labelSize, name = "labelSize", valid = c("numeric"))
+  .validInput(input = addFit, name = "addFit", valid = c("character", "null"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  .validInput(input = dpi, name = "dpi", valid = c("numeric"))
 
-    stopifnot(length(y) == length(x))
-    if(length(x) < 5){
-      stop("x must be at least length 5 to plot!")
+  stopifnot(length(y) == length(x))
+  if(length(x) < 5){
+    stop("x must be at least length 5 to plot!")
+  }
+
+  if(randomize){
+    set.seed(seed)
+    idx <- sample(seq_along(x), length(x))
+  }else{
+    idx <- seq_along(x)
+  }
+
+  df <- data.frame(x = x, y = y)
+  include <- which(is.finite(x) & is.finite(y))
+  
+  if(length(include) != length(x)){
+    message("Some values are not finite! Excluding these points!")
+    df <- df[include,]
+    x <- x[include]
+    y <- y[include]
+    if(!is.null(color)){
+      color <- color[include]
     }
+  }
 
-    if(randomize){
-      set.seed(seed)
-      idx <- sample(seq_along(x), length(x))
-    }else{
-      idx <- seq_along(x)
-    }
+  if(is.null(xlim)){
+      xlim <- range(df$x) %>% extendrange(f = extend)
+  }
 
-    df <- data.frame(x = x, y = y)
-    include <- which(is.finite(x) & is.finite(y))
-    
-    if(length(include) != length(x)){
-      message("Some values are not finite! Excluding these points!")
-      df <- df[include,]
-      x <- x[include]
-      y <- y[include]
-      if(!is.null(color)){
-        color <- color[include]
-      }
-    }
+  if(is.null(ylim)){
+      ylim <- range(df$y) %>% extendrange(f = extend)
+  }
 
-    if(is.null(xlim)){
-        xlim <- range(df$x) %>% extendrange(f = extend)
-    }
+  ratioXY <- ratioYX * diff(xlim)/diff(ylim)
 
-    if(is.null(ylim)){
-        ylim <- range(df$y) %>% extendrange(f = extend)
-    }
+  #Plot
+  .requirePackage("ggplot2", source = "cran")
 
-    ratioXY <- ratioYX * diff(xlim)/diff(ylim)
+  if (is.null(color) & !colorDensity) {
 
-    #Plot
-    .requirePackage("ggplot2", source = "cran")
+    p <- ggplot(df[idx,], aes(x = x, y = y)) + 
+        coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = F) + 
+        xlab(xlabel) + ylab(ylabel) + 
+        ggtitle(title) + 
+        theme_ArchR(baseSize = baseSize)
 
-    if (is.null(color) & !colorDensity) {
-
-      p <- ggplot(df[idx,], aes(x = x, y = y)) + 
-          coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = F) + 
-          xlab(xlabel) + ylab(ylabel) + 
-          ggtitle(title) + 
-          theme_ArchR(baseSize = baseSize)
-
-      if(rastr){
-        if(!requireNamespace("ggrastr", quietly = TRUE)){
-          message("ggrastr is not available for rastr of points, continuing without rastr!")
-          p <- p + geom_point(size = size, alpha = alpha, color = defaultColor)
-        }else{
-          .requirePackage("ggrastr")
-          p <- p + geom_point_rast(
-              size = size, raster.dpi = dpi, alpha = alpha, color = defaultColor)
-        }
-      }else{
+    if(rastr){
+      if(!requireNamespace("ggrastr", quietly = TRUE)){
+        message("ggrastr is not available for rastr of points, continuing without rastr!")
         p <- p + geom_point(size = size, alpha = alpha, color = defaultColor)
+      }else{
+        .requirePackage("ggrastr")
+        p <- p + geom_point_rast(
+            size = size, raster.dpi = dpi, alpha = alpha, color = defaultColor)
       }
-        
-    }else {
-
-        if(colorDensity){
-          
-          discrete <- FALSE
-          df <- .getDensity(x, y, n = 100, sample = NULL) #change
-          df <- df[order(df$density), ,drop=FALSE]
-          df$color <- df$density
-          
-          if(is.null(colorTitle)){
-            colorTitle <- "density"
-          }
-
-        }else if(discrete){
-
-          if(!is.null(colorOrder)){
-            if(!all(color %in% colorOrder)){
-              stop("Not all colors are in colorOrder!")
-            }
-          }else{
-            colorOrder <- gtools::mixedsort(unique(color))
-          }
-
-          if(is.null(colorTitle)){
-            colorTitle <- "color"
-          }
-          
-          stopifnot(length(color) == nrow(df))
-          df$color <- factor(color, levels = colorOrder)
-          
-          if(labelAsFactors){
-            df$color <- factor(
-              x = paste0(paste0(match(paste0(df$color), paste0(levels(df$color)))), "-", paste0(df$color)), 
-              levels = paste0(seq_along(levels(df$color)), "-", levels(df$color))
-            )
-            if(!is.null(pal)){
-              #print(pal)
-              #print(paste0(levels(df$color))[match(names(pal), colorOrder)])
-              names(pal) <- paste0(levels(df$color))[match(names(pal), colorOrder)]
-            }
-            colorOrder <- paste0(levels(df$color))
-          }
-
-        }else{
-          stopifnot(length(color) == nrow(df))
-          if(!is.null(colorLimits)){
-            color[color < min(colorLimits)] <- min(colorLimits)
-            color[color > max(colorLimits)] <- max(colorLimits)
-          }
-          df$color <- color
-        }
-
-        p <- ggplot(df[idx,], aes(x = x, y = y, color = color)) +  
-              coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = FALSE) + 
-              xlab(xlabel) + ylab(ylabel) + 
-              ggtitle(title) + theme_ArchR(baseSize = baseSize) +
-              theme(legend.direction = "horizontal", legend.box.background = element_rect(color = NA)) +
-              labs(color = colorTitle)
-
-      if(rastr){
-        
-        if(!requireNamespace("ggrastr", quietly = TRUE)){
-          message("ggrastr is not available for rastr of points, continuing without rastr!")
-          message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
-          p <- p + geom_point(size = size, alpha = alpha)
-        }else{
-          .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
-          p <- p + geom_point_rast(
-              size = size, raster.dpi = dpi, alpha = alpha, 
-              raster.width=par('fin')[1], 
-              raster.height = (ratioYX * par('fin')[2])
-            )
-        }
+    }else{
+      p <- p + geom_point(size = size, alpha = alpha, color = defaultColor)
+    }
       
+  }else {
+
+      if(colorDensity){
+        
+        discrete <- FALSE
+        df <- .getDensity(x, y, n = 100, sample = NULL) #change
+        df <- df[order(df$density), ,drop=FALSE]
+        df$color <- df$density
+        
+        if(is.null(colorTitle)){
+          colorTitle <- "density"
+        }
+
+      }else if(discrete){
+
+        if(!is.null(colorOrder)){
+          if(!all(color %in% colorOrder)){
+            stop("Not all colors are in colorOrder!")
+          }
+        }else{
+          colorOrder <- gtools::mixedsort(unique(color))
+        }
+
+        if(is.null(colorTitle)){
+          colorTitle <- "color"
+        }
+        
+        stopifnot(length(color) == nrow(df))
+        df$color <- factor(color, levels = colorOrder)
+        
+        if(labelAsFactors){
+          df$color <- factor(
+            x = paste0(paste0(match(paste0(df$color), paste0(levels(df$color)))), "-", paste0(df$color)), 
+            levels = paste0(seq_along(levels(df$color)), "-", levels(df$color))
+          )
+          if(!is.null(pal)){
+            #print(pal)
+            #print(paste0(levels(df$color))[match(names(pal), colorOrder)])
+            names(pal) <- paste0(levels(df$color))[match(names(pal), colorOrder)]
+          }
+          colorOrder <- paste0(levels(df$color))
+        }
+
       }else{
-
-          p <- p + geom_point(size = size, alpha = alpha)
-
+        stopifnot(length(color) == nrow(df))
+        if(!is.null(colorLimits)){
+          color[color < min(colorLimits)] <- min(colorLimits)
+          color[color > max(colorLimits)] <- max(colorLimits)
+        }
+        df$color <- color
       }
 
-      if (discrete) {
-          
-          if (!is.null(pal)) {
-              p <- p + scale_color_manual(values = pal)
-          }else {
-              p <- p + scale_color_manual(values = paletteDiscrete(set = discreteSet, values = colorOrder)) +
-                guides(color = guide_legend(override.aes = list(size = legendSize, shape = 15)))
-          }
+      p <- ggplot(df[idx,], aes(x = x, y = y, color = color)) +  
+            coord_equal(ratio = ratioXY, xlim = xlim, ylim = ylim, expand = FALSE) + 
+            xlab(xlabel) + ylab(ylabel) + 
+            ggtitle(title) + theme_ArchR(baseSize = baseSize) +
+            theme(legend.direction = "horizontal", legend.box.background = element_rect(color = NA)) +
+            labs(color = colorTitle)
 
-          if (labelMeans) {
-              
-              dfMean <- split(df, df$color) %>% lapply(., function(x) {
-                data.frame(x = median(x[, 1]), y = median(x[, 2]), color = x[1, 3])
-              }) %>% Reduce("rbind", .)
-
-              if(labelAsFactors){
-                dfMean$label <- stringr::str_split(paste0(seq_len(nrow(dfMean))), pattern = "\\-", simplify=TRUE)[,1]
-              }else{
-                dfMean$label <- dfMean$color
-              }
-
-              # make halo layers, similar to https://github.com/GuangchuangYu/shadowtext/blob/master/R/shadowtext-grob.R#L43
-              theta <- seq(pi / 8, 2 * pi, length.out = 16)
-              xo <- bgWidth * diff(range(df$x)) / 300
-              yo <- bgWidth * diff(range(df$y)) / 300
-              for (i in theta) {
-                p <- p + 
-                  geom_text(data = dfMean, 
-                      aes_q(
-                        x = bquote(x + .(cos(i) * xo)),
-                        y = bquote(y + .(sin(i) * yo)),
-                        label = ~stringr::str_split(dfMean$color, pattern = "-", simplify = TRUE)[,1]
-                      ),
-                      size = labelSize,
-                      color = bgColor
-                  )
-              }
-
-              if(is.null(fgColor)){
-                p <- p + geom_text(data = dfMean, aes(x = x, y = y, color = color, label = label), size = labelSize, show.legend = FALSE)
-              }else{
-                p <- p + geom_text(data = dfMean, aes(x = x, y = y, label = label), color = fgColor, size = labelSize, show.legend = FALSE) 
-              }
-
-          }
-
+    if(rastr){
+      
+      if(!requireNamespace("ggrastr", quietly = TRUE)){
+        message("ggrastr is not available for rastr of points, continuing without rastr!")
+        message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
+        p <- p + geom_point(size = size, alpha = alpha)
       }else{
+        .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
+        p <- p + geom_point_rast(
+            size = size, raster.dpi = dpi, alpha = alpha, 
+            raster.width=par('fin')[1], 
+            raster.height = (ratioYX * par('fin')[2])
+          )
+      }
+    
+    }else{
 
-          if (!is.null(pal)) {
-              if(!is.null(colorLimits)){
-                p <- p + scale_colour_gradientn(colors = pal, limits=colorLimits)
-              }else{
-                p <- p + scale_colour_gradientn(colors = pal)
-              }
-          }else {
-            if(!is.null(colorLimits)){
-              p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet), limits=colorLimits)
+        p <- p + geom_point(size = size, alpha = alpha)
+
+    }
+
+    if (discrete) {
+        
+        if (!is.null(pal)) {
+            p <- p + scale_color_manual(values = pal)
+        }else {
+            p <- p + scale_color_manual(values = paletteDiscrete(set = discreteSet, values = colorOrder)) +
+              guides(color = guide_legend(override.aes = list(size = legendSize, shape = 15)))
+        }
+
+        if (labelMeans) {
+            
+            dfMean <- split(df, df$color) %>% lapply(., function(x) {
+              data.frame(x = median(x[, 1]), y = median(x[, 2]), color = x[1, 3])
+            }) %>% Reduce("rbind", .)
+
+            if(labelAsFactors){
+              dfMean$label <- stringr::str_split(paste0(seq_len(nrow(dfMean))), pattern = "\\-", simplify=TRUE)[,1]
             }else{
-              p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet))
+              dfMean$label <- dfMean$color
             }
+
+            # make halo layers, similar to https://github.com/GuangchuangYu/shadowtext/blob/master/R/shadowtext-grob.R#L43
+            theta <- seq(pi / 8, 2 * pi, length.out = 16)
+            xo <- bgWidth * diff(range(df$x)) / 300
+            yo <- bgWidth * diff(range(df$y)) / 300
+            for (i in theta) {
+              p <- p + 
+                geom_text(data = dfMean, 
+                    aes_q(
+                      x = bquote(x + .(cos(i) * xo)),
+                      y = bquote(y + .(sin(i) * yo)),
+                      label = ~stringr::str_split(dfMean$color, pattern = "-", simplify = TRUE)[,1]
+                    ),
+                    size = labelSize,
+                    color = bgColor
+                )
+            }
+
+            if(is.null(fgColor)){
+              p <- p + geom_text(data = dfMean, aes(x = x, y = y, color = color, label = label), size = labelSize, show.legend = FALSE)
+            }else{
+              p <- p + geom_text(data = dfMean, aes(x = x, y = y, label = label), color = fgColor, size = labelSize, show.legend = FALSE) 
+            }
+
+        }
+
+    }else{
+
+        if (!is.null(pal)) {
+            if(!is.null(colorLimits)){
+              p <- p + scale_colour_gradientn(colors = pal, limits=colorLimits)
+            }else{
+              p <- p + scale_colour_gradientn(colors = pal)
+            }
+        }else {
+          if(!is.null(colorLimits)){
+            p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet), limits=colorLimits)
+          }else{
+            p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet))
           }
-      }
-
+        }
     }
 
-    if (!is.null(addFit)) {
-        p <- p + geom_smooth(data = df, aes(color = NULL), method = addFit, color = "black") + 
-          ggtitle(paste0(title, "\nPearson = ", round(cor(df$x, df$y), 3), "\nSpearman = ", round(cor(df$x, df$y, method = "spearman"), 3)))
-    }
+  }
 
-    p <- p + theme(legend.position = "bottom", legend.key = element_rect(size = 2))#, legend.spacing.x = unit(0.1, 'cm'), legend.spacing.y = unit(0.1, 'cm'))
+  if (!is.null(addFit)) {
+      p <- p + geom_smooth(data = df, aes(color = NULL), method = addFit, color = "black") + 
+        ggtitle(paste0(title, "\nPearson = ", round(cor(df$x, df$y), 3), "\nSpearman = ", round(cor(df$x, df$y, method = "spearman"), 3)))
+  }
 
-    if(!is.null(ratioYX)){
-      attr(p, "ratioYX") <- ratioYX
-    }
+  p <- p + theme(legend.position = "bottom", legend.key = element_rect(size = 2))#, legend.spacing.x = unit(0.1, 'cm'), legend.spacing.y = unit(0.1, 'cm'))
 
-    return(p)
+  if(!is.null(ratioYX)){
+    attr(p, "ratioYX") <- ratioYX
+  }
+
+  return(p)
 
 }
 
@@ -606,7 +606,7 @@ ggHex <- function(
 #' @param title The title of the plot.
 #' @param pal A named custom palette (see `paletteDiscrete()` and `ArchRPalettes`) for discrete coloring.
 #' @param addBoxPlot A boolean indicating whether to add a boxplot to the plot if `plotAs="violin"`.
-#' @param plotAs JJJ A string indicating how the groups should be plotted. Acceptable values are "ridges" (for a `ggrides`-style plot) or "violin" (for a violin plot).
+#' @param plotAs A string indicating how the groups should be plotted. Acceptable values are "ridges" (for a `ggrides`-style plot) or "violin" (for a violin plot).
 #' @param ... Additional parameters to pass to `ggplot2` for plotting.
 #' @export
 ggGroup <- function(

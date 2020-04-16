@@ -1,6 +1,7 @@
 ##########################################################################################
 # Validation Methods
 ##########################################################################################
+
 .validInput <- function(input = NULL, name = NULL, valid = NULL){
 
   valid <- unique(valid)
@@ -58,6 +59,10 @@
 
       cv <- is.character(input)
 
+    }else if(vi == "factor"){
+
+      cv <- is.factor(input)
+
     }else if(vi == "rlecharacter"){
 
       cv1 <- is(input, "Rle")
@@ -103,6 +108,17 @@
       cv2 <- is(input, "SimpleList")
       cv <- any(cv1, cv2)
 
+    }else if(vi == "bsgenome"){
+
+      cv1 <- is(input, "BSgenome")
+      cv2 <- tryCatch({
+        library(input)
+        eval(parse(text=input))
+      }, error = function(e){
+        FALSE
+      })
+      cv <- any(cv1, cv2)
+
     }else if(vi == "se" | vi == "summarizedexperiment"){
 
       cv <- is(input, "SummarizedExperiment")
@@ -131,7 +147,7 @@
 
       cv <- is(input, "ArchRProject")
       ###validObject(input) check this doesnt break anything if we
-      ###add it. Useful to make sure all ArrowFiles exist! JJJ
+      ###add it. Useful to make sure all ArrowFiles exist! QQQ
 
     }else{
 
@@ -190,14 +206,14 @@
 #' 
 #' This function will attempt to get or validate an input as a BSgenome.
 #' 
-#' @param genome JJJ This option must be one of the following: (i) the name of a valid ArchR-supported genome ("hg38", "hg19", or "mm10"),
+#' @param genome This option must be one of the following: (i) the name of a valid ArchR-supported genome ("hg38", "hg19", or "mm10"),
 #' (ii) the name of a `BSgenome` package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a `BSgenome` object.
 #' @param masked A boolean describing whether or not to access the masked version of the selected genome. See `BSgenome::getBSgenome()`.
 #' @export
 validBSgenome <- function(genome = NULL, masked = FALSE){
   
-  # JJJ .validInput(input = genome, name = "genome", valid = c("character"))
-  # JJJ .validInput(input = masked, name = "masked", valid = c("boolean"))
+  validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
+  .validInput(input = masked, name = "masked", valid = c("boolean"))
 
   stopifnot(!is.null(genome))
   if(inherits(genome, "BSgenome")){

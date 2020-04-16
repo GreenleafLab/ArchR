@@ -92,7 +92,7 @@ exportGroupSE <- function(
 
 }
 
-# #' Export Group Summarized Experiment JJJ
+# #' Export Group Summarized Experiment QQQ
 # #' 
 # #' This function will group, summarize and export a summarized experiment for a assay in a ArchRProject.
 # #'

@@ -11,8 +11,9 @@
 #' "TileMatrix" or "PeakMatrix".
 #' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
-#' @param clusterParams JJJ THE PART ABOUT THE LENGTH I DONT UNDERSTAND. A list of Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either
-#' length 1 or the total number of `iterations` - 1.
+#' @param clusterParams A list of Additional parameters to be passed to `addClusters()` for clustering within each iteration. 
+#' These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
+#' length == 1 or the total number of `iterations` - 1.
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
@@ -103,7 +104,7 @@ addIterativeLSI <- function(
   if(verbose) message("Checking Inputs...")
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
-  #JJJ .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = iterations, name = "iterations", valid = c("integer"))
   .validInput(input = clusterParams, name = "clusterParams", valid = c("list"))
   .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
@@ -112,15 +113,15 @@ addIterativeLSI <- function(
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
-  #JJJ .validInput(input = outlierQuantiles, name = "outlierQuantiles", valid = c("numeric"))
-  #JJJ .validInput(input = filterBias, name = "filterBias", valid = c("boolean"))
-  #JJJ .validInput(input = sampleCellsPre, name = "sampleCellsPre", valid = c("integer"))
-  #JJJ .validInput(input = sampleCellsFinal, name = "sampleCellsFinal", valid = c("integer"))
+  .validInput(input = outlierQuantiles, name = "outlierQuantiles", valid = c("numeric"))
+  .validInput(input = filterBias, name = "filterBias", valid = c("boolean"))
+  .validInput(input = sampleCellsPre, name = "sampleCellsPre", valid = c("integer", "null"))
+  .validInput(input = sampleCellsFinal, name = "sampleCellsFinal", valid = c("integer", "null"))
   .validInput(input = selectionMethod, name = "selectionMethod", valid = c("character"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = totalFeatures, name = "totalFeatures", valid = c("integer"))
   .validInput(input = filterQuantile, name = "filterQuantile", valid = c("numeric"))
-  #JJJ .validInput(input = excludeChr, name = "excludeChr", valid = c("character"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = saveIterations, name = "saveIterations", valid = c("boolean"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
   .validInput(input = nPlot, name = "nPlot", valid = c("integer"))
@@ -129,7 +130,7 @@ addIterativeLSI <- function(
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
 
   if(varFeatures < 1000){
@@ -581,7 +582,7 @@ addIterativeLSI <- function(
         gc()
 
         #Read In Matrices and Project into Manifold
-        #Do Threads / 3 just in case of memory here (Needs testing JJJ)
+        #Do Threads / 3 just in case of memory here (Needs testing QQQ)
         threads2 <- 1 #max(ceiling(threads / 3), 1)
         .logDiffTime("Projecting Matrices with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         pLSI <- .safelapply(seq_along(tmpMatFiles), function(x){

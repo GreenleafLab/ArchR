@@ -21,15 +21,16 @@
 #' @param sampleCells The number of cells to sub-sample to compute an imputation block. An imputation block is a cell x cell matrix that
 #' describes the linear combination for imputation for numerical values within these cells. ArchR creates many blocks to keep this
 #' cell x cell matrix sparse for memory concerns.
-#' @param nRep JJJ
+#' @param nRep An integer representing the number of imputation replicates to create when downsampling extremely low.
 #' @param k The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).
 #' @param epsilon The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).
-#' @param useHdf5 JJJ A boolean value that indicates whether HDF5 format should be used to store the impute weights.
-#' @param randomSuffix JJJ A boolean value that indicates whether a random suffix should be appended to JJJ.
+#' @param useHdf5 A boolean value that indicates whether HDF5 format should be used to store the impute weights.
+#' @param randomSuffix A boolean value that indicates whether a random suffix should be appended to the saved imputation weights hdf5 files.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addImputeWeights <- function(
   ArchRProj = NULL,
@@ -46,26 +47,31 @@ addImputeWeights <- function(
   useHdf5 = TRUE,
   randomSuffix = FALSE,
   threads = getArchRThreads(),
+  seed = 1,
   verbose = TRUE,
-  seed = 1
+  logFile = createLogFile("addImputeWeights")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
-  #JJJ .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
-  #JJJ .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = td, name = "td", valid = c("integer"))
   .validInput(input = ka, name = "ka", valid = c("integer"))
   .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
-  #JJJ .validInput(input = nRep, name = "nRep", valid = c("integer"))
+  .validInput(input = nRep, name = "nRep", valid = c("integer"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = epsilon, name = "epsilon", valid = c("numeric"))
-  #JJJ .validInput(input = useHdf5, name = "useHdf5", valid = c("boolean"))
-  #JJJ .validInput(input = randomSuffix, name = "randomSuffix", valid = c("boolean"))
-  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
-  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
-  #JJJ .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = useHdf5, name = "useHdf5", valid = c("boolean"))
+  .validInput(input = randomSuffix, name = "randomSuffix", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
+
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addImputeWeights Input-Parameters", logFile = logFile)  
 
   #Adapted From
   #https://github.com/dpeerlab/magic/blob/master/R/R/run_magic.R
@@ -73,7 +79,7 @@ addImputeWeights <- function(
   set.seed(seed)
 
   tstart <- Sys.time()
-  .logDiffTime("Computing Impute Weights Using Magic (Cell 2018)", tstart)
+  .logDiffTime("Computing Impute Weights Using Magic (Cell 2018)", t1 = tstart, verbose = verbose, logFile = logFile)
 
   #Get Reduced Dims
   matDR <- getReducedDims(ArchRProj, reducedDims = reducedDims, dimsToUse = dimsToUse, corCutOff = corCutOff)
@@ -109,7 +115,7 @@ addImputeWeights <- function(
 
   weightList <- .safelapply(seq_len(nRep), function(y){
 
-    .logDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", y, nRep), tstart, verbose = verbose)
+    .logDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s)", y, nRep), t1 = tstart, verbose = FALSE, logFile = logFile)
 
     if(!is.null(sampleCells)){
       idx <- sample(seq_len(nrow(matDR)), nrow(matDR))
@@ -127,7 +133,8 @@ addImputeWeights <- function(
     blockList <- lapply(seq_along(blocks), function(x){
 
       if(x %% 10 == 0){
-        .logDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s, Iteration %s of %s)", y, nRep, x, length(blocks)), tstart, verbose = verbose)
+        .logDiffTime(sprintf("Computing Partial Diffusion Matrix with Magic (%s of %s, Iteration %s of %s)", y, nRep, x, length(blocks)), 
+          t1 = tstart, verbose = FALSE, logFile = logFile)
       }
 
       ix <- blocks[[x]]
@@ -193,7 +200,8 @@ addImputeWeights <- function(
   }, threads = threads) %>% SimpleList
   names(weightList) <- paste0("w",seq_along(weightList))
 
-  .logDiffTime(sprintf("Completed Getting Magic Weights!", round(object.size(weightList) / 10^9, 3)), tstart)
+  .logDiffTime(sprintf("Completed Getting Magic Weights!", round(object.size(weightList) / 10^9, 3)), 
+    t1 = tstart, verbose = FALSE, logFile = logFile)
 
   ArchRProj@imputeWeights <- SimpleList(
     Weights = weightList, 
@@ -245,11 +253,11 @@ imputeMatrix <- function(
   logFile = createLogFile("imputeMatrix")
   ){
 
-  #JJJ .validInput(input = mat, name = "mat", valid = c("matrix", "sparseMatrix"))
-  #JJJ .validInput(input = imputeWeights, name = "imputeWeights", valid = c("JJJ"))
-  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
-  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
-  .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+  .validInput(input = mat, name = "mat", valid = c("matrix", "sparseMatrix"))
+  .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   if(!inherits(imputeWeights$Weights, "SimpleList") & !inherits(imputeWeights$Weights, "list")){
     .logMessage("Weights are not a list, Please re-run addImputeWeights (update)!", logFile = logFile)
@@ -257,6 +265,7 @@ imputeMatrix <- function(
   }
 
   .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "imputeMatrix Input-Parameters", logFile = logFile)  
 
   weightList <- imputeWeights$Weights
   .logThis(mat, "mat", logFile = logFile)

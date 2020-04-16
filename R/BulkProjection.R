@@ -23,18 +23,19 @@ projectBulkATAC <- function(
   logFile = createLogFile("projectBulkATAC")
   ){
 
-  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  # JJJ .validInput(input = seATAC, name = "seATAC", valid = c("character"))
-  # JJJ .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
-  # JJJ .validInput(input = embedding, name = "embedding", valid = c("character"))
-  # JJJ .validInput(input = n, name = "n", valid = c("integer"))
-  # JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
-  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
-  # JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = seATAC, name = "seATAC", valid = c("SummarizedExperiment"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = embedding, name = "embedding", valid = c("character", "null"))
+  .validInput(input = n, name = "n", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
 
   .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "projectBulkATAC Input-Parameters", logFile = logFile)
 
   ##################################################
   # Reduced Dimensions
@@ -56,17 +57,17 @@ projectBulkATAC <- function(
   .logThis(o, "overlapATAC", logFile = logFile)
 
   if(sumOverlap == 0){
-    stop(paste0("No overlaps between bulk ATAC data and reduce dimensions feature found.",
-      "\nEither recreate counts matrix or most likely these data sets are incompatible!"))
+    .logStop(paste0("No overlaps between bulk ATAC data and reduce dimensions feature found.",
+      "\nEither recreate counts matrix or most likely these data sets are incompatible!"), logFile = logFile)
   }
   if( (sumOverlap / length(rDGR)) < 0.25 ){
     if(force){
-      message("Less than 25% of the features are present in this bulk ATAC data set! Continuing since force = TRUE!")
+      .logMessage("Less than 25% of the features are present in this bulk ATAC data set! Continuing since force = TRUE!", verbose = TRUE, logFile = logFile)
     }else{
-      stop("Less than 25% of the features are present in this bulk ATAC data set! Set force = TRUE to continue!")
+      .logStop("Less than 25% of the features are present in this bulk ATAC data set! Set force = TRUE to continue!", logFile = logFile)
     }
   }
-  message("Overlap Ratio of Reduced Dims Features = ", (sumOverlap / length(rDGR)))
+  .logMessage("Overlap Ratio of Reduced Dims Features = ", (sumOverlap / length(rDGR)), verbose = TRUE, logFile = logFile)
 
   o <- o[!duplicated(o$subjectHits),]
   subATAC <- subATAC[o$queryHits, ]
@@ -91,7 +92,7 @@ projectBulkATAC <- function(
   ratios <- c(2, 1.5, 1, 0.5, 0.25) #range of ratios of number of fragments
 
   simRD <- .safelapply(seq_len(ncol(bulkMat)), function(x){
-    .messageDiffTime(sprintf("Projecting Sample (%s of %s)", x, ncol(bulkMat)), tstart, verbose = verbose, logFile = logFile)
+    .logDiffTime(sprintf("Projecting Sample (%s of %s)", x, ncol(bulkMat)), t1 = tstart, verbose = verbose, logFile = logFile)
     counts <- bulkMat[, x]
     counts <- rep(seq_along(counts), counts)
     simMat <- lapply(seq_len(nRep), function(y){
@@ -149,8 +150,8 @@ projectBulkATAC <- function(
     }
 
     if(embedding$params$nc != ncol(simRD)){
-      message("Error incosistency found with matching LSI dimensions to those used in addEmbedding",
-        "\nReturning with simulated reduced dimension coordinates...")
+      .logMessage("Error incosistency found with matching LSI dimensions to those used in addEmbedding",
+        "\nReturning with simulated reduced dimension coordinates...", verbose = TRUE, logFile = logFile)
       out <- SimpleList(
         simulatedReducedDims = simRD
       )
@@ -193,7 +194,7 @@ projectBulkATAC <- function(
   c1 <- cor(simUMAP[rownames(rD2), 1], embedding[[1]][rownames(rD2),1])
   c2 <- cor(simUMAP[rownames(rD2), 2], embedding[[1]][rownames(rD2),2])
   if(min(c1, c2) < 0.8){
-    message("Warning projection correlation is less than 0.8 (R = ", round(min(c1,c2), 4),").\nThese results may not be accurate because of the lack of heterogeneity in the single cell data.")
+    .logMessage("Warning projection correlation is less than 0.8 (R = ", round(min(c1,c2), 4),").\nThese results may not be accurate because of the lack of heterogeneity in the single cell data.", verbose = TRUE, logFile = logFile)
   }
 
   dfUMAP <- embedding[[1]]

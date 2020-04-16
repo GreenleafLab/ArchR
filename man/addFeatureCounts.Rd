@@ -15,11 +15,11 @@ addFeatureCounts(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{features}{JJJ QQQ}
+\item{features}{A \code{GRanges} object of features to count scATAC-seq data in.}
 
-\item{name}{JJJ QQQ}
+\item{name}{A character defining the name of the features. "\code{name}Counts" and "\code{name}Ratio" will be added to the \code{ArchRProject}.}
 
-\item{addRatio}{JJJ QQQ}
+\item{addRatio}{A boolean indicating whether to add the "\code{name}Ratio" to the \code{ArchRProject}.}
 
 \item{threads}{The number of threads to use for parallel execution.}
 }

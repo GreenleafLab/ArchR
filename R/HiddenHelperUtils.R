@@ -40,6 +40,34 @@
 # Stat/Summary Methods
 ##########################################################################################
 
+.computeKNN <- function(
+  data = NULL,
+  query = NULL,
+  k = 50,
+  includeSelf = FALSE,
+  ...
+  ){
+  .validInput(input = data, name = "data", valid = c("dataframe", "matrix"))
+  .validInput(input = query, name = "query", valid = c("dataframe", "matrix"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .validInput(input = method, name = "method", valid = c("character", "null"))
+  .validInput(input = includeSelf, name = "includeSelf", valid = c("boolean"))
+  if(is.null(query)){
+    query <- data
+    searchSelf <- TRUE
+  }else{
+    searchSelf <- FALSE
+  }
+  .requirePackage("nabor", source = "cran")
+  if(searchSelf & !includeSelf){
+    knnIdx <- nabor::knn(data = data, query = query, k = k + 1, ...)$nn.idx
+    knnIdx <- knnIdx[,-1,drop=FALSE]
+  }else{
+    knnIdx <- nabor::knn(data = data, query = query, k = k, ...)$nn.idx
+  }
+  knnIdx
+}
+
 .rowZscores <- function(m = NULL, min = -2, max = 2, limit = FALSE){
   z <- sweep(m - rowMeans(m), 1, matrixStats::rowSds(m),`/`)
   if(limit){

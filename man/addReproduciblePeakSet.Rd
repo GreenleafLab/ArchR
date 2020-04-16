@@ -73,9 +73,7 @@ allows you to create proper fragments, centered at the Tn5 insertion site, for u
 \item{extendSummits}{The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example,
 \code{extendSummits = 250} will create 501-bp fixed-width peaks from the 1-bp summits.}
 
-\item{promoterRegion}{JJJ THIS IS NOT CORRECT AS WRITTEN! The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak
-to be annotated as a "promoter" peak.
-JJJ I THINK YOU MEAN - A vector of two integers specifying the distance in basepairs upstream and downstream of a TSS to be included as a promoter region.
+\item{promoterRegion}{A vector of two integers specifying the distance in basepairs upstream and downstream of a TSS to be included as a promoter region.
 Peaks called within one of these regions will be annotated as a "promoter" peak. For example, \code{promoterRegion = c(2000, 100)} will annotate any peak within the region
 2000 bp upstream and 100 bp downstream of a TSS as a "promoter" peak.}
 

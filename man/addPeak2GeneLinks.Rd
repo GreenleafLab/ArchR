@@ -2,7 +2,7 @@
 % Please edit documentation in R/IntegrativeAnalysis.R
 \name{addPeak2GeneLinks}
 \alias{addPeak2GeneLinks}
-\title{Add Peak2GeneLinks to an ArchRProject JJJ}
+\title{Add Peak2GeneLinks to an ArchRProject}
 \usage{
 addPeak2GeneLinks(
   ArchRProj = NULL,
@@ -19,7 +19,6 @@ addPeak2GeneLinks(
   log2Norm = TRUE,
   predictionCutoff = 0.4,
   seed = 1,
-  knnMethod = NULL,
   threads = max(floor(getArchRThreads()/2), 1),
   verbose = TRUE,
   logFile = createLogFile("addPeak2GeneLinks")
@@ -58,8 +57,6 @@ from the \code{peakSet} of the \code{ArchRProject} and normalized to the total d
 
 \item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended
 to keep track of the seed used so that you can reproduce results downstream.}
-
-\item{knnMethod}{The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Embedding.R
 \name{addUMAP}
 \alias{addUMAP}
-\title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject JJJ}
+\title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject}
 \usage{
 addUMAP(
   ArchRProj = NULL,
@@ -55,7 +55,7 @@ and memory but can lower the overal quality of the UMAP Embedding. Only recommen
 \item{outlierQuantile}{A numeric (0 to 1) describing the distance quantile in the subsampled cels (see \code{sampleCells}) to use to filter poor quality re-projections.
 This is necessary because there are lots of outliers if undersampled significantly.}
 
-\item{saveModel}{JJJ A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.}
+\item{saveModel}{A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.}
 
 \item{verbose}{A boolean value that indicates whether printing UMAP output.}
 

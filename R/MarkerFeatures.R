@@ -8,7 +8,7 @@ markerFeatures <- function(...){
     getMarkerFeatures(...)
 }
 
-#' Identify Marker Features for each cell grouping JJJ
+#' Identify Marker Features for each cell grouping
 #' 
 #' This function will identify features that are definitional of each provided cell grouping where possible
 #' 
@@ -81,7 +81,7 @@ getMarkerFeatures <- function(
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
   .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
   .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+  .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
 
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
   .startLogging(logFile = logFile)
@@ -138,20 +138,24 @@ getMarkerFeatures <- function(
     }
 
     if(!is.null(useSeqnames)){
-      if(length(useSeqnames) == 1){
-        featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
+      if(matrixClass == "Sparse.Assays.Matrix"){
+        if(length(useSeqnames) == 1){
+          featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
+        }else{
+          message("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
+            "Continuing with first seqname '", seqnames[1], "'!\n",
+            "If confused, try getFeatures(ArchRProj, '", useMatrix,"'') to list out available seqnames for input!")
+          useSeqnames <- seqnames[1]
+          featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
+        }
       }else{
-        message("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
-          "Continuing with first seqname '", seqnames[1], "'!\n",
-          "If confused, try getFeatures(ArchRProj, '", useqMatrix,"'') to list out available seqnames for input!")
-        useSeqnames <- seqnames[1]
         featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
       }
     }else{
       if(matrixClass == "Sparse.Assays.Matrix"){
         message("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
           "Continuing with first seqname '", seqnames[1], "'!\n",
-          "If confused, try getFeatures(ArchRProj, '", useqMatrix,"'') to list out available seqnames for input!")
+          "If confused, try getFeatures(ArchRProj, '", useMatrix,"'') to list out available seqnames for input!")
         useSeqnames <- seqnames[1]
         featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
       }
@@ -730,14 +734,14 @@ getMarkerFeatures <- function(
 #' rownames from `seMarker` to be excluded from the heatmap.
 #' @param pal A custom continuous palette from `ArchRPalettes` (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
-#' @param clusterCols JJJ A boolean value that indicates whether the columns of the marker heatmap should be clustered.
+#' @param clusterCols A boolean value that indicates whether the columns of the marker heatmap should be clustered.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
-#' @param nPrint JJJ
+#' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
-#' @param transpose JJJ A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.
-#' @param invert JJJ. A boolean value that indicates whether the heatmap will display the features with the
+#' @param transpose A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.
+#' @param invert A boolean value that indicates whether the heatmap will display the features with the
 #' lowest `log2(fold change)`. In this case, the heatmap will display features that are specifically lower in the given cell
 #' group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
 #' looking for down-regulated markers (`log2(fold change) < 0`) instead of up-regulated markers (`log2(fold change) > 0`). 
@@ -773,13 +777,13 @@ markerHeatmap <- function(
   .validInput(input = grepExclude, name = "grepExclude", valid = c("character", "null"))
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
-  #JJJ .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
+  .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
   .validInput(input = nLabel, name = "nLabel", valid = c("integer", "null"))
   .validInput(input = nPrint, name = "nPrint", valid = c("integer", "null"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
-  #JJJ .validInput(input = transpose, name = "transpose", valid = c("boolean"))
+  .validInput(input = transpose, name = "transpose", valid = c("boolean"))
   .validInput(input = invert, name = "invert", valid = c("boolean"))
 
   #Evaluate AssayNames

@@ -29,7 +29,6 @@
 #' @param knnIteration An `ArchRProject` object.
 #' @param overlapCutoff An `ArchRProject` object.
 #' @param seed An `ArchRProject` object.
-#' @param knnMethod An `ArchRProject` object.
 #' @param threads The number of threads to be used for parallel computing.
 #' @export
 correlateMatrices <- function(
@@ -50,7 +49,6 @@ correlateMatrices <- function(
   knnIteration = 500, 
   overlapCutoff = 0.8, 
   seed = 1, 
-  knnMethod = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
   logFile = createLogFile("correlateMatrices")
@@ -152,7 +150,7 @@ correlateMatrices <- function(
 
   #KNN Matrix
   .logDiffTime(main="Computing KNN", t1=tstart, verbose=verbose, logFile=logFile)
-  knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
+  knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k)
 
   #Determin Overlap
   .logDiffTime(main="Identifying Non-Overlapping KNN pairs", t1=tstart, verbose=verbose, logFile=logFile)
@@ -353,7 +351,6 @@ correlateMatrices <- function(
 #' @param knnIteration An `ArchRProject` object.
 #' @param overlapCutoff An `ArchRProject` object.
 #' @param seed An `ArchRProject` object.
-#' @param knnMethod An `ArchRProject` object.
 #' @param threads The number of threads to be used for parallel computing.
 #' @export
 correlateTrajectories <- function(
@@ -630,7 +627,6 @@ correlateTrajectories <- function(
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track
 #' of the seed used so that you can reproduce results downstream.
-#' @param knnMethod The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.
 #' @param threads The number of threads to be used for parallel computing.
 #' @export
 addCoAccessibility <- function(
@@ -646,7 +642,6 @@ addCoAccessibility <- function(
   scaleTo = 10^4,
   log2Norm = TRUE,
   seed = 1, 
-  knnMethod = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
   logFile = createLogFile("addCoAccessibility")
@@ -663,7 +658,6 @@ addCoAccessibility <- function(
   .validInput(input = maxDist, name = "maxDist", valid = c("integer"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
-  .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
@@ -683,7 +677,7 @@ addCoAccessibility <- function(
 
   #KNN Matrix
   .logDiffTime(main="Computing KNN", t1=tstart, verbose=verbose, logFile=logFile)
-  knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
+  knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k)
 
   #Determin Overlap
   .logDiffTime(main="Identifying Non-Overlapping KNN pairs", t1=tstart, verbose=verbose, logFile=logFile)
@@ -864,7 +858,7 @@ getCoAccessibility <- function(
 # Peak2Gene Links Methods
 ##########################################################################################
 
-#' Add Peak2GeneLinks to an ArchRProject JJJ
+#' Add Peak2GeneLinks to an ArchRProject
 #' 
 #' This function will add peak-to-gene links to a given ArchRProject
 #' 
@@ -888,7 +882,6 @@ getCoAccessibility <- function(
 #' @param predictionCutoff A numeric describing the cutoff for RNA integration to use when picking cells for groupings.
 #' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended
 #' to keep track of the seed used so that you can reproduce results downstream.
-#' @param knnMethod The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.
 #' @param threads The number of threads to be used for parallel computing.
 #' @export
 addPeak2GeneLinks <- function(
@@ -906,7 +899,6 @@ addPeak2GeneLinks <- function(
   log2Norm = TRUE,
   predictionCutoff = 0.4,
   seed = 1, 
-  knnMethod = NULL,
   threads = max(floor(getArchRThreads() / 2), 1),
   verbose = TRUE,
   logFile = createLogFile("addPeak2GeneLinks")
@@ -923,7 +915,6 @@ addPeak2GeneLinks <- function(
   .validInput(input = maxDist, name = "maxDist", valid = c("integer"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
-  .validInput(input = knnMethod, name = "knnMethod", valid = c("character", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
@@ -979,7 +970,7 @@ addPeak2GeneLinks <- function(
 
   #KNN Matrix
   .logDiffTime(main="Computing KNN", t1=tstart, verbose=verbose, logFile=logFile)
-  knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k, method = knnMethod)
+  knnObj <- .computeKNN(data = rD, query = rD[idx,], k = k)
 
   #Determin Overlap
   .logDiffTime(main="Identifying Non-Overlapping KNN pairs", t1=tstart, verbose=verbose, logFile=logFile)

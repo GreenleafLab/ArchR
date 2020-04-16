@@ -36,36 +36,37 @@ addGeneIntegrationMatrix(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{useMatrix}{JJJ The name of a matrix in the \code{ArchRProject} containing gene scores to be used for RNA integration.}
+\item{useMatrix}{The name of a matrix in the \code{ArchRProject} containing gene scores to be used for RNA integration.}
 
-\item{matrixName}{JJJ The name to use for the output matrix containing scRNA-seq integration to be stored in the \code{ArchRProject}.}
+\item{matrixName}{The name to use for the output matrix containing scRNA-seq integration to be stored in the \code{ArchRProject}.}
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.
 This \code{reducedDims} will be used in weighting the transfer of data to scRNA to scATAC. See \code{Seurat::TransferData} for more info.}
 
-\item{seRNA}{JJJ WHERE WOULD THE scRNA SE COME FROM? A \code{SeuratObject} or a scRNA-seq \code{SummarizedExperiment} to be integrated with the scATAC-seq data.}
+\item{seRNA}{A \code{SeuratObject} or a scRNA-seq \code{SummarizedExperiment} (cell x gene) to be integrated with the scATAC-seq data.}
 
-\item{groupATAC}{JJJ A column name in \code{cellColData} that will be used to determine the subgroupings specified in \code{groupList}.
+\item{groupATAC}{A column name in \code{cellColData} of the \code{ArchRProj} that will be used to determine the subgroupings specified in \code{groupList}.
 This is used to constrain the integration to occur across biologically relevant groups.}
 
-\item{groupRNA}{JJJ A column name in either \code{colData} or \code{metadata} of \code{seRNA} that will be used to determine the subgroupings specified in \code{groupList}.
-This is used to constrain the integration to occur across biologically relevant groups.}
+\item{groupRNA}{A column name in either \code{colData} (if \code{SummarizedExperiment}) or \code{metadata} (if \code{SeuratObject}) of \code{seRNA} that
+will be used to determine the subgroupings specified in \code{groupList}. This is used to constrain the integration to occur across biologically relevant groups.
+Additionally this groupRNA is used for the \code{nameGroup} output of this function.}
 
-\item{groupList}{JJJ PROVIDE EXPECTED FORMAT. A list of cell groupings for both ATAC-seq and RNA-seq cells to be used for RNA-ATAC integration.
-This is used to constrain the integration to occur across biologically relevant groups. The format of this should be JJJ}
+\item{groupList}{A list of cell groupings for both ATAC-seq and RNA-seq cells to be used for RNA-ATAC integration.
+This is used to constrain the integration to occur across biologically relevant groups. The format of this should be a list of groups
+with subgroups of ATAC and RNA specifying cells to integrate from both platforms.
+For example \code{groupList} <- list(groupA = list(ATAC = cellsATAC_A, RNA = cellsRNA_A), groupB = list(ATAC = cellsATAC_B, RNA = cellsRNA_B))}
 
-\item{sampleCellsATAC}{JJJ An integer describing the number of scATAC-seq cells to be used for integration.
-This number will be evenly sampled across the total number of cells in the ArchRProject.
-JJJ DOESNT MAKE SENSE TO ME For example if 99,000 cells are present with \code{sampleCellsATAC = 10000} the number of cells used would be
-closer to 9,900 to make sure subgroupings are close to the the same number of cells.}
+\item{sampleCellsATAC}{An integer describing the number of scATAC-seq cells to be used for integration.
+This number will be evenly sampled across the total number of cells in the ArchRProject.}
 
 \item{sampleCellsRNA}{An integer describing the number of scRNA-seq cells to be used for integration.}
 
-\item{embeddingATAC}{JJJ A \code{data.frame} of cell embeddings such as a UMAP for scATAC-seq cells to be used for density sampling. The \code{data.frame} object
-should have a row for each single cell and 2 columns, one for each dimension of the embedding.}
+\item{embeddingATAC}{A \code{data.frame} of cell embeddings such as a UMAP for scATAC-seq cells to be used for density sampling. The \code{data.frame} object
+should have a row for each single cell described in \code{row.names} and 2 columns, one for each dimension of the embedding.}
 
-\item{embeddingRNA}{JJJ A \code{data.frame} of cell embeddings such as a UMAP for scRNA-seq cells to be used for density sampling. The \code{data.frame} object
-should have a row for each single cell and 2 columns, one for each dimension of the embedding.}
+\item{embeddingRNA}{A \code{data.frame} of cell embeddings such as a UMAP for scRNA-seq cells to be used for density sampling. The \code{data.frame} object
+should have a row for each single cell described in \code{row.names} and 2 columns, one for each dimension of the embedding.}
 
 \item{nGenes}{The number of variable genes determined by \code{Seurat::FindVariableGenes()} to use for integration.}
 
@@ -77,11 +78,11 @@ should have a row for each single cell and 2 columns, one for each dimension of 
 
 \item{scaleTo}{Each column in the integrated RNA matrix will be normalized to a column sum designated by \code{scaleTo} prior to adding to Arrow files.}
 
-\item{nameCell}{JJJ A column name to add to \code{cellColData} for the predicted scRNA-seq cell in the specified \code{ArchRProject}. This is useful for identifying which cell was closest to the scATAC-seq cell.}
+\item{nameCell}{A column name to add to \code{cellColData} for the predicted scRNA-seq cell in the specified \code{ArchRProject}. This is useful for identifying which cell was closest to the scATAC-seq cell.}
 
-\item{nameGroup}{JJJ A column name to add to \code{cellColData} for the predicted scRNA-seq group in the specified \code{ArchRProject}. See \code{groupRNA} for more details.}
+\item{nameGroup}{A column name to add to \code{cellColData} for the predicted scRNA-seq group in the specified \code{ArchRProject}. See \code{groupRNA} for more details.}
 
-\item{nameScore}{JJJ A column name to add to \code{cellColData} for the predicted scRNA-seq score in the specified \code{ArchRProject}. These scores represent
+\item{nameScore}{A column name to add to \code{cellColData} for the predicted scRNA-seq score in the specified \code{ArchRProject}. These scores represent
 the assignment accuracy of the group in the RNA cells. Lower scores represent ambiguous predictions and higher scores represent precise predictions.}
 
 \item{transferParams}{Additional params to be passed to \code{Seurat::TransferData}.}

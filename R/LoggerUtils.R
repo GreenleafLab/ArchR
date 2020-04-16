@@ -43,8 +43,9 @@ createLogFile <- function(
     useLogs = getArchRLogging()
   ){
   
-  #JJJ .validInput(input = name, name = "name", valid = "character")
-  #JJJ .validInput(input = logDir, name = "logDir", valid = "character")
+  .validInput(input = name, name = "name", valid = "character")
+  .validInput(input = logDir, name = "logDir", valid = "character")
+  .validInput(input = useLogs, name = "useLogs", valid = "boolean")
 
   if(!useLogs){
     return(NULL)
@@ -59,7 +60,6 @@ createLogFile <- function(
 }
 
 .messageDiffTime <- function(...){ #Deprecated
-  #JJJ Not sure if you want this here but i added it .Deprecated("logDiffTime")
   .logDiffTime(...)
 }
 

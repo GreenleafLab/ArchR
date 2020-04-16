@@ -12,11 +12,14 @@ trajectoryHeatmap(
   limits = c(-1.5, 1.5),
   grepExclude = NULL,
   pal = NULL,
+  useSeqnames = NULL,
   labelMarkers = NULL,
   labelTop = 50,
   labelRows = FALSE,
   rowOrder = NULL,
-  returnMat = FALSE
+  returnMat = FALSE,
+  force = FALSE,
+  logFile = createLogFile("trajectoryHeatmap")
 )
 }
 \arguments{

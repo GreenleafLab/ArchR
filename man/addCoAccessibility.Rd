@@ -17,7 +17,6 @@ addCoAccessibility(
   scaleTo = 10^4,
   log2Norm = TRUE,
   seed = 1,
-  knnMethod = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
   logFile = createLogFile("addCoAccessibility")
@@ -54,8 +53,6 @@ the \code{peakSet} of the \code{ArchRProject} and normalized to the total depth 
 
 \item{seed}{A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track
 of the seed used so that you can reproduce results downstream.}
-
-\item{knnMethod}{The method to be used for k-nearest neighbor computations. Options are "nabor", "RANN", and "FNN" and the corresponding package is required.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 }

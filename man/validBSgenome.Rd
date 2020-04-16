@@ -7,7 +7,7 @@
 validBSgenome(genome = NULL, masked = FALSE)
 }
 \arguments{
-\item{genome}{JJJ This option must be one of the following: (i) the name of a valid ArchR-supported genome ("hg38", "hg19", or "mm10"),
+\item{genome}{This option must be one of the following: (i) the name of a valid ArchR-supported genome ("hg38", "hg19", or "mm10"),
 (ii) the name of a \code{BSgenome} package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a \code{BSgenome} object.}
 
 \item{masked}{A boolean describing whether or not to access the masked version of the selected genome. See \code{BSgenome::getBSgenome()}.}

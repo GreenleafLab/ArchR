@@ -98,17 +98,17 @@ beyond these limits are thresholded.}
 
 \item{baseSize}{The base font size (in points) to use in the plot.}
 
-\item{legendSize}{JJJ The size in inches to use for plotting the color legend.}
+\item{legendSize}{The size in inches to use for plotting the color legend.}
 
 \item{ratioYX}{The aspect ratio of the x and y axes on the plot.}
 
-\item{labelAsFactors}{JJJ WHAT IS BEING LABELED? A boolean indicating whether to label the JJJ as a numeric factor (\code{TRUE}) or with a character string (\code{FALSE}).}
+\item{labelAsFactors}{A boolean indicating whether to label the \code{color} input as a numeric factor (\code{TRUE}) or with a character string (\code{FALSE}).}
 
 \item{fgColor}{The foreground color of the plot.}
 
 \item{bgColor}{The background color of the plot.}
 
-\item{bgWidth}{JJJ WHAT ARE THE UNITS OF THE WIDTH? The background width in JJJ of the halos in the labeling.}
+\item{bgWidth}{The background relative width size of the halos in the labeling.}
 
 \item{labelSize}{The numeric font size of labels.}
 

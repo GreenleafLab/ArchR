@@ -7,11 +7,14 @@
 #' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.
 #' @param threads The number of threads to be used for parallel computing.
 #' @export
-getTutorialData <- function(tutorial = "hematopoiesis", threads = getArchRThreads()){
+getTutorialData <- function(
+  tutorial = "hematopoiesis", 
+  threads = getArchRThreads()
+  ){
 
   #Validate
   .validInput(input = tutorial, name = "tutorial", valid = "character")
-  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
   #########
 
   if(tolower(tutorial) %in% c("heme","hematopoiesis")){
@@ -55,7 +58,9 @@ getTutorialData <- function(tutorial = "hematopoiesis", threads = getArchRThread
 #' 
 #' @param paths A character vector of paths to search for usable input files.
 #' @export
-getInputFiles <- function(paths = NULL){ 
+getInputFiles <- function(
+  paths = NULL
+  ){ 
 
   #Validate
   .validInput(input = paths, name = "paths", valid = "character")
@@ -92,7 +97,10 @@ getInputFiles <- function(paths = NULL){
 #' @param csvFiles A character vector of names from 10x CSV files to be read in for identification of valid cell barcodes.
 #' @param sampleNames A character vector containing the sample names to be associated with each individual entry in `csvFiles`.
 #' @export
-getValidBarcodes <- function(csvFiles = NULL, sampleNames = NULL){
+getValidBarcodes <- function(
+  csvFiles = NULL, 
+  sampleNames = NULL
+  ){
 
   #Validate
   .validInput(input = csvFiles, name = "csvFiles", valid = "character")

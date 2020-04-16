@@ -2,7 +2,7 @@
 # Embedding Methods
 ##########################################################################################
 
-#' Add a UMAP embedding of a reduced dimensions object to an ArchRProject JJJ
+#' Add a UMAP embedding of a reduced dimensions object to an ArchRProject
 #' 
 #' This function will compute a UMAP embedding and add it to an ArchRProject.
 #'
@@ -25,7 +25,7 @@
 #' and memory but can lower the overal quality of the UMAP Embedding. Only recommended for extremely large number of cells.
 #' @param outlierQuantile A numeric (0 to 1) describing the distance quantile in the subsampled cels (see `sampleCells`) to use to filter poor quality re-projections.
 #' This is necessary because there are lots of outliers if undersampled significantly.
-#' @param saveModel JJJ A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.
+#' @param saveModel A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.
 #' @param verbose A boolean value that indicates whether printing UMAP output.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
@@ -63,8 +63,8 @@ addUMAP <- function(
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
-  #JJJ .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
-  #JJJ .validInput(input = outlierQuantile, name = "outlierQuantile", valid = c("numeric", "null"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
+  .validInput(input = outlierQuantile, name = "outlierQuantile", valid = c("numeric"))
   .validInput(input = saveModel, name = "saveModel", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
@@ -308,7 +308,6 @@ addUMAP <- function(
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to sequencing
 #' depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param saveModel JJJ A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.
 #' @param verbose A boolean value that indicates whether printing TSNE output.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
@@ -346,7 +345,6 @@ addTSNE <- function(
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
-  #JJJ .validInput(input = saveModel, name = "saveModel", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))

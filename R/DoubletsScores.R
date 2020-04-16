@@ -66,7 +66,7 @@ addDoubletScores <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
 
   .startLogging(logFile = logFile)

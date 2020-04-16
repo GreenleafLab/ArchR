@@ -111,7 +111,7 @@ addPeakAnnotations <- function(
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  #JJJ .validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
+  .validInput(input = regions, name = "regions", valid = c("grangeslist", "character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
@@ -212,7 +212,7 @@ addPeakAnnotations <- function(
 
 }
 
-#' Add motif annotations to an ArchRProject JJJ
+#' Add motif annotations to an ArchRProject
 #' 
 #' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value
 #' is stored indicating whether each motif is observed within the peak region.
@@ -935,16 +935,14 @@ enrichHeatmap <- function(
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
   .validInput(input = pal, name = "pal", valid = c("character"))
   .validInput(input = n, name = "n", valid = c("integer"))
-  #JJJ .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
-  #JJJ .validInput(input = pMax, name = "pMax", valid = c("numeric"))
+  .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
+  .validInput(input = pMax, name = "pMax", valid = c("numeric"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
-  #JJJ .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
+  .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
-  #JJJ .validInput(input = rastr, name = "rastr", valid = c("boolean"))
-  #JJJ .validInput(input = transpose, name = "transpose", valid = c("boolean"))
-  #JJJ .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
-
-  #.validInput(input = limits, name = "limits", valid = c("numeric"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  .validInput(input = transpose, name = "transpose", valid = c("boolean"))
+  .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
 
   mat <- assays(seEnrich)[["mlog10Padj"]]
   #mat[mat < min(limits)] <- min(limits)

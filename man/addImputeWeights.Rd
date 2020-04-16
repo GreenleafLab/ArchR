@@ -19,8 +19,9 @@ addImputeWeights(
   useHdf5 = TRUE,
   randomSuffix = FALSE,
   threads = getArchRThreads(),
+  seed = 1,
   verbose = TRUE,
-  seed = 1
+  logFile = createLogFile("addImputeWeights")
 )
 }
 \arguments{
@@ -47,22 +48,24 @@ the effect of differences in density. (see MAGIC from van Dijk et al Cell 2018).
 describes the linear combination for imputation for numerical values within these cells. ArchR creates many blocks to keep this
 cell x cell matrix sparse for memory concerns.}
 
-\item{nRep}{JJJ}
+\item{nRep}{An integer representing the number of imputation replicates to create when downsampling extremely low.}
 
 \item{k}{The number of nearest neighbors for smoothing to use for MAGIC (see MAGIC from van Dijk et al Cell 2018).}
 
 \item{epsilon}{The value for the standard deviation of the kernel for MAGIC (see MAGIC from van Dijk et al Cell 2018).}
 
-\item{useHdf5}{JJJ A boolean value that indicates whether HDF5 format should be used to store the impute weights.}
+\item{useHdf5}{A boolean value that indicates whether HDF5 format should be used to store the impute weights.}
 
-\item{randomSuffix}{JJJ A boolean value that indicates whether a random suffix should be appended to JJJ.}
+\item{randomSuffix}{A boolean value that indicates whether a random suffix should be appended to the saved imputation weights hdf5 files.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
-
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 reproduce results downstream.}
+
+\item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function computes imputations weights that describe each cell as a linear combination of many cells based on a MAGIC diffusion matrix.

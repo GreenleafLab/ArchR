@@ -9,7 +9,7 @@ getGroupSummary(
   groupBy = "Sample",
   select = "TSSEnrichment",
   summary = "median",
-  na.rm = TRUE
+  removeNA = TRUE
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ getGroupSummary(
 
 \item{summary}{A character vector describing which method for summarizing across group. Options include "median", "mean", or "sum".}
 
-\item{na.rm}{Remove NA's from summary method.}
+\item{removeNA}{Remove NA's from summary method.}
 }
 \description{
 This function summarizes a numeric cellColData entry across groupings in a ArchRProject.

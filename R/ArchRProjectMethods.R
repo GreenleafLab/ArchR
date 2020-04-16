@@ -8,9 +8,11 @@
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
-getOutputDirectory <- function(ArchRProj = NULL){
+getOutputDirectory <- function(
+  ArchRProj = NULL
+  ){
 
-  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
 
   if(is.null(ArchRProj) | is.character(ArchRProj)){
     return("QualityControl")
@@ -34,7 +36,9 @@ getOutputDirectory <- function(ArchRProj = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
-getArrowFiles <- function(ArchRProj = NULL){
+getArrowFiles <- function(
+  ArchRProj = NULL
+  ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   
@@ -62,7 +66,9 @@ getArrowFiles <- function(ArchRProj = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
-getSampleNames <- function(ArchRProj = NULL){
+getSampleNames <- function(
+  ArchRProj = NULL
+  ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   
@@ -78,7 +84,9 @@ getSampleNames <- function(ArchRProj = NULL){
 #' 
 #' @param input An `ArchRProject` object or the path to an ArrowFile.
 #' @export
-nCells <- function(input = NULL){
+nCells <- function(
+  input = NULL
+  ){
   
   .validInput(input = input, name = "input", valid = c("ArchRProject", "character"))
 
@@ -104,21 +112,21 @@ nCells <- function(input = NULL){
 #' @param groupBy The name of the column in `cellColData` to use for grouping multiple cells together for summarizing information.
 #' @param select A character vector containing the column names to select from `cellColData`.
 #' @param summary A character vector describing which method for summarizing across group. Options include "median", "mean", or "sum".
-#' @param na.rm Remove NA's from summary method.
+#' @param removeNA Remove NA's from summary method.
 #' @export
 getGroupSummary <- function(
   ArchRProj = NULL,
   groupBy = "Sample",
   select = "TSSEnrichment",
   summary = "median",
-  na.rm = TRUE
+  removeNA = TRUE
   ){
 
-  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  # JJJ .validInput(input = groupBy, name = "groupBy", valid = c("character"))
-  # JJJ .validInput(input = select, name = "select", valid = c("character"))
-  # JJJ .validInput(input = summary, name = "summary", valid = c("character"))
-  # JJJ .validInput(input = na.rm, name = "na.rm", valid = c("boolean"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = select, name = "select", valid = c("character"))
+  .validInput(input = summary, name = "summary", valid = c("character"))
+  .validInput(input = na.rm, name = "na.rm", valid = c("boolean"))
 
   message("Getting ", summary, " of ", select, " for ", groupBy)
 
@@ -133,11 +141,11 @@ getGroupSummary <- function(
 
   summarySelect <- lapply(seq_along(splitSelect), function(x){
     if(tolower(summary) == "median"){
-      median(splitSelect[[x]], na.rm = na.rm)
+      median(splitSelect[[x]], na.rm = removeNA)
     }else if(tolower(summary) == "mean"){
-      mean(splitSelect[[x]], na.rm = na.rm)
+      mean(splitSelect[[x]], na.rm = removeNA)
     }else if(tolower(summary) == "sum"){
-      sum(splitSelect[[x]], na.rm = na.rm)
+      sum(splitSelect[[x]], na.rm = removeNA)
     }else{
       stop("Summary Method Not Supported!")
     }
@@ -158,7 +166,11 @@ getGroupSummary <- function(
 #' @param select A character vector containing the column names to select from `sampleColData`.
 #' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
 #' @export
-getSampleColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE){
+getSampleColData <- function(
+  ArchRProj = NULL, 
+  select = NULL, 
+  drop = FALSE
+  ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = select, name = "select", valid = c("character", "null"))
@@ -384,7 +396,7 @@ addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGenomeAnnotation <- function(ArchRProj = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -403,7 +415,7 @@ getGenomeAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getBlacklist <- function(ArchRProj = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -422,7 +434,7 @@ getBlacklist <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGenome <- function(ArchRProj = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -441,7 +453,7 @@ getGenome <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getChromSizes <- function(ArchRProj = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -460,7 +472,7 @@ getChromSizes <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getChromLengths <- function(ArchRProj = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -496,7 +508,7 @@ getChromLengths <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGeneAnnotation <- function(ArchRProj = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
     if(!is.null(geneAnnotation)){
@@ -515,7 +527,7 @@ getGeneAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getTSS <- function(ArchRProj = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
     if(!is.null(geneAnnotation)){
@@ -535,7 +547,7 @@ getTSS <- function(ArchRProj = NULL){
 #' @param symbols A character vector containing the gene symbols to subset from the `geneAnnotation`.
 #' @export
 getGenes <- function(ArchRProj = NULL, symbols = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   .validInput(input = symbols, name = "symbols", valid = c("character", "null"))
 
   if(is.null(ArchRProj)){
@@ -570,7 +582,7 @@ getGenes <- function(ArchRProj = NULL, symbols = NULL){
 #' @param symbols A character vector containing the gene symbols for the genes where exons should be extracted.
 #' @export
 getExons <- function(ArchRProj = NULL, symbols = NULL){
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   .validInput(input = symbols, name = "symbols", valid = c("character", "null"))
 
   if(is.null(ArchRProj)){
@@ -785,7 +797,7 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = name, name = "name", valid = "character")
-  #JJJ .validInput(input = summary, name = "summary", valid = c("character","numeric"))
+  .validInput(input = summary, name = "summary", valid = c("character","numeric"))
   #########
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -841,6 +853,23 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
   }
 }
 
+#' Get the seqnames that could be selected from a given data matrix within an ArchRProject
+#' 
+#' This function will identify available seqnames from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return
+#' them for downstream plotting utilities.
+#' 
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
+#' @export
+getSeqnames <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix"){
+  #Validate
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+  .validInput(input = useMatrix, name = "useMatrix", valid = "character")
+  #########
+  fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
+  unique(paste0(fdf$seqnames))
+}
+
 #' Get a list available matrices in the ArrowFiles storted in an ArchRProject
 #' 
 #' This function gets the available matrices from the ArrowFiles in a given ArchRProject object.
@@ -857,9 +886,9 @@ getAvailableMatrices <- function(ArchRProj = NULL){
 #' This function will add total counts of scATAC cells in provided features into ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param features JJJ QQQ
-#' @param name JJJ QQQ
-#' @param addRatio JJJ QQQ
+#' @param features A `GRanges` object of features to count scATAC-seq data in.
+#' @param name A character defining the name of the features. "`name`Counts" and "`name`Ratio" will be added to the `ArchRProject`.
+#' @param addRatio A boolean indicating whether to add the "`name`Ratio" to the `ArchRProject`.
 #' @param threads The number of threads to use for parallel execution.
 #' @export
 addFeatureCounts <- function(
@@ -870,11 +899,11 @@ addFeatureCounts <- function(
   threads = getArchRThreads()
   ){
 
-  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  # JJJ .validInput(input = features, name = "features", valid = c("character"))
-  # JJJ .validInput(input = name, name = "name", valid = c("character"))
-  # JJJ .validInput(input = addRatio, name = "addRatio", valid = c("numeric"))
-  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = features, name = "features", valid = c("granges"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = addRatio, name = "addRatio", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
   tstart <- Sys.time()
   ArrowFiles <- getArrowFiles(ArchRProj)

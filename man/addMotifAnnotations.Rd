@@ -2,7 +2,7 @@
 % Please edit documentation in R/PeakAnnotation.R
 \name{addMotifAnnotations}
 \alias{addMotifAnnotations}
-\title{Add motif annotations to an ArchRProject JJJ}
+\title{Add motif annotations to an ArchRProject}
 \usage{
 addMotifAnnotations(
   ArchRProj = NULL,

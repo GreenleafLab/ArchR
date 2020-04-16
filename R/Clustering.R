@@ -29,7 +29,7 @@
 #' this threshold, then the cells will be considered outliers and assigned to nearby clusters.
 #' @param testBias A boolean value that indicates whether or not to test clusters for bias.
 #' @param filterBias A boolean value indicates whether or not to filter clusters that are identified as biased.
-#' @param biasClusters JJJ A numeric value between 0 and 1 indicating that clusters that are smaller than the specified proportion of total cells are
+#' @param biasClusters A numeric value between 0 and 1 indicating that clusters that are smaller than the specified proportion of total cells are
 #' to be checked for bias. This should be set close to 0. We recommend a default of 0.01 which specifies clusters below 1 percent of the total cells.
 #' @param biasCol The name of a column in `cellColData` that contains the numeric values used for testing bias enrichment.
 #' @param biasVals A set of numeric values used for testing bias enrichment if `input` is not an `ArchRProject`.
@@ -91,23 +91,23 @@ addClusters <- function(
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = knnAssign, name = "knnAssign", valid = c("integer"))
   .validInput(input = nOutlier, name = "nOutlier", valid = c("integer"))
-  #JJJ .validInput(input = testBias, name = "testBias", valid = c("boolean"))
-  #JJJ .validInput(input = filterBias, name = "filterBias", valid = c("boolean"))
-  #JJJ .validInput(input = biasClusters, name = "biasClusters", valid = c("numeric"))
-  #JJJ .validInput(input = biasCol, name = "biasCol", valid = c("character"))
-  #JJJ .validInput(input = biasQuantiles, name = "biasQuantiles", valid = c("numeric"))
-  #JJJ .validInput(input = biasEnrich, name = "biasEnrich", valid = c("numeric"))
-  #JJJ .validInput(input = biasProportion, name = "biasProportion", valid = c("numeric"))
-  #JJJ .validInput(input = biasPval, name = "biasPval", valid = c("numeric"))
-  #JJJ .validInput(input = nPerm, name = "nPerm", valid = c("integer"))
+  .validInput(input = testBias, name = "testBias", valid = c("boolean"))
+  .validInput(input = filterBias, name = "filterBias", valid = c("boolean"))
+  .validInput(input = biasClusters, name = "biasClusters", valid = c("numeric"))
+  .validInput(input = biasCol, name = "biasCol", valid = c("character"))
+  .validInput(input = biasQuantiles, name = "biasQuantiles", valid = c("numeric"))
+  .validInput(input = biasEnrich, name = "biasEnrich", valid = c("numeric"))
+  .validInput(input = biasProportion, name = "biasProportion", valid = c("numeric"))
+  .validInput(input = biasPval, name = "biasPval", valid = c("numeric"))
+  .validInput(input = nPerm, name = "nPerm", valid = c("integer"))
   .validInput(input = prefix, name = "prefix", valid = c("character"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = tstart, name = "tstart", valid = c("timestamp","null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .startLogging(logFile = logFile)
-  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Clustering Input-Parameters", logFile=logFile)
+  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "addClusters Input-Parameters", logFile=logFile)
 
   if(is.null(tstart)){
       tstart <- Sys.time()
@@ -474,81 +474,6 @@ addClusters <- function(
   paste0("Cluster", cluster)
 }
 
-#JJJ should i just default to one? Nabor seems faster than RANN and if you install chromVAR
-#you neeed RANN. Seurat uses RANN.
-.computeKNN <- function(
-  data = NULL,
-  query = NULL,
-  k = 50,
-  method = NULL,
-  includeSelf = FALSE,
-  ...
-  ){
-
-  .validInput(input = data, name = "data", valid = c("dataframe", "matrix"))
-  .validInput(input = query, name = "query", valid = c("dataframe", "matrix"))
-  .validInput(input = k, name = "k", valid = c("integer"))
-  .validInput(input = method, name = "method", valid = c("character", "null"))
-  .validInput(input = includeSelf, name = "includeSelf", valid = c("boolean"))
-
-  if(is.null(query)){
-    query <- data
-    searchSelf <- TRUE
-  }else{
-    searchSelf <- FALSE
-  }
-
-  if(is.null(method)){
-    if(requireNamespace("nabor", quietly = TRUE)){
-        method <- "nabor"
-    }else if(requireNamespace("RANN", quietly = TRUE)){
-        method <- "RANN"
-    }else if(requireNamespace("FNN", quietly = TRUE)){
-        method <- "FNN"
-    }else{
-        stop("Computing KNN requires package nabor, RANN or FNN")
-    }
-  }
-
-  if(tolower(method)=="nabor"){
-    
-    .requirePackage("nabor", source = "cran")
-    if(searchSelf & !includeSelf){
-      knnIdx <- nabor::knn(data = data, query = query, k = k + 1, ...)$nn.idx
-      knnIdx <- knnIdx[,-1,drop=FALSE]
-    }else{
-      knnIdx <- nabor::knn(data = data, query = query, k = k, ...)$nn.idx
-    }
-  
-  }else if(tolower(method)=="rann"){
-    
-    .requirePackage("RANN", source = "cran")
-    if(searchSelf & !includeSelf){
-      knnIdx <- RANN::nn2(data = data, query = query, k = k + 1, ...)$nn.idx
-      knnIdx <- knnIdx[,-1,drop=FALSE]
-    }else{
-      knnIdx <- RANN::nn2(data = data, query = query, k = k, ...)$nn.idx
-    }
-
-  }else if(tolower(method)=="fnn"){
-
-    .requirePackage("FNN", source = "cran")
-    if(searchSelf & !includeSelf){
-      knnIdx <- FNN::get.knnx(data = data, query = query, k = k + 1, ...)$nn.index
-      knnIdx <- knnIdx[,-1,drop=FALSE]
-    }else{
-      knnIdx <- FNN::get.knnx(data = data, query = query, k = k, ...)$nn.index
-    }
-
-  }else{
-
-    stop(sprintf("KNN Method %s not Recognized!", method))
-
-  }
-
-  knnIdx
-
-}
 
 
 

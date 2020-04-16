@@ -28,7 +28,7 @@ plotTSSEnrichment <- function(
   .validInput(input = TSS, name = "TSS", valid = c("granges"))
   .validInput(input = flank, name = "flank", valid = c("integer"))
   .validInput(input = norm, name = "norm", valid = c("integer"))
-  #JJJ .validInput(input = smooth, name = "smooth", valid = c("integer"))
+  .validInput(input = smooth, name = "smooth", valid = c("integer"))
   .validInput(input = returnDF, name = "returnDF", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 

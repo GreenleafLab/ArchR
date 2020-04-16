@@ -71,7 +71,7 @@ this threshold, then the cells will be considered outliers and assigned to nearb
 
 \item{filterBias}{A boolean value indicates whether or not to filter clusters that are identified as biased.}
 
-\item{biasClusters}{JJJ A numeric value between 0 and 1 indicating that clusters that are smaller than the specified proportion of total cells are
+\item{biasClusters}{A numeric value between 0 and 1 indicating that clusters that are smaller than the specified proportion of total cells are
 to be checked for bias. This should be set close to 0. We recommend a default of 0.01 which specifies clusters below 1 percent of the total cells.}
 
 \item{biasCol}{The name of a column in \code{cellColData} that contains the numeric values used for testing bias enrichment.}

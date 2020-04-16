@@ -47,10 +47,10 @@ addDeviationsMatrix <- function(
   .validInput(input = out, name = "out", valid = c("character"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
-  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)

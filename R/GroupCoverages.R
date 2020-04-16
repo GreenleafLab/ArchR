@@ -50,15 +50,15 @@ addGroupCoverages <- function(
   .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
   .validInput(input = maxFragments, name = "maxFragments", valid = c("integer"))
   .validInput(input = minReplicates, name = "minReplicates", valid = c("integer"))
-  #JJJ .validInput(input = maxReplicates, name = "maxReplicates", valid = c("integer"))
+  .validInput(input = maxReplicates, name = "maxReplicates", valid = c("integer"))
   .validInput(input = sampleRatio, name = "sampleRatio", valid = c("numeric"))
   .validInput(input = kmerLength, name = "kmerLength", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
-  #JJJ .validInput(input = returnGroups, name = "returnGroups", valid = c("boolean"))
+  .validInput(input = returnGroups, name = "returnGroups", valid = c("boolean"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   if(minReplicates < 2){
     stop("minReplicates must be at least 2!")

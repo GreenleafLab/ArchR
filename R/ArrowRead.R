@@ -142,24 +142,18 @@ getFragmentsFromArrow <- function(
 # Reading Matrices/Arrays from Arrow Files
 ####################################################################
 
-#' Get a data matrix stored in an ArrowFile JJJ
+#' Get a data matrix stored in an ArchRProject RRR
 #' 
-#' This function gets a given data matrix from an individual ArrowFile.
+#' This function gets a given data matrix from an `ArchRProject`.
 #'
-#' @param ArrowFile The path to an ArrowFile from which the selected data matrix should be obtained.
+#' @param ArchRProj An `ArchRProject` object to get data matrix from.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
-#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
-#' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
-#' the provided ArrowFile using `getCellNames()`.
-#' @param ArchRProj An `ArchRProject` object to be used for getting additional information for cells in `cellColData`.
-#' In some cases, data exists within the `ArchRProject` object that does not exist within the ArrowFiles. To access this data, you can
-#' provide the `ArchRProject` object here.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @export
 getMatrixFromProject <- function(
-  ArchRProj = NULL, #JJJ - the function parameters here dont match the params above AND they dont match the variables used in the function. I dont know what to annotate so I left it alone.
+  ArchRProj = NULL,
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
   verbose = TRUE,
@@ -167,12 +161,12 @@ getMatrixFromProject <- function(
   threads = getArchRThreads()
   ){
 
-  # JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  # JJJ .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
-  # JJJ .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
-  # JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
-  # JJJ .validInput(input = binarize, name = "binarize", valid = c("boolean"))
-  # JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
   
   tstart <- Sys.time()
 
@@ -501,7 +495,7 @@ getMatrixFromArrow <- function(
   #########################################
   seqnames <- unique(featureDF$seqnames)
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
-  cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check JJJ
+  cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check QQQ
 
   allCellsList <- lapply(seq_along(ArrowFiles), function(x){
     allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)

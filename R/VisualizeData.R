@@ -161,7 +161,7 @@ plotPDF <- function(
 #' See `addImputationWeights()` and `getImutationWeights()` for more information.
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
 #' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
-#' @param sampleCells JJJ
+#' @param sampleCells A numeric describing number of cells to use for plot. If using impute weights, this will occur after imputation.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the
 #' internal portions of the plot.
 #' @param quantCut If this is not `NULL`, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values. 
@@ -209,19 +209,19 @@ plotEmbedding <- function(
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
   .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
-  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
-  #JJJ .validInput(input = sampleCells, name = "sampleCells", valid = c("numeric"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("numeric", "null"))
   .validInput(input = rastr, name = "rastr", valid = c("boolean"))
-  .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
   .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
   .validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
   .validInput(input = randomize, name = "randomize", valid = c("boolean"))
   .validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
-  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .requirePackage("ggplot2", source = "cran")
 
@@ -462,14 +462,14 @@ plotEmbedding <- function(
 #' For example if `colorBy` is "cellColData" then `name` refers to a column name in the cellcoldata (see `getCellcoldata()`). If `colorBy`
 #' is "GeneScoreMatrix" then `name` refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
 #' @param imputeWeights The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See `addImputationWeights()` and `getImutationWeights()` for more information.
-#' @param maxCells JJJ The maximum cells to consider when making the plot.
-#' @param quantCut JJJ If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of values.
+#' @param maxCells The maximum cells to consider when making the plot.
+#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of values.
 #' This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where `a` is the upper threshold and
 #' `b` is the lower threshold. For example, quantCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them
 #' to the value of the 97.5th and 2.5th percentile values respectively.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values (if continuous) in plotting.
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
-#' @param discreteSet JJJ The name of a discrete palette from `ArchRPalettes` for visualizing `colorBy` if a discrete color set is desired.
+#' @param discreteSet The name of a discrete palette from `ArchRPalettes` for visualizing `colorBy` if a discrete color set is desired.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
 #' @param size The numeric size of the points to be plotted.
 #' @param baseSize The base font size to use in the plot.
@@ -480,7 +480,7 @@ plotEmbedding <- function(
 #' @param ... Additional parameters to pass to `ggGroup()`.
 #' @export
 plotGroups <- function(
-  ArchRProj = NULL, #JJJ HOW DOES THIS FUNCTION DIFFER FROM ggGROUP??
+  ArchRProj = NULL,
   groupBy = "Sample", 
   colorBy = "colData", 
   name = "TSSEnrichment",
@@ -505,18 +505,18 @@ plotGroups <- function(
   .validInput(input = colorBy, name = "colorBy", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
-  #JJJ .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
-  #JJJ .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+  .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
-  #JJJ .validInput(input = discreteSet, name = "discreteSet", valid = c("character"))
+  .validInput(input = discreteSet, name = "discreteSet", valid = c("character"))
   .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
   .validInput(input = ridgeScale, name = "ridgeScale", valid = c("numeric"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character"))
-  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
   .requirePackage("ggplot2", source = "cran")
 

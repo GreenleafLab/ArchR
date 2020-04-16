@@ -39,12 +39,12 @@ getFootprints <- function(
   .validInput(input = plotName, name = "plotName", valid = c("character"))
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
-  #JJJ .validInput(input = flank, name = "groupBy", valid = c("integer"))
-  #JJJ .validInput(input = minCells, name = "groupBy", valid = c("integer"))
-  #JJJ .validInput(input = nTop, name = "groupBy", valid = c("integer"))
-  #JJJ .validInput(input = threads, name = "threads", valid = c("integer"))
-  #JJJ .validInput(input = verbose, name = "verbose", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
+  .validInput(input = flank, name = "flank", valid = c("integer"))
+  .validInput(input = minCells, name = "minCells", valid = c("integer"))
+  .validInput(input = nTop, name = "nTop", valid = c("integer"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
@@ -326,26 +326,28 @@ getFootprints <- function(
 #' 
 #' This function will get footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 #'
-#' @param seFoot JJJ A summarized experiment object containing information on footprints returned by the `getFootprints()` function.
-#' @param names JJJ A character vector containing the names of the transcription factors to be plotted.
+#' @param seFoot A summarized experiment object containing information on footprints returned by the `getFootprints()` function.
+#' @param names A character vector containing the names of the transcription factors to be plotted. These should match colnames of `seFoot`.
 #' @param pal The name of a custom palette from `ArchRPalettes` to use for plotting the lines corresponding to the footprints.
 #' @param flank The number of basepairs from the position center (+/-) to consider as the flank.
 #' @param flankNorm The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.
 #' @param normMethod The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options
 #' include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.
 #' @param smoothWindow The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
-#' @param baseSize JJJ
-#' @param plot JJJ A boolean value indicating whether or not the footprints should be plotted (`TRUE`) or JJJ (`FALSE`).
-#' @param ArchRProj JJJ An `ArchRProject` object to be used for JJJ.
-#' @param plotName JJJ A string indicating the name of the file to be used for output plots.
+#' @param baseSize A numeric specifying the baseSize of font in the plots.
+#' @param plot A boolean value indicating whether or not the footprints should be plotted (`TRUE`) or returned as grob objects (`FALSE`).
+#' @param ArchRProj An `ArchRProject` object to be used for plotting directory in `getOutputDirectory`.
+#' @param plotName A string indicating the name/prefix of the file to be used for output plots.
 #' @param height The height in inches to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
 #' @param addDOC A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
 #' preventing overwritting of old plots.
+#' @param force If many footprints are requested when plot = FALSE, please set force = TRUE. 
+#' This prevents large amount of footprint plots stored as an object.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 plotFootprints <- function(
-  seFoot = NULL,#JJJ some of the parameters used in the function, namely "force" seem to be missing 
+  seFoot = NULL,
   names = NULL,
   pal = NULL,
   flank = 250,
@@ -359,24 +361,26 @@ plotFootprints <- function(
   height = 6,
   width = 4,
   addDOC = TRUE,
+  force = FALSE,
   logFile = createLogFile("plotFootprints")
   ){
 
-  #JJJ .validInput(input = seFoot, name = "seFoot", valid = c("character"))
-  #JJJ .validInput(input = names, name = "names", valid = c("character"))
-  #JJJ .validInput(input = pal, name = "pal", valid = c("character"))
-  #JJJ .validInput(input = flank, name = "flank", valid = c("integer"))
-  #JJJ .validInput(input = flankNorm, name = "flankNorm", valid = c("integer"))
-  #JJJ .validInput(input = normMethod, name = "normMethod", valid = c("character"))
-  #JJJ .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
-  #JJJ .validInput(input = baseSize, name = "baseSize", valid = c("integer"))
-  #JJJ .validInput(input = plot, name = "plot", valid = c("character"))
-  #JJJ .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  #JJJ .validInput(input = plotName, name = "plotName", valid = c("character"))
-  #JJJ .validInput(input = height, name = "height", valid = c("numeric"))
-  #JJJ .validInput(input = width, name = "width", valid = c("numeric"))
-  #JJJ .validInput(input = addDOC, name = "addDOC", valid = c("boolean"))
-  #JJJ .validInput(input = logFile, name = "logFile", valid = c("character"))
+  .validInput(input = seFoot, name = "seFoot", valid = c("SummarizedExperiment"))
+  .validInput(input = names, name = "names", valid = c("character"))
+  .validInput(input = pal, name = "pal", valid = c("palette", "null"))
+  .validInput(input = flank, name = "flank", valid = c("integer"))
+  .validInput(input = flankNorm, name = "flankNorm", valid = c("integer"))
+  .validInput(input = normMethod, name = "normMethod", valid = c("character"))
+  .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = plot, name = "plot", valid = c("boolean"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = plotName, name = "plotName", valid = c("character"))
+  .validInput(input = height, name = "height", valid = c("numeric"))
+  .validInput(input = width, name = "width", valid = c("numeric"))
+  .validInput(input = addDOC, name = "addDOC", valid = c("boolean"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
@@ -388,11 +392,9 @@ plotFootprints <- function(
   if(length(names) > 25){
     if(!plot){
       if(force){
-        .logMessage("Plotting more than 25 footprints can create large storage of ggplots. Continuing since force = TRUE", logFile = logFile)
-        message("Plotting more than 25 footprints can create large storage of ggplots. Continuing since force = TRUE")
+        .logMessage("Plotting more than 25 footprints can create large storage of ggplots. Continuing since force = TRUE", verbose = TRUE, logFile = logFile)
       }else{
-        .logMessage("Plotting more than 25 footprints can create large storage of ggplots. Stopping since force = FALSE", logFile = logFile)
-        stop("Plotting more than 25 footprints can create large storage of ggplots. Stopping since force = FALSE")
+        .logStop("Plotting more than 25 footprints can create large storage of ggplots. Stopping since force = FALSE", logFile = logFile)
       }
     }
   }
@@ -421,7 +423,7 @@ plotFootprints <- function(
 
   ggList <- lapply(seq_along(names), function(x){
 
-    .logDiffTime(sprintf("Plotting Footprint : %s (%s of %s)", names[x], x, length(names)), tstart, logFile = logFile)
+    .logDiffTime(sprintf("Plotting Footprint : %s (%s of %s)", names[x], x, length(names)), t1 = tstart, logFile = logFile, verbose = TRUE)
 
     gg <- .ggFootprint(
       seFoot = seFoot,
