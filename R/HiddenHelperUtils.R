@@ -468,13 +468,13 @@
 
 }
 
-.retryCatch <- function(expr, ..., maxAttempts = 3, warnAttempts = FALSE, nameFN = "FN", printInfo = NULL){
+.retryCatch <- function(expr, ..., maxAttempts = 3, warnAttempts = FALSE, nameFN = "FN", printInfo = NULL, logFile = NULL){
   currentAttempt <- 0
   completed <- FALSE
   while(!completed & currentAttempt <= maxAttempts){
     currentAttempt <- currentAttempt + 1
     if(currentAttempt > 1){
-      message(nameFN, " : Error occured, attempting again (", currentAttempt - 1, " of ", maxAttempts, ")")
+      .logMessage(nameFN, " : Error occured, attempting again (", currentAttempt - 1, " of ", maxAttempts, ")", logFile = logFile)
     }
     ###########################################################
     tryResult <- tryCatch({
@@ -494,9 +494,9 @@
     completed <- tryResult$completed
   }
   if(!completed){
-    message(nameFN, " : Error occured and could not be resolved after ", maxAttempts, " additional attempts!")
+    .logMessage(nameFN, " : Error occured and could not be resolved after ", maxAttempts, " additional attempts!", logFile = logFile)
     if(!is.null(printInfo)){
-      message("Error occured at ", printInfo)
+      .logMessage("Error occured at ", printInfo, logFile = logFile)
     }
     print(tryResult[[1]])
     stop()

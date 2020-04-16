@@ -399,7 +399,7 @@ addGeneIntegrationMatrix <- function(
         verbose = FALSE,
         ...
       )
-    }, maxAttempts = 2)
+    }, maxAttempts = 2, logFile = logFile)
 
     ##############################################################################################
     #4. Transfer Data
