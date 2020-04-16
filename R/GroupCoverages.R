@@ -579,7 +579,6 @@ addGroupCoverages <- function(
     SimpleList(expected = exp, observed = obsList)
   }, threads = threads) %>% SimpleList
   names(biasList) <- availableChr
-  message("")
   .logMessage("Completed Kmer Bias Calculation", logFile = logFile)
 
   #Summarize Bias
@@ -682,7 +681,6 @@ addGroupCoverages <- function(
     cov <- unlist(start(slidingWindows(rep(cov, mcols(cov)$values), width = 1, step = 1)))
     cov
 }
-
 
 #####################################################################################################
 # Write Coverage To Bed File for MACS2

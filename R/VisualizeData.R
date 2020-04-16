@@ -667,8 +667,7 @@ plotGroups <- function(
   
   o <- h5closeAll()
 
-  message("Getting Matrix Values...")
-  .logMessage("Getting Matrix Values...", logFile = logFile)
+  .logMessage("Getting Matrix Values...", verbose = TRUE, logFile = logFile)
 
   featureDF <- .getFeatureDF(head(getArrowFiles(ArchRProj), 2), matrixName)
   .logThis(featureDF, "FeatureDF", logFile = logFile)
@@ -690,8 +689,7 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))
       if(length(ix)==0){
-        .logMessage(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]), logFile = logFile)
-        stop(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]))
+        .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]), logFile = logFile)
       }
       ix
     }) %>% unlist
@@ -701,17 +699,16 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- which(tolower(name[x]) == tolower(featureDF$name))[1]
       if(length(ix)==0){
-        .logMessage(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]), logFile = logFile)
-        stop(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]))
+        .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]), logFile = logFile)
       }
       ix
     }) %>% unlist
 
   }
+  .logThis(idx, "idx", logFile = logFile)
 
   if(any(is.na(idx))){
-    .logMessage(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]), logFile = logFile)
-    stop(sprintf("FeatureName (%s) does not exist! See getFeatures", name[which(is.na(idx))]))
+    .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", paste0(name[which(is.na(idx))], collapse=",")), logFile = logFile)
   }
 
   featureDF <- featureDF[idx, ,drop=FALSE]
