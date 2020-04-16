@@ -13,6 +13,7 @@
 #' @param returnDF A boolean value that indicates whether to return a `data.frame` containing the plot information
 #' instead of plotting the TSS enrichment plot.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 plotTSSEnrichment <- function(
   ArchRProj = NULL,
@@ -21,7 +22,8 @@ plotTSSEnrichment <- function(
   norm = 100, 
   smooth = 11,
   returnDF = FALSE,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  logFile = createLogFile("plotTSSEnrichment")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -31,8 +33,11 @@ plotTSSEnrichment <- function(
   .validInput(input = smooth, name = "smooth", valid = c("integer"))
   .validInput(input = returnDF, name = "returnDF", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotTSSEnrichment Input-Parameters", logFile = logFile)
 
   ArrowFiles <- getArrowFiles(ArchRProj)
   chr <- .availableChr(ArrowFiles)
@@ -44,7 +49,7 @@ plotTSSEnrichment <- function(
 
   dfTSS <- .safelapply(seq_along(ArrowFiles), function(x){
 
-    .messageDiffTime(paste0(names(ArrowFiles)[x], " Computing TSS (",x," of ",length(ArrowFiles),")!"), tstart)
+    .logDiffTime(paste0(names(ArrowFiles)[x], " Computing TSS (",x," of ",length(ArrowFiles),")!"), t1 = tstart, logFile = logFile)
 
     for(i in seq_along(chr)){
 
@@ -75,13 +80,13 @@ plotTSSEnrichment <- function(
       smoothValue = ArchR:::.centerRollMean(sumTSS/normBy, 11)
     )
 
-    .messageDiffTime(paste0(names(ArrowFiles)[x], " Finished Computing TSS (",x," of ",length(ArrowFiles),")!"), tstart)
+    .logDiffTime(paste0(names(ArrowFiles)[x], " Finished Computing TSS (",x," of ",length(ArrowFiles),")!"), t1 = tstart, logFile = logFile)
 
     df
 
   }, threads = threads) %>% Reduce("rbind", .)
 
-
+  .endLogging(logFile = logFile)
 
   if(returnDF){
     
@@ -117,20 +122,25 @@ plotTSSEnrichment <- function(
 #' @param returnDF A boolean value that indicates whether to return a `data.frame` containing the plot information
 #' instead of plotting the fragment size distribution.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 plotFragmentSizes <- function(
   ArchRProj = NULL,
   maxSize = 750,
   returnDF = FALSE,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  logFile = createLogFile("plotFragmentSizes")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = maxSize, name = "maxSize", valid = c("integer"))
   .validInput(input = returnDF, name = "returnDF", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotFragmentSizes Input-Parameters", logFile = logFile)
 
   ArrowFiles <- getArrowFiles(ArchRProj)
   chr <- gtools::mixedsort(.availableChr(ArrowFiles))
@@ -138,7 +148,7 @@ plotFragmentSizes <- function(
 
   dfFS <- .safelapply(seq_along(ArrowFiles), function(x){
 
-    .messageDiffTime(paste0(names(ArrowFiles)[x], " Computing FragmentSizes (",x," of ",length(ArrowFiles),")!"), tstart)
+    .logDiffTime(paste0(names(ArrowFiles)[x], " Computing FragmentSizes (",x," of ",length(ArrowFiles),")!"), t1 = tstart, logFile = logFile)
 
     for(i in seq_along(chr)){
 
@@ -166,13 +176,13 @@ plotFragmentSizes <- function(
       fragmentPercent = round(100*fsi/sum(fsi),4)
     )
 
-    .messageDiffTime(paste0(names(ArrowFiles)[x], " Finished Computing FragmentSizes (",x," of ",length(ArrowFiles),")!"), tstart)
+    .logDiffTime(paste0(names(ArrowFiles)[x], " Finished Computing FragmentSizes (",x," of ",length(ArrowFiles),")!"), t1 = tstart, logFile = logFile)
 
     df
 
   }, threads = threads) %>% Reduce("rbind", .)
 
-
+  .endLogging(logFile = logFile)
 
   if(returnDF){
     
