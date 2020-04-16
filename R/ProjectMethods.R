@@ -12,7 +12,7 @@ getOutputDirectory <- function(
   ArchRProj = NULL
   ){
 
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj", "null"))
 
   if(is.null(ArchRProj) | is.character(ArchRProj)){
     return("QualityControl")
