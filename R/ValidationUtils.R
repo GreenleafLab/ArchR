@@ -216,7 +216,7 @@
 #' @export
 validBSgenome <- function(genome = NULL, masked = FALSE){
   
-  validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
+  .validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
   .validInput(input = masked, name = "masked", valid = c("boolean"))
 
   stopifnot(!is.null(genome))
