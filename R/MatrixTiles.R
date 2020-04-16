@@ -18,6 +18,7 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given `input`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addTileMatrix <- function(
   input = NULL,
@@ -41,6 +42,7 @@ addTileMatrix <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   if(inherits(input, "ArchRProject")){
     ArrowFiles <- getArrowFiles(input)
@@ -180,7 +182,7 @@ addTileMatrix <- function(
 
       o <- h5closeAll()
       chr <- names(chromLengths)[z]
-      .messageDiffTime(sprintf("Adding TileMatrix to %s for Chr (%s of %s)!", sampleName, z, length(chromLengths)), tstart)
+      .logDiffTime(sprintf("Adding TileMatrix to %s for Chr (%s of %s)!", sampleName, z, length(chromLengths)), t1 = tstart, logFile = logFile)
 
       #Read in Fragments
       fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)

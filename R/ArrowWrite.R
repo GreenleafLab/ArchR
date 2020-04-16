@@ -194,7 +194,7 @@
     if(!addRowMeans){
       rM <- Matrix::rowMeans(mat)
     }
-    rV <- ArchR:::computeSparseRowVariances(mat@i + 1, mat@x, rM, n = ncol(mat))
+    rV <- computeSparseRowVariances(mat@i + 1, mat@x, rM, n = ncol(mat))
     o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowVars"), storage.mode = "double", 
       dims = c(nrow(mat), 1), level = 0))
     o <- .suppressAll(h5write(obj = rV, file = ArrowFile, name = paste0(Group, "/rowVars")))
@@ -206,14 +206,14 @@
     mat@x <- log2(mat@x + 1) #log-normalize
     rM <- Matrix::rowMeans(mat)
     idx <- seq_along(rM)
-    idxSplit <- ArchR:::.splitEvery(idx, 2000)
+    idxSplit <- .splitEvery(idx, 2000)
 
     #Make sure not too much memory so split into 2000 gene chunks
     #Check this doesnt cause memory mapping issues!
     rV <- lapply(seq_along(idxSplit), function(x){
       idxX <- idxSplit[[x]]
       matx <- mat[idxX, , drop = FALSE]
-      ArchR:::computeSparseRowVariances(matx@i + 1, matx@x, rM[idxX], n = ncol(mat))
+      computeSparseRowVariances(matx@i + 1, matx@x, rM[idxX], n = ncol(mat))
     }) %>% unlist
 
     #Have to write rowMeansLog2 as well

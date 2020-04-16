@@ -10,7 +10,7 @@ ArchRDefaults <- list(
 .onAttach <- function(libname, pkgname){
   if(!interactive()) return()
   v <- packageVersion("ArchR")
-  ArchR:::.ArchRLogo()
+  .ArchRLogo()
   packageStartupMessage("ArchR : Version ", v, "\nFor more information see our website : https://greenleaflab.github.io/ArchR_Website/\nIf you encounter a bug please report : https://github.com/GreenleafLab/ArchR/issues")
   op <- options()
   toset <- !(names(ArchRDefaults) %in% names(op))

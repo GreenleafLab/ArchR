@@ -28,6 +28,7 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
@@ -68,6 +69,7 @@ addGeneScoreMatrix <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   matrixName <- .isProtectedArray(matrixName, exclude = "GeneScoreMatrix")
 

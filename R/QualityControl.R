@@ -63,9 +63,9 @@ plotTSSEnrichment <- function(
         ) %>% {coverage(IRanges(c(start(.), end(.)), width = 1))}
 
         if(i == 1){
-          sumTSS <- ArchR:::rleSumsStranded(list(chr1=covi), list(chr1=TSSi), window, as.integer)
+          sumTSS <- rleSumsStranded(list(chr1=covi), list(chr1=TSSi), window, as.integer)
         }else{
-          sumTSS <- sumTSS + ArchR:::rleSumsStranded(list(chr1=covi), list(chr1=TSSi), window, as.integer)
+          sumTSS <- sumTSS + rleSumsStranded(list(chr1=covi), list(chr1=TSSi), window, as.integer)
         }
         
     }
@@ -77,7 +77,7 @@ plotTSSEnrichment <- function(
       x = seq_along(sumTSS) - flank - 1, 
       value = sumTSS, 
       normValue = sumTSS/normBy,
-      smoothValue = ArchR:::.centerRollMean(sumTSS/normBy, 11)
+      smoothValue = .centerRollMean(sumTSS/normBy, 11)
     )
 
     .logDiffTime(paste0(names(ArrowFiles)[x], " Finished Computing TSS (",x," of ",length(ArrowFiles),")!"), t1 = tstart, logFile = logFile)

@@ -421,8 +421,8 @@ getMarkerFeatures <- function(
     m2 <- Matrix::rowMeans(mat2, na.rm=TRUE)
     
     #Sparse Row Variances
-    v1 <- ArchR:::computeSparseRowVariances(mat1@i + 1, mat1@x, m1, n1)
-    v2 <- ArchR:::computeSparseRowVariances(mat2@i + 1, mat2@x, m2, n2)
+    v1 <- computeSparseRowVariances(mat1@i + 1, mat1@x, m1, n1)
+    v2 <- computeSparseRowVariances(mat2@i + 1, mat2@x, m2, n2)
     
     #Calculate T Statistic
     se <- sqrt( (1/n1 + 1/n2) * ((n1-1)*v1 + (n2-1)*v2)/(n1+n2-2) )

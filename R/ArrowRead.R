@@ -175,7 +175,7 @@ getMatrixFromProject <- function(
   cellNames <- ArchRProj$cellNames
 
 
-  seL <- ArchR:::.safelapply(seq_along(ArrowFiles), function(x){
+  seL <- .safelapply(seq_along(ArrowFiles), function(x){
 
     .messageDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), tstart, verbose = verbose)
 
@@ -860,7 +860,7 @@ getMatrixFromArrow <- function(
 
   threads <- min(length(ArrowFiles), threads)
 
-  matrixClass <- ArchR:::.safelapply(seq_along(ArrowFiles), function(i){
+  matrixClass <- .safelapply(seq_along(ArrowFiles), function(i){
     h5read(ArrowFiles[i], paste0(useMatrix, "/Info/Class"))
   }, threads = threads) %>% unlist %>% unique
 
@@ -880,7 +880,7 @@ getMatrixFromArrow <- function(
 
   threads <- min(length(ArrowFiles), threads)
 
-  matrixUnits <- ArchR:::.safelapply(seq_along(ArrowFiles), function(i){
+  matrixUnits <- .safelapply(seq_along(ArrowFiles), function(i){
     tryCatch({ #This handles backwards compatibility!
       h5read(ArrowFiles[i], paste0(useMatrix, "/Info/Units"))
     }, error = function(x){

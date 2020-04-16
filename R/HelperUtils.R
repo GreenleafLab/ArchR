@@ -75,7 +75,7 @@ reformatFragmentFiles <- function(
     data.table::fwrite(dt, fileNew, sep = "\t", col.names = FALSE)
     Rsamtools::bgzip(fileNew)
     file.remove(fileNew)
-    ArchR:::.fileRename(paste0(fileNew, ".bgz"), paste0(fileNew, ".gz"))
+    .fileRename(paste0(fileNew, ".bgz"), paste0(fileNew, ".gz"))
   }
 }
 

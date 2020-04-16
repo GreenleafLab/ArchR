@@ -890,13 +890,15 @@ getAvailableMatrices <- function(ArchRProj = NULL){
 #' @param name A character defining the name of the features. "`name`Counts" and "`name`Ratio" will be added to the `ArchRProject`.
 #' @param addRatio A boolean indicating whether to add the "`name`Ratio" to the `ArchRProject`.
 #' @param threads The number of threads to use for parallel execution.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addFeatureCounts <- function(
   ArchRProj = NULL,
   features = NULL,
   name = NULL,
   addRatio = TRUE,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  logFile = createLogFile("addFeatureCounts")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -904,6 +906,7 @@ addFeatureCounts <- function(
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = addRatio, name = "addRatio", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   ArrowFiles <- getArrowFiles(ArchRProj)
@@ -912,17 +915,17 @@ addFeatureCounts <- function(
 
   h5disableFileLocking()
 
-  countsDF <- ArchR:::.safelapply(seq_along(featuresList), function(i){
+  countsDF <- .safelapply(seq_along(featuresList), function(i){
 
     chri <- names(featuresList)[i]
     cellTotal <- rep(0, length(cellNames))
     names(cellTotal) <- cellNames
     featuresi <- ranges(featuresList[[i]])
-    ArchR:::.messageDiffTime(paste0("Counting in ",chri," (", i, " of ", length(featuresList), ")"), tstart)
+    .logDiffTime(paste0("Counting in ",chri," (", i, " of ", length(featuresList), ")"), t1 = tstart, logFile = logFile)
 
     for(j in seq_along(ArrowFiles)){
 
-      fragmentsij <- ArchR:::.getFragsFromArrow(
+      fragmentsij <- .getFragsFromArrow(
         ArrowFile = ArrowFiles[j], 
         chr = chri, 
         out = "IRanges", 
@@ -959,10 +962,10 @@ addFeatureCounts <- function(
   totalCounts <- colSums(countsDF)
   countRatio <- totalCounts / (2 * ArchRProj$nFrags)
 
-  ArchR:::.messageDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Counts")), tstart)
+  .logDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Counts")), t1 = tstart, verbose = TRUE, logFile = logFile
   ArchRProj <- addCellColData(ArchRProj, data = totalCounts, cells = names(totalCounts),  name = paste0(name,"Counts"), force = TRUE)
  
-  ArchR:::.messageDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Ratio")), tstart)
+  .logDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Ratio")), t1 = tstart, verbose = TRUE, logFile = logFile
   ArchRProj <- addCellColData(ArchRProj, data = countRatio, cells = names(totalCounts),  name = paste0(name,"Ratio"), force = TRUE)
 
   ArchRProj

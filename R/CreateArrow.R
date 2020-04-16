@@ -730,7 +730,7 @@ createArrowFiles <- function(
         w[w > 3] <- 3
 
         #Get Nuc Info
-        matNucx <- ArchR:::tabulate2dCpp(
+        matNucx <- tabulate2dCpp(
           w, xmin = 1, xmax = 3, 
           as.integer(mcols(fragx)$RG), ymin = 1, ymax = length(cellNames)
         )   
@@ -921,7 +921,7 @@ createArrowFiles <- function(
           remove(temp)
           gc()
           
-          mat <- ArchR:::tabulate2dCpp(
+          mat <- tabulate2dCpp(
                 x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
                 xmin = 1,
                 xmax = length(cellNames),
@@ -1039,7 +1039,7 @@ createArrowFiles <- function(
           remove(temp)
           gc()
           
-          m <- m + ArchR:::tabulate2dCpp(
+          m <- m + tabulate2dCpp(
                 x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
                 xmin = 1,
                 xmax = length(cellNames),
