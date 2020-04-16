@@ -619,6 +619,12 @@ ArchRBrowser <- function(
 
 }
 
+#' @export
+ArchRBrowserTrack <- function(...){
+    .Deprecated("plotBrowserTrack")
+    plotBrowserTrack(...)
+}
+
 #' Plot an ArchR Region Track
 #' 
 #' This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal
@@ -665,7 +671,7 @@ ArchRBrowser <- function(
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-ArchRBrowserTrack <- function(
+plotBrowserTrack <- function(
   ArchRProj = NULL, 
   region = NULL, 
   groupBy = "Clusters",
@@ -689,7 +695,7 @@ ArchRBrowserTrack <- function(
   geneAnnotation = getGeneAnnotation(ArchRProj),
   title = "",
   verbose = TRUE,
-  logFile = createLogFile("ArchRBrowserTrack")
+  logFile = createLogFile("plotBrowserTrack")
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
@@ -717,7 +723,7 @@ ArchRBrowserTrack <- function(
 
   tstart <- Sys.time()
   .startLogging(logFile=logFile)
-  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "ArchRBrowserTrack Input-Parameters", logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotBrowserTrack Input-Parameters", logFile = logFile)
 
   ##########################################################
   # Get Region Where Plot Will Occur (GenomicRanges)

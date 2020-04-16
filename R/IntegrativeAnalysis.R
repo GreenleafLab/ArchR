@@ -1220,6 +1220,12 @@ getPeak2GeneLinks <- function(
 
 }
 
+#' @export
+peak2GeneHeatmap <- function(...){
+    .Deprecated("plotPeak2GeneHeatmap")
+    plotPeak2GeneHeatmap(...)
+}
+
 #' Plot Peak2Gene Heatmap from an ArchRProject
 #' 
 #' This function plots side by side heatmaps of linked ATAC and Gene regions from `addPeak2GeneLinks`.
@@ -1238,7 +1244,7 @@ getPeak2GeneLinks <- function(
 #' @param verbose A
 #' @param logFile A
 #' @export
-peak2GeneHeatmap <- function(
+plotPeak2GeneHeatmap <- function(
   ArchRProj = NULL, 
   corCutOff = 0.45, 
   FDRCutOff = 0.0001,
@@ -1251,7 +1257,7 @@ peak2GeneHeatmap <- function(
   palATAC = paletteContinuous("solarExtra"),
   palRNA = paletteContinuous("blueYellow"),
   verbose = TRUE,
-  logFile = createLogFile("peak2GeneHeatmap")
+  logFile = createLogFile("plotPeak2GeneHeatmap")
   ){
 
   tstart <- Sys.time()

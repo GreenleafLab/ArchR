@@ -140,7 +140,7 @@ getMarkerFeatures <- function(
         }else{
           .logMessage("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
             "Continuing with first seqname '", seqnames[1], "'!\n",
-            "If confused, try getFeatures(ArchRProj, '", useMatrix,"'') to list out available seqnames for input!", verbose = verbose, logFile = logFile)
+            "If confused, try getSeqnames(ArchRProj, '", useMatrix,"'') to list out available seqnames for input!", verbose = verbose, logFile = logFile)
           useSeqnames <- seqnames[1]
           featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
         }
@@ -151,7 +151,7 @@ getMarkerFeatures <- function(
       if(matrixClass == "Sparse.Assays.Matrix"){
         .logMessage("When accessing features from a matrix of class Sparse.Assays.Matrix it requires 1 seqname!\n",
           "Continuing with first seqname '", seqnames[1], "'!\n",
-          "If confused, try getFeatures(ArchRProj, '", useMatrix,"'') to list out available seqnames for input!", verbose = verbose, logFile = logFile)
+          "If confused, try getSeqnames(ArchRProj, '", useMatrix,"'') to list out available seqnames for input!", verbose = verbose, logFile = logFile)
         useSeqnames <- seqnames[1]
         featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% useSeqnames),]
       }
@@ -730,6 +730,12 @@ getMarkerFeatures <- function(
 # Applications of Markers!
 ####################################################################################################
 
+#' @export
+markerHeatmap <- function(...){
+    .Deprecated("plotMarkerHeatmap")
+    plotMarkerHeatmap(...)
+}
+
 #' Plot a Heatmap of Identified Marker Features
 #' 
 #' This function will plot a heatmap of the results from markerFeatures
@@ -760,7 +766,7 @@ getMarkerFeatures <- function(
 #' looking for down-regulated markers (`log2(fold change) < 0`) instead of up-regulated markers (`log2(fold change) > 0`). 
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-markerHeatmap <- function(
+plotMarkerHeatmap <- function(
   seMarker = NULL,
   cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
   log2Norm = TRUE,
@@ -779,7 +785,7 @@ markerHeatmap <- function(
   returnMat = FALSE,
   transpose = FALSE,
   invert = FALSE,
-  logFile = createLogFile("markerHeatmap")
+  logFile = createLogFile("plotMarkerHeatmap")
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -1120,6 +1126,12 @@ getMarkers <- function(
 
 }
 
+#' @export
+markerPlot <- function(...){
+    .Deprecated("plotMarkers")
+    plotMarkers(...)
+}
+
 #' Plot Differential Markers
 #' 
 #' This function will plot one group/column of a differential markers as an MA or Volcano plot.
@@ -1131,7 +1143,7 @@ getMarkers <- function(
 #' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
 #' @export
-markerPlot <- function(
+plotMarkers <- function(
   seMarker = NULL,
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",

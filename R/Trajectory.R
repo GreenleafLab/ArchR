@@ -371,6 +371,12 @@ getTrajectory <- function(
 
 }
 
+#' @export
+trajectoryHeatmap <- function(...){
+    .Deprecated("plotTrajectoryHeatmap")
+    plotTrajectoryHeatmap(...)
+}
+
 #' Plot a Heatmap of Features across a Trajectory
 #' 
 #' This function will plot a heatmap of the results from getTrajectory
@@ -386,7 +392,7 @@ getTrajectory <- function(
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @export
-trajectoryHeatmap <- function(
+plotTrajectoryHeatmap <- function(
   seTrajectory = NULL,
   varCutOff = 0.9,
   maxFeatures = 25000,
@@ -401,7 +407,7 @@ trajectoryHeatmap <- function(
   rowOrder = NULL, 
   returnMat = FALSE,
   force = FALSE,
-  logFile = createLogFile("trajectoryHeatmap")
+  logFile = createLogFile("plotTrajectoryHeatmap")
   ){
 
   .validInput(input = seTrajectory, name = "seTrajectory", valid = c("SummarizedExperiment"))
@@ -415,7 +421,7 @@ trajectoryHeatmap <- function(
   .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
 
   .startLogging(logFile = logFile)
-  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "trajectoryHeatmap Input-Parameters", logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotTrajectoryHeatmap Input-Parameters", logFile = logFile)
 
   if(metadata(seTrajectory)$Params$matrixClass == "Sparse.Assays.Matrix"){
     if(is.null(useSeqnames) || length(useSeqnames) > 1){

@@ -939,6 +939,13 @@ peakAnnoEnrichment <- function(
 
 }
 
+
+#' @export
+enrichHeatmap <- function(...){
+    .Deprecated("plotEnrichHeatmap")
+    plotEnrichHeatmap(...)
+}
+
 #' Plot a Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.
 #' 
 #' This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.
@@ -958,7 +965,7 @@ peakAnnoEnrichment <- function(
 #' @param returnMatrix A boolean determining whether to return the matrix corresponding to the heatmap rather than generate a plot.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-enrichHeatmap <- function(
+plotEnrichHeatmap <- function(
   seEnrich = NULL,
   pal = paletteContinuous(set = "comet", n = 100),
   n = 10,
@@ -970,7 +977,7 @@ enrichHeatmap <- function(
   rastr = TRUE,
   transpose = FALSE,
   returnMatrix = FALSE,
-  logFile = createLogFile("enrichHeatmap")
+  logFile = createLogFile("plotEnrichHeatmap")
   ){
 
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
@@ -988,7 +995,7 @@ enrichHeatmap <- function(
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
-  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "enrichHeatmap Input-Parameters", logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotEnrichHeatmap Input-Parameters", logFile = logFile)
 
   mat <- assays(seEnrich)[["mlog10Padj"]]
   .logThis(mat, "mat-mlog10Padj", logFile = logFile)
