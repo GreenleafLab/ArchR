@@ -20,9 +20,12 @@
 #' center is above the provided quantile will be excluded.
 #' @param postFilterQuantile After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center
 #' is above the provided quantile will be excluded.
+#' @param useAll A boolean describing whether to use cells outside of trajectory groups for post-fitting procedure.
 #' @param dof The number of degrees of freedom to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param spar The sparsity to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
+#' @param seed A number to be used as the seed for random number generation for trajectory creation.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addTrajectory <- function(
   ArchRProj = NULL,
@@ -33,12 +36,12 @@ addTrajectory <- function(
   embedding = NULL,
   preFilterQuantile = 0.9, 
   postFilterQuantile = 0.9,
-  useAll = TRUE, 
+  useAll = FALSE, 
   dof = 250,
   spar = 1,
   force = FALSE,
-  logFile = createLogFile("addTrajectory"),
-  seed = 1
+  seed = 1,
+  logFile = createLogFile("addTrajectory")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -49,9 +52,12 @@ addTrajectory <- function(
   .validInput(input = embedding, name = "reducedDims", valid = c("character", "null"))
   .validInput(input = preFilterQuantile, name = "preFilterQuantile", valid = c("numeric"))
   .validInput(input = postFilterQuantile, name = "postFilterQuantile", valid = c("numeric"))
+  .validInput(input = useAll, name = "useAll", valid = c("boolean"))
   .validInput(input = dof, name = "dof", valid = c("integer"))
   .validInput(input = spar, name = "spar", valid = c("numeric"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   if(!is.null(seed)) set.seed(seed)
 
@@ -62,13 +68,11 @@ addTrajectory <- function(
   groupDF <- groupDF[groupDF[,1] %in% trajectory,,drop=FALSE]
 
   if(sum(unique(groupDF[,1]) %in% trajectory)==0){
-    .logMessage("trajectory does not span any groups in groupBy! Are you sure your input is correct?", logFile = logFile)
-    stop("trajectory does not span any groups in groupBy! Are you sure your input is correct?")
+    .logStop("trajectory does not span any groups in groupBy! Are you sure your input is correct?", logFile = logFile)
   }
 
   if(sum(unique(groupDF[,1]) %in% trajectory) < 3){
-    .logMessage("trajectory must span at least 3 groups in groupBy!", logFile = logFile)
-    stop("trajectory must span at least 3 groups in groupBy!")
+    .logStop("trajectory must span at least 3 groups in groupBy!", logFile = logFile)
   }
 
   if(is.null(embedding)){
@@ -245,39 +249,37 @@ addTrajectory <- function(
 #' @param name A string indicating the name of the fitted trajectory in `cellColData` to retrieve from the given `ArchRProject`.
 #' @param useMatrix The name of the data matrix from the `ArrowFiles` to get numerical values for each cell from. Recommended
 #' matrices are "GeneScoreMatrix", "PeakMatrix", or "MotifMatrix".
-#' @param varCutOff The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory.
-#' Only features with a variance above the provided quantile will be retained.
-#' @param maxFeatures The maximum number of features, ordered by variance, to consider from `useMatrix` when generating a trajectory.
-#' This prevents smoothing a large number number of features which can be very time consuming.
 #' @param groupEvery The number of sequential percentiles to group together when generating a trajectory. This is similar to smoothing
 #' via a non-overlapping sliding window across pseudo-time. If `groupEvery = 2`, the values for percentiles [1 and 2], [3 and 4],
 #' [5 and 6], etc. will be grouped together.
-#' @param threads The number of threads to be used for parallel computing.
 #' @param log2Norm A boolean value that indicates whether the summarized trajectory matrix should be log2 transformed. If you are using
 #' a "MotifMatrix" set to FALSE.
 #' @param scaleTo Once the sequential trajectory matrix is created, each column in that matrix will be normalized to a column sum
 #' indicated by `scaleTo`. Setting this to `NULL` will prevent any normalization and should be done in certain circumstances
 #' (for ex. if you are using a "MotifMatrix").
-#' @param smoothWindow A boolean value indicating whether the sequential trajectory matrix should be furthered smooth to better reveal temporal dynamics.
+#' @param smoothWindow An integer value indicating the smoothing window in size (relaive to `groupEvery`) for the sequential 
+#' trajectory matrix to better reveal temporal dynamics.
+#' @param threads The number of threads to be used for parallel computing.
 #' @export
 getTrajectory <- function(
   ArchRProj = NULL,
   name = "Trajectory",
   useMatrix = "GeneScoreMatrix",
   groupEvery = 1,
-  threads = getArchRThreads(),
   log2Norm = TRUE,
   scaleTo = 10000,
-  smoothWindow = 11
+  smoothWindow = 11,
+  threads = getArchRThreads()
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = groupEvery, name = "groupEvery", valid = c("numeric"))
-  .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
   trajectory <- getCellColData(ArchRProj, name)
   trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
@@ -381,7 +383,11 @@ trajectoryHeatmap <- function(...){
 #' 
 #' This function will plot a heatmap of the results from getTrajectory
 #' 
-#' @param seTrajectory A `SummarizedExperiment` object that results from calling `markerFeatures()`.
+#' @param seTrajectory A `SummarizedExperiment` object that results from calling `getTrajectory()`.
+#' @param varCutOff The "Variance Quantile Cutoff" to be used for identifying the top variable features across the given trajectory.
+#' Only features with a variance above the provided quantile will be retained.
+#' @param maxFeatures The maximum number of features, ordered by variance, to consider from `useMatrix` when generating a trajectory.
+#' This prevents smoothing a large number number of features which can be very time consuming.
 #' @param scaleRows A boolean value that indicates whether row-wise z-scores should be computed on the matrix provided by `seTrajectory`.
 #' @param limits A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.
 #' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies
@@ -390,7 +396,13 @@ trajectoryHeatmap <- function(...){
 #' @param labelMarkers A character vector listing the `rownames` of `seTrajectory` that should be labeled on the side of the heatmap.
 #' @param labelTop A number indicating how many of the top N features, based on variance, in `seTrajectory` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
+#' @param rowOrder If wanting to set the order of rows to be plotted, the indices (integer or character correpsonding 
+#' to rownmaes) can be provided here.
+#' @param useSeqnames RRR
 #' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
+#' @param force If useSeqnames is longer than 1 if matrixClass is "Sparse.Assays.Matrix" to continue. This is not recommended because these matrices
+#' can be in different units.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 plotTrajectoryHeatmap <- function(
   seTrajectory = NULL,
@@ -400,25 +412,31 @@ plotTrajectoryHeatmap <- function(
   limits = c(-1.5, 1.5),
   grepExclude = NULL,
   pal = NULL,
-  useSeqnames = NULL,
   labelMarkers = NULL,
   labelTop = 50,
   labelRows = FALSE,
   rowOrder = NULL, 
+  useSeqnames = NULL,
   returnMat = FALSE,
   force = FALSE,
   logFile = createLogFile("plotTrajectoryHeatmap")
   ){
 
   .validInput(input = seTrajectory, name = "seTrajectory", valid = c("SummarizedExperiment"))
+  .validInput(input = varCutOff, name = "varCutOff", valid = c("numeric", "null"))
+  .validInput(input = maxFeatures, name = "maxFeatures", valid = c("integer", "null"))
   .validInput(input = scaleRows, name = "scaleRows", valid = c("boolean"))
   .validInput(input = limits, name = "limits", valid = c("numeric"))
   .validInput(input = grepExclude, name = "grepExclude", valid = c("character", "null"))
-  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
   .validInput(input = labelTop, name = "labelTop", valid = c("integer"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
+  .validInput(input = rowOrder, name = "rowOrder", valid = c("vector", "null"))
+  .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
   .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotTrajectoryHeatmap Input-Parameters", logFile = logFile)
@@ -606,6 +624,8 @@ plotTrajectoryHeatmap <- function(
 #' @param addArrow A boolean value that indicates whether to add a smoothed arrow in the embedding based on the aligned trajectory.
 #' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 #' if `colorBy` is numeric, then `plotAs` is set to "hex".
+#' @param smoothWindow An integer value indicating the smoothing window for creating inferred Arrow overlay on to embedding.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
 #' @export
 plotTrajectory <- function(
@@ -652,6 +672,8 @@ plotTrajectory <- function(
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = addArrow, name = "addArrow", valid = c("boolean"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
+  .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .requirePackage("ggplot2", source = "cran")
 
@@ -865,31 +887,6 @@ plotTrajectory <- function(
   list(out, out2)
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -194,7 +194,7 @@ ArchRBrowser <- function(
             br(),
             selectizeInput("normATAC",
                label = "normMethod",
-               choices = c("ReadsInTSS", "nFrags"),
+               choices = c("ReadsInTSS", "ReadsInPromoter", "nFrags"),
                multiple = FALSE,
                options = list(placeholder = 'Select NormMethod'),
                selected = "ReadsInTSS"
@@ -1073,6 +1073,9 @@ plotBrowserTrack <- function(
   #Normalization 
   g <- getCellColData(ArchRProj, groupBy, drop = TRUE)
   if(tolower(normMethod) == "readsintss"){
+      v <- getCellColData(ArchRProj, normMethod, drop = TRUE)
+      groupNormFactors <- unlist(lapply(split(v, g), sum))
+  }else if(tolower(normMethod) == "readsinpromoter"){
       v <- getCellColData(ArchRProj, normMethod, drop = TRUE)
       groupNormFactors <- unlist(lapply(split(v, g), sum))
   }else if(tolower(normMethod) == "nfrags"){

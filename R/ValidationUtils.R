@@ -47,13 +47,17 @@
 
       cv <- is.numeric(input)
 
+    }else if(vi == "vector"){
+
+      cv <- is.vector(input)
+
     }else if(vi == "matrix"){
 
       cv <- is.matrix(input)
 
     }else if(vi == "sparsematrix"){
 
-      cv <- inherits(input, "dgCMatrix")
+      cv <- is(input, "dgCMatrix")
 
     }else if(vi == "character"){
 

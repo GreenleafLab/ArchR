@@ -28,7 +28,7 @@ getGroupSE <- function(
   scaleTo = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
-  logFile = createLogFile("exportGroupSE")
+  logFile = createLogFile("getGroupSE")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -41,7 +41,7 @@ getGroupSE <- function(
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .startLogging(logFile = logFile)
-  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportGroupSE Input-Parameters", logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "getGroupSE Input-Parameters", logFile = logFile)
 
   ArrowFiles <- getArrowFiles(ArchRProj)
   featureDF <- .getFeatureDF(ArrowFiles, subGroup = useMatrix)

@@ -25,11 +25,15 @@
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param k An `ArchRProject` object.
-#' @param knnIteration An `ArchRProject` object.
-#' @param overlapCutoff An `ArchRProject` object.
-#' @param seed An `ArchRProject` object.
+#' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
+#' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
+#' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be
+#' added to the group list during k-nearest neighbor calculations.
+#' @param seed A number to be used as the seed for random number generation required in knn determination. It is recommended to keep track
+#' of the seed used so that you can reproduce results downstream.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 correlateMatrices <- function(
   ArchRProj = NULL,
@@ -53,6 +57,27 @@ correlateMatrices <- function(
   verbose = TRUE,
   logFile = createLogFile("correlateMatrices")
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = useMatrix1, name = "useMatrix1", valid = c("character"))
+  .validInput(input = useMatrix2, name = "useMatrix2", valid = c("character"))
+  .validInput(input = useSeqnames1, name = "useSeqnames1", valid = c("character", "null"))
+  .validInput(input = useSeqnames2, name = "useSeqnames2", valid = c("character", "null"))
+  .validInput(input = removeFromName1, name = "removeFromName1", valid = c("character", "null"))
+  .validInput(input = removeFromName2, name = "removeFromName2", valid = c("character", "null"))
+  .validInput(input = log2Norm1, name = "log2Norm1", valid = c("boolean"))
+  .validInput(input = log2Norm2, name = "log2Norm2", valid = c("boolean"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
+  .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
@@ -328,30 +353,27 @@ correlateMatrices <- function(
 #' 
 #' This function will correlate 2 trajectory matrices from getTrajectory.
 #' 
-#' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix1 A character describing the first matrix to use. See `getAvailableMatrices` for valid options.
-#' @param useMatrix2 A character describing the second matrix to use. See `getAvailableMatrices` for valid options.
-#' @param useSeqnames1 A character vector describing which seqnames to use in matrix 1.
-#' @param useSeqnames2 A character vector describing which seqnames to use in matrix 2.
+#' @param seTrajectory1 A `SummarizedExperiment` object that results from calling `getTrajectory()`.
+#' @param seTrajectory2 A `SummarizedExperiment` object that results from calling `getTrajectory()`.
+#' @param corCutOff A numeric describing the cutoff for determining correlated features.
+#' @param varCutOff1 The "Variance Quantile Cutoff" to be used for identifying the top variable features across `seTrajectory1`.
+#' Only features with a variance above the provided quantile will be retained.
+#' @param varCutOff2 The "Variance Quantile Cutoff" to be used for identifying the top variable features across `seTrajectory2`.
+#' Only features with a variance above the provided quantile will be retained.
 #' @param removeFromName1 A character vector describing how to filter names in matrix 1. 
 #' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
 #' @param removeFromName2 A character vector describing how to filter names in matrix 2. 
 #' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
-#' @param log2Norm1 A boolean describing whether to log2 normalize matrix 1.
-#' @param log2Norm2 A boolean describing whether to log2 normalize matrix 2.
-#' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
-#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in computing the embedding.
-#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
-#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
-#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
-#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
-#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
-#' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param k An `ArchRProject` object.
-#' @param knnIteration An `ArchRProject` object.
-#' @param overlapCutoff An `ArchRProject` object.
-#' @param seed An `ArchRProject` object.
-#' @param threads The number of threads to be used for parallel computing.
+#' @param useRanges A boolean describing whether to use range overlap matching for correlation analysis.
+#' @param fix1 A character describing where to resize the coordinates of `seTrajectory1`. Options include "start", "center", "end".
+#' @param fix2 A character describing where to resize the coordinates of `seTrajectory2`. Options include "start", "center", "end".
+#' @param maxDist A integer specifying the maximum distance between the coordinates of `seTrajectory1` and `seTrajectory2` for 
+#' computing correlations.
+#' @param log2Norm1 A boolean describing whether to log2 normalize `seTrajectory1`.
+#' @param log2Norm2 A boolean describing whether to log2 normalize `seTrajectory2`.
+#' @param force A boolean value that determines whether analysis should continue if resizing coordinates in `seTrajectory1` or 
+#' `seTrajectory2` does not align with the strandedness. Only when `useRanges = TRUE`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 correlateTrajectories <- function(
   seTrajectory1 = NULL,
@@ -370,6 +392,22 @@ correlateTrajectories <- function(
   force = FALSE,
   logFile = createLogFile("correlateTrajectories")
   ){
+
+  .validInput(input = seTrajectory1, name = "seTrajectory1", valid = c("SummarizedExperiment"))
+  .validInput(input = seTrajectory2, name = "seTrajectory2", valid = c("SummarizedExperiment"))
+ 	.validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
+	.validInput(input = varCutOff1, name = "varCutOff1", valid = c("numeric"))
+	.validInput(input = varCutOff2, name = "varCutOff2", valid = c("numeric")) 
+  .validInput(input = removeFromName1, name = "removeFromName1", valid = c("character", "null"))
+  .validInput(input = removeFromName2, name = "removeFromName2", valid = c("character", "null"))
+	.validInput(input = useRanges, name = "useRanges", valid = c("boolean"))
+	.validInput(input = fix1, name = "fix1", valid = c("character"))
+	.validInput(input = fix2, name = "fix2", valid = c("character"))
+	.validInput(input = maxDist, name = "maxDist", valid = c("integer"))
+  .validInput(input = log2Norm1, name = "log2Norm1", valid = c("boolean"))
+  .validInput(input = log2Norm2, name = "log2Norm2", valid = c("boolean"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "correlateTrajectories Input-Parameters", logFile=logFile)
@@ -625,9 +663,11 @@ correlateTrajectories <- function(
 #' @param scaleTo The total insertion counts from the designated group of single cells is summed across all relevant peak regions from
 #' the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
-#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended to keep track
+#' @param seed A number to be used as the seed for random number generation required in knn determination. It is recommended to keep track
 #' of the seed used so that you can reproduce results downstream.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addCoAccessibility <- function(
   ArchRProj = NULL,
@@ -659,6 +699,8 @@ addCoAccessibility <- function(
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
@@ -880,9 +922,11 @@ getCoAccessibility <- function(
 #' from the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
 #' @param predictionCutoff A numeric describing the cutoff for RNA integration to use when picking cells for groupings.
-#' @param seed A number to be used as the seed for random number generation required in cluster determination. It is recommended
+#' @param seed A number to be used as the seed for random number generation required in knn determination. It is recommended
 #' to keep track of the seed used so that you can reproduce results downstream.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addPeak2GeneLinks <- function(
   ArchRProj = NULL,
@@ -916,6 +960,8 @@ addPeak2GeneLinks <- function(
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
@@ -1241,8 +1287,8 @@ peak2GeneHeatmap <- function(...){
 #' @param palGroup A color palette describing the colors in `groupBy`. For example, if groupBy = "Clusters" try paletteDiscrete(ArchRProj$Clusters) for a color palette.
 #' @param palATAC A color palette describing the colors to be used for the ATAC heatmap. For example, paletteContinuous("solarExtra").
 #' @param palRNA A color palette describing the colors to be used for the RNA heatmap. For example, paletteContinuous("blueYellow").
-#' @param verbose A
-#' @param logFile A
+#' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 plotPeak2GeneHeatmap <- function(
   ArchRProj = NULL, 
@@ -1259,6 +1305,21 @@ plotPeak2GeneHeatmap <- function(
   verbose = TRUE,
   logFile = createLogFile("plotPeak2GeneHeatmap")
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
+  .validInput(input = FDRCutOff, name = "FDRCutOff", valid = c("numeric"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .validInput(input = nPlot, name = "nPlot", valid = c("integer"))
+  .validInput(input = limitsATAC, name = "limitsATAC", valid = c("numeric"))
+  .validInput(input = limitsRNA, name = "limitsRNA", valid = c("numeric"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = palGroup, name = "palGroup", valid = c("palette", "null"))
+  .validInput(input = palATAC, name = "palATAC", valid = c("palette", "null"))
+  .validInput(input = palRNA, name = "palRNA", valid = c("palette", "null"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
+
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
