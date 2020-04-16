@@ -406,9 +406,9 @@
   #Determine Parallel Backend
   if(inherits(args$parallelParam, "BatchtoolsParam")){
 
-    stop("Batchtools not yet fully supported please use local parallel threading!")
+    .logStop("Batchtools not yet fully supported please use local parallel threading!", logFile = args$logFile)
 
-    .messageDiffTime("Batch Execution w/ BatchTools through BiocParallel!", args$tstart)
+    .logDiffTime("Batch Execution w/ BatchTools through BiocParallel!", t1 = args$tstart, verbose = TRUE, logFile = args$logFile)
 
     require(BiocParallel)
     
@@ -446,7 +446,7 @@
 
   }else{
 
-    .messageDiffTime("Batch Execution w/ safelapply!", args$tstart)
+    .logDiffTime("Batch Execution w/ safelapply!", t1 = args$tstart, verbose = TRUE, logFile = args$logFile)
     if(sequential){
       args$subThreads <- args$threads
       args$threads <- 1
