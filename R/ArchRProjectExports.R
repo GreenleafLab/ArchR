@@ -12,6 +12,7 @@ NULL
 #' @param scaleTo Depth normalize to this value if not NULL.
 #' @param threads An integer specifying the number of threads for parallel.
 #' @param verbose A boolean specifying to print messages during computation.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 exportGroupSE <- function(
   ArchRProj = NULL,
@@ -20,7 +21,8 @@ exportGroupSE <- function(
   divideN = TRUE,
   scaleTo = NULL,
   threads = getArchRThreads(),
-  verbose = TRUE
+  verbose = TRUE,
+  logFile = createLogFile("exportGroupSE")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -30,32 +32,52 @@ exportGroupSE <- function(
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
+
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportGroupSE Input-Parameters", logFile = logFile)
 
   ArrowFiles <- getArrowFiles(ArchRProj)
   featureDF <- .getFeatureDF(ArrowFiles, subGroup = useMatrix)
   Groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = TRUE)
   if(!.isDiscrete(Groups)){
-    stop("groupBy must be a discrete variable!")
+    .logStop("groupBy must be a discrete variable!", logFile = logFile)
   }
   Cells <- ArchRProj$cellNames
 
-  groupMat <- .getGroupMatrix(
-    ArrowFiles = ArrowFiles, 
-    featureDF = featureDF,
-    useMatrix = useMatrix, 
-    threads = threads,
-    groupList = split(Cells, Groups),
-    useIndex = FALSE,
-    verbose = verbose
-  )
+  .logMessage("Getting Group Matrix", logFile=logFile)
+  groupMat <- tryCatch({
+    .getGroupMatrix(
+      ArrowFiles = ArrowFiles, 
+      featureDF = featureDF,
+      useMatrix = useMatrix, 
+      threads = threads,
+      groupList = split(Cells, Groups),
+      useIndex = FALSE,
+      verbose = verbose
+    )
+  }, error = function(e){
+    errorList <- list(
+      ArrowFiles = ArrowFiles, 
+      featureDF = featureDF,
+      useMatrix = useMatrix, 
+      threads = threads,
+      groupList = split(Cells, Groups),
+      useIndex = FALSE,
+      verbose = verbose
+    )
+    .logError(e, fn = ".getGroupMatrix", info = "", errorList = errorList, logFile = logFile)
+  })
 
   if(divideN){
+    .logMessage("Normalizing by number of Cells", logFile=logFile)
     nCells <- table(Groups)[colnames(groupMat)]
     groupMat <- t(t(groupMat) / as.vector(nCells))
   }
 
   #Normalize
   if(!is.null(scaleTo)){
+    .logMessage("Depth Normalizing", logFile=logFile)
     groupMat <- t(t(groupMat) / colSums(groupMat)) * scaleTo
   }
 
@@ -64,8 +86,11 @@ exportGroupSE <- function(
   )
   names(assayList) <- useMatrix
   rm(groupMat)
+  .logThis(assayList, "assayList", logFile = logFile)
 
   ccd <- getCellColData(ArchRProj)
+  .logThis(ccd, "ccd", logFile = logFile)
+
   idx <- lapply(seq_len(ncol(ccd)), function(x){
     is.numeric(ccd[,x])
   }) %>% unlist %>% which
@@ -84,11 +109,19 @@ exportGroupSE <- function(
     )
   }
 
-    SummarizedExperiment::SummarizedExperiment(
-      assays = assayList,
-      colData = cD,
-      rowData = featureDF
-    )
+  .logThis(cd, "cd", logFile = logFile)
+
+  se <- SummarizedExperiment::SummarizedExperiment(
+    assays = assayList,
+    colData = cD,
+    rowData = featureDF
+  )
+
+  .logThis(se, "se", logFile = logFile)
+
+  .endLogging(logFile = logFile)
+
+  se
 
 }
 
