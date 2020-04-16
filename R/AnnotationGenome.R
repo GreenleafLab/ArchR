@@ -19,8 +19,8 @@ createGenomeAnnotation <- function(
   ){
 
   .validInput(input = genome, name = "genome", valid = c("character", "bsgenome"))
-  .validInput(input = chromSizes, name = "chromSizes", valid = c("granges"))
-  .validInput(input = blacklist, name = "blacklist", valid = c("granges"))
+  .validInput(input = chromSizes, name = "chromSizes", valid = c("granges", "null"))
+  .validInput(input = blacklist, name = "blacklist", valid = c("granges", "null"))
   .validInput(input = filter, name = "filter", valid = c("boolean"))
   .validInput(input = filterChr, name = "filterChr", valid = c("character", "null"))
 
