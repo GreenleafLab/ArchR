@@ -371,7 +371,7 @@ plotFootprints <- function(
   .validInput(input = flank, name = "flank", valid = c("integer"))
   .validInput(input = flankNorm, name = "flankNorm", valid = c("integer"))
   .validInput(input = normMethod, name = "normMethod", valid = c("character"))
-  .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer", "null"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = plot, name = "plot", valid = c("boolean"))
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
