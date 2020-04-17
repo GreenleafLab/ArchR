@@ -366,7 +366,7 @@ plotFootprints <- function(
   ){
 
   .validInput(input = seFoot, name = "seFoot", valid = c("SummarizedExperiment"))
-  .validInput(input = names, name = "names", valid = c("character"))
+  .validInput(input = names, name = "names", valid = c("character", "null"))
   .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = flank, name = "flank", valid = c("integer"))
   .validInput(input = flankNorm, name = "flankNorm", valid = c("integer"))

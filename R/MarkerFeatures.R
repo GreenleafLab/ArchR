@@ -334,11 +334,11 @@ getMarkerFeatures <- function(
     args <- list()
 
     if(!is.null(normFactors)){
-      args$mat1 <- Matrix::t(Matrix::t(scMaty[, cellsx, drop = FALSE]) * cellNF)
-      args$mat2 <- Matrix::t(Matrix::t(scMaty[, bgdx, drop = FALSE]) * bgdNF)
+      args$mat1 <- Matrix::t(Matrix::t(scMaty[, paste0(cellsx), drop = FALSE]) * cellNF)
+      args$mat2 <- Matrix::t(Matrix::t(scMaty[, paste0(bgdx), drop = FALSE]) * bgdNF)
     }else{
-      args$mat1 <- scMaty[, cellsx, drop = FALSE]
-      args$mat2 <- scMaty[, bgdx, drop = FALSE]
+      args$mat1 <- scMaty[, paste0(cellsx), drop = FALSE]
+      args$mat2 <- scMaty[, paste0(bgdx), drop = FALSE]
     }
 
     if(tolower(testMethod) == "wilcoxon"){
