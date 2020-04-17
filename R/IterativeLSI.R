@@ -113,7 +113,7 @@ addIterativeLSI <- function(
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
-  .validInput(input = outlierQuantiles, name = "outlierQuantiles", valid = c("numeric"))
+  .validInput(input = outlierQuantiles, name = "outlierQuantiles", valid = c("numeric", "null"))
   .validInput(input = filterBias, name = "filterBias", valid = c("boolean"))
   .validInput(input = sampleCellsPre, name = "sampleCellsPre", valid = c("integer", "null"))
   .validInput(input = sampleCellsFinal, name = "sampleCellsFinal", valid = c("integer", "null"))
