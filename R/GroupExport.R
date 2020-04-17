@@ -115,7 +115,7 @@ getGroupSE <- function(
     )
   }
 
-  .logThis(cd, "cd", logFile = logFile)
+  .logThis(cD, "cD", logFile = logFile)
 
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = assayList,
