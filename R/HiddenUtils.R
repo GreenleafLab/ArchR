@@ -50,7 +50,6 @@
   .validInput(input = data, name = "data", valid = c("dataframe", "matrix"))
   .validInput(input = query, name = "query", valid = c("dataframe", "matrix"))
   .validInput(input = k, name = "k", valid = c("integer"))
-  .validInput(input = method, name = "method", valid = c("character", "null"))
   .validInput(input = includeSelf, name = "includeSelf", valid = c("boolean"))
   if(is.null(query)){
     query <- data
