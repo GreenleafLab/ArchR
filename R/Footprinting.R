@@ -41,7 +41,7 @@ getFootprints <- function(
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
   .validInput(input = flank, name = "flank", valid = c("integer"))
   .validInput(input = minCells, name = "minCells", valid = c("integer"))
-  .validInput(input = nTop, name = "nTop", valid = c("integer"))
+  .validInput(input = nTop, name = "nTop", valid = c("integer", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
