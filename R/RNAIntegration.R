@@ -79,7 +79,7 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = matrixName, name = "matrixName", valid = c("character"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
   .validInput(input = seRNA, name = "seRNA", valid = c("SummarizedExperiment", "Seurat"))
-  .validInput(input = groupATAC, name = "groupATAC", valid = c("character"))
+  .validInput(input = groupATAC, name = "groupATAC", valid = c("character", "null"))
   .validInput(input = groupRNA, name = "groupRNA", valid = c("character"))
   .validInput(input = groupList, name = "groupList", valid = c("list"))
   .validInput(input = sampleCellsATAC, name = "sampleCellsATAC", valid = c("integer", "null"))
