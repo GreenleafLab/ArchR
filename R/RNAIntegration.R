@@ -81,7 +81,7 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = seRNA, name = "seRNA", valid = c("SummarizedExperiment", "Seurat"))
   .validInput(input = groupATAC, name = "groupATAC", valid = c("character", "null"))
   .validInput(input = groupRNA, name = "groupRNA", valid = c("character"))
-  .validInput(input = groupList, name = "groupList", valid = c("list"))
+  .validInput(input = groupList, name = "groupList", valid = c("list", "null"))
   .validInput(input = sampleCellsATAC, name = "sampleCellsATAC", valid = c("integer", "null"))
   .validInput(input = sampleCellsRNA, name = "sampleCellsRNA", valid = c("integer", "null"))
   .validInput(input = embeddingATAC, name = "embeddingATAC", valid = c("data.frame"))
