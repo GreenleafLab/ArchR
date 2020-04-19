@@ -859,7 +859,7 @@ getCoAccessibility <- function(
       loops <- loops[width(loops) > 0]
       loops <- sort(sortSeqlevels(loops))
 
-      loops <- GenomicRangesList(CoAccessibility = loops)
+      loops <- SimpleList(CoAccessibility = loops)
 
       return(loops)
 
@@ -1252,7 +1252,7 @@ getPeak2GeneLinks <- function(
       loops <- loops[width(loops) > 0]
       loops <- sort(sortSeqlevels(loops))
 
-      loops <- GRangesList(Peak2GeneLinks = loops)
+      loops <- SimpleList(Peak2GeneLinks = loops)
 
       return(loops)
 

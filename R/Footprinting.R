@@ -7,7 +7,7 @@
 #' This function will get footprints for all samples in a given ArchRProject and return a summarized experiment object that can be used for downstream analyses
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param positions A `list` or `GenomicRangesList` of `GRanges` containing the positions to incorporate into the footprint. Each position should be stranded.
+#' @param positions A `list` or `GRangesList` of `GRanges` containing the positions to incorporate into the footprint. Each position should be stranded.
 #' @param plotName The prefix to add to the file name for the output PDF file containing the footprint plots.
 #' @param groupBy The name of the column in `cellColData` used in the `addGroupCoverages()` function for grouping multiple cells together.
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in `cellColData`.

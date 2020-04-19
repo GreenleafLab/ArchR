@@ -1091,7 +1091,7 @@ getMarkers <- function(
         }
       }
       rrx
-    }) %>% GenomicRangesList
+    }) %>% SimpleList
 
     names(grL) <- colnames(seMarker)
 

@@ -50,11 +50,38 @@ getFragmentsFromArrow <- function(
       cellNames = cellNames, 
       method = "fast"
     )
-  }) %>% GenomicRangesList
+  })
+
 
   .logDiffTime("Merging", tstart, t1 = tstart, verbose = verbose, logFile = logFile)
 
-  out <- .suppressAll(unlist(out))
+  out <- tryCatch({
+
+    o <- .suppressAll(unlist(GRangesList(out, compress = FALSE)))
+
+    if(.isGRList(o)){
+      stop("Still a GRangesList")
+    }
+
+    o
+
+  }, error = function(x){
+    
+    o <- c()
+    
+    for(i in seq_along(out)){
+      if(!is.null(out[[i]])){
+        if(i == 1){
+          o <- out[[i]]
+        }else{
+          o <- c(o, out[[i]])
+        }
+      }
+    }
+    
+    o
+
+  })
 
   out
 
