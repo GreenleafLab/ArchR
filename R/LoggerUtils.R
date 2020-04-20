@@ -193,7 +193,7 @@ createLogFile <- function(
   useLogs = getArchRLogging()
   ){
 
-  msg <- utils::capture.output(message(...), type = "message")
+  msg <- suppressMessages(utils::capture.output(message(...), type = "message"))
   msg <- paste0(msg, collapse = "\n")
 
   if(is.null(msg)){
