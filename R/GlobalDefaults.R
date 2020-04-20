@@ -11,7 +11,7 @@ ArchRDefaults <- list(
   if(!interactive()) return()
   v <- packageVersion("ArchR")
   .ArchRLogo()
-  packageStartupMessage("ArchR : Version ", v, "\nFor more information see our website : https://greenleaflab.github.io/ArchR_Website/\nIf you encounter a bug please report : https://github.com/GreenleafLab/ArchR/issues")
+  packageStartupMessage("ArchR : Version ", v, "\nFor more information see our website : www.ArchRProject.com\nIf you encounter a bug please report : https://github.com/GreenleafLab/ArchR/issues")
   op <- options()
   toset <- !(names(ArchRDefaults) %in% names(op))
   if (any(toset)) options(ArchRDefaults[toset])
@@ -22,6 +22,129 @@ ArchRDefaults <- list(
   }
   invisible()
 }
+
+
+#' Install extra packages used in ArchR that are not installed by default
+#' 
+#' This function will install extra packages used in ArchR that are not installed by default.
+#' 
+#' @param force If you want to force a reinstall of these pacakges.
+#' @export
+installExtraPackages <- function(force = FALSE){
+
+  n <- 0
+
+  # Seurat
+  if(!requireNamespace("Seurat", quietly = TRUE) || force){
+    o <- tryCatch({
+      message("Installing Seurat..")
+      install.packages('Seurat')
+      if(!requireNamespace("Seurat", quietly = TRUE)){
+        stop()
+      }
+      n <- n + 1
+    }, error = function(e){
+      message("Error With Seurat Installation")
+      message("Try install.packages('Seurat')")
+    })
+  }
+
+  # ggrastr plots
+  if(!requireNamespace("ggrastr", quietly = TRUE) || force){
+    o <- tryCatch({
+      message("Installing ggrastr..")
+      devtools::install_github('VPetukhov/ggrastr')
+      if(!requireNamespace("ggrastr", quietly = TRUE)){
+        stop()
+      }
+      n <- n + 1
+    }, error = function(e){
+      message("Error With ggrastr Installation")
+      message("Try devtools::install_github('VPetukhov/ggrastr')")
+    })
+  }
+
+  # harmony is a package that can correct batch effects
+  if(!requireNamespace("harmony", quietly = TRUE) || force){
+    o <- tryCatch({
+      message("Installing harmony..")
+      devtools::install_github('immunogenomics/harmony', repos = BiocManager::repositories())
+      if(!requireNamespace("harmony", quietly = TRUE)){
+        stop()
+      }
+      n <- n + 1
+    }, error = function(e){
+      message("Error With harmony Installation")
+      message("Try devtools::install_github('immunogenomics/harmony', repos = BiocManager::repositories())")
+    })
+  }
+
+  # presto is a package that has efficient tools for wilcoxon tests on sparseMatrices
+  if(!requireNamespace("presto", quietly = TRUE) || force){
+    o <- tryCatch({
+      message("Installing presto..")
+      devtools::install_github('immunogenomics/presto', repos = BiocManager::repositories())
+      if(!requireNamespace("presto", quietly = TRUE)){
+        stop()
+      }
+      n <- n + 1
+    }, error = function(e){
+      message("Error With presto Installation")
+      message("Try devtools::install_github('immunogenomics/presto', repos = BiocManager::repositories())")
+    })
+  }
+
+  # shiny
+  if(!requireNamespace("shiny", quietly = TRUE) || force){
+    o <- tryCatch({
+      message("Installing shiny..")
+      install.packages('shiny')
+      if(!requireNamespace("shiny", quietly = TRUE)){
+        stop()
+      }
+      n <- n + 1
+    }, error = function(e){
+      message("Error With shiny Installation")
+      message("Try install.packages('shiny')")
+    })
+  }
+
+  # rhandsontable
+  if(!requireNamespace("rhandsontable", quietly = TRUE) || force){
+    o <- tryCatch({
+      message("Installing rhandsontable..")
+      install.packages('rhandsontable')
+      if(!requireNamespace("rhandsontable", quietly = TRUE)){
+        stop()
+      }
+      n <- n + 1
+    }, error = function(e){
+      message("Error With rhandsontable Installation")
+      message("Try install.packages('rhandsontable')")
+    })
+  }
+
+  # shinythemes
+  if(!requireNamespace("shinythemes", quietly = TRUE) || force){
+    o <- tryCatch({
+      message("Installing shinythemes..")
+      install.packages('shinythemes')
+      if(!requireNamespace("shinythemes", quietly = TRUE)){
+        stop()
+      }
+      n <- n + 1
+    }, error = function(e){
+      message("Error With shinythemes Installation")
+      message("Try install.packages('shinythemes')")
+    })
+  }
+
+  message("Successfully installed ", n, " packages!")
+
+  return(invisible(0))
+
+}
+
 
 ##########################################################################################
 # Parallel Information
