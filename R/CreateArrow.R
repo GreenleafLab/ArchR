@@ -547,13 +547,6 @@ createArrowFiles <- function(
       upstream = promoterRegion[1], 
       downstream = promoterRegion[2]
   )
-  
-  #This doesnt seem to be valuable (Gene Body)
-  # featureList$GeneBody <-  extendGR(
-  #     gr = geneAnnotation$genes, 
-  #     upstream = promoterRegion[1], 
-  #     downstream = 0
-  # )
 
   if(!is.null(genomeAnnotation$blacklist)){
     featureList$Blacklist <- genomeAnnotation$blacklist
@@ -618,6 +611,12 @@ createArrowFiles <- function(
     o <- h5write(obj = ((Metadata$nDiFrags + Metadata$nMultiFrags) / Metadata$nMonoFrags)[idx], file = ArrowFile, name = "Metadata/NucleosomeRatio")
     o <- h5write(obj = Metadata$TSSEnrichment[idx], file = ArrowFile, name = "Metadata/TSSEnrichment")
     o <- h5write(obj = Metadata$ReadsInTSS[idx], file = ArrowFile, name = "Metadata/ReadsInTSS")
+    o <- h5write(obj = Metadata$ReadsInPromoter[idx], file = ArrowFile, name = "Metadata/ReadsInPromoter")
+    o <- h5write(obj = Metadata$PromoterRatio[idx], file = ArrowFile, name = "Metadata/PromoterRatio")
+    if(!is.null(genomeAnnotation$blacklist)){
+      o <- h5write(obj = Metadata$ReadsInBlacklist[idx], file = ArrowFile, name = "Metadata/ReadsInBlacklist")
+      o <- h5write(obj = Metadata$BlacklistRatio[idx], file = ArrowFile, name = "Metadata/BlacklistRatio")
+    }
     Metadata <- Metadata[idx, , drop = FALSE]
   }
 

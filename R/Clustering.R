@@ -41,6 +41,7 @@
 #' @param biasPval A numeric value between 0 and 1 that specifies the p-value to use when testing for bias-enriched clusters.
 #' @param nPerm An integer specifying the number of permutations to perform for testing bias-enriched clusters.
 #' @param prefix A character string to be added before each cluster identity. For example, if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.
+#' @param ArchRProj An `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims`. This argument can also be supplied as `input`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param tstart A timestamp that is typically passed internally from another function (for ex. "IterativeLSI") to measure how long the clustering analysis
 #' has been running relative to the start time when this process was initiated in another function. This argument is rarely manually specified.
@@ -73,6 +74,7 @@ addClusters <- function(
   biasPval = 0.05,
   nPerm = 500,
   prefix = "C",
+  ArchRProj = NULL,
   verbose = TRUE,
   tstart = NULL,
   force = FALSE,
@@ -80,6 +82,13 @@ addClusters <- function(
   ...
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj", "null"))
+  if(is(ArchRProj, "ArchRProject")){
+    message("When running addClusters 'input' param should be used for 'ArchRProj'. Replacing 'input' param with user 'ArchRPRoj'...")
+    input <- ArchRProj
+    rm(ArchRProj)
+    gc()
+  }
   .validInput(input = input, name = "input", valid = c("ArchRProj", "matrix"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character"))
