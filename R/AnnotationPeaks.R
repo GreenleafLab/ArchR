@@ -677,7 +677,7 @@ addArchRAnnotations <- function(
     i = regionMat[, 1], 
     j = regionMat[, 2], 
     x = rep(TRUE, nrow(regionMat)), 
-    dims = c(length(peakSet), length(unique(regionMat$ID)))
+    dims = c(length(peakSet), max(regionMat$ID))
   )
   .logThis(regionMat, "regionMat", logFile=logFile)
 
