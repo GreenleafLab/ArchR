@@ -669,6 +669,10 @@ addArchRAnnotations <- function(
   }) %>% Reduce("rbind", .)
   .logThis(regionMat, "regionMat-Overlaps", logFile=logFile)
 
+  .logThis(range(regionMat[, 1]), "regionMat-Overlaps-1", logFile=logFile)
+  .logThis(range(regionMat[, 2]), "regionMat-Overlaps-2", logFile=logFile)
+  .logThis(peakSet, "regionMat-Overlaps-1-Peaks", logFile=logFile)
+  .logThis(unique(regionMat$ID), "regionMat-Overlaps-2-IDs", logFile=logFile)
   regionMat <- Matrix::sparseMatrix(
     i = regionMat[, 1], 
     j = regionMat[, 2], 
