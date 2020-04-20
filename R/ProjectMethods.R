@@ -124,7 +124,7 @@ getGroupSummary <- function(
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
   .validInput(input = select, name = "select", valid = c("character"))
   .validInput(input = summary, name = "summary", valid = c("character"))
-  .validInput(input = na.rm, name = "na.rm", valid = c("boolean"))
+  .validInput(input = removeNA, name = "removeNA", valid = c("boolean"))
 
   message("Getting ", summary, " of ", select, " for ", groupBy)
 
