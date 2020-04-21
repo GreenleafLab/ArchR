@@ -842,6 +842,7 @@ ggAlignPlots <- function(
 #' This function returns a ggplot2 theme that is black borded with black font.
 #' 
 #' @param color The color to be used for text, lines, ticks, etc for the plot.
+#' @param textFamily The font default family to be used for the plot.
 #' @param baseSize The base font size (in points) to use in the plot.
 #' @param baseLineSize The base line width (in points) to be used throughout the plot.
 #' @param baseRectSize The base line width (in points) to use for rectangular boxes throughout the plot.
@@ -854,6 +855,7 @@ ggAlignPlots <- function(
 #' @export
 theme_ArchR <- function(
   color = "black",
+  textFamily = "sans",
   baseSize = 10, 
   baseLineSize = 0.5,
   baseRectSize = 0.5,
@@ -866,6 +868,7 @@ theme_ArchR <- function(
   ){
 
   .validInput(input = color, name = "color", valid = c("character"))
+  .validInput(input = textFamily, name = "textFamily", valid = c("character"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = baseLineSize, name = "baseLineSize", valid = c("numeric"))
   .validInput(input = baseRectSize, name = "baseRectSize", valid = c("numeric"))
@@ -877,6 +880,7 @@ theme_ArchR <- function(
   .validInput(input = yText90, name = "yText90", valid = c("boolean"))
 
   theme <- theme_bw() + theme(
+      text = element_text(family = textFamily),
       axis.text = element_text(color = color, size = baseSize), 
       axis.title = element_text(color = color, size = baseSize),
       title = element_text(color = color, size = baseSize),
@@ -892,8 +896,8 @@ theme_ArchR <- function(
       legend.box.background = element_rect(color = NA),
       #legend.box.background = element_rect(fill = "transparent"),
       legend.position = legendPosition,
-      strip.text = element_text(size = baseSize, color="black"),
-      plot.background = element_rect(fill = "transparent", color = NA)
+      strip.text = element_text(size = baseSize, color="black")#,
+      #plot.background = element_rect(fill = "transparent", color = NA)
     )
   
   if(xText90){

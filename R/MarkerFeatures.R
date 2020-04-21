@@ -403,8 +403,8 @@ getMarkerFeatures <- function(
   m1 <- Matrix::rowSums(mat1, na.rm=TRUE)
   m2 <- Matrix::rowSums(mat2, na.rm=TRUE)
   offset <- 1 #quantile(c(mat1@x,mat2@x), 0.99) * 10^-4
-  log2FC <- log2((m1 + offset)/(m2 + offset))
-  log2Mean <- log2(((m1+offset) + (m2+offset)) / 2)
+  log2FC <- log2((m1 + offset) / (m2 + offset))
+  log2Mean <- log2(((m1 + offset) + (m2 + offset)) / 2)
 
   out <- data.frame(
     log2Mean = log2Mean,
@@ -495,7 +495,7 @@ getMarkerFeatures <- function(
   m2 <- Matrix::rowSums(mat2, na.rm=TRUE)
   offset <- 1 #quantile(c(mat1@x,mat2@x), 0.99) * 10^-4
   log2FC <- log2((m1 + offset)/(m2 + offset))
-  log2Mean <- log2(((m1+offset) + (m2+offset)) / 2)
+  log2Mean <- log2(((m1 + offset) + (m2 + offset)) / 2)
 
   out <- data.frame(
     log2Mean = log2Mean,

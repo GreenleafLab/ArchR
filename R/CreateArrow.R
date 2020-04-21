@@ -27,7 +27,7 @@
 #' This is useful for limiting the number of barcodes analyzed.
 #' @param maxFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 #' This is useful for limiting the number of barcodes analyzed.
-#' @param outDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
+#' @param QCDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 #' sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
 #' @param promoterRegion A integer vector describing the number of basepairs upstream and downstream [c(upstream, downstream)] of the TSS to include 
@@ -58,7 +58,7 @@
 #' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each ArrowFile. A Gene-Score Matrix uses
 #' ATAC-seq signal proximal to the TSS to estimate gene activity.
 #' @param GeneScoreMatParams A list of parameters to pass to the `addGeneScoreMatrix()` function. See `addGeneScoreMatrix()` for options.
-#' @param force A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist in `outDir`.
+#' @param force A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
@@ -79,7 +79,7 @@ createArrowFiles <- function(
   removeFilteredCells = TRUE,
   minFrags = 500, 
   maxFrags = 100000,
-  outDir = "QualityControl",
+  QCDir = "QualityControl",
   nucLength = 147,
   promoterRegion = c(2000, 100),
   TSSParams = list(),
@@ -123,7 +123,7 @@ createArrowFiles <- function(
   .validInput(input = removeFilteredCells, name = "removeFilteredCells", valid = c("boolean"))
   .validInput(input = minFrags, name = "minFrags", valid = c("numeric"))
   .validInput(input = maxFrags, name = "maxFrags", valid = c("numeric"))
-  .validInput(input = outDir, name = "outDir", valid = c("character"))
+  .validInput(input = QCDir, name = "QCDir", valid = c("character"))
   .validInput(input = nucLength, name = "nucLength", valid = c("integer"))
   .validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
   .validInput(input = TSSParams, name = "TSSParams", valid = c("list"))
@@ -146,7 +146,7 @@ createArrowFiles <- function(
   .validInput(input = cleanTmp, name = "cleanTmp", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
-  dir.create(outDir, showWarnings = FALSE)
+  dir.create(QCDir, showWarnings = FALSE)
 
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "createArrowFiles Input-Parameters", logFile = logFile)
@@ -171,7 +171,7 @@ createArrowFiles <- function(
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe()))) #as.list(match.call())
   args$X <- seq_along(inputFiles)
   args$FUN <- .createArrow
-  args$registryDir <- file.path(outDir, "CreateArrowsRegistry")
+  args$registryDir <- file.path(QCDir, "CreateArrowsRegistry")
   args$cleanTmp <- NULL
 
   if(subThreading){
@@ -229,7 +229,7 @@ createArrowFiles <- function(
   gsubExpression = NULL,
   bcTag = "qname",
   bamFlag = NULL,
-  outDir = "QualityControl",
+  QCDir = "QualityControl",
   nucLength = 147,
   promoterRegion = c(2000, 100),
   TSSParams = list(),
@@ -280,8 +280,8 @@ createArrowFiles <- function(
 
   .logThis(validBC, name = "validBC", logFile)
 
-  outDir <- file.path(outDir, sampleName)
-  dir.create(outDir, showWarnings = FALSE)
+  QCDir <- file.path(QCDir, sampleName)
+  dir.create(QCDir, showWarnings = FALSE)
 
   .requirePackage("rhdf5", source = "bioc")
   .requirePackage("Rsamtools", source = "bioc")
@@ -434,8 +434,8 @@ createArrowFiles <- function(
 
     .logDiffTime(sprintf("%s Plotting Fragment Size Distribution", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
     
-    dir.create(outDir, showWarnings = FALSE)
-    pdf(file.path(outDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=4,height=3,onefile=FALSE)
+    dir.create(QCDir, showWarnings = FALSE)
+    pdf(file.path(QCDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=4,height=3,onefile=FALSE)
     plotDF <- data.frame(
       x = seq_along(fragSummary[[2]]), 
       percent = 100 * fragSummary[[2]]/sum(fragSummary[[2]])
@@ -489,7 +489,7 @@ createArrowFiles <- function(
         paste0("Median TSS Enrichment = ", median(Metadata$TSSEnrichment[Metadata$Keep==1]))
       )
 
-    pdf(file.path(outDir,paste0(sampleName,"-TSS_by_Unique_Frags.pdf")),width=4,height=4,onefile=FALSE)
+    pdf(file.path(QCDir,paste0(sampleName,"-TSS_by_Unique_Frags.pdf")),width=4,height=4,onefile=FALSE)
     gg <- ggPoint(
       x = pmin(log10(Metadata$nFrags), 5) + rnorm(length(Metadata$nFrags), sd = 0.00001),
       y = Metadata$TSSEnrichment + rnorm(length(Metadata$nFrags), sd = 0.00001), 
@@ -590,7 +590,7 @@ createArrowFiles <- function(
   #############################################################
   
   .logThis(Metadata, paste0(prefix, " Metadata"), logFile = logFile)
-  saveRDS(Metadata, file.path(outDir,paste0(sampleName,"-Pre-Filter-Metadata.rds")))
+  saveRDS(Metadata, file.path(QCDir,paste0(sampleName,"-Pre-Filter-Metadata.rds")))
 
   if(removeFilteredCells){
     .logDiffTime(sprintf("%s Removing Fragments from Filtered Cells", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
