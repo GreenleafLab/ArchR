@@ -209,6 +209,8 @@ getMatrixFromProject <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "getMatrixFromProject Input-Parameters", logFile = logFile)
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
@@ -324,6 +326,8 @@ getMatrixFromArrow <- function(
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "getMatrixFromArrow Input-Parameters", logFile = logFile)
 
   ArrowFile <- .validArrow(ArrowFile)
   sampleName <- .sampleName(ArrowFile)
