@@ -1375,7 +1375,9 @@ plotPeak2GeneHeatmap <- function(
     nPK <- nPlot * table(k1$cluster) / length(k1$cluster) 
     splitK <- split(seq_len(nrow(mATAC)), k1$cluster)
     kDF <- lapply(seq_along(splitK), function(x){
-      DataFrame(k = x, idx = sample(splitK[[x]], floor(nPK[x])))
+      idx <- sample(splitK[[x]], floor(nPK[x]))
+      k <- rep(x, length(idx))
+      DataFrame(k = k, idx = idx)
     }) %>% Reduce("rbind", .)
   }else{
     kDF <- DataFrame(k = k1$cluster, idx = seq_len(nrow(mATAC)))
