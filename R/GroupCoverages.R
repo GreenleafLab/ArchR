@@ -130,7 +130,7 @@ addGroupCoverages <- function(
         minReplicates = minReplicates, 
         maxReplicates = maxReplicates,
         sampleRatio = sampleRatio,
-        prefix = sprintf(uniqueGroups, " (%s of %s) :", x, uniqueGroups),
+        prefix = sprintf("%s (%s of %s) :", uniqueGroups, x, length(uniqueGroups)),
         logFile = logFile
       )
       if(is.null(outListx)){

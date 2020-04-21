@@ -93,7 +93,7 @@ plotPDF <- function(
       
       if(inherits(plotList[[i]], "gg")){
         
-        print("plotting ggplot!")
+        message("Plotting Ggplot!")
 
         if(!is.null(attr(plotList[[i]], "ratioYX"))){
           .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE)
@@ -106,12 +106,17 @@ plotPDF <- function(
         }
       
       }else if(inherits(plotList[[i]], "gtable")){
+
+        message("Plotting Gtable!")
         
         print(grid::grid.draw(plotList[[i]]))
         if(i != length(plotList)){
           grid::grid.newpage()
         }
       }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
+
+        message("Plotting ComplexHeatmap!")
+
         padding <- 15
         draw(plotList[[i]], 
           padding = unit(c(padding, padding, padding, padding), "mm"), 
@@ -121,7 +126,7 @@ plotPDF <- function(
 
       }else{
 
-        print("Plotting with print")
+        message("Plotting Other")
        
         print(plotList[[i]])
 
@@ -137,7 +142,7 @@ plotPDF <- function(
 
   })
 
-  return(0)
+  return(invisible(0))
 
 }
 

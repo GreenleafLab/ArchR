@@ -356,7 +356,7 @@ createLogFile <- function(
     suppressMessages(utils::capture.output(print(head(x)), file = logFile, append = TRUE))
     cat("\n", file = logFile, append = TRUE)
 
-  }else if(is(x, "dgCMatrix")){
+  }else if(is(x, "dgCMatrix") | is(x, "dgeMatrix")){
 
     cat(paste0(name, ": nRows = ", nrow(x), ", nCols = ", ncol(x), "\n"), file = logFile, append = TRUE)
     cat(paste0(name, ": NonZeroEntries = ", length(x@x), ", EntryRange = [ ", paste0(range(x@x), collapse=" , "), " ]\n"), file = logFile, append = TRUE)    

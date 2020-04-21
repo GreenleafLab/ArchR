@@ -421,7 +421,7 @@ addGeneIntegrationMatrix <- function(
       key = "LSI_", 
       assay = DefaultAssay(seuratATAC)
     )
-    transferParams$verbose <- TRUE
+    transferParams$verbose <- FALSE
     transferParams$dims <- seq_len(ncol(rDSub))
     
     #Group
