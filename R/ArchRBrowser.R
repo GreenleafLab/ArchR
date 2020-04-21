@@ -831,7 +831,19 @@ plotBrowserTrack <- function(
     }
 
     .logDiffTime("Plotting", t1=tstart, verbose=verbose, logFile=logFile)
-    suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
+    tryCatch({
+      suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
+    }, error = function(e){
+      .logMessage("Error with plotting, diagnosing each element", verbose = TRUE, logFile = logFile)
+      for(i in seq_along(plotList)){
+        tryCatch({
+          print(plotList[[i]])
+        }, error = function(f){
+          .logError(f, fn = names(plotList)[i], info = "", errorList = NULL, logFile = logFile)
+        })
+      }
+      .logError(e, fn = "ggAlignPlots", info = "", errorList = NULL, logFile = logFile)
+    })
 
   })
 
@@ -848,7 +860,7 @@ plotBrowserTrack <- function(
   ggList
 
 }
-
+    
 #######################################################
 # Bulk Aggregated ATAC Track Methods
 #######################################################
@@ -892,7 +904,7 @@ plotBrowserTrack <- function(
     verbose = verbose,
     logFile = logFile
   )
-  .logThis(df, ".bulkTracks df", logFile = logFile)
+  .logThis(split(df, df[,3]), ".bulkTracks df", logFile = logFile)
 
   ######################################################
   # Plot Track
@@ -1334,12 +1346,15 @@ plotBrowserTrack <- function(
     })
 
     featureO <- Reduce("rbind", featureO)
+    
+    .logThis(featureO, "featureO", logFile = logFile)
+
     featureO$facet <- title
 
     if(is.null(pal)){
       pal <- paletteDiscrete(set = "stallion", values = rev(unique(paste0(featureO$name))))
     }
-
+    
     p <- ggplot(data = featureO, aes(color = name)) +
       facet_grid(facet~.) +
       geom_segment(data = featureO, aes(x = start, xend = end, y = name, yend = name, color = name), size=featureWidth) +
@@ -1422,30 +1437,58 @@ plotBrowserTrack <- function(
     valueMax <- max(unlist(lapply(loops, function(x) max(x$value))))
 
     loopO <- lapply(seq_along(loops), function(x){
-       subLoops <- subsetByOverlaps(loops[[x]], region, ignore.strand = TRUE, type = "within")    
-       dfx <- getArchDF(subLoops)
-       dfx$name <- Rle(paste0(names(loops)[x]))
-       return(dfx)
+       subLoops <- subsetByOverlaps(loops[[x]], region, ignore.strand = TRUE, type = "within") 
+       if(length(subLoops)>0){
+         dfx <- getArchDF(subLoops)
+         dfx$name <- Rle(paste0(names(loops)[x]))
+         dfx
+       }else{
+         NULL
+       }
     }) %>% Reduce("rbind",.)
+    .logThis(loopO, "loopO", logFile = logFile)
 
-    loopO$facet <- title
+    testDim <- tryCatch({
+      if(is.null(loopO)){
+        return(FALSE)
+      }
+      if(nrow(loopO) > 0){
+        return(TRUE)
+      }else{
+        return(FALSE)
+      }
+    }, error = function(x){
+      FALSE
+    })
 
-    if(is.null(pal)){
-      pal <- colorRampPalette(c("#E6E7E8","#3A97FF","#8816A7","black"))(100)
+    if(testDim){
+      loopO$facet <- title
+      if(is.null(pal)){
+        pal <- colorRampPalette(c("#E6E7E8","#3A97FF","#8816A7","black"))(100)
+      }
+      p <- ggplot(data = data.frame(loopO), aes(x = x, y = y, group = id, color = value)) + 
+        geom_line() +
+        facet_grid(name ~ .) +
+        ylab("") + 
+        coord_cartesian(ylim = c(-100,0)) +
+        scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+        scale_color_gradientn(colors = pal, limits = c(valueMin, valueMax)) +
+        theme(legend.text = element_text(size = baseSize)) +
+        theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth, legendPosition = "right") +
+        theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank(),
+          legend.box.background = element_rect(color = NA)) +
+        guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
+    }else{
+      #create empty plot
+      df <- data.frame(facet = "LoopTrack", start = 0, end = 0, strand = "*", symbol = "none")
+      p <- ggplot(data = df, aes(start, end)) + 
+        geom_point() +
+        facet_grid(facet~.) +
+        theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth) +
+        scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+        theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
+        theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank())
     }
-
-    p <- ggplot(data = data.frame(loopO), aes(x = x, y = y, group = id, color = value)) + 
-      geom_line() +
-      facet_grid(name ~ .) +
-      ylab("") + 
-      coord_cartesian(ylim = c(-100,0)) +
-      scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
-      scale_color_gradientn(colors = pal, limits = c(valueMin, valueMax)) +
-      theme(legend.text = element_text(size = baseSize)) +
-      theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth, legendPosition = "right") +
-      theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank(),
-        legend.box.background = element_rect(color = NA)) +
-      guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
 
   }else{
 

@@ -124,6 +124,11 @@ getMarkerFeatures <- function(
     featureDF <- .getFeatureDF(head(ArrowFiles, 2), useMatrix)
     matrixClass <- as.character(h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class")))
 
+    isDeviations <- FALSE
+    if(all(unique(paste0(featureDF$seqnames)) %in% c("z", "dev"))){
+      isDeviations <- TRUE
+    }
+
     .logThis(featureDF, "FeatureDF", logFile=logFile)
     .logMessage(paste0("MatrixClass = ", matrixClass), logFile=logFile)
 
@@ -283,6 +288,11 @@ getMarkerFeatures <- function(
 
     metadata(pse)$MatchInfo <- matchObj
 
+    if(isDeviations){
+      assays(pse)[["Log2FC"]] <- NULL #This measure does not make sense with deviations matrices better to just remove
+    }
+
+
     return(pse)
 
 }
@@ -395,6 +405,10 @@ getMarkerFeatures <- function(
 #Wilcoxon Row-wise two matrices
 .sparseMatWilcoxon <- function(mat1 = NULL, mat2 = NULL){
   
+  n1 <- ncol(mat1)
+  n2 <- ncol(mat2)
+  stopifnot(n1==n2)
+
   .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
   df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
   df <- df[which(df$group=="Top"),]
@@ -427,6 +441,7 @@ getMarkerFeatures <- function(
     #Get Population Values
     n1 <- ncol(mat1)
     n2 <- ncol(mat2)
+    stopifnot(n1==n2)
     n <- n1 + n2
     
     #Sparse Row Means
@@ -470,6 +485,7 @@ getMarkerFeatures <- function(
   #Get Population Values
   n1 <- ncol(mat1)
   n2 <- ncol(mat2)
+  stopifnot(n1==n2)
   n <- n1 + n2
   
   #Sparse Row Stats
@@ -502,8 +518,8 @@ getMarkerFeatures <- function(
     log2FC = log2FC,
     fdr = fdr, 
     pval = pval, 
-    mean1 = m1, 
-    mean2 = m2, 
+    mean1 = m1 / n1, 
+    mean2 = m2 / n2, 
     n = n1
   )
 
