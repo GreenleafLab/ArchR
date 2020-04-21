@@ -315,9 +315,14 @@ addGeneIntegrationMatrix <- function(
     h5disableFileLocking()
   }
 
+  rD <- getReducedDims(
+    ArchRProj = ArchRProj, 
+    reducedDims = reducedDims
+  )
+
   tstart <- Sys.time()
 
-  threads2 <- max(ceiling(threads * 0.8), 1) #A Little Less here for now
+  threads2 <- max(ceiling(threads * 0.75), 1) #A Little Less here for now
 
   .logDiffTime(paste0("Computing Integration in ", length(blockList), " Integration Blocks!"), tstart, verbose = verbose, logFile = logFile)
 
@@ -360,6 +365,7 @@ addGeneIntegrationMatrix <- function(
       verbose = FALSE
     )
     rownames(mat) <- geneDF[geneDF$name %in% genesUse, "name"]
+    .logThis(mat, paste0("GeneScoreMat-Block-",i), logFile=logFile)
 
     #Impute Matrix (its already scaled internally in ArrowFiles)
     if(useImputation){
@@ -368,9 +374,11 @@ addGeneIntegrationMatrix <- function(
       imputeParams$ArchRProj <- subProj
       imputeParams$randomSuffix <- TRUE
       imputeParams$threads <- 1
-      subProj <- do.call(addImputeWeights, imputeParams)
-      mat <- imputeMatrix(mat = mat, imputeWeights = getImputeWeights(subProj), verbose = FALSE, logFile = logFile)
+      imputeParams$logFile <- logFile
+      subProj <- suppressMessages(do.call(addImputeWeights, imputeParams))
+      mat <- suppressMessages(imputeMatrix(mat = mat, imputeWeights = getImputeWeights(subProj), verbose = FALSE, logFile = logFile))
       o <- suppressWarnings(file.remove(unlist(getImputeWeights(subProj)[[1]]))) #Clean Up Space
+      .logThis(mat, paste0("GeneScoreMat-Block-Impute-",i), logFile=logFile)
     }
 
     #Log-Normalize 
@@ -400,27 +408,29 @@ addGeneIntegrationMatrix <- function(
         ...
       )
     }, maxAttempts = 2, logFile = logFile)
+    .logThis(paste0(utils::capture.output(transferAnchors),collapse="\n"), paste0("transferAnchors-",i), logFile=logFile)
 
     ##############################################################################################
     #4. Transfer Data
     ##############################################################################################
-    .logDiffTime(sprintf("%s Seurat TransferData Cell Labels", prefix), tstart, verbose = verbose, logFile = logFile)
+    rDSub <- rD[colnames(seuratATAC),,drop=FALSE]
+    .logThis(rDSub, paste0("rDSub-", i), logFile = logFile)
     transferParams$anchorset <- transferAnchors
     transferParams$weight.reduction <- CreateDimReducObject(
-      embeddings = getReducedDims(
-        ArchRProj = subProj, 
-        reducedDims = reducedDims
-      )[colnames(seuratATAC),,drop=FALSE], 
+      embeddings = rDSub, 
       key = "LSI_", 
       assay = DefaultAssay(seuratATAC)
     )
-    transferParams$verbose <- FALSE
+    transferParams$verbose <- TRUE
+    transferParams$dims <- seq_len(ncol(rDSub))
     
     #Group
+    .logDiffTime(sprintf("%s Seurat TransferData Cell Group Labels", prefix), tstart, verbose = verbose, logFile = logFile)
     transferParams$refdata <- subRNA$Group
     rnaLabels <- do.call(Seurat::TransferData, transferParams)
 
     #RNA Names
+    .logDiffTime(sprintf("%s Seurat TransferData Cell Names Labels", prefix), tstart, verbose = verbose, logFile = logFile)
     transferParams$refdata <- colnames(subRNA)
     rnaLabels2 <- do.call(Seurat::TransferData, transferParams)[,1]
 
@@ -689,7 +699,4 @@ addGeneIntegrationMatrix <- function(
   return(ArchRProj)
 
 }
-
-
-
 

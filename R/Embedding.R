@@ -31,7 +31,7 @@
 #' reproduce results downstream.
 #' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding indicated by
 #' `name` already exists.
-#' @param threads The number of threads to be used for parallel computing.
+#' @param threads The number of threads to be used for parallel computing. Default set to 1 because if set to high can cause C stack usage errors.
 #' @param ... Additional parameters to pass to `uwot::umap()`
 #' @export
 addUMAP <- function(
@@ -50,7 +50,7 @@ addUMAP <- function(
   verbose = TRUE,
   seed = 1,
   force = FALSE,
-  threads = max(floor(getArchRThreads() / 2), 1),
+  threads = 1,
   ...
   ){
 

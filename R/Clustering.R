@@ -367,16 +367,18 @@ addClusters <- function(
   }
 
   if(inherits(input, "ArchRProject")){
-      input <- .suppressAll(addCellColData(
-              input, 
-              data = out, 
-              name = name, 
-              cells = rownames(matDR),
-              force = TRUE
-          ))
-      return(input)
+    input <- .suppressAll(addCellColData(
+            input, 
+            data = out, 
+            name = name, 
+            cells = rownames(matDR),
+            force = TRUE
+        ))
+    .logDiffTime("Finished addClusters", t1 = tstart, verbose = verbose, logFile = logFile)
+    return(input)
   }else if(!inherits(input, "ArchRProject")){
-      return(out)
+    .logDiffTime("Finished addClusters", t1 = tstart, verbose = verbose, logFile = logFile)
+    return(out)
   }
 
 }
