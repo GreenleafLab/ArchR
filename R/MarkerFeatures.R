@@ -1027,8 +1027,6 @@ plotMarkerHeatmap <- function(
         name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
       )
 
-      .logError(e, fn = ".ArchRHeatmap", info = "", errorList = errorList, logFile = logFile)
-
     }, error = function(e){
 
       errorList <- list(
