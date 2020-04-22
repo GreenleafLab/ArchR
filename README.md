@@ -1,4 +1,6 @@
-# <img src="Figures/ArchR_Logo_Integrated.png" alt="" width="350" align="middle" >
+<center>
+# <img src="Figures/ArchR_Logo_Integrated.png" alt="" width="350" >
+</center>
 
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 
