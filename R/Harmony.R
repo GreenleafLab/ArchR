@@ -32,6 +32,16 @@ addHarmony <- function(
   ...
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+
   if(!is.null(ArchRProj@reducedDims[[name]])){
     if(!force){
       stop("Error name in reducedDims Already Exists! Set force = TRUE or pick a different name!")

@@ -1,4 +1,152 @@
 ####################################################################
+# Save Visualization Methods
+####################################################################
+
+#' Plot PDF in outputDirectory of an ArchRProject
+#' 
+#' This function will save a plot or set of plots as a PDF file in the outputDirectory of a given ArchRProject.
+#' 
+#' @param ... vector of plots to be plotted (if input is a list use plotList instead)
+#' @param name The file name to be used for the output PDF file.
+#' @param width The width in inches to be used for the output PDF file.
+#' @param height The height in inches to be used for the output PDF.
+#' @param ArchRProj An `ArchRProject` object to be used for retrieving the desired `outputDirectory` which will be used to store the output
+#' plots in a subfolder called "plots".
+#' @param addDOC A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful
+#' for preventing overwritting of old plots.
+#' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
+#' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted
+#' object (ggplot2, plot, heatmap, etc).
+#' @export
+plotPDF <- function(
+  ...,
+  name = "Plot",
+  width = 6,
+  height = 6,
+  ArchRProj = NULL,
+  addDOC = TRUE,
+  useDingbats = FALSE,
+  plotList = NULL
+  ){
+
+  #Validate
+  .validInput(input = name, name = "name", valid = "character")
+  .validInput(input = width, name = "width", valid = "numeric")
+  .validInput(input = height, name = "height", valid = "numeric")
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject", "null"))
+  .validInput(input = addDOC, name = "addDOC", valid = "boolean")
+  .validInput(input = useDingbats, name = "useDingbats", valid = "boolean")
+  .validInput(input = plotList, name = "plotList", valid = c("list","null"))
+  #########
+
+  if(is.null(plotList)){
+    plotList <- list(...)
+    plotList2 <- list()
+    for(i in seq_along(plotList)){
+      if(inherits(plotList[[i]], "list")){
+        for(j in seq_along(plotList[[i]])){
+          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
+        }
+      }else{
+        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
+      }
+    }
+    plotList <- plotList2
+    rm(plotList2)
+    gc()
+  }else{
+    plotList2 <- list()
+    for(i in seq_along(plotList)){
+      if(inherits(plotList[[i]], "list")){
+        for(j in seq_along(plotList[[i]])){
+          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
+        }
+      }else{
+        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
+      }
+    }
+    plotList <- plotList2
+    rm(plotList2)
+    gc()
+  }
+  
+  name <- gsub("\\.pdf", "", name)
+  if(is.null(ArchRProj)){
+    outDir <- "Plots"
+  }else{
+    .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+    outDir <- file.path(getOutputDirectory(ArchRProj), "Plots")
+  }
+  
+  dir.create(outDir, showWarnings = FALSE)
+  if(addDOC){
+    doc <- gsub(":","-",stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2])
+    filename <- file.path(outDir, paste0(name, "_Date-", Sys.Date(), "_Time-", doc, ".pdf"))
+  }else{
+    filename <- file.path(outDir, paste0(name, ".pdf"))
+  }
+
+  o <- tryCatch({
+
+    pdf(filename, width = width, height = height, useDingbats = useDingbats)
+    for(i in seq_along(plotList)){
+      
+      if(inherits(plotList[[i]], "gg")){
+        
+        message("Plotting Ggplot!")
+
+        if(!is.null(attr(plotList[[i]], "ratioYX"))){
+          .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE)
+        }else{
+          .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE)
+        }
+
+        if(i != length(plotList)){
+          grid::grid.newpage()
+        }
+      
+      }else if(inherits(plotList[[i]], "gtable")){
+
+        message("Plotting Gtable!")
+        
+        print(grid::grid.draw(plotList[[i]]))
+        if(i != length(plotList)){
+          grid::grid.newpage()
+        }
+      }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
+
+        message("Plotting ComplexHeatmap!")
+
+        padding <- 15
+        draw(plotList[[i]], 
+          padding = unit(c(padding, padding, padding, padding), "mm"), 
+          heatmap_legend_side = "bot", 
+          annotation_legend_side = "bot"
+        )
+
+      }else{
+
+        message("Plotting Other")
+       
+        print(plotList[[i]])
+
+      }
+
+    }
+    dev.off()
+
+
+  }, error = function(x){
+
+    message(x)
+
+  })
+
+  return(invisible(0))
+
+}
+
+####################################################################
 # Visualization Methods
 ####################################################################
 
@@ -18,6 +166,7 @@
 #' See `addImputationWeights()` and `getImutationWeights()` for more information.
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
 #' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
+#' @param sampleCells A numeric describing number of cells to use for plot. If using impute weights, this will occur after imputation.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the
 #' internal portions of the plot.
 #' @param quantCut If this is not `NULL`, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values. 
@@ -32,6 +181,8 @@
 #' @param baseSize The base font size to use in the plot.
 #' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 #' if `colorBy` is numeric, then `plotAs` is set to "hex".
+#' @param threads The number of threads to be used for parallel computing.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
 #' @export
 plotEmbedding <- function(
@@ -45,7 +196,7 @@ plotEmbedding <- function(
   size = 0.1,
   sampleCells = NULL,
   rastr = TRUE,
-  quantCut = c(0.001, 0.999),
+  quantCut = c(0.01, 0.99),
   discreteSet = NULL,
   continuousSet = NULL,
   randomize = TRUE,
@@ -63,20 +214,24 @@ plotEmbedding <- function(
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
   .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
-  .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("numeric", "null"))
   .validInput(input = rastr, name = "rastr", valid = c("boolean"))
-  .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
   .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
   .validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
   .validInput(input = randomize, name = "randomize", valid = c("boolean"))
   .validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .requirePackage("ggplot2", source = "cran")
 
   .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
 
   ##############################
   # Get Embedding
@@ -84,7 +239,7 @@ plotEmbedding <- function(
   .logMessage("Getting UMAP Embedding", logFile = logFile)
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
 
-  .logThis(df, name = "Embedding data.frame", logFile)
+  .logThis(df, name = "Embedding data.frame", logFile = logFile)
   if(!is.null(sampleCells)){
     if(sampleCells < nrow(df)){
       if(!is.null(imputeWeights)){
@@ -136,13 +291,15 @@ plotEmbedding <- function(
         colorParams$discreteSet <- discreteSet
       }
       if(x == 1){
-        .logThis(colorParams, name = "ColorParams 1", logFile)
+        .logThis(colorParams, name = "ColorParams 1", logFile = logFile)
       }
       colorParams
     })
 
 
   }else{
+
+    suppressMessages(message(logFile))
 
     units <- tryCatch({
         .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
@@ -163,18 +320,29 @@ plotEmbedding <- function(
       name = name, 
       matrixName = colorBy, 
       log2Norm = FALSE, 
-      threads = threads
-    )[,rownames(df), drop=FALSE]
+      threads = threads,
+      logFile = logFile
+    )
+
+    if(!all(rownames(df) %in% colnames(colorMat))){
+      .logMessage("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.", logFile = logFile)
+      stop("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.")
+    }
+
+    colorMat <- colorMat[,rownames(df), drop=FALSE]
+
+    .logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
 
     if(!is.null(imputeWeights)){
-      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights)
+      message("Imputing Matrix")
+      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights, logFile = logFile)
       if(!inherits(colorMat, "matrix")){
         colorMat <- matrix(colorMat, ncol = nrow(df))
         colnames(colorMat) <- rownames(df)
       }
     }
 
-    .logThis(colorMat, name = "ColorMatrix", logFile)
+    .logThis(colorMat, "colorMat-After-Impute", logFile = logFile)
 
     colorList <- lapply(seq_len(nrow(colorMat)), function(x){
       colorParams <- list()
@@ -193,7 +361,7 @@ plotEmbedding <- function(
         colorParams$discreteSet <- discreteSet
       }
       if(x == 1){
-        .logThis(colorParams, name = "ColorParams 1", logFile)
+        .logThis(colorParams, name = "ColorParams 1", logFile = logFile)
       }
       colorParams
     })
@@ -245,12 +413,12 @@ plotEmbedding <- function(
         plotParamsx$size <- NULL
         plotParamsx$randomize <- NULL
 
-        .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
+        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
         gg <- do.call(ggHex, plotParamsx)
 
       }else{
 
-        .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
+        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
         gg <- do.call(ggPoint, plotParamsx)
 
       }
@@ -261,7 +429,7 @@ plotEmbedding <- function(
         plotParamsx$pal <- pal
       }
 
-      .logThis(plotParamsx, name = paste0("PlotParams ", x), logFile)
+      .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
       gg <- do.call(ggPoint, plotParamsx)
 
     }
@@ -299,18 +467,25 @@ plotEmbedding <- function(
 #' For example if `colorBy` is "cellColData" then `name` refers to a column name in the cellcoldata (see `getCellcoldata()`). If `colorBy`
 #' is "GeneScoreMatrix" then `name` refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
 #' @param imputeWeights The weights to be used for imputing numerical values for each cell as a linear combination of other cells values. See `addImputationWeights()` and `getImutationWeights()` for more information.
+#' @param maxCells The maximum cells to consider when making the plot.
+#' @param quantCut If this is not null, a quantile cut is performed to threshold the top and bottom of the distribution of values.
+#' This prevents skewed color scales caused by strong outliers. The format of this should be c(a,b) where `a` is the upper threshold and
+#' `b` is the lower threshold. For example, quantCut = c(0.025,0.975) will take the top and bottom 2.5 percent of values and set them
+#' to the value of the 97.5th and 2.5th percentile values respectively.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values (if continuous) in plotting.
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
+#' @param discreteSet The name of a discrete palette from `ArchRPalettes` for visualizing `colorBy` if a discrete color set is desired.
 #' @param ylim A vector of two numeric values indicating the lower and upper bounds of the y-axis on the plot.
 #' @param size The numeric size of the points to be plotted.
 #' @param baseSize The base font size to use in the plot.
 #' @param ratioYX The aspect ratio of the x and y axes on the plot.
 #' @param ridgeScale The scale factor for the relative heights of each ridge when making a ridgeplot with `ggridges`.
 #' @param plotAs A string that indicates whether a rigdge plot ("ridges") should be plotted or a violin plot ("violin") should be plotted.
+#' @param threads The number of threads to be used for parallel computing.
 #' @param ... Additional parameters to pass to `ggGroup()`.
 #' @export
 plotGroups <- function(
-  ArchRProj = NULL, 
+  ArchRProj = NULL,
   groupBy = "Sample", 
   colorBy = "colData", 
   name = "TSSEnrichment",
@@ -335,14 +510,18 @@ plotGroups <- function(
   .validInput(input = colorBy, name = "colorBy", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
+  .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
+  .validInput(input = discreteSet, name = "discreteSet", valid = c("character"))
   .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric", "null"))
   .validInput(input = ridgeScale, name = "ridgeScale", valid = c("numeric"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
 
   .requirePackage("ggplot2", source = "cran")
 
@@ -482,18 +661,27 @@ plotGroups <- function(
 
 }
 
-.getMatrixValues <- function(ArchRProj = NULL, name = NULL, matrixName = NULL, log2Norm = FALSE, threads = getArchRThreads()){
+.getMatrixValues <- function(
+  ArchRProj = NULL, 
+  name = NULL, 
+  matrixName = NULL, 
+  log2Norm = FALSE, 
+  threads = getArchRThreads(),
+  logFile = NULL
+  ){
   
   o <- h5closeAll()
 
-  message("Getting Matrix Values...")
+  .logMessage("Getting Matrix Values...", verbose = TRUE, logFile = logFile)
 
-  featureDF <- .getFeatureDF(getArrowFiles(ArchRProj), matrixName)
+  featureDF <- .getFeatureDF(head(getArrowFiles(ArchRProj), 2), matrixName)
+  .logThis(featureDF, "FeatureDF", logFile = logFile)
 
   matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(matrixName, "/Info/Class"))
 
   if(matrixClass == "Sparse.Assays.Matrix"){
     if(!all(unlist(lapply(name, function(x) grepl(":",x))))){
+      .logMessage("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!", logFile = logFile)
       stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!")
     }
   }
@@ -506,7 +694,7 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))
       if(length(ix)==0){
-        stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]))
+        .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]), logFile = logFile)
       }
       ix
     }) %>% unlist
@@ -516,40 +704,56 @@ plotGroups <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- which(tolower(name[x]) == tolower(featureDF$name))[1]
       if(length(ix)==0){
-        stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[x]))
+        .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]), logFile = logFile)
       }
       ix
     }) %>% unlist
 
   }
+  .logThis(idx, "idx", logFile = logFile)
 
   if(any(is.na(idx))){
-    stop(sprintf("FeatureName (%s) does not exist! See availableFeatures", name[which(is.na(idx))]))
+    .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", paste0(name[which(is.na(idx))], collapse=",")), logFile = logFile)
   }
 
   featureDF <- featureDF[idx, ,drop=FALSE]
+  .logThis(featureDF, "FeatureDF-Subset", logFile = logFile)
 
   #Get Values for FeatureName
   cellNamesList <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
   
   values <- .safelapply(seq_along(cellNamesList), function(x){
     message(x, " ", appendLF = FALSE)
-    o <- h5closeAll()
-    ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
-    valuesx <- .getMatFromArrow(
-        ArrowFile = ArrowFile, 
-        featureDF = featureDF,
-        binarize = FALSE, 
-        useMatrix = matrixName, 
-        cellNames = cellNamesList[[x]],
-        threads = 1
+    valuesx <- tryCatch({
+      o <- h5closeAll()
+      ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
+      valuesx <- .getMatFromArrow(
+          ArrowFile = ArrowFile, 
+          featureDF = featureDF,
+          binarize = FALSE, 
+          useMatrix = matrixName, 
+          cellNames = cellNamesList[[x]],
+          threads = 1
+        )
+      colnames(valuesx) <- cellNamesList[[x]]
+      valuesx
+    }, error = function(e){
+      errorList <- list(
+        x = x,
+        ArrowFile = ArrowFile,
+        ArchRProj = ArchRProj, 
+        cellNames = ArchRProj$cellNames, 
+        cellNamesList = cellNamesList, 
+        featureDF = featureDF
       )
-    colnames(valuesx) <- cellNamesList[[x]]
+      .logError(e, fn = ".getMatFromArrow", info = "", errorList = errorList, logFile = logFile)  
+    })
     valuesx
   }, threads = threads) %>% Reduce("cbind", .)
   values <- values[, ArchRProj$cellNames, drop = FALSE]
   message("")
   gc()
+  .logThis(values, "Feature-Matrix", logFile = logFile)
 
   if(!inherits(values, "matrix")){
     values <- matrix(as.matrix(values), ncol = nCells(ArchRProj))
@@ -728,6 +932,3 @@ plotGroups <- function(
 
 }
 
-.isDiscrete <- function(x = NULL){
-  is.factor(x) || is.character(x) || is.logical(x)
-}

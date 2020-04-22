@@ -21,8 +21,8 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if
 #' insertion coverage / pseudo-bulk replicate information already exists.
-#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
-#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param verbose A boolean value that determines whether standard output includes verbose sections.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addGroupCoverages <- function(
   ArchRProj = NULL,
@@ -39,8 +39,8 @@ addGroupCoverages <- function(
   returnGroups = FALSE,
   parallelParam = NULL,
   force = FALSE,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
+  verbose = TRUE,
+  logFile = createLogFile("addGroupCoverages")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -50,23 +50,23 @@ addGroupCoverages <- function(
   .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
   .validInput(input = maxFragments, name = "maxFragments", valid = c("integer"))
   .validInput(input = minReplicates, name = "minReplicates", valid = c("integer"))
+  .validInput(input = maxReplicates, name = "maxReplicates", valid = c("integer"))
   .validInput(input = sampleRatio, name = "sampleRatio", valid = c("numeric"))
   .validInput(input = kmerLength, name = "kmerLength", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = returnGroups, name = "returnGroups", valid = c("boolean"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
-  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   if(minReplicates < 2){
     stop("minReplicates must be at least 2!")
   }
 
-  if(verboseAll){
-    verboseHeader <- TRUE
-  }
-
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+
   Params <- SimpleList(
     groupBy = groupBy,
     minCells = minCells,
@@ -129,7 +129,9 @@ addGroupCoverages <- function(
         maxCells = maxCells,
         minReplicates = minReplicates, 
         maxReplicates = maxReplicates,
-        sampleRatio = sampleRatio
+        sampleRatio = sampleRatio,
+        prefix = sprintf("%s (%s of %s) :", uniqueGroups, x, length(uniqueGroups)),
+        logFile = logFile
       )
       if(is.null(outListx)){
         return(NULL)
@@ -160,7 +162,7 @@ addGroupCoverages <- function(
     }
   }
   if(it > 0){
-    .messageDiffTime(sprintf("Further Sampled %s Groups above the Max Fragments!", it), tstart)
+    .logDiffTime(sprintf("Further Sampled %s Groups above the Max Fragments!", it), tstart)
   }
 
   if(returnGroups){
@@ -196,9 +198,9 @@ addGroupCoverages <- function(
   args$covDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy)
   args$parallelParam <- parallelParam
   args$threads <- threads
-  args$verboseHeader <- verboseHeader
-  args$verboseAll <- verboseAll
+  args$verbose <- verbose
   args$tstart <- tstart
+  args$logFile <- logFile
   args$registryDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", "batchRegistry")
 
   #####################################################
@@ -209,7 +211,7 @@ addGroupCoverages <- function(
   h5disableFileLocking()
 
   #Batch Apply
-  .messageDiffTime(sprintf("Creating Coverage Files!"), tstart, addHeader = verboseAll)
+  .logDiffTime(sprintf("Creating Coverage Files!"), tstart, addHeader = FALSE)
   batchOut <- .batchlapply(args)
   coverageFiles <- lapply(seq_along(batchOut),function(x) batchOut[[x]]$covFile) %>% unlist
   nCells <- lapply(seq_along(batchOut),function(x) batchOut[[x]]$nCells) %>% unlist
@@ -230,18 +232,20 @@ addGroupCoverages <- function(
   #####################################################
   # Compute Kmer Bias for each coverage file!
   #####################################################
-  .messageDiffTime(sprintf("Adding Kmer Bias to Coverage Files!"), tstart, addHeader = verboseAll)
+  .logDiffTime(sprintf("Adding Kmer Bias to Coverage Files!"), tstart, addHeader = FALSE)
   o <- .addKmerBiasToCoverage(
     coverageMetadata = coverageMetadata, 
     genome = getGenome(ArchRProj), 
     kmerLength = kmerLength, 
     threads = threads,
-    verbose = verboseAll
-    )
+    verbose = FALSE,
+    logFile = logFile
+  )
 
   ArchRProj@projectMetadata$GroupCoverages[[groupBy]] <- SimpleList(Params = Params, coverageMetadata = coverageMetadata)
 
-  .messageDiffTime(sprintf("Finished Creation of Coverage Files!"), tstart, addHeader = verboseAll)
+  .logDiffTime(sprintf("Finished Creation of Coverage Files!"), tstart, addHeader = FALSE)
+  .endLogging(logFile = logFile)
 
   ArchRProj
 
@@ -255,7 +259,7 @@ addGroupCoverages <- function(
   i = NULL, 
   cellGroups,
   kmerBias = NULL, 
-  kmerLength = 5, 
+  kmerLength = 6, 
   genome = NULL,
   ArrowFiles = NULL, 
   cellsInArrow = NULL, 
@@ -264,11 +268,13 @@ addGroupCoverages <- function(
   covDir = NULL, 
   tstart = NULL, 
   subThreads = 1,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
+  verbose = TRUE,
+  logFile = NULL
   ){
 
-  .messageDiffTime(sprintf("Creating Group Coverage %s of %s", i, length(cellGroups)), tstart, verbose = verboseHeader)
+  prefix <- sprintf("Group (%s of %s) :", i, length(cellGroups))
+
+  .logDiffTime(sprintf("%s Creating Group Coverage", prefix), tstart, verbose = verbose, logFile = logFile)
 
   #Cells
   cellGroupi <- cellGroups[[i]]
@@ -293,12 +299,7 @@ addGroupCoverages <- function(
   nFragDump <- 0
   nCells <- c()
   for(k in seq_along(availableChr)){
-    
-    if(k %% 3 == 0){
-      .messageDiffTime(sprintf("Group %s of %s, Read Fragments %s of %s!", i, 
-        length(cellGroups), k, length(availableChr)), tstart, verbose = verboseAll)
-    }
-    
+    .logDiffTime(sprintf("%s Processed Fragments Chr (%s of %s)", prefix, k, length(availableChr)), tstart, verbose = FALSE, logFile = logFile)
     it <- 0
     for(j in seq_along(ArrowFiles)){
       cellsInI <- sum(cellsInArrow[[names(ArrowFiles)[j]]] %in% cellGroupi)
@@ -337,6 +338,7 @@ addGroupCoverages <- function(
   }
 
   if(length(unique(cellGroupi)) != length(unique(nCells))){
+    .logMessage(paste0("Not all cells (", length(unique(cellGroupi)), ") were found for coverage creation (", length(unique(nCells)), ")!"), logFile = logFile)
     stop("Not all cells (", length(unique(cellGroupi)), ") were found for coverage creation (", length(unique(nCells)), ")!")
   }
 
@@ -359,47 +361,34 @@ addGroupCoverages <- function(
   filterGroups = FALSE,
   minReplicates = 2,
   maxReplicates = NULL,
-  sampleRatio = 0.8
+  sampleRatio = 0.8,
+  prefix = NULL,
+  logFile = NULL
   ){
 
-    .leastOverlapCells <- function(x = NULL, n = 2, nSample = 0.8 * length(l), iterations = 100, replace = FALSE){   
-        set.seed(1)
-        maxMat <- matrix(0, nrow = length(x), ncol = n)
-        for(i in seq_len(iterations)){
-          currentMat <- matrix(0, nrow = length(x), ncol = n)
-          for(j in seq_len(n)){
-            currentMat[sample(seq_along(x), nSample, replace = replace), j] <- 1
-          }
-          disti <- max(dist(t(currentMat), method = "euclidean"))
-          if(i==1){
-            maxMat <- currentMat
-            maxDist <- disti
-          }else{
-            if(disti > maxDist){
-              maxMat <- currentMat
-              maxDist <- disti        
-            }
-          }
-        }
-        out <- lapply(seq_len(ncol(maxMat)), function(i){
-            x[which(maxMat[,i]==1)]
-        })
-        return(out)
+  if(is.null(sampleLabels)){
+    sampleLabels <- rep("A", length(cells))
+  }else{
+    if(length(cells) != length(sampleLabels)){
+      .logMessage("Length of cells need to be same length as sample labels!", logFile = logFile)
+      stop("Length of cells need to be same length as sample labels!")
     }
+  }
+  nCells <- length(cells)
+  nCellsPerSample <- table(sampleLabels)
+  nCellsPerSample <- nCellsPerSample[sample(seq_along(nCellsPerSample), length(nCellsPerSample))]
+  #Samples Passing Min Filter
+  samplesPassFilter <- sum(nCellsPerSample >= minCells)   
+  samplesThatCouldBeMergedToPass <- floor(sum(nCellsPerSample[nCellsPerSample < minCells]) / minCells)
 
-    if(is.null(sampleLabels)){
-      sampleLabels <- rep("A", length(cells))
-    }else{
-      if(length(cells) != length(sampleLabels)){
-        stop("Length of cells need to be same length as sample labels!")
-      }
-    }
-    nCells <- length(cells)
-    nCellsPerSample <- table(sampleLabels)
-    nCellsPerSample <- nCellsPerSample[sample(seq_along(nCellsPerSample), length(nCellsPerSample))]
-    #Samples Passing Min Filter
-    samplesPassFilter <- sum(nCellsPerSample >= minCells)   
-    samplesThatCouldBeMergedToPass <- floor(sum(nCellsPerSample[nCellsPerSample < minCells]) / minCells)
+  errorList <- mget(names(formals()),sys.frame(sys.nframe()))
+  errorList$nCells <- nCells
+  errorList$nCellsPerSample <- nCellsPerSample
+  errorList$samplesPassFilter <- samplesPassFilter
+  errorList$samplesThatCouldBeMergedToPass <- samplesThatCouldBeMergedToPass
+
+  cellGroupsPass2 <- tryCatch({
+
     if(nCells >= minCells * minReplicates & useLabels){
         ############################################################
         # Identifying High-Quality peaks when Cells and Fragments are abundant
@@ -491,8 +480,44 @@ addGroupCoverages <- function(
       }    
     }
 
-  return(cellGroupsPass)
+    cellGroupsPass
+
+  }, error = function(e){
+
+   .logError(e, fn = ".identifyGroupsForPseudoBulk", info = prefix, errorList = errorList, logFile = logFile) 
+
+  })
+
+  .logMessage(paste0(prefix, " CellGroups N = ", length(cellGroupsPass2)), logFile = logFile)
+  #.logThis(cellGroupsPass2, paste0(prefix, " CellGroups"), logFile = logFile)
+
+  return(cellGroupsPass2)
   
+}
+
+.leastOverlapCells <- function(x = NULL, n = 2, nSample = 0.8 * length(l), iterations = 100, replace = FALSE){   
+    set.seed(1)
+    maxMat <- matrix(0, nrow = length(x), ncol = n)
+    for(i in seq_len(iterations)){
+      currentMat <- matrix(0, nrow = length(x), ncol = n)
+      for(j in seq_len(n)){
+        currentMat[sample(seq_along(x), nSample, replace = replace), j] <- 1
+      }
+      disti <- max(dist(t(currentMat), method = "euclidean"))
+      if(i==1){
+        maxMat <- currentMat
+        maxDist <- disti
+      }else{
+        if(disti > maxDist){
+          maxMat <- currentMat
+          maxDist <- disti        
+        }
+      }
+    }
+    out <- lapply(seq_len(ncol(maxMat)), function(i){
+        x[which(maxMat[,i]==1)]
+    })
+    return(out)
 }
 
 #####################################################################################################
@@ -504,8 +529,11 @@ addGroupCoverages <- function(
   kmerLength = NULL,
   threads = NULL,
   verbose = TRUE,
-  tstart = NULL
+  tstart = NULL,
+  logFile = NULL
   ){
+
+  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "kmerBias-Parameters", logFile = logFile)
   
   .requirePackage(genome)
   .requirePackage("Biostrings", source = "bioc")
@@ -521,21 +549,37 @@ addGroupCoverages <- function(
   availableChr <- .availableSeqnames(coverageFiles, "Coverage")
 
   biasList <- .safelapply(seq_along(availableChr), function(x){
+    .logMessage(sprintf("Kmer Bias %s (%s of %s)", availableChr[x], x, length(availableChr)), logFile = logFile)
     message(availableChr[x]," ", appendLF = FALSE)
     chrBS <- BSgenome[[availableChr[x]]]
     exp <- Biostrings::oligonucleotideFrequency(chrBS, width = kmerLength)
     obsList <- lapply(seq_along(coverageFiles), function(y){
-      obsx <- .getCoverageInsertionSites(coverageFiles[y], availableChr[x]) %>%
-        {BSgenome::Views(chrBS, IRanges(start = . - floor(kmerLength/2), width = kmerLength))} %>%
-        {Biostrings::oligonucleotideFrequency(., width = kmerLength, simplify.as="collapsed")}
-        gc()
+      .logMessage(sprintf("Coverage File %s (%s of %s)", availableChr[x], y, length(coverageFiles)), logFile = logFile)
+      tryCatch({
+        obsx <- .getCoverageInsertionSites(coverageFiles[y], availableChr[x]) %>%
+          {BSgenome::Views(chrBS, IRanges(start = . - floor(kmerLength/2), width = kmerLength))} %>%
+          {Biostrings::oligonucleotideFrequency(., width = kmerLength, simplify.as="collapsed")}
+          gc()
         obsx
+      }, error = function(e){
+        errorList <- list(
+          y = y, 
+          coverageFile = coverageFiles[y], 
+          chr = availableChr[x], 
+          iS = tryCatch({
+            .getCoverageInsertionSites(coverageFiles[y], availableChr[x])
+            }, error = function(e){
+              "Error .getCoverageInsertionSites"
+            })
+        )
+        .logError(e, fn = ".addKmerBiasToCoverage", info = "", errorList = errorList, logFile = logFile)
+      })
     }) %>% SimpleList
     names(obsList) <- names(coverageFiles)
     SimpleList(expected = exp, observed = obsList)
   }, threads = threads) %>% SimpleList
   names(biasList) <- availableChr
-  message("")
+  .logMessage("Completed Kmer Bias Calculation", logFile = logFile)
 
   #Summarize Bias
   for(i in seq_along(biasList)){
@@ -552,8 +596,12 @@ addGroupCoverages <- function(
 
   #Write Bias to Coverage Files
   for(i in seq_along(coverageFiles)){
+
+    .logMessage(sprintf("Adding Kmer Bias (%s of %s)", i, length(coverageFiles)), logFile = logFile)
+
     obsAlli <- obsAll[[names(coverageFiles)[i]]]
     if(!identical(names(expAll), names(obsAlli))){
+      .logMessage("Kmer Names in Exp and Obs not Identical!", logFile = logFile)
       stop("Kmer Names in Exp and Obs not Identical!")
     }
     o <- h5createGroup(coverageFiles[i], "KmerBias")
@@ -638,7 +686,7 @@ addGroupCoverages <- function(
 # Write Coverage To Bed File for MACS2
 #####################################################################################################
 
-.writeCoverageToBed <- function(coverageFile = NULL, out = NULL, excludeChr = NULL){
+.writeCoverageToBed <- function(coverageFile = NULL, out = NULL, excludeChr = NULL, logFile = NULL){
   rmf <- .suppressAll(file.remove(out))
   allChr <- .availableSeqnames(coverageFile, "Coverage")
   if(!is.null(excludeChr)){
@@ -649,12 +697,22 @@ addGroupCoverages <- function(
   }
   ##Note that there was a bug with data.table vs data.frame with stacking
   for(x in seq_along(allChr)){
-    .getCoverageInsertionSites(coverageFile, allChr[x]) %>% 
-      {data.table(seqnames = allChr[x], start = . - 1L, end = .)} %>% 
-      {data.table::fwrite(., out, sep = "\t", col.names = FALSE, append = TRUE)}
+    o <- tryCatch({
+      iS <- .getCoverageInsertionSites(coverageFile = coverageFile, chr = allChr[x])
+      if(x == 1) .logThis(iS, "InsertionSites", logFile = logFile)
+      iS <- data.table(seqnames = allChr[x], start = iS - 1L, end = iS)
+      if(x == 1) .logThis(iS, "InsertionSites-DT", logFile = logFile)
+      data.table::fwrite(iS, out, sep = "\t", col.names = FALSE, append = TRUE)
+    }, error = function(e){
+      errorList <- list(
+        x = x, 
+        coverageFile = coverageFile, 
+        allChr = allChr, 
+        iS = if(exists("iS", inherits = FALSE)) iS else "Error with insertion sites!"
+      )
+      .logError(e, fn = ".writeCoverageToBed", info = "", errorList = errorList, logFile = logFile)
+    })
   }
   out
 }
-
-
 

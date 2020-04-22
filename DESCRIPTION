@@ -2,7 +2,7 @@ Package: ArchR
 Type: Package
 Date: 2019-03-10
 Title: Analyzing single-cell regulatory chromatin in R.
-Version: 0.2.2
+Version: 0.9.1
 Authors@R: c(
     person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
@@ -42,27 +42,32 @@ Depends:
     GenomicRanges
 Collate: 
     'AllClasses.R'
+    'AnnotationGenome.R'
+    'AnnotationPeaks.R'
     'ArchRBrowser.R'
-    'HelperUtils.R'
-    'ArchRProjectExports.R'
-    'ArchRProjectMethods.R'
-    'ArrowMethods.R'
+    'ArchRHeatmap.R'
     'ArrowRead.R'
+    'ArrowUtils.R'
     'ArrowWrite.R'
     'BulkProjection.R'
     'Clustering.R'
     'ColorPalettes.R'
-    'CorrelateAssays.R'
     'CreateArrow.R'
     'DoubletsScores.R'
     'Embedding.R'
     'FilterCells.R'
     'Footprinting.R'
     'GRangesUtils.R'
-    'GgplotHelper.R'
+    'GgplotUtils.R'
+    'GlobalDefaults.R'
     'GroupCoverages.R'
+    'HelperUtils.R'
+    'GroupExport.R'
     'Harmony.R'
+    'HiddenUtils.R'
     'Imputation.R'
+    'InputData.R'
+    'IntegrativeAnalysis.R'
     'IterativeLSI.R'
     'LoggerUtils.R'
     'MarkerFeatures.R'
@@ -70,11 +75,11 @@ Collate:
     'MatrixFeatures.R'
     'MatrixGeneScores.R'
     'MatrixTiles.R'
-    'PeakAnnotation.R'
+    'ProjectMethods.R'
     'QualityControl.R'
     'RNAIntegration.R'
     'RcppExports.R'
     'ReproduciblePeakSet.R'
     'Trajectory.R'
+    'ValidationUtils.R'
     'VisualizeData.R'
-    'zzz.R'

@@ -13,10 +13,12 @@ addTrajectory(
   embedding = NULL,
   preFilterQuantile = 0.9,
   postFilterQuantile = 0.9,
-  useAll = TRUE,
+  useAll = FALSE,
   dof = 250,
   spar = 1,
-  force = FALSE
+  force = FALSE,
+  seed = 1,
+  logFile = createLogFile("addTrajectory")
 )
 }
 \arguments{
@@ -41,11 +43,17 @@ center is above the provided quantile will be excluded.}
 \item{postFilterQuantile}{After initial supervised trajectory fitting, cells whose euclidean distance from the cell-grouping center
 is above the provided quantile will be excluded.}
 
+\item{useAll}{A boolean describing whether to use cells outside of trajectory groups for post-fitting procedure.}
+
 \item{dof}{The number of degrees of freedom to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
 \item{spar}{The sparsity to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
 \item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exists in the given \code{ArchRProject}.}
+
+\item{seed}{A number to be used as the seed for random number generation for trajectory creation.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will fit a supervised trajectory in a lower dimensional space that

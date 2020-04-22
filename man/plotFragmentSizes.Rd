@@ -4,8 +4,13 @@
 \alias{plotFragmentSizes}
 \title{Plot the fragment size distribution for each sample}
 \usage{
-plotFragmentSizes(ArchRProj = NULL, maxSize = 750, returnDF = FALSE,
-  threads = getArchRThreads())
+plotFragmentSizes(
+  ArchRProj = NULL,
+  maxSize = 750,
+  returnDF = FALSE,
+  threads = getArchRThreads(),
+  logFile = createLogFile("plotFragmentSizes")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -16,6 +21,8 @@ plotFragmentSizes(ArchRProj = NULL, maxSize = 750, returnDF = FALSE,
 instead of plotting the fragment size distribution.}
 
 \item{threads}{An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by \code{addArchRThreads()}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will plot a fragment size distribution for each sample. Only cells in the \code{ArchRProject} are used when making this plot.

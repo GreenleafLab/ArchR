@@ -4,15 +4,29 @@
 \alias{addGeneScoreMatrix}
 \title{Add GeneScoreMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneScoreMatrix(input = NULL, genes = getGenes(input),
+addGeneScoreMatrix(
+  input = NULL,
+  genes = getGenes(input),
   geneModel = "exp(-abs(x)/5000) + exp(-1)",
-  matrixName = "GeneScoreMatrix", extendUpstream = c(1000, 1e+05),
-  extendDownstream = c(1000, 1e+05), geneUpstream = 5000,
-  geneDownstream = 0, useGeneBoundaries = TRUE, useTSS = FALSE,
-  tileSize = 500, ceiling = 4, geneScaleFactor = 5,
-  scaleTo = 10000, excludeChr = c("chrY", "chrM"),
-  blacklist = getBlacklist(input), threads = getArchRThreads(),
-  parallelParam = NULL, subThreading = TRUE, force = FALSE)
+  matrixName = "GeneScoreMatrix",
+  extendUpstream = c(1000, 1e+05),
+  extendDownstream = c(1000, 1e+05),
+  geneUpstream = 5000,
+  geneDownstream = 0,
+  useGeneBoundaries = TRUE,
+  useTSS = FALSE,
+  tileSize = 500,
+  ceiling = 4,
+  geneScaleFactor = 5,
+  scaleTo = 10000,
+  excludeChr = c("chrY", "chrM"),
+  blacklist = getBlacklist(input),
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  subThreading = TRUE,
+  force = FALSE,
+  logFile = createLogFile("addGeneScoreMatrix")
+)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
@@ -51,6 +65,8 @@ biasing the geneScores for genes nearby that locus.}
 \item{subThreading}{A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{input}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function, for each sample, will independently compute counts for each tile

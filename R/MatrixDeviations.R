@@ -18,9 +18,11 @@
 #' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations.
 #' This is often desired when working with insertion counts.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it
 #' already exists in the ArrowFiles associated with the given `ArchRProject`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj = NULL,
@@ -31,8 +33,10 @@ addDeviationsMatrix <- function(
   out = c("z", "deviations"),
   binarize = FALSE,
   threads = getArchRThreads(),
+  verbose = TRUE,
   parallelParam = NULL,
-  force = FALSE
+  force = FALSE,
+  logFile = createLogFile("addDeviationsMatrix")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -43,11 +47,14 @@ addDeviationsMatrix <- function(
   .validInput(input = out, name = "out", valid = c("character"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
-  set.seed(1)
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+
   if(!inherits(ArchRProj, "ArchRProject")){
     stop("Error Needs to be ArchR Project for Input!")
   }
@@ -103,7 +110,7 @@ addDeviationsMatrix <- function(
   annotationsMatrix <- annotationsMatrix[rownames(rS), ]
 
   #Create args list
-  args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
+  args <- mget(names(formals()),sys.frame(sys.nframe()))
 
   #Add args to list
   args$peakAnnotation <- NULL
@@ -117,15 +124,20 @@ addDeviationsMatrix <- function(
   args$matrixName <- matrixName
   args$X <- seq_along(ArrowFiles)
   args$FUN <- .addDeviationsMatrix
+  args$logFile <- logFile
   args$registryDir <- file.path(getOutputDirectory(ArchRProj), paste0(matrixName,"DeviationsRegistry"))
 
   #Remove Project from Args
   args$ArchRProj <- NULL
   args$matches <- NULL
 
+  .logThis(args, "Deviations-Args", logFile = logFile)
+
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
-  .messageDiffTime("Completed Computing Deviations!", tstart, addHeader = TRUE)
+  .logDiffTime("Completed Computing Deviations!", tstart, addHeader = TRUE, logFile = logFile)
+
+  .endLogging(logFile = logFile)
   gc()
 
   return(ArchRProj)
@@ -145,8 +157,10 @@ addDeviationsMatrix <- function(
   useMatrix = "PeakMatrix",
   matrixName = "Motif", 
   force = FALSE,
+  verbose = TRUE,
   tstart = NULL,
-  subThreads = 1
+  subThreads = 1,
+  logFile = NULL
   ){
 
   gc()
@@ -165,41 +179,65 @@ addDeviationsMatrix <- function(
   }
 
   #Check
-  completed <- tryCatch({
-      h5read(ArrowFile, paste0(matrixName,"/Info/Completed")) #Check if completed
-      return(TRUE)
-    },error = function(y){
-      return(FALSE)
-  })
-  if(completed){
-    if(!force){
-      message("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations.")
-      return(0)
-    }else{
-      message("Previous Run Completed Successfully, continuing since force = TRUE!")
-    }
-  }
+  # completed <- tryCatch({
+  #     h5read(ArrowFile, paste0(matrixName,"/Info/Completed")) #Check if completed
+  #     return(TRUE)
+  #   },error = function(y){
+  #     return(FALSE)
+  # })
+  # if(completed){
+  #   if(!force){
+  #     .logMessage(paste0("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations."), logFile = logFile)
+  #     message("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations.")
+  #     return(0)
+  #   }else{
+  #     .logMessage("Previous Run Completed Successfully, continuing since force = TRUE!", logFile = logFile)
+  #     message("Previous Run Completed Successfully, continuing since force = TRUE!")
+  #   }
+  # }
   o <- h5closeAll()
-  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force, logFile = logFile)
 
   #Get Matrix and Run ChromVAR!
-  .messageDiffTime(sprintf("chromVAR deviations %s Schep (2017)", prefix), tstart, addHeader = TRUE)
-  dev <- .getMatFromArrow(
-    ArrowFile, 
-    featureDF = featureDF, 
-    binarize = binarize, 
-    useMatrix = useMatrix,
-    cellNames = cellNames
-    ) %>% {.customDeviations(
-      countsMatrix = .,
+  .logDiffTime(sprintf("chromVAR deviations %s Schep (2017)", prefix), tstart, addHeader = FALSE, logFile = logFile)
+  dev <- tryCatch({
+    
+    .getMatFromArrow(
+      ArrowFile, 
+      featureDF = featureDF, 
+      binarize = binarize, 
+      useMatrix = useMatrix,
+      cellNames = cellNames
+      ) %>% {.customDeviations(
+        countsMatrix = .,
+        annotationsMatrix = annotationsMatrix,
+        prefix = prefix,
+        backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
+        expectation = featureDF$rowSums/sum(featureDF$rowSums),
+        out = out,
+        verbose = verbose,
+        threads = subThreads,
+        logFile = logFile
+      )}
+  
+  }, error = function(e){
+
+    errorList <- list(
       annotationsMatrix = annotationsMatrix,
       prefix = prefix,
       backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
       expectation = featureDF$rowSums/sum(featureDF$rowSums),
       out = out,
-      threads = subThreads
-    )}
+      verbose = verbose,
+      threads = subThreads,
+      logFile = logFile
+    )
+    
+    .logError(e, fn = ".computeDeviations", info = prefix, errorList = errorList, logFile = logFile)
+
+  })
   gc()
+  .logThis(dev, "dev", logFile = logFile)
 
   #######################################
   # Initialize Matrix Group
@@ -216,6 +254,7 @@ addDeviationsMatrix <- function(
   }
 
   featureDF <- featureDF[order(featureDF[,1]),]
+  .logThis(featureDF, "featureDF", logFile = logFile)
 
   Units <- c()
   if("z" %in% tolower(out)){
@@ -269,7 +308,7 @@ addDeviationsMatrix <- function(
   #Add Completion Mark
   o <- h5write(obj = "Finished", file = ArrowFile, name = paste0(matrixName,"/Info/Completed"))
 
-  .messageDiffTime("Finished Computing Deviations!", tstart)
+  .logDiffTime("Finished Computing Deviations!", tstart)
 
   return(0)
 
@@ -285,7 +324,9 @@ addDeviationsMatrix <- function(
   expectation = NULL,
   prefix = "",
   out = c("deviations", "z"),
-  threads = 1
+  threads = 1,
+  verbose = TRUE,
+  logFile = NULL
   ){
 
   tstart <- Sys.time()
@@ -298,10 +339,24 @@ addDeviationsMatrix <- function(
   norm_expectation <- expectation / sum(expectation) #Double check this sums to 1!
   countsPerSample <- Matrix::colSums(countsMatrix)
 
+  .logThis(countsMatrix, paste0(prefix, " : CountsMatrix"))
+  .logThis(annotationsMatrix, paste0(prefix, " : annotationsMatrix"))
+  .logThis(backgroudPeaks, paste0(prefix, " : backgroudPeaks"))
+  .logThis(expectation, paste0(prefix, " : expectation"))
+
   d <- max(floor(ncol(annotationsMatrix)/20), 1)
+  m <- 0
   results <- .safelapply(seq_len(ncol(annotationsMatrix)), function(x){
     if(x %% d == 0){
-      .messageDiffTime(sprintf("%s : Deviations for Annotation %s of %s", prefix, x, ncol(annotationsMatrix)), tstart)
+      .logDiffTime(sprintf("%s : Deviations for Annotation %s of %s", prefix, x, ncol(annotationsMatrix)), tstart, verbose = verbose, logFile = logFile)
+      m <- 1 #Print to console
+    }
+    if(x %% max(floor(d/5), 2) == 0){
+      if(m != 1){
+        .logDiffTime(sprintf("%s : Deviations for Annotation %s of %s", prefix, x, ncol(annotationsMatrix)), tstart, verbose = FALSE, logFile = logFile)
+      }else{
+        m <- 0 #Reset
+      }
     }
     if(x %% max(c(d, 10)) == 0){
       gc()
@@ -312,7 +367,9 @@ addDeviationsMatrix <- function(
       backgroudPeaks = backgroudPeaks,
       countsPerSample = countsPerSample,
       expectation = norm_expectation,
-      out = out
+      out = out,
+      logFile = logFile,
+      prefix = prefix
     )
   }, threads = threads)
   cn <- colnames(countsMatrix)
@@ -365,8 +422,9 @@ addDeviationsMatrix <- function(
   backgroudPeaks = NULL,
   out = c("deviations", "z"),
   expectation = NULL,
-  intermediate_results = FALSE,
-  threshold = 1
+  threshold = 1,
+  logFile = NULL,
+  prefix = ""
   ){
 
   .binarizeMat <- function(mat = NULL){
@@ -386,81 +444,102 @@ addDeviationsMatrix <- function(
     return(out)
   }
 
-  ################################
-  # Fore Ground Deviations
-  ################################
-  .requirePackage("Matrix",source="cran")
-  observed <- as.vector(Matrix::t(annotationsVector) %*% countsMatrix)
-  expected <- as.vector(Matrix::t(annotationsVector) %*% expectation %*% countsPerSample)
-  observed_deviation <- (observed - expected)/expected
+  outList <- tryCatch({
 
-  #Filter those with no matches at all
-  fail_filter <- which(expected == 0)
-  
-  ################################
-  # Back Ground Deviations
-  ################################
-  if("z" %in% tolower(out)){
+    ################################
+    # Fore Ground Deviations
+    ################################
+    observed <- as.vector(Matrix::t(annotationsVector) %*% countsMatrix)
+    expected <- as.vector(Matrix::t(annotationsVector) %*% expectation %*% countsPerSample)
+    observed_deviation <- (observed - expected)/expected
 
-    #Compute Background Null Per Iteration
-    niterations <- ncol(backgroudPeaks)
-    sampleMat <- Matrix::sparseMatrix(
-        j = as.vector(backgroudPeaks[annotationsVector@i + 1, seq_len(niterations)]),
-        i = rep(seq_len(niterations), each = length(annotationsVector@x)),
-        x = rep(annotationsVector@x, niterations),
-        dims = c(niterations, nrow(countsMatrix))
-    )  
-    sampled <- as.matrix(sampleMat %*% countsMatrix)
-    sampledExpected <- sampleMat %*% expectation %*% countsPerSample
-    sampledDeviation <- (sampled - sampledExpected)/sampledExpected
-    bgOverlap <- Matrix::mean(.binarizeMat(sampleMat) %*% .binarizeMat(annotationsVector)) / length(annotationsVector@x)
+    #Filter those with no matches at all
+    fail_filter <- which(expected == 0)
     
-    #Summary
-    meanSampledDeviation <- Matrix::colMeans(sampledDeviation)
-    sdSampledDeviation <- apply(as.matrix(sampledDeviation), 2, sd)
+    ################################
+    # Back Ground Deviations
+    ################################
+    if("z" %in% tolower(out)){
 
-    #Norm Deviation
-    normdev <- (observed_deviation - meanSampledDeviation)
-    z <- normdev/sdSampledDeviation
-    if (length(fail_filter) > 0) {
-      z[fail_filter] <- NA
-      normdev[fail_filter] <- NA
+      #Compute Background Null Per Iteration
+      niterations <- ncol(backgroudPeaks)
+      sampleMat <- Matrix::sparseMatrix(
+          j = as.vector(backgroudPeaks[annotationsVector@i + 1, seq_len(niterations)]),
+          i = rep(seq_len(niterations), each = length(annotationsVector@x)),
+          x = rep(annotationsVector@x, niterations),
+          dims = c(niterations, nrow(countsMatrix))
+      )  
+      sampled <- as.matrix(sampleMat %*% countsMatrix)
+      sampledExpected <- sampleMat %*% expectation %*% countsPerSample
+      sampledDeviation <- (sampled - sampledExpected)/sampledExpected
+      bgOverlap <- Matrix::mean(.binarizeMat(sampleMat) %*% .binarizeMat(annotationsVector)) / length(annotationsVector@x)
+      
+      #Summary
+      meanSampledDeviation <- Matrix::colMeans(sampledDeviation)
+      sdSampledDeviation <- apply(as.matrix(sampledDeviation), 2, sd)
+
+      #Norm Deviation
+      normdev <- (observed_deviation - meanSampledDeviation)
+      z <- normdev/sdSampledDeviation
+      if (length(fail_filter) > 0) {
+        z[fail_filter] <- NA
+        normdev[fail_filter] <- NA
+      }
+
+    }else{
+
+      #Compute Background Null Per Iteration
+      niterations <- ncol(backgroudPeaks)
+      sampleMat2 <- Matrix::sparseMatrix(
+          j = as.vector(backgroudPeaks[annotationsVector@i + 1, seq_len(niterations)]),
+          i = rep(1, niterations * length(annotationsVector@x)),
+          x = rep(annotationsVector@x, niterations),
+          dims = c(1, nrow(countsMatrix))
+      )
+      sampled2 <- (sampleMat2 %*% countsMatrix)[1,]
+      sampledExpected2 <- (sampleMat2 %*% expectation %*% countsPerSample)[1,]
+      ######################
+      # Equivalent to above
+      # colMeans(sampled) - colMeans(sampledExpected))/colMeans(sampledExpected)
+      ######################
+      sampledDeviation2 <- (sampled2 - sampledExpected2)/sampledExpected2
+      bgOverlap <- NA
+
+      #Norm Deviation
+      normdev <- (observed_deviation - sampledDeviation2)
+      z <- NULL
+      if (length(fail_filter) > 0) {
+        normdev[fail_filter] <- NA
+      }
+
     }
 
-  }else{
-
-    #Compute Background Null Per Iteration
-    niterations <- ncol(backgroudPeaks)
-    sampleMat2 <- Matrix::sparseMatrix(
-        j = as.vector(backgroudPeaks[annotationsVector@i + 1, seq_len(niterations)]),
-        i = rep(1, niterations * length(annotationsVector@x)),
-        x = rep(annotationsVector@x, niterations),
-        dims = c(1, nrow(countsMatrix))
+    outList <- list(
+      z = z, 
+      dev = normdev, 
+      matches = length(annotationsVector@x) / nrow(countsMatrix), 
+      overlap = bgOverlap
     )
-    sampled2 <- (sampleMat2 %*% countsMatrix)[1,]
-    sampledExpected2 <- (sampleMat2 %*% expectation %*% countsPerSample)[1,]
-    ######################
-    # Equivalent to above
-    # colMeans(sampled) - colMeans(sampledExpected))/colMeans(sampledExpected)
-    ######################
-    sampledDeviation2 <- (sampled2 - sampledExpected2)/sampledExpected2
-    bgOverlap <- NA
 
-    #Norm Deviation
-    normdev <- (observed_deviation - sampledDeviation2)
-    z <- NULL
-    if (length(fail_filter) > 0) {
-      normdev[fail_filter] <- NA
-    }
+    outList
 
-  }
+  }, error = function(e){
 
-  outList <- list(
-    z = z, 
-    dev = normdev, 
-    matches = length(annotationsVector@x) / nrow(countsMatrix), 
-    overlap = bgOverlap
-  )
+    errorList <- list(
+      annotationsVector = annotationsVector,
+      observed = if(exists("observed", inherits = FALSE)) observed else "observed",
+      expected = if(exists("expected", inherits = FALSE)) expected else "expected",
+      sampleMat = if(exists("sampleMat", inherits = FALSE)) sampleMat else "sampleMat",
+      sampleMat2 = if(exists("sampleMat", inherits = FALSE)) sampleMat2 else "sampleMat2",
+      sampledDeviation = if(exists("sampledDeviation", inherits = FALSE)) sampledDeviation else "sampledDeviation",
+      sampledDeviation2 = if(exists("sampledDeviation2", inherits = FALSE)) sampledDeviation2 else "sampledDeviation2",
+      normdev = if(exists("normdev", inherits = FALSE)) normdev else "normdev",
+      z = if(exists("z", inherits = FALSE)) z else "z"
+    )
+
+    .logError(e, fn = ".customDeviationsSingle", info = prefix, errorList = errorList, logFile = logFile)
+
+  })
 
   return(outList)
 

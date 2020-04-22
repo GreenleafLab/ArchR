@@ -29,8 +29,8 @@
 #' have a very homogenous population of cells), setting `force=FALSE` will return -1 for all doubletScores and doubletEnrichments. If you would like to
 #' override this (not recommended!), you can bypass this warning by setting `force=TRUE`.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
-#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param verbose A boolean value that determines whether standard output is printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addDoubletScores <- function(
   input = NULL,
@@ -48,8 +48,8 @@ addDoubletScores <- function(
   threads = getArchRThreads(),
   force = FALSE,
   parallelParam = NULL,
-  verboseHeader = TRUE,
-  verboseAll = FALSE
+  verbose = TRUE,
+  logFile = createLogFile("addDoubletScores")
   ){
 
   .validInput(input = input, name = "input", valid = c("character", "ArchRProject"))
@@ -65,8 +65,12 @@ addDoubletScores <- function(
   .validInput(input = outDir, name = "outDir", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
-  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
-  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
+
+
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addDoubletScores Input-Parameters", logFile = logFile)
 
   if(tolower(useMatrix) %ni% c("peakmatrix","tilematrix")){
     stop(sprintf("Supported Matrix Names at the moment are PeakMatrix and TileMatrix : ", useMatrix))
@@ -104,8 +108,11 @@ addDoubletScores <- function(
   args$input <- NULL
 
   #Run With Parallel or lapply
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
   outList <- .batchlapply(args, sequential = TRUE)
   names(outList) <- names(ArrowFiles)
+
+  .endLogging(logFile = logFile)
 
   #Return Output
   if(inherits(input, "ArchRProject")){
@@ -147,9 +154,9 @@ addDoubletScores <- function(
   outDir = "QualityControl",
   force = FALSE,
   subThreads = 1,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
-  tstart = NULL
+  verbose = TRUE,
+  tstart = NULL,
+  logFile = NULL
   ){
 
   if(is.null(tstart)){
@@ -160,8 +167,9 @@ addDoubletScores <- function(
   sampleName <- .sampleName(ArrowFile)
   outDir <- file.path(outDir, sampleName)
   dir.create(outDir, showWarnings = FALSE)
+  prefix <- sprintf("%s (%s of %s) : ", sampleName, i, length(ArrowFiles))
 
-  .messageDiffTime(sprintf("Computing Doublet Scores %s (%s of %s)!", sampleName, i, length(ArrowFiles)), tstart, addHeader = TRUE)
+  .logDiffTime(sprintf("%s Computing Doublet Statistics", prefix), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
 
   #################################################
   # 1. Create ArchRProject For Iterative LSI
@@ -185,6 +193,7 @@ addDoubletScores <- function(
   #################################################
   # 2. Compute Iterative LSI
   #################################################
+  .logDiffTime("Running IterativeLSI", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
   LSIParams$ArchRProj <- proj
   LSIParams$saveIterations <- FALSE
   LSIParams$useMatrix <- useMatrix
@@ -193,15 +202,19 @@ addDoubletScores <- function(
   LSIParams$scaleDims <- scaleDims
   LSIParams$corCutOff <- corCutOff
   LSIParams$threads <- subThreads
-  LSIParams$verboseHeader <- verboseHeader
-  LSIParams$verboseAll <- verboseAll
+  LSIParams$verbose <- FALSE
   LSIParams$force  <- TRUE
-  proj <- do.call(addIterativeLSI, LSIParams)
+  LSIParams$logFile <- logFile
+  proj <- tryCatch({
+    do.call(addIterativeLSI, LSIParams)
+  }, error = function(e){
+    .logError(e, fn = "addIterativeLSI", info = prefix, errorList = list(ArrowFile = ArrowFile), logFile = logFile)
+  })
 
   #################################################
   # 3. Get LSI Partial Matrix For Simulation
   #################################################
-  .messageDiffTime("Constructing Partial Matrix for Projection", tstart, addHeader = verboseHeader)
+  .logDiffTime("Constructing Partial Matrix for Projection", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
   LSI <- getReducedDims(
     ArchRProj = proj, 
     reducedDims = "IterativeLSI", 
@@ -210,51 +223,93 @@ addDoubletScores <- function(
     scaleDims = scaleDims,
     returnMatrix = FALSE
   )
+  .logThis(LSI, name = paste0(prefix, "LSI Result"), logFile = logFile)
+
   LSIDims <- seq_len(ncol(LSI[[1]]))
   if(length(LSIDims) < 2){
+    .logMessage("Reduced LSI Dims below 2 dimensions, please increase dimsToUse or increase corCutOff!")
     stop("Reduced LSI Dims below 2 dimensions, please increase dimsToUse or increase corCutOff!")
   }
   featureDF <- LSI$LSIFeatures
-  mat <- .getPartialMatrix(
+
+  mat <- tryCatch({
+    .getPartialMatrix(
       ArrowFiles = getArrowFiles(proj),
       featureDF = featureDF,
       threads = subThreads,
       cellNames = rownames(getCellColData(proj)),
       doSampleCells = FALSE,
-      verbose = verboseAll
+      verbose = FALSE
     )
+  }, error = function(e){
+    errorList <- list(
+      ArrowFiles = getArrowFiles(proj),
+      featureDF = featureDF,
+      threads = subThreads,
+      cellNames = rownames(getCellColData(proj)),
+      doSampleCells = FALSE,
+      verbose = FALSE
+    )
+    .logError(e, fn = "getPartialMatrix", info = prefix, errorList = errorList, logFile = logFile)
+  })
   cellNames <- rownames(getCellColData(proj))
 
   #################################################
   # 4. Run UMAP for LSI-Projection
   #################################################
-  .messageDiffTime("Running LSI UMAP", tstart, addHeader = verboseHeader)
+  .logDiffTime("Running LSI UMAP", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
   set.seed(1) # Always do this prior to UMAP
   UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="euclidean", verbose=FALSE))
   UMAPParams$X <- LSI$matSVD
   UMAPParams$ret_nn <- TRUE
   UMAPParams$ret_model <- TRUE
   UMAPParams$n_threads <- subThreads
-  uwotUmap <- do.call(uwot::umap, UMAPParams)
+  .logThis(UMAPParams, name = paste0(prefix, "UMAP Params"), logFile = logFile)
+  uwotUmap <- tryCatch({
+    do.call(uwot::umap, UMAPParams)
+  }, error = function(e){
+    errorList <- UMAPParams
+    .logError(e, fn = "uwot::umap", info = prefix, errorList = errorList, logFile = logFile)
+  })
 
   #################################################
   # 5. Simulate and Project Doublets
   #################################################
-  .messageDiffTime("Simulating and Projecting Doublets", tstart, addHeader = verboseHeader)
-  simDoubletsSave <- .simulateProjectDoublets(
-    mat = mat, 
-    LSI = LSI, 
-    sampleRatio1 = c(1/2), 
-    sampleRatio2 = c(1/2), 
-    nTrials = nTrials * max( floor(nCells(proj) / nSample), 1 ), 
-    nSample = nSample, 
-    k = k, 
-    uwotUmap = uwotUmap,
-    seed = 1, 
-    force = force,
-    threads = subThreads
-  )
-
+  .logDiffTime("Simulating and Projecting Doublets", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
+  simDoubletsSave <- tryCatch({
+    .simulateProjectDoublets(
+      mat = mat, 
+      LSI = LSI, 
+      sampleRatio1 = c(1/2), 
+      sampleRatio2 = c(1/2), 
+      nTrials = nTrials * max( floor(nCells(proj) / nSample), 1 ), 
+      nSample = nSample, 
+      k = k, 
+      uwotUmap = uwotUmap,
+      seed = 1, 
+      force = force,
+      threads = subThreads,
+      logFile = logFile,
+      prefix = prefix
+    )
+  }, error = function(e){
+    errorList <- list(
+      mat = mat, 
+      LSI = LSI, 
+      sampleRatio1 = c(1/2), 
+      sampleRatio2 = c(1/2), 
+      nTrials = nTrials * max( floor(nCells(proj) / nSample), 1 ), 
+      nSample = nSample, 
+      k = k, 
+      uwotUmap = uwotUmap,
+      seed = 1, 
+      force = force,
+      threads = subThreads,
+      logFile = logFile,
+      prefix = prefix
+    )
+    .logError(e, fn = ".simulateProjectDoublets", info = prefix, errorList = errorList, logFile = logFile)    
+  })
   if(tolower(knnMethod)=="lsi"){
     simDoublets <- SimpleList(
       doubletUMAP=simDoubletsSave$doubletUMAP,
@@ -268,13 +323,13 @@ addDoubletScores <- function(
       doubletEnrich=simDoubletsSave$doubletEnrichUMAP
     )    
   }
+  .logThis(simDoublets, name = paste0(prefix, "SimulationResults"), logFile = logFile)
 
   #################################################
   # 6. Plot / Save Results
   #################################################
 
   pal <- c("grey", "#FB8861FF", "#B63679FF", "#51127CFF", "#000004FF") #grey_magma
-  #pal <- c("grey", "#3A97FF", "#8816A7", "black")
 
   #Create Plot DF
   df <- data.frame(row.names = rownames(LSI$matSVD), uwotUmap[[1]], type = "experiment")
@@ -291,9 +346,11 @@ addDoubletScores <- function(
   )
   dfDoub <- dfDoub[order(dfDoub$density), , drop = FALSE]
   dfDoub$color <- dfDoub$density
-  
+ 
   ##################################
   #Save Results
+  .logThis(df, name = paste0(prefix, "Sample UMAP"), logFile = logFile)
+  .logThis(dfDoub, name = paste0(prefix, "Simulated Doublet UMAP"), logFile = logFile)
   summaryList <- SimpleList(
     originalDataUMAP = df,
     simulatedDoubletUMAP = dfDoub,
@@ -307,8 +364,6 @@ addDoubletScores <- function(
   tmpFile <- .tempfile()
 
   o <- tryCatch({
-
-    sink(tmpFile)
 
     #Plot Doublet Summary
     pdf(file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.pdf")), width = 6, height = 6)
@@ -394,25 +449,21 @@ addDoubletScores <- function(
 
 
     #1. Doublet Enrichment
-    print(.fixPlotSize(penrich, plotWidth = 6, plotHeight = 6))
+    .fixPlotSize(penrich, plotWidth = 6, plotHeight = 6)
     grid::grid.newpage()
 
     #2. Doublet Scores
-    print(.fixPlotSize(pscore, plotWidth = 6, plotHeight = 6))
+    .fixPlotSize(pscore, plotWidth = 6, plotHeight = 6)
     grid::grid.newpage()
 
     #3. Doublet Density
-    print(.fixPlotSize(pdensity, plotWidth = 6, plotHeight = 6))
+    .fixPlotSize(pdensity, plotWidth = 6, plotHeight = 6)
 
     dev.off()
-    sink()
-    file.remove(tmpFile)
 
-  }, error = function(x){
-    
-    suppressWarnings(sink())
-    message(x)
-    
+  }, error = function(e){
+    errorList <- list(df=df,dfDoub=dfDoub)
+    .logError(e, fn = "ggplot", info = prefix, errorList = errorList, logFile = logFile, throwError = FALSE)
   })
 
   #################################################
@@ -451,7 +502,9 @@ addDoubletScores <- function(
   knnMethod = "UMAP",
   seed = 1, 
   threads = 1,
-  force = FALSE
+  force = FALSE,
+  logFile = NULL,
+  prefix = ""  
   ){
 
   .sampleSparseMat <- function(mat = NULL, sampleRatio = 0.5){
@@ -463,35 +516,36 @@ addDoubletScores <- function(
   }
 
   set.seed(seed)
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
+  simLSI <- tryCatch({
+    .safelapply(seq_len(nTrials), function(y){
+      if(y %% 5 == 0){
+        gc()
+      }
+      lapply(seq_along(sampleRatio1), function(x){
+        idx1 <- sample(seq_len(ncol(mat)), nSample, replace = TRUE)
+        idx2 <- sample(seq_len(ncol(mat)), nSample, replace = TRUE)
+        #Simulated Doublet
+        simulatedMat <- .sampleSparseMat(mat = mat[,idx1], sampleRatio = sampleRatio1[x]) + 
+                        .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
+        #Project LSI
+        lsiProject <- suppressMessages(.projectLSI(simulatedMat, LSI))
+        rownames(lsiProject) <- NULL
+        lsiProject
+      }) %>% Reduce("rbind", .)
+    }, threads = threads) %>% Reduce("rbind", .)
 
-  simLSI <- .safelapply(seq_len(nTrials), function(y){
+  }, error = function(e){
+    .logError(e, fn = "Simulate LSI Project Doublets", info = prefix, errorList = errorList, logFile = logFile)
+  })
 
-    if(y %% 5 == 0){
-      gc()
-    }
-
-    lapply(seq_along(sampleRatio1), function(x){
-
-      idx1 <- sample(seq_len(ncol(mat)), nSample, replace = TRUE)
-      idx2 <- sample(seq_len(ncol(mat)), nSample, replace = TRUE)
-
-      #Simulated Doublet
-      simulatedMat <- .sampleSparseMat(mat = mat[,idx1], sampleRatio = sampleRatio1[x]) + 
-                      .sampleSparseMat(mat = mat[,idx2], sampleRatio = sampleRatio2[x])
-
-      #Project LSI
-      lsiProject <- suppressMessages(.projectLSI(simulatedMat, LSI))
-      rownames(lsiProject) <- NULL
-
-      lsiProject
-
-    }) %>% Reduce("rbind", .)
-
-
-  }, threads = threads) %>% Reduce("rbind", .)
+  .logThis(simLSI, name = paste0(prefix, "SimulatedLSI"), logFile = logFile)
 
   #Compute original
   ogLSI <- suppressMessages(.projectLSI(mat, LSI))
+
+  .logThis(ogLSI, name = paste0(prefix, "OriginalLSI"), logFile = logFile)
+  .logThis(LSI[[1]], name = paste0(prefix, "OriginalReProjectedLSI"), logFile = logFile)
 
   #Merge
   allLSI <- rbind(simLSI[, LSI$dimsKept, drop = FALSE], ogLSI[, LSI$dimsKept, drop = FALSE])
@@ -509,12 +563,17 @@ addDoubletScores <- function(
 
   #Project UMAP
   set.seed(1) # Always do this prior to UMAP
-  umapProject <- uwot::umap_transform(
-    X = as.matrix(allLSI), 
-    model = uwotUmap, 
-    verbose = FALSE, 
-    n_threads = threads
-  )
+  umapProject <- tryCatch({
+    uwot::umap_transform(
+      X = as.matrix(allLSI), 
+      model = uwotUmap, 
+      verbose = FALSE, 
+      n_threads = threads
+    )
+  }, error = function(e){
+    errorList <- list(X = allLSI, model = uwotUmap)
+    .logError(e, fn = "uwot::umap_transform", info = prefix, errorList = errorList, logFile = logFile)    
+  })
 
   corProjection <- list(
     LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(allLSI[-seq_len(nSimLSI), x], LSI$matSVD[, x]) )),
@@ -525,7 +584,12 @@ addDoubletScores <- function(
   )
   names(corProjection[[1]]) <- paste0("SVD", LSI$dimsKept)
 
-  message("UMAP Projection R^2 = ", round(mean(corProjection[[2]])^2, 5))
+  .logThis(uwotUmap[[1]], name = paste0(prefix, "OriginalUMAP"), logFile = logFile)
+  .logThis(umapProject[-seq_len(nSimLSI), ], name = paste0(prefix, "OriginalReProjectedUMAP"), logFile = logFile)
+
+  msg <- paste0(prefix, "UMAP Projection R^2 = ", round(mean(corProjection[[2]])^2, 5))
+  .logMessage(msg, logFile = logFile)
+  message(msg)
 
   out <- SimpleList(
     doubletUMAP = umapProject[seq_len(nSimLSI), ],
@@ -534,7 +598,9 @@ addDoubletScores <- function(
 
   if(mean(corProjection[[2]]) < 0.9){
     if(!force){
-      message("Correlation of UMAP Projection is below 0.9 (normally this is ~0.99)\nThis means there is little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
+      msg <- paste0(prefix, "Correlation of UMAP Projection is below 0.9 (normally this is ~0.99)\nThis means there is little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
+      .logMessage(msg, logFile = logFile)
+      message(msg)
       out$doubletEnrichLSI <- rep(-1, nrow(LSI$matSVD))
       out$doubletScoreLSI <- rep(-1, nrow(LSI$matSVD))
       out$doubletEnrichUMAP <- rep(-1, nrow(LSI$matSVD))
@@ -546,77 +612,97 @@ addDoubletScores <- function(
   ##############################################################################
   # Compute Doublet Scores from LSI (TF-IDF + SVD)
   ##############################################################################
-  knnDoub <- .computeKNN(allLSI[-seq_len(nSimLSI),], allLSI[seq_len(nSimLSI),], k)
-  
-  #Compile KNN Sums
-  countKnn <- rep(0, nrow(LSI$matSVD))
-  names(countKnn) <- rownames(LSI$matSVD)
+  out2 <- tryCatch({
+    
+    knnDoub <- .computeKNN(allLSI[-seq_len(nSimLSI),], allLSI[seq_len(nSimLSI),], k)
+    
+    #Compile KNN Sums
+    countKnn <- rep(0, nrow(LSI$matSVD))
+    names(countKnn) <- rownames(LSI$matSVD)
 
-  tabDoub <- table(as.vector(knnDoub))
-  countKnn[as.integer(names(tabDoub))] <-  countKnn[as.integer(names(tabDoub))] + tabDoub
+    tabDoub <- table(as.vector(knnDoub))
+    countKnn[as.integer(names(tabDoub))] <-  countKnn[as.integer(names(tabDoub))] + tabDoub
+    .logThis(countKnn, paste0(prefix, "Number of Nearby Simulated Doublets"), logFile = logFile)
 
-  nSim <- nrow(LSI$matSVD)
-  scaleTo <- 10000
-  scaleBy <- scaleTo / nSim
+    nSim <- nrow(LSI$matSVD)
+    scaleTo <- 10000
+    scaleBy <- scaleTo / nSim
 
-  #P-Values
-  pvalBinomDoub <- lapply(seq_along(countKnn), function(x){
-    #Round Prediction
-    countKnnx <- round(countKnn[x] * scaleBy)
-    sumKnnx <- round(sum(countKnn) * scaleBy)
-    pbinom(countKnnx - 1, sumKnnx, 1 / scaleTo, lower.tail = FALSE)
-  }) %>% unlist
+    #P-Values
+    pvalBinomDoub <- lapply(seq_along(countKnn), function(x){
+      #Round Prediction
+      countKnnx <- round(countKnn[x] * scaleBy)
+      sumKnnx <- round(sum(countKnn) * scaleBy)
+      pbinom(countKnnx - 1, sumKnnx, 1 / scaleTo, lower.tail = FALSE)
+    }) %>% unlist
 
-  #Adjust
-  padjBinomDoub <- p.adjust(pvalBinomDoub, method = "bonferroni")
+    #Adjust
+    padjBinomDoub <- p.adjust(pvalBinomDoub, method = "bonferroni")
 
-  #Convert To Scores
-  doubletScore <- -log10(pmax(pvalBinomDoub, 4.940656e-324))
-  doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
-  doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set  
+    #Convert To Scores
+    doubletScore <- -log10(pmax(padjBinomDoub, 4.940656e-324))
+    doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
+    doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set  
+    .logThis(doubletScore, paste0(prefix, "DoubletScoresLSI"), logFile = logFile)
+    .logThis(doubletEnrich, paste0(prefix, "DoubletEnrichLSI"), logFile = logFile)
 
-  #Store Results
-  out$doubletEnrichLSI <- doubletEnrich
-  out$doubletScoreLSI <- doubletScore
+    #Store Results
+    out$doubletEnrichLSI <- doubletEnrich
+    out$doubletScoreLSI <- doubletScore
 
-  ##############################################################################
-  # Compute Doublet Scores from LSI (TF-IDF + SVD) + UMAP Embedding
-  ##############################################################################
-  knnDoub <- .computeKNN(umapProject[-seq_len(nSimLSI),], umapProject[seq_len(nSimLSI),], k)
-  
-  #Compile KNN Sums
-  countKnn <- rep(0, nrow(LSI$matSVD))
-  names(countKnn) <- rownames(LSI$matSVD)
+    ##############################################################################
+    # Compute Doublet Scores from LSI (TF-IDF + SVD) + UMAP Embedding
+    ##############################################################################
+    knnDoub <- .computeKNN(umapProject[-seq_len(nSimLSI),], umapProject[seq_len(nSimLSI),], k)
+    
+    #Compile KNN Sums
+    countKnn <- rep(0, nrow(LSI$matSVD))
+    names(countKnn) <- rownames(LSI$matSVD)
 
-  tabDoub <- table(as.vector(knnDoub))
-  countKnn[as.integer(names(tabDoub))] <-  countKnn[as.integer(names(tabDoub))] + tabDoub
+    tabDoub <- table(as.vector(knnDoub))
+    countKnn[as.integer(names(tabDoub))] <-  countKnn[as.integer(names(tabDoub))] + tabDoub
 
-  nSim <- nrow(LSI$matSVD)
-  scaleTo <- 10000
-  scaleBy <- scaleTo / nSim
+    nSim <- nrow(LSI$matSVD)
+    scaleTo <- 10000
+    scaleBy <- scaleTo / nSim
 
-  #P-Values
-  pvalBinomDoub <- lapply(seq_along(countKnn), function(x){
-    #Round Prediction
-    countKnnx <- round(countKnn[x] * scaleBy)
-    sumKnnx <- round(sum(countKnn) * scaleBy)
-    pbinom(countKnnx - 1, sumKnnx, 1 / scaleTo, lower.tail = FALSE)
-  }) %>% unlist
+    #P-Values
+    pvalBinomDoub <- lapply(seq_along(countKnn), function(x){
+      #Round Prediction
+      countKnnx <- round(countKnn[x] * scaleBy)
+      sumKnnx <- round(sum(countKnn) * scaleBy)
+      pbinom(countKnnx - 1, sumKnnx, 1 / scaleTo, lower.tail = FALSE)
+    }) %>% unlist
 
-  #Adjust
-  padjBinomDoub <- p.adjust(pvalBinomDoub, method = "bonferroni")
+    #Adjust
+    padjBinomDoub <- p.adjust(pvalBinomDoub, method = "bonferroni")
 
-  #Convert To Scores
-  doubletScore <- -log10(pmax(pvalBinomDoub, 4.940656e-324))
-  doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
-  doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set  
+    #Convert To Scores
+    doubletScore <- -log10(pmax(padjBinomDoub, 4.940656e-324))
+    doubletEnrich <- (countKnn / sum(countKnn)) / (1 / nrow(LSI$matSVD))
+    doubletEnrich <- 10000 * doubletEnrich / length(countKnn) #Enrichment Per 10000 Cells in Data Set  
+    .logThis(doubletScore, paste0(prefix, "DoubletScoresUMAP"), logFile = logFile)
+    .logThis(doubletEnrich, paste0(prefix, "DoubletEnrichUMAP"), logFile = logFile)
 
-  #Store Results
-  out$doubletEnrichUMAP <- doubletEnrich
-  out$doubletScoreUMAP <- doubletScore
+    #Store Results
+    out$doubletEnrichUMAP <- doubletEnrich
+    out$doubletScoreUMAP <- doubletScore
+
+    out
+
+  }, error = function(e){
+    errorList <- list(
+      prefix = prefix,
+      knnDoub = if(exists("knnDoub", inherits = FALSE)) knnDoub else "knnDoublets",
+      pvalBinomDoub = if(exists("pvalBinomDoub", inherits = FALSE)) pvalBinomDoub else "Error with Pval!",
+      padjBinomDoub = if(exists("padjBinomDoub", inherits = FALSE)) padjBinomDoub else "Error with Padj!",
+      out = if(exists("out", inherits = FALSE)) out else "Error with outlist of results!"
+    )
+    .logError(e, fn = "Simulate LSI Project Doublets", info = prefix, errorList = errorList, logFile = logFile)
+  })
 
   #Save Output
-  out
+  out2
 
 }
 

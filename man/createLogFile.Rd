@@ -7,9 +7,9 @@
 createLogFile(name = NULL, logDir = "ArchRLogs", useLogs = getArchRLogging())
 }
 \arguments{
-\item{name}{A character string to add a more descriptive name in logFile}
+\item{name}{A character string to add a more descriptive name in log file.}
 
-\item{logDir}{A path to a directory where logFiles should be written to}
+\item{logDir}{The path to a directory where log files should be written.}
 }
 \description{
 This function will create a log file for ArchR functions. If ArchRLogging is not TRUE

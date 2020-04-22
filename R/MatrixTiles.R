@@ -18,6 +18,7 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given `input`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addTileMatrix <- function(
   input = NULL,
@@ -41,6 +42,7 @@ addTileMatrix <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   if(inherits(input, "ArchRProject")){
     ArrowFiles <- getArrowFiles(input)
@@ -56,6 +58,9 @@ addTileMatrix <- function(
   if(!all(file.exists(ArrowFiles))){
     stop("Error Input Arrow Files do not all exist!")
   }
+
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addTileMatrix Input-Parameters", logFile = logFile)
 
   #Add args to list
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
@@ -113,15 +118,7 @@ addTileMatrix <- function(
   
   #Check
   o <- h5closeAll()
-  o <- .createArrowGroup(ArrowFile = ArrowFile, group = "TileMatrix", force = force)
-  # if(!suppressMessages(h5createGroup(file = ArrowFile, "TileMatrix"))){
-  #   if(force){
-  #     o <- h5delete(file = ArrowFile, name = "TileMatrix")
-  #     o <- h5createGroup(ArrowFile, "TileMatrix")
-  #   }else{
-  #     stop("TileMatrix Already Exists!, set force = TRUE to override!")
-  #   }
-  # }
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = "TileMatrix", force = force, logFile = logFile)
 
   tstart <- Sys.time()
   if(!is.null(blacklist)){
@@ -153,6 +150,7 @@ addTileMatrix <- function(
     DataFrame(seqnames = names(chromLengths)[x], idx = seq_len(trunc(chromLengths[x])/tileSize + 1))
   }) %>% Reduce("rbind", .)
   featureDF$start <- (featureDF$idx - 1) * tileSize 
+  .logThis(featureDF, paste0(sampleName, " .addTileMat FeatureDF"), logFile = logFile)
 
   ######################################
   # Initialize SP Mat Group
@@ -180,59 +178,77 @@ addTileMatrix <- function(
   ######################################
   for(z in seq_along(chromLengths)){
 
-    o <- h5closeAll()
-    chr <- names(chromLengths)[z]
-    .messageDiffTime(sprintf("Adding TileMatrix to %s for Chr (%s of %s)!", sampleName, z, length(chromLengths)), tstart)
+    o <- tryCatch({
 
-    #Read in Fragments
-    fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)
+      o <- h5closeAll()
+      chr <- names(chromLengths)[z]
+      .logDiffTime(sprintf("Adding TileMatrix to %s for Chr (%s of %s)!", sampleName, z, length(chromLengths)), t1 = tstart, logFile = logFile)
 
-    #N Tiles
-    nTiles <- trunc(chromLengths[z] / tileSize) + 1
+      #Read in Fragments
+      fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)
 
-    #Create Sparse Matrix
-    matchID <- S4Vectors::match(mcols(fragments)$RG, cellNames)
-    mat <- Matrix::sparseMatrix(
-        i = c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1,
-        j = c(matchID, matchID),
-        x = rep(1,  2*length(fragments)),
-        dims = c(nTiles, length(cellNames))
-      )
-    colnames(mat) <- cellNames
-    rm(fragments, matchID)
-    gc()
-    
-    #Binarize
-    if(binarize){
-      mat@x[mat@x > 0] <- 1
-    }
+      #N Tiles
+      nTiles <- trunc(chromLengths[z] / tileSize) + 1
 
-    #Remove Blacklisted Tiles!
-    if(!is.null(blacklist)){
-      blacklistz <- blacklist[[chr]]
-      if(length(blacklistz) > 0){
-        tile2 <- floor(tileSize/2)
-        blacklistIdx <- unique(trunc(start(unlist(GenomicRanges::slidingWindows(blacklistz,tile2,tile2)))/tileSize) + 1)
-        blacklistIdx <- sort(blacklistIdx)
-        idxToZero <- which((mat@i + 1) %bcin% blacklistIdx)
-        if(length(idxToZero) > 0){
-          mat@x[idxToZero] <- 0
-          mat <- Matrix::drop0(mat)
+      #Create Sparse Matrix
+      matchID <- S4Vectors::match(mcols(fragments)$RG, cellNames)
+      mat <- Matrix::sparseMatrix(
+          i = c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1,
+          j = c(matchID, matchID),
+          x = rep(1,  2*length(fragments)),
+          dims = c(nTiles, length(cellNames))
+        )
+      colnames(mat) <- cellNames
+      rm(fragments, matchID)
+      gc()
+      
+      #Binarize
+      if(binarize){
+        mat@x[mat@x > 0] <- 1
+      }
+
+      #Remove Blacklisted Tiles!
+      if(!is.null(blacklist)){
+        blacklistz <- blacklist[[chr]]
+        if(length(blacklistz) > 0){
+          tile2 <- floor(tileSize/2)
+          blacklistIdx <- unique(trunc(start(unlist(GenomicRanges::slidingWindows(blacklistz,tile2,tile2)))/tileSize) + 1)
+          blacklistIdx <- sort(blacklistIdx)
+          idxToZero <- which((mat@i + 1) %bcin% blacklistIdx)
+          if(length(idxToZero) > 0){
+            mat@x[idxToZero] <- 0
+            mat <- Matrix::drop0(mat)
+          }
         }
       }
-    }
 
-    #Write sparseMatrix to Arrow File!
-    o <- .addMatToArrow(
-      mat = mat, 
-      ArrowFile = ArrowFile, 
-      Group = paste0("TileMatrix/", chr), 
-      binarize = binarize,
-      addColSums = TRUE,
-      addRowSums = TRUE
+      #Write sparseMatrix to Arrow File!
+      o <- .addMatToArrow(
+        mat = mat, 
+        ArrowFile = ArrowFile, 
+        Group = paste0("TileMatrix/", chr), 
+        binarize = binarize,
+        addColSums = TRUE,
+        addRowSums = TRUE
+        )
+
+      gc()
+
+      0
+
+    }, error = function(e){
+
+      errorList <- list(
+        ArrowFile = ArrowFile,
+        chromLengths = chromLengths,
+        blacklist = blacklist,
+        chr = chromLengths[z],
+        mat = if(exists("mat", inherits = FALSE)) mat else "mat"
       )
 
-    gc()
+      .logError(e, fn = ".addTileMat", info = sampleName, errorList = errorList, logFile = logFile)
+
+    })
 
   }
 

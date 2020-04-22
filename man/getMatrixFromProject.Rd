@@ -2,16 +2,20 @@
 % Please edit documentation in R/ArrowRead.R
 \name{getMatrixFromProject}
 \alias{getMatrixFromProject}
-\title{Get a data matrix stored in an ArrowFile JJJ}
+\title{Get a data matrix stored in an ArchRProject RRR}
 \usage{
-getMatrixFromProject(ArchRProj = NULL, useMatrix = "GeneScoreMatrix",
-  useSeqnames = NULL, verbose = TRUE, binarize = FALSE,
-  threads = getArchRThreads())
+getMatrixFromProject(
+  ArchRProj = NULL,
+  useMatrix = "GeneScoreMatrix",
+  useSeqnames = NULL,
+  verbose = TRUE,
+  binarize = FALSE,
+  threads = getArchRThreads(),
+  logFile = createLogFile("getMatrixFromProject")
+)
 }
 \arguments{
-\item{ArchRProj}{An \code{ArchRProject} object to be used for getting additional information for cells in \code{cellColData}.
-In some cases, data exists within the \code{ArchRProject} object that does not exist within the ArrowFiles. To access this data, you can
-provide the \code{ArchRProject} object here.}
+\item{ArchRProj}{An \code{ArchRProject} object to get data matrix from.}
 
 \item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
@@ -21,12 +25,8 @@ provide the \code{ArchRProject} object here.}
 
 \item{binarize}{A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.}
 
-\item{ArrowFile}{The path to an ArrowFile from which the selected data matrix should be obtained.}
-
-\item{cellNames}{A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
-This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
-the provided ArrowFile using \code{getCellNames()}.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
-This function gets a given data matrix from an individual ArrowFile.
+This function gets a given data matrix from an \code{ArchRProject}.
 }

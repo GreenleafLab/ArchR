@@ -25,11 +25,13 @@
 #' marked as not passing QC and excluded from downstream analyses.
 #' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 #' This is useful for limiting the number of barcodes analyzed.
-#' @param minFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
+#' @param maxFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 #' This is useful for limiting the number of barcodes analyzed.
-#' @param outDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
+#' @param QCDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 #' sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
+#' @param promoterRegion A integer vector describing the number of basepairs upstream and downstream [c(upstream, downstream)] of the TSS to include 
+#' as the promoter region for downstream calculation of things like the fraction of reads in promoters (FIP).
 #' @param TSSParams A list of parameters for computing TSS Enrichment scores. This includes the `window` which is the size in basepairs
 #' of the window centered at each TSS (default 101), the `flank` which is the size in basepairs of the flanking window (default 2000), 
 #' and the `norm` which describes the size in basepairs of the flank window to be used for normalization of the TSS enrichment score (default 100). 
@@ -56,13 +58,13 @@
 #' @param addGeneScoreMat A boolean value indicating whether to add a Gene-Score Matrix to each ArrowFile. A Gene-Score Matrix uses
 #' ATAC-seq signal proximal to the TSS to estimate gene activity.
 #' @param GeneScoreMatParams A list of parameters to pass to the `addGeneScoreMatrix()` function. See `addGeneScoreMatrix()` for options.
-#' @param force A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist in `outDir`.
+#' @param force A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param cleamTmp A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.
-#' @param logFile A file path to write ArchR logging output to.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 #' 
 createArrowFiles <- function(
@@ -77,7 +79,7 @@ createArrowFiles <- function(
   removeFilteredCells = TRUE,
   minFrags = 500, 
   maxFrags = 100000,
-  outDir = "QualityControl",
+  QCDir = "QualityControl",
   nucLength = 147,
   promoterRegion = c(2000, 100),
   TSSParams = list(),
@@ -121,7 +123,9 @@ createArrowFiles <- function(
   .validInput(input = removeFilteredCells, name = "removeFilteredCells", valid = c("boolean"))
   .validInput(input = minFrags, name = "minFrags", valid = c("numeric"))
   .validInput(input = maxFrags, name = "maxFrags", valid = c("numeric"))
-  .validInput(input = outDir, name = "outDir", valid = c("character"))
+  .validInput(input = QCDir, name = "QCDir", valid = c("character"))
+  .validInput(input = nucLength, name = "nucLength", valid = c("integer"))
+  .validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
   .validInput(input = TSSParams, name = "TSSParams", valid = c("list"))
   .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = nChunk, name = "nChunk", valid = c("integer"))
@@ -137,11 +141,15 @@ createArrowFiles <- function(
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam","null"))
+  .validInput(input = subThreading, name = "subThreading", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = cleanTmp, name = "cleanTmp", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
-  dir.create(outDir, showWarnings = FALSE)
+  dir.create(QCDir, showWarnings = FALSE)
 
   .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "createArrowFiles Input-Parameters", logFile = logFile)
 
   if(cleanTmp){
     .logMessage("Cleaning Temporary Files", logFile = logFile)
@@ -163,7 +171,7 @@ createArrowFiles <- function(
   args <- append(args, mget(names(formals()),sys.frame(sys.nframe()))) #as.list(match.call())
   args$X <- seq_along(inputFiles)
   args$FUN <- .createArrow
-  args$registryDir <- file.path(outDir, "CreateArrowsRegistry")
+  args$registryDir <- file.path(QCDir, "CreateArrowsRegistry")
   args$cleanTmp <- NULL
 
   if(subThreading){
@@ -176,7 +184,7 @@ createArrowFiles <- function(
   outArrows <- tryCatch({
     unlist(.batchlapply(args))
   },error = function(x){
-    message("createArrowFiles has encountered an error, checking if any ArrowFiles completed..")
+    .logMessage("createArrowFiles has encountered an error, checking if any ArrowFiles completed..", verbose = TRUE, logFile = logFile)
     for(i in seq_along(args$outputNames)){
       out <- paste0(args$outputNames[i],".arrow")
       if(file.exists(out)){
@@ -187,15 +195,14 @@ createArrowFiles <- function(
         })
       }
     }
-
-    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
-    .logError(x, fn = "createArrowFiles", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
     paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
   })
 
   if(subThreading){
     h5enableFileLocking()
   }
+
+  .endLogging(logFile = logFile)
 
   return(outArrows)
 
@@ -222,7 +229,7 @@ createArrowFiles <- function(
   gsubExpression = NULL,
   bcTag = "qname",
   bamFlag = NULL,
-  outDir = "QualityControl",
+  QCDir = "QualityControl",
   nucLength = 147,
   promoterRegion = c(2000, 100),
   TSSParams = list(),
@@ -273,26 +280,26 @@ createArrowFiles <- function(
 
   .logThis(validBC, name = "validBC", logFile)
 
-  outDir <- file.path(outDir, sampleName)
-  dir.create(outDir, showWarnings = FALSE)
+  QCDir <- file.path(QCDir, sampleName)
+  dir.create(QCDir, showWarnings = FALSE)
 
   .requirePackage("rhdf5", source = "bioc")
   .requirePackage("Rsamtools", source = "bioc")
 
   #Check if a completed file exists!
   if(file.exists(ArrowFile)){
-    .logMessage(sprintf("%s Checking if completed file exists!", prefix), logFile)
+    .logMessage(sprintf("%s Checking if completed file exists!", prefix), logFile = logFile)
     o <- tryCatch({
       o <- h5read(ArrowFile, "Metadata/Completed") #Check if completed
       if(force){
-        .messageDiffTime(sprintf("%s Arrow Exists! Overriding since force = TRUE!", prefix), tstart, verbose = TRUE, addHeader = FALSE)
+        .logDiffTime(sprintf("%s Arrow Exists! Overriding since force = TRUE!", prefix), t1 = tstart, verbose = TRUE, addHeader = FALSE, logFile = logFile)
         file.remove(ArrowFile)
       }else{
-        .messageDiffTime(sprintf("%s Arrow Exists! Marking as completed since force = FALSE!", prefix), tstart, verbose = TRUE, addHeader = FALSE)
+        .logDiffTime(sprintf("%s Arrow Exists! Marking as completed since force = FALSE!", prefix), t1 = tstart, verbose = TRUE, addHeader = FALSE, logFile = logFile)
         return(ArrowFile)
       }
     },error = function(y){
-      .messageDiffTime(sprintf("%s Arrow Exists! Overriding since not completed!", prefix), tstart, verbose = TRUE, addHeader = FALSE)
+      .logDiffTime(sprintf("%s Arrow Exists! Overriding since not completed!", prefix), t1 = tstart, verbose = TRUE, addHeader = FALSE, logFile = logFile)
       file.remove(ArrowFile) #If not completed delete
     })
   }
@@ -300,7 +307,7 @@ createArrowFiles <- function(
   #############################################################
   #Determine Arrow Construction Method
   #############################################################  
-  .logMessage(sprintf("%s Determining Arrow Method to use!", prefix), logFile)
+  .logMessage(sprintf("%s Determining Arrow Method to use!", prefix), logFile = logFile)
   fe <- .fileExtension(inputFile)
   if(fe == "gz" | fe == "bgz" | fe == "tsv" | fe == "txt"){   
 
@@ -315,7 +322,7 @@ createArrowFiles <- function(
     stop(sprintf("Read Method for %s Not Recognized!", fe))
   }
 
-  .messageDiffTime(sprintf("%s Reading In Fragments from inputFiles (readMethod = %s)", prefix, readMethod), tstart, verbose = verbose)
+  .logDiffTime(sprintf("%s Reading In Fragments from inputFiles (readMethod = %s)", prefix, readMethod), t1 = tstart, verbose = verbose, logFile = logFile)
 
   if(tolower(readMethod)=="tabix"){
 
@@ -405,7 +412,7 @@ createArrowFiles <- function(
 
   }else{
     
-    stop(sprintf("Read Method : %s Not Recognized!", readMethod))
+    .logStop(sprintf("Read Method : %s Not Recognized!", readMethod), logFile = logFile)
 
   }
   gc()
@@ -413,7 +420,7 @@ createArrowFiles <- function(
   #############################################################
   #Compute Fragment Information!
   #############################################################
-  .logDiffTime(sprintf("%s Adding Fragment Summary", prefix), tstart, verbose = FALSE, logFile = logFile)
+  .logDiffTime(sprintf("%s Adding Fragment Summary", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
   fragSummary <- .fastFragmentInfo(
     ArrowFile = ArrowFile, 
     cellNames = .availableCells(ArrowFile), 
@@ -425,10 +432,10 @@ createArrowFiles <- function(
   Metadata <- fragSummary[[1]]
   plot <- tryCatch({
 
-    .logDiffTime(sprintf("%s Plotting Fragment Size Distribution", prefix), tstart, verbose = FALSE, logFile = logFile)
+    .logDiffTime(sprintf("%s Plotting Fragment Size Distribution", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
     
-    dir.create(outDir, showWarnings = FALSE)
-    pdf(file.path(outDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=4,height=3,onefile=FALSE)
+    dir.create(QCDir, showWarnings = FALSE)
+    pdf(file.path(QCDir,paste0(sampleName,"-Fragment_Size_Distribution.pdf")),width=4,height=3,onefile=FALSE)
     plotDF <- data.frame(
       x = seq_along(fragSummary[[2]]), 
       percent = 100 * fragSummary[[2]]/sum(fragSummary[[2]])
@@ -444,7 +451,7 @@ createArrowFiles <- function(
 
   }, error = function(x){
 
-      .logDiffTime("Continuing through after error ggplot for Fragment Size Distribution", tstart, logFile = logFile)
+      .logDiffTime("Continuing through after error ggplot for Fragment Size Distribution", t1 = tstart, logFile = logFile)
       print(x)
       message("\n")
 
@@ -454,7 +461,7 @@ createArrowFiles <- function(
   #############################################################
   #Compute TSS Enrichment Scores Information!
   #############################################################
-  .logDiffTime(sprintf("%s Computing TSS Enrichment Scores", prefix), tstart, verbose = FALSE, logFile = logFile)
+  .logDiffTime(sprintf("%s Computing TSS Enrichment Scores", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
   TSSParams$TSS <- geneAnnotation$TSS
   TSSParams$ArrowFile <- ArrowFile
   TSSParams$cellNames <- Metadata$cellNames
@@ -468,13 +475,13 @@ createArrowFiles <- function(
   #Filter
   Metadata$Keep <- 1*(Metadata$nFrags >= filterFrags & Metadata$TSSEnrichment >= filterTSS)
 
-  .logDiffTime(sprintf("%s CellStats : Number of Cells Pass Filter = %s ", prefix, sum(Metadata$Keep)), tstart, verbose = verbose, logFile = logFile)
-  .logDiffTime(sprintf("%s CellStats : Median Frags = %s ", prefix, median(Metadata$nFrags[Metadata$Keep==1])), tstart, verbose = verbose, logFile = logFile)
-  .logDiffTime(sprintf("%s CellStats : Median TSS Enrichment = %s ", prefix, median(Metadata$TSSEnrichment[Metadata$Keep==1])), tstart, verbose = verbose, logFile = logFile)
+  .logDiffTime(sprintf("%s CellStats : Number of Cells Pass Filter = %s ", prefix, sum(Metadata$Keep)), t1 = tstart, verbose = verbose, logFile = logFile)
+  .logDiffTime(sprintf("%s CellStats : Median Frags = %s ", prefix, median(Metadata$nFrags[Metadata$Keep==1])), t1 = tstart, verbose = verbose, logFile = logFile)
+  .logDiffTime(sprintf("%s CellStats : Median TSS Enrichment = %s ", prefix, median(Metadata$TSSEnrichment[Metadata$Keep==1])), t1 = tstart, verbose = verbose, logFile = logFile)
 
   plot <- tryCatch({
 
-   .logDiffTime(sprintf("%s Plotting TSS Enrichment Scores", prefix), tstart, verbose = FALSE, logFile = logFile)
+   .logDiffTime(sprintf("%s Plotting TSS Enrichment Scores", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
     
     ggtitle <- sprintf("%s\n%s\n%s",
         paste0(sampleName, "\nnCells Pass Filter = ", sum(Metadata$Keep)),
@@ -482,7 +489,7 @@ createArrowFiles <- function(
         paste0("Median TSS Enrichment = ", median(Metadata$TSSEnrichment[Metadata$Keep==1]))
       )
 
-    pdf(file.path(outDir,paste0(sampleName,"-TSS_by_Unique_Frags.pdf")),width=4,height=4,onefile=FALSE)
+    pdf(file.path(QCDir,paste0(sampleName,"-TSS_by_Unique_Frags.pdf")),width=4,height=4,onefile=FALSE)
     gg <- ggPoint(
       x = pmin(log10(Metadata$nFrags), 5) + rnorm(length(Metadata$nFrags), sd = 0.00001),
       y = Metadata$TSSEnrichment + rnorm(length(Metadata$nFrags), sd = 0.00001), 
@@ -502,14 +509,14 @@ createArrowFiles <- function(
 
   }, error = function(x) {
 
-      .logDiffTime("Continuing through after error ggplot for TSS by Frags", tstart, logFile = logFile)
+      .logDiffTime("Continuing through after error ggplot for TSS by Frags", t1 = tstart, logFile = logFile)
       message(x)
       message("\n")
 
   })
 
   #Add To Metadata
-  .logDiffTime(sprintf("%s Adding Metadata to Fragments", prefix), tstart, verbose = FALSE, logFile = logFile)
+  .logDiffTime(sprintf("%s Adding Metadata to Fragments", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
   #Sanity Check Here to Make Sure!
   stopifnot(
@@ -532,7 +539,7 @@ createArrowFiles <- function(
   # Compute Other Feature Counts
   #############################################################
 
-  .logDiffTime(sprintf("%s Adding Additional Feature Counts!", prefix), tstart, verbose = verbose, logFile = logFile)
+  .logDiffTime(sprintf("%s Adding Additional Feature Counts!", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
 
   featureList <- list()
   featureList$Promoter <-  extendGR(
@@ -540,13 +547,6 @@ createArrowFiles <- function(
       upstream = promoterRegion[1], 
       downstream = promoterRegion[2]
   )
-  
-  #This doesnt seem to be valuable (Gene Body)
-  # featureList$GeneBody <-  extendGR(
-  #     gr = geneAnnotation$genes, 
-  #     upstream = promoterRegion[1], 
-  #     downstream = 0
-  # )
 
   if(!is.null(genomeAnnotation$blacklist)){
     featureList$Blacklist <- genomeAnnotation$blacklist
@@ -583,17 +583,17 @@ createArrowFiles <- function(
 
   }
 
-  .logDiffTime(sprintf("%s Finished Adding Additional Feature Counts!", prefix), tstart, verbose = FALSE, logFile = logFile)
+  .logDiffTime(sprintf("%s Finished Adding Additional Feature Counts!", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
   #############################################################
   # Remove Cells That Are Filtered?
   #############################################################
   
   .logThis(Metadata, paste0(prefix, " Metadata"), logFile = logFile)
-  saveRDS(Metadata, file.path(outDir,paste0(sampleName,"-Pre-Filter-Metadata.rds")))
+  saveRDS(Metadata, file.path(QCDir,paste0(sampleName,"-Pre-Filter-Metadata.rds")))
 
   if(removeFilteredCells){
-    .logDiffTime(sprintf("%s Removing Fragments from Filtered Cells", prefix), tstart, verbose = verbose, logFile = logFile)
+    .logDiffTime(sprintf("%s Removing Fragments from Filtered Cells", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
     idx <- which(Metadata$Keep == 1)
     o <- .filterCellsFromArrow(
       inArrow = ArrowFile, 
@@ -611,6 +611,12 @@ createArrowFiles <- function(
     o <- h5write(obj = ((Metadata$nDiFrags + Metadata$nMultiFrags) / Metadata$nMonoFrags)[idx], file = ArrowFile, name = "Metadata/NucleosomeRatio")
     o <- h5write(obj = Metadata$TSSEnrichment[idx], file = ArrowFile, name = "Metadata/TSSEnrichment")
     o <- h5write(obj = Metadata$ReadsInTSS[idx], file = ArrowFile, name = "Metadata/ReadsInTSS")
+    o <- h5write(obj = Metadata$ReadsInPromoter[idx], file = ArrowFile, name = "Metadata/ReadsInPromoter")
+    o <- h5write(obj = Metadata$PromoterRatio[idx], file = ArrowFile, name = "Metadata/PromoterRatio")
+    if(!is.null(genomeAnnotation$blacklist)){
+      o <- h5write(obj = Metadata$ReadsInBlacklist[idx], file = ArrowFile, name = "Metadata/ReadsInBlacklist")
+      o <- h5write(obj = Metadata$BlacklistRatio[idx], file = ArrowFile, name = "Metadata/BlacklistRatio")
+    }
     Metadata <- Metadata[idx, , drop = FALSE]
   }
 
@@ -621,7 +627,7 @@ createArrowFiles <- function(
     
     outT <- tryCatch({
 
-      .logDiffTime(sprintf("%s Adding TileMatrix!", prefix), tstart, verbose = verbose, logFile = logFile)
+      .logDiffTime(sprintf("%s Adding TileMatrix!", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
       TileMatParams$i <- 1
       TileMatParams$ArrowFiles <- ArrowFile
       TileMatParams$cellNames <- Metadata$cellNames
@@ -634,7 +640,7 @@ createArrowFiles <- function(
       TileMatParams$logFile <- logFile
       tileMat <- suppressMessages(do.call(.addTileMat, TileMatParams))
       gc()
-      .logDiffTime(sprintf("%s Finished Adding TileMatrix!", prefix), tstart, verbose = FALSE, logFile = logFile)
+      .logDiffTime(sprintf("%s Finished Adding TileMatrix!", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
     }, error =function(e){
 
@@ -651,7 +657,7 @@ createArrowFiles <- function(
 
     outG <- tryCatch({
 
-      .logDiffTime(sprintf("%s Adding GeneScoreMatrix!", prefix), tstart, verbose = verbose, logFile = logFile)
+      .logDiffTime(sprintf("%s Adding GeneScoreMatrix!", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
       GeneScoreMatParams$i <- 1
       GeneScoreMatParams$ArrowFiles <- ArrowFile
       GeneScoreMatParams$genes <- geneAnnotation$genes
@@ -663,7 +669,7 @@ createArrowFiles <- function(
       GeneScoreMatParams$logFile <- logFile
       geneScoreMat <- suppressMessages(do.call(.addGeneScoreMat, GeneScoreMatParams))
       gc()
-      .logDiffTime(sprintf("%s Finished Adding GeneScoreMatrix!", prefix), tstart, verbose = FALSE, logFile = logFile)
+      .logDiffTime(sprintf("%s Finished Adding GeneScoreMatrix!", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
 
     }, error = function(e){
@@ -676,7 +682,7 @@ createArrowFiles <- function(
 
   o <- h5closeAll()
 
-  .logDiffTime(sprintf("%s Finished Creating Arrow File", prefix), tstart, verbose = verbose, logFile = logFile)
+  .logDiffTime(sprintf("%s Finished Creating Arrow File", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
   o <- h5write(obj = "Finished", file = ArrowFile, name = "Metadata/Completed")
 
   ArrowFile <- paste0(outputName, ".arrow")  
@@ -697,7 +703,7 @@ createArrowFiles <- function(
   logFile = NULL
   ){
 
-  .logDiffTime(paste0(prefix, " Computing fragment size info!"), tstart, logFile = logFile, verbose = FALSE)
+  .logDiffTime(paste0(prefix, " Computing fragment size info!"), t1 = tstart, verbose = FALSE, logFile = logFile)
 
   #Info to get
   matNuc <- matrix(0, nrow = length(cellNames), ncol = 3)
@@ -723,7 +729,7 @@ createArrowFiles <- function(
         w[w > 3] <- 3
 
         #Get Nuc Info
-        matNucx <- ArchR:::tabulate2dCpp(
+        matNucx <- tabulate2dCpp(
           w, xmin = 1, xmax = 3, 
           as.integer(mcols(fragx)$RG), ymin = 1, ymax = length(cellNames)
         )   
@@ -774,7 +780,7 @@ createArrowFiles <- function(
 
   out <- list(dfSummary = df, fragDistribution  = fragDist)
 
-  .logDiffTime(paste0(prefix, " Finished computing fragment size info!"), tstart, logFile = logFile, verbose = FALSE)
+  .logDiffTime(paste0(prefix, " Finished computing fragment size info!"), t1 = tstart, verbose = FALSE, logFile = logFile)
 
   return(out)
 
@@ -830,8 +836,6 @@ createArrowFiles <- function(
     prefix = prefix,
     logFile = logFile
   )
-  #.logThis(countList[[1]], paste0(prefix, " tssFeatureWindows"), logFile = logFile)
-  #.logThis(countList[[2]], paste0(prefix, " tssFeatureFlanks"), logFile = logFile)
 
   #Normalize per BP
   cWn <- countList$nWindow / window
@@ -842,7 +846,7 @@ createArrowFiles <- function(
   names(tssScores) <- cellNames
   tssScores <- round(tssScores, 3)
 
-  .logDiffTime(paste0(prefix, " Computed TSS Scores!"), tstart, logFile = logFile, verbose = FALSE)
+  .logDiffTime(paste0(prefix, " Computed TSS Scores!"), t1 = tstart, verbose = FALSE, logFile = logFile)
 
   return(list(tssScores=tssScores, tssReads=cWn * window))
 
@@ -916,7 +920,7 @@ createArrowFiles <- function(
           remove(temp)
           gc()
           
-          mat <- ArchR:::tabulate2dCpp(
+          mat <- tabulate2dCpp(
                 x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
                 xmin = 1,
                 xmax = length(cellNames),
@@ -991,7 +995,7 @@ createArrowFiles <- function(
   chrArrow <- .availableChr(ArrowFile)
   featureList <- featureList[chrArrow]
   if(length(featureList)==0){
-    stop("Error No Overlap in Chromosomes and Feature Chromosomes!")
+    .logStop("Error No Overlap in Chromosomes and Feature Chromosomes!", logFile = logFile)
   }
 
   #Count
@@ -1034,7 +1038,7 @@ createArrowFiles <- function(
           remove(temp)
           gc()
           
-          m <- m + ArchR:::tabulate2dCpp(
+          m <- m + tabulate2dCpp(
                 x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
                 xmin = 1,
                 xmax = length(cellNames),
@@ -1143,13 +1147,14 @@ createArrowFiles <- function(
   }
   tstart2 <- Sys.time()
   
-  .logDiffTime(sprintf("%s Tabix Bed To Temporary File", prefix), logFile = logFile, t1 = tstart, verbose = verbose)
+  .logDiffTime(sprintf("%s Tabix Bed To Temporary File", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
 
   o <- h5closeAll()
   o <- h5createFile(tmpFile)
   o <- h5createGroup(tmpFile, paste0("Fragments"))
   o <- h5createGroup(tmpFile, paste0("Metadata"))
   o <- h5write(obj = "Arrow", file = tmpFile, name = "Class")
+  o <- h5write(obj = paste0(packageVersion("ArchR")), file = tmpFile, name = "ArchRVersion")
   o <- h5write(obj = "tmp", file = tmpFile, name = "Metadata/Sample")
 
   tileChromSizes <- unlist(GenomicRanges::tile(chromSizes, nChunk))
@@ -1165,12 +1170,12 @@ createArrowFiles <- function(
 
       if(threads == 1){
         if(x %% 10 == 0){
-          .logDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
+          .logDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), t1 = tstart, 
             verbose = verbose,  logFile = logFile)
         }
       }else{
         if(x %% (2 * threads + 1) == 0){
-          .logDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
+          .logDiffTime(sprintf("%s Reading TabixFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), t1 = tstart, 
                     verbose = verbose, logFile = logFile)
         }
       }
@@ -1293,7 +1298,7 @@ createArrowFiles <- function(
   if(threads > 1){
 
     #Parallel Linkage Hdf5
-    .logDiffTime(sprintf("%s Parallel Hdf5 Linkage Temporary File", prefix), logFile = logFile, t1 = tstart, verbose = FALSE)
+    .logDiffTime(sprintf("%s Parallel Hdf5 Linkage Temporary File", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
     file.remove(tmpFile)
     o <- h5closeAll()
@@ -1302,6 +1307,7 @@ createArrowFiles <- function(
     o <- h5createGroup(fid, paste0("Fragments"))
     o <- h5createGroup(fid, paste0("Metadata"))
     o <- h5write(obj = "Arrow", file = fid, name = "Class")
+    o <- h5write(obj = paste0(packageVersion("ArchR")), file = fid, name = "ArchRVersion")
     o <- h5write(obj = "tmp", file = fid, name = "Metadata/Sample")
 
     tmpChrFiles <- lapply(readTiledChrom, function(x) x$tmpChrFile) %>% unlist
@@ -1340,13 +1346,13 @@ createArrowFiles <- function(
 
   if(errorCheck == 0){
     if(!is.null(validBC)){
-      stop("No fragments found! Possible error with validBarcodes!")
+      .logStop("No fragments found! Possible error with validBarcodes!", logFile = logFile)
     }else{
-      stop("No fragments found!")
+      .logStop("No fragments found!", logFile = logFile)
     }
   }
 
-  .logDiffTime(sprintf("%s Successful creation of Temporary File", prefix), logFile = logFile, t1 = tstart, verbose = verbose)
+  .logDiffTime(sprintf("%s Successful creation of Temporary File", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
 
   return(tmpFile)
 
@@ -1391,13 +1397,14 @@ createArrowFiles <- function(
   }
   tstart2 <- Sys.time()
   
-  .logDiffTime(sprintf("%s Tabix Bam To Temporary File", prefix), logFile = logFile, t1 = tstart, verbose = verbose)
+  .logDiffTime(sprintf("%s Tabix Bam To Temporary File", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
 
   o <- h5closeAll()
   o <- h5createFile(tmpFile)
   o <- h5createGroup(tmpFile, paste0("Fragments"))
   o <- h5createGroup(tmpFile, paste0("Metadata"))
   o <- h5write(obj = "Arrow", file = tmpFile, name = "Class")
+  o <- h5write(obj = paste0(packageVersion("ArchR")), file = tmpFile, name = "ArchRVersion")
   o <- h5write(obj = "tmp", file = tmpFile, name = "Metadata/Sample")
 
   tileChromSizes <- unlist(tile(chromSizes, nChunk))
@@ -1413,12 +1420,12 @@ createArrowFiles <- function(
 
       if(threads == 1){
         if(x %% 10 == 0){
-          .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
+          .logDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), t1 = tstart, 
             verbose = verbose)
         }
       }else{
         if(x %% (2 * threads + 1) == 0){
-          .messageDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), tstart, 
+          .logDiffTime(sprintf("%s Reading BamFile %s Percent", prefix, round(100*x/length(tileChromSizes)),3), t1 = tstart, 
                     verbose = verbose)
         }
       }
@@ -1594,7 +1601,7 @@ createArrowFiles <- function(
   if(threads > 1){
 
     #Parallel Linkage Hdf5
-    .logDiffTime(sprintf("%s Parallel Hdf5 Linkage Temporary File", prefix), logFile = logFile, t1 = tstart, verbose = FALSE)
+    .logDiffTime(sprintf("%s Parallel Hdf5 Linkage Temporary File", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
     file.remove(tmpFile)
     o <- h5closeAll()
@@ -1603,6 +1610,7 @@ createArrowFiles <- function(
     o <- h5createGroup(fid, paste0("Fragments"))
     o <- h5createGroup(fid, paste0("Metadata"))
     o <- h5write(obj = "Arrow", file = fid, name = "Class")
+    o <- h5write(obj = paste0(packageVersion("ArchR")), file = fid, name = "ArchRVersion")
     o <- h5write(obj = "tmp", file = fid, name = "Metadata/Sample")
 
     tmpChrFiles <- lapply(readTiledChrom, function(x) x$tmpChrFile) %>% unlist
@@ -1642,13 +1650,13 @@ createArrowFiles <- function(
 
   if(errorCheck == 0){
     if(!is.null(validBC)){
-      stop("No fragments found! Possible error with validBarcodes!")
+      .logStop("No fragments found! Possible error with validBarcodes!", logFile = logFile)
     }else{
-      stop("No fragments found!")
+      .logStop("No fragments found!", logFile = logFile)
     }
   }
 
-  .logDiffTime(sprintf("%s Successful creation of Temporary File", prefix), logFile = logFile, t1 = tstart, verbose = verbose)
+  .logDiffTime(sprintf("%s Successful creation of Temporary File", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
 
   return(tmpFile)
 
@@ -1683,12 +1691,13 @@ createArrowFiles <- function(
     tstart <- Sys.time()
   }
 
-  .logDiffTime(sprintf("%s Creating ArrowFile From Temporary File", prefix), logFile = logFile, t1 = tstart, verbose = verbose)
+  .logDiffTime(sprintf("%s Creating ArrowFile From Temporary File", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
 
   o <- .suppressAll(file.remove(outArrow))
   o <- h5closeAll()
   o <- h5createFile(outArrow)
   o <- h5write(obj = "Arrow", file = outArrow, name = "Class")
+  o <- h5write(obj = paste0(packageVersion("ArchR")), file = outArrow, name = "ArchRVersion")
   o <- h5createGroup(outArrow, paste0("Metadata"))
   o <- h5write(obj = sampleName, file = outArrow, name = "Metadata/Sample")
   o <- h5write(obj = paste0(Sys.Date()), file = outArrow, name = "Metadata/Date")
@@ -1696,12 +1705,12 @@ createArrowFiles <- function(
 
   #Get Info
   chunkNames <- .availableChr(tmpFile)
-  .logThis(data.frame(chunkNames = as.character(chunkNames)), name = paste0(prefix, " chunkChrNames"), logFile)
+  .logThis(data.frame(chunkNames = as.character(chunkNames)), name = paste0(prefix, " chunkChrNames"), logFile = logFile)
 
   #######################################################################################################
   # First we will count the number of occurences per barcode!
   #######################################################################################################
-  .logDiffTime(sprintf("%s Counting Unique Barcodes From Temporary File", prefix), logFile = logFile, t1 = tstart, verbose = FALSE)
+  .logDiffTime(sprintf("%s Counting Unique Barcodes From Temporary File", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
   o <- h5closeAll()
   dtList <- lapply(seq_along(chunkNames), function(x){
     chrTmp <- chunkNames[x]
@@ -1731,7 +1740,7 @@ createArrowFiles <- function(
   .logThis(dt, name = paste0(prefix, " BarcodeFrequencyTable"), logFile)
  
   bcPass <- BStringSet(dt$values.V1[dt$V1 >= minFrags & dt$V1 <= maxFrags])
-  .logThis(data.frame(bc = as.character(bcPass)), name = paste0(prefix, " BarcodesMinMaxFrags"), logFile)
+  .logThis(data.frame(bc = as.character(bcPass)), name = paste0(prefix, " BarcodesMinMaxFrags"), logFile = logFile)
 
   rm(dt)
   gc()
@@ -1745,7 +1754,7 @@ createArrowFiles <- function(
   chunkChr <- stringr::str_split(chunkNames, pattern = "#", simplify=TRUE)[,1]
   currentChunk <- 0
   uniqueChr <- unique(as.character(seqnames(chromSizes))) #sort(unique(chunkChr))
-  .logThis(data.frame(chr = as.character(uniqueChr)), name = paste0(prefix, " Unique Chromosomes"), logFile)
+  .logThis(data.frame(chr = as.character(uniqueChr)), name = paste0(prefix, " Unique Chromosomes"), logFile = logFile)
 
   if(threads > 1){
     dir.create("tmp", showWarnings = FALSE)
@@ -1755,7 +1764,7 @@ createArrowFiles <- function(
 
     tryCatch({
 
-      .logDiffTime(sprintf("%s Adding Chromosome %s of %s", prefix, x, length(uniqueChr)), tstart, verbose = FALSE, logFile = logFile)
+      .logDiffTime(sprintf("%s Adding Chromosome %s of %s", prefix, x, length(uniqueChr)), t1 = tstart, verbose = FALSE, logFile = logFile)
       
       #Determine Ranges and RG Pre-Allocation
       chr <- uniqueChr[x]
@@ -1906,7 +1915,7 @@ createArrowFiles <- function(
   if(threads > 1){
 
     #Parallel Linkage Hdf5
-    .logDiffTime(sprintf("%s Parallel Hdf5 Linkage Arrow File", prefix), logFile = logFile, t1 = tstart, verbose = FALSE)
+    .logDiffTime(sprintf("%s Parallel Hdf5 Linkage Arrow File", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
     file.remove(outArrow)
     o <- h5closeAll()
@@ -1915,6 +1924,7 @@ createArrowFiles <- function(
     o <- h5createGroup(fid, paste0("Fragments"))
     o <- h5createGroup(fid, paste0("Metadata"))
     o <- h5write(obj = "Arrow", file = fid, name = "Class")
+    o <- h5write(obj = paste0(packageVersion("ArchR")), file = fid, name = "ArchRVersion")
     o <- h5write(obj = sampleName, file = fid, name = "Metadata/Sample")
     o <- h5write(obj = paste0(Sys.Date()), file = fid, name = "Metadata/Date")
     o <- h5write(obj = as.character(bcPass), file = fid, name = "Metadata/CellNames")
@@ -1956,7 +1966,7 @@ createArrowFiles <- function(
 
   #Remove tmp file
   rmf <- file.remove(tmpFile)
-  .logDiffTime(sprintf("%s Successful creation of Arrow File", prefix), logFile = logFile, t1 = tstart, verbose = verbose)
+  .logDiffTime(sprintf("%s Successful creation of Arrow File", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
 
   return(outArrow)
 
@@ -1981,11 +1991,12 @@ createArrowFiles <- function(
 
   outArrow <- .tempfile(fileext = ".arrow")
   
-  .logDiffTime(sprintf("%s Creating Filtered Arrow File", prefix), logFile = logFile, t1 = tstart, verbose = verbose)
+  .logDiffTime(sprintf("%s Creating Filtered Arrow File", prefix), t1 = tstart, verbose = verbose, logFile = logFile)
 
   o <- h5closeAll()
   o <- h5createFile(outArrow)
   o <- h5write(obj = "Arrow", file = outArrow, name = "Class")
+  o <- h5write(obj = paste0(packageVersion("ArchR")), file = outArrow, name = "ArchRVersion")
   o <- h5createGroup(outArrow, paste0("Metadata"))
   o <- h5write(obj = paste0(Sys.Date()), file = outArrow, name = "Metadata/Date")
   o <- h5write(obj = .sampleName(inArrow), file = outArrow, name = "Metadata/Sample")
@@ -2063,7 +2074,7 @@ createArrowFiles <- function(
   rmf <- .suppressAll(file.remove(list.files("tmp", pattern = paste0(gsub(".arrow", "", basename(inArrow)), "#chr"), full.names=TRUE)))
   out <- .fileRename(from = outArrow, to = inArrow)
 
-  .logDiffTime(paste0(prefix, " Finished Constructing Filtered Arrow File!"), tstart, verbose = verbose, logFile = logFile)
+  .logDiffTime(paste0(prefix, " Finished Constructing Filtered Arrow File!"), t1 = tstart, verbose = verbose, logFile = logFile)
 
   return(inArrow)
 

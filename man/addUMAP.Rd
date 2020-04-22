@@ -2,14 +2,27 @@
 % Please edit documentation in R/Embedding.R
 \name{addUMAP}
 \alias{addUMAP}
-\title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject JJJ}
+\title{Add a UMAP embedding of a reduced dimensions object to an ArchRProject}
 \usage{
-addUMAP(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  name = "UMAP", nNeighbors = 40, minDist = 0.4, metric = "cosine",
-  dimsToUse = NULL, scaleDims = NULL, corCutOff = 0.75,
-  sampleCells = NULL, outlierQuantile = 0.9, saveModel = TRUE,
-  verbose = TRUE, seed = 1, force = FALSE,
-  threads = max(floor(getArchRThreads()/2), 1), ...)
+addUMAP(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  name = "UMAP",
+  nNeighbors = 40,
+  minDist = 0.4,
+  metric = "cosine",
+  dimsToUse = NULL,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  sampleCells = NULL,
+  outlierQuantile = 0.9,
+  saveModel = TRUE,
+  verbose = TRUE,
+  seed = 1,
+  force = FALSE,
+  threads = 1,
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -42,7 +55,7 @@ and memory but can lower the overal quality of the UMAP Embedding. Only recommen
 \item{outlierQuantile}{A numeric (0 to 1) describing the distance quantile in the subsampled cels (see \code{sampleCells}) to use to filter poor quality re-projections.
 This is necessary because there are lots of outliers if undersampled significantly.}
 
-\item{saveModel}{A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding.}
+\item{saveModel}{A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.}
 
 \item{verbose}{A boolean value that indicates whether printing UMAP output.}
 
@@ -52,7 +65,7 @@ reproduce results downstream.}
 \item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding indicated by
 \code{name} already exists.}
 
-\item{threads}{The number of threads to be used for parallel computing.}
+\item{threads}{The number of threads to be used for parallel computing. Default set to 1 because if set to high can cause C stack usage errors.}
 
 \item{...}{Additional parameters to pass to \code{uwot::umap()}}
 }

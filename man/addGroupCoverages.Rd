@@ -4,12 +4,24 @@
 \alias{addGroupCoverages}
 \title{Add Group Coverages to an ArchRProject object}
 \usage{
-addGroupCoverages(ArchRProj = NULL, groupBy = "Clusters",
-  useLabels = TRUE, minCells = 40, maxCells = 500,
-  maxFragments = 25 * 10^6, minReplicates = 2, maxReplicates = 5,
-  sampleRatio = 0.8, kmerLength = 6, threads = getArchRThreads(),
-  returnGroups = FALSE, parallelParam = NULL, force = FALSE,
-  verboseHeader = TRUE, verboseAll = FALSE)
+addGroupCoverages(
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  useLabels = TRUE,
+  minCells = 40,
+  maxCells = 500,
+  maxFragments = 25 * 10^6,
+  minReplicates = 2,
+  maxReplicates = 5,
+  sampleRatio = 0.8,
+  kmerLength = 6,
+  threads = getArchRThreads(),
+  returnGroups = FALSE,
+  parallelParam = NULL,
+  force = FALSE,
+  verbose = TRUE,
+  logFile = createLogFile("addGroupCoverages")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -44,9 +56,9 @@ TileMatrix (\code{peakMethod = "Tiles"}).}
 \item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if
 insertion coverage / pseudo-bulk replicate information already exists.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then

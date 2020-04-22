@@ -24,6 +24,8 @@
 #' @param browserTheme A `shinytheme` from shinythemes for viewing the ArchR Browser. If not installed this will be NULL.
 #' To install try devtools::install_github("rstudio/shinythemes").
 #' @param threads The number of threads to use for parallel execution.
+#' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 ArchRBrowser <- function(
   ArchRProj = NULL,
@@ -36,8 +38,27 @@ ArchRBrowser <- function(
   facetbaseSize = 12,
   geneAnnotation = getGeneAnnotation(ArchRProj),
   browserTheme = "cosmo",
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  logFile = createLogFile("ArchRBrowser")
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = minCells, name = "minCells", valid = c("integer"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("integer"))
+  .validInput(input = borderWidth, name = "borderWidth", valid = c("numeric"))
+  .validInput(input = tickWidth, name = "tickWidth", valid = c("numeric"))
+  .validInput(input = facetbaseSize, name = "facetbaseSize", valid = c("numeric"))
+  geneAnnotation <- .validGeneAnnotation(geneAnnotation)
+  .validInput(input = browserTheme, name = "browserTheme", valid = c("character"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
+
+  .startLogging(logFile=logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "ArchRBrowser Input-Parameters", logFile = logFile)
 
   .requirePackage("shiny", installInfo = 'install.packages("shiny")')
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
@@ -81,7 +102,7 @@ ArchRBrowser <- function(
   #Shiny App UI
   #####################
   if(!requireNamespace("shinythemes", quietly = TRUE)){
-    message("shinythemes not found! To see a nice theme use :\n\tinstall.packages('shinythemes')\nContinuing wihtout shinythemes!")
+    .logMessage("shinythemes not found! To see a nice theme use :\n\tinstall.packages('shinythemes')\nContinuing wihtout shinythemes!", verbose = verbose, logFile = logFile)
     theme <- NULL
   }else{
     theme <- shinythemes::shinytheme(browserTheme)
@@ -173,7 +194,7 @@ ArchRBrowser <- function(
             br(),
             selectizeInput("normATAC",
                label = "normMethod",
-               choices = c("ReadsInTSS", "nFrags"),
+               choices = c("ReadsInTSS", "ReadsInPromoter", "nFrags"),
                multiple = FALSE,
                options = list(placeholder = 'Select NormMethod'),
                selected = "ReadsInTSS"
@@ -359,7 +380,8 @@ ArchRBrowser <- function(
                 geneAnnotation = geneAnnotation,
                 title = "",
                 pal = pal, 
-                tstart = NULL
+                tstart = NULL,
+                logFile = logFile
               ) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
 
             #p <- p + .suppressAll(scale_x_continuous(limits = c(start(tmpArchRRegion), end(tmpArchRRegion)), expand = c(0,0)))
@@ -375,7 +397,8 @@ ArchRBrowser <- function(
                   region = tmpArchRRegion,
                   facetbaseSize = facetbaseSize, 
                   hideX = TRUE, 
-                  title = "Peaks"
+                  title = "Peaks",
+                  logFile = logFile
                 ) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
 
               #f <- f + .suppressAll(scale_x_continuous(limits = c(start(tmpArchRRegion), end(tmpArchRRegion)), expand = c(0,0)))
@@ -390,7 +413,9 @@ ArchRBrowser <- function(
                 facetbaseSize = facetbaseSize,
                 hideX = TRUE, 
                 hideY = TRUE,
-                title = "Loops") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+                title = "Loops",
+                logFile = logFile
+              ) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
             }
 
             setProgress(0.6)
@@ -400,7 +425,8 @@ ArchRBrowser <- function(
               region = tmpArchRRegion, 
               facetbaseSize = facetbaseSize,
               labelSize = 3,
-              title = "Genes"
+              title = "Genes",
+              logFile = logFile
             ) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
 
             #g <- .suppressAll(g + scale_x_continuous(limits = c(start(tmpArchRRegion), end(tmpArchRRegion)), expand = c(0,0)))
@@ -496,7 +522,8 @@ ArchRBrowser <- function(
                 geneAnnotation = geneAnnotation,
                 title = "",
                 pal = pal, 
-                tstart = NULL
+                tstart = NULL,
+                logFile = logFile
               ) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
 
           }else{
@@ -507,8 +534,6 @@ ArchRBrowser <- function(
 
           }
 
-          #p <- p + .suppressAll(scale_x_continuous(limits = c(start(tmpArchRRegion), end(tmpArchRRegion)), expand = c(0,0)))
-
           setProgress(0.5)
 
           if(!is.null(features)){
@@ -518,7 +543,8 @@ ArchRBrowser <- function(
                 region = tmpArchRRegion,
                 facetbaseSize = facetbaseSize, 
                 hideX = TRUE, 
-                title = "Peaks"
+                title = "Peaks",
+                logFile = logFile
               ) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
 
           }
@@ -533,7 +559,9 @@ ArchRBrowser <- function(
               facetbaseSize = facetbaseSize,
               hideX = TRUE, 
               hideY = TRUE,
-              title = "Loops") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+              title = "Loops",
+              logFile = logFile
+            ) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
           }
 
           setProgress(0.7)
@@ -543,7 +571,8 @@ ArchRBrowser <- function(
             region = tmpArchRRegion, 
             facetbaseSize = facetbaseSize,
             labelSize = 3,
-            title = "Genes"
+            title = "Genes",
+            logFile = logFile
           ) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
 
           setProgress(0.8)
@@ -590,6 +619,12 @@ ArchRBrowser <- function(
 
 }
 
+#' @export
+ArchRBrowserTrack <- function(...){
+    .Deprecated("plotBrowserTrack")
+    plotBrowserTrack(...)
+}
+
 #' Plot an ArchR Region Track
 #' 
 #' This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal
@@ -605,8 +640,8 @@ ArchRBrowser <- function(
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in
 #' `cellColData`. This limits the groups to be plotted.
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
-#' "featureTrack" (i.e. the peak regions), and "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
-#' are on the minus strand and red-colored genes are on the plus strand).
+#' "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
+#' are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).
 #' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`.
 #' The order must be the same as `plotSummary`.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
@@ -633,8 +668,10 @@ ArchRBrowser <- function(
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
+#' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-ArchRBrowserTrack <- function(
+plotBrowserTrack <- function(
   ArchRProj = NULL, 
   region = NULL, 
   groupBy = "Clusters",
@@ -656,7 +693,9 @@ ArchRBrowserTrack <- function(
   tickWidth = 0.4,
   facetbaseSize = 7,
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  title = ""
+  title = "",
+  verbose = TRUE,
+  logFile = createLogFile("plotBrowserTrack")
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
@@ -665,8 +704,8 @@ ArchRBrowserTrack <- function(
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
   .validInput(input = plotSummary, name = "plotSummary", valid = "character")
   .validInput(input = sizes, name = "sizes", valid = "numeric")
-  #.validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null")) #JJJ 
-  #.validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null")) #JJJ 
+  .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
   .validInput(input = geneSymbol, name = "geneSymbol", valid = c("character", "null"))
   .validInput(input = upstream, name = "upstream", valid = c("integer"))
   .validInput(input = downstream, name = "downstream", valid = c("integer"))
@@ -683,11 +722,13 @@ ArchRBrowserTrack <- function(
   .validInput(input = title, name = "title", valid = "character")
 
   tstart <- Sys.time()
+  .startLogging(logFile=logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotBrowserTrack Input-Parameters", logFile = logFile)
 
   ##########################################################
   # Get Region Where Plot Will Occur (GenomicRanges)
   ##########################################################
-  .messageDiffTime("Validating Region", tstart)
+  .logDiffTime("Validating Region", t1=tstart, verbose=verbose, logFile=logFile)
   if(is.null(region)){
     if(!is.null(geneSymbol)){
       region <- geneAnnotation$genes
@@ -700,6 +741,7 @@ ArchRBrowserTrack <- function(
     }
   }
   region <- .validGRanges(region)
+  .logThis(region, "region", logFile = logFile)
 
   ggList <- lapply(seq_along(region), function(x){
 
@@ -709,7 +751,7 @@ ArchRBrowserTrack <- function(
     # Bulk Tracks
     ##########################################################
     if("bulktrack" %in% tolower(plotSummary)){
-      .messageDiffTime(sprintf("Adding Bulk Tracks (%s of %s)",x,length(region)), tstart)
+      .logDiffTime(sprintf("Adding Bulk Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
       plotList$bulktrack <- .bulkTracks(
         ArchRProj = ArchRProj, 
         region = region[x], 
@@ -726,7 +768,8 @@ ArchRBrowserTrack <- function(
         geneAnnotation = geneAnnotation,
         title = title,
         useGroups = useGroups,
-        tstart = tstart) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
+        tstart = tstart,
+        logFile = logFile) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
     }
     
     ##########################################################
@@ -734,13 +777,14 @@ ArchRBrowserTrack <- function(
     ##########################################################
     if("featuretrack" %in% tolower(plotSummary)){
       if(!is.null(features)){
-        .messageDiffTime(sprintf("Adding Feature Tracks (%s of %s)",x,length(region)), tstart)
+        .logDiffTime(sprintf("Adding Feature Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
         plotList$featuretrack <- .featureTracks(
             features = features, 
             region = region[x], 
             facetbaseSize = facetbaseSize,
             hideX = TRUE, 
-            title = "Peaks") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+            title = "Peaks",
+            logFile = logFile) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
       }
     }
 
@@ -749,14 +793,15 @@ ArchRBrowserTrack <- function(
     ##########################################################
     if("looptrack" %in% tolower(plotSummary)){
       if(!is.null(loops)){
-        .messageDiffTime(sprintf("Adding Loop Tracks (%s of %s)",x,length(region)), tstart)
+        .logDiffTime(sprintf("Adding Loop Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
         plotList$looptrack <- .loopTracks(
             loops = loops, 
             region = region[x], 
             facetbaseSize = facetbaseSize,
             hideX = TRUE, 
             hideY = TRUE,
-            title = "Loops") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+            title = "Loops",
+            logFile = logFile) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
       }
     }
 
@@ -764,12 +809,13 @@ ArchRBrowserTrack <- function(
     # Gene Tracks
     ##########################################################
     if("genetrack" %in% tolower(plotSummary)){
-      .messageDiffTime(sprintf("Adding Gene Tracks (%s of %s)",x,length(region)), tstart)
+      .logDiffTime(sprintf("Adding Gene Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
       plotList$genetrack <- .geneTracks(
         geneAnnotation = geneAnnotation, 
         region = region[x], 
         facetbaseSize = facetbaseSize,
-        title = "Genes") + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
+        title = "Genes",
+        logFile = logFile) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
     }
 
     ##########################################################
@@ -784,8 +830,20 @@ ArchRBrowserTrack <- function(
       sizes <- sizes[-which(nullSummary)]
     }
 
-    .messageDiffTime("Plotting", tstart)
-    suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
+    .logDiffTime("Plotting", t1=tstart, verbose=verbose, logFile=logFile)
+    tryCatch({
+      suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
+    }, error = function(e){
+      .logMessage("Error with plotting, diagnosing each element", verbose = TRUE, logFile = logFile)
+      for(i in seq_along(plotList)){
+        tryCatch({
+          print(plotList[[i]])
+        }, error = function(f){
+          .logError(f, fn = names(plotList)[i], info = "", errorList = NULL, logFile = logFile)
+        })
+      }
+      .logError(e, fn = "ggAlignPlots", info = "", errorList = NULL, logFile = logFile)
+    })
 
   })
 
@@ -797,10 +855,12 @@ ArchRBrowserTrack <- function(
     }
   }
 
+  .endLogging(logFile=logFile)
+
   ggList
 
 }
-
+    
 #######################################################
 # Bulk Aggregated ATAC Track Methods
 #######################################################
@@ -822,7 +882,8 @@ ArchRBrowserTrack <- function(
   title = "",
   pal = NULL,
   tstart = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  logFile = NULL
   ){
 
   .requirePackage("ggplot2", source = "cran")
@@ -840,8 +901,10 @@ ArchRBrowserTrack <- function(
     region = region, 
     tileSize = tileSize, 
     threads = threads,
-    verbose = verbose
+    verbose = verbose,
+    logFile = logFile
   )
+  .logThis(split(df, df[,3]), ".bulkTracks df", logFile = logFile)
 
   ######################################################
   # Plot Track
@@ -899,127 +962,6 @@ ArchRBrowserTrack <- function(
 }
 
 ##############################################################################
-# Create Average Tracks from Coverages
-##############################################################################
-.groupRegionSumCoverages <- function(
-  ArchRProj = NULL,
-  groupBy = NULL,
-  useGroups = NULL,
-  minCells = 25,
-  region = NULL,
-  tileSize = NULL,
-  normMethod = NULL,
-  verbose = NULL,
-  threads = NULL
-  ){
-
-  coverageMetadata <- .getCoverageMetadata(
-    ArchRProj = ArchRProj, 
-    groupBy = groupBy, 
-    useGroups = useGroups,
-    minCells = minCells
-  )
-
-  cellGroups <- .getCoverageParams(
-    ArchRProj = ArchRProj, 
-    groupBy = groupBy
-  )[["cellGroups"]] %>% unlist
-  
-  groupRegionRle <- .groupRegionCoverages(
-    coverageMetadata = coverageMetadata, 
-    region = region, 
-    tileSize = tileSize, 
-    buffer = tileSize * 5, 
-    threads = threads
-  )
-  groupNames <- names(groupRegionRle)
-  
-  #Normalization 
-  g <- names(unlist(cellGroups, use.names = TRUE))
-  if(tolower(normMethod) == "readsintss"){
-      v <- getCellColData(ArchRProj, normMethod, drop = FALSE)[unlist(cellGroups),]
-      groupNormFactors <- unlist(lapply(split(v, g), sum))
-  }else if(tolower(normMethod) == "nfrags"){
-      v <- getCellColData(ArchRProj, normMethod, drop = FALSE)[unlist(cellGroups),]
-      groupNormFactors <- unlist(lapply(split(v, g), sum))
-  }else if(tolower(normMethod) == "ncells"){
-      groupNormFactors <- table(g)
-  }else{
-    stop("Norm Method Not Recognized : ", normMethod)
-  }
-  
-  #Scale with Norm Factors
-  scaleFactors <- 10^4 / groupNormFactors
-
-  #Normalize
-  groupRegionRle <- lapply(seq_along(groupRegionRle), function(x){
-      groupRegionRle[[x]] * scaleFactors[names(groupRegionRle)[x]]
-  })
-
-  #Group And Average
-  groupRegionRle <- split(groupRegionRle, coverageMetadata$Group)
-  groupRegionList <- lapply(seq_along(groupRegionRle), function(x){
-    Reduce("+", groupRegionRle[[x]]) / length(groupRegionRle[[x]])
-  })
-  names(groupRegionList) <- names(groupRegionRle)
-
-  #Tile Region
-  tileSize <- floor(tileSize / 2)
-  regionTiles <- seq(trunc(start(region) / tileSize) - 1, trunc(end(region) / tileSize) + 1) * tileSize
-
-  plotDF <- lapply(seq_along(groupRegionList), function(x){
-    data.frame(x = regionTiles, y = as.vector(groupRegionList[[x]][regionTiles]), group = names(groupRegionList)[x])
-  }) %>% Reduce("rbind", .)
-
-  plotDF
-
-}
-
-.groupRegionCoverages <- function(
-  coverageMetadata = NULL,
-  region = NULL,
-  tileSize = 100,
-  buffer = 1000,
-  threads = 1
-  ){
-  
-  region <- .validGRanges(region[1])
-  coverageFiles <- coverageMetadata$File
-  names(coverageFiles) <- coverageMetadata$Name
-  
-  covList <- .safelapply(seq_along(coverageFiles), function(x){
-    .getCoverageFromRegion(coverageFiles[x], region, tileSize, buffer)
-  }, threads = threads) %>% {as(.,"RleList")}
-  names(covList) <- names(coverageFiles)
-  
-  covList
-
-}
-
-.getCoverageFromRegion <- function(
-  coverageFile = NULL,
-  region = NULL,
-  tileSize = NULL,
-  buffer = NULL
-  ){
-  chr <- as.character(seqnames(region))
-  cov <- Rle(
-    lengths = h5read(coverageFile, paste0("Coverage/",chr,"/Lengths")), 
-    values = h5read(coverageFile, paste0("Coverage/",chr,"/Values"))
-  )
-  w <- sum(runLength(cov))
-  idx <- cumsum(runLength(cov)) %>% {which(.  >= start(region) - buffer & . <= end(region) + buffer)}
-  runValue(cov)[-idx] <- 0
-  covRanges <- ranges(cov)
-  mcols(covRanges)$values <- runValue(cov)
-  covRanges <- covRanges[mcols(covRanges)$values > 0]
-  start(covRanges) <- trunc(start(covRanges) / tileSize) * tileSize
-  end(covRanges) <- (trunc(end(covRanges) / tileSize) + 1) * tileSize - 1
-  o <- coverage(covRanges, weight = mcols(covRanges)$values, width = w)
-}
-
-
-##############################################################################
 # Create Average Tracks from Arrows
 ##############################################################################
 .groupRegionSumArrows <- function(
@@ -1029,10 +971,11 @@ ArchRBrowserTrack <- function(
   region = NULL,
   tileSize = NULL,
   normMethod = NULL,
-  verbose = NULL,
+  verbose = FALSE,
   minCells = 25,
   maxCells = 500,
-  threads = NULL
+  threads = NULL,
+  logFile = NULL
   ){
 
   #Group Info
@@ -1071,7 +1014,9 @@ ArchRBrowserTrack <- function(
   ArrowFiles <- ArrowFiles[names(cellsBySample)]
 
   groupMat <- .safelapply(seq_along(ArrowFiles), function(i){
-    gmi <- .regionSumArrows(
+    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)))
+    tryCatch({
+      .regionSumArrows(
         ArrowFile = ArrowFiles[i], 
         region = region, 
         regionTiles = regionTiles,
@@ -1079,7 +1024,19 @@ ArchRBrowserTrack <- function(
         cellNames = cellsBySample[[names(ArrowFiles)[i]]],
         cellGroups = groupsBySample[[names(ArrowFiles)[i]]],
         uniqueGroups = uniqueGroups
-    )
+      )
+    }, error = function(e){
+      errorList <- list(
+        ArrowFile = ArrowFiles[i], 
+        region = region, 
+        regionTiles = regionTiles,
+        tileSize = tileSize,
+        cellNames = cellsBySample[[names(ArrowFiles)[i]]],
+        cellGroups = groupsBySample[[names(ArrowFiles)[i]]],
+        uniqueGroups = uniqueGroups
+      )
+      .logError(e, fn = ".groupRegionSumArrows", info = .sampleName(ArrowFiles[i]), errorList = errorList, logFile = logFile)
+    })
   }, threads = threads) %>% Reduce("+" , .)
 
   #Plot DF
@@ -1130,6 +1087,9 @@ ArchRBrowserTrack <- function(
   if(tolower(normMethod) == "readsintss"){
       v <- getCellColData(ArchRProj, normMethod, drop = TRUE)
       groupNormFactors <- unlist(lapply(split(v, g), sum))
+  }else if(tolower(normMethod) == "readsinpromoter"){
+      v <- getCellColData(ArchRProj, normMethod, drop = TRUE)
+      groupNormFactors <- unlist(lapply(split(v, g), sum))
   }else if(tolower(normMethod) == "nfrags"){
       v <- getCellColData(ArchRProj, normMethod, drop = TRUE)
       groupNormFactors <- unlist(lapply(split(v, g), sum))
@@ -1155,7 +1115,8 @@ ArchRBrowserTrack <- function(
   tileSize = NULL,
   cellNames = NULL,
   cellGroups = NULL,
-  uniqueGroups = NULL
+  uniqueGroups = NULL,
+  logFile = NULL
   ){
   
   cellFragsRegion <- .getFragsFromArrow(
@@ -1213,7 +1174,8 @@ ArchRBrowserTrack <- function(
   labelSize = 2,
   facetbaseSize,
   colorMinus = "dodgerblue2",
-  colorPlus = "red"
+  colorPlus = "red",
+  logFile = NULL
   ){
 
   .requirePackage("ggplot2", source = "cran")
@@ -1347,7 +1309,8 @@ ArchRBrowserTrack <- function(
   featureWidth = 2, 
   borderWidth = 0.4, 
   hideX = FALSE, 
-  hideY = FALSE
+  hideY = FALSE,
+  logFile = NULL
   ){
 
   .requirePackage("ggplot2", source = "cran")
@@ -1358,10 +1321,9 @@ ArchRBrowserTrack <- function(
 
   if(!is.null(features)){
 
-    if(!inherits(features,"GRangesList") & !inherits(features,"GenomicRangesList")){
+    if(!.isGRList(features)){
       features <- .validGRanges(features)
-      featureList <- GenomicRanges::GenomicRangesList(features)
-      names(featureList) <- "FeatureTrack"
+      featureList <- SimpleList(FeatureTrack = features)
       hideY <- TRUE
     }else{
       featureList <- features
@@ -1384,12 +1346,15 @@ ArchRBrowserTrack <- function(
     })
 
     featureO <- Reduce("rbind", featureO)
+    
+    .logThis(featureO, "featureO", logFile = logFile)
+
     featureO$facet <- title
 
     if(is.null(pal)){
       pal <- paletteDiscrete(set = "stallion", values = rev(unique(paste0(featureO$name))))
     }
-
+    
     p <- ggplot(data = featureO, aes(color = name)) +
       facet_grid(facet~.) +
       geom_segment(data = featureO, aes(x = start, xend = end, y = name, yend = name, color = name), size=featureWidth) +
@@ -1440,7 +1405,8 @@ ArchRBrowserTrack <- function(
   featureWidth = 2, 
   borderWidth = 0.4, 
   hideX = FALSE, 
-  hideY = FALSE
+  hideY = FALSE,
+  logFile = NULL
   ){
 
   getArchDF <- function(lp, r = 100){
@@ -1460,10 +1426,9 @@ ArchRBrowserTrack <- function(
 
   if(!is.null(loops)){
 
-    if(inherits(loops, "GRanges")){
-      loops <- GenomicRanges::GenomicRangesList(loops)
-      names(loops) <- "Loops" 
-    }else if(all(unlist(lapply(loops, function(x) inherits(x, "GRanges"))))){
+    if(is(loops, "GRanges")){
+      loops <- SimpleList(Loops = loops)
+    }else if(.isGRList(loops)){
     }else{
       stop("Loops is not a GRanges or a list of GRanges! Please supply valid input!")
     }
@@ -1472,30 +1437,58 @@ ArchRBrowserTrack <- function(
     valueMax <- max(unlist(lapply(loops, function(x) max(x$value))))
 
     loopO <- lapply(seq_along(loops), function(x){
-       subLoops <- subsetByOverlaps(loops[[x]], region, ignore.strand = TRUE, type = "within")    
-       dfx <- getArchDF(subLoops)
-       dfx$name <- Rle(paste0(names(loops)[x]))
-       return(dfx)
+       subLoops <- subsetByOverlaps(loops[[x]], region, ignore.strand = TRUE, type = "within") 
+       if(length(subLoops)>0){
+         dfx <- getArchDF(subLoops)
+         dfx$name <- Rle(paste0(names(loops)[x]))
+         dfx
+       }else{
+         NULL
+       }
     }) %>% Reduce("rbind",.)
+    .logThis(loopO, "loopO", logFile = logFile)
 
-    loopO$facet <- title
+    testDim <- tryCatch({
+      if(is.null(loopO)){
+        return(FALSE)
+      }
+      if(nrow(loopO) > 0){
+        return(TRUE)
+      }else{
+        return(FALSE)
+      }
+    }, error = function(x){
+      FALSE
+    })
 
-    if(is.null(pal)){
-      pal <- colorRampPalette(c("#E6E7E8","#3A97FF","#8816A7","black"))(100)
+    if(testDim){
+      loopO$facet <- title
+      if(is.null(pal)){
+        pal <- colorRampPalette(c("#E6E7E8","#3A97FF","#8816A7","black"))(100)
+      }
+      p <- ggplot(data = data.frame(loopO), aes(x = x, y = y, group = id, color = value)) + 
+        geom_line() +
+        facet_grid(name ~ .) +
+        ylab("") + 
+        coord_cartesian(ylim = c(-100,0)) +
+        scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+        scale_color_gradientn(colors = pal, limits = c(valueMin, valueMax)) +
+        theme(legend.text = element_text(size = baseSize)) +
+        theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth, legendPosition = "right") +
+        theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank(),
+          legend.box.background = element_rect(color = NA)) +
+        guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
+    }else{
+      #create empty plot
+      df <- data.frame(facet = "LoopTrack", start = 0, end = 0, strand = "*", symbol = "none")
+      p <- ggplot(data = df, aes(start, end)) + 
+        geom_point() +
+        facet_grid(facet~.) +
+        theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth) +
+        scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+        theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
+        theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank())
     }
-
-    p <- ggplot(data = data.frame(loopO), aes(x = x, y = y, group = id, color = value)) + 
-      geom_line() +
-      facet_grid(name ~ .) +
-      ylab("") + 
-      coord_cartesian(ylim = c(-100,0)) +
-      scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
-      scale_color_gradientn(colors = pal, limits = c(valueMin, valueMax)) +
-      theme(legend.text = element_text(size = baseSize)) +
-      theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth, legendPosition = "right") +
-      theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank(),
-        legend.box.background = element_rect(color = NA)) +
-      guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
 
   }else{
 

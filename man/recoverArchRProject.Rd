@@ -2,15 +2,13 @@
 % Please edit documentation in R/AllClasses.R
 \name{recoverArchRProject}
 \alias{recoverArchRProject}
-\title{Recover ArchRProject if Broken sampleColData/cellColData}
+\title{Recover ArchRProject if broken sampleColData/cellColData}
 \usage{
 recoverArchRProject(ArchRProj)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
-
-\item{copyArrows}{A boolean indicating whether to copy (\code{TRUE}) or copy + remove (\code{FALSE}) original ArrowFiles prior to saving the \code{ArchRProject}.}
 }
 \description{
-This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
+This function will recover an ArchRProject if it has broken sampleColData or cellColData due to different versions of bioconductor s4vectors.
 }

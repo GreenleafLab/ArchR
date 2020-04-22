@@ -4,14 +4,29 @@
 \alias{plotEmbedding}
 \title{Visualize an Embedding from ArchR Project}
 \usage{
-plotEmbedding(ArchRProj = NULL, embedding = "UMAP",
-  colorBy = "cellColData", name = "Sample", log2Norm = NULL,
+plotEmbedding(
+  ArchRProj = NULL,
+  embedding = "UMAP",
+  colorBy = "cellColData",
+  name = "Sample",
+  log2Norm = NULL,
   imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-  getImputeWeights(ArchRProj), pal = NULL, size = 0.1,
-  sampleCells = NULL, rastr = TRUE, quantCut = c(0.001, 0.999),
-  discreteSet = NULL, continuousSet = NULL, randomize = TRUE,
-  keepAxis = FALSE, baseSize = 10, plotAs = NULL,
-  threads = getArchRThreads(), ...)
+    getImputeWeights(ArchRProj),
+  pal = NULL,
+  size = 0.1,
+  sampleCells = NULL,
+  rastr = TRUE,
+  quantCut = c(0.01, 0.99),
+  discreteSet = NULL,
+  continuousSet = NULL,
+  randomize = TRUE,
+  keepAxis = FALSE,
+  baseSize = 10,
+  plotAs = NULL,
+  threads = getArchRThreads(),
+  logFile = createLogFile("plotEmbedding"),
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -34,6 +49,8 @@ See \code{addImputationWeights()} and \code{getImutationWeights()} for more info
 
 \item{size}{A number indicating the size of the points to plot if \code{plotAs} is set to "points".}
 
+\item{sampleCells}{A numeric describing number of cells to use for plot. If using impute weights, this will occur after imputation.}
+
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the
 internal portions of the plot.}
 
@@ -55,6 +72,10 @@ uniformly present at the front of the plot.}
 
 \item{plotAs}{A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 if \code{colorBy} is numeric, then \code{plotAs} is set to "hex".}
+
+\item{threads}{The number of threads to be used for parallel computing.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{...}{Additional parameters to pass to \code{ggPoint()} or \code{ggHex()}.}
 }

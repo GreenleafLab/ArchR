@@ -28,6 +28,7 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addGeneScoreMatrix <- function(
   input = NULL,
@@ -68,6 +69,7 @@ addGeneScoreMatrix <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   matrixName <- .isProtectedArray(matrixName, exclude = "GeneScoreMatrix")
 
@@ -86,6 +88,9 @@ addGeneScoreMatrix <- function(
     stop("Error Input Arrow Files do not all exist!")
   }
 
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addGeneScoreMatrix Input-Parameters", logFile = logFile)
+
   #Valid GRanges
   genes <- .validGRanges(genes)
 
@@ -96,7 +101,8 @@ addGeneScoreMatrix <- function(
   args$X <- seq_along(ArrowFiles)
   args$FUN <- .addGeneScoreMat
   args$registryDir <- file.path(outDir, "GeneScoresRegistry")
-  
+  args$logFile <- logFile
+
   if(subThreading){
     h5disableFileLocking()
   }else{
@@ -112,6 +118,8 @@ addGeneScoreMatrix <- function(
   if(subThreading){
     h5enableFileLocking()
   }
+
+  .endLogging(logFile = logFile)
 
   if(inherits(input, "ArchRProject")){
 
@@ -179,15 +187,7 @@ addGeneScoreMatrix <- function(
 
   #Check
   o <- h5closeAll()
-  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force)
-  # if(!suppressMessages(h5createGroup(file = ArrowFile, matrixName))){
-  #   if(force){
-  #     o <- h5delete(file = ArrowFile, name = matrixName)
-  #     o <- h5createGroup(ArrowFile, matrixName)
-  #   }else{
-  #     stop(matrixName, " Already Exists!, set force = TRUE to override!")
-  #   }
-  # }
+  o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force, logFile = logFile)
 
   geneRegions <- genes[BiocGenerics::which(seqnames(genes) %bcni% excludeChr)]
   seqlevels(geneRegions) <- as.character(unique(seqnames(geneRegions)))
@@ -195,15 +195,15 @@ addGeneScoreMatrix <- function(
 
   #Create Gene Regions Then Remove Strand Column
   if(useTSS){
+    .logMessage(paste0(sampleName, " .addGeneScoreMat useTSS = TRUE"))
     distMethod <- "GenePromoter"
     geneRegions$geneStart <- start(resize(geneRegions, 1, "start"))
     geneRegions$geneEnd <- start(resize(geneRegions, 1, "end"))
     geneRegions <- resize(geneRegions, 1, "start")
     geneRegions$geneWeight <- geneScaleFactor
   }else{
+    .logMessage(paste0(sampleName, " .addGeneScoreMat useTSS = FALSE"))
     distMethod <- "GeneBody"
-    #geneUpstream <- 2000
-    #geneDownstream <- 0
     geneRegions$geneStart <- start(resize(geneRegions, 1, "start"))
     geneRegions$geneEnd <- start(resize(geneRegions, 1, "end"))
     geneRegions <- extendGR(gr = geneRegions, upstream = geneUpstream, downstream = geneDownstream)
@@ -211,10 +211,12 @@ addGeneScoreMatrix <- function(
     geneRegions$geneWeight <- 1 + m * (geneScaleFactor - 1) / (max(m) - min(m))
   }
 
-  .messageDiffTime(sprintf("Computing Gene Scores using distance relative to %s! ", distMethod), tstart)
+  .logDiffTime(sprintf("Computing Gene Scores using distance relative to %s! ", distMethod), tstart, logFile = logFile)
 
   #Add Gene Index For ArrowFile
   geneRegions <- sort(sortSeqlevels(geneRegions), ignore.strand = TRUE)
+  .logThis(geneRegions, paste0(sampleName, " .addGeneScoreMat geneRegions"), logFile = logFile)
+  
   geneRegions <- split(geneRegions, seqnames(geneRegions))
   geneRegions <- lapply(geneRegions, function(x){
     mcols(x)$idx <- seq_along(x)
@@ -242,156 +244,172 @@ addGeneScoreMatrix <- function(
   #########################################################################################################
   totalGS <- .safelapply(seq_along(geneRegions), function(z){
 
-    .messageDiffTime(sprintf("Creating Temp GeneScoreMatrix for %s, Chr (%s of %s)!", sampleName, z, length(geneRegions)), tstart)
+    totalGSz <- tryCatch({
 
-    #Get Gene Starts
-    geneRegioni <- geneRegions[[z]]
-    geneRegioni <- geneRegioni[order(geneRegioni$idx)]
-    chri <- paste0(unique(seqnames(geneRegioni)))
+      .logDiffTime(sprintf("Creating Temp GeneScoreMatrix for %s, Chr (%s of %s)!", sampleName, z, length(geneRegions)), 
+        tstart, verbose = FALSE, logFile = logFile)
 
-    #Read in Fragments
-    frag <- .getFragsFromArrow(ArrowFile, chr = chri, out = "IRanges", cellNames = cellNames)
-    fragSt <- trunc(start(frag)/tileSize) * tileSize
-    fragEd <- trunc(end(frag)/tileSize) * tileSize
-    fragBC <- rep(S4Vectors::match(mcols(frag)$RG, cellNames), 2)
-    rm(frag)
-    gc()
+      #Get Gene Starts
+      geneRegionz <- geneRegions[[z]]
+      geneRegionz <- geneRegionz[order(geneRegionz$idx)]
+      chrz <- paste0(unique(seqnames(geneRegionz)))
 
-    #Unique Inserts
-    uniqIns <- sort(unique(c(fragSt,fragEd)))
+      #Read in Fragments
+      frag <- .getFragsFromArrow(ArrowFile, chr = chrz, out = "IRanges", cellNames = cellNames)
+      fragSt <- trunc(start(frag)/tileSize) * tileSize
+      fragEd <- trunc(end(frag)/tileSize) * tileSize
+      fragBC <- rep(S4Vectors::match(mcols(frag)$RG, cellNames), 2)
+      rm(frag)
+      gc()
 
-    #Construct tile by cell mat!
-    matGS <- Matrix::sparseMatrix(
-        i = match(c(fragSt, fragEd), uniqIns),
-        j = as.vector(fragBC),
-        x = rep(1,  2*length(fragSt)),
-        dims = c(length(uniqIns), length(cellNames))
-      )  
+      #Unique Inserts
+      uniqIns <- sort(unique(c(fragSt,fragEd)))
+
+      #Construct tile by cell mat!
+      matGS <- Matrix::sparseMatrix(
+          i = match(c(fragSt, fragEd), uniqIns),
+          j = as.vector(fragBC),
+          x = rep(1,  2*length(fragSt)),
+          dims = c(length(uniqIns), length(cellNames))
+        )  
+      
+      if(!is.null(ceiling)){
+        matGS@x[matGS@x > ceiling] <- ceiling
+      }
+
+      #Unique Tiles
+      uniqueTiles <- IRanges(start = uniqIns, width = tileSize)
+      
+      #Clean Memory
+      rm(uniqIns, fragSt, fragEd, fragBC)
+      gc() 
+
+      #Time to Overlap Gene Windows
+      if(useGeneBoundaries){
+
+        geneStartz <- start(resize(geneRegionz, 1, "start"))
+        geneEndz <- start(resize(geneRegionz, 1, "end"))
+
+        pminGene <- pmin(geneStartz, geneEndz)
+        pmaxGene <- pmax(geneStartz, geneEndz)
+
+        idxMinus <- BiocGenerics::which(strand(geneRegionz) != "-")
     
-    if(!is.null(ceiling)){
-      matGS@x[matGS@x > ceiling] <- ceiling
-    }
+        pReverse <- rep(max(extendDownstream), length(pminGene))
+        pReverse[idxMinus] <- rep(max(extendUpstream), length(idxMinus))
 
-    #Unique Tiles
-    uniqueTiles <- IRanges(start = uniqIns, width = tileSize)
-    
-    #Clean Memory
-    rm(uniqIns, fragSt, fragEd, fragBC)
-    gc() 
+        pReverseMin <- rep(min(extendDownstream), length(pminGene))
+        pReverseMin[idxMinus] <- rep(min(extendUpstream), length(idxMinus))
 
-    #Time to Overlap Gene Windows
-    if(useGeneBoundaries){
+        pForward <- rep(max(extendUpstream), length(pminGene))
+        pForward[idxMinus] <- rep(max(extendDownstream), length(idxMinus))      
 
-      geneStarti <- start(resize(geneRegioni, 1, "start"))
-      geneEndi <- start(resize(geneRegioni, 1, "end"))
+        pForwardMin <- rep(min(extendUpstream), length(pminGene))
+        pForwardMin[idxMinus] <- rep(min(extendDownstream), length(idxMinus))      
 
-      pminGene <- pmin(geneStarti, geneEndi)
-      pmaxGene <- pmax(geneStarti, geneEndi)
+        ################################################################
+        #We will test when genes pass by another gene promoter
+        ################################################################
 
-      idxMinus <- BiocGenerics::which(strand(geneRegioni) != "-")
-  
-      pReverse <- rep(max(extendDownstream), length(pminGene))
-      pReverse[idxMinus] <- rep(max(extendUpstream), length(idxMinus))
-
-      pReverseMin <- rep(min(extendDownstream), length(pminGene))
-      pReverseMin[idxMinus] <- rep(min(extendUpstream), length(idxMinus))
-
-      pForward <- rep(max(extendUpstream), length(pminGene))
-      pForward[idxMinus] <- rep(max(extendDownstream), length(idxMinus))      
-
-      pForwardMin <- rep(min(extendUpstream), length(pminGene))
-      pForwardMin[idxMinus] <- rep(min(extendDownstream), length(idxMinus))      
-
-      ################################################################
-      #We will test when genes pass by another gene promoter
-      ################################################################
-
-      #Start of Range is based on the max observed gene ranged <- direction
-      s <- pmax(
-        c(1, pmaxGene[-length(pmaxGene)] + tileSize), 
-        pminGene - pReverse
-      )
-      s <- pmin(pminGene - pReverseMin, s)
-
-      #End of Range is based on the max observed gene ranged -> direction
-      e <- pmin(
-          c(pminGene[-1] - tileSize, pmaxGene[length(pmaxGene)] + pForward[length(pmaxGene)]), 
-          pmaxGene + pForward
+        #Start of Range is based on the max observed gene ranged <- direction
+        s <- pmax(
+          c(1, pmaxGene[-length(pmaxGene)] + tileSize), 
+          pminGene - pReverse
         )
-      e <- pmax(pmaxGene + pForwardMin, e)
+        s <- pmin(pminGene - pReverseMin, s)
 
-      extendedGeneRegion <- IRanges(start = s, end = e)
-      #mcols(extendedGeneRegion)$gStart <- pminGene
-      #mcols(extendedGeneRegion)$gEnd <- pmaxGene
-      #mcols(extendedGeneRegion)$gWidth <- width(geneRegioni)
-      #mcols(extendedGeneRegion)$gStrand <- strand(geneRegioni)
+        #End of Range is based on the max observed gene ranged -> direction
+        e <- pmin(
+            c(pminGene[-1] - tileSize, pmaxGene[length(pmaxGene)] + pForward[length(pmaxGene)]), 
+            pmaxGene + pForward
+          )
+        e <- pmax(pmaxGene + pForwardMin, e)
 
-      idx1 <- which(pminGene - pReverseMin < start(extendedGeneRegion))
-      if(length(idx1) > 0){
-        stop("Error in gene boundaries minError")
+        extendedGeneRegion <- IRanges(start = s, end = e)
+
+        idx1 <- which(pminGene - pReverseMin < start(extendedGeneRegion))
+        if(length(idx1) > 0){
+          stop("Error in gene boundaries minError")
+        }
+
+        idx2 <- which(pmaxGene + pForwardMin > end(extendedGeneRegion))
+        if(length(idx2) > 0){
+          stop("Error in gene boundaries maxError")
+        }
+       
+       rm(s, e, pReverse, pReverseMin, pForward, pForwardMin, geneStartz, geneEndz, pminGene, pmaxGene)
+
+      }else{
+
+        extendedGeneRegion <- ranges(suppressWarnings(extendGR(geneRegionz, upstream = max(extendUpstream), downstream = max(extendDownstream))))
+
       }
 
-      idx2 <- which(pmaxGene + pForwardMin > end(extendedGeneRegion))
-      if(length(idx2) > 0){
-        stop("Error in gene boundaries maxError")
-      }
-     
-     rm(s, e, pReverse, pReverseMin, pForward, pForwardMin, geneStarti, geneEndi, pminGene, pmaxGene)
+      tmp <- suppressWarnings(findOverlaps(extendedGeneRegion, uniqueTiles))
+      x <- distance(ranges(geneRegionz)[queryHits(tmp)], uniqueTiles[subjectHits(tmp)])
 
-    }else{
+      #Determine Sign for Distance relative to strand (Directionality determined based on dist from gene start)
+      isMinus <- BiocGenerics::which(strand(geneRegionz) == "-")
+      signDist <- sign(start(uniqueTiles)[subjectHits(tmp)] - start(resize(geneRegionz,1,"start"))[queryHits(tmp)])
+      signDist[isMinus] <- signDist[isMinus] * -1
 
-      extendedGeneRegion <- ranges(suppressWarnings(extendGR(geneRegioni, upstream = max(extendUpstream), downstream = max(extendDownstream))))
+      #Correct the orientation for the distance!
+      x <- x * signDist
 
-    }
+      #Evaluate Input Model
+      x <- eval(parse(text=geneModel))
 
-    tmp <- suppressWarnings(findOverlaps(extendedGeneRegion, uniqueTiles))
-    x <- distance(ranges(geneRegioni)[queryHits(tmp)], uniqueTiles[subjectHits(tmp)])
+      #Get Gene Weights Related to Gene Width
+      x <- x * mcols(geneRegionz)$geneWeight[queryHits(tmp)]
 
-    #Determine Sign for Distance relative to strand (Directionality determined based on dist from gene start)
-    isMinus <- BiocGenerics::which(strand(geneRegioni) == "-")
-    signDist <- sign(start(uniqueTiles)[subjectHits(tmp)] - start(resize(geneRegioni,1,"start"))[queryHits(tmp)])
-    signDist[isMinus] <- signDist[isMinus] * -1
-
-    #Correct the orientation for the distance!
-    x <- x * signDist
-
-    #Evaluate Input Model
-    x <- eval(parse(text=geneModel))
-
-    #Get Gene Weights Related to Gene Width
-    x <- x * mcols(geneRegioni)$geneWeight[queryHits(tmp)]
-
-    #Remove Blacklisted Tiles!
-    if(!is.null(blacklist)){
-      blacklisti <- blacklist[[chri]]
-      if(is.null(blacklisti) | length(blacklisti) > 0){
-        tilesBlacklist <- 1 * (!overlapsAny(uniqueTiles, ranges(blacklisti)))
-        if(sum(tilesBlacklist == 0) > 0){
-          x <- x * tilesBlacklist[subjectHits(tmp)] #Multiply Such That All Blacklisted Tiles weight is now 0!
+      #Remove Blacklisted Tiles!
+      if(!is.null(blacklist)){
+        blacklistz <- blacklist[[chrz]]
+        if(is.null(blacklistz) | length(blacklistz) > 0){
+          tilesBlacklist <- 1 * (!overlapsAny(uniqueTiles, ranges(blacklistz)))
+          if(sum(tilesBlacklist == 0) > 0){
+            x <- x * tilesBlacklist[subjectHits(tmp)] #Multiply Such That All Blacklisted Tiles weight is now 0!
+          }
         }
       }
-    }
 
-    #Creating Sparse Matrix
-    tmp <- Matrix::sparseMatrix(
-      i = queryHits(tmp), 
-      j = subjectHits(tmp), 
-      x = x, 
-      dims = c(length(geneRegioni), nrow(matGS)))
+      #Creating Sparse Matrix
+      tmp <- Matrix::sparseMatrix(
+        i = queryHits(tmp), 
+        j = subjectHits(tmp), 
+        x = x, 
+        dims = c(length(geneRegionz), nrow(matGS)))
 
-    #Calculate Gene Scores
-    matGS <- tmp %*% matGS
-    colnames(matGS) <- cellNames
+      #Calculate Gene Scores
+      matGS <- tmp %*% matGS
+      colnames(matGS) <- cellNames
 
-    totalGSz <- Matrix::colSums(matGS)
+      totalGSz <- Matrix::colSums(matGS)
 
-    #Save tmp file
-    saveRDS(matGS, file = paste0(tmpFile, "-", chri, ".rds"), compress = FALSE)
+      #Save tmp file
+      saveRDS(matGS, file = paste0(tmpFile, "-", chrz, ".rds"), compress = FALSE)
 
-    #Clean Memory
-    rm(isMinus, signDist, extendedGeneRegion, uniqueTiles)
-    rm(matGS, tmp)
-    gc()
+      #Clean Memory
+      rm(isMinus, signDist, extendedGeneRegion, uniqueTiles)
+      rm(matGS, tmp)
+      gc()
+
+      totalGSz
+   
+    }, error = function(e){
+
+      errorList <- list(
+        ArrowFile = ArrowFile,
+        geneRegions = geneRegions,
+        blacklist = blacklist,
+        chr = chrz,
+        totalGSz = if(exists("totalGSz", inherits = FALSE)) totalGSz else "totalGSz",
+        matGS = if(exists("matGS", inherits = FALSE)) matGS else "matGS"
+      )
+
+      .logError(e, fn = ".addGeneScoreMat TmpGS", info = sampleName, errorList = errorList, logFile = logFile)
+
+    })
 
     totalGSz
 
@@ -411,6 +429,7 @@ addGeneScoreMatrix <- function(
       name=mcols(.)$symbol,
       idx=mcols(.)$idx,
       stringsAsFactors=FALSE)}
+  .logThis(featureDF, paste0(sampleName, " .addGeneScoreMat FeatureDF"), logFile = logFile)
 
   dfParams <- data.frame(
       extendUpstream = extendUpstream,
@@ -435,7 +454,7 @@ addGeneScoreMatrix <- function(
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,
-    force = force
+    force = TRUE
   )
 
   #Clean Memory
@@ -445,39 +464,56 @@ addGeneScoreMatrix <- function(
   #Normalize and add to Arrow File!
   for(z in seq_along(geneRegions)){
 
-    #Get Chromosome
-    chri <- paste0(unique(seqnames(geneRegions[[z]])))
+    o <- tryCatch({
 
-    .messageDiffTime(sprintf("Adding GeneScoreMatrix to %s for Chr (%s of %s)!", sampleName, z, length(geneRegions)), tstart)
+      #Get Chromosome
+      chrz <- paste0(unique(seqnames(geneRegions[[z]])))
 
-    #Re-Create Matrix for that chromosome!
-    matGS <- readRDS(paste0(tmpFile, "-", chri, ".rds"))
-    file.remove(paste0(tmpFile, "-", chri, ".rds"))
+      .logDiffTime(sprintf("Adding GeneScoreMatrix to %s for Chr (%s of %s)!", sampleName, z, length(geneRegions)), 
+        tstart, verbose = FALSE, logFile = logFile)
 
-    #Normalize
-    matGS@x <- as.numeric(scaleTo * matGS@x/rep.int(totalGS, Matrix::diff(matGS@p)))
+      #Re-Create Matrix for that chromosome!
+      matGS <- readRDS(paste0(tmpFile, "-", chrz, ".rds"))
+      file.remove(paste0(tmpFile, "-", chrz, ".rds"))
 
-    #Round to Reduce Digits After Final Normalization
-    matGS@x <- round(matGS@x, 3)
-    matGS <- Matrix::drop0(matGS)
+      #Normalize
+      matGS@x <- as.numeric(scaleTo * matGS@x/rep.int(totalGS, Matrix::diff(matGS@p)))
 
-    #Write sparseMatrix to Arrow File!
-    o <- .addMatToArrow(
-      mat = matGS, 
-      ArrowFile = ArrowFile, 
-      Group = paste0(matrixName, "/", chri), 
-      binarize = FALSE,
-      addColSums = TRUE,
-      addRowSums = TRUE,
-      addRowVarsLog2 = TRUE #add for integration analyses
-    )
+      #Round to Reduce Digits After Final Normalization
+      matGS@x <- round(matGS@x, 3)
+      matGS <- Matrix::drop0(matGS)
 
-    #Clean Memory
-    rm(matGS)
+      #Write sparseMatrix to Arrow File!
+      o <- .addMatToArrow(
+        mat = matGS, 
+        ArrowFile = ArrowFile, 
+        Group = paste0(matrixName, "/", chrz), 
+        binarize = FALSE,
+        addColSums = TRUE,
+        addRowSums = TRUE,
+        addRowVarsLog2 = TRUE #add for integration analyses
+      )
 
-    if(z %% 3 == 0 | z == length(geneRegions)){
-      gc()
-    }
+      #Clean Memory
+      rm(matGS)
+
+      if(z %% 3 == 0 | z == length(geneRegions)){
+        gc()
+      }
+
+    }, error = function(e){
+
+      errorList <- list(
+        ArrowFile = ArrowFile,
+        geneRegions = geneRegions,
+        blacklist = blacklist,
+        chr = chrz,
+        mat = if(exists("mat", inherits = FALSE)) mat else "mat"
+      )
+
+      .logError(e, fn = ".addGeneScoreMat AddToArrow", info = sampleName, errorList = errorList, logFile = logFile)
+
+    })
 
   }
 

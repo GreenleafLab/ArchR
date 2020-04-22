@@ -2,43 +2,31 @@
 % Please edit documentation in R/Footprinting.R
 \name{plotFootprints}
 \alias{plotFootprints}
-\title{Plot footprints for an ArchRProject}
+\title{Plot Footprints}
 \usage{
 plotFootprints(
-  ArchRProj = NULL,
-  positions = NULL,
-  plotName = "Plot-Footprints",
-  groupBy = "Clusters",
-  useGroups = NULL,
+  seFoot = NULL,
+  names = NULL,
   pal = NULL,
   flank = 250,
   flankNorm = 50,
+  normMethod = "Subtract",
   smoothWindow = NULL,
-  minCells = 25,
-  nTop = NULL,
-  normMethod = "none",
-  inputSE = NULL,
+  baseSize = 6,
+  plot = TRUE,
+  ArchRProj = NULL,
+  plotName = paste0("Plot-Footprints-", normMethod),
   height = 6,
   width = 4,
   addDOC = TRUE,
-  plot = TRUE,
-  useSink = TRUE,
-  threads = getArchRThreads(),
-  verboseHeader = TRUE,
-  verboseAll = FALSE
+  force = FALSE,
+  logFile = createLogFile("plotFootprints")
 )
 }
 \arguments{
-\item{ArchRProj}{An \code{ArchRProject} object.}
+\item{seFoot}{A summarized experiment object containing information on footprints returned by the \code{getFootprints()} function.}
 
-\item{positions}{A \code{list} or \code{GenomicRangesList} of \code{GRanges} containing the positions to incorporate into the footprint. Each position should be stranded.}
-
-\item{plotName}{The prefix to add to the file name for the output PDF file containing the footprint plots.}
-
-\item{groupBy}{The name of the column in \code{cellColData} used in the \code{addGroupCoverages()} function for grouping multiple cells together.}
-
-\item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in \code{cellColData}.
-This limits the groups used to perform footprinting.}
+\item{names}{A character vector containing the names of the transcription factors to be plotted. These should match colnames of \code{seFoot}.}
 
 \item{pal}{The name of a custom palette from \code{ArchRPalettes} to use for plotting the lines corresponding to the footprints.}
 
@@ -46,34 +34,31 @@ This limits the groups used to perform footprinting.}
 
 \item{flankNorm}{The number of basepairs to consider at the edge of the flank region (+/-) to be used for footprint normalization.}
 
-\item{smoothWindow}{The size in basepairs of the sliding window to be used for smoothing of the footprint signal.}
-
-\item{minCells}{The minimum number of cells required in a given cell group to permit footprint generation.}
-
-\item{nTop}{The number of genomic regions to consider. Only the top \code{nTop} genomic regions based on the "score" column in the \code{GRanges}
-object will be considered for the footprint.}
-
 \item{normMethod}{The name of the normalization method to use to normalize the footprint relative to the Tn5 insertion bias. Options
 include "none", "subtract", "divide". "Subtract" means subtracting the normalized Tn5 Bias. "Divide" means dividing the normalized Tn5 Bias.}
 
-\item{inputSE}{Input a previous footprint Summarized Experiment (returned after running \code{plotFootprints}) to be plotted instead of
-regenerating the footprinting information.}
+\item{smoothWindow}{The size in basepairs of the sliding window to be used for smoothing of the footprint signal.}
 
-\item{height}{The height in inches to be used for the output PDF.}
+\item{baseSize}{A numeric specifying the baseSize of font in the plots.}
+
+\item{plot}{A boolean value indicating whether or not the footprints should be plotted (\code{TRUE}) or returned as grob objects (\code{FALSE}).}
+
+\item{ArchRProj}{An \code{ArchRProject} object to be used for plotting directory in \code{getOutputDirectory}.}
+
+\item{plotName}{A string indicating the name/prefix of the file to be used for output plots.}
+
+\item{height}{The height in inches to be used for the output PDF file.}
 
 \item{width}{The width in inches to be used for the output PDF file.}
 
 \item{addDOC}{A boolean variable that determines whether to add the date of creation to end of the PDF file name. This is useful for
 preventing overwritting of old plots.}
 
-\item{useSink}{A boolean value that indicates whether the \code{sink} function from base R should be used to hide messages during plotting.}
+\item{force}{If many footprints are requested when plot = FALSE, please set force = TRUE.
+This prevents large amount of footprint plots stored as an object.}
 
-\item{threads}{The number of threads to be used for parallel computing.}
-
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
-
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
-This function will plot footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
+This function will get footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 }

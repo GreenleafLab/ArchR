@@ -1,515 +1,4 @@
 ##########################################################################################
-# Parallel Information
-##########################################################################################
-
-#' Add a globally-applied number of threads to use for parallel computing.
-#' 
-#' This function will set the number of threads to be used for parallel computing across all ArchR functions.
-#' 
-#' @param threads The default number of threads to be used for parallel execution across all ArchR functions.
-#' This value is stored as a global environment variable, not part of the `ArchRProject`.
-#' This can be overwritten on a per-function basis using the given function's `threads` parameter.
-#' @param force If you request more than the total number of CPUs minus 2, ArchR will set `threads` to `(nCPU - 2)`.
-#' To bypass this, setting `force = TRUE` will use the number provided to `threads`.
-#' @export
-addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force = FALSE){
-  
-  .validInput(input = threads, name = "threads", valid = "integer")
-  .validInput(input = force, name = "force", valid = "boolean")
-
-  if(tolower(.Platform$OS.type) == "windows"){
-    message("Detected windows OS, setting threads to 1.")
-    threads <- 1
-  }
-
-  if(threads >= parallel::detectCores() - 1){
-    if(force){
-      message("Input threads is equal to or greater than ncores minus 1 (",parallel::detectCores()-1,")\nOverriding since force = TRUE.")
-    }else{
-      message("Input threads is equal to or greater than ncores minus 1 (",parallel::detectCores()-1,")\nSetting cores to ncores minus 2. Set force = TRUE to set above this number!")
-      threads <- parallel::detectCores()-2
-    }
-  }
-  
-  message("Setting default number of Parallel threads to ", threads, ".")
-  options(ArchR.threads = as.integer(round(threads)))
-
-}
-
-#' Get globally-applied number of threads to use for parallel computing.
-#' 
-#' This function will get the number of threads to be used for parallel execution across all ArchR functions.
-#' 
-#' @export
-getArchRThreads <- function(){
-  .ArchRThreads <- options()[["ArchR.threads"]]
-  if(!is.null(.ArchRThreads)){
-    if(!.isWholenumber(.ArchRThreads)){
-      message("option(ArchR.threads) : ", .ArchRThreads, " is not an integer. \nDid you mistakenly set this to a value without addArchRThreads? Reseting to default!")
-      addArchRThreads()
-      options()[["ArchR.threads"]]
-    }else{
-      .ArchRThreads
-    }
-  }else{
-    1
-  }
-}
-
-##########################################################################################
-# Create Gene/Genome Annotation
-##########################################################################################
-
-#' Add a globally defined genome to all ArchR functions.
-#' 
-#' This function will set the genome across all ArchR functions.
-#' 
-#' @param genome A string indicating the default genome to be used for all ArchR functions.
-#' Currently supported values include "hg19","hg38","mm9", and "mm10".
-#' This value is stored as a global environment variable, not part of the `ArchRProject`.
-#' This can be overwritten on a per-function basis using the given function's `geneAnnotation`and `genomeAnnotation` parameter.
-#' For something other than one of the currently supported, see `createGeneAnnnotation()` and `createGenomeAnnnotation()`.
-#' @param install  A boolean value indicating whether the `BSgenome` object associated with the provided `genome` should be
-#' automatically installed if it is not currently installed. This is useful for helping reduce user download requirements.
-#' @export
-addArchRGenome <- function(genome = NULL, install = TRUE){
-  
-  .validInput(input = genome, name = "genome", valid = "character")
-
-  supportedGenomes <- c("hg19","hg38","mm9","mm10")
-  
-  if(tolower(genome) %ni% supportedGenomes){
-    
-    message("Genome : ", genome, " is not currently supported by ArchR.")
-    message("Currently supported genomes : ", paste0(supportedGenomes, collapse = ","))
-    message("To continue try building a custom geneAnnotation with createGeneAnnnotation(),\nand genomeAnnotation with createGenomeAnnotation()!")
- 
-  }else{
-
-    #Check if BSgenome exists!
-    if(tolower(genome)=="hg19"){
-      if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)){
-        if(install){
-          message("BSgenome for hg19 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
-          BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
-        }else{
-          stop("BSgenome for hg19 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
-        }
-      }
-    }else if(tolower(genome)=="hg38"){
-      if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)){
-        if(install){
-          message("BSgenome for hg38 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg38\")")
-          BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
-        }else{
-          stop("BSgenome for hg38 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg38\")")
-        }
-      }
-    }else if(tolower(genome)=="mm9"){
-      if(!requireNamespace("BSgenome.Mmusculus.UCSC.mm9", quietly = TRUE)){
-        if(install){
-          message("BSgenome for mm9 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Mmusculus.UCSC.mm9\")")
-          BiocManager::install("BSgenome.Mmusculus.UCSC.mm9")
-        }else{
-          stop("BSgenome for mm9 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Mmusculus.UCSC.mm9\")")
-        }
-      }
-    }else if(tolower(genome)=="mm10"){
-      if(!requireNamespace("BSgenome.Mmusculus.UCSC.mm10", quietly = TRUE)){
-        if(install){
-          message("BSgenome for mm10 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Mmusculus.UCSC.mm10\")")
-          BiocManager::install("BSgenome.Mmusculus.UCSC.mm10")
-        }else{
-          stop("BSgenome for mm10 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Mmusculus.UCSC.mm10\")")
-        }
-      }
-    }
-
-    genome <- paste(toupper(substr(genome, 1, 1)), substr(genome, 2, nchar(genome)), sep="")
-    
-    message("Setting default genome to ", genome, ".")
-    #assign(".ArchRGenome", genome, envir = .GlobalEnv)
-    options(ArchR.genome = genome)
-
-  }
-
-  invisible(0)
-
-}
-
-#' Get the globally defined genome, the geneAnnotation, or genomeAnnotation objects associated with the globally defined genome.
-#' 
-#' This function will retrieve the genome that is currently in use by ArchR. Alternatively, this function can return either the `geneAnnotation`
-#' or the `genomeAnnotation` associated with the globally defined genome if desired.
-#' 
-#' @param geneAnnotation A boolean value indicating whether the `geneAnnotation` associated with the ArchRGenome should be returned
-#' instead of the globally defined genome. The `geneAnnotation` is used downstream to calculate things like TSS Enrichment Scores.
-#'This function is not meant to be run with both `geneAnnotation` and `genomeAnnotation` set to `TRUE` (it is an either/or return value).
-#' @param genomeAnnotation A boolean value indicating whether the `genomeAnnotation` associated with the ArchRGenome should be returned
-#' instead of the globally defined genome. The `genomeAnnotation` is used downstream to determine things like chromosome sizes and nucleotide content.
-#' This function is not meant to be run with both `geneAnnotation` and `genomeAnnotation` set to `TRUE` (it is an either/or return value).
-#' @export
-getArchRGenome <- function(
-  geneAnnotation=FALSE, 
-  genomeAnnotation=FALSE
-  ){
-
-  supportedGenomes <- c("hg19","hg38","mm9","mm10")
-  .ArchRGenome <- options()[["ArchR.genome"]]
-
-  if(!is.null(.ArchRGenome)){
-
-    ag <- .ArchRGenome
-    
-    if(!is.character(ag)){
-    
-      return(NULL)
-    
-    }else{
-      
-      if(tolower(ag) %in% supportedGenomes){
-        
-        genome <- paste(toupper(substr(ag, 1, 1)), substr(ag, 2, nchar(ag)), sep="")
-
-        if(geneAnnotation & genomeAnnotation){
-          stop("Please request either geneAnnotation or genomeAnnotation, not both!")
-        }
-
-        if(geneAnnotation){
-
-          message("Using GeneAnnotation set by addArchRGenome!")
-
-          geneAnno <- paste0("geneAnno", genome)
-          eval(parse(text=paste0("data(geneAnno",genome,")")))
-          return(eval(parse(text=geneAnno)))
-        
-        }else if(genomeAnnotation){
-
-          message("Using GenomeAnnotation set by addArchRGenome!")
-
-          genomeAnno <- paste0("genomeAnno", genome)
-          eval(parse(text=paste0("data(genomeAnno",genome,")")))
-          return(eval(parse(text=genomeAnno)))
-
-        }else{
-
-          return(genome)
-
-        }
-
-      }else{
-        
-        stop("option(ArchR.genome) : ", ag, " is not currently supported by ArchR. \nDid you mistakenly set this to a value without addArchRGenome?")
-      
-      }
-    }
-
-  }else{
-    
-    return(NULL)
-
-  }
-
-}
-
-
-#' Create a genome annotation object for ArchR
-#' 
-#' This function will create a genome annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
-#' 
-#' @param genome Either (i) a string that is a valid `BSgenome` or (ii) a `BSgenome` object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").
-#' @param chromSizes A `GRanges` object containing chromosome start and end coordinates.
-#' @param blacklist A `GRanges` object containing regions that should be excluded from analyses due to unwanted biases.
-#' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded.
-#' These "non-standard" chromosomes are defined by `filterChrGR()`.
-#' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
-#' If no manual removal is desired, `filterChr` should be set to `NULL`.
-#' @export
-createGenomeAnnotation <- function(
-  genome = NULL,
-  chromSizes = NULL,
-  blacklist = NULL,
-  filter = TRUE,
-  filterChr = c("chrM")
-  ){
-
-  .validInput(input = filterChr, name = "filterChr", valid = c("character", "null"))
-
-  if(is.null(genome) | is.null(blacklist) | is.null(chromSizes)){
-
-    ##################
-    message("Getting genome..")
-    bsg <- validBSgenome(genome)
-    genome <- bsg@pkgname
-
-    ##################
-    message("Getting chromSizes..")
-    chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
-    if(filter){
-        chromSizes <- filterChrGR(chromSizes, remove = filterChr)
-    }
-    seqlengths(chromSizes) <- end(chromSizes)
-
-    ##################
-    message("Getting blacklist..")
-    blacklist <- .getBlacklist(genome = bsg@provider_version)
-
-  }else{
-
-    bsg <- validBSgenome(genome)
-    genome <- bsg@pkgname
-    
-    chromSizes <- .validGRanges(chromSizes)
-    
-    blacklist <- .validGRanges(blacklist)
-
-  }
-
-  SimpleList(genome = genome, chromSizes = chromSizes, blacklist = blacklist)
-
-}
-
-#' Create a gene annotation object for ArchR
-#' 
-#' This function will create a gene annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
-#' 
-#' @param genome A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If `genome` is not supplied,
-#' `TxDb` and `OrgDb` are required. If genome is supplied, `TxDb` and `OrgDb` will be ignored.
-#' @param TxDb A `TxDb` object (transcript database) from Bioconductor which contains information for gene/transcript coordinates.
-#' For example, from `txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene`.
-#' @param OrgDb An `OrgDb` object (organism database) from Bioconductor which contains information for gene/transcript symbols from ids.
-#' For example, from `orgdb <- org.Hs.eg.db`.
-#' @param genes A `GRanges` object containing gene coordinates (start to end). Must have a symbols column matching the symbols column of `exons`.
-#' @param exons A `GRanges` object containing gene exon coordinates. Must have a symbols column matching the symbols column of `genes`.
-#' @param TSS A `GRanges` object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.
-#' @export
-createGeneAnnnotation <- function(
-  genome = NULL,
-  TxDb = NULL,
-  OrgDb = NULL,
-  genes = NULL,
-  exons = NULL,
-  TSS = NULL
-  ){
-
-  .validInput(input = genome, name = "genome", valid = c("character", "null"))
-  .validInput(input = TxDb, name = "TxDb", valid = c("txdb", "character", "null"))
-  .validInput(input = OrgDb, name = "OrgDb", valid = c("orgdb", "character", "null"))
-  .validInput(input = genes, name = "genes", valid = c("GRanges", "null"))
-  .validInput(input = exons, name = "exons", valid = c("GRanges", "null"))
-  .validInput(input = TSS, name = "TSS", valid = c("GRanges", "null"))
-
-  if(is.null(genes) | is.null(exons) | is.null(TSS)){
-
-    inGenes <- genes
-    inExons <- exons
-    inTSS <- TSS
-
-    .requirePackage("GenomicFeatures", source = "bioc")
-
-    if(is.null(genome)) {
-      if (is.null(TxDb) | is.null(OrgDb)) {
-          stop("If no provided genome then you need TxDb and OrgDb!")
-      }
-    }
-
-    if(!is.null(genome)){
-      TxDb <- .getTxDb(genome)
-      OrgDb <- .getOrgDb(genome)
-    }
-
-    ###########################
-    message("Getting Genes..")
-    genes <- GenomicFeatures::genes(TxDb)
-    mcols(genes)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, 
-        column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
-    names(genes) <- NULL
-    genes <- sort(sortSeqlevels(genes), ignore.strand = TRUE)
-
-    ###########################
-    message("Getting Exons..")
-    exons <- unlist(GenomicFeatures::exonsBy(TxDb, by = "tx"))
-    exons$tx_id <- names(exons)
-    mcols(exons)$gene_id <- suppressMessages(AnnotationDbi::select(TxDb, keys = paste0(mcols(exons)$tx_id), 
-        column = "GENEID", keytype = "TXID")[, "GENEID"])
-    exons <- exons[!is.na(mcols(exons)$gene_id), ]
-    mcols(exons)$symbol <- suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(exons)$gene_id, 
-        column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
-    names(exons) <- NULL
-    mcols(exons)$exon_id <- NULL
-    mcols(exons)$exon_name <- NULL
-    mcols(exons)$exon_rank <- NULL
-    mcols(exons)$tx_id <- NULL
-    exons <- sort(sortSeqlevels(exons), ignore.strand = TRUE)
-
-    ###########################
-    message("Getting TSS..")
-    TSS <- unique(resize(GenomicFeatures::transcripts(TxDb), width = 1, fix = "start"))
-
-    if(!is.null(inGenes)){
-      genes <- .validGRanges(inGenes)
-    }
-
-    if(!is.null(inExons)){
-      exons <- .validGRanges(inExons)
-    }
-
-    if(!is.null(inTSS)){
-      TSS <- .validGRanges(inTSS)
-    }
-
-  }else{
-
-    genes <- .validGRanges(genes)
-    exons <- .validGRanges(exons)
-    TSS <- unique(.validGRanges(TSS))
-
-  }
-
-  SimpleList(genes = genes, exons = exons, TSS = TSS)
-
-}
-
-.getBlacklist <- function(genome = NULL){
-  
-  .validInput(input = genome, name = "genome", valid = "character")
-
-  encodeBL <- c(
-    "hg19" = "https://github.com/Boyle-Lab/Blacklist/raw/master/lists/hg19-blacklist.v2.bed.gz",
-    "hg38" = "https://github.com/Boyle-Lab/Blacklist/raw/master/lists/hg38-blacklist.v2.bed.gz",
-    "mm10" = "https://github.com/Boyle-Lab/Blacklist/raw/master/lists/mm10-blacklist.v2.bed.gz",
-    "mm9" = "https://github.com/Boyle-Lab/Blacklist/raw/master/lists/Blacklist_v1/mm9-blacklist.bed.gz",
-    "ce10" = "http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/ce10-C.elegans/ce10-blacklist.bed.gz",
-    "dm3" = "http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/dm3-D.melanogaster/dm3-blacklist.bed.gz"
-  )
-
-  if(tolower(genome) %in% names(encodeBL)){
-    bl <- tryCatch({
-      blacklist <- import.bed(encodeBL[tolower(genome)])
-    }, error = function(x){
-      message("Blacklist not downloaded! Continuing without, be careful for downstream biases..")
-      GRanges()
-    })
-  }else{
-    message("Blacklist not downloaded! Continuing without, be careful for downstream biases..")
-    bl <- GRanges()
-  }
-
-  bl
-
-}
-
-.getTxDb <- function(genome = NULL, filter = TRUE, install = TRUE){
-
-  .validInput(input = genome, name = "genome", valid = "character")
-  .validInput(input = filter, name = "filter", valid = "boolean")
-  .validInput(input = install, name = "install", valid = "boolean")
-
-  if(toupper(genome) == "HG19"){
-    if(suppressWarnings(!require(TxDb.Hsapiens.UCSC.hg19.knownGene))){
-      if(install){
-        message("Package does not exist, now trying bioconductor..")
-        BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene", update=FALSE)
-      }else{
-        stop("TxDb.Hsapiens.UCSC.hg19.knownGene is not installed!")
-      }
-    }
-    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-    txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
-  }else if(toupper(genome) == "HG38"){
-    if(suppressWarnings(!require(TxDb.Hsapiens.UCSC.hg38.knownGene))){
-      if(install){
-        message("Package does not exist, now trying bioconductor..")
-        BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene", update=FALSE)
-      }else{
-        stop("TxDb.Hsapiens.UCSC.hg38.knownGene is not installed!")
-      }
-    }
-    library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-    txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
-  }else if(toupper(genome) == "MM9"){
-    if(suppressWarnings(!require(TxDb.Mmusculus.UCSC.mm9.knownGene))){
-      if(install){
-        message("Package does not exist, now trying bioconductor..")
-        BiocManager::install("TxDb.Mmusculus.UCSC.mm9.knownGene", update=FALSE)
-      }else{
-        stop("TxDb.Mmusculus.UCSC.mm9.knownGene is not installed!")
-      }
-    }
-    library(TxDb.Mmusculus.UCSC.mm9.knownGene)
-    txdb <- TxDb.Mmusculus.UCSC.mm9.knownGene
-  }else if(toupper(genome) == "MM10"){
-    if(suppressWarnings(!require(TxDb.Mmusculus.UCSC.mm10.knownGene))){
-      if(install){
-        message("Package does not exist, now trying bioconductor..")
-        BiocManager::install("TxDb.Mmusculus.UCSC.mm10.knownGene", update=FALSE)
-      }else{
-        stop("TxDb.Mmusculus.UCSC.mm10.knownGene is not installed!")
-      }
-    }
-    library(TxDb.Mmusculus.UCSC.mm10.knownGene)
-    txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
-  }else if(toupper(genome) == "SACCER3"){
-    if(suppressWarnings(!require(TxDb.Scerevisiae.UCSC.sacCer3.sgdGene))){
-      if(install){
-        message("Package does not exist, now trying bioconductor..")
-        BiocManager::install("TxDb.Scerevisiae.UCSC.sacCer3.sgdGene", update=FALSE)
-      }else{
-        stop("TxDb.Scerevisiae.UCSC.sacCer3.sgdGene is not installed!")
-      }
-    }
-    library(TxDb.Scerevisiae.UCSC.sacCer3.sgdGene)
-    txdb <- TxDb.Scerevisiae.UCSC.sacCer3.sgdGene
-  }else if(toupper(genome) == "RHEMAC8"){
-    if(suppressWarnings(!require(TxDb.Mmulatta.UCSC.rheMac8.refGene))){
-      if(install){
-        message("Package does not exist, now trying bioconductor..")
-        BiocManager::install("TxDb.Mmulatta.UCSC.rheMac8.refGene", update=FALSE)
-      }else{
-        stop("TxDb.Mmulatta.UCSC.rheMac8.refGene is not installed!")
-      }
-    }
-    library(TxDb.Mmulatta.UCSC.rheMac8.refGene)
-    txdb <- TxDb.Mmulatta.UCSC.rheMac8.refGene
-  }else{
-    stop("Genome not recognized!")
-  }
-
-  if(filter){
-    txdb <- filterChrGR(txdb)
-  }
-
-  return(txdb)
-
-}
-
-.getOrgDb <- function(genome = NULL){
-
-  .validInput(input = genome, name = "genome", valid = "character")
-
-  if(toupper(genome) == "HG19" | toupper(genome) == "HG38"){
-    if(suppressWarnings(!require(org.Hs.eg.db))){
-      message("Package does not exist, now trying bioconductor..")
-      BiocManager::install("org.Hs.eg.db", update=FALSE)
-    }
-    library(org.Hs.eg.db)
-    annodb <- org.Hs.eg.db
-  }else if(toupper(genome) == "MM9" | toupper(genome) == "MM10"){
-    if(suppressWarnings(!require(org.Mm.eg.db))){
-      message("Package does not exist, now trying bioconductor..")
-      BiocManager::install("org.Mm.eg.db", update=FALSE)
-    }
-    library(org.Mm.eg.db)
-    annodb <- org.Mm.eg.db
-  }else{
-    stop("Genome not recognized!")
-  }
-  return(annodb)
-
-}
-
-
-##########################################################################################
 # Output Directory
 ##########################################################################################
 
@@ -519,7 +8,9 @@ createGeneAnnnotation <- function(
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
-getOutputDirectory <- function(ArchRProj = NULL){
+getOutputDirectory <- function(
+  ArchRProj = NULL
+  ){
 
   if(is.null(ArchRProj) | is.character(ArchRProj)){
     return("QualityControl")
@@ -543,7 +34,9 @@ getOutputDirectory <- function(ArchRProj = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
-getArrowFiles <- function(ArchRProj = NULL){
+getArrowFiles <- function(
+  ArchRProj = NULL
+  ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   
@@ -571,7 +64,9 @@ getArrowFiles <- function(ArchRProj = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
-getSampleNames <- function(ArchRProj = NULL){
+getSampleNames <- function(
+  ArchRProj = NULL
+  ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   
@@ -587,7 +82,9 @@ getSampleNames <- function(ArchRProj = NULL){
 #' 
 #' @param input An `ArchRProject` object or the path to an ArrowFile.
 #' @export
-nCells <- function(input = NULL){
+nCells <- function(
+  input = NULL
+  ){
   
   .validInput(input = input, name = "input", valid = c("ArchRProject", "character"))
 
@@ -613,15 +110,21 @@ nCells <- function(input = NULL){
 #' @param groupBy The name of the column in `cellColData` to use for grouping multiple cells together for summarizing information.
 #' @param select A character vector containing the column names to select from `cellColData`.
 #' @param summary A character vector describing which method for summarizing across group. Options include "median", "mean", or "sum".
-#' @param na.rm Remove NA's from summary method.
+#' @param removeNA Remove NA's from summary method.
 #' @export
 getGroupSummary <- function(
   ArchRProj = NULL,
   groupBy = "Sample",
   select = "TSSEnrichment",
   summary = "median",
-  na.rm = TRUE
+  removeNA = TRUE
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = select, name = "select", valid = c("character"))
+  .validInput(input = summary, name = "summary", valid = c("character"))
+  .validInput(input = removeNA, name = "removeNA", valid = c("boolean"))
 
   message("Getting ", summary, " of ", select, " for ", groupBy)
 
@@ -636,11 +139,11 @@ getGroupSummary <- function(
 
   summarySelect <- lapply(seq_along(splitSelect), function(x){
     if(tolower(summary) == "median"){
-      median(splitSelect[[x]], na.rm = na.rm)
+      median(splitSelect[[x]], na.rm = removeNA)
     }else if(tolower(summary) == "mean"){
-      mean(splitSelect[[x]], na.rm = na.rm)
+      mean(splitSelect[[x]], na.rm = removeNA)
     }else if(tolower(summary) == "sum"){
-      sum(splitSelect[[x]], na.rm = na.rm)
+      sum(splitSelect[[x]], na.rm = removeNA)
     }else{
       stop("Summary Method Not Supported!")
     }
@@ -661,7 +164,11 @@ getGroupSummary <- function(
 #' @param select A character vector containing the column names to select from `sampleColData`.
 #' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
 #' @export
-getSampleColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE){
+getSampleColData <- function(
+  ArchRProj = NULL, 
+  select = NULL, 
+  drop = FALSE
+  ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = select, name = "select", valid = c("character", "null"))
@@ -698,9 +205,10 @@ addSampleColData <- function(ArchRProj = NULL, data = NULL, name = NULL, samples
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = data, name = "data", valid = c("character", "integer", "numeric", "boolean"))
+  .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = samples, name = "samlpes", valid = c("character"))
   .validInput(input = force, name = "force", valid = "boolean")
-  .validInput(input = name, name = "name", valid = c("character"))
+
 
   if(is.null(samples)){
     stop("Error samples must be provided")
@@ -886,6 +394,7 @@ addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGenomeAnnotation <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -904,6 +413,7 @@ getGenomeAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getBlacklist <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -922,6 +432,7 @@ getBlacklist <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGenome <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -940,6 +451,7 @@ getGenome <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getChromSizes <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -958,6 +470,7 @@ getChromSizes <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getChromLengths <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)
     if(!is.null(genomeAnnotation)){
@@ -993,6 +506,7 @@ getChromLengths <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getGeneAnnotation <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
     if(!is.null(geneAnnotation)){
@@ -1011,6 +525,7 @@ getGeneAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getTSS <- function(ArchRProj = NULL){
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     geneAnnotation <- getArchRGenome(geneAnnotation = TRUE)
     if(!is.null(geneAnnotation)){
@@ -1030,7 +545,7 @@ getTSS <- function(ArchRProj = NULL){
 #' @param symbols A character vector containing the gene symbols to subset from the `geneAnnotation`.
 #' @export
 getGenes <- function(ArchRProj = NULL, symbols = NULL){
-  
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   .validInput(input = symbols, name = "symbols", valid = c("character", "null"))
 
   if(is.null(ArchRProj)){
@@ -1065,7 +580,7 @@ getGenes <- function(ArchRProj = NULL, symbols = NULL){
 #' @param symbols A character vector containing the gene symbols for the genes where exons should be extracted.
 #' @export
 getExons <- function(ArchRProj = NULL, symbols = NULL){
-
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   .validInput(input = symbols, name = "symbols", valid = c("character", "null"))
 
   if(is.null(ArchRProj)){
@@ -1280,6 +795,7 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = name, name = "name", valid = "character")
+  #.validInput(input = summary, name = "summary", valid = c("list", "vector", "character", "numeric"))
   #########
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -1335,264 +851,22 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
   }
 }
 
-#' Plot PDF in outputDirectory of an ArchRProject
+#' Get the seqnames that could be selected from a given data matrix within an ArchRProject
 #' 
-#' This function will save a plot or set of plots as a PDF file in the outputDirectory of a given ArchRProject.
+#' This function will identify available seqnames from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return
+#' them for downstream plotting utilities.
 #' 
-#' @param ... vector of plots to be plotted (if input is a list use plotList instead)
-#' @param name The file name to be used for the output PDF file.
-#' @param width The width in inches to be used for the output PDF file.
-#' @param height The height in inches to be used for the output PDF.
-#' @param ArchRProj An `ArchRProject` object to be used for retrieving the desired `outputDirectory` which will be used to store the output
-#' plots in a subfolder called "plots".
-#' @param addDOC A boolean variable that determines whether to add the date of creation to the end of the PDF file name. This is useful
-#' for preventing overwritting of old plots.
-#' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
-#' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted
-#' object (ggplot2, plot, heatmap, etc).
-#' @param useSink A boolean value that indicates whether the `sink` function from base R should be used to hide messages during plotting.
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @export
-plotPDF <- function(..., name = "Plot", width = 6, 
-  height = 6, ArchRProj = NULL, addDOC = TRUE, 
-  useDingbats = FALSE, plotList = NULL, useSink = TRUE){
-
+getSeqnames <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix"){
   #Validate
-  .validInput(input = name, name = "name", valid = "character")
-  .validInput(input = width, name = "width", valid = "numeric")
-  .validInput(input = height, name = "height", valid = "numeric")
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject", "null"))
-  .validInput(input = addDOC, name = "addDOC", valid = "boolean")
-  .validInput(input = useDingbats, name = "useDingbats", valid = "boolean")
-  .validInput(input = plotList, name = "plotList", valid = c("list","null"))
-  .validInput(input = useSink, name = "useSink", valid = "boolean")
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
+  .validInput(input = useMatrix, name = "useMatrix", valid = "character")
   #########
-
-  if(is.null(plotList)){
-    plotList <- list(...)
-    plotList2 <- list()
-    for(i in seq_along(plotList)){
-      if(inherits(plotList[[i]], "list")){
-        for(j in seq_along(plotList[[i]])){
-          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
-        }
-      }else{
-        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
-      }
-    }
-    plotList <- plotList2
-    rm(plotList2)
-    gc()
-  }else{
-    plotList2 <- list()
-    for(i in seq_along(plotList)){
-      if(inherits(plotList[[i]], "list")){
-        for(j in seq_along(plotList[[i]])){
-          plotList2[[length(plotList2) + 1]] <- plotList[[i]][[j]]
-        }
-      }else{
-        plotList2[[length(plotList2) + 1]] <- plotList[[i]]
-      }
-    }
-    plotList <- plotList2
-    rm(plotList2)
-    gc()
-  }
-  
-  name <- gsub("\\.pdf", "", name)
-  if(is.null(ArchRProj)){
-    outDir <- "Plots"
-  }else{
-    .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
-    outDir <- file.path(getOutputDirectory(ArchRProj), "Plots")
-  }
-  
-  dir.create(outDir, showWarnings = FALSE)
-  if(addDOC){
-    doc <- gsub(":","-",stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2])
-    filename <- file.path(outDir, paste0(name, "_Date-", Sys.Date(), "_Time-", doc, ".pdf"))
-  }else{
-    filename <- file.path(outDir, paste0(name, ".pdf"))
-  }
-
-  if(useSink){
-    tmpFile <- .tempfile()
-    sink(tmpFile)
-  }
-
-  o <- tryCatch({
-
-    pdf(filename, width = width, height = height, useDingbats = useDingbats)
-    for(i in seq_along(plotList)){
-      
-      if(inherits(plotList[[i]], "gg")){
-        
-        print("plotting ggplot!")
-
-        if(!is.null(attr(plotList[[i]], "ratioYX"))){
-          print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE))
-        }else{
-          print(.fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE))
-        }
-
-        if(i != length(plotList)){
-          grid::grid.newpage()
-        }
-      
-      }else if(inherits(plotList[[i]], "gtable")){
-        
-        print(grid::grid.draw(plotList[[i]]))
-        if(i != length(plotList)){
-          grid::grid.newpage()
-        }
-      }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
-        padding <- 15
-        draw(plotList[[i]], 
-          padding = unit(c(padding, padding, padding, padding), "mm"), 
-          heatmap_legend_side = "bot", 
-          annotation_legend_side = "bot"
-        )
-
-      }else{
-
-        print("plotting with print")
-       
-        print(plotList[[i]])
-
-      }
-
-    }
-    dev.off()
-
-    if(useSink){
-      sink()
-      file.remove(tmpFile)
-    }
-
-  }, error = function(x){
-
-    suppressWarnings(sink())
-    message(x)
-
-  })
-
-  return(0)
-
+  fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
+  unique(paste0(fdf$seqnames))
 }
-
-#' Get Relevant Data For ArchR Tutorials
-#' 
-#' This function will download data for a given tutorial and return the input files required for ArchR.
-#' 
-#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".
-#' "Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
-#' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.
-#' @export
-getTutorialData <- function(tutorial = "hematopoiesis"){
-
-  #Validate
-  .validInput(input = tutorial, name = "tutorial", valid = "character")
-  #########
-
-  if(tolower(tutorial) %in% c("heme","hematopoiesis")){
-    
-    if(!dir.exists("HemeFragments")){
-      download.file(
-        url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments.zip", 
-        destfile = "HemeFragments.zip"
-      )
-      unzip("HemeFragments.zip")
-      if(dir.exists("HemeFragments")){
-        file.remove("HemeFragments.zip")
-      }else{
-        stop("Download May Not Have Worked!")
-      }
-    }
-    pathFragments <- "HemeFragments"
-
-  }else{
-  
-    stop("There is no tutorial data for : ", tutorial)
-  
-  }
-
-  inputFiles <- list.files(pathFragments, pattern = ".gz", full.names = TRUE)
-  names(inputFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathFragments, pattern = ".gz"))
-  inputFiles <- inputFiles[!grepl(".tbi", inputFiles)]
-  inputFiles
-
-}
-
-#' Get Input Files from paths to create arrows
-#' 
-#' This function will look for fragment files and bam files in the input paths and return the full path and sample names.
-#' 
-#' @param paths A character vector of paths to search for usable input files.
-#' @export
-getInputFiles <- function(paths = NULL){ 
-
-  #Validate
-  .validInput(input = paths, name = "paths", valid = "character")
-  #########
-
-  v <- lapply(paths, function(x){
-    
-    #Fragments
-    inputFrags <- list.files(x, pattern = ".fragments.tsv.gz", full.names = TRUE)
-    names(inputFrags) <- gsub(".fragments.tsv.gz", "", list.files(x, pattern = ".fragments.tsv.gz"))
-    inputFrags <- inputFrags[!grepl(".tbi", inputFrags)]
-    
-    #Bams
-    inputBams <- list.files(x, pattern = ".bam", full.names = TRUE)
-    names(inputBams) <- gsub(".bam", "", list.files(x, pattern = ".bam"))
-    inputBams <- inputBams[!grepl(".bai", inputBams)]
-    
-    c(inputFrags, inputBams)
-
-  }) %>% unlist
-
-  if(any(duplicated(names(v)))){
-    names(v) <- paste0(names(v), "_", seq_along(v))
-  }
-
-  v
-
-}
-
-#' Get Valid Barcodes from 10x Cell Ranger output to pre-filter barcodes
-#' 
-#' This function will read in processed 10x cell ranger files and identify barcodes that are associated with a cell that passed QC.
-#' 
-#' @param csvFiles A character vector of names from 10x CSV files to be read in for identification of valid cell barcodes.
-#' @param sampleNames A character vector containing the sample names to be associated with each individual entry in `csvFiles`.
-#' @export
-getValidBarcodes <- function(csvFiles = NULL, sampleNames = NULL){
-
-  #Validate
-  .validInput(input = csvFiles, name = "csvFiles", valid = "character")
-  .validInput(input = sampleNames, name = "sampleNames", valid = "character")
-  #########
-
-  if(length(sampleNames) != length(csvFiles)){
-    stop("csvFiles and sampleNames must exist!")
-  }
-
-  if(!all(file.exists(csvFiles))){
-    stop("Not All csvFiles exists!")
-  }
-
-  barcodeList <- lapply(seq_along(csvFiles), function(x){
-    df <- .suppressAll(data.frame(readr::read_csv(csvFiles[x])))
-    if("cell_id" %ni% colnames(df)){
-      stop("cell_id not in colnames of 10x singlecell.csv file! Are you sure inut is correct?")
-    }
-    as.character(df[which(paste0(df$cell_id) != "None"),]$barcode)
-  }) %>% SimpleList
-  names(barcodeList) <- sampleNames
-
-  barcodeList
-
-}
-
 
 #' Get a list available matrices in the ArrowFiles storted in an ArchRProject
 #' 
@@ -1605,35 +879,32 @@ getAvailableMatrices <- function(ArchRProj = NULL){
   .availableArrays(getArrowFiles(ArchRProj=ArchRProj))
 }
 
-
-
-# addColorPalette <- function(
-#   ArchRProj = NULL,
-#   pal = NULL
-#   ){
-
-# }
-
-# getColorPalette <- function(
-#   ArchRProj = NULL,
-#   name = NULL
-#   ){
-
-# }
-
 #' This function will add total counts of scATAC cells in provided features into ArchRProject.
 #' 
 #' This function will add total counts of scATAC cells in provided features into ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' @param features A `GRanges` object of features to count scATAC-seq data in.
+#' @param name A character defining the name of the features. "`name`Counts" and "`name`Ratio" will be added to the `ArchRProject`.
+#' @param addRatio A boolean indicating whether to add the "`name`Ratio" to the `ArchRProject`.
+#' @param threads The number of threads to use for parallel execution.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addFeatureCounts <- function(
   ArchRProj = NULL,
   features = NULL,
   name = NULL,
   addRatio = TRUE,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  logFile = createLogFile("addFeatureCounts")
   ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = features, name = "features", valid = c("granges"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = addRatio, name = "addRatio", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
   ArrowFiles <- getArrowFiles(ArchRProj)
@@ -1642,17 +913,17 @@ addFeatureCounts <- function(
 
   h5disableFileLocking()
 
-  countsDF <- ArchR:::.safelapply(seq_along(featuresList), function(i){
+  countsDF <- .safelapply(seq_along(featuresList), function(i){
 
     chri <- names(featuresList)[i]
     cellTotal <- rep(0, length(cellNames))
     names(cellTotal) <- cellNames
     featuresi <- ranges(featuresList[[i]])
-    ArchR:::.messageDiffTime(paste0("Counting in ",chri," (", i, " of ", length(featuresList), ")"), tstart)
+    .logDiffTime(paste0("Counting in ",chri," (", i, " of ", length(featuresList), ")"), t1 = tstart, logFile = logFile)
 
     for(j in seq_along(ArrowFiles)){
 
-      fragmentsij <- ArchR:::.getFragsFromArrow(
+      fragmentsij <- .getFragsFromArrow(
         ArrowFile = ArrowFiles[j], 
         chr = chri, 
         out = "IRanges", 
@@ -1689,13 +960,28 @@ addFeatureCounts <- function(
   totalCounts <- colSums(countsDF)
   countRatio <- totalCounts / (2 * ArchRProj$nFrags)
 
-  ArchR:::.messageDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Counts")), tstart)
+  .logDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Counts")), t1 = tstart, verbose = TRUE, logFile = logFile)
   ArchRProj <- addCellColData(ArchRProj, data = totalCounts, cells = names(totalCounts),  name = paste0(name,"Counts"), force = TRUE)
  
-  ArchR:::.messageDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Ratio")), tstart)
+  .logDiffTime(sprintf("Adding %s to cellColData", paste0(name,"Ratio")), t1 = tstart, verbose = TRUE, logFile = logFile)
   ArchRProj <- addCellColData(ArchRProj, data = countRatio, cells = names(totalCounts),  name = paste0(name,"Ratio"), force = TRUE)
 
   ArchRProj
 
 }
+
+
+# addColorPalette <- function(
+#   ArchRProj = NULL,
+#   pal = NULL
+#   ){
+
+# }
+
+# getColorPalette <- function(
+#   ArchRProj = NULL,
+#   name = NULL
+#   ){
+
+# }
 

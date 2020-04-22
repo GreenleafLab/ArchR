@@ -31,16 +31,17 @@
 #' @param additionalParams A string of additional parameters to pass to MACS2 (see MACS2 documentation).
 #' @param extendSummits The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example,
 #' `extendSummits = 250` will create 501-bp fixed-width peaks from the 1-bp summits.
-#' @param promoterDist The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak
-#' to be annotated as a "promoter" peak.
+#' @param promoterRegion A vector of two integers specifying the distance in basepairs upstream and downstream of a TSS to be included as a promoter region.
+#' Peaks called within one of these regions will be annotated as a "promoter" peak. For example, `promoterRegion = c(2000, 100)` will annotate any peak within the region
+#' 2000 bp upstream and 100 bp downstream of a TSS as a "promoter" peak.
 #' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to be used for generating peak metadata such as nucleotide
 #' information (GC content) or chromosome sizes.
 #' @param geneAnnotation The geneAnnotation (see `createGeneAnnotation()`) to be used for labeling peaks as "promoter", "exonic", etc.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
-#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
-#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param verbose A boolean value that determines whether standard output includes verbose sections.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to be pass to `addGroupCoverages()` to get sample-guided pseudobulk cell-groupings. Only used for TileMatrix-based
 #' peak calling (not for MACS2). See `addGroupCoverages()` for more info.
 #' @export
@@ -53,7 +54,7 @@ addReproduciblePeakSet <- function(
 	maxPeaks = 150000,
 	minCells = 25,
 	excludeChr = c("chrM","chrY"),
-	pathToMacs2 = findMacs2(),
+	pathToMacs2 = if(tolower(peakMethod)=="macs2") findMacs2() else NULL,
 	genomeSize = NULL, 
 	shift = -75, 
 	extsize = 150, 
@@ -61,14 +62,14 @@ addReproduciblePeakSet <- function(
 	cutOff = 0.1, 
 	additionalParams = "--nomodel --nolambda",
 	extendSummits = 250,
-	promoterDist = 500,
+	promoterRegion = c(2000, 100),
 	genomeAnnotation = getGenomeAnnotation(ArchRProj),
 	geneAnnotation = getGeneAnnotation(ArchRProj),
 	threads = getArchRThreads(),
 	parallelParam = NULL,
 	force = FALSE,
-	verboseHeader = TRUE,
-	verboseAll = FALSE,
+	verbose = TRUE,
+	logFile = createLogFile("addReproduciblePeakSet"),
 	...
 	){
 
@@ -95,18 +96,22 @@ addReproduciblePeakSet <- function(
 	}
 
 	.validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
-	.validInput(input = promoterDist, name = "promoterDist", valid = c("integer"))
+	.validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
 	geneAnnotation <- .validGeneAnnotation(geneAnnotation)
 	genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
 	.validInput(input = threads, name = "threads", valid = c("integer"))
 	.validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
 	.validInput(input = force, name = "force", valid = c("boolean"))
-	.validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
-	.validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+	.validInput(input = verbose, name = "verbose", valid = c("boolean"))
+	.validInput(input = logFile, name = "logFile", valid = c("character"))
 
 	tstart <- Sys.time()
+	.startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "ReproduciblePeakSet Args", logFile=logFile)
 
 	if(tolower(peakMethod) == "macs2"){
+
+		.logMessage("Calling Peaks with Macs2", logFile = logFile)
 
 		utility <- .checkPath(pathToMacs2)
 
@@ -134,10 +139,9 @@ addReproduciblePeakSet <- function(
 			)
 		}) %>% Reduce("rbind",.)
 
-		.messageDiffTime("Peak Calling Parameters!", tstart)
-		#printSummary <- groupSummary
-		#rownames(printSummary) <- NULL
-		print(groupSummary)
+		.logDiffTime("Peak Calling Parameters!", tstart, verbose = verbose, logFile = logFile)
+		.logThis(groupSummary, "PeakCallSummary", logFile = logFile)
+		if(verbose) print(groupSummary)
 
 		#####################################################
 		# Create Output Directory
@@ -183,13 +187,15 @@ addReproduciblePeakSet <- function(
 			)
 		args$parallelParam <- parallelParam
 		args$threads <- threads
+		args$logFile <- logFile
 		args$registryDir <- file.path(outDir, "batchRegistry")
 
 		#####################################################
 		# Batch Call Peaks
 		#####################################################
-		.messageDiffTime("Batching Peak Calls!", tstart)
-			
+		.logDiffTime("Batching Peak Calls!", tstart, verbose = verbose, logFile = logFile)
+		.logThis(args, "PeakArgs", logFile = logFile)
+
 		#back lapply
 		outSummmits <- unlist(.batchlapply(args))
 		
@@ -208,19 +214,23 @@ addReproduciblePeakSet <- function(
 		#####################################################
 		# Identify Reproducible Peaks!
 		#####################################################
-		.messageDiffTime("Identifying Reproducible Peaks!", tstart)
+		.logDiffTime("Identifying Reproducible Peaks!", tstart, verbose = verbose, logFile = logFile)
 		groupPeaks <- .safelapply(seq_along(outSummitList), function(i){
-			.messageDiffTime(sprintf("Creating Reproducible Peaks for Group %s of %s", i, length(outSummitList)), tstart)
+			prefix <- sprintf("Rep. Peaks Group (%s of %s) :", i, length(outSummitList))
+			.logDiffTime(sprintf("%s Creating Reproducible Peaks", prefix), tstart, verbose = FALSE, logFile = logFile)
 			peaks <- suppressMessages(.identifyReproduciblePeaks(
 				summitFiles = outSummitList[[i]],
 				summitNames = summitNamesList[[i]],
 				reproducibility = reproducibility,
-		    	extendSummits = extendSummits,
-		    	blacklist = genomeAnnotation$blacklist
+	    	extendSummits = extendSummits,
+	    	blacklist = genomeAnnotation$blacklist,
+	    	prefix = prefix,
+	    	logFile = logFile
 			))
+			.logDiffTime(sprintf("%s Annotating and Filtering Peaks", prefix), tstart, verbose = FALSE, logFile = logFile)
 			peaks <- sort(sortSeqlevels(peaks))
 			peaks <- subsetByOverlaps(peaks, genomeAnnotation$chromSizes, type = "within")
-			peaks <- .fastAnnoPeaks(peaks, BSgenome = BSgenome, geneAnnotation = geneAnnotation, promoterDist = promoterDist)
+			peaks <- .fastAnnoPeaks(peaks, BSgenome = BSgenome, geneAnnotation = geneAnnotation, promoterRegion = promoterRegion, logFile = logFile)
 			peaks <- peaks[which(mcols(peaks)$N < 0.001)] #Remove N Containing Peaks
 			peaks <- peaks[order(peaks$groupScoreQuantile, decreasing = TRUE)]
 			peaks <- head(peaks, groupSummary[names(outSummitList)[i],"maxPeaks"])
@@ -231,7 +241,7 @@ addReproduciblePeakSet <- function(
 		names(groupPeaks) <- names(outSummitList)
 
 		#Construct Union Peak Set
-		.messageDiffTime("Creating Union Peak Set!", tstart)
+		.logDiffTime("Creating Union Peak Set!", tstart, verbose = verbose, logFile = logFile)
 		unionPeaks <- unlist(groupPeaks)
 		unionPeaks <- nonOverlappingGR(unionPeaks, by = "groupScoreQuantile", decreasing = TRUE)
 
@@ -246,6 +256,8 @@ addReproduciblePeakSet <- function(
 
 	}else if(tolower(peakMethod) == "tiles"){
 
+		.logMessage("Calling Peaks with TileMatrix", logFile = logFile)
+
 		useMatrix <- "TileMatrix"
 		
 		cellGroups <- addGroupCoverages(
@@ -253,9 +265,10 @@ addReproduciblePeakSet <- function(
 			groupBy = groupBy,
 			returnGroups = TRUE,
 			minCells = minCells,
+			logFile = logFile,
 			...
 		)[[1]]$cellGroups
-    print(cellGroups)
+    if(verbose) print(cellGroups)
 
 		#####################################################
 		# Peak Calling Summary
@@ -278,10 +291,11 @@ addReproduciblePeakSet <- function(
 			)
 		}) %>% Reduce("rbind",.)
 
-		.messageDiffTime("Peak Calling Parameters!", tstart)
+		.logDiffTime("Peak Calling Parameters!", tstart, verbose = verbose, logFile = logFile)
+		.logThis(groupSummary, "PeakCallSummary", logFile = logFile)
 		#printSummary <- groupSummary
 		#rownames(printSummary) <- NULL
-		print(groupSummary)
+		if(verbose) print(groupSummary)
 
 		#####################################################
 		# Peak Calling from TileMatrix
@@ -290,19 +304,20 @@ addReproduciblePeakSet <- function(
 		#MatrixFiles
 		ArrowFiles <- getSampleColData(ArchRProj)[,"ArrowFiles"]
 		chrToRun <- .availableSeqnames(ArrowFiles, subGroup = useMatrix)
-	    featureDF <- ArchR:::.getFeatureDF(ArrowFiles, useMatrix)
-	    
-	    #Determine Resolution
-	    d1 <- featureDF$start[2] - featureDF$start[1]
-	    d2 <- featureDF$start[3] - featureDF$start[2]
-	    if(d1 != d2){
-	    	stop("Something is wrong with TileMatrix, Could not determine a resolution!")
-	    }else{
-	    	res <- d1
-	    }
+    featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
+    
+    #Determine Resolution
+    d1 <- featureDF$start[2] - featureDF$start[1]
+    d2 <- featureDF$start[3] - featureDF$start[2]
+    if(d1 != d2){
+    	.logMessage("Something is wrong with TileMatrix, Could not determine a resolution!", logFile = logFile)
+    	stop("Something is wrong with TileMatrix, Could not determine a resolution!")
+    }else{
+    	res <- d1
+    }
 
 		#Compute Row Sums Across All Samples
-		.messageDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
+		.logDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = FALSE, verbose = verbose)
 		totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
 		nTiles <- nrow(totalAcc)
 		gc()
@@ -312,7 +327,7 @@ addReproduciblePeakSet <- function(
 
 		#Group Matrix
 		#Consider reading in group-wise if this is getting too large?
-		.messageDiffTime("Computing Pseudo-Grouped Tile Matrix", tstart, addHeader = verboseAll, verbose = verboseHeader)
+		.logDiffTime("Computing Pseudo-Grouped Tile Matrix", tstart, addHeader = FALSE, verbose = verbose)
     groupMat <- .getGroupMatrix(
       ArrowFiles = ArrowFiles, 
       featureDF = topFeatures,
@@ -321,14 +336,12 @@ addReproduciblePeakSet <- function(
       groupList = unlist(cellGroups),
       useIndex = FALSE,
       asSparse = TRUE,
-      verbose = verboseAll
+      verbose = FALSE
     )
-	.messageDiffTime(sprintf("Created Pseudo-Grouped Tile Matrix (%s GB)", round(object.size(groupMat) / 10^9, 3)), tstart, addHeader = verboseAll, verbose = verboseHeader)
-
-		#Expectation, we lowered the expectation (by 25%) to better match 
-		#the results between macs2 and tile peak calling methods.
-    #exp <- 0.75 * Matrix::colSums(groupMat) / nTiles
-    exp <- Matrix::colSums(groupMat) / nTiles
+		
+		.logDiffTime(sprintf("Created Pseudo-Grouped Tile Matrix (%s GB)", round(object.size(groupMat) / 10^9, 3)), tstart, addHeader = FALSE, verbose = verbose)
+    expectation <- Matrix::colSums(groupMat) / nTiles
+    .logMessage(paste0("Expectation = ", expectation), logFile = logFile)
 
 		#####################################################
 		# Peak Calling Per Group
@@ -336,16 +349,17 @@ addReproduciblePeakSet <- function(
 
     groupPeaks <- .safelapply(seq_along(cellGroups), function(i){
 
-    	.messageDiffTime(sprintf("Computing Peaks from Tile Matrix Group (%s of %s)", i, length(cellGroups)), tstart, addHeader = verboseAll, verbose = verboseHeader)
+    	.logDiffTime(sprintf("Computing Peaks from Tile Matrix Group (%s of %s)", i, length(cellGroups)), tstart, addHeader = FALSE, verbose = verbose)
 
     	gx <- grep(paste0(names(cellGroups)[i],"."), colnames(groupMat))
 	    
 	    pMat <- lapply(seq_along(gx), function(x){
-		    pval <- ppois(q = groupMat[,gx[x]]-1, lambda = exp[gx[x]], lower.tail = FALSE, log=FALSE)
+		    pval <- ppois(q = groupMat[,gx[x]]-1, lambda = expectation[gx[x]], lower.tail = FALSE, log=FALSE)
 		    if(tolower(method) == "q"){
 		    	pval <- p.adjust(pval, method = "fdr", n = nTiles)
 		    }else if(tolower(method)=="p"){
 		    }else{
+		    	.logMessage("method should be either p for p-value or q for adjusted p-value!", logFile = logFile)
 		    	stop("method should be either p for p-value or q for adjusted p-value!")
 		    }
 		    as(as.matrix(-log10(pmax(pval, 10^-250))), "dgCMatrix")
@@ -395,7 +409,7 @@ addReproduciblePeakSet <- function(
 		#####################################################
 		# Create Group Peaks
 		#####################################################
-		.messageDiffTime("Creating Group Peak Sets with Annotations!", tstart)
+		.logDiffTime("Creating Group Peak Sets with Annotations!", tstart, verbose = verbose, logFile = logFile)
 
 		peakDF <- .safelapply(seq_along(cellGroups), function(i){
 			
@@ -427,7 +441,7 @@ addReproduciblePeakSet <- function(
 				groupPeaksGRi, 
 				BSgenome = BSgenome, 
 				geneAnnotation = geneAnnotation, 
-				promoterDist = promoterDist
+				promoterRegion = promoterRegion
 			)
 			groupPeaksGRi <- groupPeaksGRi[which(mcols(groupPeaksGRi)$N < 0.001)] #Remove N Containing Peaks
 			mcols(groupPeaksGRi)$N <- NULL #Remove N Column
@@ -449,7 +463,7 @@ addReproduciblePeakSet <- function(
 		#####################################################
 		# Call Union Peaks
 		#####################################################
-		.messageDiffTime("Creating Union Peak Set with Annotations!", tstart)
+		.logDiffTime("Creating Union Peak Set with Annotations!", tstart, verbose = verbose, logFile = logFile)
 	    unionPeaks <- groupPeaks[!duplicated(groupPeaks$peaks), ]
 	    rm(groupPeaks)
 	    gc()
@@ -477,7 +491,7 @@ addReproduciblePeakSet <- function(
 			unionPeaksGR, 
 			BSgenome = BSgenome, 
 			geneAnnotation = geneAnnotation, 
-			promoterDist = promoterDist
+			promoterRegion = promoterRegion
 		)
 		unionPeaksGR <- unionPeaksGR[which(mcols(unionPeaksGR)$N < 0.001)] #Remove N Containing Peaks
 		mcols(unionPeaksGR)$N <- NULL #Remove N Column
@@ -495,23 +509,25 @@ addReproduciblePeakSet <- function(
 
 
 	}else{
+		.logMessage("method not recognized! Supported methods are Macs2 or Tiles!", logFile = logFile)
 		stop("method not recognized! Supported methods are Macs2 or Tiles!")
 	}	
 
 	#Add Peak Set
 	ArchRProj <- addPeakSet(ArchRProj, unionPeaks, force = TRUE)
 
-	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 6, height = 4, ArchRProj = ArchRProj)
+	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 8, height = 5, ArchRProj = ArchRProj, addDOC = FALSE)
 
-	.messageDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart)
-
-  suppressWarnings(sink())
+	.logDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart, verbose = verbose, logFile = logFile)
 
 	return(ArchRProj)
 
 }
 
-.plotPeakCallSummary <- function(ArchRProj = NULL, pal = NULL){
+.plotPeakCallSummary <- function(
+	ArchRProj = NULL, 
+	pal = NULL
+	){
 
   peakDF <- metadata(ArchRProj@peakSet)$PeakCallSummary
   
@@ -522,6 +538,8 @@ addReproduciblePeakSet <- function(
   if(is.null(pal)){
     pal <- paletteDiscrete(values=peakDF$Var1)
   }
+  pal <- c("Distal" = "#60BA64", "Exonic" = "#73C6FF", "Intronic" = "#620FA3", "Promoter" = "#FFC554", pal) 
+  pal <- pal[!duplicated(names(pal))]
 
   lengthMax <- split(peakDF$Freq, peakDF$Group) %>% lapply(sum) %>% unlist %>% max
 
@@ -553,7 +571,13 @@ addReproduciblePeakSet <- function(
 # Utility Functions
 #####################
 
-.fastAnnoPeaks <- function(peaks = NULL, BSgenome = NULL, geneAnnotation = NULL, promoterDist = 1000){
+.fastAnnoPeaks <- function(
+	peaks = NULL, 
+	BSgenome = NULL, 
+	geneAnnotation = NULL, 
+	promoterRegion = c(2000, 100),
+	logFile = NULL
+	){
 
 	#Validate
 	peaks <- .validGRanges(peaks)
@@ -564,18 +588,23 @@ addReproduciblePeakSet <- function(
 	BSgenome <- validBSgenome(BSgenome)
 
 	#First Lets Get Distance to Nearest Gene Start
+	.logMessage("Annotating Peaks : Nearest Gene", logFile = logFile)
 	distPeaks <- distanceToNearest(peakSummits, resize(geneAnnotation$genes, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToGeneStart <- mcols(distPeaks)$distance
 	mcols(peaks)$nearestGene <- mcols(geneAnnotation$genes)$symbol[subjectHits(distPeaks)]
+	.logMessage("Annotating Peaks : Gene", logFile = logFile)
+	promoters <- extendGR(resize(geneAnnotation$genes, 1, "start"), upstream = promoterRegion[1], downstream = promoterRegion[2])
+	op <- overlapsAny(peakSummits, promoters, ignore.strand = TRUE)
 	og <- overlapsAny(peakSummits, geneAnnotation$genes, ignore.strand = TRUE)
 	oe <- overlapsAny(peakSummits, geneAnnotation$exons, ignore.strand = TRUE)
 	type <- rep("Distal", length(peaks))
-	type[which(og & oe)] <- "Exon"
-	type[which(og & !oe)] <- "Intron"
-	type[mcols(peaks)$distToGeneStart < promoterDist] <- "Promoter"
+	type[which(og & oe)] <- "Exonic"
+	type[which(og & !oe)] <- "Intronic"
+	type[which(op)] <- "Promoter"
 	mcols(peaks)$peakType <- type
 
 	#First Lets Get Distance to Nearest TSS's
+	.logMessage("Annotating Peaks : TSS", logFile = logFile)
 	distTSS <- distanceToNearest(peakSummits, resize(geneAnnotation$TSS, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToTSS <- mcols(distTSS)$distance
 	if("symbol" %in% colnames(mcols(geneAnnotation$TSS))){
@@ -585,6 +614,7 @@ addReproduciblePeakSet <- function(
 	}
 
 	#Get NucleoTide Content
+	.logMessage("Annotating Peaks : GC", logFile = logFile)
 	nucFreq <- BSgenome::alphabetFrequency(getSeq(BSgenome, peaks))
   	mcols(peaks)$GC <- round(rowSums(nucFreq[,c("G","C")]) / rowSums(nucFreq),4)
   	mcols(peaks)$N <- round(nucFreq[,c("N")] / rowSums(nucFreq),4)
@@ -597,49 +627,67 @@ addReproduciblePeakSet <- function(
 	summitNames = NULL,
   reproducibility = 0.51,
   extendSummits = 250,
-  blacklist
+  blacklist = NULL,
+  prefix = NULL,
+  logFile = NULL
   ){
 
-  start <- Sys.time()
-  summits <- lapply(seq_along(summitFiles), function(x){
-  	grx <- readRDS(summitFiles[x])
-  	grx <- subsetByOverlaps(grx, blacklist, invert = TRUE) #Not Overlapping Blacklist!
-  	grx$GroupReplicate <- paste0(summitNames[x])
-  	grx
-  })
-  summits <- Reduce("c", as(summits, "GRangesList"))
+  errorList <- mget(names(formals()),sys.frame(sys.nframe()))
 
-  extendedSummits <- resize(summits, extendSummits * 2 + 1, "center")
-  extendedSummits <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
-    nonES <- nonOverlappingGR(x, by = "score", decreasing = TRUE)
-    nonES$replicateScoreQuantile <- round(.getQuantiles(nonES$score),3)
-    nonES
-  })
-  extendedSummits <- Reduce("c", as(extendedSummits, "GRangesList"))
+	nonOverlapPassES <- tryCatch({
 
-  nonOverlapES <- nonOverlappingGR(extendedSummits, by = "replicateScoreQuantile", decreasing = TRUE)
+		.logMessage(paste0(prefix, " Getting Summits"), logFile = logFile)
+	  summits <- lapply(seq_along(summitFiles), function(x){
+	  	grx <- readRDS(summitFiles[x])
+	  	grx <- subsetByOverlaps(grx, blacklist, invert = TRUE) #Not Overlapping Blacklist!
+	  	grx$GroupReplicate <- paste0(summitNames[x])
+	  	grx
+	  })
+	  summits <- Reduce("c", as(summits, "GRangesList"))
 
-  overlapMat <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
-    overlapsAny(nonOverlapES, x)
-  }) %>% Reduce("cbind", .)
+		.logMessage(paste0(prefix, " Extending Summits"), logFile = logFile)
+	  extendedSummits <- resize(summits, extendSummits * 2 + 1, "center")
+	  extendedSummits <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
+	    nonES <- nonOverlappingGR(x, by = "score", decreasing = TRUE)
+	    nonES$replicateScoreQuantile <- round(.getQuantiles(nonES$score),3)
+	    nonES
+	  })
+	  extendedSummits <- Reduce("c", as(extendedSummits, "GRangesList"))
 
-  if(length(summitFiles) > 1){
-    nonOverlapES$Reproducibility <- rowSums(overlapMat)
-    nonOverlapES$ReproducibilityPercent <- round(rowSums(overlapMat) / ncol(overlapMat) , 3)
-    n <- length(summitFiles)
-    minRep <- eval(parse(text=reproducibility))
-    if(!is.numeric(minRep)){
-    	stop("Error reproducibility not numeric when evaluated!")
-    }
-  	idxPass <- which(nonOverlapES$Reproducibility >= minRep)
-  	nonOverlapPassES <- nonOverlapES[idxPass]
-  }else{
-    nonOverlapES$Reproducibility <- rep(NA, length(nonOverlapES))
-    nonOverlapPassES <- nonOverlapES
-  }
+		.logMessage(paste0(prefix, " Creating Non-Overlapping Peaks"), logFile = logFile)
+	  nonOverlapES <- nonOverlappingGR(extendedSummits, by = "replicateScoreQuantile", decreasing = TRUE)
 
-  nonOverlapPassES$groupScoreQuantile <- round(.getQuantiles(nonOverlapPassES$replicateScoreQuantile),3)
-  mcols(nonOverlapPassES) <- mcols(nonOverlapPassES)[,c("score","replicateScoreQuantile", "groupScoreQuantile", "Reproducibility", "GroupReplicate")]
+		.logMessage(paste0(prefix, " Identifying Reproducible Peaks"), logFile = logFile)
+	  overlapMat <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
+	    overlapsAny(nonOverlapES, x)
+	  }) %>% Reduce("cbind", .)
+
+	  if(length(summitFiles) > 1){
+	    nonOverlapES$Reproducibility <- rowSums(overlapMat)
+	    nonOverlapES$ReproducibilityPercent <- round(rowSums(overlapMat) / ncol(overlapMat) , 3)
+	    n <- length(summitFiles)
+	    minRep <- eval(parse(text=reproducibility))
+	    if(!is.numeric(minRep)){
+	    	stop("Error reproducibility not numeric when evaluated!")
+	    }
+	  	idxPass <- which(nonOverlapES$Reproducibility >= minRep)
+	  	nonOverlapPassES <- nonOverlapES[idxPass]
+	  }else{
+	    nonOverlapES$Reproducibility <- rep(NA, length(nonOverlapES))
+	    nonOverlapPassES <- nonOverlapES
+	  }
+
+		.logMessage(paste0(prefix, " Finalizing Peaks"), logFile = logFile)
+	  nonOverlapPassES$groupScoreQuantile <- round(.getQuantiles(nonOverlapPassES$replicateScoreQuantile),3)
+	  mcols(nonOverlapPassES) <- mcols(nonOverlapPassES)[,c("score","replicateScoreQuantile", "groupScoreQuantile", "Reproducibility", "GroupReplicate")]
+
+	  nonOverlapPassES
+
+	}, error = function(e){
+
+  	.logError(e, fn = ".identifyReproduciblePeaks", info = prefix, errorList = errorList, logFile = logFile) 
+
+	})
 
   return(nonOverlapPassES)
 
@@ -653,21 +701,23 @@ addReproduciblePeakSet <- function(
 	bedDir = NULL,
 	excludeChr = NULL,
 	subThreads = 1,
-	tstart = NULL
+	tstart = NULL,
+	logFile = NULL
 	){
 	
-	.messageDiffTime(sprintf("Group %s of %s, Calling Peaks with MACS2!", i, length(coverageFiles)), tstart)
+	.logDiffTime(sprintf("Group %s of %s, Calling Peaks with MACS2!", i, length(coverageFiles)), tstart, verbose = TRUE, logFile = logFile)
 
 	################
 	# Create Bed File from Coverage File
 	################
 	bedFile <- file.path(bedDir, paste0(names(coverageFiles)[i], ".insertions.bed"))
-	o <- ArchR:::.writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr)
+	o <- .writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr, logFile = logFile)
 	peakParams$bedFile <- bedFile
 	
 	################
 	# MACS2 Peak-Calling Leave Room For Other Options?
 	################
+	peakParams$logFile <- logFile
 	summits <- do.call(.callSummitsMACS2, peakParams)
 	rmf <- file.remove(bedFile)
 	
@@ -676,7 +726,7 @@ addReproduciblePeakSet <- function(
 	################
 	saveRDS(summits, outFiles[i])
 
-	#.messageDiffTime(sprintf("Group %s of %s, Finished Calling Peaks with MACS2!", i, length(coverageFiles)), tstart)
+	#.logDiffTime(sprintf("Group %s of %s, Finished Calling Peaks with MACS2!", i, length(coverageFiles)), tstart, verbose = verbose, logFile = logFile)
 
 	outFiles[i]
 
@@ -690,12 +740,13 @@ addReproduciblePeakSet <- function(
 	extsize = 150, 
 	cutOff = 0.05, 
 	method = "q",
-	additionalParams = "--nomodel --nolambda"
+	additionalParams = "--nomodel --nolambda",
+	logFile = NULL
 	){
 
 	stopifnot(tolower(method) %in% c("p","q"))
 	stopifnot(!is.null(genomeSize))
-	utility <- ArchR:::.checkPath(pathToMacs2)
+	utility <- .checkPath(pathToMacs2)
 
 	#Output Files
 	bedName <- gsub("\\.insertions.bed", "", bedFile)
@@ -716,6 +767,8 @@ addReproduciblePeakSet <- function(
 	}else{
 		cmd <- sprintf("%s -q %s", cmd , cutOff)
 	}
+
+	.logMessage(paste0("Running Macs2 with Params : macs2 ", cmd), logFile = logFile)
 
 	run <- system2(pathToMacs2, cmd, wait=TRUE, stdout=NULL, stderr=NULL)
 

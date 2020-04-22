@@ -4,20 +4,41 @@
 \alias{createArrowFiles}
 \title{Create Arrow Files}
 \usage{
-createArrowFiles(inputFiles = NULL, sampleNames = names(inputFiles),
-  outputNames = sampleNames, validBarcodes = NULL,
+createArrowFiles(
+  inputFiles = NULL,
+  sampleNames = names(inputFiles),
+  outputNames = sampleNames,
+  validBarcodes = NULL,
   geneAnnotation = getGeneAnnotation(),
-  genomeAnnotation = getGenomeAnnotation(), filterFrags = 1000,
-  filterTSS = 4, removeFilteredCells = TRUE, minFrags = 500,
-  maxFrags = 1e+05, outDir = "QualityControl", nucLength = 147,
-  TSSParams = list(), excludeChr = c("chrM", "chrY"), nChunk = 5,
-  bcTag = "qname", gsubExpression = NULL, bamFlag = NULL,
-  offsetPlus = 4, offsetMinus = -5, addTileMat = TRUE,
-  TileMatParams = list(), addGeneScoreMat = TRUE,
-  GeneScoreMatParams = list(), force = FALSE,
-  threads = getArchRThreads(), parallelParam = NULL,
-  subThreading = TRUE, verboseHeader = TRUE, verboseAll = FALSE,
-  cleanTmp = TRUE)
+  genomeAnnotation = getGenomeAnnotation(),
+  filterFrags = 1000,
+  filterTSS = 4,
+  removeFilteredCells = TRUE,
+  minFrags = 500,
+  maxFrags = 1e+05,
+  QCDir = "QualityControl",
+  nucLength = 147,
+  promoterRegion = c(2000, 100),
+  TSSParams = list(),
+  excludeChr = c("chrM", "chrY"),
+  nChunk = 5,
+  bcTag = "qname",
+  gsubExpression = NULL,
+  bamFlag = NULL,
+  offsetPlus = 4,
+  offsetMinus = -5,
+  addTileMat = TRUE,
+  TileMatParams = list(),
+  addGeneScoreMat = TRUE,
+  GeneScoreMatParams = list(),
+  force = FALSE,
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  subThreading = TRUE,
+  verbose = TRUE,
+  cleanTmp = TRUE,
+  logFile = createLogFile("createArrows")
+)
 }
 \arguments{
 \item{inputFiles}{A character vector containing the paths to the input files to use to generate the ArrowFiles.
@@ -52,15 +73,21 @@ marked as not passing QC and excluded from downstream analyses.}
 \item{minFrags}{The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 This is useful for limiting the number of barcodes analyzed.}
 
-\item{outDir}{The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.}
+\item{maxFrags}{The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
+This is useful for limiting the number of barcodes analyzed.}
+
+\item{QCDir}{The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.}
 
 \item{nucLength}{The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.}
 
+\item{promoterRegion}{A integer vector describing the number of basepairs upstream and downstream \link{c(upstream, downstream)} of the TSS to include
+as the promoter region for downstream calculation of things like the fraction of reads in promoters (FIP).}
+
 \item{TSSParams}{A list of parameters for computing TSS Enrichment scores. This includes the \code{window} which is the size in basepairs
 of the window centered at each TSS (default 101), the \code{flank} which is the size in basepairs of the flanking window (default 2000),
 and the \code{norm} which describes the size in basepairs of the flank window to be used for normalization of the TSS enrichment score (default 100).
-For example, given \code{window = 101, flank = 2000, norm = 100}, the accessibility within the 101-bp surrounding the TSS will be normalized
+For example, given \verb{window = 101, flank = 2000, norm = 100}, the accessibility within the 101-bp surrounding the TSS will be normalized
 to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.}
 
 \item{excludeChr}{A character vector containing the names of chromosomes to be excluded from downstream analyses. In most human/mouse
@@ -95,7 +122,7 @@ ATAC-seq signal proximal to the TSS to estimate gene activity.}
 
 \item{GeneScoreMatParams}{A list of parameters to pass to the \code{addGeneScoreMatrix()} function. See \code{addGeneScoreMatrix()} for options.}
 
-\item{force}{A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist in \code{outDir}.}
+\item{force}{A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
@@ -103,12 +130,9 @@ ATAC-seq signal proximal to the TSS to estimate gene activity.}
 
 \item{subThreading}{A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output should include verbose sections.}
+\item{verbose}{A boolean value that determines whether standard output should be printed.}
 
-\item{verboseAll}{A boolean value that determines whether standard output should include verbose subsections.}
-
-\item{minFrags}{The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
-This is useful for limiting the number of barcodes analyzed.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{cleamTmp}{A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.}
 }

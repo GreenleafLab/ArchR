@@ -12,18 +12,24 @@
 #' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells
 #' from the provided ArrowFile using `getCellNames()`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 getFragmentsFromArrow <- function(
   ArrowFile = NULL, 
   chr = NULL, 
   cellNames = NULL, 
-  verbose = TRUE
+  verbose = TRUE,
+  logFile = createLogFile("getFragmentsFromArrow")
   ){
 
   .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
   .validInput(input = chr, name = "chr", valid = c("character","null"))
   .validInput(input = cellNames, name = "cellNames", valid = c("character","null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+
+  tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "getFragmentsFromArrow Input-Parameters", logFile = logFile)
 
   ArrowFile <- .validArrow(ArrowFile)
 
@@ -35,15 +41,47 @@ getFragmentsFromArrow <- function(
     stop("Error Chromosome not in ArrowFile!")
   }
   
-  tstart <- Sys.time()
   out <- lapply(seq_along(chr), function(x){
-    .messageDiffTime(sprintf("Reading Chr %s of %s", x, length(chr)), tstart, verbose = verbose)
-    .getFragsFromArrow(ArrowFile = ArrowFile, chr = chr[x], out = "GRanges", cellNames = cellNames, method = "fast")
-  }) %>% GenomicRangesList
+    .logDiffTime(sprintf("Reading Chr %s of %s", x, length(chr)), t1 = tstart, verbose = verbose, logFile = logFile)
+    .getFragsFromArrow(
+      ArrowFile = ArrowFile, 
+      chr = chr[x], 
+      out = "GRanges", 
+      cellNames = cellNames, 
+      method = "fast"
+    )
+  })
 
-  .messageDiffTime("Merging", tstart, verbose = verbose)
 
-  out <- .suppressAll(unlist(out))
+  .logDiffTime("Merging", tstart, t1 = tstart, verbose = verbose, logFile = logFile)
+
+  out <- tryCatch({
+
+    o <- .suppressAll(unlist(GRangesList(out, compress = FALSE)))
+
+    if(.isGRList(o)){
+      stop("Still a GRangesList")
+    }
+
+    o
+
+  }, error = function(x){
+    
+    o <- c()
+    
+    for(i in seq_along(out)){
+      if(!is.null(out[[i]])){
+        if(i == 1){
+          o <- out[[i]]
+        }else{
+          o <- c(o, out[[i]])
+        }
+      }
+    }
+    
+    o
+
+  })
 
   out
 
@@ -142,41 +180,47 @@ getFragmentsFromArrow <- function(
 # Reading Matrices/Arrays from Arrow Files
 ####################################################################
 
-#' Get a data matrix stored in an ArrowFile JJJ
+#' Get a data matrix stored in an ArchRProject RRR
 #' 
-#' This function gets a given data matrix from an individual ArrowFile.
+#' This function gets a given data matrix from an `ArchRProject`.
 #'
-#' @param ArrowFile The path to an ArrowFile from which the selected data matrix should be obtained.
+#' @param ArchRProj An `ArchRProject` object to get data matrix from.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
-#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
-#' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
-#' the provided ArrowFile using `getCellNames()`.
-#' @param ArchRProj An `ArchRProject` object to be used for getting additional information for cells in `cellColData`.
-#' In some cases, data exists within the `ArchRProject` object that does not exist within the ArrowFiles. To access this data, you can
-#' provide the `ArchRProject` object here.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 getMatrixFromProject <- function(
-  ArchRProj = NULL, 
+  ArchRProj = NULL,
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
   verbose = TRUE,
   binarize = FALSE,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  logFile = createLogFile("getMatrixFromProject")
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = binarize, name = "binarize", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "getMatrixFromProject Input-Parameters", logFile = logFile)
 
   ArrowFiles <- getArrowFiles(ArchRProj)
 
   cellNames <- ArchRProj$cellNames
 
 
-  seL <- ArchR:::.safelapply(seq_along(ArrowFiles), function(x){
+  seL <- .safelapply(seq_along(ArrowFiles), function(x){
 
-    .messageDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), tstart, verbose = verbose)
+    .logDiffTime(paste0("Reading ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), 
+      t1 = tstart, verbose = FALSE, logFile = logFile)
 
     allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)
     allCells <- allCells[allCells %in% cellNames]
@@ -189,11 +233,13 @@ getMatrixFromProject <- function(
         useSeqnames = useSeqnames,
         cellNames = allCells, 
         ArchRProj = ArchRProj,
-        verbose = verbose,
-        binarize = binarize
+        verbose = FALSE,
+        binarize = binarize,
+        logFile = logFile
       )
 
-      .messageDiffTime(paste0("Completed ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), tstart, verbose = verbose)
+      .logDiffTime(paste0("Completed ", useMatrix," : ", names(ArrowFiles)[x], "(",x," of ",length(ArrowFiles),")"), 
+        t1 = tstart, verbose = FALSE, logFile = logFile)
 
       o
 
@@ -206,13 +252,13 @@ getMatrixFromProject <- function(
   }, threads = threads) 
 
   #ColData
-  .messageDiffTime("Organizing colData", tstart, verbose = verbose)
+  .logDiffTime("Organizing colData", t1 = tstart, verbose = verbose, logFile = logFile)
   cD <- lapply(seq_along(seL), function(x){
     colData(seL[[x]])
   }) %>% Reduce("rbind", .)
   
   #RowData
-  .messageDiffTime("Organizing rowData", tstart, verbose = verbose)
+  .logDiffTime("Organizing rowData", t1 = tstart, verbose = verbose, logFile = logFile)
   rD1 <- rowData(seL[[1]])
   rD <- lapply(seq_along(seL), function(x){
     identical(rowData(seL[[x]]), rD1)
@@ -224,7 +270,7 @@ getMatrixFromProject <- function(
   #Assays
   nAssays <- names(assays(seL[[1]]))
   asy <- lapply(seq_along(nAssays), function(i){
-    .messageDiffTime(sprintf("Organizing Assays (%s of %s)", i, length(nAssays)), tstart, verbose = verbose)
+    .logDiffTime(sprintf("Organizing Assays (%s of %s)", i, length(nAssays)), t1 = tstart, verbose = verbose, logFile = logFile)
     m <- lapply(seq_along(seL), function(j){
       assays(seL[[j]])[[nAssays[i]]]
     }) %>% Reduce("cbind", .)
@@ -232,12 +278,12 @@ getMatrixFromProject <- function(
   }) %>% SimpleList()
   names(asy) <- nAssays
   
-  .messageDiffTime("Constructing SummarizedExperiment", tstart, verbose = verbose)
+  .logDiffTime("Constructing SummarizedExperiment", t1 = tstart, verbose = verbose, logFile = logFile)
   se <- SummarizedExperiment(assays = asy, colData = cD, rowData = rD1)  
   rm(seL)
   gc()
 
-  .messageDiffTime("Finished Matrix Creation", tstart, verbose = verbose)
+  .logDiffTime("Finished Matrix Creation", t1 = tstart, verbose = verbose, logFile = logFile)
 
   se
 
@@ -258,6 +304,7 @@ getMatrixFromProject <- function(
 #' provide the `ArchRProject` object here.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 getMatrixFromArrow <- function(
   ArrowFile = NULL, 
@@ -266,7 +313,8 @@ getMatrixFromArrow <- function(
   cellNames = NULL, 
   ArchRProj = NULL,
   verbose = TRUE,
-  binarize = FALSE
+  binarize = FALSE,
+  logFile = createLogFile("getMatrixFromArrow")
   ){
 
   .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
@@ -278,11 +326,15 @@ getMatrixFromArrow <- function(
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "getMatrixFromArrow Input-Parameters", logFile = logFile)
 
   ArrowFile <- .validArrow(ArrowFile)
+  sampleName <- .sampleName(ArrowFile)
 
   seqnames <- .availableSeqnames(ArrowFile, subGroup = useMatrix)
   featureDF <- .getFeatureDF(ArrowFile, subGroup = useMatrix)
+  .logThis(featureDF, paste0("featureDF ", sampleName), logFile = logFile)
 
   if(!is.null(useSeqnames)){
     seqnames <- seqnames[seqnames %in% useSeqnames]
@@ -294,7 +346,8 @@ getMatrixFromArrow <- function(
 
   featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames), ]
 
-  .messageDiffTime(paste0("Getting ",useMatrix," from ArrowFile : ", basename(ArrowFile)), tstart)
+  .logDiffTime(paste0("Getting ",useMatrix," from ArrowFile : ", basename(ArrowFile)), 
+    t1 = tstart, verbose = verbose, logFile = logFile)
 
   if(!is.null(cellNames)){
     allCells <- .availableCells(ArrowFile = ArrowFile, subGroup = useMatrix)
@@ -311,8 +364,10 @@ getMatrixFromArrow <- function(
     binarize = binarize,
     useIndex = FALSE
   )
+  .logThis(mat, paste0("mat ", sampleName), logFile = logFile)
 
-  .messageDiffTime(paste0("Organizing SE ",useMatrix," from ArrowFile : ", basename(ArrowFile)), tstart)
+  .logDiffTime(paste0("Organizing SE ",useMatrix," from ArrowFile : ", basename(ArrowFile)), 
+    t1 = tstart, verbose = verbose, logFile = logFile)
   matrixClass <- h5read(ArrowFile, paste0(useMatrix, "/Info/Class"))
 
   if(matrixClass == "Sparse.Assays.Matrix"){
@@ -349,6 +404,7 @@ getMatrixFromArrow <- function(
     rowData = rowData,
     colData = colData
   )
+  .logThis(se, paste0("se ", sampleName), logFile = logFile)
 
   se
 
@@ -494,7 +550,7 @@ getMatrixFromArrow <- function(
   #########################################
   seqnames <- unique(featureDF$seqnames)
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
-  cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check JJJ
+  cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check QQQ
 
   allCellsList <- lapply(seq_along(ArrowFiles), function(x){
     allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)
@@ -508,7 +564,7 @@ getMatrixFromArrow <- function(
 
   mat <- .safelapply(seq_along(seqnames), function(x){
 
-    .messageDiffTime(sprintf("Constructing Group Matrix %s of %s", x, length(seqnames)), tstart, verbose = verbose)
+    .logDiffTime(sprintf("Constructing Group Matrix %s of %s", x, length(seqnames)), tstart, verbose = verbose)
 
     #Construct Matrix
     seqnamex <- seqnames[x]
@@ -560,7 +616,7 @@ getMatrixFromArrow <- function(
       matChr <- as(matChr, "dgCMatrix")
     }
 
-    .messageDiffTime(sprintf("Finished Group Matrix %s of %s", x, length(seqnames)), tstart, verbose = verbose)
+    .logDiffTime(sprintf("Finished Group Matrix %s of %s", x, length(seqnames)), tstart, verbose = verbose)
     
     matChr
 
@@ -568,7 +624,7 @@ getMatrixFromArrow <- function(
 
   mat <- mat[rownames(featureDF), , drop = FALSE]
   
-  .messageDiffTime("Successfully Created Group Matrix", tstart, verbose = verbose)
+  .logDiffTime("Successfully Created Group Matrix", tstart, verbose = verbose)
 
   gc()
 
@@ -604,7 +660,7 @@ getMatrixFromArrow <- function(
 
   mat <- .safelapply(seq_along(ArrowFiles), function(x){
     
-    .messageDiffTime(sprintf("Getting Partial Matrix %s of %s", x, length(ArrowFiles)), tstart, verbose = verbose)
+    .logDiffTime(sprintf("Getting Partial Matrix %s of %s", x, length(ArrowFiles)), tstart, verbose = verbose)
 
     allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)
     allCells <- allCells[allCells %in% cellNames]
@@ -654,7 +710,7 @@ getMatrixFromArrow <- function(
     mat <- lapply(mat, function(x) x[[1]]) %>% Reduce("cbind", .)
     mat <- mat[,sampledCellNames]
 
-    .messageDiffTime("Successfully Created Partial Matrix", tstart, verbose = verbose)
+    .logDiffTime("Successfully Created Partial Matrix", tstart, verbose = verbose)
 
     return(list(mat = mat, matFiles = matFiles))
 
@@ -663,7 +719,7 @@ getMatrixFromArrow <- function(
     mat <- Reduce("cbind", mat)
     mat <- mat[,cellNames]
     
-    .messageDiffTime("Successfully Created Partial Matrix", tstart, verbose = verbose)
+    .logDiffTime("Successfully Created Partial Matrix", tstart, verbose = verbose)
 
     return(mat)
 
@@ -821,7 +877,7 @@ getMatrixFromArrow <- function(
     
   }, threads = threads) %>% Reduce("cbind", .) %>% rowSums
 
-  .messageDiffTime("Successfully Computed colSums", tstart, verbose = verbose)
+  .logDiffTime("Successfully Computed colSums", tstart, verbose = verbose)
 
   return(cS)
 
@@ -859,7 +915,7 @@ getMatrixFromArrow <- function(
 
   threads <- min(length(ArrowFiles), threads)
 
-  matrixClass <- ArchR:::.safelapply(seq_along(ArrowFiles), function(i){
+  matrixClass <- .safelapply(seq_along(ArrowFiles), function(i){
     h5read(ArrowFiles[i], paste0(useMatrix, "/Info/Class"))
   }, threads = threads) %>% unlist %>% unique
 
@@ -879,7 +935,7 @@ getMatrixFromArrow <- function(
 
   threads <- min(length(ArrowFiles), threads)
 
-  matrixUnits <- ArchR:::.safelapply(seq_along(ArrowFiles), function(i){
+  matrixUnits <- .safelapply(seq_along(ArrowFiles), function(i){
     tryCatch({ #This handles backwards compatibility!
       h5read(ArrowFiles[i], paste0(useMatrix, "/Info/Units"))
     }, error = function(x){

@@ -102,26 +102,31 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten
 #' if it already exists in the given `ArchRProject`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addPeakAnnotations <- function(
   ArchRProj = NULL,
   regions = NULL,
   name = "Region",
-  force = FALSE
+  force = FALSE,
+  logFile = createLogFile("addPeakAnnotations")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  #.validInput(input = regions, name = "regions", valid = c("grangeslist", "list", "character"))
+  .validInput(input = regions, name = "regions", valid = c("grangeslist", "character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addPeakAnnotations Input-Parameters", logFile = logFile)
 
   if(name %in% names(ArchRProj@peakAnnotation)){
     if(force){
-      message("peakAnnotation name already exists! Overriding.")
+      .logMessage("peakAnnotation name already exists! Overriding.", verbose = TRUE, logFile = logFile)
     }else{
-      stop("peakAnnotation name already exists! set force = TRUE to override!")
+      .logStop("peakAnnotation name already exists! set force = TRUE to override!", logFile = logFile)
     }
   }
 
@@ -133,15 +138,13 @@ addPeakAnnotations <- function(
 
     regionPositions <- lapply(seq_along(regions), function(x){
       
+      .logThis(regions[[x]], paste0("regions[[x]]-", x), logFile = logFile)
+
       if(inherits(regions[[x]], "GRanges")){
 
           gr <- .validGRanges(regions[[x]])
 
       }else if(is.character(regions[[x]])){
-        
-        if(!file.exists(regions[[x]])){
-          stop(paste0("Region provided is a path (", regions[[x]], ") that does not exist! Exiting..."))
-        }
 
         gr <- tryCatch({
           makeGRangesFromDataFrame(
@@ -153,14 +156,19 @@ addPeakAnnotations <- function(
           )
         }, error = function(y){
 
-          print(paste0("Could not successfully get region : ", regions[[x]]))
-          stop()
+          .logMessage(paste0("Could not successfully get region : ", regions[[x]]), verbose = TRUE, logFile = logFile)
+
+          if(!file.exists(regions[[x]])){
+            .logStop(paste0("If region provided is a path it does not exist!"), logFile = logFile)
+          }
+          
+          .logStop("Could not create GRanges from region", logFile = logFile)
 
         })
 
       }else{
         
-        stop("Unrecognized input in regions please input GRanges, GRangesList, or Paths to bed files!")
+        .logStop("Unrecognized input in regions please input GRanges, GRangesList, or Paths to bed files!", logFile = logFile)
       
       }
 
@@ -178,8 +186,11 @@ addPeakAnnotations <- function(
   peakSet <- getPeakSet(ArchRProj)
   allPositions <- unlist(regionPositions)
 
-  .messageDiffTime("Creating Peak Overlap Matrix", tstart)
+  .logDiffTime("Creating Peak Overlap Matrix", t1 = tstart, verbose = TRUE, logFile = logFile)
+
   overlapRegions <- findOverlaps(peakSet, allPositions, ignore.strand=TRUE)
+  .logThis(overlapRegions, "overlapRegions", logFile = logFile)
+
   regionMat <- Matrix::sparseMatrix(
     i = queryHits(overlapRegions),
     j = match(names(allPositions),names(regionPositions))[subjectHits(overlapRegions)],
@@ -187,7 +198,10 @@ addPeakAnnotations <- function(
     dims = c(length(peakSet), length(regionPositions))
   )
   colnames(regionMat) <- names(regionPositions)
+  .logThis(regionMat, "regionMat", logFile = logFile)
+
   regionMat <- SummarizedExperiment::SummarizedExperiment(assays=SimpleList(matches = regionMat), rowRanges = peakSet)
+  .logThis(regionMat, "regionSE", logFile = logFile)
 
   dir.create(file.path(getOutputDirectory(ArchRProj), "Annotations"), showWarnings=FALSE)
   savePositions <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Positions-In-Peaks.rds"))
@@ -211,7 +225,7 @@ addPeakAnnotations <- function(
 
 }
 
-#' Add motif annotations to an ArchRProject JJJ
+#' Add motif annotations to an ArchRProject
 #' 
 #' This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value
 #' is stored indicating whether each motif is observed within the peak region.
@@ -231,6 +245,7 @@ addPeakAnnotations <- function(
 #' @param version An integer specifying version 1 or version 2 of chromVARmotifs see github for more info GreenleafLab/chromVARmotifs.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if
 #' it already exists in the given `ArchRProject`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a PWM object.
 #' @export
 addMotifAnnotations <- function(
@@ -243,6 +258,7 @@ addMotifAnnotations <- function(
   width = 7,
   version = 2,
   force = FALSE,
+  logFile = createLogFile("addMotifAnnotations"),
   ...
   ){
 
@@ -254,8 +270,13 @@ addMotifAnnotations <- function(
   .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
   .validInput(input = width, name = "width", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
+
+  tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addMotifAnnotations Input-Parameters", logFile = logFile)
 
   if(name %in% names(ArchRProj@peakAnnotation)){
     if(force){
@@ -283,8 +304,8 @@ addMotifAnnotations <- function(
   #############################################################
   # Get PWM List adapted from chromVAR!
   #############################################################
-  tstart <- Sys.time()
-  .messageDiffTime(paste0("Gettting Motif Set, Species : ", species), tstart)
+
+  .logDiffTime(paste0("Gettting Motif Set, Species : ", species), t1 = tstart, verbose = TRUE, logFile = logFile)
 
   if(tolower(motifSet)=="jaspar2020"){
     
@@ -374,6 +395,10 @@ addMotifAnnotations <- function(
 
   }
 
+  .logThis(motifs, "motifs", logFile = logFile)
+  .logThis(obj, "obj", logFile = logFile)
+  .logThis(motifSummary, "motifSummary", logFile = logFile)
+
   #############################################################
   # Get BSgenome Information!
   #############################################################
@@ -385,7 +410,7 @@ addMotifAnnotations <- function(
   #############################################################
   # Calculate Motif Positions
   #############################################################
-  .messageDiffTime("Finding Motif Positions with motifmatchr!", tstart)
+  .logDiffTime("Finding Motif Positions with motifmatchr!", t1 = tstart, verbose = TRUE, logFile = logFile)
   peakSet <- ArchRProj@peakSet
   motifPositions <- motifmatchr::matchMotifs(
       pwms = motifs,
@@ -399,7 +424,7 @@ addMotifAnnotations <- function(
   #############################################################
   # Motif Overlap Matrix
   #############################################################
-  .messageDiffTime("Creating Motif Overlap Matrix", tstart)
+  .logDiffTime("Creating Motif Overlap Matrix", t1 = tstart, verbose = TRUE, logFile = logFile)
   allPositions <- unlist(motifPositions)
   overlapMotifs <- findOverlaps(peakSet, allPositions, ignore.strand=TRUE)
   motifMat <- Matrix::sparseMatrix(
@@ -410,7 +435,7 @@ addMotifAnnotations <- function(
   )
   colnames(motifMat) <- names(motifPositions)
   motifMat <- SummarizedExperiment::SummarizedExperiment(assays=SimpleList(matches = motifMat), rowRanges = peakSet)
-  .messageDiffTime("Finished Getting Motif Info!", tstart)
+  .logDiffTime("Finished Getting Motif Info!", t1 = tstart, verbose = TRUE, logFile = logFile)
 
   out <- SimpleList(
       motifSummary = motifSummary,
@@ -433,6 +458,8 @@ addMotifAnnotations <- function(
   saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
   saveRDS(out$motifPositions, savePositions, compress = FALSE)
   saveRDS(out$motifMatches, saveMatches, compress = FALSE)
+
+  .endLogging(logFile = logFile)
 
   return(ArchRProj)
 
@@ -515,13 +542,15 @@ addMotifAnnotations <- function(
 #' @param name The name of the `peakAnnotation` object to be stored in the `ArchRProject`.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be
 #' overwritten if it already exists in the given `ArchRProject`.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addArchRAnnotations <- function(
   ArchRProj = NULL,
   db = "ArchR",
   collection = "EncodeTFBS",
   name = collection,
-  force = FALSE
+  force = FALSE,
+  logFile = createLogFile("addArchRAnnotations")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -529,8 +558,11 @@ addArchRAnnotations <- function(
   .validInput(input = collection, name = "collection", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addArchRAnnotations Input-Parameters", logFile = logFile)
 
   if(name %in% names(ArchRProj@peakAnnotation)){
     if(force){
@@ -626,23 +658,28 @@ addArchRAnnotations <- function(
   peakSet <- getPeakSet(ArchRProj)
   chr <- paste0(unique(seqnames(peakSet)))
 
-  message("Annotating Chr: ", appendLF = FALSE)
+  .logMessage("Annotating Chromosomes", verbose = TRUE, logFile = logFile)
   regionMat <- lapply(seq_along(chr), function(i){
-    message(gsub("chr", " ", chr[i]), appendLF = FALSE)
+    .logMessage(paste0("\tAnnotating Chr: ", chr[i]), verbose = TRUE, logFile = logFile)
     regions <- .getRegionsFromAnno(AnnoFile = AnnoFile, Group = collection, chr = chr[i])
     o <- DataFrame(findOverlaps(query = peakSet, subject = regions, ignore.strand = TRUE))
     o$ID <- as.integer(mcols(regions)[o$subjectHits, "ID"])
     o$subjectHits <- NULL
     o
   }) %>% Reduce("rbind", .)
-  message("\n")
+  .logThis(regionMat, "regionMat-Overlaps", logFile=logFile)
 
+  .logThis(range(regionMat[, 1]), "regionMat-Overlaps-1", logFile=logFile)
+  .logThis(range(regionMat[, 2]), "regionMat-Overlaps-2", logFile=logFile)
+  .logThis(peakSet, "regionMat-Overlaps-1-Peaks", logFile=logFile)
+  .logThis(unique(regionMat$ID), "regionMat-Overlaps-2-IDs", logFile=logFile)
   regionMat <- Matrix::sparseMatrix(
     i = regionMat[, 1], 
     j = regionMat[, 2], 
     x = rep(TRUE, nrow(regionMat)), 
-    dims = c(length(peakSet), length(unique(regionMat$ID)))
+    dims = c(length(peakSet), max(regionMat$ID))
   )
+  .logThis(regionMat, "regionMat", logFile=logFile)
 
   #Get Region Metadata
   regionMetadata <- DataFrame(h5read(AnnoFile, paste0(collection,"/Info")))
@@ -656,6 +693,7 @@ addArchRAnnotations <- function(
     rowRanges = peakSet, 
     colData = regionMetadata
   )
+  .logThis(regionMat, "regionSE", logFile=logFile)
 
   dir.create(file.path(getOutputDirectory(ArchRProj), "Annotations"), showWarnings=FALSE)
   saveMatches <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Matches-In-Peaks.rds"))
@@ -672,6 +710,8 @@ addArchRAnnotations <- function(
 
   saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
   saveRDS(out$regionMatches, saveMatches, compress = FALSE)
+
+  .endLogging(logFile = logFile)
 
   return(ArchRProj)
 
@@ -700,10 +740,6 @@ addArchRAnnotations <- function(
 
   o <- h5closeAll()
   nRegions <- sum(.h5read(AnnoFile, paste0(Group,"/",chr,"/IDLengths"), method = method))
-
-  #nRegions <- h5ls(AnnoFile, recursive = TRUE) %>% 
-  #  {.[.$group==paste0("/",Group,"/",chr) & .$name == "Ranges",]$dim} %>% 
-  #  {gsub(" x 2","",.)} %>% as.integer
 
   if(nRegions==0){
     if(tolower(out)=="granges"){
@@ -772,6 +808,7 @@ addArchRAnnotations <- function(
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` to use.
 #' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param background A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 peakAnnoEnrichment <- function(
   seMarker = NULL,
@@ -779,7 +816,8 @@ peakAnnoEnrichment <- function(
   peakAnnotation = NULL,
   matches = NULL,
   cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
-  background = "all"
+  background = "all",
+  logFile = createLogFile("peakAnnoEnrichment")
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -788,8 +826,12 @@ peakAnnoEnrichment <- function(
   .validInput(input = matches, name = "matches", valid = c("SummarizedExperiment", "null"))
   .validInput(input = cutOff, name = "cutOff", valid = c("character"))
   .validInput(input = background, name = "background", valid = c("character"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "peakAnnoEnrichment Input-Parameters", logFile = logFile)
+
   if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
     stop("Only markers identified from PeakMatrix can be used!")
   }
@@ -832,7 +874,7 @@ peakAnnoEnrichment <- function(
   }
 
   enrichList <- lapply(seq_len(ncol(seMarker)), function(x){
-    .messageDiffTime(sprintf("Computing Enrichments %s of %s",x,ncol(seMarker)),tstart)
+    .logDiffTime(sprintf("Computing Enrichments %s of %s", x, ncol(seMarker)), t1 = tstart, verbose = TRUE, logFile = logFile)
     idx <- which(passMat[, x])
     if(method == "bgd"){
       .computeEnrichment(matches, idx, c(idx, as.vector(bgdPeaks[idx,])))
@@ -852,6 +894,8 @@ peakAnnoEnrichment <- function(
   names(assays) <- colnames(enrichList[[1]])
   assays <- rev(assays)
   out <- SummarizedExperiment::SummarizedExperiment(assays=assays)
+
+  .endLogging(logFile = logFile)
 
   out
 
@@ -899,6 +943,13 @@ peakAnnoEnrichment <- function(
 
 }
 
+
+#' @export
+enrichHeatmap <- function(...){
+    .Deprecated("plotEnrichHeatmap")
+    plotEnrichHeatmap(...)
+}
+
 #' Plot a Heatmap of Peak Annotation Hypergeometric Enrichment in Marker Peaks.
 #' 
 #' This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.
@@ -914,10 +965,11 @@ peakAnnoEnrichment <- function(
 #' @param labelRows A boolean indicating whether or not to label all rows in the heatmap.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
 #' lines and labels, just the internal portions of the plot.
-#' @param transpose A boolean determining whether to transpose heatmap in plot.
-#' @param returnMatrix A boolean determining whether to return matrix in heatmap rather than a plot.
+#' @param transpose A boolean determining whether to transpose the heatmap in the plot.
+#' @param returnMatrix A boolean determining whether to return the matrix corresponding to the heatmap rather than generate a plot.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-enrichHeatmap <- function(
+plotEnrichHeatmap <- function(
   seEnrich = NULL,
   pal = paletteContinuous(set = "comet", n = 100),
   n = 10,
@@ -928,30 +980,42 @@ enrichHeatmap <- function(
   labelRows = TRUE,
   rastr = TRUE,
   transpose = FALSE,
-  returnMatrix = FALSE
+  returnMatrix = FALSE,
+  logFile = createLogFile("plotEnrichHeatmap")
   ){
 
   .validInput(input = seEnrich, name = "seEnrich", valid = c("SummarizedExperiment"))
   .validInput(input = pal, name = "pal", valid = c("character"))
-  #.validInput(input = limits, name = "limits", valid = c("numeric"))
   .validInput(input = n, name = "n", valid = c("integer"))
+  .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
+  .validInput(input = pMax, name = "pMax", valid = c("numeric"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
-  #.validInput(input = clusterRows, name = "clusterRows", valid = c("boolean"))
+  .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  .validInput(input = transpose, name = "transpose", valid = c("boolean"))
+  .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
+
+  tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotEnrichHeatmap Input-Parameters", logFile = logFile)
 
   mat <- assays(seEnrich)[["mlog10Padj"]]
-  #mat[mat < min(limits)] <- min(limits)
+  .logThis(mat, "mat-mlog10Padj", logFile = logFile)
 
   keep <- lapply(seq_len(ncol(mat)), function(x){
     idx <- head(order(mat[, x], decreasing = TRUE), n)
     rownames(mat)[idx[which(mat[idx,x] > cutOff)]]
   }) %>% unlist %>% unique
-
   mat <- mat[keep, ,drop = FALSE]
+  .logThis(mat, "mat-mlog10Padj-Filter", logFile = logFile)
+
   passMat <- lapply(seq_len(nrow(mat)), function(x){
     (mat[x, ] >= 0.9*max(mat[x, ])) * 1
   }) %>% Reduce("rbind", .) %>% data.frame
   colnames(passMat) <- colnames(mat)
+  .logThis(passMat, "passMat", logFile = logFile)
 
   mat[mat > pMax] <- pMax
 
@@ -964,6 +1028,7 @@ enrichHeatmap <- function(
       rownames(mat[[1]]) <- paste0(rownames(mat[[1]]), " (",round(mat$max),")")
       rownames(passMat) <- rownames(mat[[1]])
   }
+  .logThis(mat, "mat-mlog10Padj-RowScale", logFile = logFile)
 
   mat2 <- mat[[1]] * 100
 
@@ -987,6 +1052,7 @@ enrichHeatmap <- function(
   }else{
     borderColor <- TRUE
   }
+  .logThis(mat2, "mat-mlog10Padj-RowScale-Plot", logFile = logFile)
 
   if(transpose){
 
@@ -1000,25 +1066,47 @@ enrichHeatmap <- function(
       return(mat2)
     }
 
-    ht <- .ArchRHeatmap(
-      mat = as.matrix(mat2),
-      scale = FALSE,
-      limits = c(0, max(mat2)),
-      color = pal, 
-      clusterCols = FALSE, 
-      clusterRows = FALSE,
-      #clusterRows = rev(as.dendrogram(clusterCols)),
-      labelRows = TRUE,
-      useRaster = rastr,
-      fontSizeCols = 6,
-      borderColor = borderColor,
-      #labelCols = labelRows,
-      customColLabel = seq_len(ncol(mat2)),
-      showRowDendrogram = FALSE,
-      draw = FALSE,
-      name = "Norm. Enrichment -log10(P-adj) [0-Max]"
-    )
+    ht <- tryCatch({
 
+      .ArchRHeatmap(
+        mat = as.matrix(mat2),
+        scale = FALSE,
+        limits = c(0, max(mat2)),
+        color = pal, 
+        clusterCols = FALSE, 
+        clusterRows = FALSE,
+        labelRows = TRUE,
+        useRaster = rastr,
+        fontSizeCols = 6,
+        borderColor = borderColor,
+        customColLabel = seq_len(ncol(mat2)),
+        showRowDendrogram = FALSE,
+        draw = FALSE,
+        name = "Norm. Enrichment -log10(P-adj) [0-Max]"
+      )
+
+    }, error = function(e){
+
+      errorList = list(
+        mat = as.matrix(mat2),
+        scale = FALSE,
+        limits = c(0, max(mat2)),
+        color = pal, 
+        clusterCols = FALSE, 
+        clusterRows = FALSE,
+        labelRows = TRUE,
+        useRaster = rastr,
+        fontSizeCols = 6,
+        borderColor = borderColor,
+        customColLabel = seq_len(ncol(mat2)),
+        showRowDendrogram = FALSE,
+        draw = FALSE,
+        name = "Norm. Enrichment -log10(P-adj) [0-Max]"
+      )
+
+      .logError(e, fn = ".ArchRHeatmap", info = "", errorList = errorList, logFile = logFile)
+
+    })
 
   }else{
 
@@ -1026,23 +1114,47 @@ enrichHeatmap <- function(
       return(mat2)
     }
 
-    ht <- .ArchRHeatmap(
-      mat = as.matrix(mat2),
-      scale = FALSE,
-      limits = c(0, max(mat2)),
-      color = pal, 
-      clusterCols = clusterCols, 
-      clusterRows = clusterRows,
-      useRaster = rastr,
-      borderColor = borderColor,
-      fontSizeRows = 6,
-      #labelRows = labelRows,
-      customRowLabel = seq_len(nrow(mat2)),
-      labelCols = TRUE,
-      showColDendrogram = TRUE,
-      draw = FALSE,
-      name = "Norm. Enrichment -log10(P-adj) [0-Max]"
-    )
+    ht <- tryCatch({
+
+      .ArchRHeatmap(
+        mat = as.matrix(mat2),
+        scale = FALSE,
+        limits = c(0, max(mat2)),
+        color = pal, 
+        clusterCols = clusterCols, 
+        clusterRows = clusterRows,
+        useRaster = rastr,
+        borderColor = borderColor,
+        fontSizeRows = 6,
+        customRowLabel = seq_len(nrow(mat2)),
+        labelCols = TRUE,
+        showColDendrogram = TRUE,
+        draw = FALSE,
+        name = "Norm. Enrichment -log10(P-adj) [0-Max]"
+      )
+
+    }, error = function(e){
+
+      errorList = list(
+        mat = as.matrix(mat2),
+        scale = FALSE,
+        limits = c(0, max(mat2)),
+        color = pal, 
+        clusterCols = clusterCols, 
+        clusterRows = clusterRows,
+        useRaster = rastr,
+        borderColor = borderColor,
+        fontSizeRows = 6,
+        customRowLabel = seq_len(nrow(mat2)),
+        labelCols = TRUE,
+        showColDendrogram = TRUE,
+        draw = FALSE,
+        name = "Norm. Enrichment -log10(P-adj) [0-Max]"
+      )
+
+      .logError(e, fn = ".ArchRHeatmap", info = "", errorList = errorList, logFile = logFile)
+
+    })
 
   }
 

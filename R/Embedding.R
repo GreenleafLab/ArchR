@@ -2,7 +2,7 @@
 # Embedding Methods
 ##########################################################################################
 
-#' Add a UMAP embedding of a reduced dimensions object to an ArchRProject JJJ
+#' Add a UMAP embedding of a reduced dimensions object to an ArchRProject
 #' 
 #' This function will compute a UMAP embedding and add it to an ArchRProject.
 #'
@@ -25,13 +25,13 @@
 #' and memory but can lower the overal quality of the UMAP Embedding. Only recommended for extremely large number of cells.
 #' @param outlierQuantile A numeric (0 to 1) describing the distance quantile in the subsampled cels (see `sampleCells`) to use to filter poor quality re-projections.
 #' This is necessary because there are lots of outliers if undersampled significantly.
-#' @param saveModel A boolean value indicating whether to save the UMAP model for downstream usage such as projection of data into the UMAP embedding.
+#' @param saveModel A boolean value indicating whether or not to save the UMAP model in an RDS file for downstream usage such as projection of data into the UMAP embedding.
 #' @param verbose A boolean value that indicates whether printing UMAP output.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
 #' @param force A boolean value that indicates whether to overwrite the relevant data in the `ArchRProject` object if the embedding indicated by
 #' `name` already exists.
-#' @param threads The number of threads to be used for parallel computing.
+#' @param threads The number of threads to be used for parallel computing. Default set to 1 because if set to high can cause C stack usage errors.
 #' @param ... Additional parameters to pass to `uwot::umap()`
 #' @export
 addUMAP <- function(
@@ -50,26 +50,26 @@ addUMAP <- function(
   verbose = TRUE,
   seed = 1,
   force = FALSE,
-  threads = max(floor(getArchRThreads() / 2), 1),
+  threads = 1,
   ...
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
+  .validInput(input = nNeighbors, name = "nNeighbors", valid = c("integer", "null"))
+  .validInput(input = minDist, name = "minDist", valid = c("numeric", "null"))
+  .validInput(input = metric, name = "metric", valid = c("character", "null"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("integer", "null"))
+  .validInput(input = outlierQuantile, name = "outlierQuantile", valid = c("numeric"))
   .validInput(input = saveModel, name = "saveModel", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
-
-  #Umap Params
-  .validInput(input = nNeighbors, name = "nNeighbors", valid = c("integer", "null"))
-  .validInput(input = minDist, name = "minDist", valid = c("numeric", "null"))
-  .validInput(input = metric, name = "metric", valid = c("character", "null"))
 
   if(name %in% names(ArchRProj@embeddings)){
     if(!force){
@@ -142,7 +142,13 @@ addUMAP <- function(
 
   if(saveModel){
     dir.create(file.path(getOutputDirectory(ArchRProj), "Embeddings"), showWarnings = FALSE)
-    modelFile <- file.path(getOutputDirectory(ArchRProj), "Embeddings", paste0("Save-Uwot-UMAP-Params-",reducedDims,"-",.randomStr(),".tar"))
+    modelFile <- .tempfile(
+      pattern = paste0("Save-Uwot-UMAP-Params-",reducedDims), 
+      tmpdir = file.path(getOutputDirectory(ArchRProj), "Embeddings"),
+      fileext = ".tar",
+      addDOC = TRUE
+    )
+    #file.path(getOutputDirectory(ArchRProj), "Embeddings", paste0("Save-Uwot-UMAP-Params-",reducedDims,"-",.randomStr(),".tar"))
     saveModelTmp <- .saveUWOT(uwot_umap, modelFile)
     if(!file.exists(modelFile)){
       warning("Model was not saved properly, continuing without saving model!")
@@ -331,6 +337,7 @@ addTSNE <- function(
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = method, name = "method", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character", "null"))
   .validInput(input = perplexity, name = "perplexity", valid = c("integer"))
   .validInput(input = maxIterations, name = "maxIterations", valid = c("integer"))
@@ -341,8 +348,7 @@ addTSNE <- function(
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
-  .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = method, name = "method", valid = c("character"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))  
 
   #TSNE Params
   .validInput(input = perplexity, name = "perplexity", valid = c("integer", "null"))

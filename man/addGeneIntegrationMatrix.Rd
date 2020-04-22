@@ -4,46 +4,69 @@
 \alias{addGeneIntegrationMatrix}
 \title{Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneIntegrationMatrix(ArchRProj = NULL,
-  useMatrix = "GeneScoreMatrix", matrixName = "GeneIntegrationMatrix",
-  reducedDims = "IterativeLSI", seRNA = NULL, groupATAC = NULL,
-  groupRNA = NULL, groupList = NULL, sampleCellsATAC = 10000,
-  sampleCellsRNA = 10000, embeddingATAC = NULL, embeddingRNA = NULL,
-  nGenes = 2000, useImputation = TRUE, reduction = "cca",
-  addToArrow = TRUE, scaleTo = 10000, nameCell = "predictedCell",
-  nameGroup = "predictedGroup", nameScore = "predictedScore",
-  transferParams = list(), threads = getArchRThreads(),
-  verboseHeader = TRUE, verboseAll = FALSE, force = FALSE, ...)
+addGeneIntegrationMatrix(
+  ArchRProj = NULL,
+  useMatrix = "GeneScoreMatrix",
+  matrixName = "GeneIntegrationMatrix",
+  reducedDims = "IterativeLSI",
+  seRNA = NULL,
+  groupATAC = NULL,
+  groupRNA = NULL,
+  groupList = NULL,
+  sampleCellsATAC = 10000,
+  sampleCellsRNA = 10000,
+  embeddingATAC = NULL,
+  embeddingRNA = NULL,
+  nGenes = 2000,
+  useImputation = TRUE,
+  reduction = "cca",
+  addToArrow = TRUE,
+  scaleTo = 10000,
+  nameCell = "predictedCell",
+  nameGroup = "predictedGroup",
+  nameScore = "predictedScore",
+  transferParams = list(),
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  force = FALSE,
+  logFile = createLogFile("addGeneIntegrationMatrix"),
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{useMatrix}{A character describing which matrix to use for Gene Scores for RNA integration.}
+\item{useMatrix}{The name of a matrix in the \code{ArchRProject} containing gene scores to be used for RNA integration.}
 
-\item{matrixName}{A character describing the output matrix name for scRNA integration.}
+\item{matrixName}{The name to use for the output matrix containing scRNA-seq integration to be stored in the \code{ArchRProject}.}
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.
 This \code{reducedDims} will be used in weighting the transfer of data to scRNA to scATAC. See \code{Seurat::TransferData} for more info.}
 
-\item{seRNA}{A scRNA-seq \code{SummarizedExperiment} or \code{SeuratObject} to integrated with the scATAC-seq data.}
+\item{seRNA}{A \code{SeuratObject} or a scRNA-seq \code{SummarizedExperiment} (cell x gene) to be integrated with the scATAC-seq data.}
 
-\item{groupATAC}{A column in \code{cellColData} that can be used for subgroupings in \code{groupList}. This is useful for constraining integrations.}
+\item{groupATAC}{A column name in \code{cellColData} of the \code{ArchRProj} that will be used to determine the subgroupings specified in \code{groupList}.
+This is used to constrain the integration to occur across biologically relevant groups.}
 
-\item{groupRNA}{The column name in either \code{colData} or \code{metadata} of seRNA to use to compute prediction scores. These scores represent the assignment accuracy
-of the group in the RNA cells. Lower scores represent ambiguous predictions and higher scores represent precise predictions.}
+\item{groupRNA}{A column name in either \code{colData} (if \code{SummarizedExperiment}) or \code{metadata} (if \code{SeuratObject}) of \code{seRNA} that
+will be used to determine the subgroupings specified in \code{groupList}. This is used to constrain the integration to occur across biologically relevant groups.
+Additionally this groupRNA is used for the \code{nameGroup} output of this function.}
 
-\item{groupList}{A list of ATAC and RNA groupings to be used for RNA ATAC integration. This is useful for constraining integrations.}
+\item{groupList}{A list of cell groupings for both ATAC-seq and RNA-seq cells to be used for RNA-ATAC integration.
+This is used to constrain the integration to occur across biologically relevant groups. The format of this should be a list of groups
+with subgroups of ATAC and RNA specifying cells to integrate from both platforms.
+For example \code{groupList} <- list(groupA = list(ATAC = cellsATAC_A, RNA = cellsRNA_A), groupB = list(ATAC = cellsATAC_B, RNA = cellsRNA_B))}
 
-\item{sampleCellsATAC}{An integer describing the number of scATAC cells to be used for integration.
-This number will be evenly divided across the total number of cells in the ArchRProject.
-For example if 99,000 cells are present with a 10,000 sampleCellsATAC the number of cells used would be
-closer to 9,900 to make sure subgroupings are close the the same number of cells.}
+\item{sampleCellsATAC}{An integer describing the number of scATAC-seq cells to be used for integration.
+This number will be evenly sampled across the total number of cells in the ArchRProject.}
 
-\item{sampleCellsRNA}{An integer describing the number of scRNA cells to be used for integration.}
+\item{sampleCellsRNA}{An integer describing the number of scRNA-seq cells to be used for integration.}
 
-\item{embeddingATAC}{A data.frame of cell embeddings such as a UMAP for scATAC cells to be used for density sampling.}
+\item{embeddingATAC}{A \code{data.frame} of cell embeddings such as a UMAP for scATAC-seq cells to be used for density sampling. The \code{data.frame} object
+should have a row for each single cell described in \code{row.names} and 2 columns, one for each dimension of the embedding.}
 
-\item{embeddingRNA}{A data.frame of cell embeddings such as a UMAP for scRNA cells to be used for density sampling.}
+\item{embeddingRNA}{A \code{data.frame} of cell embeddings such as a UMAP for scRNA-seq cells to be used for density sampling. The \code{data.frame} object
+should have a row for each single cell described in \code{row.names} and 2 columns, one for each dimension of the embedding.}
 
 \item{nGenes}{The number of variable genes determined by \code{Seurat::FindVariableGenes()} to use for integration.}
 
@@ -51,26 +74,26 @@ closer to 9,900 to make sure subgroupings are close the the same number of cells
 
 \item{reduction}{The Seurat reduction method to use for integrating modalities. See \code{Seurat::FindTransferAnchors()} for possible reduction methods.}
 
-\item{addToArrow}{A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the ArrowFiles.}
+\item{addToArrow}{A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the Arrow files.}
 
-\item{scaleTo}{Each column in the integrated RNA matrix will be normalized to a column sum designated by \code{scaleTo} prior to adding to ArrowFiles.}
+\item{scaleTo}{Each column in the integrated RNA matrix will be normalized to a column sum designated by \code{scaleTo} prior to adding to Arrow files.}
 
-\item{nameCell}{A column name to add the predicted scRNA cell to in the ArchRProject. This is useful for identifying which cell was closest to the scATAC cell.}
+\item{nameCell}{A column name to add to \code{cellColData} for the predicted scRNA-seq cell in the specified \code{ArchRProject}. This is useful for identifying which cell was closest to the scATAC-seq cell.}
 
-\item{nameGroup}{A column name to add the predicted scRNA group to in the ArchRProject. See \code{groupRNA} for more details.}
+\item{nameGroup}{A column name to add to \code{cellColData} for the predicted scRNA-seq group in the specified \code{ArchRProject}. See \code{groupRNA} for more details.}
 
-\item{nameScore}{A column name to add the predicted scRNA score to in the ArchRProject. This value represents the accuracy of assignment based on the
-'purity' of cell assignment to a group in seRNA.}
+\item{nameScore}{A column name to add to \code{cellColData} for the predicted scRNA-seq score in the specified \code{ArchRProject}. These scores represent
+the assignment accuracy of the group in the RNA cells. Lower scores represent ambiguous predictions and higher scores represent precise predictions.}
 
-\item{transferParams}{Additional params to be added to \code{Seurat::TransferData}.}
+\item{transferParams}{Additional params to be passed to \code{Seurat::TransferData}.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
-
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exists in the given \code{input}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{...}{Additional params to be added to \code{Seurat::FindTransferAnchors}}
 }

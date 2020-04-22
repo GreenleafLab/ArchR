@@ -4,17 +4,33 @@
 \alias{addReproduciblePeakSet}
 \title{Add a Reproducible Peak Set to an ArchRProject}
 \usage{
-addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
-  peakMethod = "Macs2", reproducibility = "2", peaksPerCell = 500,
-  maxPeaks = 150000, minCells = 25, excludeChr = c("chrM", "chrY"),
-  pathToMacs2 = findMacs2(), genomeSize = NULL, shift = -75,
-  extsize = 150, method = if (tolower(peakMethod) == "macs2") "q" else
-  "p", cutOff = 0.1, additionalParams = "--nomodel --nolambda",
-  extendSummits = 250, promoterDist = 500,
+addReproduciblePeakSet(
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  peakMethod = "Macs2",
+  reproducibility = "2",
+  peaksPerCell = 500,
+  maxPeaks = 150000,
+  minCells = 25,
+  excludeChr = c("chrM", "chrY"),
+  pathToMacs2 = if (tolower(peakMethod) == "macs2") findMacs2() else NULL,
+  genomeSize = NULL,
+  shift = -75,
+  extsize = 150,
+  method = if (tolower(peakMethod) == "macs2") "q" else "p",
+  cutOff = 0.1,
+  additionalParams = "--nomodel --nolambda",
+  extendSummits = 250,
+  promoterRegion = c(2000, 100),
   genomeAnnotation = getGenomeAnnotation(ArchRProj),
   geneAnnotation = getGeneAnnotation(ArchRProj),
-  threads = getArchRThreads(), parallelParam = NULL, force = FALSE,
-  verboseHeader = TRUE, verboseAll = FALSE, ...)
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  force = FALSE,
+  verbose = TRUE,
+  logFile = createLogFile("addReproduciblePeakSet"),
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -57,8 +73,9 @@ allows you to create proper fragments, centered at the Tn5 insertion site, for u
 \item{extendSummits}{The number of basepairs to extend peak summits (in both directions) to obtain final fixed-width peaks. For example,
 \code{extendSummits = 250} will create 501-bp fixed-width peaks from the 1-bp summits.}
 
-\item{promoterDist}{The maximum distance in basepairs from the peak summit to the nearest transcriptional start site to allow for a peak
-to be annotated as a "promoter" peak.}
+\item{promoterRegion}{A vector of two integers specifying the distance in basepairs upstream and downstream of a TSS to be included as a promoter region.
+Peaks called within one of these regions will be annotated as a "promoter" peak. For example, \code{promoterRegion = c(2000, 100)} will annotate any peak within the region
+2000 bp upstream and 100 bp downstream of a TSS as a "promoter" peak.}
 
 \item{genomeAnnotation}{The genomeAnnotation (see \code{createGenomeAnnotation()}) to be used for generating peak metadata such as nucleotide
 information (GC content) or chromosome sizes.}
@@ -71,9 +88,9 @@ information (GC content) or chromosome sizes.}
 
 \item{force}{A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given \code{ArchRProject} peakSet.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{...}{Additional parameters to be pass to \code{addGroupCoverages()} to get sample-guided pseudobulk cell-groupings. Only used for TileMatrix-based
 peak calling (not for MACS2). See \code{addGroupCoverages()} for more info.}

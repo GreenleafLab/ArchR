@@ -4,14 +4,26 @@
 \alias{addDoubletScores}
 \title{Add Doublet Scores to a collection of ArrowFiles or an ArchRProject}
 \usage{
-addDoubletScores(input = NULL, useMatrix = "TileMatrix", k = 10,
-  nTrials = 5, dimsToUse = 1:30, LSIMethod = 1, scaleDims = FALSE,
-  corCutOff = 0.75, knnMethod = "UMAP", UMAPParams = list(n_neighbors
-  = 40, min_dist = 0.4, metric = "euclidean", verbose = FALSE),
+addDoubletScores(
+  input = NULL,
+  useMatrix = "TileMatrix",
+  k = 10,
+  nTrials = 5,
+  dimsToUse = 1:30,
+  LSIMethod = 1,
+  scaleDims = FALSE,
+  corCutOff = 0.75,
+  knnMethod = "UMAP",
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "euclidean", verbose =
+    FALSE),
   LSIParams = list(outlierQuantiles = NULL, filterBias = FALSE),
-  outDir = getOutputDirectory(input), threads = getArchRThreads(),
-  force = FALSE, parallelParam = NULL, verboseHeader = TRUE,
-  verboseAll = FALSE)
+  outDir = getOutputDirectory(input),
+  threads = getArchRThreads(),
+  force = FALSE,
+  parallelParam = NULL,
+  verbose = TRUE,
+  logFile = createLogFile("addDoubletScores")
+)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or a character vector containing the paths to the ArrowFiles to be used.}
@@ -50,9 +62,9 @@ override this (not recommended!), you can bypass this warning by setting \code{f
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
+\item{verbose}{A boolean value that determines whether standard output is printed.}
 
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 For each sample in the ArrowFiles or ArchRProject provided, this function will independently assign inferred doublet information

@@ -4,11 +4,18 @@
 \alias{addTileMatrix}
 \title{Add TileMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addTileMatrix(input = NULL, chromSizes = if (inherits(input,
-  "ArchRProject")) getChromSizes(input) else NULL, blacklist = if
-  (inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
-  tileSize = 500, binarize = TRUE, excludeChr = c("chrM", "chrY"),
-  threads = getArchRThreads(), parallelParam = NULL, force = FALSE)
+addTileMatrix(
+  input = NULL,
+  chromSizes = if (inherits(input, "ArchRProject")) getChromSizes(input) else NULL,
+  blacklist = if (inherits(input, "ArchRProject")) getBlacklist(input) else NULL,
+  tileSize = 500,
+  binarize = TRUE,
+  excludeChr = c("chrM", "chrY"),
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  force = FALSE,
+  logFile = createLogFile("addTileMatrix")
+)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
@@ -30,6 +37,8 @@ is to retrieve this from the \code{ArchRProject} using \code{getBlacklist()}.}
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
 \item{force}{A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given \code{input}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function, for each sample, will independently compute counts for each tile

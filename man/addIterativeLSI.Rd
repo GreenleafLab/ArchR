@@ -4,20 +4,39 @@
 \alias{addIterativeLSI}
 \title{Add an Iterative LSI-based dimensionality reduction to an ArchRProject}
 \usage{
-addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
-  name = "IterativeLSI", iterations = 2,
-  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start
-  = 10), varFeatures = 25000, dimsToUse = 1:30, LSIMethod = 2,
-  scaleDims = TRUE, corCutOff = 0.75, binarize = TRUE,
-  outlierQuantiles = c(0.02, 0.98), filterBias = TRUE,
-  sampleCellsPre = 10000, projectCellsPre = FALSE,
-  sampleCellsFinal = NULL, selectionMethod = "var", scaleTo = 10000,
-  totalFeatures = 5e+05, filterQuantile = 0.995, excludeChr = c(),
-  saveIterations = TRUE, UMAPParams = list(n_neighbors = 40, min_dist =
-  0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
-  nPlot = 10000, outDir = getOutputDirectory(ArchRProj),
-  threads = getArchRThreads(), seed = 1, verboseHeader = TRUE,
-  verboseAll = FALSE, force = FALSE)
+addIterativeLSI(
+  ArchRProj = NULL,
+  useMatrix = "TileMatrix",
+  name = "IterativeLSI",
+  iterations = 2,
+  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start = 10),
+  varFeatures = 25000,
+  dimsToUse = 1:30,
+  LSIMethod = 2,
+  scaleDims = TRUE,
+  corCutOff = 0.75,
+  binarize = TRUE,
+  outlierQuantiles = c(0.02, 0.98),
+  filterBias = TRUE,
+  sampleCellsPre = 10000,
+  projectCellsPre = FALSE,
+  sampleCellsFinal = NULL,
+  selectionMethod = "var",
+  scaleTo = 10000,
+  totalFeatures = 5e+05,
+  filterQuantile = 0.995,
+  excludeChr = c(),
+  saveIterations = TRUE,
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
+    FALSE, fast_sgd = TRUE),
+  nPlot = 10000,
+  outDir = getOutputDirectory(ArchRProj),
+  threads = getArchRThreads(),
+  seed = 1,
+  verbose = TRUE,
+  force = FALSE,
+  logFile = createLogFile("addIterativeLSI")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -29,8 +48,9 @@ addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
 
 \item{iterations}{The number of LSI iterations to perform.}
 
-\item{clusterParams}{Additional parameters to be passed to \code{addClusters()} for clustering within each iteration. These must be either
-length 1 or the total number of \code{iterations} - 1.}
+\item{clusterParams}{A list of Additional parameters to be passed to \code{addClusters()} for clustering within each iteration.
+These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
+length == 1 or the total number of \code{iterations} - 1.}
 
 \item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
 
@@ -94,11 +114,11 @@ the designated \code{outDir}.}
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 reproduce results downstream.}
 
-\item{verboseHeader}{A boolean value that determines whether standard output includes verbose sections.}
-
-\item{verboseAll}{A boolean value that determines whether standard output includes verbose subsections.}
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{force}{A boolean value that indicates whether or not to overwrite relevant data in the \code{ArchRProject} object.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will compute an iterative LSI dimensionality reduction on an ArchRProject.

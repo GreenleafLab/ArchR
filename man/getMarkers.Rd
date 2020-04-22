@@ -4,11 +4,15 @@
 \alias{getMarkers}
 \title{Get Marker Features from a marker summarized experiment}
 \usage{
-getMarkers(seMarker = NULL, cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
-  n = NULL, returnGR = FALSE)
+getMarkers(
+  seMarker = NULL,
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
+  n = NULL,
+  returnGR = FALSE
+)
 }
 \arguments{
-\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{ArchR::markerFeatures()}.}
+\item{seMarker}{A \code{SummarizedExperiment} object returned by \code{getMarkerFeatures()}.}
 
 \item{cutOff}{A valid-syntax logical statement that defines which marker features from \code{seMarker}. \code{cutoff} can contain any
 of the \code{assayNames} from \code{seMarker}.}

@@ -4,9 +4,16 @@
 \alias{plotTSSEnrichment}
 \title{Plot a TSS Enrichment Plot for Each Sample}
 \usage{
-plotTSSEnrichment(ArchRProj = NULL, TSS = getTSS(ArchRProj),
-  flank = 2000, norm = 100, smooth = 11, returnDF = FALSE,
-  threads = getArchRThreads())
+plotTSSEnrichment(
+  ArchRProj = NULL,
+  TSS = getTSS(ArchRProj),
+  flank = 2000,
+  norm = 100,
+  smooth = 11,
+  returnDF = FALSE,
+  threads = getArchRThreads(),
+  logFile = createLogFile("plotTSSEnrichment")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -14,17 +21,19 @@ plotTSSEnrichment(ArchRProj = NULL, TSS = getTSS(ArchRProj),
 \item{TSS}{A \code{GRanges} object containing the locations of stranded TSS regions. The default behavior is to try to retrieve
 this information from the \code{geneAnnotation} stored in the \code{ArchRProject}.}
 
-\item{flank}{A number that specifies how far in bp (+/-) to extend the TSS for plotting.}
+\item{flank}{An integer that specifies how far in bp (+/-) to extend the TSS for plotting.}
 
-\item{norm}{A number that specifies the number of base pairs from the ends of the flanks to be used for normalization.
+\item{norm}{An integer that specifies the number of base pairs from the ends of the flanks to be used for normalization.
 For example if \code{flank=2000} and \code{norm=100}, the TSS insertions will be normalized by +/- 1900-2000 bp from the TSS.}
 
-\item{smooth}{A number that indicates the smoothing window (in basepairs) to be applied to the TSS plot.}
+\item{smooth}{An integer that indicates the smoothing window (in basepairs) to be applied to the TSS plot.}
 
 \item{returnDF}{A boolean value that indicates whether to return a \code{data.frame} containing the plot information
 instead of plotting the TSS enrichment plot.}
 
 \item{threads}{An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by \code{addArchRThreads()}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will plot a TSS enrichment plot for each sample. Cells in \code{ArchRProject} are the only ones

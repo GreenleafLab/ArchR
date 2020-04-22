@@ -4,14 +4,36 @@
 \alias{addClusters}
 \title{Add cluster information to an ArchRProject}
 \usage{
-addClusters(input = NULL, reducedDims = "IterativeLSI",
-  name = "Clusters", sampleCells = NULL, seed = 1,
-  method = "Seurat", dimsToUse = NULL, scaleDims = NULL,
-  corCutOff = 0.75, knnAssign = 10, nOutlier = 5, testBias = TRUE,
-  filterBias = FALSE, biasClusters = 0.01, biasCol = "nFrags",
-  biasVals = NULL, biasQuantiles = c(0.05, 0.95), biasEnrich = 10,
-  biasProportion = 0.5, biasPval = 0.05, nPerm = 500, prefix = "C",
-  verbose = TRUE, tstart = NULL, force = FALSE, ...)
+addClusters(
+  input = NULL,
+  reducedDims = "IterativeLSI",
+  name = "Clusters",
+  sampleCells = NULL,
+  seed = 1,
+  method = "Seurat",
+  dimsToUse = NULL,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  knnAssign = 10,
+  nOutlier = 5,
+  testBias = TRUE,
+  filterBias = FALSE,
+  biasClusters = 0.01,
+  biasCol = "nFrags",
+  biasVals = NULL,
+  biasQuantiles = c(0.05, 0.95),
+  biasEnrich = 10,
+  biasProportion = 0.5,
+  biasPval = 0.05,
+  nPerm = 500,
+  prefix = "C",
+  ArchRProj = NULL,
+  verbose = TRUE,
+  tstart = NULL,
+  force = FALSE,
+  logFile = createLogFile("addClusters"),
+  ...
+)
 }
 \arguments{
 \item{input}{Either (i) an \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}
@@ -46,29 +68,32 @@ sequencing depth that is greater than the \code{corCutOff}, it will be excluded 
 \item{nOutlier}{The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
 this threshold, then the cells will be considered outliers and assigned to nearby clusters.}
 
-\item{testBias}{A boolean indicating whether to test clusters for bias.}
+\item{testBias}{A boolean value that indicates whether or not to test clusters for bias.}
 
-\item{filterBias}{A boolean indicating whether to filter clusters that are identified as biased.}
+\item{filterBias}{A boolean value indicates whether or not to filter clusters that are identified as biased.}
 
-\item{biasClusters}{A numeric (0 to 1) indicating clusters that are smaller than this proportion are to be checked for bias. This should be set lower to 0,
-we recommend a default of 0.01 for clusters below 1 percent.}
+\item{biasClusters}{A numeric value between 0 and 1 indicating that clusters that are smaller than the specified proportion of total cells are
+to be checked for bias. This should be set close to 0. We recommend a default of 0.01 which specifies clusters below 1 percent of the total cells.}
 
-\item{biasCol}{A column in \code{cellColData} that contains the numeric values used for testing bias enrichment.}
+\item{biasCol}{The name of a column in \code{cellColData} that contains the numeric values used for testing bias enrichment.}
 
-\item{biasVals}{A set of numeric values used for testing bias enrichment if input is not an \code{ArchRProject}.}
+\item{biasVals}{A set of numeric values used for testing bias enrichment if \code{input} is not an \code{ArchRProject}.}
 
-\item{biasQuantiles}{Two numerical values (between 0 and 1) that describes the lower and upper quantiles of the bias values to use for computing bias enrichment
-statistics.}
+\item{biasQuantiles}{A vector of two numeric values, each between 0 and 1, that describes the lower and upper quantiles of the bias values to use
+for computing bias enrichment statistics.}
 
-\item{biasEnrich}{A numeric that specifies the minimum enrichment of \code{biased} cells vs the median of the permuted background sets.}
+\item{biasEnrich}{A numeric value that specifies the minimum enrichment of biased cells over the median of the permuted background sets.}
 
-\item{biasProportion}{A numeric (0 to 1) specifying the minimum proportion of cells that are \code{biased} to use when testing for bias enriched clusters.}
+\item{biasProportion}{A numeric value between 0 and 1 that specifies the minimum proportion of biased cells in a cluster required to determine that the
+cluster is biased during testing for bias-enriched clusters.}
 
-\item{biasPval}{A numeric (0 to 1) specifying the p-value to use when testing for bias enriched clusters.}
+\item{biasPval}{A numeric value between 0 and 1 that specifies the p-value to use when testing for bias-enriched clusters.}
 
-\item{nPerm}{An integer specifying number of permutations to perform for testing bias enriched clusters.}
+\item{nPerm}{An integer specifying the number of permutations to perform for testing bias-enriched clusters.}
 
-\item{prefix}{A character string to be added before each cluster identity. Ie if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.}
+\item{prefix}{A character string to be added before each cluster identity. For example, if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.}
+
+\item{ArchRProj}{An \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}. This argument can also be supplied as \code{input}.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
@@ -77,6 +102,8 @@ has been running relative to the start time when this process was initiated in a
 
 \item{force}{A boolean value that indicates whether or not to overwrite data in a given column when the value passed to \code{name} already
 exists as a column name in \code{cellColData}.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{...}{Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)}
 }

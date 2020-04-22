@@ -4,8 +4,13 @@
 \alias{getFragmentsFromArrow}
 \title{Get the fragments from an ArrowFile}
 \usage{
-getFragmentsFromArrow(ArrowFile = NULL, chr = NULL, cellNames = NULL,
-  verbose = TRUE)
+getFragmentsFromArrow(
+  ArrowFile = NULL,
+  chr = NULL,
+  cellNames = NULL,
+  verbose = TRUE,
+  logFile = createLogFile("getFragmentsFromArrow")
+)
 }
 \arguments{
 \item{ArrowFile}{The path to the ArrowFile from which fragments should be obtained.}
@@ -17,6 +22,8 @@ This allows for extraction of fragments from only a subset of selected cells. By
 from the provided ArrowFile using \code{getCellNames()}.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to \code{FALSE} for a cleaner output.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function retrieves the fragments from a given ArrowFile as a GRanges object.

@@ -4,12 +4,21 @@
 \alias{saveArchRProject}
 \title{Save ArchRProject for Later Usage}
 \usage{
-saveArchRProject(ArchRProj = NULL, copyArrows = TRUE)
+saveArchRProject(
+  ArchRProj = NULL,
+  outputDirectory = getOutputDirectory(ArchRProj),
+  overwrite = TRUE,
+  load = TRUE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{copyArrows}{A boolean indicating whether to copy (\code{TRUE}) or copy + remove (\code{FALSE}) original ArrowFiles prior to saving the \code{ArchRProject}.}
+\item{outputDirectory}{A directory path to save all ArchR output and \code{ArchRProject} to. Default is outputDirectory of the \code{ArchRProject}.}
+
+\item{overwrite}{When writing to outputDirectory, overwrite existing files with new files.}
+
+\item{load}{Load the \code{ArchRProject} after saving and writing to outputDirectory.}
 }
 \description{
 This function will organize arrows and project output into a directory and save the ArchRProject for later usage.

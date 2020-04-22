@@ -1,4 +1,3 @@
-
 ##########################################################################################
 # LSI Dimensionality Reduction Methods
 ##########################################################################################
@@ -12,8 +11,9 @@
 #' "TileMatrix" or "PeakMatrix".
 #' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
-#' @param clusterParams Additional parameters to be passed to `addClusters()` for clustering within each iteration. These must be either
-#' length 1 or the total number of `iterations` - 1.
+#' @param clusterParams A list of Additional parameters to be passed to `addClusters()` for clustering within each iteration. 
+#' These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
+#' length == 1 or the total number of `iterations` - 1.
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
@@ -54,9 +54,9 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
-#' @param verboseHeader A boolean value that determines whether standard output includes verbose sections.
-#' @param verboseAll A boolean value that determines whether standard output includes verbose subsections.
+#' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
+#' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 addIterativeLSI <- function(
   ArchRProj = NULL, 
@@ -96,37 +96,49 @@ addIterativeLSI <- function(
   outDir = getOutputDirectory(ArchRProj),
   threads = getArchRThreads(),
   seed = 1,
-  verboseHeader = TRUE,
-  verboseAll = FALSE,
-  force = FALSE
+  verbose = TRUE,
+  force = FALSE,
+  logFile = createLogFile("addIterativeLSI")
   ){
   
-  message("Checking Inputs...")
+  if(verbose) message("Checking Inputs...")
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = iterations, name = "iterations", valid = c("integer"))
+  .validInput(input = clusterParams, name = "clusterParams", valid = c("list"))
+  .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer"))
+  .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
-  .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
-  #.validInput(input = sampleCells, name = "sampleCells", valid = c("integer","null"))
-  .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
+  .validInput(input = outlierQuantiles, name = "outlierQuantiles", valid = c("numeric", "null"))
+  .validInput(input = filterBias, name = "filterBias", valid = c("boolean"))
+  .validInput(input = sampleCellsPre, name = "sampleCellsPre", valid = c("integer", "null"))
+  .validInput(input = sampleCellsFinal, name = "sampleCellsFinal", valid = c("integer", "null"))
   .validInput(input = selectionMethod, name = "selectionMethod", valid = c("character"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = totalFeatures, name = "totalFeatures", valid = c("integer"))
   .validInput(input = filterQuantile, name = "filterQuantile", valid = c("numeric"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = saveIterations, name = "saveIterations", valid = c("boolean"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
   .validInput(input = nPlot, name = "nPlot", valid = c("integer"))
   .validInput(input = outDir, name = "outDir", valid = c("character"))
-  .validInput(input = clusterParams, name = "clusterParams", valid = c("list"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
-  .validInput(input = verboseHeader, name = "verboseHeader", valid = c("boolean"))
-  .validInput(input = verboseAll, name = "verboseAll", valid = c("boolean"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
 
+
+  if(varFeatures < 1000){
+    stop("Please provide more than 1000 varFeatures!")
+  }
+
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "IterativeLSI Input-Parameters", logFile=logFile)
 
   .requirePackage("Matrix", source = "cran")
   tstart <- Sys.time()
@@ -181,7 +193,7 @@ addIterativeLSI <- function(
   ############################################################################################################################
   chrToRun <- .availableSeqnames(ArrowFiles, subGroup = useMatrix)
   #Compute Row Sums Across All Samples
-  .messageDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
+  .logDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
   if(useMatrix == "TileMatrix"){
     totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = FALSE)
     totalAcc$start <- (totalAcc$idx - 1) * tileSize
@@ -195,7 +207,7 @@ addIterativeLSI <- function(
       v <- df[,1]
       names(v) <- rownames(df)
       v
-    }, error = function(x){
+    }, error = function(e){
       tryCatch({
         .getColSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
       }, error = function(y){
@@ -211,7 +223,7 @@ addIterativeLSI <- function(
   }
 
   #Identify the top features to be used here
-  .messageDiffTime("Computing Top Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
+  .logDiffTime("Computing Top Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
   nFeature <- varFeatures[1]
   rmTop <- floor((1-filterQuantile) * totalFeatures)
   topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
@@ -220,7 +232,7 @@ addIterativeLSI <- function(
   ############################################################################################################################
   # LSI Iteration 1
   ############################################################################################################################
-  .messageDiffTime(paste0("Running LSI (1 of ",iterations,") on Top Features"), tstart, addHeader = TRUE, verbose = verboseHeader)
+  .logDiffTime(paste0("Running LSI (1 of ",iterations,") on Top Features"), tstart, addHeader = TRUE, verbose = verbose, logFile = logFile)
   j <- 1
 
   if(!is.null(clusterParams$sampleCells)){
@@ -252,17 +264,20 @@ addIterativeLSI <- function(
     threads = threads,
     useIndex = FALSE,
     tstart = tstart,
-    verboseHeader = verboseHeader,
-    verboseAll = verboseAll
+    verbose = verbose,
+    logFile = logFile
   )
   outLSI$scaleDims <- scaleDims
   outLSI$useMatrix <- useMatrix
   outLSI$tileSize <- tileSize
   gc()
+  .logThis(outLSI, paste0("outLSI-",j), logFile = logFile)
 
   if(iterations == 1){
-    .messageDiffTime("Finished Running IterativeLSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    ArchRProj@reducedDims[[name]] <- outLSI    
+    .logDiffTime("Finished Running IterativeLSI", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+    ArchRProj@reducedDims[[name]] <- outLSI
+    #.endLogging(logFile = logFile)
+    return(ArchRProj)
   }
 
   #########################
@@ -278,22 +293,23 @@ addIterativeLSI <- function(
     corCutOff = corCutOff,
     clusterParams = clusterParams,
     j = j,
-    verboseAll = verboseAll,
-    verboseHeader = verboseHeader,
-    tstart = tstart
+    verbose = verbose,
+    tstart = tstart,
+    logFile = logFile
   )
   clusters <- clusterDF$clusters
   nClust <- length(unique(clusters))
-  .messageDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+  .logDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+  .logThis(clusterDF, paste0("clusterDF-",j), logFile = logFile)
 
   #########################
   # Save LSI Iteration
   #########################
   if(saveIterations){
-    .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
+    .logDiffTime("Saving LSI Iteration", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     .saveIteration(outLSI=outLSI, clusters=clusters, scaleDims = scaleDims, 
       dimsToUse = dimsToUse, corCutOff = corCutOff, outDir = outDir,
-      nPlot=nPlot, UMAPParams=UMAPParams, ArchRProj=ArchRProj, j = j, threads = threads)
+      nPlot=nPlot, UMAPParams=UMAPParams, ArchRProj=ArchRProj, j = j, threads = threads, logFile = logFile)
   }
 
   ############################################################################################################################
@@ -322,14 +338,14 @@ addIterativeLSI <- function(
       varFeatures = varFeatures,
       tstart = tstart,
       threads = threads,
-      verboseHeader = verboseHeader,
-      verboseAll = verboseAll
+      verbose = verbose,
+      logFile = logFile
     )
 
     #########################
     # LSI
     #########################
-    .messageDiffTime(sprintf("Running LSI (%s of %s) on Variable Features", j, iterations), tstart, addHeader = TRUE, verbose = verboseHeader)
+    .logDiffTime(sprintf("Running LSI (%s of %s) on Variable Features", j, iterations), tstart, addHeader = TRUE, verbose = verbose, logFile = logFile)
     if(!is.null(clusterParams$sampleCells)){
       if(!is.na(clusterParams$sampleCells[j])){
         sampleJ <- clusterParams$sampleCells[j]
@@ -360,13 +376,14 @@ addIterativeLSI <- function(
       threads = threads,
       useIndex = FALSE,
       tstart = tstart,
-      verboseHeader = verboseHeader,
-      verboseAll = verboseAll
+      verbose = verbose,
+      logFile = logFile
     )
     outLSI$scaleDims <- scaleDims
     outLSI$useMatrix <- useMatrix
     outLSI$tileSize <- tileSize
-    
+    .logThis(outLSI, paste0("outLSI-",j), logFile = logFile)
+
     if(j != iterations){
 
       #########################
@@ -382,22 +399,23 @@ addIterativeLSI <- function(
         cellDepth = cellDepth,
         j = j,
         clusterParams = clusterParams,
-        verboseAll = verboseAll,
-        verboseHeader = verboseHeader,
-        tstart = tstart
+        verbose = verbose,
+        tstart = tstart,
+        logFile = logFile
       )
       clusters <- clusterDF$clusters
       nClust <- length(unique(clusters))
-      .messageDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = verboseAll, verbose = verboseHeader)
+      .logDiffTime(sprintf("Identified %s Clusters", nClust), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+      .logThis(clusterDF, paste0("clusterDF-",j), logFile = logFile)
 
       #########################
       # Save LSI Iteration
       #########################
       if(saveIterations){
-        .messageDiffTime("Saving LSI Iteration", tstart, addHeader = verboseAll, verbose = verboseHeader)
+        .logDiffTime("Saving LSI Iteration", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         .saveIteration(outLSI=outLSI, clusters=clusters, scaleDims = scaleDims, 
           dimsToUse = dimsToUse, corCutOff = corCutOff, outDir = outDir,
-          nPlot=nPlot, UMAPParams=UMAPParams, ArchRProj=ArchRProj, j = j, threads = threads)
+          nPlot=nPlot, UMAPParams=UMAPParams, ArchRProj=ArchRProj, j = j, threads = threads, logFile = logFile)
       }
 
     }
@@ -407,7 +425,7 @@ addIterativeLSI <- function(
   }
 
   #Organize Output
-  .messageDiffTime("Finished Running IterativeLSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
+  .logDiffTime("Finished Running IterativeLSI", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
   ArchRProj@reducedDims[[name]] <- outLSI
 
   return(ArchRProj)
@@ -434,76 +452,35 @@ addIterativeLSI <- function(
   threads = 1, 
   useIndex = FALSE, 
   tstart = NULL, 
-  verboseHeader = TRUE,
-  verboseAll = FALSE
+  verbose = TRUE,
+  logFile = NULL
   ){
 
   if(is.null(tstart)){
     tstart <- Sys.time()
   }
 
-  if(is.null(sampleCells)){
-    
-    #Construct Matrix
-    .messageDiffTime("Creating Partial Matrix", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    
-    mat <- .getPartialMatrix(
-      ArrowFiles = ArrowFiles,
-      featureDF = featureDF,
-      useMatrix = useMatrix,
-      cellNames = cellNames,
-      doSampleCells = FALSE,
-      threads = threads,
-      verbose = verboseAll
-    )
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
-    #Compute LSI
-    .messageDiffTime("Computing LSI", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    outLSI <- .computeLSI(
-     mat = mat, 
-     LSIMethod = LSIMethod, 
-     scaleTo = scaleTo,
-     nDimensions = max(dimsToUse),
-     binarize = binarize, 
-     outlierQuantiles = outlierQuantiles,
-     verbose = verboseAll, 
-     tstart = tstart
-    )
-    outLSI$LSIFeatures <- featureDF
-    outLSI$corToDepth <- list(
-      scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
-      none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
-    )
+  outLSI2 <- tryCatch({
 
-  }else{
-   
-    sampledCellNames <- .sampleBySample(
-      cellNames = cellNames,
-      sampleNames = sampleNames,
-      cellDepth = cellDepth,
-      sampleCells = sampleCells,
-      outlierQuantiles = outlierQuantiles,
-      factor = 2      
-    )
-    .messageDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(sampledCellNames)), tstart, addHeader = verboseAll, verbose = verboseHeader)
-
-    #Construct Sampled Matrix
-    .messageDiffTime("Creating Sampled Partial Matrix", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    o <- h5closeAll()
-    if(!projectAll){
-
+    if(is.null(sampleCells)){
+      
+      #Construct Matrix
+      .logDiffTime("Creating Partial Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+      
       mat <- .getPartialMatrix(
         ArrowFiles = ArrowFiles,
         featureDF = featureDF,
         useMatrix = useMatrix,
-        cellNames = sampledCellNames,
+        cellNames = cellNames,
         doSampleCells = FALSE,
         threads = threads,
-        verbose = verboseAll
+        verbose = FALSE
       )
 
       #Compute LSI
-      .messageDiffTime("Computing Estimated LSI (projectAll = FALSE)", tstart, addHeader = verboseAll, verbose = verboseHeader)
+      .logDiffTime("Computing LSI", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       outLSI <- .computeLSI(
        mat = mat, 
        LSIMethod = LSIMethod, 
@@ -511,8 +488,9 @@ addIterativeLSI <- function(
        nDimensions = max(dimsToUse),
        binarize = binarize, 
        outlierQuantiles = outlierQuantiles,
-       verbose = verboseAll, 
-       tstart = tstart
+       verbose = FALSE, 
+       tstart = tstart,
+       logFile = logFile
       )
       outLSI$LSIFeatures <- featureDF
       outLSI$corToDepth <- list(
@@ -521,68 +499,124 @@ addIterativeLSI <- function(
       )
 
     }else{
+     
+      sampledCellNames <- .sampleBySample(
+        cellNames = cellNames,
+        sampleNames = sampleNames,
+        cellDepth = cellDepth,
+        sampleCells = sampleCells,
+        outlierQuantiles = outlierQuantiles,
+        factor = 2      
+      )
+      .logDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(sampledCellNames)), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
 
-      tmpPath <- .tempfile(pattern = "tmp-LSI-PM")
+      #Construct Sampled Matrix
+      .logDiffTime("Creating Sampled Partial Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+      o <- h5closeAll()
+      if(!projectAll){
 
-      .messageDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(sampledCellNames)), tstart, addHeader = verboseAll, verbose = verboseHeader)
-      out <- .getPartialMatrix(
+        mat <- .getPartialMatrix(
           ArrowFiles = ArrowFiles,
           featureDF = featureDF,
           useMatrix = useMatrix,
-          cellNames = cellNames,
-          doSampleCells = TRUE,
-          sampledCellNames = sampledCellNames,
-          tmpPath = tmpPath,
-          useIndex = useIndex,
+          cellNames = sampledCellNames,
+          doSampleCells = FALSE,
           threads = threads,
-          verbose = verboseAll
+          verbose = FALSE
         )
-      gc()
 
-      #Perform LSI on Partial Sampled Matrix
-      .messageDiffTime("Computing Estimated LSI (projectAll = TRUE)", tstart, addHeader = verboseAll, verbose = verboseHeader)
-      outLSI <- .computeLSI(
-         mat = out$mat, 
+        #Compute LSI
+        .logDiffTime("Computing Estimated LSI (projectAll = FALSE)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+        outLSI <- .computeLSI(
+         mat = mat, 
          LSIMethod = LSIMethod, 
          scaleTo = scaleTo,
          nDimensions = max(dimsToUse),
          binarize = binarize, 
          outlierQuantiles = outlierQuantiles,
-         verbose = verboseAll, 
-         tstart = tstart
+         tstart = tstart,
+         logFile = logFile
+        )
+        outLSI$LSIFeatures <- featureDF
+        outLSI$corToDepth <- list(
+          scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
+          none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
         )
 
-      tmpMatFiles <- out[[2]]
-      rm(out)
-      gc()
+      }else{
 
-      #Read In Matrices and Project into Manifold
-      #Do Threads / 3 just in case of memory here (Needs testing JJJ)
-      threads2 <- 1 #max(ceiling(threads / 3), 1)
-      .messageDiffTime("Projecting Matrices with LSI-Projection (Granja* et al 2019)", tstart, addHeader = verboseAll, verbose = verboseHeader)
-      pLSI <- .safelapply(seq_along(tmpMatFiles), function(x){
-        .messageDiffTime(sprintf("Projecting Matrix (%s of %s) with LSI-Projection", x, length(tmpMatFiles)), tstart, addHeader = verboseAll, verbose = verboseAll)
-        .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart)
-      }, threads = threads2) %>% Reduce("rbind", .)
+        tmpPath <- .tempfile(pattern = "tmp-LSI-PM")
 
-      #Remove Temporary Matrices
-      rmf <- file.remove(tmpMatFiles)
+        .logDiffTime(sprintf("Sampling Cells (N = %s) for Estimated LSI", length(sampledCellNames)), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+        out <- .getPartialMatrix(
+            ArrowFiles = ArrowFiles,
+            featureDF = featureDF,
+            useMatrix = useMatrix,
+            cellNames = cellNames,
+            doSampleCells = TRUE,
+            sampledCellNames = sampledCellNames,
+            tmpPath = tmpPath,
+            useIndex = useIndex,
+            threads = threads,
+            verbose = FALSE
+          )
+        gc()
 
-      #Set To LSI the SVD Matrices
-      outLSI$exlcude <- cellNames[which(cellNames %ni% rownames(pLSI))]
-      outLSI$matSVD <- as.matrix(pLSI[cellNames[which(cellNames %in% rownames(pLSI))],])
+        #Perform LSI on Partial Sampled Matrix
+        .logDiffTime("Computing Estimated LSI (projectAll = TRUE)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+        outLSI <- .computeLSI(
+           mat = out$mat, 
+           LSIMethod = LSIMethod, 
+           scaleTo = scaleTo,
+           nDimensions = max(dimsToUse),
+           binarize = binarize, 
+           outlierQuantiles = outlierQuantiles,
+           tstart = tstart,
+           logFile = logFile
+          )
+
+        tmpMatFiles <- out[[2]]
+        rm(out)
+        gc()
+
+        #Read In Matrices and Project into Manifold
+        #Do Threads / 3 just in case of memory here (Needs testing QQQ)
+        threads2 <- 1 #max(ceiling(threads / 3), 1)
+        .logDiffTime("Projecting Matrices with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+        pLSI <- .safelapply(seq_along(tmpMatFiles), function(x){
+          .logDiffTime(sprintf("Projecting Matrix (%s of %s) with LSI-Projection", x, length(tmpMatFiles)), tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
+          .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart, logFile = logFile)
+        }, threads = threads2) %>% Reduce("rbind", .)
+
+        #Remove Temporary Matrices
+        rmf <- file.remove(tmpMatFiles)
+
+        #Set To LSI the SVD Matrices
+        outLSI$exlcude <- cellNames[which(cellNames %ni% rownames(pLSI))]
+        outLSI$matSVD <- as.matrix(pLSI[cellNames[which(cellNames %in% rownames(pLSI))],])
+
+      }
+
+      outLSI$LSIFeatures <- featureDF
+      outLSI$corToDepth <- list(
+        scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
+        none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
+      )
 
     }
 
-    outLSI$LSIFeatures <- featureDF
-    outLSI$corToDepth <- list(
-      scaled = abs(cor(.scaleDims(outLSI[[1]]), cellDepth[rownames(outLSI[[1]])]))[,1],
-      none = abs(cor(outLSI[[1]], cellDepth[rownames(outLSI[[1]])]))[,1]
-    )
+    outLSI
 
-  }
+  }, error = function(e){
 
-  return(outLSI)
+    errorList$outLSI <- if(exists("outLSI", inherits = FALSE)) outLSI else "Error with outLSI!"
+    errorList$matSVD <- if(exists("outLSI", inherits = FALSE)) outLSI[[1]] else "Error with matSVD!"
+
+    .logError(e, fn = ".LSIPartialMatrix", info = "", errorList = errorList, logFile = logFile)
+
+  })
+
+  return(outLSI2)
 
 }
 
@@ -662,73 +696,86 @@ addIterativeLSI <- function(
   dimsToUse = NULL,
   j = NULL,
   threads = NULL,
-  outDir = NULL
+  outDir = NULL,
+  logFile = NULL
   ){
 
-    .requirePackage("uwot", source = "cran")
+    errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
-    if(scaleDims){
-      dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
-    }else{
-      dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
-    }
+    o <- tryCatch({
 
-    if(nrow(outLSI[[1]]) > nPlot){
-      saveIdx <- sample(seq_len(nrow(outLSI[[1]])), nPlot)
-    }else{
-      saveIdx <- seq_len(nrow(outLSI[[1]]))
-    }
-    
-    #Plot Quick UMAP
-    UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE, fast_sgd = TRUE))
-    if(scaleDims){
-      UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])
-    }else{
-      UMAPParams$X <- (outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE]
-    }
-    UMAPParams$ret_nn <- FALSE
-    UMAPParams$ret_model <- FALSE
-    UMAPParams$n_threads <- floor(threads / 2)
-    uwotUmap <- do.call(uwot::umap, UMAPParams)
-    
-    #Plot
-    pdf(file.path(outDir, paste0("Save-LSI-Iteration-",j,".pdf")), width = 6, height = 6)
-    
-    p1 <- ggPoint(
-      uwotUmap[,1], 
-      uwotUmap[,2], 
-      getCellColData(ArchRProj, select = "Sample")[rownames(outLSI[[1]])[saveIdx],], 
-      size = 0.5, 
-      title = paste0("SampleName (nCells Plot = ",nrow(UMAPParams$X),")"),
-      rastr=TRUE
-    )
-    
-    p2 <- ggPoint(
-      uwotUmap[,1], 
-      uwotUmap[,2], 
-      clusters[saveIdx], 
-      size = 0.5, 
-      title = paste0("Clusters (nCells Plot = ",nrow(UMAPParams$X),")"),
-      rastr=TRUE
-    )
-    
-    p1 <- p1 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
-        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-              axis.text.y = element_blank(), axis.ticks.y = element_blank())
-    p2 <- p2 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
-        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-              axis.text.y = element_blank(), axis.ticks.y = element_blank())
+      .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Save iteration", logFile=logFile)
 
-    print(.fixPlotSize(p1, plotWidth = 6, plotHeight = 6))
-    grid::grid.newpage()
-    print(.fixPlotSize(p2, plotWidth = 6, plotHeight = 6))
-    dev.off()
+      .requirePackage("uwot", source = "cran")
 
-    #Save results
-    outj <- SimpleList(LSI = outLSI, clusters = clusters, uwotUmap = uwotUmap)
-    saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-",j,".rds")))
-    rm(UMAPParams, uwotUmap)
-    gc()
+      if(scaleDims){
+        dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
+      }else{
+        dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
+      }
+
+      if(nrow(outLSI[[1]]) > nPlot){
+        saveIdx <- sample(seq_len(nrow(outLSI[[1]])), nPlot)
+      }else{
+        saveIdx <- seq_len(nrow(outLSI[[1]]))
+      }
+      
+      #Plot Quick UMAP
+      UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE, fast_sgd = TRUE))
+      if(scaleDims){
+        UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])
+      }else{
+        UMAPParams$X <- (outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE]
+      }
+      UMAPParams$ret_nn <- FALSE
+      UMAPParams$ret_model <- FALSE
+      UMAPParams$n_threads <- floor(threads / 2)
+      uwotUmap <- do.call(uwot::umap, UMAPParams)
+      
+      #Plot
+      pdf(file.path(outDir, paste0("Save-LSI-Iteration-",j,".pdf")), width = 6, height = 6)
+      
+      p1 <- ggPoint(
+        uwotUmap[,1], 
+        uwotUmap[,2], 
+        getCellColData(ArchRProj, select = "Sample")[rownames(outLSI[[1]])[saveIdx],], 
+        size = 0.5, 
+        title = paste0("SampleName (nCells Plot = ",nrow(UMAPParams$X),")"),
+        rastr=TRUE
+      )
+      
+      p2 <- ggPoint(
+        uwotUmap[,1], 
+        uwotUmap[,2], 
+        clusters[saveIdx], 
+        size = 0.5, 
+        title = paste0("Clusters (nCells Plot = ",nrow(UMAPParams$X),")"),
+        rastr=TRUE
+      )
+      
+      p1 <- p1 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
+          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank())
+      p2 <- p2 + xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") + 
+          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank())
+
+      .fixPlotSize(p1, plotWidth = 6, plotHeight = 6)
+      grid::grid.newpage()
+      .fixPlotSize(p2, plotWidth = 6, plotHeight = 6)
+      dev.off()
+
+      #Save results
+      outj <- SimpleList(LSI = outLSI, clusters = clusters, uwotUmap = uwotUmap)
+      saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-",j,".rds")))
+      rm(UMAPParams, uwotUmap)
+      gc()
+
+    }, error = function(e){
+
+      .logError(e, fn = ".saveIteration", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
+
+    })
 
     return(0)
 
@@ -743,59 +790,73 @@ addIterativeLSI <- function(
   dimsToUse = NULL, 
   scaleDims = NULL, 
   clusterParams = NULL,
-  verboseHeader = NULL,
-  verboseAll = NULL,
+  verbose = NULL,
   j = NULL,
   filterBias = NULL,
   cellNames = NULL,
   cellDepth = NULL,
-  tstart = NULL
+  tstart = NULL,
+  logFile = NULL
   ){
 
-  if(scaleDims){
-    dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
-  }else{
-    dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
-  }
-  if(length(dimsPF)!=length(dimsToUse)){
-    message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
-  }
-  if(length(dimsPF) < 2){
-    stop("Dimensions to use after filtering for correlation to depth lower than 2!")
-  }
+  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Cluster Params", logFile=logFile)
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
-  #Time to compute clusters
-  .messageDiffTime("Identifying Clusters", tstart, addHeader = verboseAll, verbose = verboseHeader)
-  parClust <- lapply(clusterParams, function(x){
-    if(length(x) > 1){
-      return(x[[j]])
+  df2 <- tryCatch({
+
+    if(scaleDims){
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
     }else{
-      return(x[[1]])
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
     }
+    if(length(dimsPF)!=length(dimsToUse)){
+      message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
+    }
+    if(length(dimsPF) < 2){
+      stop("Dimensions to use after filtering for correlation to depth lower than 2!")
+    }
+
+    #Time to compute clusters
+    .logDiffTime("Identifying Clusters", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+    parClust <- lapply(clusterParams, function(x){
+      if(length(x) > 1){
+        return(x[[j]])
+      }else{
+        return(x[[1]])
+      }
+    })
+    parClust$verbose <- FALSE
+    if(scaleDims){
+      parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
+    }else{
+      parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
+    }
+
+    parClust$input <- as.matrix(parClust$input)
+
+    if(filterBias){
+      parClust$testBias <- TRUE
+      parClust$filterBias <- TRUE
+    }
+    parClust$biasVals <- data.frame(row.names = cellNames, x = cellDepth)[rownames(outLSI$matSVD), 1]
+    parClust$logFile <- logFile
+
+    clusters <- do.call(addClusters, parClust)
+    
+    parClust$input <- NULL
+    nClust <- length(unique(clusters))  
+    
+    df <- DataFrame(cellNames = rownames(outLSI$matSVD), clusters = clusters)
+    metadata(df)$parClust <- parClust
+    df
+
+  }, error = function(e){
+
+    .logError(e, fn = ".LSICluster", info = "", errorList = errorList, logFile = logFile, throwError = FALSE)
+
   })
-  parClust$verbose <- verboseAll
-  if(scaleDims){
-    parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
-  }else{
-    parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
-  }
 
-  parClust$input <- as.matrix(parClust$input)
-
-  if(filterBias){
-    parClust$testBias <- TRUE
-    parClust$filterBias <- TRUE
-  }
-  parClust$biasVals <- data.frame(row.names = cellNames, x = cellDepth)[rownames(outLSI$matSVD), 1]
-  
-  clusters <- do.call(addClusters, parClust)
-  
-  parClust$input <- NULL
-  nClust <- length(unique(clusters))  
-  
-  df <- DataFrame(cellNames = rownames(outLSI$matSVD), clusters = clusters)
-  metadata(df)$parClust <- parClust
-  df
+  df2
 
 }
 
@@ -815,79 +876,91 @@ addIterativeLSI <- function(
   varFeatures = NULL,
   tstart = NULL,
   threads = NULL,
-  verboseHeader = NULL,
-  verboseAll  = NULL
+  verbose = NULL,
+  logFile = NULL
   ){
 
-  nClust <- length(unique(clusterDF$clusters))
+  errorList <- append(args, mget(names(formals()),sys.frame(sys.nframe())))
 
-  if(nClust == 1){
+  variableFeatures2 <- tryCatch({
 
-    .messageDiffTime("Identified 1 Cluster, Continuing with Previous Features!", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    return(prevFeatures)
-  
-  }else{
+    nClust <- length(unique(clusterDF$clusters))
 
-    #Random Sampling for Quick Estimation of Variance
-    parClust <- metadata(clusterDF)$parClust
-    if(!is.null(parClust$sampleCells)){
-      if(is.numeric(parClust$sampleCells)){
-        if(floor(parClust$sampleCells) < nrow(outLSI$matSVD)){
-          idxSub <- sort(sample(seq_len(nrow(outLSI$matSVD)), floor(parClust$sampleCells)))
+    if(nClust == 1){
+
+      .logDiffTime("Identified 1 Cluster, Continuing with Previous Features!", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+      return(prevFeatures)
+    
+    }else{
+
+      #Random Sampling for Quick Estimation of Variance
+      parClust <- metadata(clusterDF)$parClust
+      if(!is.null(parClust$sampleCells)){
+        if(is.numeric(parClust$sampleCells)){
+          if(floor(parClust$sampleCells) < nrow(outLSI$matSVD)){
+            idxSub <- sort(sample(seq_len(nrow(outLSI$matSVD)), floor(parClust$sampleCells)))
+          }else{
+            idxSub <- seq_len(nrow(outLSI$matSVD))
+          }
         }else{
           idxSub <- seq_len(nrow(outLSI$matSVD))
         }
       }else{
         idxSub <- seq_len(nrow(outLSI$matSVD))
       }
-    }else{
-      idxSub <- seq_len(nrow(outLSI$matSVD))
+
+      .logDiffTime("Creating Cluster Matrix on the total Group Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+      groupList <- SimpleList(split(clusterDF$cellNames, clusterDF$clusters))
+      groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
+      groupMat <- .getGroupMatrix(
+        ArrowFiles = ArrowFiles, 
+        featureDF = groupFeatures,
+        useMatrix = useMatrix, 
+        threads = threads,
+        groupList = groupList,
+        useIndex = FALSE,
+        verbose = FALSE
+      )
+
+      .logDiffTime("Computing Variable Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+      if(length(varFeatures) > 1){
+        nFeature <- varFeatures[j]
+      }else{
+        nFeature <- varFeatures
+      }
+
+      if(tolower(selectionMethod) == "var"){
+
+        #Log-Normalize
+        groupMat <- log2(t(t(groupMat) / colSums(groupMat)) * scaleTo + 1)
+        var <- matrixStats::rowVars(groupMat)
+        idx <- sort(head(order(var,decreasing=TRUE), nFeature))
+        variableFeatures <- groupFeatures[idx,]
+
+      }else if(tolower(selectionMethod) == "vmr"){
+
+        #Variance-to-Mean Ratio
+        vmr <- matrixStats::rowVars(groupMat) / rowMeans(groupMat)
+        idx <- sort(head(order(vmr, decreasing=TRUE), nFeature))
+        variableFeatures <- groupFeatures[idx,]
+
+      }else{
+
+        stop("Error selectionMethod is not valid requires var or vmr")
+
+      }
+
     }
 
-    .messageDiffTime("Creating Cluster Matrix on the total Group Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    groupList <- SimpleList(split(clusterDF$cellNames, clusterDF$clusters))
-    groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
-    groupMat <- .getGroupMatrix(
-      ArrowFiles = ArrowFiles, 
-      featureDF = groupFeatures,
-      useMatrix = useMatrix, 
-      threads = threads,
-      groupList = groupList,
-      useIndex = FALSE,
-      verbose = verboseAll
-    )
+    variableFeatures
 
-    .messageDiffTime("Computing Variable Features", tstart, addHeader = verboseAll, verbose = verboseHeader)
-    if(length(varFeatures) > 1){
-      nFeature <- varFeatures[j]
-    }else{
-      nFeature <- varFeatures
-    }
+  }, error = function(e){
 
-    if(tolower(selectionMethod) == "var"){
+    .logError(e, fn = ".identifyVarFeatures", info = "", errorList = errorList, logFile = logFile)
 
-      #Log-Normalize
-      groupMat <- log2(t(t(groupMat) / colSums(groupMat)) * scaleTo + 1)
-      var <- matrixStats::rowVars(groupMat)
-      idx <- sort(head(order(var,decreasing=TRUE), nFeature))
-      variableFeatures <- groupFeatures[idx,]
+  })
 
-    }else if(tolower(selectionMethod) == "vmr"){
-
-      #Variance-to-Mean Ratio
-      vmr <- matrixStats::rowVars(groupMat) / rowMeans(groupMat)
-      idx <- sort(head(order(vmr, decreasing=TRUE), nFeature))
-      variableFeatures <- groupFeatures[idx,]
-
-    }else{
-
-      stop("Error selectionMethod is not valid requires var or vmr")
-
-    }
-
-  }
-
-  return(variableFeatures)
+  return(variableFeatures2)
 
 }
 
@@ -902,9 +975,14 @@ addIterativeLSI <- function(
   binarize = TRUE, 
   outlierQuantiles = c(0.02, 0.98),
   seed = 1, 
-  verbose = TRUE, 
-  tstart = NULL
+  verbose = FALSE, 
+  tstart = NULL,
+  logFile = NULL
   ){
+
+  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "LSI Parameters", logFile=logFile)
+
+  out2 <- tryCatch({
 
     set.seed(seed)
 
@@ -912,21 +990,21 @@ addIterativeLSI <- function(
       tstart <- Sys.time()
     }
   
-    .messageDiffTime(sprintf("Running LSI, Input Matrix = %s GB", round(object.size(mat)/10^9, 3)), tstart, addHeader = verbose, verbose = verbose)
+    .logDiffTime(sprintf("Running LSI, Input Matrix = %s GB", round(object.size(mat)/10^9, 3)), tstart, addHeader = verbose, verbose = verbose, logFile = logFile)
 
     #TF IDF LSI adapted from flyATAC
     if(binarize){
-        .messageDiffTime("Binarizing Matrix", tstart, addHeader = FALSE, verbose = verbose)
+        .logDiffTime("Binarizing Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         mat@x[mat@x > 0] <- 1 
     }
 
     #Compute Col Sums
-    .messageDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose)
+    .logDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     colSm <- Matrix::colSums(mat)
     if(any(colSm == 0)){
-      exclude <- colnames(mat)[which(colSm==0)]
+      exclude <- which(colSm==0)
       mat <- mat[,-exclude, drop = FALSE]
-      colSm <- colSm[-exclude, drop = FALSE]
+      colSm <- colSm[-exclude]
     }else{
       exclude <- c()
     }
@@ -937,7 +1015,7 @@ addIterativeLSI <- function(
       qCS <- quantile(colSm, probs = c(min(outlierQuantiles), max(outlierQuantiles)))
       idxOutlier <- which(colSm <= qCS[1] | colSm >= qCS[2])
       if(length(idxOutlier) > 0){
-        .messageDiffTime("Filtering Outliers Based On Counts", tstart, addHeader = FALSE, verbose = verbose)
+        .logDiffTime("Filtering Outliers Based On Counts", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         #saveRDS(mat, "temp.rds", compress = FALSE)
         matO <- mat[, idxOutlier, drop = FALSE]
         mat <- mat[, -idxOutlier, drop = FALSE]
@@ -948,7 +1026,7 @@ addIterativeLSI <- function(
     }
 
     #Clean up zero rows
-    .messageDiffTime("Removing 0 Sum Rows", tstart, addHeader = FALSE, verbose = verbose)
+    .logDiffTime("Removing 0 Sum Rows", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     rowSm <- Matrix::rowSums(mat)
     idx <- which(rowSm > 0)
     mat <- mat[idx, ]
@@ -962,11 +1040,11 @@ addIterativeLSI <- function(
       #Adapted from Casanovich et al.
 
       #LogIDF
-      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       idf   <- as(log(1 + ncol(mat) / rowSm), "sparseVector")
 
       #TF-LogIDF
-      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
 
     }else if(LSIMethod == 2 | tolower(LSIMethod) == "log(tf-idf)"){
@@ -974,11 +1052,11 @@ addIterativeLSI <- function(
       #Adapted from Stuart et al.
 
       #IDF
-      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       idf   <- as(ncol(mat) / rowSm, "sparseVector")
 
       #TF-IDF
-      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
       mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
 
       #Log transform TF-IDF
@@ -990,11 +1068,11 @@ addIterativeLSI <- function(
       mat@x <- log(mat@x + 1)
 
       #LogIDF
-      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       idf   <- as(log(1 + ncol(mat) / rowSm), "sparseVector")
 
       #TF-IDF
-      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
 
 
@@ -1007,7 +1085,7 @@ addIterativeLSI <- function(
     gc()
 
     #Calc SVD then LSI
-    .messageDiffTime("Computing SVD using irlba", tstart, addHeader = FALSE, verbose = verbose)
+    .logDiffTime("Computing SVD using irlba", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     svd <- irlba::irlba(mat, nDimensions, nDimensions)
     svdDiag <- matrix(0, nrow=nDimensions, ncol=nDimensions)
     diag(svdDiag) <- svd$d
@@ -1033,9 +1111,9 @@ addIterativeLSI <- function(
       )
 
     if(filterOutliers == 1){
-      .messageDiffTime("Projecting Outliers with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Projecting Outliers with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       #Quick Check LSI-Projection Works
-      pCheck <- .projectLSI(mat = mat2, LSI = out, verbose = verbose)
+      pCheck <- .projectLSI(mat = mat2, LSI = out, verbose = verbose, logFile = logFile)
       pCheck2 <- out[[1]][rownames(pCheck), ]
       pCheck3 <- lapply(seq_len(ncol(pCheck)), function(x){
         cor(pCheck[,x], pCheck2[,x])
@@ -1045,17 +1123,34 @@ addIterativeLSI <- function(
       }
       #Project LSI Outliers
       out$outliers <- colnames(matO)
-      outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose)
+      outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose, logFile = logFile)
       allLSI <- rbind(out[[1]], outlierLSI)
       allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
       out[[1]] <- allLSI
     }
-    .messageDiffTime("Finished LSI (TF-IDF SVD) using irlba", tstart, addHeader = FALSE, verbose = verbose)
+    .logDiffTime("Finished LSI (TF-IDF SVD) using irlba", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
 
     rm(mat)
     gc()
 
     out
+
+  }, error = function(e){
+    
+    errorList <- list(
+      mat = mat,
+      colSm = if(exists("colSm", inherits = FALSE)) colSm else "Error with colSm!",
+      idf = if(exists("idf", inherits = FALSE)) idf else "Error with idf!",
+      V = if(exists("V", inherits = FALSE)) V else "Error with V!",
+      matSVD = if(exists("matSVD", inherits = FALSE)) matSVD else "Error with matSVD!",
+      out = if(exists("out", inherits = FALSE)) out else "Error with out!"
+    )
+
+    .logError(e, fn = ".computeLSI", info = "", errorList = errorList, logFile = logFile)
+
+  })
+
+  out2
 
 }
 
@@ -1063,10 +1158,15 @@ addIterativeLSI <- function(
   mat = NULL, 
   LSI = NULL, 
   returnModel = FALSE, 
-  verbose = TRUE, 
-  tstart = NULL
+  verbose = FALSE, 
+  tstart = NULL,
+  logFile = NULL
   ){   
+
+  .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "LSI-Projection Parameters", logFile=logFile)
     
+  out2 <- tryCatch({
+   
     require(Matrix)
     set.seed(LSI$seed)
     
@@ -1074,20 +1174,20 @@ addIterativeLSI <- function(
       tstart <- Sys.time()
     }
 
-    .messageDiffTime(sprintf("Projecting LSI, Input Matrix = %s GB", round(object.size(mat)/10^9, 3)), tstart, addHeader = verbose, verbose = verbose)
+    .logDiffTime(sprintf("Projecting LSI, Input Matrix = %s GB", round(object.size(mat)/10^9, 3)), tstart, addHeader = verbose, verbose = verbose, logFile = logFile)
 
     #Get Same Features
-    .messageDiffTime("Subsetting by Non-Zero features in inital Matrix", tstart, addHeader = FALSE, verbose = verbose)
+    .logDiffTime("Subsetting by Non-Zero features in inital Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     mat <- mat[LSI$idx,]
 
     #Binarize Matrix
     if(LSI$binarize){
-        .messageDiffTime("Binarizing Matrix", tstart, addHeader = FALSE, verbose = verbose)
+        .logDiffTime("Binarizing Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         mat@x[mat@x > 0] <- 1       
     }
     
     #TF
-    .messageDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose)
+    .logDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     colSm <- Matrix::colSums(mat)
     if(any(colSm == 0)){
       exclude <- which(colSm==0)
@@ -1101,11 +1201,11 @@ addIterativeLSI <- function(
       #Adapted from Casanovich et al.
 
       #LogIDF
-      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       idf   <- as(log(1 + LSI$nCol / LSI$rowSm), "sparseVector")
 
       #TF-LogIDF
-      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
 
     }else if(LSI$LSIMethod == 2 | tolower(LSI$LSIMethod) == "log(tf-idf)"){
@@ -1113,11 +1213,11 @@ addIterativeLSI <- function(
       #Adapted from Stuart et al.
 
       #IDF
-      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       idf   <- as(LSI$nCol / LSI$rowSm, "sparseVector")
 
       #TF-IDF
-      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
 
       #Log transform TF-IDF
@@ -1129,11 +1229,11 @@ addIterativeLSI <- function(
       mat@x <- log(mat@x + 1)
 
       #LogIDF
-      .messageDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing Inverse Document Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       idf   <- as(log(1 + LSI$nCol / LSI$rowSm), "sparseVector")
 
       #TF-IDF
-      .messageDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose)
+      .logDiffTime("Computing TF-IDF Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       mat <- as(Matrix::Diagonal(x=as.vector(idf)), "sparseMatrix") %*% mat
 
 
@@ -1148,16 +1248,16 @@ addIterativeLSI <- function(
     #Clean Up Matrix
     idxNA <- Matrix::which(is.na(mat),arr.ind=TRUE)
     if(length(idxNA) > 0){
-        .messageDiffTime(sprintf("Zeroing %s NA elements", length(idxNA)), tstart, addHeader = FALSE, verbose = verbose)
+        .logDiffTime(sprintf("Zeroing %s NA elements", length(idxNA)), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         mat[idxNA] <- 0
     }
 
     #Calc V
-    .messageDiffTime("Calculating V Matrix", tstart, addHeader = FALSE, verbose = verbose)
+    .logDiffTime("Calculating V Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     V <- Matrix::t(mat) %*% LSI$svd$u %*% Matrix::diag(1/LSI$svd$d)
 
     #LSI Diagonal
-    .messageDiffTime("Computing Projected Coordinates", tstart, addHeader = FALSE, verbose = verbose)
+    .logDiffTime("Computing Projected Coordinates", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     svdDiag <- matrix(0, nrow=LSI$nDimensions, ncol=LSI$nDimensions)
     diag(svdDiag) <- LSI$svd$d
     matSVD <- Matrix::t(svdDiag %*% Matrix::t(V))
@@ -1166,14 +1266,32 @@ addIterativeLSI <- function(
     colnames(matSVD) <- paste0("LSI",seq_len(ncol(matSVD)))
 
     if(returnModel){
-        .messageDiffTime("Calculating Re-Projected Matrix", tstart, addHeader = FALSE, verbose = verbose)
+        .logDiffTime("Calculating Re-Projected Matrix", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         X <- LSI$svd$u %*% diag(LSI$svd$d) %*% t(V)
         out <- list(matSVD = matSVD, V = V, X = X)
     }else{
         out <- matSVD
     }
 
-    return(out)
+    out
+
+
+  }, error = function(e){
+
+    errorList <- list(
+      mat = mat,
+      colSm = if(exists("colSm", inherits = FALSE)) colSm else "Error with colSm!",
+      idf = if(exists("idf", inherits = FALSE)) idf else "Error with idf!",
+      V = if(exists("V", inherits = FALSE)) V else "Error with V!",
+      matSVD = if(exists("matSVD", inherits = FALSE)) matSVD else "Error with matSVD!"
+    )
+
+    .logError(e, fn = ".projectLSI", info = "", errorList = errorList, logFile = logFile)
+
+  })
+
+  out2
+
 }
 
 
