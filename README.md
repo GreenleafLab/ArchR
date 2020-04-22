@@ -1,4 +1,4 @@
-![](Figures/ArchR_Logo_Integrated.png)
+![](Figures/ArchR_Logo_Integrated.png){width=500px}
 
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 
