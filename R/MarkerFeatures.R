@@ -598,10 +598,10 @@ getMarkerFeatures <- function(
   prob <- table(groups) / length(groups)
   bgdProb <- prob[which(names(prob) %in% bgdGroups)] / sum(prob[which(names(prob) %in% bgdGroups)])
 
-  pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
+  #pb <- txtProgressBar(min=0,max=100,initial=0,style=3)
   matchList <- lapply(seq_along(useGroups), function(x){
     
-    setTxtProgressBar(pb,round(x*100/length(useGroups),0))
+    #setTxtProgressBar(pb,round(x*100/length(useGroups),0))
 
     #############
     # Organize
@@ -617,7 +617,14 @@ getMarkerFeatures <- function(
     idF <- which(groups == groupx)
     idB <- which(groups %in% names(bgdProbx))
 
-    knnx <- .computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k)
+    if(k > length(idB)){
+      .logMessage(paste0("Found less than 100 cells for background matching, Lowering k to ", length(idB)), verbose = TRUE, logFile = logFile)
+      k2 <- length(idB)
+    }else{
+      k2 <- k
+    }
+
+    knnx <- .computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k2)
     sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
 
     minTotal <- min(n, length(sx) * bufferRatio)
@@ -650,7 +657,7 @@ getMarkerFeatures <- function(
         cellx <- knnit[itx]
         groupitx <- groupit[itx]
         if(is.infinite(nx[groupitx])){
-          if(selectit == k){
+          if(selectit == k2){
             itx <- NA
             cellx <- NA
             selectUnique <- TRUE
@@ -659,7 +666,7 @@ getMarkerFeatures <- function(
           if(cellx %ni% idY){
             selectUnique <- TRUE
           }
-          if(selectit == k){
+          if(selectit == k2){
             itx <- NA
             cellx <- NA
             selectUnique <- TRUE
@@ -716,7 +723,8 @@ getMarkerFeatures <- function(
         corbgdGroups = cor(estbgdP, obsbgdP),
         n = length(sx), 
         p = it / length(sx),
-        group = groupx
+        group = groupx,
+        k = k2
       )
 
     .logThis(out, paste0("MatchSummary ", useGroups[x]), logFile = logFile)
@@ -725,8 +733,6 @@ getMarkerFeatures <- function(
   }) %>% SimpleList
   names(matchList) <- useGroups
   
-  message("\n")
-
   outList <- SimpleList(
     matchbgd = matchList,
     info = SimpleList(
