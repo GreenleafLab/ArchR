@@ -20,7 +20,7 @@ addUMAP(
   verbose = TRUE,
   seed = 1,
   force = FALSE,
-  threads = max(floor(getArchRThreads()/2), 1),
+  threads = 1,
   ...
 )
 }
@@ -65,7 +65,7 @@ reproduce results downstream.}
 \item{force}{A boolean value that indicates whether to overwrite the relevant data in the \code{ArchRProject} object if the embedding indicated by
 \code{name} already exists.}
 
-\item{threads}{The number of threads to be used for parallel computing.}
+\item{threads}{The number of threads to be used for parallel computing. Default set to 1 because if set to high can cause C stack usage errors.}
 
 \item{...}{Additional parameters to pass to \code{uwot::umap()}}
 }

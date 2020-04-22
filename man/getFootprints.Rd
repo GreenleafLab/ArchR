@@ -21,7 +21,7 @@ getFootprints(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{positions}{A \code{list} or \code{GenomicRangesList} of \code{GRanges} containing the positions to incorporate into the footprint. Each position should be stranded.}
+\item{positions}{A \code{list} or \code{GRangesList} of \code{GRanges} containing the positions to incorporate into the footprint. Each position should be stranded.}
 
 \item{plotName}{The prefix to add to the file name for the output PDF file containing the footprint plots.}
 

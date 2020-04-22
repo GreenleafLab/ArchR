@@ -6,6 +6,7 @@
 \usage{
 theme_ArchR(
   color = "black",
+  textFamily = "sans",
   baseSize = 10,
   baseLineSize = 0.5,
   baseRectSize = 0.5,
@@ -19,6 +20,8 @@ theme_ArchR(
 }
 \arguments{
 \item{color}{The color to be used for text, lines, ticks, etc for the plot.}
+
+\item{textFamily}{The font default family to be used for the plot.}
 
 \item{baseSize}{The base font size (in points) to use in the plot.}
 

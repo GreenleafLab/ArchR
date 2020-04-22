@@ -16,7 +16,7 @@ createArrowFiles(
   removeFilteredCells = TRUE,
   minFrags = 500,
   maxFrags = 1e+05,
-  outDir = "QualityControl",
+  QCDir = "QualityControl",
   nucLength = 147,
   promoterRegion = c(2000, 100),
   TSSParams = list(),
@@ -76,7 +76,7 @@ This is useful for limiting the number of barcodes analyzed.}
 \item{maxFrags}{The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 This is useful for limiting the number of barcodes analyzed.}
 
-\item{outDir}{The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.}
+\item{QCDir}{The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.}
 
 \item{nucLength}{The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.}
@@ -122,7 +122,7 @@ ATAC-seq signal proximal to the TSS to estimate gene activity.}
 
 \item{GeneScoreMatParams}{A list of parameters to pass to the \code{addGeneScoreMatrix()} function. See \code{addGeneScoreMatrix()} for options.}
 
-\item{force}{A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist in \code{outDir}.}
+\item{force}{A boolean value indicating whether to force ArrowFiles to be overwritten if they already exist.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

@@ -27,6 +27,7 @@ addClusters(
   biasPval = 0.05,
   nPerm = 500,
   prefix = "C",
+  ArchRProj = NULL,
   verbose = TRUE,
   tstart = NULL,
   force = FALSE,
@@ -91,6 +92,8 @@ cluster is biased during testing for bias-enriched clusters.}
 \item{nPerm}{An integer specifying the number of permutations to perform for testing bias-enriched clusters.}
 
 \item{prefix}{A character string to be added before each cluster identity. For example, if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.}
+
+\item{ArchRProj}{An \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}. This argument can also be supplied as \code{input}.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
