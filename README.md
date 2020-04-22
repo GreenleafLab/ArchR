@@ -4,7 +4,7 @@
 
 ArchR is a full-featured R package for processing and analyzing single-cell ATAC-seq data. Its strength is speed and resource usage, making it possible to analyze 1 million cells in QQQ hours on a macbook pro laptop. It provides facile tools to do just about anything you would want to do with single-cell ATAC-seq data. For a more detailed description of the software, please see the [publication](https://greenleaf.stanford.edu/assets/pdf/) ([pdf](http://greenleaf.stanford.edu/assets/pdf/), [supplement](http://greenleaf.stanford.edu/assets/pdf/)) or the [vignettes](articles/index.html).
 
-![](Figures/Figure1.png)
+![](Figures/ArchR_Workflow_Horizontal.png)
 
 # Documentation
 
