@@ -7,8 +7,9 @@ assignees: ''
 
 ---
 
-### ___Before you submit this issue___ please update ArchR to the latest version and make sure that this issue has not already been fixed in the latest release. ArchR is in __beta__ and we will fix problems as they arise. To update ArchR:
-`devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())`
+Before you submit this issue please update ArchR to the latest version and make sure that this issue has not already been fixed in the latest release. ArchR is in *beta* and we will fix problems as they arise. To update ArchR:
+
+devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())
 
 If your issue persists, then please submit this bug report.
 
@@ -28,7 +29,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Session Info**
-If you do not have a log file because the function that caused the error does not produce one, please paste the output of `sessionInfo()` here.
+If you do not have a log file because the function that caused the error does not produce one, please paste the output of "sessionInfo()" here.
 
 **Additional context**
 Add any other context about the problem here.

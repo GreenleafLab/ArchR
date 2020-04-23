@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-### ___Do not use this form to report a problem. Instead, use the "Bug report" option.___
+Do not use this form to report a bug in ArchR! Instead, use the "Bug report" option.
 
 **Describe the problem that your feature request would address.**
 A clear and concise description of what the problem is. Ex. A common analysis that is performed but not currently supported is [...]
