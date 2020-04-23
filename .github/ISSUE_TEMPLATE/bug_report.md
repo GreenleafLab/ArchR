@@ -13,6 +13,8 @@ devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager
 
 If your issue persists, then please submit this bug report.
 
+PLEASE FILL OUT THE RELEVANT INFORMATION AND DELETE THE UNUSED PORTIONS OF THIS ISSUE TEMPLATE.
+
 **Attach your log file**
 ArchR has a built-in logging functionality for all complex functions. You MUST attach your log file (indicated in the console output) to this issue. Just drag and drop it here.
 

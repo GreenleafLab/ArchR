@@ -9,6 +9,8 @@ assignees: ''
 
 Before you submit this issue, go to the ArchR user manual (https://www.archrproject.com/bookdown/index.html) and use the search function (magnifying glass in the top navbar) to search the manual for the content you are looking for!
 
+PLEASE FILL OUT THE RELEVANT INFORMATION AND DELETE THE UNUSED PORTIONS OF THIS ISSUE TEMPLATE.
+
 ### If this is an issue with an existing explanation:
 
 **Where is the problematic documentation?**
