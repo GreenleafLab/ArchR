@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-___Before you submit this issue, go to the [ArchR user manual](https://www.archrproject.com/bookdown/index.html) and use the search function (magnifying glass in the top navbar) to search the manual for the content you are looking for!___
+### ___Before you submit this issue, go to the [ArchR user manual](https://www.archrproject.com/bookdown/index.html) and use the search function (magnifying glass in the top navbar) to search the manual for the content you are looking for!___
 
 ### If this is an issue with an existing explanation:
 
