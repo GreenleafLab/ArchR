@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-___Before you submit this issue___ please update ArchR to the latest version and make sure that this issue has not already been fixed in the latest release. ArchR is in __beta__ and we will fix problems as they arise. To update ArchR:
+### ___Before you submit this issue___ please update ArchR to the latest version and make sure that this issue has not already been fixed in the latest release. ArchR is in __beta__ and we will fix problems as they arise. To update ArchR:
 `devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())`
 
 If your issue persists, then please submit this bug report.
