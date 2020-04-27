@@ -1003,10 +1003,12 @@ addPeak2GeneLinks <- function(
 
   #Get Peak Set
   peakSet <- getPeakSet(ArchRProj)
+  .logThis(peakSet, "peakSet", logFile = logFile)
 
   #Gene Info
   geneSet <- .getFeatureDF(ArrowFiles, useMatrix, threads = threads)
   geneStart <- GRanges(geneSet$seqnames, IRanges(geneSet$start, width = 1), name = geneSet$name, idx = geneSet$idx)
+  .logThis(geneStart, "geneStart", logFile = logFile)
 
   #Get Reduced Dims
   rD <- getReducedDims(ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
@@ -1052,6 +1054,7 @@ addPeak2GeneLinks <- function(
     threads = threads,
     verbose = FALSE
   )
+  .logThis(groupMatRNA, "groupMatRNA", logFile = logFile)
 
   #Group Matrix ATAC
   .logDiffTime(main="Getting Group ATAC Matrix", t1=tstart, verbose=verbose, logFile=logFile)
@@ -1063,6 +1066,7 @@ addPeak2GeneLinks <- function(
     threads = threads,
     verbose = FALSE
   )
+  .logThis(groupMatATAC, "groupMatATAC", logFile = logFile)
 
   .logDiffTime(main="Normalizing Group Matrices", t1=tstart, verbose=verbose, logFile=logFile)
 
@@ -1074,17 +1078,23 @@ addPeak2GeneLinks <- function(
     groupMatATAC <- log2(groupMatATAC + 1)    
   }
 
+  names(geneStart) <- NULL
+
   seRNA <- SummarizedExperiment(
     assays = SimpleList(RNA = groupMatRNA), 
     rowRanges = geneStart
   )
   metadata(seRNA)$KNNList <- knnObj
+  .logThis(seRNA, "seRNA", logFile = logFile)
+
+  names(peakSet) <- NULL
 
   seATAC <- SummarizedExperiment(
     assays = SimpleList(ATAC = groupMatATAC), 
     rowRanges = peakSet
   )
   metadata(seATAC)$KNNList <- knnObj
+  .logThis(seATAC, "seATAC", logFile = logFile)
 
   rm(groupMatRNA, groupMatATAC)
   gc()
