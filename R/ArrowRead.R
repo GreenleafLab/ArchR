@@ -180,7 +180,7 @@ getFragmentsFromArrow <- function(
 # Reading Matrices/Arrays from Arrow Files
 ####################################################################
 
-#' Get a data matrix stored in an ArchRProject RRR
+#' Get a data matrix stored in an ArchRProject
 #' 
 #' This function gets a given data matrix from an `ArchRProject`.
 #'
