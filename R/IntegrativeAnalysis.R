@@ -813,7 +813,7 @@ addCoAccessibility <- function(
 getCoAccessibility <- function(
   ArchRProj = NULL, 
   corCutOff = 0.5, 
-  resolution = 1000, 
+  resolution = 1, 
   returnLoops = TRUE
   ){
   
@@ -1214,7 +1214,7 @@ getPeak2GeneLinks <- function(
   ArchRProj = NULL, 
   corCutOff = 0.45, 
   FDRCutOff = 0.0001,
-  resolution = 1000, 
+  resolution = 1, 
   returnLoops = TRUE
   ){
   
