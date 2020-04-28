@@ -822,15 +822,21 @@ plotBrowserTrack <- function(
     # Time to plot
     ##########################################################
     plotSummary <- tolower(plotSummary)
+    names(sizes) <- plotSummary
     sizes <- sizes[order(plotSummary)]
     plotSummary <- plotSummary[order(plotSummary)]
 
-    nullSummary <- unlist(lapply(seq_along(plotSummary), function(x) is.null(eval(parse(text=paste0("plotList$", plotSummary[x]))))))
-    if(any(nullSummary)){
-      sizes <- sizes[-which(nullSummary)]
-    }
+    # nullSummary <- unlist(lapply(seq_along(plotSummary), function(x) is.null(eval(parse(text=paste0("plotList$", plotSummary[x]))))))
+    # if(any(nullSummary)){
+    #   sizes <- sizes[-which(nullSummary)]
+    # }
+    sizes <- sizes[tolower(names(plotList))]
 
+    .logThis(names(plotList), sprintf("(%s of %s) names(plotList)",x,length(region)), logFile=logFile)
+    .logThis(sizes, sprintf("(%s of %s) sizes",x,length(region)), logFile=logFile)
+    #.logThis(nullSummary, sprintf("(%s of %s) nullSummary",x,length(region)), logFile=logFile)
     .logDiffTime("Plotting", t1=tstart, verbose=verbose, logFile=logFile)
+    
     tryCatch({
       suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
     }, error = function(e){
@@ -1292,6 +1298,10 @@ plotBrowserTrack <- function(
 
   }
 
+  if(!is.ggplot(p)){
+    .logError("geneTrack is not a ggplot!", fn = ".geneTracks", info = "", errorList = NULL, logFile = logFile)
+  }
+
   return(p)
 
 }
@@ -1379,13 +1389,16 @@ plotBrowserTrack <- function(
 
   }
 
-
   if(hideX){
     p <- p + theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
   }
 
   if(hideY){
     p <- p + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+  }
+
+  if(!is.ggplot(p)){
+    .logError("featureTrack is not a ggplot!", fn = ".featureTracks", info = "", errorList = NULL, logFile = logFile)
   }
 
   return(p)
@@ -1450,22 +1463,24 @@ plotBrowserTrack <- function(
 
     testDim <- tryCatch({
       if(is.null(loopO)){
-        return(FALSE)
+        FALSE
       }
       if(nrow(loopO) > 0){
-        return(TRUE)
+        TRUE
       }else{
-        return(FALSE)
+        FALSE
       }
     }, error = function(x){
       FALSE
     })
 
     if(testDim){
+
       loopO$facet <- title
       if(is.null(pal)){
         pal <- colorRampPalette(c("#E6E7E8","#3A97FF","#8816A7","black"))(100)
       }
+
       p <- ggplot(data = data.frame(loopO), aes(x = x, y = y, group = id, color = value)) + 
         geom_line() +
         facet_grid(name ~ .) +
@@ -1478,7 +1493,9 @@ plotBrowserTrack <- function(
         theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank(),
           legend.box.background = element_rect(color = NA)) +
         guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
+
     }else{
+
       #create empty plot
       df <- data.frame(facet = "LoopTrack", start = 0, end = 0, strand = "*", symbol = "none")
       p <- ggplot(data = df, aes(start, end)) + 
@@ -1488,6 +1505,7 @@ plotBrowserTrack <- function(
         scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
         theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
         theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank())
+
     }
 
   }else{
@@ -1510,6 +1528,10 @@ plotBrowserTrack <- function(
 
   if(hideY){
     p <- p + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+  }
+
+  if(!is.ggplot(p)){
+    .logError("loopTracks is not a ggplot!", fn = ".loopTracks", info = "", errorList = NULL, logFile = logFile)
   }
 
   return(p)
