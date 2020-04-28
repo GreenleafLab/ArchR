@@ -37,8 +37,10 @@ markerFeatures <- function(...){
 #' the stringency of also maintaining the group proportions from `bgdGroups`.
 #' @param binarize A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when
 #' `useMatrix` is an insertion counts-based matrix.
-#' @param useSeqnames A character vector that indicates which seqnames should be used in marker feature identification. Features from
-#' seqnames that are not listed will be ignored. 
+#' @param useSeqnames A character vector that indicates which `seqnames` should be plotted in the heatmap. Features from
+#' `seqnames` that are not listed will be ignored. In the context of a `Sparse.Assays.Matrix`, such as a matrix containing chromVAR
+#' deviations, the `seqnames` do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
+#' raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.
 #' @param verbose A boolean value that determines whether standard output is printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export

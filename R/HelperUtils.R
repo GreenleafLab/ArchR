@@ -84,7 +84,7 @@ reformatFragmentFiles <- function(
 # Helper For cluster identity
 ##########################################################################################
 
-#' Create a Confusion Matrix based on two value vectors RRR
+#' Create a Confusion Matrix based on two value vectors
 #'
 #' This function creates a confusion matrix based on two value vectors.
 #'
@@ -109,9 +109,10 @@ confusionMatrix <- function(
 }
 
 
-#' Create a Confusion Matrix based on two value vectors RRR
+#' Re-map a character vector of labels from an old set of labels to a new set of labels
 #'
-#' This function creates a confusion matrix based on two value vectors.
+#' This function takes a character vector of labels and uses a set of old and new labels
+#' to re-map from the old label set to the new label set.
 #'
 #' @param labels A character vector containing lables to map.
 #' @param newLabels A character vector (same length as oldLabels) to map labels to from oldLabels.
