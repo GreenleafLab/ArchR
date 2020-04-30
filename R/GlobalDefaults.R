@@ -38,6 +38,7 @@ installExtraPackages <- function(force = FALSE){
 
   n <- 0
   f <- 0
+  fp <- c()
 
   # Seurat
   if(!requireNamespace("Seurat", quietly = TRUE) || force){
@@ -50,6 +51,7 @@ installExtraPackages <- function(force = FALSE){
       n <- n + 1
     }, error = function(e){
       f <- f + 1
+      fp <- c(fp, "Seurat")
       message("Error With Seurat Installation")
       message("Try install.packages('Seurat')")
     })
@@ -66,6 +68,7 @@ installExtraPackages <- function(force = FALSE){
       n <- n + 1
     }, error = function(e){
       f <- f + 1
+      fp <- c(fp, "Cairo")
       message("Error With Cairo Installation")
       message("Try install.packages('Cairo')")
     })
@@ -97,6 +100,7 @@ installExtraPackages <- function(force = FALSE){
       n <- n + 1
     }, error = function(e){
       f <- f + 1
+      fp <- c(fp, "harmony")
       message("Error With harmony Installation")
       message("Try devtools::install_github('immunogenomics/harmony', repos = BiocManager::repositories())")
     })
@@ -113,6 +117,7 @@ installExtraPackages <- function(force = FALSE){
       n <- n + 1
     }, error = function(e){
       f <- f + 1
+      fp <- c(fp, "presto")
       message("Error With presto Installation")
       message("Try devtools::install_github('immunogenomics/presto', repos = BiocManager::repositories())")
     })
@@ -129,6 +134,7 @@ installExtraPackages <- function(force = FALSE){
       n <- n + 1
     }, error = function(e){
       f <- f + 1
+      fp <- c(fp, "shiny")
       message("Error With shiny Installation")
       message("Try install.packages('shiny')")
     })
@@ -145,6 +151,7 @@ installExtraPackages <- function(force = FALSE){
       n <- n + 1
     }, error = function(e){
       f <- f + 1
+      fp <- c(fp, "rhandsontable")
       message("Error With rhandsontable Installation")
       message("Try install.packages('rhandsontable')")
     })
@@ -161,12 +168,17 @@ installExtraPackages <- function(force = FALSE){
       n <- n + 1
     }, error = function(e){
       f <- f + 1
+      fp <- c(fp, "rhandsontable")
       message("Error With shinythemes Installation")
       message("Try install.packages('shinythemes')")
     })
   }
 
   message("Successfully installed ", n, " packages. ", f, " packages failed installation.")
+
+  if(f > 0){
+    message("Failed packages : ", paste0(fp, collapse=", "))
+  }
 
   return(invisible(0))
 
