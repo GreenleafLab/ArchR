@@ -562,7 +562,7 @@ ggHex <- function(
       # }else{
       #   message("ggrastr is not available for rastr of points, continuing without points!")
       #   message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
-      }
+      #}
     }
 
     values <- ggplot_build(p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA))$data[[1]]$value
