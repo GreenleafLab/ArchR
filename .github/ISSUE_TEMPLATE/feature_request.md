@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea to enhancer ArchR
+about: Suggest an idea to enhance ArchR
 title: ''
 labels: enhancement
 assignees: ''
