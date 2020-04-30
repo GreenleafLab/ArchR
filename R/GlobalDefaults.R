@@ -166,7 +166,7 @@ installExtraPackages <- function(force = FALSE){
     })
   }
 
-  message("Successfully installed ", n, " packages.", f, " packages failed installation.")
+  message("Successfully installed ", n, " packages. ", f, " packages failed installation.")
 
   return(invisible(0))
 
