@@ -23,7 +23,7 @@ ArchRDefaults <- list(
     addArchRThreads()
   }
   if(!.checkCairo()){
-    packageStartupMessage("Cairo check shows Cairo is not functional.\nggplot2 rasterization will not be available without Cario.\nThis may cause issues editing plots with many thousands of points from single cells.")
+    packageStartupMessage("WARNING : Cairo check shows Cairo is not functional.\n          ggplot2 rasterization will not be available without Cario.\n          This may cause issues editing plots with many thousands of points from single cells.")
   }
   invisible()
 }
