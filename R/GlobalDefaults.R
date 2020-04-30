@@ -1,3 +1,5 @@
+#' @include GgplotUtils.R
+
 ########################################################
 # On Load / Attach
 ########################################################
@@ -20,9 +22,11 @@ ArchRDefaults <- list(
   }else if(options()[["ArchR.threads"]] == 1){
     addArchRThreads()
   }
+  if(!.checkCairo()){
+    packageStartupMessage("Cairo check shows Cairo is not functional.\nggplot2 rasterization will not be available without Cario.\nThis may cause issues editing plots with many thousands of points from single cells.")
+  }
   invisible()
 }
-
 
 #' Install extra packages used in ArchR that are not installed by default
 #' 
@@ -50,19 +54,19 @@ installExtraPackages <- function(force = FALSE){
   }
 
   # ggrastr plots
-  if(!requireNamespace("ggrastr", quietly = TRUE) || force){
-    o <- tryCatch({
-      message("Installing ggrastr..")
-      devtools::install_github('VPetukhov/ggrastr')
-      if(!requireNamespace("ggrastr", quietly = TRUE)){
-        stop()
-      }
-      n <- n + 1
-    }, error = function(e){
-      message("Error With ggrastr Installation")
-      message("Try devtools::install_github('VPetukhov/ggrastr')")
-    })
-  }
+  # if(!requireNamespace("ggrastr", quietly = TRUE) || force){
+  #   o <- tryCatch({
+  #     message("Installing ggrastr..")
+  #     devtools::install_github('VPetukhov/ggrastr')
+  #     if(!requireNamespace("ggrastr", quietly = TRUE)){
+  #       stop()
+  #     }
+  #     n <- n + 1
+  #   }, error = function(e){
+  #     message("Error With ggrastr Installation")
+  #     message("Try devtools::install_github('VPetukhov/ggrastr')")
+  #   })
+  # }
 
   # harmony is a package that can correct batch effects
   if(!requireNamespace("harmony", quietly = TRUE) || force){
