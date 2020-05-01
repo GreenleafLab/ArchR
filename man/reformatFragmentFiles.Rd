@@ -4,7 +4,10 @@
 \alias{reformatFragmentFiles}
 \title{Reformat Fragment Files to be Tabix and Chr Sorted}
 \usage{
-reformatFragmentFiles(fragmentFiles = NULL, seqnamesIsChr = TRUE)
+reformatFragmentFiles(
+  fragmentFiles = NULL,
+  seqnamesIsChr = getArchRChrPrefix()
+)
 }
 \arguments{
 \item{fragmentFiles}{A character vector the paths to fragment files to be reformatted}

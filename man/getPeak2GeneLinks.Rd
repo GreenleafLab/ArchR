@@ -8,7 +8,7 @@ getPeak2GeneLinks(
   ArchRProj = NULL,
   corCutOff = 0.45,
   FDRCutOff = 1e-04,
-  resolution = 1000,
+  resolution = 1,
   returnLoops = TRUE
 )
 }

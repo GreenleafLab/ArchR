@@ -2,7 +2,7 @@
 % Please edit documentation in R/ArrowRead.R
 \name{getMatrixFromProject}
 \alias{getMatrixFromProject}
-\title{Get a data matrix stored in an ArchRProject RRR}
+\title{Get a data matrix stored in an ArchRProject}
 \usage{
 getMatrixFromProject(
   ArchRProj = NULL,

@@ -64,8 +64,10 @@ the stringency of also maintaining the group proportions from \code{bgdGroups}.}
 \item{binarize}{A boolean value indicating whether to binarize the matrix prior to differential testing. This is useful when
 \code{useMatrix} is an insertion counts-based matrix.}
 
-\item{useSeqnames}{A character vector that indicates which seqnames should be used in marker feature identification. Features from
-seqnames that are not listed will be ignored.}
+\item{useSeqnames}{A character vector that indicates which \code{seqnames} should be plotted in the heatmap. Features from
+\code{seqnames} that are not listed will be ignored. In the context of a \code{Sparse.Assays.Matrix}, such as a matrix containing chromVAR
+deviations, the \code{seqnames} do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
+raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.}
 
 \item{verbose}{A boolean value that determines whether standard output is printed.}
 

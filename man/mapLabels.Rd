@@ -2,7 +2,7 @@
 % Please edit documentation in R/HelperUtils.R
 \name{mapLabels}
 \alias{mapLabels}
-\title{Create a Confusion Matrix based on two value vectors RRR}
+\title{Re-map a character vector of labels from an old set of labels to a new set of labels}
 \usage{
 mapLabels(labels = NULL, newLabels = NULL, oldLabels = names(newLabels))
 }
@@ -14,5 +14,6 @@ mapLabels(labels = NULL, newLabels = NULL, oldLabels = names(newLabels))
 \item{oldLabels}{A character vector (same length as newLabels) to map labels from to newLabels}
 }
 \description{
-This function creates a confusion matrix based on two value vectors.
+This function takes a character vector of labels and uses a set of old and new labels
+to re-map from the old label set to the new label set.
 }

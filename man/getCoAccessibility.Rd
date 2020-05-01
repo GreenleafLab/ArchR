@@ -7,7 +7,7 @@
 getCoAccessibility(
   ArchRProj = NULL,
   corCutOff = 0.5,
-  resolution = 1000,
+  resolution = 1,
   returnLoops = TRUE
 )
 }
