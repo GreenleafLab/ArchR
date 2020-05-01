@@ -219,7 +219,7 @@ getArchRChrPrefix <- function(){
   .ArchRChrPrefix <- options()[["ArchR.chrPrefix"]]
   
   if(!is.null(.ArchRChrPrefix)){
-    if(logical(.ArchRChrPrefix)){
+    if(is.logical(.ArchRChrPrefix)){
       .ArchRChrPrefix
     }else{
       TRUE
