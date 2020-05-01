@@ -199,17 +199,17 @@ installExtraPackages <- function(force = FALSE){
 #' @param force If you request more than the total number of CPUs minus 2, ArchR will set `threads` to `(nCPU - 2)`.
 #' To bypass this, setting `force = TRUE` will use the number provided to `threads`.
 #' @export
-addArchRChrPrefix <- function(usePrefix = TRUE){
+addArchRChrPrefix <- function(chrPrefix = TRUE){
   
-  .validInput(input = usePrefix, name = "usePrefix", valid = "boolean")
+  .validInput(input = chrPrefix, name = "chrPrefix", valid = "boolean")
 
-  if(usePrefix){
+  if(chrPrefix){
     message("ArchR is now requiring chromosome prefix = 'chr'")
   }else{
     message("ArchR is now disabling the requirement of chromosome prefix = 'chr'")
   }
 
-  options(ArchR.chrPrefix = usePrefix)
+  options(ArchR.chrPrefix = chrPrefix)
 
 }
 
