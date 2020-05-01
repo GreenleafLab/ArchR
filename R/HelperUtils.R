@@ -44,7 +44,7 @@
 #' @export
 reformatFragmentFiles <- function(
   fragmentFiles = NULL,
-  seqnamesIsChr = TRUE
+  seqnamesIsChr = getArchRChrPrefix()
   ){
 
   .validInput(input = fragmentFiles, name = "fragmentFiles", valid = c("character"))

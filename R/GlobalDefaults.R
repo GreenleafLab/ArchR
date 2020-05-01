@@ -6,7 +6,8 @@
 ArchRDefaults <- list(
   ArchR.threads = 1,
   ArchR.logging = TRUE,
-  ArchR.genome = NA
+  ArchR.genome = NA,
+  ArchR.chrPrefix = TRUE
 )
 
 .onAttach <- function(libname, pkgname){
@@ -184,6 +185,58 @@ installExtraPackages <- function(force = FALSE){
 
 }
 
+##########################################################################################
+# Chr Prefix
+##########################################################################################
+
+#' Add a globally-applied number of threads to use for parallel computing.
+#' 
+#' This function will set the number of threads to be used for parallel computing across all ArchR functions.
+#' 
+#' @param threads The default number of threads to be used for parallel execution across all ArchR functions.
+#' This value is stored as a global environment variable, not part of the `ArchRProject`.
+#' This can be overwritten on a per-function basis using the given function's `threads` parameter.
+#' @param force If you request more than the total number of CPUs minus 2, ArchR will set `threads` to `(nCPU - 2)`.
+#' To bypass this, setting `force = TRUE` will use the number provided to `threads`.
+#' @export
+addArchRChrPrefix <- function(usePrefix = TRUE){
+  
+  .validInput(input = usePrefix, name = "usePrefix", valid = "boolean")
+
+  if(usePrefix){
+    message("ArchR is now requiring chromosome prefix = 'chr'")
+  }else{
+    message("ArchR is now disabling the requirement of chromosome prefix = 'chr'")
+  }
+
+  options(ArchR.chrPrefix = usePrefix)
+
+}
+
+#' Add a globally-applied number of threads to use for parallel computing.
+#' 
+#' This function will set the number of threads to be used for parallel computing across all ArchR functions.
+#' 
+#' @param threads The default number of threads to be used for parallel execution across all ArchR functions.
+#' This value is stored as a global environment variable, not part of the `ArchRProject`.
+#' This can be overwritten on a per-function basis using the given function's `threads` parameter.
+#' @param force If you request more than the total number of CPUs minus 2, ArchR will set `threads` to `(nCPU - 2)`.
+#' To bypass this, setting `force = TRUE` will use the number provided to `threads`.
+#' @export
+getArchRChrPrefix <- function(){
+  
+  .ArchRChrPrefix <- options()[["ArchR.chrPrefix"]]
+  if(!is.null(.ArchRChrPrefix)){
+    if(logical(.ArchRChrPrefix)){
+      .ArchRChrPrefix
+    }else{
+      TRUE
+    }
+  }else{
+    TRUE
+  }
+
+}
 
 ##########################################################################################
 # Parallel Information

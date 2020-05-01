@@ -1026,9 +1026,9 @@ theme_ArchR <- function(
   }, error = function(e){
 
     if(.checkCairo()){
-      message("Error found with trying to rasterize geom. Continuing without rasterization.")
+      message("WARNING: Error found with trying to rasterize geom. Continuing without rasterization.")
     }else{
-      message("Error found with Cairo installation. Continuing without rasterization.")
+      message("WARNING: Error found with Cairo installation. Continuing without rasterization.")
     }
 
     #Default geom_point
