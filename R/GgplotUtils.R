@@ -290,6 +290,7 @@ ggPoint <- function(
             }else{
               dfMean$label <- dfMean$color
             }
+            dfMean$text <- stringr::str_split(dfMean$color, pattern = "-", simplify = TRUE)[,1]
 
             # make halo layers, similar to https://github.com/GuangchuangYu/shadowtext/blob/master/R/shadowtext-grob.R#L43
             theta <- seq(pi / 8, 2 * pi, length.out = 16)
@@ -301,7 +302,7 @@ ggPoint <- function(
                     aes_q(
                       x = bquote(x + .(cos(i) * xo)),
                       y = bquote(y + .(sin(i) * yo)),
-                      label = ~stringr::str_split(dfMean$color, pattern = "-", simplify = TRUE)[,1]
+                      label = ~text
                     ),
                     size = labelSize,
                     color = bgColor
