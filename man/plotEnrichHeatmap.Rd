@@ -37,7 +37,7 @@ be lowered to improve visibility of the heatmap.}
 
 \item{labelRows}{A boolean indicating whether or not to label all rows in the heatmap.}
 
-\item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ggrastr}. This does not rasterize
+\item{rastr}{A boolean value that indicates whether the plot should be rasterized using \code{ComplexHeatmap}. This does not rasterize
 lines and labels, just the internal portions of the plot.}
 
 \item{transpose}{A boolean determining whether to transpose the heatmap in the plot.}

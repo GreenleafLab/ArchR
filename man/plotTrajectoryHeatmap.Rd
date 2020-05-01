@@ -49,7 +49,10 @@ rownames from \code{seTrajectory} to be excluded from the heatmap.}
 \item{rowOrder}{If wanting to set the order of rows to be plotted, the indices (integer or character correpsonding
 to rownmaes) can be provided here.}
 
-\item{useSeqnames}{RRR}
+\item{useSeqnames}{A character vector that indicates which \code{seqnames} should be plotted in the heatmap. Features from
+\code{seqnames} that are not listed will be ignored. In the context of a \code{Sparse.Assays.Matrix}, such as a matrix containing chromVAR
+deviations, the \code{seqnames} do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
+raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.}
 
 \item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 

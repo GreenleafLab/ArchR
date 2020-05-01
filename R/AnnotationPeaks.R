@@ -963,7 +963,7 @@ enrichHeatmap <- function(...){
 #' @param clusterCols A boolean indicating whether or not to cluster columns in the heatmap.
 #' @param binaryClusterRows A boolean indicating whether or not to cluster rows using binary classification in the heatmap.
 #' @param labelRows A boolean indicating whether or not to label all rows in the heatmap.
-#' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
+#' @param rastr A boolean value that indicates whether the plot should be rasterized using `ComplexHeatmap`. This does not rasterize
 #' lines and labels, just the internal portions of the plot.
 #' @param transpose A boolean determining whether to transpose the heatmap in the plot.
 #' @param returnMatrix A boolean determining whether to return the matrix corresponding to the heatmap rather than generate a plot.

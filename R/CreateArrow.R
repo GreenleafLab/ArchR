@@ -452,7 +452,7 @@ createArrowFiles <- function(
   }, error = function(x){
 
       .logDiffTime("Continuing through after error ggplot for Fragment Size Distribution", t1 = tstart, logFile = logFile)
-      print(x)
+      #print(x)
       message("\n")
 
   })
@@ -510,7 +510,7 @@ createArrowFiles <- function(
   }, error = function(x) {
 
       .logDiffTime("Continuing through after error ggplot for TSS by Frags", t1 = tstart, logFile = logFile)
-      message(x)
+      #message(x)
       message("\n")
 
   })

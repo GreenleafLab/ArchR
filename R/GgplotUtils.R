@@ -1,5 +1,5 @@
 ##########################################################################################
-# ggPlot Wrapper Methods For Easy Plotting
+# ggplot2 Wrapper Methods For Easy Plotting
 ##########################################################################################
 
 #' A ggplot-based dot plot wrapper function
@@ -170,14 +170,16 @@ ggPoint <- function(
         theme_ArchR(baseSize = baseSize)
 
     if(rastr){
-      if(!requireNamespace("ggrastr", quietly = TRUE)){
-        message("ggrastr is not available for rastr of points, continuing without rastr!")
-        p <- p + geom_point(size = size, alpha = alpha, color = defaultColor)
-      }else{
-        .requirePackage("ggrastr")
-        p <- p + geom_point_rast(
+      p <- p + .geom_point_rast2(
             size = size, raster.dpi = dpi, alpha = alpha, color = defaultColor)
-      }
+      # if(!requireNamespace("ggrastr", quietly = TRUE)){
+      #   message("ggrastr is not available for rastr of points, continuing without rastr!")
+      #   p <- p + geom_point(size = size, alpha = alpha, color = defaultColor)
+      # }else{
+      #   .requirePackage("ggrastr")
+      #   p <- p + geom_point_rast(
+      #       size = size, raster.dpi = dpi, alpha = alpha, color = defaultColor)
+      # }
     }else{
       p <- p + geom_point(size = size, alpha = alpha, color = defaultColor)
     }
@@ -243,18 +245,24 @@ ggPoint <- function(
 
     if(rastr){
       
-      if(!requireNamespace("ggrastr", quietly = TRUE)){
-        message("ggrastr is not available for rastr of points, continuing without rastr!")
-        message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
-        p <- p + geom_point(size = size, alpha = alpha)
-      }else{
-        .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
-        p <- p + geom_point_rast(
+      p <- p + .geom_point_rast2(
             size = size, raster.dpi = dpi, alpha = alpha, 
-            raster.width=par('fin')[1], 
-            raster.height = (ratioYX * par('fin')[2])
+            raster.width = min(par('fin')), 
+            raster.height = (ratioYX * min(par('fin')))
           )
-      }
+
+      # if(!requireNamespace("ggrastr", quietly = TRUE)){
+      #   message("ggrastr is not available for rastr of points, continuing without rastr!")
+      #   message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
+      #   p <- p + geom_point(size = size, alpha = alpha)
+      # }else{
+      #   .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
+      #   p <- p + geom_point_rast(
+      #       size = size, raster.dpi = dpi, alpha = alpha, 
+      #       raster.width=par('fin')[1], 
+      #       raster.height = (ratioYX * par('fin')[2])
+      #     )
+      # }
     
     }else{
 
@@ -282,6 +290,7 @@ ggPoint <- function(
             }else{
               dfMean$label <- dfMean$color
             }
+            dfMean$text <- stringr::str_split(dfMean$color, pattern = "-", simplify = TRUE)[,1]
 
             # make halo layers, similar to https://github.com/GuangchuangYu/shadowtext/blob/master/R/shadowtext-grob.R#L43
             theta <- seq(pi / 8, 2 * pi, length.out = 16)
@@ -293,7 +302,7 @@ ggPoint <- function(
                     aes_q(
                       x = bquote(x + .(cos(i) * xo)),
                       y = bquote(y + .(sin(i) * yo)),
-                      label = ~stringr::str_split(dfMean$color, pattern = "-", simplify = TRUE)[,1]
+                      label = ~text
                     ),
                     size = labelSize,
                     color = bgColor
@@ -547,13 +556,14 @@ ggHex <- function(
     p <- ggplot()
 
     if(addPoints){
-      if(requireNamespace("ggrastr", quietly = TRUE)){
-        .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
-        p <- p + geom_point_rast(data = df, aes(x=x,y=y), color = "lightgrey")
-      }else{
-        message("ggrastr is not available for rastr of points, continuing without points!")
-        message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
-      }
+      p <- p + .geom_point_rast2(data = df, aes(x=x,y=y), color = "lightgrey")
+      # if(requireNamespace("ggrastr", quietly = TRUE)){
+      #   .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
+      #   p <- p + geom_point_rast(data = df, aes(x=x,y=y), color = "lightgrey")
+      # }else{
+      #   message("ggrastr is not available for rastr of points, continuing without points!")
+      #   message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
+      #}
     }
 
     values <- ggplot_build(p + stat_summary_hex(data = df, aes(x=x,y=y,z=color), fun = FUN, bins = bins, color = NA))$data[[1]]$value
@@ -675,7 +685,7 @@ ggGroup <- function(
     if(!requireNamespace("ggridges", quietly = TRUE)){
       type <- "violin"
       message("ggridges is not available for plotting, continuing with geom_violin!")
-      message("To install ggrastr try : install.packages('ggridges')")
+      message("To install ggridges try : install.packages('ggridges')")
       p <- p + geom_violin(aes_string(fill="x"), alpha = alpha)
     }else{
       type <- "ridges"
@@ -911,5 +921,177 @@ theme_ArchR <- function(
   return(theme)
 
 }
+
+
+
+##########################################################################################
+# ggplot2 helper functions
+##########################################################################################
+
+.checkCairo <- function(){
+  tryCatch({
+    Cairo::Cairo(type='raster')
+    dev.off()
+    TRUE
+  }, error = function(e){
+    FALSE
+  })
+}
+
+## Adapted from 
+## https://github.com/tidyverse/ggplot2/blob/660aad2db2b3495ae0d8040915a40d247133ffc0/R/geom-point.r
+## from https://github.com/VPetukhov/ggrastr/blob/master/R/geom-point-rast.R
+## This funciton now handles issues with Cairo installation that can lead to plot errors
+.geom_point_rast2 <- function(
+  mapping = NULL,
+  data = NULL,
+  stat = "identity",
+  position = "identity",
+  ...,
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE,
+  raster.width = min(par('fin')), 
+  raster.height = min(par('fin')), 
+  raster.dpi = 300
+  ){
+
+  GeomPointRast <- tryCatch({
+
+    if(!.checkCairo()){
+      stop()
+    }
+
+    #Try to create a geom rast for points if not then just use normal geom_point
+    ggplot2::ggproto(
+      "GeomPointRast",
+      ggplot2::GeomPoint,
+      required_aes = c("x", "y"),
+      non_missing_aes = c("size", "shape", "colour"),
+      default_aes = aes(
+        shape = 19, colour = "black", size = 1.5, fill = NA,
+        alpha = NA, stroke = 0.5
+      ),
+      
+      draw_panel = function(data, panel_params, coord, na.rm = FALSE, 
+        raster.width=min(par('fin')), raster.height=min(par('fin')), raster.dpi=300){
+      
+      #From ggrastr  
+      prevDevID <- dev.cur()
+
+      p <- ggplot2::GeomPoint$draw_panel(data, panel_params, coord)
+      
+      devID <- Cairo::Cairo(
+        type='raster', 
+        width=raster.width*raster.dpi, 
+        height=raster.height*raster.dpi, 
+        dpi=raster.dpi, 
+        units='px', 
+        bg="transparent"
+      )[1]
+
+      grid::pushViewport(grid::viewport(width=1, height=1))
+      
+      grid::grid.points(
+        x=p$x, 
+        y=p$y, 
+        pch = p$pch, 
+        size = p$size,
+        name = p$name, 
+        gp = p$gp, 
+        vp = p$vp, 
+        draw = TRUE
+      )
+
+      grid::popViewport()
+      gridCapture <- grid::grid.cap()
+      
+      dev.off(devID)
+      
+      dev.set(prevDevID)
+
+      grid::rasterGrob(
+        gridCapture, 
+        x=0, 
+        y=0, 
+        width = 1,
+        height = 1,
+        default.units = "native",
+        just = c("left","bottom")
+      )
+
+      }
+
+    )
+
+  }, error = function(e){
+
+    if(.checkCairo()){
+      message("WARNING: Error found with trying to rasterize geom. Continuing without rasterization.")
+    }else{
+      message("WARNING: Error found with Cairo installation. Continuing without rasterization.")
+    }
+
+    #Default geom_point
+    ggplot2::ggproto(
+      "GeomPoint", 
+      ggplot2::GeomPoint,
+      required_aes = c("x", "y"),
+      non_missing_aes = c("size", "shape", "colour"),
+      default_aes = aes(
+        shape = 19, colour = "black", size = 1.5, fill = NA,
+        alpha = NA, stroke = 0.5
+      ),
+
+      draw_panel = function(data, panel_params, coord, na.rm = FALSE, 
+        raster.width=min(par('fin')), raster.height=min(par('fin')), raster.dpi=300){
+        if (is.character(data$shape)) {
+          data$shape <- ggplot2:::translate_shape_string(data$shape) #Hidden ggplot2
+        }
+
+        coords <- coord$transform(data, panel_params)
+
+        pGrob <- grid::pointsGrob(
+          x = coords$x, 
+          y = coords$y,
+          pch = coords$shape,
+          gp = grid::gpar(
+            col = scales::alpha(coords$colour, coords$alpha),
+            fill = scales::alpha(coords$fill, coords$alpha),
+            # Stroke is added around the outside of the point
+            fontsize = coords$size * .pt + coords$stroke * .stroke / 2,
+            lwd = coords$stroke * .stroke / 2
+          )
+        )
+
+        pGrob
+
+      },
+
+      draw_key = ggplot2::draw_key_point
+    )
+
+
+  })
+
+  ggplot2::layer(
+    data = data,
+    mapping = mapping,
+    stat = stat,
+    geom = GeomPointRast,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      na.rm = na.rm,
+      raster.width=raster.width,
+      raster.height=raster.height,
+      raster.dpi=raster.dpi,
+      ...
+    )
+  )
+
+}
+
 
 

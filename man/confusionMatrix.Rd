@@ -2,7 +2,7 @@
 % Please edit documentation in R/HelperUtils.R
 \name{confusionMatrix}
 \alias{confusionMatrix}
-\title{Create a Confusion Matrix based on two value vectors RRR}
+\title{Create a Confusion Matrix based on two value vectors}
 \usage{
 confusionMatrix(i = NULL, j = NULL)
 }

@@ -51,12 +51,14 @@
     stop("Not All Seqnames Identical!")
   }
   o <- h5closeAll()
-  return(seqList[[1]])
+  return(paste0(seqList[[1]]))
 }
 
 .availableChr <- function(ArrowFiles = NULL, subGroup = "Fragments"){
   seqnames <- .availableSeqnames(ArrowFiles, subGroup)
-  seqnames <- seqnames[grep("chr", seqnames, ignore.case = TRUE)]
+  if(getArchRChrPrefix()){
+    seqnames <- seqnames[grep("chr", seqnames, ignore.case = TRUE)]
+  }
   if(length(seqnames) == 0){
     stop("No Chr Found in ArrowFiles!")
   }

@@ -1,10 +1,13 @@
+#' @include GgplotUtils.R
+
 ########################################################
 # On Load / Attach
 ########################################################
 ArchRDefaults <- list(
   ArchR.threads = 1,
   ArchR.logging = TRUE,
-  ArchR.genome = NA
+  ArchR.genome = NA,
+  ArchR.chrPrefix = TRUE
 )
 
 .onAttach <- function(libname, pkgname){
@@ -20,9 +23,11 @@ ArchRDefaults <- list(
   }else if(options()[["ArchR.threads"]] == 1){
     addArchRThreads()
   }
+  if(!.checkCairo()){
+    packageStartupMessage("WARNING : Cairo check shows Cairo is not functional.\n          ggplot2 rasterization will not be available without Cario.\n          This may cause issues editing plots with many thousands of points from single cells.")
+  }
   invisible()
 }
-
 
 #' Install extra packages used in ArchR that are not installed by default
 #' 
@@ -33,6 +38,8 @@ ArchRDefaults <- list(
 installExtraPackages <- function(force = FALSE){
 
   n <- 0
+  f <- 0
+  fp <- c()
 
   # Seurat
   if(!requireNamespace("Seurat", quietly = TRUE) || force){
@@ -44,25 +51,44 @@ installExtraPackages <- function(force = FALSE){
       }
       n <- n + 1
     }, error = function(e){
+      f <- f + 1
+      fp <- c(fp, "Seurat")
       message("Error With Seurat Installation")
       message("Try install.packages('Seurat')")
     })
   }
 
-  # ggrastr plots
-  if(!requireNamespace("ggrastr", quietly = TRUE) || force){
+  # Cairo
+  if(!requireNamespace("Cairo", quietly = TRUE) || force){
     o <- tryCatch({
-      message("Installing ggrastr..")
-      devtools::install_github('VPetukhov/ggrastr')
-      if(!requireNamespace("ggrastr", quietly = TRUE)){
+      message("Installing Cairo..")
+      install.packages('Cairo')
+      if(!requireNamespace("Cairo", quietly = TRUE)){
         stop()
       }
       n <- n + 1
     }, error = function(e){
-      message("Error With ggrastr Installation")
-      message("Try devtools::install_github('VPetukhov/ggrastr')")
+      f <- f + 1
+      fp <- c(fp, "Cairo")
+      message("Error With Cairo Installation")
+      message("Try install.packages('Cairo')")
     })
   }
+
+  # ggrastr plots
+  # if(!requireNamespace("ggrastr", quietly = TRUE) || force){
+  #   o <- tryCatch({
+  #     message("Installing ggrastr..")
+  #     devtools::install_github('VPetukhov/ggrastr')
+  #     if(!requireNamespace("ggrastr", quietly = TRUE)){
+  #       stop()
+  #     }
+  #     n <- n + 1
+  #   }, error = function(e){
+  #     message("Error With ggrastr Installation")
+  #     message("Try devtools::install_github('VPetukhov/ggrastr')")
+  #   })
+  # }
 
   # harmony is a package that can correct batch effects
   if(!requireNamespace("harmony", quietly = TRUE) || force){
@@ -74,6 +100,8 @@ installExtraPackages <- function(force = FALSE){
       }
       n <- n + 1
     }, error = function(e){
+      f <- f + 1
+      fp <- c(fp, "harmony")
       message("Error With harmony Installation")
       message("Try devtools::install_github('immunogenomics/harmony', repos = BiocManager::repositories())")
     })
@@ -89,6 +117,8 @@ installExtraPackages <- function(force = FALSE){
       }
       n <- n + 1
     }, error = function(e){
+      f <- f + 1
+      fp <- c(fp, "presto")
       message("Error With presto Installation")
       message("Try devtools::install_github('immunogenomics/presto', repos = BiocManager::repositories())")
     })
@@ -104,6 +134,8 @@ installExtraPackages <- function(force = FALSE){
       }
       n <- n + 1
     }, error = function(e){
+      f <- f + 1
+      fp <- c(fp, "shiny")
       message("Error With shiny Installation")
       message("Try install.packages('shiny')")
     })
@@ -119,6 +151,8 @@ installExtraPackages <- function(force = FALSE){
       }
       n <- n + 1
     }, error = function(e){
+      f <- f + 1
+      fp <- c(fp, "rhandsontable")
       message("Error With rhandsontable Installation")
       message("Try install.packages('rhandsontable')")
     })
@@ -134,17 +168,67 @@ installExtraPackages <- function(force = FALSE){
       }
       n <- n + 1
     }, error = function(e){
+      f <- f + 1
+      fp <- c(fp, "rhandsontable")
       message("Error With shinythemes Installation")
       message("Try install.packages('shinythemes')")
     })
   }
 
-  message("Successfully installed ", n, " packages!")
+  message("Successfully installed ", n, " packages. ", f, " packages failed installation.")
+
+  if(f > 0){
+    message("Failed packages : ", paste0(fp, collapse=", "))
+  }
 
   return(invisible(0))
 
 }
 
+##########################################################################################
+# Chr Prefix
+##########################################################################################
+
+#' Add a globally-applied requirement for chromosome prefix
+#' 
+#' This function will set the default requirement of chromosomes to have a "chr" prefix.
+#' 
+#' @param chrPrefix A boolean describing the requirement of chromosomes to have a "chr" prefix.
+#' @export
+addArchRChrPrefix <- function(chrPrefix = TRUE){
+  
+  .validInput(input = chrPrefix, name = "chrPrefix", valid = "boolean")
+
+  if(chrPrefix){
+    message("ArchR is now requiring chromosome prefix = 'chr'")
+  }else{
+    message("ArchR is now disabling the requirement of chromosome prefix = 'chr'")
+  }
+
+  options(ArchR.chrPrefix = chrPrefix)
+
+}
+
+#' Get a globally-applied requirement for chromosome prefix
+#' 
+#' This function will get the default requirement of chromosomes to have a "chr" prefix.
+#' 
+#' @export
+getArchRChrPrefix <- function(){
+  
+  .ArchRChrPrefix <- options()[["ArchR.chrPrefix"]]
+  
+  if(!is.null(.ArchRChrPrefix)){
+    if(logical(.ArchRChrPrefix)){
+      .ArchRChrPrefix
+    }else{
+      TRUE
+    }
+  }else{
+    TRUE
+  }
+
+}
 
 ##########################################################################################
 # Parallel Information

@@ -72,7 +72,7 @@ createGenomeAnnotation <- function(
 #' @param exons A `GRanges` object containing gene exon coordinates. Must have a symbols column matching the symbols column of `genes`.
 #' @param TSS A `GRanges` object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.
 #' @export
-createGeneAnnnotation <- function(
+createGeneAnnotation <- function(
   genome = NULL,
   TxDb = NULL,
   OrgDb = NULL,

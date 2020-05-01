@@ -372,42 +372,55 @@ addDoubletScores <- function(
     xlim <- range(df$X1) %>% extendrange(f = 0.05)
     ylim <- range(df$X2) %>% extendrange(f = 0.05)
     
-    if(!requireNamespace("ggrastr", quietly = TRUE)){
+    pdensity <- ggplot() + 
+      .geom_point_rast2(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
+      .geom_point_rast2(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
+        scale_colour_gradientn(colors = pal) + 
+        xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
+        labs(color = "Simulated Doublet Density") +
+        guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
+        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+              axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+        coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
+        ggtitle("Simulated and LSI-Projected Density Overlayed") + theme(legend.direction = "horizontal", 
+        legend.box.background = element_rect(color = NA))
+    
+    # if(!requireNamespace("ggrastr", quietly = TRUE)){
       
-      message("ggrastr is not available for rastr of points, continuing without rastr!")
-      message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
+    #   message("ggrastr is not available for rastr of points, continuing without rastr!")
+    #   message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
 
-      pdensity <- ggplot() + 
-        geom_point(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
-        geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
-          scale_colour_gradientn(colors = pal) + 
-          xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-          guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
-          labs(color = "Simulated Doublet Density") +
-          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-                axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-          coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
-          ggtitle("Simulated and LSI-Projected Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
-          legend.box.background = element_rect(color = NA))
+    #   pdensity <- ggplot() + 
+    #     geom_point(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
+    #     geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
+    #       scale_colour_gradientn(colors = pal) + 
+    #       xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
+    #       guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
+    #       labs(color = "Simulated Doublet Density") +
+    #       theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+    #             axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+    #       coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
+    #       ggtitle("Simulated and LSI-Projected Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
+    #       legend.box.background = element_rect(color = NA))
 
-    }else{
+    # }else{
 
-      .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
+    #   #.requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
 
-      pdensity <- ggplot() + 
-        geom_point_rast(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
-        geom_point_rast(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
-          scale_colour_gradientn(colors = pal) + 
-          xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-          labs(color = "Simulated Doublet Density") +
-          guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
-          theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-                axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-          coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
-          ggtitle("Simulated and LSI-Projected Density Overlayed") + theme(legend.direction = "horizontal", 
-          legend.box.background = element_rect(color = NA))
+    #   pdensity <- ggplot() + 
+    #     .geom_point_rast2(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
+    #     .geom_point_rast2(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
+    #       scale_colour_gradientn(colors = pal) + 
+    #       xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
+    #       labs(color = "Simulated Doublet Density") +
+    #       guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
+    #       theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+    #             axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+    #       coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
+    #       ggtitle("Simulated and LSI-Projected Density Overlayed") + theme(legend.direction = "horizontal", 
+    #       legend.box.background = element_rect(color = NA))
 
-    }
+    # }
 
     #Plot Doublet Score
     pscore <- ggPoint(
