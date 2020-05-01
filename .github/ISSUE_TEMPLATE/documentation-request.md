@@ -1,5 +1,5 @@
 ---
-name: Documentation request
+name: Documentation Request
 about: Help us improve ArchR's documentation
 title: ''
 labels: documentation
