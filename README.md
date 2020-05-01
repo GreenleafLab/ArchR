@@ -13,6 +13,25 @@ ArchR is a full-featured R package for processing and analyzing single-cell ATAC
 
 ![](Figures/ArchR_Workflow_Horizontal.png)
 
+# Quick Installation of ArchR
+For a full walk through of installation and frequently related issues please visit www.ArchRProject.com.
+
+```{r}
+#First, install devtools (for installing GitHub packages) if it isn't already installed:
+**if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")**
+
+#Then, install BiocManager (for installing bioconductor packages) if it isn't already installed:
+**if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")**
+
+#Then, install ArchR:
+**devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())**
+
+#Lastly, install all of the ArchR dependencies that arent installed by default:
+**library(ArchR)**
+**ArchR::installExtraPackages()**
+```
+If any of these steps fails, you should identify the offending package and troubleshoot that individual installation before proceeding. Additionally, please see the ArchR website (www.ArchRProject.com) where we have installation troubleshooting tips.
+
 # Issues using ArchR?
 If you find a bug, please report it as an issue on [Github](https://github.com/GreenleafLab/ArchR/issues). If you think the documentation on this website or in the function annotations is unclear, please submit this as an issue on [Github](https://github.com/GreenleafLab/ArchR/issues) with the __documentation__ tag. If you have questions about ArchR usage, please refer to the [the searchable full user's manual](https://www.archrproject.com/bookdown/index.html), [the FAQ section](https://www.archrproject.com/articles/faq.html), and the publication. If none of these options help, [send us an email](mailto:archr.devs@gmail.com). We will do our best to respond to questions that are not otherwise answered in the documentation.
 
