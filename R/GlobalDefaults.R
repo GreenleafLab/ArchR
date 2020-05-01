@@ -189,15 +189,11 @@ installExtraPackages <- function(force = FALSE){
 # Chr Prefix
 ##########################################################################################
 
-#' Add a globally-applied number of threads to use for parallel computing.
+#' Add a globally-applied requirement for chromosome prefix
 #' 
-#' This function will set the number of threads to be used for parallel computing across all ArchR functions.
+#' This function will set the default requirement of chromosomes to have a "chr" prefix.
 #' 
-#' @param threads The default number of threads to be used for parallel execution across all ArchR functions.
-#' This value is stored as a global environment variable, not part of the `ArchRProject`.
-#' This can be overwritten on a per-function basis using the given function's `threads` parameter.
-#' @param force If you request more than the total number of CPUs minus 2, ArchR will set `threads` to `(nCPU - 2)`.
-#' To bypass this, setting `force = TRUE` will use the number provided to `threads`.
+#' @param chrPrefix A boolean describing the requirement of chromosomes to have a "chr" prefix.
 #' @export
 addArchRChrPrefix <- function(chrPrefix = TRUE){
   
@@ -213,19 +209,15 @@ addArchRChrPrefix <- function(chrPrefix = TRUE){
 
 }
 
-#' Add a globally-applied number of threads to use for parallel computing.
+#' Get a globally-applied requirement for chromosome prefix
 #' 
-#' This function will set the number of threads to be used for parallel computing across all ArchR functions.
+#' This function will get the default requirement of chromosomes to have a "chr" prefix.
 #' 
-#' @param threads The default number of threads to be used for parallel execution across all ArchR functions.
-#' This value is stored as a global environment variable, not part of the `ArchRProject`.
-#' This can be overwritten on a per-function basis using the given function's `threads` parameter.
-#' @param force If you request more than the total number of CPUs minus 2, ArchR will set `threads` to `(nCPU - 2)`.
-#' To bypass this, setting `force = TRUE` will use the number provided to `threads`.
 #' @export
 getArchRChrPrefix <- function(){
   
   .ArchRChrPrefix <- options()[["ArchR.chrPrefix"]]
+  
   if(!is.null(.ArchRChrPrefix)){
     if(logical(.ArchRChrPrefix)){
       .ArchRChrPrefix
