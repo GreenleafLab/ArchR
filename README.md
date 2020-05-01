@@ -31,7 +31,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocMana
 devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())
 ```
 
-**Lastly, install all of the ArchR dependencies that arent installed by default:**
+**Lastly, install all of the ArchR dependencies that aren't installed by default:**
 ```{r}
 library(ArchR)
 ArchR::installExtraPackages()
