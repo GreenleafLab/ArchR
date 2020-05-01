@@ -16,19 +16,25 @@ ArchR is a full-featured R package for processing and analyzing single-cell ATAC
 # Quick Installation of ArchR
 For a full walk through of installation and frequently related issues please visit www.ArchRProject.com.
 
+**First, install devtools (for installing GitHub packages) if it isn't already installed:**
 ```{r}
-#First, install devtools (for installing GitHub packages) if it isn't already installed:
-**if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")**
+if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+```
 
-#Then, install BiocManager (for installing bioconductor packages) if it isn't already installed:
-**if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")**
+**Then, install BiocManager (for installing bioconductor packages) if it isn't already installed:**
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+```
 
-#Then, install ArchR:
-**devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())**
+**Then, install ArchR:**
+```{r}
+devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())
+```
 
-#Lastly, install all of the ArchR dependencies that arent installed by default:
-**library(ArchR)**
-**ArchR::installExtraPackages()**
+**Lastly, install all of the ArchR dependencies that arent installed by default:**
+```{r}
+library(ArchR)
+ArchR::installExtraPackages()
 ```
 If any of these steps fails, you should identify the offending package and troubleshoot that individual installation before proceeding. Additionally, please see the ArchR website (www.ArchRProject.com) where we have installation troubleshooting tips.
 
