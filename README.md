@@ -39,6 +39,13 @@ ArchR::installExtraPackages()
 If any of these steps fails, you should identify the offending package and troubleshoot that individual installation before proceeding. Additionally, please see the ArchR website (www.ArchRProject.com) where we have installation troubleshooting tips.
 
 # Issues using ArchR?
-If you find a bug, please report it as an issue on [Github](https://github.com/GreenleafLab/ArchR/issues). If you think the documentation on this website or in the function annotations is unclear, please submit this as an issue on [Github](https://github.com/GreenleafLab/ArchR/issues) with the __documentation__ tag. If you have questions about ArchR usage, please refer to the [the searchable full user's manual](https://www.archrproject.com/bookdown/index.html), [the FAQ section](https://www.archrproject.com/articles/faq.html), and the publication. If none of these options help, [send us an email](mailto:archr.devs@gmail.com). We will do our best to respond to questions that are not otherwise answered in the documentation.
+
+ArchR is currently in __beta__. We expect there to be bumps in the road. If you think you have found a bug, please first install the latest version of ArchR via
+```{r}
+devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())
+```
+If this does not fix your problem, please [report an issue on Github](https://github.com/GreenleafLab/ArchR/issues) with the __Bug Report__ form.
+
+If you have questions about ArchR usage, please refer to the [the searchable full user's manual](https://www.archrproject.com/bookdown/index.html), [the FAQ section](https://www.archrproject.com/articles/Articles/faq.html), and the [publication](https://greenleaf.stanford.edu/assets/pdf/). If you think the documentation on this website or in the function annotations is unclear, please [submit an issue on Github](https://github.com/GreenleafLab/ArchR/issues) with the __Documentation Request__ form. If there is a feature that you think is missing from ArchR _and you have already searched the user's manual_, [submit an issue on Github](https://github.com/GreenleafLab/ArchR/issues) with the __Feature Request__ form. If none of these options help, [send us an email](mailto:archr.devs@gmail.com). We will do our best to respond to questions that are not otherwise answered in the documentation.
 
 
