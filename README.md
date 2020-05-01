@@ -7,7 +7,7 @@
 
 ArchR is a full-featured R package for processing and analyzing single-cell ATAC-seq data. ArchR provides the most extensive suite of scATAC-seq analysis tools of any software available. Additionally, ArchR excels in both speed and resource usage, making it possible to analyze 1 million cells in 8 hours on a MacBook Pro laptop.
 
-### All documentation is available at www.ArchRProject.com.
+### For installation instructions and full documentation, visit www.ArchRProject.com.
 
 <hr>
 
