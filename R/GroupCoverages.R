@@ -66,6 +66,7 @@ addGroupCoverages <- function(
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addGroupCoverages Input-Parameters", logFile = logFile)
 
   Params <- SimpleList(
     groupBy = groupBy,
@@ -287,7 +288,14 @@ addGroupCoverages <- function(
   rmf <- .suppressAll(file.remove(covFile))
 
   #Create Hdf5 File!
-  o <- h5createFile(covFile)
+  o <- tryCatch({
+    o <- h5closeAll()
+    o <- h5createFile(covFile)   
+  }, error = function(e){
+    rmf <- .suppressAll(file.remove(covFile))
+    o <- h5closeAll()
+    o <- h5createFile(covFile)
+  })
   o <- h5createGroup(covFile, paste0("Coverage"))
   o <- h5createGroup(covFile, paste0("Metadata"))
   o <- h5write(obj = "ArrowCoverage", file = covFile, name = "Class")
