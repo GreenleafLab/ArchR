@@ -509,12 +509,11 @@ addMotifAnnotations <- function(
   }) %>% unlist(.)
 
   motifDF <- lapply(seq_along(motifs), function(x){
-    data.frame(
+    df <- data.frame(
       row.names = motifNames[x],
       name = motifs[[x]]@name[[1]],
       ID = motifs[[x]]@ID,
       strand = motifs[[x]]@strand,
-      tags = motifs[[x]]@tags,
       stringsAsFactors = FALSE
     )
   }) %>% Reduce("rbind", .) %>% DataFrame
