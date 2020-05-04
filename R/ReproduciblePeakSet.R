@@ -710,7 +710,7 @@ addReproduciblePeakSet <- function(
 	################
 	# Create Bed File from Coverage File
 	################
-	bedFile <- file.path(bedDir, paste0(names(coverageFiles)[i], ".insertions.bed"))
+	bedFile <- file.path(bedDir, paste0(make.names(basename(names(coverageFiles)[i])), ".insertions.bed"))
 	o <- .writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr, logFile = logFile)
 	peakParams$bedFile <- bedFile
 	
