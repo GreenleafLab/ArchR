@@ -283,7 +283,7 @@ addGroupCoverages <- function(
   covFile <- file.path(covDir, paste0(namei, ".insertions.coverage.h5"))
   rmf <- .suppressAll(file.remove(covFile))
 
-  .logDiffTime(sprintf("%s Creating Group Coverage File : %s", prefix, covFile), tstart, verbose = verbose, logFile = logFile)
+  .logDiffTime(sprintf("%s Creating Group Coverage File : %s", prefix, basename(covFile)), tstart, verbose = verbose, logFile = logFile)
 
   #Dealing with sampling w/o replacement!
   tableGroupi <- table(cellGroupi)
