@@ -1346,10 +1346,10 @@ plotPeak2GeneHeatmap <- function(
   p2g <- metadata(ArchRProj@peakSet)$Peak2GeneLinks
   p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
 
-  if(file.exists(!metadata(p2g)$seATAC)){
+  if(!file.exists(metadata(p2g)$seATAC)){
     stop("seATAC does not exist! Did you change paths? If this does not work, please try re-running addPeak2GeneLinks!")
   }
-  if(file.exists(!metadata(p2g)$seRNA)){
+  if(!file.exists(metadata(p2g)$seRNA)){
     stop("seRNA does not exist! Did you change paths? If this does not work, please try re-running addPeak2GeneLinks!")
   }
   mATAC <- assay(readRDS(metadata(p2g)$seATAC)[p2g$idxATAC, ])
