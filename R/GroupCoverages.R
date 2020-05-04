@@ -273,19 +273,22 @@ addGroupCoverages <- function(
   logFile = NULL
   ){
 
-  prefix <- sprintf("Group (%s of %s) :", i, length(cellGroups))
-
-  .logDiffTime(sprintf("%s Creating Group Coverage", prefix), tstart, verbose = verbose, logFile = logFile)
+  prefix <- sprintf("Group %s (%s of %s) :", names(cellGroups)[i], i, length(cellGroups))
 
   #Cells
   cellGroupi <- cellGroups[[i]]
   
+  #Coverage File!
+  namei <- make.names(names(cellGroups)[i]) #Maybe naming convention is weird
+  covFile <- file.path(covDir, paste0(namei, ".insertions.coverage.h5"))
+  rmf <- .suppressAll(file.remove(covFile))
+
+  .logDiffTime(sprintf("%s Creating Group Coverage File : %s", prefix, covFile), tstart, verbose = verbose, logFile = logFile)
+
   #Dealing with sampling w/o replacement!
   tableGroupi <- table(cellGroupi)
 
-  #Coverage File!
-  covFile <- file.path(covDir, paste0(names(cellGroups)[i], ".insertions.coverage.h5"))
-  rmf <- .suppressAll(file.remove(covFile))
+  .logMessage(paste0("Number of Cells = ", length(cellGroups[[i]])), logFile = logFile)
 
   #Create Hdf5 File!
   o <- tryCatch({
@@ -296,29 +299,62 @@ addGroupCoverages <- function(
     o <- h5closeAll()
     o <- h5createFile(covFile)
   })
-  o <- h5createGroup(covFile, paste0("Coverage"))
-  o <- h5createGroup(covFile, paste0("Metadata"))
-  o <- h5write(obj = "ArrowCoverage", file = covFile, name = "Class")
 
+  if(file.exists(covFile)){
+    .logMessage("Coverage File Exists!", logFile = logFile)
+  }else{
+    .logMessage("Coverage File Does Not Exist!", logFile = logFile)
+  }
+
+  o <- h5closeAll()
+  o <- h5createGroup(covFile, paste0("Coverage"))
+  .logMessage("Added Coverage Group", logFile = logFile)
+
+  o <- h5closeAll()
+  o <- h5createGroup(covFile, paste0("Metadata"))
+  .logMessage("Added Metadata Group", logFile = logFile)
+
+  o <- h5closeAll()
+  o <- h5write(obj = "ArrowCoverage", file = covFile, name = "Class")
+  .logMessage("Added ArrowCoverage Class", logFile = logFile)
+
+  o <- h5closeAll()
   o <- h5createGroup(covFile, paste0("Coverage/Info"))
+  .logMessage("Added Coverage/Info", logFile = logFile)
+
+  o <- h5closeAll()
   o <- h5write(as.character(cellGroupi), covFile, "Coverage/Info/CellNames")
+  .logMessage("Added Coverage/Info/CellNames", logFile = logFile)
 
   #We need to dump all the cells into a coverage file
   nFragDump <- 0
   nCells <- c()
   for(k in seq_along(availableChr)){
+    
     .logDiffTime(sprintf("%s Processed Fragments Chr (%s of %s)", prefix, k, length(availableChr)), tstart, verbose = FALSE, logFile = logFile)
+    
     it <- 0
+    
     for(j in seq_along(ArrowFiles)){
+      
       cellsInI <- sum(cellsInArrow[[names(ArrowFiles)[j]]] %in% cellGroupi)
+      
       if(cellsInI > 0){
+      
         it <- it + 1
+      
         if(it == 1){
+      
           fragik <- .getFragsFromArrow(ArrowFiles[j], chr = availableChr[k], out = "GRanges", cellNames = cellGroupi)
+      
         }else{
+      
           fragik <- c(fragik, .getFragsFromArrow(ArrowFiles[j], chr = availableChr[k], out = "GRanges", cellNames = cellGroupi))
+      
         }
+      
       }
+
     }
 
     #Dealing with sampling w/o replacement!
