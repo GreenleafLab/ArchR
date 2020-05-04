@@ -481,7 +481,9 @@ saveArchRProject <- function(
   .validInput(input = overwrite, name = "overwrite", valid = "boolean")
   .validInput(input = load, name = "load", valid = "boolean")
   
-  outDirOld <- getOutputDirectory(ArchRProj)
+  outputDirectory <- normalizePath(outputDirectory)
+  outDirOld <- normalizePath(getOutputDirectory(ArchRProj))
+  
   newProj <- ArchRProj
   ArrowFiles <- getArrowFiles(ArchRProj)
   ArrowFiles <- ArrowFiles[names(ArrowFiles) %in% unique(newProj$Sample)]
@@ -520,31 +522,47 @@ saveArchRProject <- function(
     #Copy Other Folders 2 layers nested
     message("Copying Other Files...")
     for(i in seq_along(oldFiles)){
+      
       fin <- file.path(outDirOld, oldFiles[i])
       fout <- file.path(outputDirectory, oldFiles[i])
       message(sprintf("Copying Other Files (%s of %s): %s", i, length(oldFiles), basename(fin)))
+      
       if(dir.exists(fin)){
+      
         dir.create(file.path(outputDirectory, basename(fin)), showWarnings=FALSE)
         fin2 <- list.files(fin, full.names = TRUE)
+      
         for(j in seq_along(fin2)){
+      
           if(dir.exists(fin2[j])){
+      
             dir.create(file.path(outputDirectory, basename(fin), basename(fin2)[j]), showWarnings=FALSE)
             fin3 <- list.files(fin2[j], full.names = TRUE)
+      
             for(k in seq_along(fin3)){
+      
               cf <- file.copy(fin3[k], file.path(fout, basename(fin3[k])), overwrite = overwrite)
+      
             }
+      
           }else{
+      
             cf <- file.copy(fin2[j], file.path(fout, basename(fin2[j])), overwrite = overwrite)
+      
           }
+      
         }
+      
       }else{
+      
         cf <- file.copy(fin, fout, overwrite = overwrite)
+      
       }
+
     }
+
     newProj@sampleColData <- newProj@sampleColData[names(ArrowFilesNew), , drop = FALSE]
     newProj@sampleColData$ArrowFiles <- ArrowFilesNew[rownames(newProj@sampleColData)]
-
-    saveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
   
   }
 
