@@ -288,6 +288,8 @@ addGroupCoverages <- function(
   #Dealing with sampling w/o replacement!
   tableGroupi <- table(cellGroupi)
 
+  .logThis(cellGroupi, "cellGroupi", logFile = logFile)
+
   .logMessage(paste0("Number of Cells = ", length(cellGroups[[i]])), logFile = logFile)
 
   #Create Hdf5 File!
