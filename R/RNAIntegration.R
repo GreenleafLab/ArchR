@@ -29,6 +29,8 @@
 #' should have a row for each single cell described in `row.names` and 2 columns, one for each dimension of the embedding.
 #' @param embeddingRNA A `data.frame` of cell embeddings such as a UMAP for scRNA-seq cells to be used for density sampling. The `data.frame` object
 #' should have a row for each single cell described in `row.names` and 2 columns, one for each dimension of the embedding.
+#' @param plotUMAP A boolean determining whether to plot a UMAP for each integration block.
+#' @param UMAPParams The list of parameters to pass to the UMAP function if "plotUMAP = TRUE". See the function `umap` in the uwot package.
 #' @param nGenes The number of variable genes determined by `Seurat::FindVariableGenes()` to use for integration.
 #' @param useImputation A boolean value indicating whether to use imputation for creating the Gene Score Matrix prior to integration.
 #' @param reduction The Seurat reduction method to use for integrating modalities. See `Seurat::FindTransferAnchors()` for possible reduction methods.
@@ -58,6 +60,8 @@ addGeneIntegrationMatrix <- function(
   sampleCellsRNA = 10000,
   embeddingATAC = NULL,
   embeddingRNA = NULL,
+  plotUMAP = TRUE,
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose = FALSE),
   nGenes = 2000,
   useImputation = TRUE,
   reduction = "cca",
@@ -86,6 +90,8 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = sampleCellsRNA, name = "sampleCellsRNA", valid = c("integer", "null"))
   .validInput(input = embeddingATAC, name = "embeddingATAC", valid = c("data.frame", "null"))
   .validInput(input = embeddingRNA, name = "embeddingRNA", valid = c("data.frame", "null"))
+  .validInput(input = plotUMAP, name = "plotUMAP", valid = c("boolean"))
+  .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))  
   .validInput(input = nGenes, name = "nGenes", valid = c("integer"))
   .validInput(input = useImputation, name = "useImputation", valid = c("boolean"))
   .validInput(input = reduction, name = "reduction", valid = c("character"))
@@ -320,6 +326,16 @@ addGeneIntegrationMatrix <- function(
     reducedDims = reducedDims
   )
 
+  #Create Output Directory
+  outDir1 <- getOutputDirectory(ArchRProj)
+  outDir2 <- file.path(outDir, "RNAIntegration")
+  outDir3 <- file.path(outDir2, matrixName)
+  dir.create(outDir1, showWarnings = FALSE)
+  dir.create(outDir2, showWarnings = FALSE)
+  dir.create(outDir3, showWarnings = FALSE)
+  prevFiles <- list.files(outDir3, full.names = TRUE)
+  prevFiles <- .suppressAll(file.remove(prevFiles))
+
   tstart <- Sys.time()
 
   threads2 <- max(ceiling(threads * 0.75), 1) #A Little Less here for now
@@ -451,6 +467,16 @@ addGeneIntegrationMatrix <- function(
     )
     rownames(matchDF) <- matchDF$cellNames
 
+    .logDiffTime(sprintf("%s Saving TransferAnchors Joint CCA", prefix), tstart, verbose = verbose, logFile = logFile)
+    jointCCA <- DataFrame(transferAnchors@object.list[[1]]@reductions$cca@cell.embeddings)
+    jointCCA$Assay <- ifelse(endsWith(rownames(jointCCA), "_reference"), "RNA", "ATAC")
+    jointCCA$Group <- NA
+    jointCCA$Score <- NA
+    jointCCA[paste0(colnames(subRNA), "_reference"), "Group"] <- subRNA$Group
+    jointCCA[paste0(matchDF$cellNames, "_query"), "Group"] <- matchDF$predictedGroup
+    jointCCA[paste0(matchDF$cellNames, "_query"), "Score"] <- matchDF$predictionScore
+    saveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
+
     #Clean Memory
     rm(transferParams, transferAnchors)
     gc()
@@ -527,7 +553,78 @@ addGeneIntegrationMatrix <- function(
   }, threads = threads2) %>% Reduce("rbind", .)
 
   ##############################################################################################
-  #5. Read sub-matrices and store in ArrowFiles
+  #5. Plot UMAPs for Co-Embeddings from CCA
+  ##############################################################################################
+  if(plotUMAP){
+    
+    for(i in seq_along(blockList)){
+
+      o <- tryCatch({
+
+        prefix <- sprintf("Block (%s of %s) :", i , length(blockList))
+
+        .logDiffTime(sprintf("%s Plotting Joint UMAP", prefix), tstart, verbose = verbose, logFile = logFile)
+
+        jointCCA <- readRDS(file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
+
+        set.seed(1) # Always do this prior to UMAP
+        UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE))
+        UMAPParams$X <- as.data.frame(jointCCA[, grep("CC_", colnames(jointCCA))])
+        UMAPParams$ret_nn <- FALSE
+        UMAPParams$ret_model <- FALSE
+        UMAPParams$n_threads <- 1
+        uwotUmap <- tryCatch({
+          do.call(uwot::umap, UMAPParams)
+        }, error = function(e){
+          errorList <- UMAPParams
+          .logError(e, fn = "uwot::umap", info = prefix, errorList = errorList, logFile = logFile)
+        })
+
+        #Add UMAP and Save Again
+        jointCCA$UMAP1 <- uwotUmap[,1]
+        jointCCA$UMAP2 <- uwotUmap[,2]
+        saveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
+
+        p1 <- ggPoint(
+          x = uwotUmap[,1], 
+          y = uwotUmap[,2], 
+          color = jointCCA$Assay,
+          randomize = TRUE, 
+          size = 0.2,
+          title = paste0(prefix, " colored by Assay"),
+          xlabel = "UMAP Dimension 1",
+          ylabel = "UMAP Dimension 2",
+          rastr = TRUE
+        )+ theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                 axis.text.y = element_blank(), axis.ticks.y = element_blank())
+
+        p2 <- ggPoint(
+          x = uwotUmap[,1], 
+          y = uwotUmap[,2], 
+          color = jointCCA$Group, 
+          randomize = TRUE,
+          size = 0.2,
+          title = paste0(prefix, " colored by scRNA Group"),
+          xlabel = "UMAP Dimension 1",
+          ylabel = "UMAP Dimension 2",
+          rastr = TRUE
+        )+ theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                 axis.text.y = element_blank(), axis.ticks.y = element_blank())
+
+        pdf(file.path(outDir3, paste0("Save-Block", i,"-JointCCA-UMAP.pdf")), width = 12, height = 6, useDingbats = FALSE)
+        ggAlignPlots(p1,p2,type="h")
+        dev.off()
+
+      }, error = function(e){
+
+      })
+
+    }
+
+  }
+
+  ##############################################################################################
+  #6. Read sub-matrices and store in ArrowFiles
   ##############################################################################################
 
   if(addToArrow){
@@ -699,4 +796,3 @@ addGeneIntegrationMatrix <- function(
   return(ArchRProj)
 
 }
-
