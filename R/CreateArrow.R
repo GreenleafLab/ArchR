@@ -1505,7 +1505,8 @@ createArrowFiles <- function(
       }
 
       #Care for Break Points
-      dt <- dt[dt$start >= start(tileChromSizes[x]),]    
+      dt <- dt[dt$start >= start(tileChromSizes[x]),] 
+      dt <- dt[dt$end - dt$start >= 20, ] #Minimum Fragment Size
 
       #Check for valid barcodes
       if(!is.null(validBC)){
