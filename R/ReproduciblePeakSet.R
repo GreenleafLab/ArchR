@@ -37,6 +37,7 @@
 #' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to be used for generating peak metadata such as nucleotide
 #' information (GC content) or chromosome sizes.
 #' @param geneAnnotation The geneAnnotation (see `createGeneAnnotation()`) to be used for labeling peaks as "promoter", "exonic", etc.
+#' @param plot A boolean describing whether to plot peak annotation results.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
@@ -65,6 +66,7 @@ addReproduciblePeakSet <- function(
 	promoterRegion = c(2000, 100),
 	genomeAnnotation = getGenomeAnnotation(ArchRProj),
 	geneAnnotation = getGeneAnnotation(ArchRProj),
+  plot = TRUE,
 	threads = getArchRThreads(),
 	parallelParam = NULL,
 	force = FALSE,
@@ -99,6 +101,7 @@ addReproduciblePeakSet <- function(
 	.validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
 	geneAnnotation <- .validGeneAnnotation(geneAnnotation)
 	genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
+  .validInput(input = plot, name = "plot", valid = c("boolean"))
 	.validInput(input = threads, name = "threads", valid = c("integer"))
 	.validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
 	.validInput(input = force, name = "force", valid = c("boolean"))
@@ -516,7 +519,9 @@ addReproduciblePeakSet <- function(
 	#Add Peak Set
 	ArchRProj <- addPeakSet(ArchRProj, unionPeaks, force = TRUE)
 
-	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 8, height = 5, ArchRProj = ArchRProj, addDOC = FALSE)
+  if(plot){
+    plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 8, height = 5, ArchRProj = ArchRProj, addDOC = FALSE)
+  }
 
 	.logDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart, verbose = verbose, logFile = logFile)
 
