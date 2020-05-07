@@ -176,7 +176,7 @@ addGeneIntegrationMatrix <- function(
       .logMessage("groupRNA not in colData of seRNA", logFile = logFile)
       stop("groupRNA not in colData of seRNA")
     }
-    seuratRNA$Group <- colData(seRNA)[, groupRNA, drop = TRUE]
+    seuratRNA$Group <- paste0(colData(seRNA)[, groupRNA, drop = TRUE])
     rm(seRNA)
   }else{
     if(groupRNA %ni% colnames(seRNA@meta.data)){
@@ -184,7 +184,7 @@ addGeneIntegrationMatrix <- function(
       stop("groupRNA not in meta.data of Seurat Object")
     }
     seuratRNA <- seRNA
-    seuratRNA$Group <- seRNA@meta.data[,groupRNA]
+    seuratRNA$Group <- paste0(seRNA@meta.data[,groupRNA])
     rm(seRNA)
   }
   gc()
