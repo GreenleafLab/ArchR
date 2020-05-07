@@ -1,4 +1,3 @@
-
 #' Create Arrow Files 
 #' 
 #' This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.
@@ -310,7 +309,6 @@ createArrowFiles <- function(
   .logMessage(sprintf("%s Determining Arrow Method to use!", prefix), logFile = logFile)
   fe <- .fileExtension(inputFile)
   if(fe == "gz" | fe == "bgz" | fe == "tsv" | fe == "txt"){   
-
     if(.isTabix(inputFile)){
       readMethod <- "tabix"
     }else{
@@ -1189,6 +1187,23 @@ createArrowFiles <- function(
           NULL
       })
 
+      if(is.null(dt)){
+
+        dt <- tryCatch({
+          Rsamtools::scanTabix(tabixFile, param = .convertGRSeqnames(tileChromSizes[x], method = "remove"))[[1]] %>%
+            textConnection %>% 
+            {tryCatch(read.table(.), error = function(e) NULL)} %>% 
+            {data.table(V2=.$V2 + 1, V3=.$V3, V4=.$V4)}
+        }, error = function(f){
+            NULL
+        })
+
+        if(!is.null(dt)){
+          .logMessage(msg = paste0(prefix, " found fragments when removed chromosome prefix : ", paste0(tileChromSizes[x])), logFile = logFile)          
+        }
+
+      }
+
       if(x == 1){
         .logThis(dt, name = paste0(prefix, " .tabixToTmp Fragments-Chunk-(",x," of ",length(tileChromSizes),")-", tileChromSizes[x]), logFile = logFile)
         .logThis(unique(dt$V4), name = paste0(prefix, " .tabixToTmp Barcodes-Chunk-(",x," of ",length(tileChromSizes),")-", tileChromSizes[x]), logFile = logFile)
@@ -1460,6 +1475,39 @@ createArrowFiles <- function(
 
         })
 
+        if(is.null(dt)){
+
+          dt <- tryCatch({
+
+            scanChunk <- scanBam(bamFile,
+                    param = ScanBamParam(
+                      flag = bamFlag,
+                      what = c("qname", "pos", "isize"),
+                      which = .convertGRSeqnames(tileChromSizes[x], method = "remove")
+                   ))[[1]]
+
+          if(!is.null(gsubExpression)){
+            scanChunk$qname <- gsub(gsubExpression, "", scanChunk$qname)
+          }
+
+          #Create Data Table for faster indexing
+          data.table(
+              start = scanChunk$pos + offsetPlus,
+              end = scanChunk$pos + abs(scanChunk$isize) - 1 + offsetMinus,
+              RG = scanChunk$qname
+            )
+
+          }, error = function(e){
+
+            NULL
+
+          })
+
+          if(!is.null(dt)){
+            .logMessage(msg = paste0(prefix, " found fragments when removed chromosome prefix : ", paste0(tileChromSizes[x])), logFile = logFile)          
+          }          
+
+        }
 
       }else{
         
@@ -1489,6 +1537,41 @@ createArrowFiles <- function(
           NULL
 
         })
+
+        if(is.null(dt)){
+
+          dt <- tryCatch({
+
+            scanChunk <- scanBam(bamFile,
+                    param = ScanBamParam(
+                      flag = bamFlag,
+                      what = c("pos", "isize"),
+                      tag = bcTag,
+                      which = .convertGRSeqnames(tileChromSizes[x], method = "remove")
+                   ))[[1]]
+
+            if(!is.null(gsubExpression)){
+              scanChunk$tag[[bcTag]] <- gsub(gsubExpression, "", scanChunk$tag[[bcTag]])
+            }
+
+            #Create Data Table for faster indexing
+            dt <- data.table(
+                start = scanChunk$pos + offsetPlus,
+                end = scanChunk$pos + abs(scanChunk$isize) - 1 + offsetMinus,
+                RG = scanChunk$tag[[bcTag]]
+              )
+
+          }, error = function(e){
+            
+            NULL
+
+          })
+
+          if(!is.null(dt)){
+            .logMessage(msg = paste0(prefix, " found fragments when removed chromosome prefix : ", paste0(tileChromSizes[x])), logFile = logFile)          
+          }
+
+        }
 
       }
       
@@ -2113,8 +2196,35 @@ createArrowFiles <- function(
 
 }
 
+.convertGRSeqnames <- function(gr, method = "remove"){
+  
+  if(tolower(method) == "remove"){
+  
+    gr2 <- GRanges(seqnames = gsub("chr","",seqnames(gr)), ranges = ranges(gr), strand = strand(gr))
+    mcols(gr2) <- mcols(gr)
+  
+  }else{
+  
+    idx <- grep("chr", seqnames(gr))
+    if(length(idx)==0){
+    
+      seqnames2 <- paste0("chr", seqnames(gr))
+    
+    }else{
+    
+      seqnames2 <- seqnames(gr)
+      seqnames2[idx] <- paste0("chr", seqnames(gr)[idx])
+    
+    }
+    
+    gr2 <- GRanges(seqnames = seqnames2, ranges = ranges(gr), strand = strand(gr))
+    mcols(gr2) <- mcols(gr)
+  
+  }
+  
+  gr2
 
-
+}
 
 
 

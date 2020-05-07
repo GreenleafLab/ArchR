@@ -69,6 +69,13 @@ reformatFragmentFiles <- function(
     if(length(idxRemove) > 0){
       dt <- dt[-idxRemove,]
     }
+    if(nrow(dt) == 0){
+      if(checkChrPrefix){
+        stop("No fragments found after checking for integers and chrPrefix!")
+      }else{
+        stop("No fragments found after checking for integers!")
+      }
+    }
     #Make sure no spaces or #
     dt$V4 <- gsub(" |#", ".", dt$V4)
     fileNew <- gsub(".tsv.bgz|.tsv.gz", "-Reformat.tsv", fragmentFiles[i])
