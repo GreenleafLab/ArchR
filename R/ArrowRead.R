@@ -102,8 +102,9 @@ getFragmentsFromArrow <- function(
   o <- h5closeAll()
   ArrowFile <- .validArrow(ArrowFile)
   
-  if(chr %ni% .availableSeqnames(ArrowFile)){
-    stop("Error Chromosome not in ArrowFile!")
+  avSeq <- .availableSeqnames(ArrowFile)
+  if(chr %ni% avSeq){
+    stop(paste0("Chromosome ", chr ," not in ArrowFile! Available Chromosomes are : ", paste0(avSeq, collapse=",")))
   }
 
   #Get Sample Name

@@ -117,6 +117,7 @@ createArrowFiles <- function(
   .validInput(input = validBarcodes, name = "validBarcodes", valid = c("list", "character", "null"))
   geneAnnotation <- .validGeneAnnotation(geneAnnotation)
   genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
+  geneAnnotation <- .validGeneAnnoByGenomeAnno(geneAnnotation = geneAnnotation, genomeAnnotation = genomeAnnotation)
   .validInput(input = filterFrags, name = "filterFrags", valid = c("numeric"))
   .validInput(input = filterTSS, name = "filterTSS", valid = c("numeric"))
   .validInput(input = removeFilteredCells, name = "removeFilteredCells", valid = c("boolean"))

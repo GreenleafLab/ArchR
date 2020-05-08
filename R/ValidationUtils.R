@@ -327,6 +327,36 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
 
 }
 
+.validGeneAnnoByGenomeAnno <- function(geneAnnotation, genomeAnnotation){
+
+  allSeqs <- unique(paste0(seqnames(genomeAnnotation$chromSizes)))
+
+  geneSeqs <- unique(paste0(seqnames(geneAnnotation$genes)))
+  if(!all(geneSeqs %in% allSeqs)){
+    geneNotIn <- geneSeqs[which(geneSeqs %ni% allSeqs)]
+    message("Found Gene Seqnames not in GenomeAnnotation chromSizes, Removing : ", paste0(geneNotIn, collapse=","))
+    geneAnnotation$genes <- .subsetSeqnamesGR(geneAnnotation$genes, names = allSeqs)
+  }
+
+  exonSeqs <- unique(paste0(seqnames(geneAnnotation$exons)))
+  if(!all(exonSeqs %in% allSeqs)){
+    exonNotIn <- exonSeqs[which(exonSeqs %ni% allSeqs)]
+    message("Found Exon Seqnames not in GenomeAnnotation chromSizes, Removing : ", paste0(exonNotIn, collapse=","))
+    geneAnnotation$exons <- .subsetSeqnamesGR(geneAnnotation$exons, names = allSeqs)
+  }
+
+  TSSSeqs <- unique(paste0(seqnames(geneAnnotation$TSS)))
+  if(!all(TSSSeqs %in% allSeqs)){
+    TSSNotIn <- TSSSeqs[which(TSSSeqs %ni% allSeqs)]
+    message("Found TSS Seqnames not in GenomeAnnotation chromSizes, Removing : ", paste0(TSSNotIn, collapse=","))
+    geneAnnotation$TSS <- .subsetSeqnamesGR(geneAnnotation$TSS, names = allSeqs)
+  }
+
+  geneAnnotation
+
+}
+
+
 .validArchRProject <- function(ArchRProj = NULL){
   if(!inherits(ArchRProj, "ArchRProject")){
     stop("Not a valid ArchRProject as input!")
@@ -334,4 +364,6 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
     ArchRProj
   }
 }
+
+
 

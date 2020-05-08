@@ -99,8 +99,9 @@ ArchRProject <- function(
   .validInput(input = ArrowFiles, name = "ArrowFiles", valid = "character")
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
   .validInput(input = copyArrows, name = "copyArrows", valid = "boolean")
-  .validInput(input = geneAnnotation, name = "geneAnnotation", valid = c("list"))
-  .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = c("list"))
+  geneAnnotation <- .validGeneAnnotation(geneAnnotation)
+  genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
+  geneAnnotation <- .validGeneAnnoByGenomeAnno(geneAnnotation = geneAnnotation, genomeAnnotation = genomeAnnotation)
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
   .validInput(input = threads, name = "threads", valid = c("integer"))
 

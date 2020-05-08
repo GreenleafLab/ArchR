@@ -101,6 +101,7 @@ addReproduciblePeakSet <- function(
 	.validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
 	geneAnnotation <- .validGeneAnnotation(geneAnnotation)
 	genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
+	geneAnnotation <- .validGeneAnnoByGenomeAnno(geneAnnotation = geneAnnotation, genomeAnnotation = genomeAnnotation)
   .validInput(input = plot, name = "plot", valid = c("boolean"))
 	.validInput(input = threads, name = "threads", valid = c("integer"))
 	.validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
