@@ -421,7 +421,7 @@
     idx <- BiocGenerics::which(RGRle %bcin% cellsKeep)
     RGRle <- RGRle[idx]
     RGLengths <- RGRle@lengths
-    RGValues <- RGRle@values
+    RGValues <- stringr::str_split(RGRle@values, pattern = "#", simplify = TRUE)
 
     #Write Barcodes
     o <- .suppressAll(h5write(RGLengths, file = outArrow, name = paste0(groupJ, "/RGLengths"), level = level))
