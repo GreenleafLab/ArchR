@@ -296,7 +296,7 @@ ggPoint <- function(
             if(!is.null(highlightPoints)){
               pal[grep("Non.Highlighted", names(pal))] <- "lightgrey"
             }
-            print(pal)
+            #print(pal)
             p <- p + scale_color_manual(values = pal) +
               guides(color = guide_legend(override.aes = list(size = legendSize, shape = 15)))
         }
