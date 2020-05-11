@@ -178,7 +178,7 @@ addReproduciblePeakSet <- function(
 		args$X <- seq_len(nrow(coverageMetadata))
 		args$FUN <- .callSummitsOnCoverages
 		args$coverageFiles <- coverageFiles
-		args$outFiles <- file.path(outSubDir, paste0(coverageMetadata$Name,"-summits.rds"))
+		args$outFiles <- file.path(outSubDir, paste0(make.names(coverageMetadata$Name),"-summits.rds"))
 		args$bedDir <- outBedDir
 		args$excludeChr <- excludeChr
 		args$peakParams <- list(
@@ -240,7 +240,8 @@ addReproduciblePeakSet <- function(
 			peaks <- peaks[order(peaks$groupScoreQuantile, decreasing = TRUE)]
 			peaks <- head(peaks, groupSummary[names(outSummitList)[i],"maxPeaks"])
 			mcols(peaks)$N <- NULL #Remove N Column
-			saveRDS(peaks, file.path(outDir, paste0(names(outSummitList)[i], "-reproduciblePeaks.gr.rds")))
+			print(file.path(outDir, paste0(make.names(names(outSummitList)[i]), "-reproduciblePeaks.gr.rds")))
+			saveRDS(peaks, file.path(outDir, paste0(make.names(names(outSummitList)[i]), "-reproduciblePeaks.gr.rds")))
 			return(peaks)
 		}, threads = threads) %>% GRangesList()
 		names(groupPeaks) <- names(outSummitList)
@@ -717,7 +718,7 @@ addReproduciblePeakSet <- function(
 	################
 	# Create Bed File from Coverage File
 	################
-	bedFile <- file.path(bedDir, paste0(make.names(basename(names(coverageFiles)[i])), ".insertions.bed"))
+	bedFile <- file.path(bedDir, paste0(make.names(basename(names(coverageFiles)[i])),"-",i,".insertions.bed"))
 	o <- .writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr, logFile = logFile)
 	peakParams$bedFile <- bedFile
 	

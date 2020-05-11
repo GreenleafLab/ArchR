@@ -759,6 +759,9 @@ addGroupCoverages <- function(
       .logError(e, fn = ".writeCoverageToBed", info = "", errorList = errorList, logFile = logFile)
     })
   }
+  if(!file.exists(out)){
+    stop("Error in writing coverage to bedfile")
+  }
   out
 }
 
