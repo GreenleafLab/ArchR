@@ -455,7 +455,7 @@ addReproduciblePeakSet <- function(
 			tabPT <- data.frame(Group = names(cellGroups)[i], table(groupPeaksGRi$peakType))
 
 			#Save
-			saveRDS(groupPeaksGRi, file.path(outDir, paste0(names(cellGroups)[i], "-reproduciblePeaks.gr.rds")))
+			saveRDS(groupPeaksGRi, file.path(outDir, paste0(make.names(names(cellGroups)[i]), "-reproduciblePeaks.gr.rds")))
 
 			#Remove
 			rm(groupPeaksGRi)
