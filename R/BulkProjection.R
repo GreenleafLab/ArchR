@@ -98,7 +98,7 @@ projectBulkATAC <- function(
     simMat <- lapply(seq_len(nRep), function(y){
       ratio <- ratios[y]
       simMat <- matrix(sample(x = counts, size = ceiling(ratio * depthN) * n2, replace = TRUE), ncol = n2)
-      simMat <- summary(as(simMat, "dgCMatrix"))[,-1,drop=FALSE]
+      simMat <- Matrix::summary(as(simMat, "dgCMatrix"))[,-1,drop=FALSE]
       simMat[,1] <- simMat[,1] + (y - 1) * n2
       simMat
     }) %>%  Reduce("rbind", .)
