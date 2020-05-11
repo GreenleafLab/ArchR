@@ -167,6 +167,8 @@ plotPDF <- function(
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
 #' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
 #' @param sampleCells A numeric describing number of cells to use for plot. If using impute weights, this will occur after imputation.
+#' @param highlightCells A character vector of cellNames describing which cells to hightlight if using `plotAs = "points"` (default if discrete). 
+#' The remainder of cells will be colored light gray.
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the
 #' internal portions of the plot.
 #' @param quantCut If this is not `NULL`, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values. 
@@ -195,6 +197,7 @@ plotEmbedding <- function(
   pal = NULL,
   size = 0.1,
   sampleCells = NULL,
+  highlightCells = NULL,
   rastr = TRUE,
   quantCut = c(0.01, 0.99),
   discreteSet = NULL,
@@ -217,6 +220,7 @@ plotEmbedding <- function(
   .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = sampleCells, name = "sampleCells", valid = c("numeric", "null"))
+  .validInput(input = highlightCells, name = "highlightCells", valid = c("character", "null"))
   .validInput(input = rastr, name = "rastr", valid = c("boolean"))
   .validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
   .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
@@ -262,6 +266,14 @@ plotEmbedding <- function(
   plotParams$rastr <- rastr
   plotParams$size <- size
   plotParams$randomize <- randomize
+
+  #Check if Cells To Be Highlighed
+  if(!is.null(highlightCells)){
+    highlightPoints <- match(highlightCells, rownames(df), nomatch = 0)
+    if(any(highlightPoints==0)){
+      stop("highlightCells contain cells not in Embedding cellNames! Please make sure that these match!")
+    }
+  }
 
   #Make Sure ColorBy is valid!
   if(length(colorBy) > 1){
@@ -418,6 +430,10 @@ plotEmbedding <- function(
 
       }else{
 
+        if(!is.null(highlightCells)){
+          plotParamsx$highlightPoints <- highlightPoints
+        }
+
         .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
         gg <- do.call(ggPoint, plotParamsx)
 
@@ -427,6 +443,10 @@ plotEmbedding <- function(
       
       if(!is.null(pal)){
         plotParamsx$pal <- pal
+      }
+
+      if(!is.null(highlightCells)){
+        plotParamsx$highlightPoints <- highlightPoints
       }
 
       .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
