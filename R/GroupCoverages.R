@@ -605,7 +605,7 @@ addGroupCoverages <- function(
         obsx <- .getCoverageInsertionSites(coverageFiles[y], availableChr[x]) %>%
           {BSgenome::Views(chrBS, IRanges(start = . - floor(kmerLength/2), width = kmerLength))} %>%
           {Biostrings::oligonucleotideFrequency(., width = kmerLength, simplify.as="collapsed")}
-          gc()
+        tryCatch({gc()}, error = function(e){})
         obsx
       }, error = function(e){
         errorList <- list(
