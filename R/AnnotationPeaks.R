@@ -840,19 +840,35 @@ peakAnnoEnrichment <- function(
   }
   
   r1 <- SummarizedExperiment::rowRanges(matches)
+  pr1 <- paste0(seqnames(r1),start(r1),end(r1),sep="_")
   mcols(r1) <- NULL
 
   r2 <- getPeakSet(ArchRProj)
+  pr2 <- paste0(seqnames(r2),start(r2),end(r2),sep="_")
   mcols(r2) <- NULL
 
-  if(length(which(paste0(seqnames(r1),start(r1),end(r1), sep = "_") %ni% paste0(seqnames(r2),start(r2),end(r2),sep="_"))) != 0){
+  r3 <- GRanges(rowData(seMarker)$seqnames, IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
+  pr3 <- paste0(seqnames(r3),start(r3),end(r3),sep="_")
+  mcols(r3) <- NULL
+
+  .logThis(r1, "Peaks-Matches", logFile = logFile)
+  .logThis(r2, "Peaks-ArchRProj", logFile = logFile)
+  .logThis(r3, "Peaks-SeMarker", logFile = logFile)
+
+  .logThis(pr1, "Peaks-Pasted-Matches", logFile = logFile)
+  .logThis(pr2, "Peaks-Pasted-ArchRProj", logFile = logFile)
+  .logThis(pr3, "Peaks-Pasted-SeMarker", logFile = logFile)
+
+  if(length(which(pr1 %ni% pr2)) != 0){
     stop("Peaks from matches do not match peakSet in ArchRProj!")
   }
 
-  r3 <- GRanges(rowData(seMarker)$seqnames,IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
-  mcols(r3) <- NULL
-  rownames(matches) <- paste0(seqnames(matches),start(matches),end(matches),sep="_")
-  matches <- matches[paste0(seqnames(r3),start(r3),end(r3), sep = "_"), ]
+  if(length(which(pr2 %ni% pr3)) != 0){
+    stop("Peaks from seMarker do not match peakSet in ArchRProj!")
+  }
+
+  rownames(matches) <- pr1
+  matches <- matches[pr3, ]
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))

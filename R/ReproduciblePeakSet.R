@@ -90,7 +90,8 @@ addReproduciblePeakSet <- function(
 		.validInput(input = extsize, name = "extsize", valid = c("integer"))
 		.validInput(input = method, name = "method", valid = c("character"))
 		.validInput(input = additionalParams, name = "additionalParams", valid = c("character"))
-		.validInput(input = extendSummits, name = "extendSummits", valid = c("integer"))		
+		.validInput(input = extendSummits, name = "extendSummits", valid = c("integer"))
+		.checkMacs2Options(pathToMacs2) #Check Macs2 Version		
 	}else if(tolower(peakMethod) == "tiles"){
 
 	}else{
@@ -789,6 +790,17 @@ addReproduciblePeakSet <- function(
 
 }
 
+.checkMacs2Options <- function(path){
+	o <- system2(path, "callpeak -h", stdout = TRUE, stderr = TRUE)
+	v <- system2(path, " --version", stdout = TRUE, stderr = TRUE)
+	check <- any(grepl("--shift SHIFT", o))
+	if(check){
+		return(invisible(0))
+	}else{
+		stop("Macs2 Path (", path, ") is out of date (version ", v, ") and does not have --shift option.\n  Please update (https://github.com/taoliu/MACS) and provide new path!")
+	}
+}
+
 #' Find the installed location of the MACS2 executable
 #' 
 #' This function attempts to find the path to the MACS2 executable by serting the path and python's pip.
@@ -807,8 +819,8 @@ findMacs2 <- function(){
   message("Not Found in $PATH")
 
   #Try seeing if its pip installed
-  search2 <- tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
-  search3 <- tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
+  search2 <- suppressWarnings(tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"}))
+  search3 <- suppressWarnings(tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"}))
   
   if(length(search2) > 0){
 	  if(search2[1] != "ERROR"){
@@ -839,6 +851,3 @@ findMacs2 <- function(){
   stop("Could Not Find Macs2! Please install w/ pip, add to your $PATH, or just supply the macs2 path directly and avoid this function!")
 
 }
-
-
-
