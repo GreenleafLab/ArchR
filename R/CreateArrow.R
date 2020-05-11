@@ -548,7 +548,9 @@ createArrowFiles <- function(
   )
 
   if(!is.null(genomeAnnotation$blacklist)){
-    featureList$Blacklist <- genomeAnnotation$blacklist
+    if(length(genomeAnnotation$blacklist) > 0){
+      featureList$Blacklist <- genomeAnnotation$blacklist
+    }
   }
 
   for(x in seq_along(featureList)){
