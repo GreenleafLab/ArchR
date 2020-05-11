@@ -336,7 +336,7 @@
 
   stopifnot(length(inArrows) == length(outArrows))
 
-  unlist(.safelapply(seq_along(inArrow), function(x){
+  unlist(.safelapply(seq_along(inArrows), function(x){
     .copyArrowSingle(
       inArrow = inArrows[x],
       outArrow = outArrows[x],
