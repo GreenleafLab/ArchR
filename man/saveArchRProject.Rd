@@ -8,7 +8,10 @@ saveArchRProject(
   ArchRProj = NULL,
   outputDirectory = getOutputDirectory(ArchRProj),
   overwrite = TRUE,
-  load = TRUE
+  load = TRUE,
+  dropCells = FALSE,
+  logFile = createLogFile("saveArchRProject"),
+  threads = getArchRThreads()
 )
 }
 \arguments{
@@ -18,7 +21,11 @@ saveArchRProject(
 
 \item{overwrite}{When writing to outputDirectory, overwrite existing files with new files.}
 
-\item{load}{Load the \code{ArchRProject} after saving and writing to outputDirectory.}
+\item{dropCells}{A boolean indicating whether to drop cells that are not in \code{ArchRProject} from corresponding Arrow Files.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
+
+\item{threads}{The number of threads to use for parallel execution.}
 }
 \description{
 This function will organize arrows and project output into a directory and save the ArchRProject for later usage.

@@ -99,8 +99,9 @@ ArchRProject <- function(
   .validInput(input = ArrowFiles, name = "ArrowFiles", valid = "character")
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
   .validInput(input = copyArrows, name = "copyArrows", valid = "boolean")
-  .validInput(input = geneAnnotation, name = "geneAnnotation", valid = c("list"))
-  .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = c("list"))
+  geneAnnotation <- .validGeneAnnotation(geneAnnotation)
+  genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
+  geneAnnotation <- .validGeneAnnoByGenomeAnno(geneAnnotation = geneAnnotation, genomeAnnotation = genomeAnnotation)
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
@@ -467,13 +468,18 @@ loadArchRProject <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param outputDirectory A directory path to save all ArchR output and `ArchRProject` to. Default is outputDirectory of the `ArchRProject`.
 #' @param overwrite When writing to outputDirectory, overwrite existing files with new files.
-#' @param load Load the `ArchRProject` after saving and writing to outputDirectory.
+#' @param dropCells A boolean indicating whether to drop cells that are not in `ArchRProject` from corresponding Arrow Files.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' @param threads The number of threads to use for parallel execution.
 #' @export
 saveArchRProject <- function(
   ArchRProj = NULL,
   outputDirectory = getOutputDirectory(ArchRProj),
   overwrite = TRUE,
-  load = TRUE
+  load = TRUE,
+  dropCells = FALSE,
+  logFile = createLogFile("saveArchRProject"),
+  threads = getArchRThreads()
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
@@ -481,7 +487,9 @@ saveArchRProject <- function(
   .validInput(input = overwrite, name = "overwrite", valid = "boolean")
   .validInput(input = load, name = "load", valid = "boolean")
   
-  outDirOld <- getOutputDirectory(ArchRProj)
+  outputDirectory <- normalizePath(outputDirectory)
+  outDirOld <- normalizePath(getOutputDirectory(ArchRProj))
+  
   newProj <- ArchRProj
   ArrowFiles <- getArrowFiles(ArchRProj)
   ArrowFiles <- ArrowFiles[names(ArrowFiles) %in% unique(newProj$Sample)]
@@ -502,9 +510,40 @@ saveArchRProject <- function(
 
     #Copy Arrow Files
     message("Copying Arrow Files...")
-    for(i in seq_along(ArrowFiles)){
-      message(sprintf("Copying Arrow Files (%s of %s)", i, length(ArrowFiles)))
-      cf <- file.copy(ArrowFiles[i], ArrowFilesNew[i], overwrite = overwrite)
+    if(dropCells){
+      cf <- .copyArrows(
+        inArrows = ArrowFiles, 
+        outArrows = ArrowFilesNew, 
+        cellsKeep = ArchRProj$cellNames, 
+        logFile = logFile, 
+        threads = threads
+      )
+    }else{
+      for(i in seq_along(ArrowFiles)){
+        message(sprintf("Copying Arrow Files (%s of %s)", i, length(ArrowFiles)))
+        cf <- file.copy(ArrowFiles[i], ArrowFilesNew[i], overwrite = overwrite)
+      }
+    }
+
+  }else{
+
+    if(dropCells){
+      for(i in seq_along(ArrowFiles)){
+        message(sprintf("Moving Arrow Files (%s of %s)", i, length(ArrowFiles)))
+        cf <- .fileRename(ArrowFiles[i], paste0(ArrowFiles[i], "-old"))
+      }
+      cf <- .copyArrows(
+        inArrows = paste0(ArrowFiles, "-old"), 
+        outArrows = ArrowFilesNew, 
+        cellsKeep = ArchRProj$cellNames, 
+        logFile = logFile, 
+        threads = threads
+      )
+      fe <- all(file.exists(ArrowFilesNew)) 
+      fe2 <- all(file.exists(ArrowFiles)) 
+      if(fe & fe2){
+        rmf <- file.remove(paste0(ArrowFiles, "-old"))
+      }
     }
 
   }
@@ -520,31 +559,47 @@ saveArchRProject <- function(
     #Copy Other Folders 2 layers nested
     message("Copying Other Files...")
     for(i in seq_along(oldFiles)){
+      
       fin <- file.path(outDirOld, oldFiles[i])
       fout <- file.path(outputDirectory, oldFiles[i])
       message(sprintf("Copying Other Files (%s of %s): %s", i, length(oldFiles), basename(fin)))
+      
       if(dir.exists(fin)){
+      
         dir.create(file.path(outputDirectory, basename(fin)), showWarnings=FALSE)
         fin2 <- list.files(fin, full.names = TRUE)
+      
         for(j in seq_along(fin2)){
+      
           if(dir.exists(fin2[j])){
+      
             dir.create(file.path(outputDirectory, basename(fin), basename(fin2)[j]), showWarnings=FALSE)
             fin3 <- list.files(fin2[j], full.names = TRUE)
+      
             for(k in seq_along(fin3)){
+      
               cf <- file.copy(fin3[k], file.path(fout, basename(fin3[k])), overwrite = overwrite)
+      
             }
+      
           }else{
+      
             cf <- file.copy(fin2[j], file.path(fout, basename(fin2[j])), overwrite = overwrite)
+      
           }
+      
         }
+      
       }else{
+      
         cf <- file.copy(fin, fout, overwrite = overwrite)
+      
       }
+
     }
+
     newProj@sampleColData <- newProj@sampleColData[names(ArrowFilesNew), , drop = FALSE]
     newProj@sampleColData$ArrowFiles <- ArrowFilesNew[rownames(newProj@sampleColData)]
-
-    saveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
   
   }
 
@@ -565,11 +620,17 @@ saveArchRProject <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param cells A vector of cells to subset `ArchRProject` by. Alternatively can provide a subset `ArchRProject`.
 #' @param outputDirectory A directory path to save all ArchR output and the subsetted `ArchRProject` to.
+#' @param dropCells A boolean indicating whether to drop cells that are not in `ArchRProject` from corresponding Arrow Files.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' @param threads The number of threads to use for parallel execution. 
 #' @export
 subsetArchRProject <- function(
   ArchRProj = NULL,
   cells = getCellNames(ArchRProj),
-  outputDirectory = "ArchRSubset"
+  outputDirectory = "ArchRSubset",
+  dropCells = TRUE,
+  logFile = NULL,
+  threads = getArchRThreads()
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
@@ -585,7 +646,10 @@ subsetArchRProject <- function(
   saveArchRProject(
     ArchRProj = ArchRProj[cells, ], 
     outputDirectory = outputDirectory,
-    load = TRUE
+    load = TRUE,
+    dropCells = dropCells,
+    logFile = logFile,
+    threads = threads
   )
 
 }

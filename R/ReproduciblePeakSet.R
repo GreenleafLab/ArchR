@@ -37,6 +37,7 @@
 #' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to be used for generating peak metadata such as nucleotide
 #' information (GC content) or chromosome sizes.
 #' @param geneAnnotation The geneAnnotation (see `createGeneAnnotation()`) to be used for labeling peaks as "promoter", "exonic", etc.
+#' @param plot A boolean describing whether to plot peak annotation results.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the reproducible peak set to be overwritten if it already exist in the given `ArchRProject` peakSet.
@@ -65,6 +66,7 @@ addReproduciblePeakSet <- function(
 	promoterRegion = c(2000, 100),
 	genomeAnnotation = getGenomeAnnotation(ArchRProj),
 	geneAnnotation = getGeneAnnotation(ArchRProj),
+  plot = TRUE,
 	threads = getArchRThreads(),
 	parallelParam = NULL,
 	force = FALSE,
@@ -88,7 +90,8 @@ addReproduciblePeakSet <- function(
 		.validInput(input = extsize, name = "extsize", valid = c("integer"))
 		.validInput(input = method, name = "method", valid = c("character"))
 		.validInput(input = additionalParams, name = "additionalParams", valid = c("character"))
-		.validInput(input = extendSummits, name = "extendSummits", valid = c("integer"))		
+		.validInput(input = extendSummits, name = "extendSummits", valid = c("integer"))
+		.checkMacs2Options(pathToMacs2) #Check Macs2 Version		
 	}else if(tolower(peakMethod) == "tiles"){
 
 	}else{
@@ -99,6 +102,8 @@ addReproduciblePeakSet <- function(
 	.validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
 	geneAnnotation <- .validGeneAnnotation(geneAnnotation)
 	genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
+	geneAnnotation <- .validGeneAnnoByGenomeAnno(geneAnnotation = geneAnnotation, genomeAnnotation = genomeAnnotation)
+  .validInput(input = plot, name = "plot", valid = c("boolean"))
 	.validInput(input = threads, name = "threads", valid = c("integer"))
 	.validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
 	.validInput(input = force, name = "force", valid = c("boolean"))
@@ -173,7 +178,7 @@ addReproduciblePeakSet <- function(
 		args$X <- seq_len(nrow(coverageMetadata))
 		args$FUN <- .callSummitsOnCoverages
 		args$coverageFiles <- coverageFiles
-		args$outFiles <- file.path(outSubDir, paste0(coverageMetadata$Name,"-summits.rds"))
+		args$outFiles <- file.path(outSubDir, paste0(make.names(coverageMetadata$Name),"-summits.rds"))
 		args$bedDir <- outBedDir
 		args$excludeChr <- excludeChr
 		args$peakParams <- list(
@@ -235,7 +240,8 @@ addReproduciblePeakSet <- function(
 			peaks <- peaks[order(peaks$groupScoreQuantile, decreasing = TRUE)]
 			peaks <- head(peaks, groupSummary[names(outSummitList)[i],"maxPeaks"])
 			mcols(peaks)$N <- NULL #Remove N Column
-			saveRDS(peaks, file.path(outDir, paste0(names(outSummitList)[i], "-reproduciblePeaks.gr.rds")))
+			print(file.path(outDir, paste0(make.names(names(outSummitList)[i]), "-reproduciblePeaks.gr.rds")))
+			saveRDS(peaks, file.path(outDir, paste0(make.names(names(outSummitList)[i]), "-reproduciblePeaks.gr.rds")))
 			return(peaks)
 		}, threads = threads) %>% GRangesList()
 		names(groupPeaks) <- names(outSummitList)
@@ -450,7 +456,7 @@ addReproduciblePeakSet <- function(
 			tabPT <- data.frame(Group = names(cellGroups)[i], table(groupPeaksGRi$peakType))
 
 			#Save
-			saveRDS(groupPeaksGRi, file.path(outDir, paste0(names(cellGroups)[i], "-reproduciblePeaks.gr.rds")))
+			saveRDS(groupPeaksGRi, file.path(outDir, paste0(make.names(names(cellGroups)[i]), "-reproduciblePeaks.gr.rds")))
 
 			#Remove
 			rm(groupPeaksGRi)
@@ -516,7 +522,9 @@ addReproduciblePeakSet <- function(
 	#Add Peak Set
 	ArchRProj <- addPeakSet(ArchRProj, unionPeaks, force = TRUE)
 
-	plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 8, height = 5, ArchRProj = ArchRProj, addDOC = FALSE)
+  if(plot){
+    plotPDF(.plotPeakCallSummary(ArchRProj), name = "Peak-Call-Summary", width = 8, height = 5, ArchRProj = ArchRProj, addDOC = FALSE)
+  }
 
 	.logDiffTime(sprintf("Finished Creating Union Peak Set (%s)!", length(unionPeaks)), tstart, verbose = verbose, logFile = logFile)
 
@@ -710,7 +718,7 @@ addReproduciblePeakSet <- function(
 	################
 	# Create Bed File from Coverage File
 	################
-	bedFile <- file.path(bedDir, paste0(names(coverageFiles)[i], ".insertions.bed"))
+	bedFile <- file.path(bedDir, paste0(make.names(basename(names(coverageFiles)[i])),"-",i,".insertions.bed"))
 	o <- .writeCoverageToBed(coverageFiles[i], bedFile, excludeChr = excludeChr, logFile = logFile)
 	peakParams$bedFile <- bedFile
 	
@@ -773,7 +781,7 @@ addReproduciblePeakSet <- function(
 	run <- system2(pathToMacs2, cmd, wait=TRUE, stdout=NULL, stderr=NULL)
 
 	#Read Summits!
-	out <- fread(summitsFile, select = c(1,2,3,5))
+	out <- data.table::fread(summitsFile, select = c(1,2,3,5))
 	out <- GRanges(out$V1, IRanges(out$V2 + 1, out$V3), score = out$V5)
 
 	#Remove Files
@@ -781,6 +789,17 @@ addReproduciblePeakSet <- function(
 
 	return(out)
 
+}
+
+.checkMacs2Options <- function(path){
+	o <- system2(path, "callpeak -h", stdout = TRUE, stderr = TRUE)
+	v <- system2(path, " --version", stdout = TRUE, stderr = TRUE)
+	check <- any(grepl("--shift SHIFT", o))
+	if(check){
+		return(invisible(0))
+	}else{
+		stop("Macs2 Path (", path, ") is out of date (version ", v, ") and does not have --shift option.\n  Please update (https://github.com/taoliu/MACS) and provide new path!")
+	}
 }
 
 #' Find the installed location of the MACS2 executable
@@ -801,8 +820,8 @@ findMacs2 <- function(){
   message("Not Found in $PATH")
 
   #Try seeing if its pip installed
-  search2 <- tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
-  search3 <- tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"})
+  search2 <- suppressWarnings(tryCatch({system2("pip", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"}))
+  search3 <- suppressWarnings(tryCatch({system2("pip3", "show macs2", stdout = TRUE, stderr = NULL)}, error = function(x){"ERROR"}))
   
   if(length(search2) > 0){
 	  if(search2[1] != "ERROR"){
@@ -833,6 +852,3 @@ findMacs2 <- function(){
   stop("Could Not Find Macs2! Please install w/ pip, add to your $PATH, or just supply the macs2 path directly and avoid this function!")
 
 }
-
-
-

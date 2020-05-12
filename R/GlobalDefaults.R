@@ -7,7 +7,8 @@ ArchRDefaults <- list(
   ArchR.threads = 1,
   ArchR.logging = TRUE,
   ArchR.genome = NA,
-  ArchR.chrPrefix = TRUE
+  ArchR.chrPrefix = TRUE,
+  ArchR.debugging = FALSE 
 )
 
 .onAttach <- function(libname, pkgname){

@@ -24,6 +24,7 @@ addReproduciblePeakSet(
   promoterRegion = c(2000, 100),
   genomeAnnotation = getGenomeAnnotation(ArchRProj),
   geneAnnotation = getGeneAnnotation(ArchRProj),
+  plot = TRUE,
   threads = getArchRThreads(),
   parallelParam = NULL,
   force = FALSE,
@@ -81,6 +82,8 @@ Peaks called within one of these regions will be annotated as a "promoter" peak.
 information (GC content) or chromosome sizes.}
 
 \item{geneAnnotation}{The geneAnnotation (see \code{createGeneAnnotation()}) to be used for labeling peaks as "promoter", "exonic", etc.}
+
+\item{plot}{A boolean describing whether to plot peak annotation results.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

@@ -14,6 +14,7 @@ ggPoint(
   labelMeans = TRUE,
   pal = NULL,
   defaultColor = "lightGrey",
+  highlightPoints = NULL,
   colorDensity = FALSE,
   size = 1,
   xlim = NULL,
@@ -62,6 +63,8 @@ This argument is only used if \code{discrete} is set to \code{FALSE}.}
 \item{pal}{A custom palette used to override discreteSet/continuousSet for coloring vector.}
 
 \item{defaultColor}{The default color for points that do not have another color applied (i.e. \code{NA} values).}
+
+\item{highlightPoints}{A integer vector describing which points to hightlight. The remainder of points will be colored light gray.}
 
 \item{colorDensity}{A boolean value indicating whether the density of points on the plot should be indicated by color.
 If \code{TRUE}, continuousSet is used as the color palette.}

@@ -39,16 +39,16 @@
 #' It will handle weird anomalies found that cause errors in reading tabix bgzip'd fragment files.
 #'
 #' @param fragmentFiles A character vector the paths to fragment files to be reformatted
-#' @param seqnamesIsChr A boolean value that determines whether seqnames should be checked to contain
+#' @param checkChrPrefix A boolean value that determines whether seqnames should be checked to contain
 #' "chr". IF set to `TRUE`, any seqnames that do not contain "chr" will be removed from the fragment files.
 #' @export
 reformatFragmentFiles <- function(
   fragmentFiles = NULL,
-  seqnamesIsChr = getArchRChrPrefix()
+  checkChrPrefix = getArchRChrPrefix()
   ){
 
   .validInput(input = fragmentFiles, name = "fragmentFiles", valid = c("character"))
-  .validInput(input = seqnamesIsChr, name = "seqnamesIsChr", valid = c("boolean"))
+  .validInput(input = checkChrPrefix, name = "checkChrPrefix", valid = c("boolean"))
 
   options(scipen = 999)
   .requirePackage("data.table")
@@ -57,7 +57,7 @@ reformatFragmentFiles <- function(
     message(i, " of ", length(fragmentFiles))
     dt <- data.table::fread(fragmentFiles[i])
     dt <- dt[order(dt$V1,dt$V2,dt$V3), ]
-    if(seqnamesIsChr){
+    if(checkChrPrefix){
       idxRemove1 <- which(substr(dt$V1,1,3) != "chr")
     }else{
       idxRemove1 <- c()
@@ -68,6 +68,13 @@ reformatFragmentFiles <- function(
     idxRemove <- unique(c(idxRemove1, idxRemove2, idxRemove3))
     if(length(idxRemove) > 0){
       dt <- dt[-idxRemove,]
+    }
+    if(nrow(dt) == 0){
+      if(checkChrPrefix){
+        stop("No fragments found after checking for integers and chrPrefix!")
+      }else{
+        stop("No fragments found after checking for integers!")
+      }
     }
     #Make sure no spaces or #
     dt$V4 <- gsub(" |#", ".", dt$V4)

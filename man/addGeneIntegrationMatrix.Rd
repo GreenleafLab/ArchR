@@ -17,6 +17,9 @@ addGeneIntegrationMatrix(
   sampleCellsRNA = 10000,
   embeddingATAC = NULL,
   embeddingRNA = NULL,
+  plotUMAP = TRUE,
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
+    FALSE),
   nGenes = 2000,
   useImputation = TRUE,
   reduction = "cca",
@@ -67,6 +70,10 @@ should have a row for each single cell described in \code{row.names} and 2 colum
 
 \item{embeddingRNA}{A \code{data.frame} of cell embeddings such as a UMAP for scRNA-seq cells to be used for density sampling. The \code{data.frame} object
 should have a row for each single cell described in \code{row.names} and 2 columns, one for each dimension of the embedding.}
+
+\item{plotUMAP}{A boolean determining whether to plot a UMAP for each integration block.}
+
+\item{UMAPParams}{The list of parameters to pass to the UMAP function if "plotUMAP = TRUE". See the function \code{umap} in the uwot package.}
 
 \item{nGenes}{The number of variable genes determined by \code{Seurat::FindVariableGenes()} to use for integration.}
 

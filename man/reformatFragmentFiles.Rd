@@ -6,13 +6,13 @@
 \usage{
 reformatFragmentFiles(
   fragmentFiles = NULL,
-  seqnamesIsChr = getArchRChrPrefix()
+  checkChrPrefix = getArchRChrPrefix()
 )
 }
 \arguments{
 \item{fragmentFiles}{A character vector the paths to fragment files to be reformatted}
 
-\item{seqnamesIsChr}{A boolean value that determines whether seqnames should be checked to contain
+\item{checkChrPrefix}{A boolean value that determines whether seqnames should be checked to contain
 "chr". IF set to \code{TRUE}, any seqnames that do not contain "chr" will be removed from the fragment files.}
 }
 \description{

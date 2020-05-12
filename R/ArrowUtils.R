@@ -323,3 +323,226 @@
   ArrowFile
 
 }
+
+.copyArrows <- function(
+  inArrows = NULL,
+  outArrows = NULL,
+  cellsKeep = NULL,
+  level = 0,
+  verbose = FALSE,
+  logFile = NULL,
+  threads = 1
+  ){
+
+  stopifnot(length(inArrows) == length(outArrows))
+
+  unlist(.safelapply(seq_along(inArrows), function(x){
+    .copyArrowSingle(
+      inArrow = inArrows[x],
+      outArrow = outArrows[x],
+      cellsKeep = cellsKeep,
+      level = level,
+      verbose = verbose,
+      logFile = logFile
+    )
+  }, threads = threads))
+
+}
+
+.copyArrowSingle <- function(
+  inArrow = NULL,
+  outArrow = NULL,
+  cellsKeep = NULL,
+  level = 0,
+  verbose = FALSE,
+  logFile = NULL
+  ){
+
+  tstart <- Sys.time()
+
+  #Summarize Arrow Content
+  ArrowInfo <- .summarizeArrowContent(inArrow)
+  sampleName <- .sampleName(inArrow)
+
+  .logMessage(".copyArrow : Initializing Out ArrowFile", logFile = logFile)
+
+  #We need to transfer first
+  o <- .suppressAll(file.remove(outArrow))
+  o <- h5closeAll()
+  o <- h5createFile(outArrow)
+  o <- h5write(obj = "Arrow", file = outArrow, name = "Class")
+  o <- h5write(obj = paste0(packageVersion("ArchR")), file = outArrow, name = "ArchRVersion")
+
+  #1. Metadata First
+  .logMessage(".copyArrow : Adding Metadata to Out ArrowFile", logFile = logFile)
+  groupName <- "Metadata"
+  o <- h5createGroup(outArrow, groupName)
+
+  mData <- ArrowInfo[[groupName]]
+  
+  for(i in seq_len(nrow(mData))){
+    h5name <- paste0(groupName, "/", mData$name[i])
+    h5write(.h5read(inArrow, h5name), file = outArrow, name = h5name)
+  }
+
+  #2. scATAC-Fragments
+  .logDiffTime(paste0("Transferring Fragments"), tstart, verbose = verbose, logFile = logFile)
+
+  #Create Group
+  groupName <- "Fragments"
+  o <- h5createGroup(outArrow, groupName)
+  
+  #Sub Data
+  mData <- ArrowInfo[[groupName]]
+  
+  #Get Order Of Sub Groups (Mostly Related to Seqnames)
+  seqOrder <- sort(names(mData))
+  if(any(grepl("chr", seqOrder))){
+    seqOrder <- c(seqOrder[!grepl("chr", seqOrder)], seqOrder[grepl("chr", seqOrder)])
+  }
+  
+  for(j in seq_along(seqOrder)){
+
+    if(verbose) message(j, " ", appendLF = FALSE)
+
+    #Create Group
+    groupJ <- paste0(groupName, "/", seqOrder[j])
+    o <- h5createGroup(outArrow, groupJ)
+
+    #Sub mData
+    mDataj <- mData[[seqOrder[j]]]
+
+    #Read In Fragments
+    RGLengths <- .h5read(inArrow, paste0(groupJ, "/RGLengths"))
+    RGValues <- .h5read(inArrow, paste0(groupJ, "/RGValues"))
+    RGRle <- Rle(paste0(sampleName, "#", RGValues), RGLengths)
+    
+    #Determine Which to Keep
+    idx <- BiocGenerics::which(RGRle %bcin% cellsKeep)
+    RGRle <- RGRle[idx]
+    RGLengths <- RGRle@lengths
+
+    #print(head(RGRle@values))
+    RGValues <- stringr::str_split(RGRle@values, pattern = "#", simplify = TRUE)[,2]
+
+    #Create Data Sets
+    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/Ranges"), storage.mode = "integer", dims = c(length(RGRle), 2), level = level))
+    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/RGLengths"), storage.mode = "integer", dims = c(length(RGRle), 1), level = level))
+    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/RGValues"), storage.mode = "character", dims = c(length(RGRle), 1), level = level, 
+    #         size = max(nchar(RGValues) + 1)))
+
+    #Write Barcodes
+    o <- .suppressAll(h5write(RGLengths, file = outArrow, name = paste0(groupJ, "/RGLengths"), level = level))
+    o <- .suppressAll(h5write(RGValues, file = outArrow, name = paste0(groupJ, "/RGValues"), level = level))
+
+    #Write Ranges
+    o <- .suppressAll(
+      h5write(
+        obj = .h5read(inArrow, paste0(groupJ, "/Ranges"))[idx, ], 
+        file = outArrow, 
+        name = paste0(groupJ, "/Ranges"), 
+        level = level
+      )
+    )
+
+  }
+  
+  if(verbose) message("")
+
+  #3. Other Matrices
+  .logMessage(".copyArrow : Adding SubMatrices to Out ArrowFile", logFile = logFile)
+  groupsToTransfer <- names(ArrowInfo)
+  groupsToTransfer <- groupsToTransfer[groupsToTransfer %ni% c("Metadata", "Fragments")]
+
+  for(k in seq_along(groupsToTransfer)){
+
+    .logDiffTime(paste0("Transferring ", groupsToTransfer[k]), tstart, verbose = verbose, logFile = logFile)
+
+    #Create Group
+    groupName <- groupsToTransfer[k]
+    o <- h5createGroup(outArrow, groupName)
+    
+    #Sub Data
+    mData <- ArrowInfo[[groupName]]
+    
+    #Get Order Of Sub Groups (Mostly Related to Seqnames)
+    seqOrder <- sort(names(mData))
+    if(any(grepl("chr", seqOrder))){
+      seqOrder <- c(seqOrder[!grepl("chr", seqOrder)], seqOrder[grepl("chr", seqOrder)])
+    }
+
+    cellNames <- paste0(sampleName, "#", .h5read(inArrow, paste0(groupName, "/Info/CellNames")))
+    featureDF <- .getFeatureDF(ArrowFile = inArrow, subGroup = groupName)
+
+    for(j in seq_along(seqOrder)){
+
+      if(verbose) message(j, " ", appendLF = FALSE)
+
+      #Create Group
+      groupJ <- paste0(groupName, "/", seqOrder[j])
+
+      if(seqOrder[j] == "Info"){
+
+        o <- h5createGroup(outArrow, groupJ)
+
+        #Sub mData
+        mDataj <- mData[[seqOrder[j]]]
+        idxCL <- which(mDataj$dim == mDataj$dim[mDataj$name=="CellNames"])
+        idxCL <- idxCL[mDataj$name[idxCL] %ni% "FeatureDF"]
+        idxKeep <- which(cellNames %in% cellsKeep)
+
+        #Transfer Components
+        for(i in seq_len(nrow(mDataj))){
+
+          h5name <- paste0(groupJ, "/", mDataj$name[i])
+          
+          if(i %in% idxCL){
+            .suppressAll(h5write(.h5read(inArrow, h5name)[idxKeep], file = outArrow, name = h5name))
+          }else{
+            .suppressAll(h5write(.h5read(inArrow, h5name), file = outArrow, name = h5name))
+          }
+
+        }
+
+      }else{
+
+        #Sub mData
+        mDataj <- mData[[seqOrder[j]]]
+        addAnalysis <- mDataj[mDataj$name %ni% c("i", "jLengths", "jValues", "x"), "name"]
+
+        mat <- .getMatFromArrow(
+          ArrowFile = inArrow,
+          featureDF = featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqOrder[j]),],
+          useMatrix = groupName,
+          cellNames = cellNames[cellNames %in% cellsKeep]
+        )
+
+        o <- .addMatToArrow(
+          mat = mat, 
+          ArrowFile = outArrow, 
+          Group = paste0(groupName, "/", seqOrder[j]), 
+          binarize = all(mat@x == 1),
+          addColSums = "colSums" %in% addAnalysis,
+          addRowSums = "rowSums" %in% addAnalysis,
+          addRowMeans = "rowMeans" %in% addAnalysis,
+          addRowVars = "rowVars" %in% addAnalysis,
+          addRowVarsLog2 = "rowVarsLog2" %in% addAnalysis
+        )
+
+        rm(mat)
+
+      }
+
+    }
+
+    gc()
+    
+    if(verbose) message("")
+
+  }
+
+  .logDiffTime("Completed Copying ArrowFile", tstart, logFile = logFile, verbose = verbose)
+
+  outArrow
+
+}

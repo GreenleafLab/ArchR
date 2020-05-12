@@ -29,6 +29,33 @@ getArchRLogging <- function(){
   ArchRLogging
 }
 
+#' Set ArchR Debugging
+#' 
+#' This function will set ArchR Debugging which will save an RDS if an error is encountered.
+#'
+#' @param debug A boolean describing whether to use logging with ArchR.
+#' @export
+addArchRDebugging <- function(debug = FALSE){
+  .validInput(input = debug, name = "debug", valid = "boolean")
+  message("Setting ArchRDebugging = ", debug)
+  options(ArchR.logging = debug)
+  return(invisible(0))
+}
+
+#' Get ArchR Debugging
+#' 
+#' This function will get ArchR Debugging which will save an RDS if an error is encountered.
+#'
+#' @export
+getArchRDebugging <- function(){
+  ArchRDebugging <- options()[["ArchR.debugging"]]
+  if(!is.logical(ArchRDebugging)){
+    options(ArchR.debugging = FALSE)
+    return(FALSE)
+  }
+  ArchRDebugging
+}
+
 #' Create a Log File for ArchR
 #' 
 #' This function will create a log file for ArchR functions. If ArchRLogging is not TRUE
@@ -274,7 +301,8 @@ createLogFile <- function(
   errorList = NULL,
   logFile = NULL,   
   useLogs = getArchRLogging(),
-  throwError = TRUE
+  throwError = TRUE,
+  debug = getArchRDebugging()
   ){
 
   header <- "************************************************************"
@@ -303,6 +331,14 @@ createLogFile <- function(
   
   #To Console
   cat(sprintf("\n%s\n%s : ERROR Found in %s for %s \nLogFile = %s\n\n", header, Sys.time(), fn, info, logFile))
+  
+  if(debug){
+    if(!is.null(errorList)){
+      debugFile <- paste0(gsub("\\.log", "", logFile), "-debug.rds")
+      cat(sprintf("\n%s : ArchRDebugging is set to TRUE, DebugFile = %s\n", Sys.time(), debugFile))
+      saveRDS(errorList, debugFile)
+    }
+  }
 
   print(e)
 

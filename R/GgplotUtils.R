@@ -17,6 +17,7 @@
 #' @param labelMeans A boolean value indicating whether the mean of each categorical/discrete color should be labeled.
 #' @param pal A custom palette used to override discreteSet/continuousSet for coloring vector.
 #' @param defaultColor The default color for points that do not have another color applied (i.e. `NA` values).
+#' @param highlightPoints A integer vector describing which points to hightlight. The remainder of points will be colored light gray.
 #' @param colorDensity A boolean value indicating whether the density of points on the plot should be indicated by color.
 #' If `TRUE`, continuousSet is used as the color palette.
 #' @param size The numeric size of the points to be plotted.
@@ -60,6 +61,7 @@ ggPoint <- function(
   labelMeans = TRUE,  
   pal = NULL, 
   defaultColor = "lightGrey",
+  highlightPoints = NULL,
   colorDensity = FALSE,
   size = 1, 
   xlim = NULL, 
@@ -97,6 +99,7 @@ ggPoint <- function(
   .validInput(input = labelMeans, name = "labelMeans", valid = c("boolean"))
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = defaultColor, name = "defaultColor", valid = c("character"))
+  .validInput(input = highlightPoints, name = "highlightPoints", valid = c("integer", "null"))
   .validInput(input = colorDensity, name = "colorDensity", valid = c("boolean"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = xlim, name = "xlim", valid = c("numeric", "null"))
@@ -199,6 +202,14 @@ ggPoint <- function(
 
       }else if(discrete){
 
+        if(!is.null(highlightPoints)){
+          if(length(highlightPoints) < length(color)){
+            color[-highlightPoints] <- "Non.Highlighted"
+            idx <- c(idx[-highlightPoints], idx[highlightPoints])
+          }
+        }
+        color <- paste0(color)
+
         if(!is.null(colorOrder)){
           if(!all(color %in% colorOrder)){
             stop("Not all colors are in colorOrder!")
@@ -229,6 +240,12 @@ ggPoint <- function(
 
       }else{
         stopifnot(length(color) == nrow(df))
+        if(!is.null(highlightPoints)){
+          if(length(highlightPoints) < length(color)){
+            color[-highlightPoints] <- NA
+            idx <- c(idx[-highlightPoints], idx[highlightPoints])
+          }
+        }
         if(!is.null(colorLimits)){
           color[color < min(colorLimits)] <- min(colorLimits)
           color[color > max(colorLimits)] <- max(colorLimits)
@@ -275,7 +292,12 @@ ggPoint <- function(
         if (!is.null(pal)) {
             p <- p + scale_color_manual(values = pal)
         }else {
-            p <- p + scale_color_manual(values = paletteDiscrete(set = discreteSet, values = colorOrder)) +
+            pal <- paletteDiscrete(set = discreteSet, values = colorOrder)
+            if(!is.null(highlightPoints)){
+              pal[grep("Non.Highlighted", names(pal))] <- "lightgrey"
+            }
+            #print(pal)
+            p <- p + scale_color_manual(values = pal) +
               guides(color = guide_legend(override.aes = list(size = legendSize, shape = 15)))
         }
 
@@ -321,15 +343,15 @@ ggPoint <- function(
 
         if (!is.null(pal)) {
             if(!is.null(colorLimits)){
-              p <- p + scale_colour_gradientn(colors = pal, limits=colorLimits)
+              p <- p + scale_colour_gradientn(colors = pal, limits=colorLimits, na.value = "lightgrey")
             }else{
-              p <- p + scale_colour_gradientn(colors = pal)
+              p <- p + scale_colour_gradientn(colors = pal, na.value = "lightgrey")
             }
         }else {
           if(!is.null(colorLimits)){
-            p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet), limits=colorLimits)
+            p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet), limits=colorLimits, na.value = "lightgrey")
           }else{
-            p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet))
+            p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet), na.value = "lightgrey")
           }
         }
     }
