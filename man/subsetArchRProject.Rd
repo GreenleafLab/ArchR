@@ -7,7 +7,10 @@
 subsetArchRProject(
   ArchRProj = NULL,
   cells = getCellNames(ArchRProj),
-  outputDirectory = "ArchRSubset"
+  outputDirectory = "ArchRSubset",
+  dropCells = TRUE,
+  logFile = NULL,
+  threads = getArchRThreads()
 )
 }
 \arguments{
@@ -16,6 +19,12 @@ subsetArchRProject(
 \item{cells}{A vector of cells to subset \code{ArchRProject} by. Alternatively can provide a subset \code{ArchRProject}.}
 
 \item{outputDirectory}{A directory path to save all ArchR output and the subsetted \code{ArchRProject} to.}
+
+\item{dropCells}{A boolean indicating whether to drop cells that are not in \code{ArchRProject} from corresponding Arrow Files.}
+
+\item{logFile}{The path to a file to be used for logging ArchR output.}
+
+\item{threads}{The number of threads to use for parallel execution.}
 }
 \description{
 This function will subset and ArchRProject by cells and save the output to a new directory and re-load the subsetted ArchRProject.

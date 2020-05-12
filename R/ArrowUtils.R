@@ -421,7 +421,15 @@
     idx <- BiocGenerics::which(RGRle %bcin% cellsKeep)
     RGRle <- RGRle[idx]
     RGLengths <- RGRle@lengths
-    RGValues <- stringr::str_split(RGRle@values, pattern = "#", simplify = TRUE)
+
+    #print(head(RGRle@values))
+    RGValues <- stringr::str_split(RGRle@values, pattern = "#", simplify = TRUE)[,2]
+
+    #Create Data Sets
+    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/Ranges"), storage.mode = "integer", dims = c(length(RGRle), 2), level = level))
+    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/RGLengths"), storage.mode = "integer", dims = c(length(RGRle), 1), level = level))
+    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/RGValues"), storage.mode = "character", dims = c(length(RGRle), 1), level = level, 
+    #         size = max(nchar(RGValues) + 1)))
 
     #Write Barcodes
     o <- .suppressAll(h5write(RGLengths, file = outArrow, name = paste0(groupJ, "/RGLengths"), level = level))
@@ -489,9 +497,9 @@
           h5name <- paste0(groupJ, "/", mDataj$name[i])
           
           if(i %in% idxCL){
-            .suppressAll(h5write(.h5read(inArrow, h5name)[idxKeep], file = outArrow, name = h5name, level = level))
+            .suppressAll(h5write(.h5read(inArrow, h5name)[idxKeep], file = outArrow, name = h5name))
           }else{
-            .suppressAll(h5write(.h5read(inArrow, h5name), file = outArrow, name = h5name, level = level))
+            .suppressAll(h5write(.h5read(inArrow, h5name), file = outArrow, name = h5name))
           }
 
         }

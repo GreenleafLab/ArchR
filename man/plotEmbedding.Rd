@@ -15,6 +15,7 @@ plotEmbedding(
   pal = NULL,
   size = 0.1,
   sampleCells = NULL,
+  highlightCells = NULL,
   rastr = TRUE,
   quantCut = c(0.01, 0.99),
   discreteSet = NULL,
@@ -50,6 +51,9 @@ See \code{addImputationWeights()} and \code{getImutationWeights()} for more info
 \item{size}{A number indicating the size of the points to plot if \code{plotAs} is set to "points".}
 
 \item{sampleCells}{A numeric describing number of cells to use for plot. If using impute weights, this will occur after imputation.}
+
+\item{highlightCells}{A character vector of cellNames describing which cells to hightlight if using \code{plotAs = "points"} (default if discrete).
+The remainder of cells will be colored light gray.}
 
 \item{rastr}{A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the
 internal portions of the plot.}
