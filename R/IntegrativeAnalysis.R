@@ -12,9 +12,9 @@
 #' @param useSeqnames1 A character vector describing which seqnames to use in matrix 1.
 #' @param useSeqnames2 A character vector describing which seqnames to use in matrix 2.
 #' @param removeFromName1 A character vector describing how to filter names in matrix 1. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.
 #' @param removeFromName2 A character vector describing how to filter names in matrix 2. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.
 #' @param log2Norm1 A boolean describing whether to log2 normalize matrix 1.
 #' @param log2Norm2 A boolean describing whether to log2 normalize matrix 2.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
@@ -123,6 +123,9 @@ correlateMatrices <- function(
   if("numeric" %in% tolower(removeFromName1)){
     featureDF1$matchName <- gsub("[0-9]+","",featureDF1$matchName)
   }
+  if("dot" %in% tolower(removeFromName1)){
+    featureDF1$matchName <- gsub("\\..*","",featureDF1$matchName)
+  }
 
   featureDF2$matchName <- featureDF2$name
   if("underscore" %in% tolower(removeFromName2)){
@@ -134,6 +137,10 @@ correlateMatrices <- function(
   if("numeric" %in% tolower(removeFromName2)){
     featureDF2$matchName <- gsub("[0-9]+","",featureDF2$matchName)
   }
+  if("dot" %in% tolower(removeFromName2)){
+    featureDF2$matchName <- gsub("\\..*","",featureDF2$matchName)
+  }
+
   .logThis(featureDF1, name = "featureDF1", logFile = logFile)
   .logThis(featureDF2, name = "featureDF2", logFile = logFile)
 
@@ -361,9 +368,9 @@ correlateMatrices <- function(
 #' @param varCutOff2 The "Variance Quantile Cutoff" to be used for identifying the top variable features across `seTrajectory2`.
 #' Only features with a variance above the provided quantile will be retained.
 #' @param removeFromName1 A character vector describing how to filter names in matrix 1. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.
 #' @param removeFromName2 A character vector describing how to filter names in matrix 2. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.
 #' @param useRanges A boolean describing whether to use range overlap matching for correlation analysis.
 #' @param fix1 A character describing where to resize the coordinates of `seTrajectory1`. Options include "start", "center", "end".
 #' @param fix2 A character describing where to resize the coordinates of `seTrajectory2`. Options include "start", "center", "end".
@@ -554,6 +561,9 @@ correlateTrajectories <- function(
     if("numeric" %in% tolower(removeFromName1)){
       featureDF1$matchName <- gsub("[0-9]+","",featureDF1$matchName)
     }
+    if("dot" %in% tolower(removeFromName1)){
+      featureDF1$matchName <- gsub("\\..*","",featureDF1$matchName)
+    }
 
     featureDF2$matchName <- featureDF2$name
     if("underscore" %in% tolower(removeFromName2)){
@@ -565,7 +575,10 @@ correlateTrajectories <- function(
     if("numeric" %in% tolower(removeFromName2)){
       featureDF2$matchName <- gsub("[0-9]+","",featureDF2$matchName)
     }
-    
+    if("dot" %in% tolower(removeFromName2)){
+      featureDF2$matchName <- gsub("\\..*","",featureDF2$matchName)
+    }  
+
     #Now Lets see how many matched pairings
     matchP1 <- sum(featureDF1$matchName %in% featureDF2$matchName) / nrow(featureDF1)
     matchP2 <- sum(featureDF2$matchName %in% featureDF1$matchName) / nrow(featureDF2)
