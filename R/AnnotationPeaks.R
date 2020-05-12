@@ -840,15 +840,15 @@ peakAnnoEnrichment <- function(
   }
   
   r1 <- SummarizedExperiment::rowRanges(matches)
-  pr1 <- paste0(seqnames(r1),start(r1),end(r1),sep="_")
+  pr1 <- paste(seqnames(r1),start(r1),end(r1),sep="_")
   mcols(r1) <- NULL
 
   r2 <- getPeakSet(ArchRProj)
-  pr2 <- paste0(seqnames(r2),start(r2),end(r2),sep="_")
+  pr2 <- paste(seqnames(r2),start(r2),end(r2),sep="_")
   mcols(r2) <- NULL
 
   r3 <- GRanges(rowData(seMarker)$seqnames, IRanges(rowData(seMarker)$start, rowData(seMarker)$end))
-  pr3 <- paste0(seqnames(r3),start(r3),end(r3),sep="_")
+  pr3 <- paste(seqnames(r3),start(r3),end(r3),sep="_")
   mcols(r3) <- NULL
 
   .logThis(r1, "Peaks-Matches", logFile = logFile)
