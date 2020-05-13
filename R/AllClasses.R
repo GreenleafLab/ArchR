@@ -227,7 +227,7 @@ recoverArchRProject <- function(ArchRProj){
 
     peakSet <- tryCatch({
    
-      ArchRProj@peakSet[1]
+      ArchRProj@peakSet
    
     }, error = function(x){
       
