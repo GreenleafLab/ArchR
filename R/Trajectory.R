@@ -328,12 +328,14 @@ getTrajectory <- function(
     
     message("Smoothing...")
     smoothGroupMat <- as.matrix(t(apply(groupMat, 1, function(x) .centerRollMean(x, k = smoothWindow))))
-    
+    colnames(smoothGroupMat) <- paste0(colnames(groupMat))
+    colnames(groupMat) <- paste0(colnames(groupMat))
+
     #Create SE
     seTrajectory <- SummarizedExperiment(
         assays = SimpleList(
-          smoothMat = smoothGroupMat, 
-          mat = groupMat
+          smoothMat = as.matrix(smoothGroupMat), 
+          mat = as.matrix(groupMat)
         ), 
         rowData = featureDF
     )
@@ -345,10 +347,12 @@ getTrajectory <- function(
 
   }else{
 
+    colnames(groupMat) <- paste0(colnames(groupMat))
+
     #Create SE
     seTrajectory <- SummarizedExperiment(
         assays = SimpleList(
-          mat = groupMat
+          mat = as.matrix(groupMat)
         ), 
         rowData = featureDF
     )
