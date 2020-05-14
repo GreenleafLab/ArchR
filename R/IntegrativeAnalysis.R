@@ -795,7 +795,7 @@ addCoAccessibility <- function(
 
     #Correlations
     idx <- BiocGenerics::which(o$seqnames==chri[x])
-    o[idx,]$correlation <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = groupMat, Y = groupMat)
+    o[idx,]$correlation <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
 
     .logThis(groupMat, paste0("SubsetGroupMat-", x), logFile = logFile)
     .logThis(o[idx,], paste0("SubsetCoA-", x), logFile = logFile)

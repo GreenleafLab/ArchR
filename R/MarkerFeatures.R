@@ -626,7 +626,7 @@ getMarkerFeatures <- function(
       k2 <- k
     }
 
-    knnx <- .computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k2)
+    knnx <- .computeKNN(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
     sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
 
     minTotal <- min(n, length(sx) * bufferRatio)
