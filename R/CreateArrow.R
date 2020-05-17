@@ -2185,7 +2185,7 @@ createArrowFiles <- function(
 
     tryCatch({
 
-      system(paste0("mv ", from, " ", to))
+      system(paste0("mv '", from, "' '", to, "'"))
 
       return(to)
 
