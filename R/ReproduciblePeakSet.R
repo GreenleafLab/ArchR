@@ -178,7 +178,7 @@ addReproduciblePeakSet <- function(
 		args$X <- seq_len(nrow(coverageMetadata))
 		args$FUN <- .callSummitsOnCoverages
 		args$coverageFiles <- coverageFiles
-		args$outFiles <- file.path(outSubDir, paste0(make.names(coverageMetadata$Name),"-summits.rds"))
+		args$outFiles <- sQuote(file.path(outSubDir, paste0(make.names(coverageMetadata$Name),"-summits.rds")), q="'")
 		args$bedDir <- outBedDir
 		args$excludeChr <- excludeChr
 		args$peakParams <- list(
