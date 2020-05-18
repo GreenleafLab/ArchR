@@ -225,13 +225,16 @@ addGeneScoreMatrix <- function(
 
   #Blacklist Split
   if(!is.null(blacklist)){
-    blacklist <- split(blacklist, seqnames(blacklist))
+    if(length(blacklist) > 0){
+      blacklist <- split(blacklist, seqnames(blacklist))
+    }
   }
 
   #Get all cell ids before constructing matrix
   if(is.null(cellNames)){
     cellNames <- .availableCells(ArrowFile)
   }
+
   if(!is.null(allCells)){
     cellNames <- cellNames[cellNames %in% allCells]
   }
@@ -364,11 +367,13 @@ addGeneScoreMatrix <- function(
 
       #Remove Blacklisted Tiles!
       if(!is.null(blacklist)){
-        blacklistz <- blacklist[[chrz]]
-        if(is.null(blacklistz) | length(blacklistz) > 0){
-          tilesBlacklist <- 1 * (!overlapsAny(uniqueTiles, ranges(blacklistz)))
-          if(sum(tilesBlacklist == 0) > 0){
-            x <- x * tilesBlacklist[subjectHits(tmp)] #Multiply Such That All Blacklisted Tiles weight is now 0!
+        if(length(blacklist) > 0){
+          blacklistz <- blacklist[[chrz]]
+          if(is.null(blacklistz) | length(blacklistz) > 0){
+            tilesBlacklist <- 1 * (!overlapsAny(uniqueTiles, ranges(blacklistz)))
+            if(sum(tilesBlacklist == 0) > 0){
+              x <- x * tilesBlacklist[subjectHits(tmp)] #Multiply Such That All Blacklisted Tiles weight is now 0!
+            }
           }
         }
       }
@@ -378,7 +383,8 @@ addGeneScoreMatrix <- function(
         i = queryHits(tmp), 
         j = subjectHits(tmp), 
         x = x, 
-        dims = c(length(geneRegionz), nrow(matGS)))
+        dims = c(length(geneRegionz), nrow(matGS))
+      )
 
       #Calculate Gene Scores
       matGS <- tmp %*% matGS
