@@ -243,6 +243,10 @@ plotEmbedding <- function(
   .logMessage("Getting UMAP Embedding", logFile = logFile)
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
 
+  if(!all(rownames(df) %in% ArchRProj$cellNames)){
+    stop("Not all cells in embedding are present in ArchRProject!")
+  }
+
   .logThis(df, name = "Embedding data.frame", logFile = logFile)
   if(!is.null(sampleCells)){
     if(sampleCells < nrow(df)){
