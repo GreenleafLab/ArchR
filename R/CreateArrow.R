@@ -615,8 +615,10 @@ createArrowFiles <- function(
     o <- h5write(obj = Metadata$ReadsInPromoter[idx], file = ArrowFile, name = "Metadata/ReadsInPromoter")
     o <- h5write(obj = Metadata$PromoterRatio[idx], file = ArrowFile, name = "Metadata/PromoterRatio")
     if(!is.null(genomeAnnotation$blacklist)){
-      o <- h5write(obj = Metadata$ReadsInBlacklist[idx], file = ArrowFile, name = "Metadata/ReadsInBlacklist")
-      o <- h5write(obj = Metadata$BlacklistRatio[idx], file = ArrowFile, name = "Metadata/BlacklistRatio")
+      if ( length(genomeAnnotation$blacklist) > 0){	
+        o <- h5write(obj = Metadata$ReadsInBlacklist[idx], file = ArrowFile, name = "Metadata/ReadsInBlacklist")
+        o <- h5write(obj = Metadata$BlacklistRatio[idx], file = ArrowFile, name = "Metadata/BlacklistRatio")
+	  }
     }
     Metadata <- Metadata[idx, , drop = FALSE]
   }
@@ -2047,7 +2049,11 @@ createArrowFiles <- function(
     H5Fclose(fid)
 
     #Remove all sub-linked tmp files
-    rmf <- file.remove(list.files(dirname(tmpFile), pattern = paste0(gsub(".arrow", "", basename(tmpFile)), ".chr"), full.names=TRUE))
+    if ( getArchRChrPrefix() ){
+        rmf <- file.remove(list.files(dirname(tmpFile), pattern = paste0(gsub(".arrow", "", basename(tmpFile)), ".chr"), full.names=TRUE))
+	}else{
+        rmf <- file.remove(list.files(dirname(tmpFile), pattern = paste0(gsub(".arrow", "", basename(tmpFile)), "."), full.names=TRUE))
+	}
 
   }
 
@@ -2158,7 +2164,11 @@ createArrowFiles <- function(
 
   #Remove old Arrow
   rmf <- file.remove(inArrow)
-  rmf <- .suppressAll(file.remove(list.files("tmp", pattern = paste0(gsub(".arrow", "", basename(inArrow)), "#chr"), full.names=TRUE)))
+  if ( getArchRChrPrefix() ){
+    rmf <- .suppressAll(file.remove(list.files("tmp", pattern = paste0(gsub(".arrow", "", basename(inArrow)), "#chr"), full.names=TRUE)))
+  }else{
+    rmf <- .suppressAll(file.remove(list.files("tmp", pattern = paste0(gsub(".arrow", "", basename(inArrow)), "#"), full.names=TRUE)))
+  }
   out <- .fileRename(from = outArrow, to = inArrow)
 
   .logDiffTime(paste0(prefix, " Finished Constructing Filtered Arrow File!"), t1 = tstart, verbose = verbose, logFile = logFile)
