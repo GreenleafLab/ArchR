@@ -251,6 +251,7 @@ getGroupBW <- function(
       bwDir = bwDir2,
       tstart = tstart, 
       verbose = verbose,
+      logFile = logFile,
       threads = threads
     )
 
@@ -283,6 +284,7 @@ getGroupBW <- function(
   bwDir = "bigwigs",
   tstart = NULL, 
   verbose = TRUE,
+  logFile = NULL,
   threads = 1
   ){
 
