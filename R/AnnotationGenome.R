@@ -138,7 +138,7 @@ createGeneAnnotation <- function(
       }
 
     }
-    annoStyle <- touppwer(annoStyle)
+    annoStyle <- toupper(annoStyle)
 
     message("Determined Annotation Style = ", annoStyle)
 
