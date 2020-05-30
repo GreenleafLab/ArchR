@@ -1232,8 +1232,8 @@ getPeak2GeneLinks <- function(
   ArchRProj = NULL, 
   corCutOff = 0.45, 
   FDRCutOff = 0.0001,
-  varCutOffATAC = 0.5,
-  varCutOffRNA = 0.5,
+  varCutOffATAC = 0.25,
+  varCutOffRNA = 0.25,
   resolution = 1, 
   returnLoops = TRUE
   ){
@@ -1340,8 +1340,8 @@ plotPeak2GeneHeatmap <- function(
   ArchRProj = NULL, 
   corCutOff = 0.45, 
   FDRCutOff = 0.0001,
-  varCutOffATAC = 0.5,
-  varCutOffRNA = 0.5,
+  varCutOffATAC = 0.25,
+  varCutOffRNA = 0.25,
   k = 25,
   nPlot = 25000,
   limitsATAC = c(-2, 2),
