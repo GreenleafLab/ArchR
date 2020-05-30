@@ -662,6 +662,7 @@ ArchRBrowserTrack <- function(...){
 #' is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
 #' @param threads The number of threads to use for parallel execution.
 #' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
+#' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override coloring for groups.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
@@ -688,6 +689,7 @@ plotBrowserTrack <- function(
   normMethod = "ReadsInTSS",
   threads = getArchRThreads(), 
   ylim = NULL,
+  pal = NULL,
   baseSize = 7,
   borderWidth = 0.4,
   tickWidth = 0.4,
@@ -714,6 +716,7 @@ plotBrowserTrack <- function(
   .validInput(input = normMethod, name = "normMethod", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
+  .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = baseSize, name = "baseSize", valid = "numeric")
   .validInput(input = borderWidth, name = "borderWidth", valid = "numeric")
   .validInput(input = tickWidth, name = "tickWidth", valid = "numeric")
@@ -759,6 +762,7 @@ plotBrowserTrack <- function(
         groupBy = groupBy,
         threads = threads, 
         minCells = minCells,
+        pal = pal,
         ylim = ylim,
         baseSize = baseSize,
         borderWidth = borderWidth,
