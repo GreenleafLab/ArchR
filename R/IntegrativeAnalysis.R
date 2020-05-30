@@ -1314,6 +1314,9 @@ peak2GeneHeatmap <- function(...){
 #' @param palATAC A color palette describing the colors to be used for the ATAC heatmap. For example, paletteContinuous("solarExtra").
 #' @param palRNA A color palette describing the colors to be used for the RNA heatmap. For example, paletteContinuous("blueYellow").
 #' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param returnMatrices A boolean value that determines whether the matrices should be returned with kmeans id versus plotting.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+#' reproduce results downstream.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 plotPeak2GeneHeatmap <- function(
@@ -1329,6 +1332,8 @@ plotPeak2GeneHeatmap <- function(
   palATAC = paletteContinuous("solarExtra"),
   palRNA = paletteContinuous("blueYellow"),
   verbose = TRUE,
+  returnMatrices = FALSE,
+  seed = 1,
   logFile = createLogFile("plotPeak2GeneHeatmap")
   ){
 
@@ -1344,8 +1349,9 @@ plotPeak2GeneHeatmap <- function(
   .validInput(input = palATAC, name = "palATAC", valid = c("palette", "null"))
   .validInput(input = palRNA, name = "palRNA", valid = c("palette", "null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = returnMatrices, name = "returnMatrices", valid = c("boolean"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
-
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
@@ -1402,6 +1408,9 @@ plotPeak2GeneHeatmap <- function(
   rownames(mRNA) <- paste0("P2G", seq_len(nrow(mRNA)))
 
   .logDiffTime(main="Ordering Peak2Gene Links!", t1=tstart, verbose=verbose, logFile=logFile)
+  if(!is.null(seed)){
+    set.seed(seed)
+  }
   k1 <- kmeans(mATAC, k)
   if(nrow(mATAC) > nPlot){
     nPK <- nPlot * table(k1$cluster) / length(k1$cluster) 
@@ -1418,6 +1427,26 @@ plotPeak2GeneHeatmap <- function(
   rowOrder <- rownames(bS[[1]])
   colOrder <- colnames(bS[[1]])
   kDF[,3] <- as.integer(mapLabels(paste0(kDF[,1]), newLabels = paste0(seq_along(rowOrder)), oldLabels = rowOrder))
+
+  if(returnMatrices){
+
+    out <- SimpleList(
+        ATAC = SimpleList(
+          matrix = mATAC[kDF[,2],colOrder],
+          kmeansId = kDF[,3],
+          colData = cD[colOrder,,drop=FALSE]
+        ),
+        RNA = SimpleList(
+          matrix = mRNA[kDF[,2],colOrder],
+          kmeansId = kDF[,3],
+          colData = cD[colOrder,,drop=FALSE]
+        )
+      )
+
+    return(out)
+
+  }
+
 
   #########################################
   # Plot Heatmaps
