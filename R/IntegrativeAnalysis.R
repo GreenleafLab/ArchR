@@ -12,9 +12,9 @@
 #' @param useSeqnames1 A character vector describing which seqnames to use in matrix 1.
 #' @param useSeqnames2 A character vector describing which seqnames to use in matrix 2.
 #' @param removeFromName1 A character vector describing how to filter names in matrix 1. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.
 #' @param removeFromName2 A character vector describing how to filter names in matrix 2. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.
 #' @param log2Norm1 A boolean describing whether to log2 normalize matrix 1.
 #' @param log2Norm2 A boolean describing whether to log2 normalize matrix 2.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to use from the designated `ArchRProject`.
@@ -123,6 +123,9 @@ correlateMatrices <- function(
   if("numeric" %in% tolower(removeFromName1)){
     featureDF1$matchName <- gsub("[0-9]+","",featureDF1$matchName)
   }
+  if("dot" %in% tolower(removeFromName1)){
+    featureDF1$matchName <- gsub("\\..*","",featureDF1$matchName)
+  }
 
   featureDF2$matchName <- featureDF2$name
   if("underscore" %in% tolower(removeFromName2)){
@@ -134,6 +137,10 @@ correlateMatrices <- function(
   if("numeric" %in% tolower(removeFromName2)){
     featureDF2$matchName <- gsub("[0-9]+","",featureDF2$matchName)
   }
+  if("dot" %in% tolower(removeFromName2)){
+    featureDF2$matchName <- gsub("\\..*","",featureDF2$matchName)
+  }
+
   .logThis(featureDF1, name = "featureDF1", logFile = logFile)
   .logThis(featureDF2, name = "featureDF2", logFile = logFile)
 
@@ -361,9 +368,9 @@ correlateMatrices <- function(
 #' @param varCutOff2 The "Variance Quantile Cutoff" to be used for identifying the top variable features across `seTrajectory2`.
 #' Only features with a variance above the provided quantile will be retained.
 #' @param removeFromName1 A character vector describing how to filter names in matrix 1. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.
 #' @param removeFromName2 A character vector describing how to filter names in matrix 2. 
-#' Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.
+#' Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.
 #' @param useRanges A boolean describing whether to use range overlap matching for correlation analysis.
 #' @param fix1 A character describing where to resize the coordinates of `seTrajectory1`. Options include "start", "center", "end".
 #' @param fix2 A character describing where to resize the coordinates of `seTrajectory2`. Options include "start", "center", "end".
@@ -554,6 +561,9 @@ correlateTrajectories <- function(
     if("numeric" %in% tolower(removeFromName1)){
       featureDF1$matchName <- gsub("[0-9]+","",featureDF1$matchName)
     }
+    if("dot" %in% tolower(removeFromName1)){
+      featureDF1$matchName <- gsub("\\..*","",featureDF1$matchName)
+    }
 
     featureDF2$matchName <- featureDF2$name
     if("underscore" %in% tolower(removeFromName2)){
@@ -565,7 +575,10 @@ correlateTrajectories <- function(
     if("numeric" %in% tolower(removeFromName2)){
       featureDF2$matchName <- gsub("[0-9]+","",featureDF2$matchName)
     }
-    
+    if("dot" %in% tolower(removeFromName2)){
+      featureDF2$matchName <- gsub("\\..*","",featureDF2$matchName)
+    }  
+
     #Now Lets see how many matched pairings
     matchP1 <- sum(featureDF1$matchName %in% featureDF2$matchName) / nrow(featureDF1)
     matchP2 <- sum(featureDF2$matchName %in% featureDF1$matchName) / nrow(featureDF2)
@@ -782,7 +795,10 @@ addCoAccessibility <- function(
 
     #Correlations
     idx <- BiocGenerics::which(o$seqnames==chri[x])
-    o[idx,]$correlation <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = groupMat, Y = groupMat)
+    o[idx,]$correlation <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
+
+    .logThis(groupMat, paste0("SubsetGroupMat-", x), logFile = logFile)
+    .logThis(o[idx,], paste0("SubsetCoA-", x), logFile = logFile)
 
   }
   
@@ -1206,6 +1222,8 @@ addPeak2GeneLinks <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param corCutOff A numeric describing the minimum numeric peak-to-gene correlation to return.
 #' @param FDRCutOff A numeric describing the maximum numeric peak-to-gene false discovery rate to return.
+#' @param varCutOffATAC A numeric describing the minimum variance quantile of the ATAC peak accessibility when selecting links.
+#' @param varCutOffRNA A numeric describing the minimum variance quantile of the RNA gene expression when selecting links.
 #' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
 #' @param returnLoops A boolean indicating to return the peak-to-gene links as a `GRanges` "loops" object designed for use with
 #' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
@@ -1214,12 +1232,17 @@ getPeak2GeneLinks <- function(
   ArchRProj = NULL, 
   corCutOff = 0.45, 
   FDRCutOff = 0.0001,
+  varCutOffATAC = 0.5,
+  varCutOffRNA = 0.5,
   resolution = 1, 
   returnLoops = TRUE
   ){
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = corCutOff, name = "corCutOff", valid = "numeric")
+  .validInput(input = FDRCutOff, name = "FDRCutOff", valid = "numeric")
+  .validInput(input = varCutOffATAC, name = "varCutOffATAC", valid = "numeric")
+  .validInput(input = varCutOffRNA, name = "varCutOffRNA", valid = "numeric")
   .validInput(input = resolution, name = "resolution", valid = c("integer", "null"))
   .validInput(input = returnLoops, name = "returnLoops", valid = "boolean")
   
@@ -1235,6 +1258,14 @@ getPeak2GeneLinks <- function(
    
     p2g <- metadata(ArchRProj@peakSet)$Peak2GeneLinks
     p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
+
+    if(!is.null(varCutOffATAC)){
+      p2g <- p2g[which(p2g$VarQATAC > varCutOffATAC),]
+    }
+
+    if(!is.null(varCutOffRNA)){
+      p2g <- p2g[which(p2g$VarQRNA > varCutOffRNA),]
+    }
 
     if(returnLoops){
       
@@ -1289,6 +1320,8 @@ peak2GeneHeatmap <- function(...){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param corCutOff A numeric describing the minimum numeric peak-to-gene correlation to return.
 #' @param FDRCutOff A numeric describing the maximum numeric peak-to-gene false discovery rate to return.
+#' @param varCutOffATAC A numeric describing the minimum variance quantile of the ATAC peak accessibility when selecting links.
+#' @param varCutOffRNA A numeric describing the minimum variance quantile of the RNA gene expression when selecting links.
 #' @param k An integer describing the number of k-means clusters to group peak-to-gene links prior to plotting heatmaps.
 #' @param nPlot An integer describing the maximum number of peak-to-gene links to plot in heatmap.
 #' @param limitsATAC An integer describing the maximum number of peak-to-gene links to plot in heatmap.
@@ -1298,12 +1331,17 @@ peak2GeneHeatmap <- function(...){
 #' @param palATAC A color palette describing the colors to be used for the ATAC heatmap. For example, paletteContinuous("solarExtra").
 #' @param palRNA A color palette describing the colors to be used for the RNA heatmap. For example, paletteContinuous("blueYellow").
 #' @param verbose A boolean value that determines whether standard output should be printed.
+#' @param returnMatrices A boolean value that determines whether the matrices should be returned with kmeans id versus plotting.
+#' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
+#' reproduce results downstream.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 plotPeak2GeneHeatmap <- function(
   ArchRProj = NULL, 
   corCutOff = 0.45, 
   FDRCutOff = 0.0001,
+  varCutOffATAC = 0.5,
+  varCutOffRNA = 0.5,
   k = 25,
   nPlot = 25000,
   limitsATAC = c(-2, 2),
@@ -1313,12 +1351,16 @@ plotPeak2GeneHeatmap <- function(
   palATAC = paletteContinuous("solarExtra"),
   palRNA = paletteContinuous("blueYellow"),
   verbose = TRUE,
+  returnMatrices = FALSE,
+  seed = 1,
   logFile = createLogFile("plotPeak2GeneHeatmap")
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = FDRCutOff, name = "FDRCutOff", valid = c("numeric"))
+  .validInput(input = varCutOffATAC, name = "varCutOffATAC", valid = "numeric")
+  .validInput(input = varCutOffRNA, name = "varCutOffRNA", valid = "numeric")
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = nPlot, name = "nPlot", valid = c("integer"))
   .validInput(input = limitsATAC, name = "limitsATAC", valid = c("numeric"))
@@ -1328,8 +1370,9 @@ plotPeak2GeneHeatmap <- function(
   .validInput(input = palATAC, name = "palATAC", valid = c("palette", "null"))
   .validInput(input = palRNA, name = "palRNA", valid = c("palette", "null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = returnMatrices, name = "returnMatrices", valid = c("boolean"))
+  .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
-
 
   tstart <- Sys.time()
   .startLogging(logFile = logFile)
@@ -1346,15 +1389,32 @@ plotPeak2GeneHeatmap <- function(
   p2g <- metadata(ArchRProj@peakSet)$Peak2GeneLinks
   p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
 
+  if(!is.null(varCutOffATAC)){
+    p2g <- p2g[which(p2g$VarQATAC > varCutOffATAC),]
+  }
+
+  if(!is.null(varCutOffRNA)){
+    p2g <- p2g[which(p2g$VarQRNA > varCutOffRNA),]
+  }
+
+  if(nrow(p2g) == 0){
+    stop("No peak2genelinks found with your cutoffs!")
+  }
+
   if(!file.exists(metadata(p2g)$seATAC)){
     stop("seATAC does not exist! Did you change paths? If this does not work, please try re-running addPeak2GeneLinks!")
   }
   if(!file.exists(metadata(p2g)$seRNA)){
     stop("seRNA does not exist! Did you change paths? If this does not work, please try re-running addPeak2GeneLinks!")
   }
-  mATAC <- assay(readRDS(metadata(p2g)$seATAC)[p2g$idxATAC, ])
-  mRNA <- assay(readRDS(metadata(p2g)$seRNA)[p2g$idxRNA, ])
+  mATAC <- readRDS(metadata(p2g)$seATAC)[p2g$idxATAC, ]
+  mRNA <- readRDS(metadata(p2g)$seRNA)[p2g$idxRNA, ]
+  p2g$peak <- paste0(rowRanges(mATAC))
+  p2g$gene <- rowData(mRNA)$name
   gc()
+
+  mATAC <- assay(mATAC)
+  mRNA <- assay(mRNA)
 
   #########################################
   # Determine Groups from KNN
@@ -1380,12 +1440,16 @@ plotPeak2GeneHeatmap <- function(
   mRNA <- .rowZscores(mRNA)
   rownames(mATAC) <- NULL
   rownames(mRNA) <- NULL
-  colnames(mATAC) <- paste0("K", seq_len(ncol(mATAC)))
-  colnames(mRNA) <- paste0("K", seq_len(ncol(mRNA)))
-  rownames(mATAC) <- paste0("P2G", seq_len(nrow(mATAC)))
-  rownames(mRNA) <- paste0("P2G", seq_len(nrow(mRNA)))
+  colnames(mATAC) <- paste0("K_", seq_len(ncol(mATAC)))
+  colnames(mRNA) <- paste0("K_", seq_len(ncol(mRNA)))
+  rownames(mATAC) <- paste0("P2G_", seq_len(nrow(mATAC)))
+  rownames(mRNA) <- paste0("P2G_", seq_len(nrow(mRNA)))
+  rownames(p2g) <- paste0("P2G_", seq_len(nrow(p2g)))
 
   .logDiffTime(main="Ordering Peak2Gene Links!", t1=tstart, verbose=verbose, logFile=logFile)
+  if(!is.null(seed)){
+    set.seed(seed)
+  }
   k1 <- kmeans(mATAC, k)
   if(nrow(mATAC) > nPlot){
     nPK <- nPlot * table(k1$cluster) / length(k1$cluster) 
@@ -1402,6 +1466,27 @@ plotPeak2GeneHeatmap <- function(
   rowOrder <- rownames(bS[[1]])
   colOrder <- colnames(bS[[1]])
   kDF[,3] <- as.integer(mapLabels(paste0(kDF[,1]), newLabels = paste0(seq_along(rowOrder)), oldLabels = rowOrder))
+
+  if(returnMatrices){
+
+    out <- SimpleList(
+        ATAC = SimpleList(
+          matrix = mATAC[kDF[,2],colOrder],
+          kmeansId = kDF[,3],
+          colData = cD[colOrder,,drop=FALSE]
+        ),
+        RNA = SimpleList(
+          matrix = mRNA[kDF[,2],colOrder],
+          kmeansId = kDF[,3],
+          colData = cD[colOrder,,drop=FALSE]
+        ),
+        Peak2GeneLinks = p2g[kDF[,2],]
+      )
+
+    return(out)
+
+  }
+
 
   #########################################
   # Plot Heatmaps

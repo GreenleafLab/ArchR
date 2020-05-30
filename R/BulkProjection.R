@@ -51,7 +51,7 @@ projectBulkATAC <- function(
   }
   .logThis(rDGR, "reducedDimsGRanges", logFile = logFile)
   subATAC <- subsetByOverlaps(seATAC, rDGR, ignore.strand = TRUE)
-  subATAC <- subATAC[order(rowSums(.getAssay(subATAC, "counts")), decreasing = TRUE), ]
+  subATAC <- subATAC[order(rowSums(as.matrix(.getAssay(subATAC, "counts"))), decreasing = TRUE), ]
   o <- DataFrame(findOverlaps(subATAC, rDGR, ignore.strand = TRUE))
   sumOverlap <- length(unique(o[,2]))
   .logThis(o, "overlapATAC", logFile = logFile)

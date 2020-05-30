@@ -284,6 +284,12 @@ getTrajectory <- function(
   trajectory <- getCellColData(ArchRProj, name)
   trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
   breaks <- seq(0, 100, groupEvery)
+  if(!all(is.numeric(trajectory[,1]))){
+    stop("Trajectory must be a numeric. Did you add the trajectory with addTrajectory?")
+  }
+  if(!all(trajectory[,1] >= 0 & trajectory[,1] <= 100)){
+    stop("Trajectory values must be between 0 and 100. Did you add the trajectory with addTrajectory?")
+  }
 
   groupList <- lapply(seq_along(breaks), function(x){
       if(x == 1){
@@ -328,12 +334,14 @@ getTrajectory <- function(
     
     message("Smoothing...")
     smoothGroupMat <- as.matrix(t(apply(groupMat, 1, function(x) .centerRollMean(x, k = smoothWindow))))
-    
+    colnames(smoothGroupMat) <- paste0(colnames(groupMat))
+    colnames(groupMat) <- paste0(colnames(groupMat))
+
     #Create SE
     seTrajectory <- SummarizedExperiment(
         assays = SimpleList(
-          smoothMat = smoothGroupMat, 
-          mat = groupMat
+          smoothMat = as.matrix(smoothGroupMat), 
+          mat = as.matrix(groupMat)
         ), 
         rowData = featureDF
     )
@@ -345,10 +353,12 @@ getTrajectory <- function(
 
   }else{
 
+    colnames(groupMat) <- paste0(colnames(groupMat))
+
     #Create SE
     seTrajectory <- SummarizedExperiment(
         assays = SimpleList(
-          mat = groupMat
+          mat = as.matrix(groupMat)
         ), 
         rowData = featureDF
     )
@@ -402,7 +412,7 @@ trajectoryHeatmap <- function(...){
 #' `seqnames` that are not listed will be ignored. In the context of a `Sparse.Assays.Matrix`, such as a matrix containing chromVAR
 #' deviations, the `seqnames` do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
 #' raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.
-#' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
+#' @param returnMatrix A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param force If useSeqnames is longer than 1 if matrixClass is "Sparse.Assays.Matrix" to continue. This is not recommended because these matrices
 #' can be in different units.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -420,7 +430,7 @@ plotTrajectoryHeatmap <- function(
   labelRows = FALSE,
   rowOrder = NULL, 
   useSeqnames = NULL,
-  returnMat = FALSE,
+  returnMatrix = FALSE,
   force = FALSE,
   logFile = createLogFile("plotTrajectoryHeatmap")
   ){
@@ -437,7 +447,7 @@ plotTrajectoryHeatmap <- function(
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = rowOrder, name = "rowOrder", valid = c("vector", "null"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
-  .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
+  .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
@@ -585,7 +595,7 @@ plotTrajectoryHeatmap <- function(
 
   .endLogging(logFile = logFile)
 
-  if(returnMat){
+  if(returnMatrix){
     return(mat[idx, ])
   }else{
     return(ht)

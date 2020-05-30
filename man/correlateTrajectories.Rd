@@ -36,10 +36,10 @@ Only features with a variance above the provided quantile will be retained.}
 Only features with a variance above the provided quantile will be retained.}
 
 \item{removeFromName1}{A character vector describing how to filter names in matrix 1.
-Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.}
+Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.}
 
 \item{removeFromName2}{A character vector describing how to filter names in matrix 2.
-Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.}
+Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.}
 
 \item{useRanges}{A boolean describing whether to use range overlap matching for correlation analysis.}
 

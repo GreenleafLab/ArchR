@@ -328,7 +328,7 @@ addGeneIntegrationMatrix <- function(
 
   #Create Output Directory
   outDir1 <- getOutputDirectory(ArchRProj)
-  outDir2 <- file.path(outDir, "RNAIntegration")
+  outDir2 <- file.path(outDir1, "RNAIntegration")
   outDir3 <- file.path(outDir2, matrixName)
   dir.create(outDir1, showWarnings = FALSE)
   dir.create(outDir2, showWarnings = FALSE)

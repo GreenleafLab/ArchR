@@ -626,7 +626,7 @@ getMarkerFeatures <- function(
       k2 <- k
     }
 
-    knnx <- .computeKNN(inputNormQ[idB, ], inputNormQ[idF, ], k = k2)
+    knnx <- .computeKNN(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
     sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
 
     minTotal <- min(n, length(sx) * bufferRatio)
@@ -782,7 +782,7 @@ markerHeatmap <- function(...){
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
-#' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
+#' @param returnMatrix A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param transpose A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.
 #' @param invert A boolean value that indicates whether the heatmap will display the features with the
 #' lowest `log2(fold change)`. In this case, the heatmap will display features that are specifically lower in the given cell
@@ -806,7 +806,7 @@ plotMarkerHeatmap <- function(
   nLabel = NULL,
   nPrint = 20,
   labelRows = FALSE,
-  returnMat = FALSE,
+  returnMatrix = FALSE,
   transpose = FALSE,
   invert = FALSE,
   logFile = createLogFile("plotMarkerHeatmap")
@@ -827,7 +827,7 @@ plotMarkerHeatmap <- function(
   .validInput(input = nLabel, name = "nLabel", valid = c("integer", "null"))
   .validInput(input = nPrint, name = "nPrint", valid = c("integer", "null"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
-  .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
+  .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
   .validInput(input = transpose, name = "transpose", valid = c("boolean"))
   .validInput(input = invert, name = "invert", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
@@ -957,7 +957,7 @@ plotMarkerHeatmap <- function(
       mn <- NULL
     }
 
-    if(returnMat){
+    if(returnMatrix){
       .endLogging(logFile = logFile)
       return(mat)
     }
@@ -1007,7 +1007,7 @@ plotMarkerHeatmap <- function(
       mn <- NULL
     }
 
-    if(returnMat){
+    if(returnMatrix){
       .endLogging(logFile = logFile)
       return(mat)
     }

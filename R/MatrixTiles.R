@@ -122,7 +122,9 @@ addTileMatrix <- function(
 
   tstart <- Sys.time()
   if(!is.null(blacklist)){
-    blacklist <- split(blacklist, seqnames(blacklist))
+    if(length(blacklist) > 0){
+      blacklist <- split(blacklist, seqnames(blacklist))
+    }
   }
 
   #Get all cell ids before constructing matrix
@@ -209,15 +211,17 @@ addTileMatrix <- function(
 
       #Remove Blacklisted Tiles!
       if(!is.null(blacklist)){
-        blacklistz <- blacklist[[chr]]
-        if(length(blacklistz) > 0){
-          tile2 <- floor(tileSize/2)
-          blacklistIdx <- unique(trunc(start(unlist(GenomicRanges::slidingWindows(blacklistz,tile2,tile2)))/tileSize) + 1)
-          blacklistIdx <- sort(blacklistIdx)
-          idxToZero <- which((mat@i + 1) %bcin% blacklistIdx)
-          if(length(idxToZero) > 0){
-            mat@x[idxToZero] <- 0
-            mat <- Matrix::drop0(mat)
+        if(length(blacklist) > 0){
+          blacklistz <- blacklist[[chr]]
+          if(length(blacklistz) > 0){
+            tile2 <- floor(tileSize/2)
+            blacklistIdx <- unique(trunc(start(unlist(GenomicRanges::slidingWindows(blacklistz,tile2,tile2)))/tileSize) + 1)
+            blacklistIdx <- sort(blacklistIdx)
+            idxToZero <- which((mat@i + 1) %bcin% blacklistIdx)
+            if(length(idxToZero) > 0){
+              mat@x[idxToZero] <- 0
+              mat <- Matrix::drop0(mat)
+            }
           }
         }
       }
