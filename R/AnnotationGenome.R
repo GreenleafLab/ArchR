@@ -114,7 +114,7 @@ createGeneAnnotation <- function(
     message("Getting Genes..")
     genes <- GenomicFeatures::genes(TxDb)
 
-    if(!is.null(annoStyle)){
+    if(is.null(annoStyle)){
       isEntrez <- mcols(genes)$symbol <- tryCatch({
         suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
         TRUE
