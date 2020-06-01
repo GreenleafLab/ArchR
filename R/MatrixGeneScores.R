@@ -14,12 +14,21 @@
 #' @param matrixName The name to be used for storage of the gene activity score matrix in the provided `ArchRProject` or ArrowFiles.
 #' @param extendUpstream The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene
 #' activity score calculation.
-#' @param extendDownstream The minimum and maximum number of basepairs downstream of the transcription start site to consider for gene activity score calculation.
-#' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
-#' @param ceiling The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
+#' @param extendDownstream The minimum and maximum number of basepairs downstream of the transcription start site or transcription termination site 
+#' (based on 'useTSS') to consider for gene activity score calculation.
 #' @param useGeneBoundaries A boolean value indicating whether gene boundaries should be employed during gene activity score
 #' calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene
 #' if there is a second gene's transcription start site between the tile and the gene of interest.
+#' @param geneUpstream An integer describing the number of bp upstream the gene to extend the gene body. This effectively makes the gene body larger as there
+#' are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.
+#' @param geneDownstream An integer describing the number of bp downstream the gene to extend the gene body.This effectively makes the gene body larger as there
+#' are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.
+#' @param useTSS A boolean describing whether to build gene model based on gene TSS or the gene body.
+#' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
+#' @param ceiling The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
+#' @param geneScaleFactor A numeric scaling factor to weight genes based on the inverse of there length i.e. [(Scale Factor)/(Gene Length)]. This
+#' is scaled from 1 to the scale factor. Small genes will be the scale factor while extremely large genes will be closer to 1. This scaling helps with
+#' the relative gene score value.
 #' @param scaleTo Each column in the calculated gene score matrix will be normalized to a column sum designated by `scaleTo`.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param blacklist A `GRanges` object containing genomic regions to blacklist that may be extremeley over-represented and thus
