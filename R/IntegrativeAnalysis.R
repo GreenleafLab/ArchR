@@ -762,7 +762,7 @@ addCoAccessibility <- function(
   o$seqnames <- seqnames(peakSet)[o[,1]]
   o$idx1 <- peakSet$idx[o[,1]]
   o$idx2 <- peakSet$idx[o[,2]]
-  o$correlation <- NA
+  o$correlation <- -999
 
   #Peak Matrix ColSums
   cS <- .getColSums(getArrowFiles(ArchRProj), chri, verbose = FALSE, useMatrix = "PeakMatrix")
@@ -795,7 +795,10 @@ addCoAccessibility <- function(
 
     #Correlations
     idx <- BiocGenerics::which(o$seqnames==chri[x])
-    o[idx,]$correlation <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
+    corVals <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
+    .logThis(head(corVals), paste0("SubsetCorVals-", x), logFile = logFile)
+
+    o[idx,]$correlation <- as.numeric(corVals)
 
     .logThis(groupMat, paste0("SubsetGroupMat-", x), logFile = logFile)
     .logThis(o[idx,], paste0("SubsetCoA-", x), logFile = logFile)
