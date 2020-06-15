@@ -96,6 +96,7 @@ addTileMatrix <- function(
   excludeChr = c("chrM", "chrY"), 
   blacklist = NULL, 
   chromLengths = NULL, 
+  chromSizes = NULL,
   force = FALSE,
   subThreads = 1,
   tstart = NULL,
