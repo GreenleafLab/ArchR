@@ -1434,7 +1434,7 @@ plotPeak2GeneHeatmap <- function(
     KNNx <- KNNList[[x]]
     names(sort(table(ccd[KNNx, 1, drop = TRUE]), decreasing = TRUE))[1]
   }) %>% unlist
-  cD <- DataFrame(row.names=paste0("K", seq_len(ncol(mATAC))), groupBy = KNNGroups)
+  cD <- DataFrame(row.names=paste0("K_", seq_len(ncol(mATAC))), groupBy = KNNGroups)
   pal <- paletteDiscrete(values=gtools::mixedsort(unique(ccd[,1])))
   if(!is.null(palGroup)){
     pal[names(palGroup)[names(palGroup) %in% names(pal)]] <- palGroup[names(palGroup) %in% names(pal)]
