@@ -184,7 +184,7 @@ getGroupBW <- function(
   ArrowFiles <- getArrowFiles(ArchRProj)
   Groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = TRUE)
 
-  if(tolower(normMethod) %in% c("ReadsInTSS", "ReadsInPromoter", "nFrags")){
+  if(tolower(normMethod) %in% tolower(c("ReadsInTSS", "ReadsInPromoter", "nFrags"))){
     normBy <- getCellColData(ArchRProj = ArchRProj, select = normMethod)
   }else{
     normBy <- NULL
@@ -292,7 +292,8 @@ getGroupBW <- function(
 
   #Cells
   cellGroupi <- cellGroups[[i]]
-  
+  #print(sum(normBy[cellGroupi, 1]))
+
   #Bigwig File!
   covFile <- file.path(bwDir, paste0(make.names(names(cellGroups)[i]), "-TileSize-",tileSize,"-normMethod-",normMethod,"-ArchR.bw"))
   rmf <- .suppressAll(file.remove(covFile))
@@ -345,7 +346,7 @@ getGroupBW <- function(
       tilesk$reads <- mat
 
       if(tolower(normMethod) %in% c("ReadsInTSS", "ReadsInPromoter", "nFrags")){
-        tilesk$reads <- tilesk$reads * 10^6 / sum(normBy[cellGroupi, 1])
+        tilesk$reads <- tilesk$reads * 10^4 / sum(normBy[cellGroupi, 1])
       }else if(tolower(normMethod) %in% c("nCells")){
         tilesk$reads <- tilesk$reads / length(cellGroupi)
       }
