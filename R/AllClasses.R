@@ -105,6 +105,15 @@ ArchRProject <- function(
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
+  if(grepl(" ", outputDirectory)){
+    stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
+  }
+  dir.create(outputDirectory,showWarnings=FALSE)
+  if(grepl(" ", normalizePath(outputDirectory))){
+    stop("outputDirectory cannot have a space in the full path! Full path : ", normalizePath(outputDirectory))
+  }
+  sampleDirectory <- file.path(normalizePath(outputDirectory), "ArrowFiles")
+  dir.create(sampleDirectory,showWarnings=FALSE)
 
   if(is.null(ArrowFiles)){
     stop("Need to Provide Arrow Files!")
@@ -131,10 +140,6 @@ ArchRProject <- function(
   }
 
   if(length(sampleNames) != length(ArrowFiles)) stop("Samples is not equal to input ArrowFiles!")
-
-  dir.create(outputDirectory,showWarnings=FALSE)
-  sampleDirectory <- file.path(normalizePath(outputDirectory), "ArrowFiles")
-  dir.create(sampleDirectory,showWarnings=FALSE)
 
   if(copyArrows){
     message("Copying ArrowFiles to Ouptut Directory! If you want to save disk space set copyArrows = FALSE")
@@ -227,7 +232,7 @@ recoverArchRProject <- function(ArchRProj){
 
     peakSet <- tryCatch({
    
-      ArchRProj@peakSet[1]
+      ArchRProj@peakSet
    
     }, error = function(x){
       
@@ -486,7 +491,12 @@ saveArchRProject <- function(
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
   .validInput(input = overwrite, name = "overwrite", valid = "boolean")
   .validInput(input = load, name = "load", valid = "boolean")
-  
+
+  if(grepl(" ", outputDirectory)){
+    stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
+  }
+
+  dir.create(outputDirectory, showWarnings=FALSE)
   outputDirectory <- normalizePath(outputDirectory)
   outDirOld <- normalizePath(getOutputDirectory(ArchRProj))
   
@@ -494,7 +504,6 @@ saveArchRProject <- function(
   ArrowFiles <- getArrowFiles(ArchRProj)
   ArrowFiles <- ArrowFiles[names(ArrowFiles) %in% unique(newProj$Sample)]
 
-  dir.create(outputDirectory, showWarnings=FALSE)
   oldFiles <- list.files(outDirOld)
   oldFiles <- oldFiles[oldFiles %ni% c("ArrowFiles", "ImputeWeights", "Save-ArchR-Project.rds")]
 

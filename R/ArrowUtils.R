@@ -56,9 +56,9 @@
 
 .availableChr <- function(ArrowFiles = NULL, subGroup = "Fragments"){
   seqnames <- .availableSeqnames(ArrowFiles, subGroup)
-  if(getArchRChrPrefix()){
-    seqnames <- seqnames[grep("chr", seqnames, ignore.case = TRUE)]
-  }
+  # if(getArchRChrPrefix()){
+  #   seqnames <- seqnames[grep("chr", seqnames, ignore.case = TRUE)]
+  # }
   if(length(seqnames) == 0){
     stop("No Chr Found in ArrowFiles!")
   }

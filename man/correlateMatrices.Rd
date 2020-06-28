@@ -39,10 +39,10 @@ correlateMatrices(
 \item{useSeqnames2}{A character vector describing which seqnames to use in matrix 2.}
 
 \item{removeFromName1}{A character vector describing how to filter names in matrix 1.
-Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.}
+Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.}
 
 \item{removeFromName2}{A character vector describing how to filter names in matrix 2.
-Options include "underscore", "dash", "numeric". The string portion prior to these will be kept.}
+Options include "underscore", "dash", "numeric" and "dot". The string portion prior to these will be kept.}
 
 \item{log2Norm1}{A boolean describing whether to log2 normalize matrix 1.}
 

@@ -284,6 +284,12 @@ getTrajectory <- function(
   trajectory <- getCellColData(ArchRProj, name)
   trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
   breaks <- seq(0, 100, groupEvery)
+  if(!all(is.numeric(trajectory[,1]))){
+    stop("Trajectory must be a numeric. Did you add the trajectory with addTrajectory?")
+  }
+  if(!all(trajectory[,1] >= 0 & trajectory[,1] <= 100)){
+    stop("Trajectory values must be between 0 and 100. Did you add the trajectory with addTrajectory?")
+  }
 
   groupList <- lapply(seq_along(breaks), function(x){
       if(x == 1){
@@ -328,12 +334,14 @@ getTrajectory <- function(
     
     message("Smoothing...")
     smoothGroupMat <- as.matrix(t(apply(groupMat, 1, function(x) .centerRollMean(x, k = smoothWindow))))
-    
+    colnames(smoothGroupMat) <- paste0(colnames(groupMat))
+    colnames(groupMat) <- paste0(colnames(groupMat))
+
     #Create SE
     seTrajectory <- SummarizedExperiment(
         assays = SimpleList(
-          smoothMat = smoothGroupMat, 
-          mat = groupMat
+          smoothMat = as.matrix(smoothGroupMat), 
+          mat = as.matrix(groupMat)
         ), 
         rowData = featureDF
     )
@@ -345,10 +353,12 @@ getTrajectory <- function(
 
   }else{
 
+    colnames(groupMat) <- paste0(colnames(groupMat))
+
     #Create SE
     seTrajectory <- SummarizedExperiment(
         assays = SimpleList(
-          mat = groupMat
+          mat = as.matrix(groupMat)
         ), 
         rowData = featureDF
     )

@@ -319,7 +319,7 @@ createLogFile <- function(
 
     if(!is.null(errorList)){
       tryCatch({
-        saveRDS(errorList, "Save-Error.rds")
+        #saveRDS(errorList, "Save-Error.rds")
         .logThis(errorList, name = "errorList", logFile)
       }, error = function(e){
         cat("Error recording errorList", file = logFile, append = TRUE)
