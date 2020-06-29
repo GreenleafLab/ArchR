@@ -109,10 +109,10 @@ ArchRProject <- function(
     stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
   }
   dir.create(outputDirectory,showWarnings=FALSE)
-  if(grepl(" ", normalizePath(outputDirectory))){
-    stop("outputDirectory cannot have a space in the full path! Full path : ", normalizePath(outputDirectory))
+  if(grepl(" ", outputDirectory)){
+    stop("outputDirectory cannot have a space in the full path! Full path : ", outputDirectory)
   }
-  sampleDirectory <- file.path(normalizePath(outputDirectory), "ArrowFiles")
+  sampleDirectory <- file.path(outputDirectory, "ArrowFiles")
   dir.create(sampleDirectory,showWarnings=FALSE)
 
   if(is.null(ArrowFiles)){
@@ -178,7 +178,7 @@ ArchRProject <- function(
 
   message("Initializing ArchRProject...")
   AProj <- new("ArchRProject", 
-    projectMetadata = SimpleList(outputDirectory = normalizePath(outputDirectory)),
+    projectMetadata = SimpleList(outputDirectory = outputDirectory),
     projectSummary = SimpleList(),
     sampleColData = sampleColData,
     sampleMetadata = sampleMetadata,
@@ -372,8 +372,7 @@ loadArchRProject <- function(
 
   ArchRProj <- recoverArchRProject(readRDS(path2Proj))
   outputDir <- getOutputDirectory(ArchRProj)
-  outputDirNew <- normalizePath(path)
-
+  outputDirNew <- path
   #1. Arrows Paths
   ArrowFilesNew <- file.path(outputDirNew, "ArrowFiles", basename(ArchRProj@sampleColData$ArrowFiles))
   if(!all(file.exists(ArrowFilesNew))){
@@ -497,8 +496,7 @@ saveArchRProject <- function(
   }
 
   dir.create(outputDirectory, showWarnings=FALSE)
-  outputDirectory <- normalizePath(outputDirectory)
-  outDirOld <- normalizePath(getOutputDirectory(ArchRProj))
+  outDirOld <- getOutputDirectory(ArchRProj)
   
   newProj <- ArchRProj
   ArrowFiles <- getArrowFiles(ArchRProj)
@@ -512,7 +510,7 @@ saveArchRProject <- function(
   names(ArrowFilesNew) <- names(ArrowFiles)
 
   if(outputDirectory != outDirOld){
-    message("Copying ArchRProject to new outputDirectory : ", normalizePath(outputDirectory))
+    message("Copying ArchRProject to new outputDirectory : ", outputDirectory)
   }
 
   if(!identical(paste0(ArrowFiles), paste0(ArrowFilesNew))){
