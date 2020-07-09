@@ -419,6 +419,7 @@ createArrowFiles <- function(
   #############################################################
   #Compute Fragment Information!
   #############################################################
+  
   .logDiffTime(sprintf("%s Adding Fragment Summary", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
   fragSummary <- .fastFragmentInfo(
     ArrowFile = ArrowFile, 

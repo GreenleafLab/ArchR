@@ -11,7 +11,7 @@ Roxygen: list(markdown = TRUE)
 License: GPL (>= 2)
 LinkingTo: Rcpp
 LazyData: TRUE
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8
 Imports:
     Rcpp (>= 0.12.16),
