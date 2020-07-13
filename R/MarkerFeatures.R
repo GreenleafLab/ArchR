@@ -866,8 +866,8 @@ plotMarkerHeatmap <- function(
   .logThis(mat, "mat", logFile = logFile) 
 
   idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
-  mat <- mat[idx,]
-  passMat <- passMat[idx,]
+  mat <- mat[idx,,drop=FALSE]
+  passMat <- passMat[idx,,drop=FALSE]
 
   if(nrow(mat) == 0){
     stop("No Makers Found!")
@@ -890,7 +890,7 @@ plotMarkerHeatmap <- function(
   #identify to remove
   if(!is.null(grepExclude) & !is.null(rownames(mat))){
     idx2 <- which(!grepl(grepExclude, rownames(mat)))
-    mat <- mat[idx2,]
+    mat <- mat[idx2,,drop=FALSE]
   }
 
   if(nrow(mat)==0){
@@ -909,11 +909,11 @@ plotMarkerHeatmap <- function(
 
   if(binaryClusterRows){
     if(invert){
-      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat)], clusterCols = clusterCols)
-      mat <- -bS[[1]][,colnames(mat)]
+      bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat),drop=FALSE], clusterCols = clusterCols)
+      mat <- -bS[[1]][,colnames(mat),drop=FALSE]
     }else{
-      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat)], clusterCols = clusterCols)
-      mat <- bS[[1]][,colnames(mat)]
+      bS <- .binarySort(mat, lmat = passMat[rownames(mat), colnames(mat),drop=FALSE], clusterCols = clusterCols)
+      mat <- bS[[1]][,colnames(mat),drop=FALSE]
     }
     clusterRows <- FALSE
     clusterCols <- bS[[2]]
@@ -948,9 +948,9 @@ plotMarkerHeatmap <- function(
 
     #mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
     if(!is.null(clusterCols)){
-      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order])
+      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order, drop = FALSE])
     }else{
-      mat <- t(mat[seq_len(nrow(mat)), ])
+      mat <- t(mat[seq_len(nrow(mat)), , drop = FALSE])
     }
 
     if(!is.null(labelMarkers)){

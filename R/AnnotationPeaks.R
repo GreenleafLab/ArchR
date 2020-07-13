@@ -254,6 +254,7 @@ addMotifAnnotations <- function(
   name = "Motif",
   species = NULL,
   collection = "CORE",
+  motifPWMs = NULL,
   cutOff = 5e-05, 
   width = 7,
   version = 2,
@@ -263,7 +264,7 @@ addMotifAnnotations <- function(
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = motifSet, name = "motifSet", valid = c("character"))
+  .validInput(input = motifSet, name = "motifSet", valid = c("character", "null"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = species, name = "species", valid = c("character", "null"))
   .validInput(input = collection, name = "collection", valid = c("character", "null"))
@@ -271,6 +272,17 @@ addMotifAnnotations <- function(
   .validInput(input = width, name = "width", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
+
+  if(!is.null(motifPWMs)){
+    if(!is(motifPWMs, "PWMatrixList")){
+      stop("User Supplied motifPWMS must be a PWMatrixList!")
+    }
+    motifSet <- "Custom"
+  }
+
+  if(is.null(motifSet)){
+    stop("Must provide motifSet or motifPWMs!")
+  }
 
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
 
@@ -388,6 +400,12 @@ addMotifAnnotations <- function(
     obj <- .summarizeChromVARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
+
+  }else if(tolower(motifSet)=="custom"){
+
+    obj <- NULL
+    motifs <- motifPWMs
+    motifSummary <- NULL
 
   }else{
 
