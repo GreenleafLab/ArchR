@@ -668,6 +668,7 @@ correlateTrajectories <- function(
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param cellsToUse A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be
@@ -688,6 +689,7 @@ addCoAccessibility <- function(
   dimsToUse = 1:30,
   scaleDims = NULL,
   corCutOff = 0.75,
+  cellsToUse = NULL,
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
@@ -705,6 +707,7 @@ addCoAccessibility <- function(
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = cellsToUse, name = "cellsToUse", valid = c("character", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
   .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
@@ -726,6 +729,9 @@ addCoAccessibility <- function(
 
   #Get Reduced Dims
   rD <- getReducedDims(ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
+  if(!is.null(cellsToUse)){
+    rD <- rD[cellsToUse, ,drop=FALSE]
+  }
 
   #Subsample
   idx <- sample(seq_len(nrow(rD)), knnIteration, replace = !nrow(rD) >= knnIteration)
@@ -762,7 +768,7 @@ addCoAccessibility <- function(
   o$seqnames <- seqnames(peakSet)[o[,1]]
   o$idx1 <- peakSet$idx[o[,1]]
   o$idx2 <- peakSet$idx[o[,2]]
-  o$correlation <- NA
+  o$correlation <- -999
 
   #Peak Matrix ColSums
   cS <- .getColSums(getArrowFiles(ArchRProj), chri, verbose = FALSE, useMatrix = "PeakMatrix")
@@ -795,7 +801,10 @@ addCoAccessibility <- function(
 
     #Correlations
     idx <- BiocGenerics::which(o$seqnames==chri[x])
-    o[idx,]$correlation <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
+    corVals <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
+    .logThis(head(corVals), paste0("SubsetCorVals-", x), logFile = logFile)
+
+    o[idx,]$correlation <- as.numeric(corVals)
 
     .logThis(groupMat, paste0("SubsetGroupMat-", x), logFile = logFile)
     .logThis(o[idx,], paste0("SubsetCoA-", x), logFile = logFile)
@@ -1425,7 +1434,7 @@ plotPeak2GeneHeatmap <- function(
     KNNx <- KNNList[[x]]
     names(sort(table(ccd[KNNx, 1, drop = TRUE]), decreasing = TRUE))[1]
   }) %>% unlist
-  cD <- DataFrame(row.names=paste0("K", seq_len(ncol(mATAC))), groupBy = KNNGroups)
+  cD <- DataFrame(row.names=paste0("K_", seq_len(ncol(mATAC))), groupBy = KNNGroups)
   pal <- paletteDiscrete(values=gtools::mixedsort(unique(ccd[,1])))
   if(!is.null(palGroup)){
     pal[names(palGroup)[names(palGroup) %in% names(pal)]] <- palGroup[names(palGroup) %in% names(pal)]

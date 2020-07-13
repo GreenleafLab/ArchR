@@ -391,16 +391,20 @@ loadArchRProject <- function(
       #Postions
       if(!is.null(ArchRProj@peakAnnotation[[i]]$Positions)){
 
-        PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Positions)
-        if(!all(file.exists(PositionsNew))){
-          if(force){
-            keepAnno[i] <- FALSE
-            message("Positions for peakAnnotation do not exist in saved ArchRProject!")
-          }else{
-            stop("Positions for peakAnnotation do not exist in saved ArchRProject!")
+        if(tolower(ArchRProj@peakAnnotation[[i]]$Positions) != "none"){
+
+          PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Positions)
+          if(!all(file.exists(PositionsNew))){
+            if(force){
+              keepAnno[i] <- FALSE
+              message("Positions for peakAnnotation do not exist in saved ArchRProject!")
+            }else{
+              stop("Positions for peakAnnotation do not exist in saved ArchRProject!")
+            }
           }
+          ArchRProj@peakAnnotation[[i]]$Positions <- PositionsNew
+
         }
-        ArchRProj@peakAnnotation[[i]]$Positions <- PositionsNew
 
       }
 
