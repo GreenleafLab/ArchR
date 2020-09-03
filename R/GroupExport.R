@@ -271,13 +271,14 @@ exportMonocle3 <- function(
   featureDF <- ArchR:::.getFeatureDF(ArrowFiles, subGroup = useMatrix)
   Groups <- getCellColData(ArchRProj = ArchRProj)
   Cells <- ArchRProj$cellNames
+  seqlevels <- seqlevels(ArchRProj@geneAnnotation$genes)
   if(is.null(featureDF$end)){
     starts<-featureDF[as.character(featureDF$seqnames) %in% as.character(featureDF$seqnames)[1],]$start
     width<-getmode(starts[-1]-starts[-length(starts)])
     ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, width = width), names=featureDF$idx)
   }else{
     if(length(levels(factor(featureDF$strand)))>1)
-      ranges<-ArchR:::.featureDFtoGR(featureDF)
+      ranges<-ArchR:::.featureDFtoGR(featureDF, seqlevels)
     else{
       ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, end = featureDF$end), names=featureDF$idx, strand = featureDF$strand)
     }
