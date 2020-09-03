@@ -276,7 +276,11 @@ exportMonocle3 <- function(
     width<-getmode(starts[-1]-starts[-length(starts)])
     ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, width = width), names=featureDF$idx)
   }else{
-    ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, end = featureDF$end), names=featureDF$idx)
+    if(length(levels(factor(featureDF$strand)))>1)
+      ranges<-.featureDFtoGR(featureDF)
+    else{
+      ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, end = featureDF$end), names=featureDF$idx, strand = featureDF$strand)
+    }
   }
   ArchR:::.logMessage("Getting Group Matrix", logFile=logFile)
   mat <- tryCatch({
