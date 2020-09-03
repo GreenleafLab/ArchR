@@ -277,7 +277,7 @@ exportMonocle3 <- function(
     ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, width = width), names=featureDF$idx)
   }else{
     if(length(levels(factor(featureDF$strand)))>1)
-      ranges<-.featureDFtoGR(featureDF)
+      ranges<-ArchR:::.featureDFtoGR(featureDF)
     else{
       ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, end = featureDF$end), names=featureDF$idx, strand = featureDF$strand)
     }

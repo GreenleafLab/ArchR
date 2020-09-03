@@ -165,7 +165,7 @@ extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
 }
 
 .featureDFtoGR <- function(featureDF){
-  .validInput(input = featureDF, name = "featureDF", valid = c("DataFrame"))
+  ArchR:::.validInput(input = featureDF, name = "featureDF", valid = c("DataFrame"))
   #find what strand is F
   if(length(levels(factor(featureDF$strand)))>2){stop("Error with featureDF; more than two strands provided")}
   for(qstrand in levels(factor(featureDF$strand))){
@@ -177,8 +177,10 @@ extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
   }
   minusDF<-featureDF[featureDF$strand %in% isMinus,]
   otherDF<-featureDF[featureDF$strand %in% isOther,]
-  minusGR<-GRanges(seqnames = minusDF$seqnames, ranges = IRanges(start = minusDF$end, end = minusDF$start), names=minusDF$idx, strand = "-")
-  otherGR<-GRanges(seqnames = otherDF$seqnames, ranges = IRanges(start = otherDF$start, end = otherDF$end), names=otherDF$idx, strand = "+")
-  return(combine(otherGR, minusGR))
+  minusGR<-GRanges(seqnames = minusDF$seqnames, ranges = IRanges(start = minusDF$end, end = minusDF$start), names=minusDF$name, strand = "-")
+  otherGR<-GRanges(seqnames = otherDF$seqnames, ranges = IRanges(start = otherDF$start, end = otherDF$end), names=otherDF$name, strand = "+")
+  seqlevels(minusGR) <- seqlevels(ArchRProj@geneAnnotation$genes)
+  seqlevels(otherGR) <- seqlevels(ArchRProj@geneAnnotation$genes)
+  return(sort(sortSeqlevels(c(otherGR, minusGR)), ignore.strand=TRUE))
 }
 
