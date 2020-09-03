@@ -4,14 +4,9 @@
 \alias{getReducedDims}
 \title{Get dimensionality reduction information stored in an ArchRProject}
 \usage{
-getReducedDims(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  returnMatrix = TRUE,
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75
-)
+getReducedDims(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  returnMatrix = TRUE, dimsToUse = NULL, scaleDims = NULL,
+  corCutOff = 0.75)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

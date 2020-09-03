@@ -4,37 +4,19 @@
 \alias{addGeneIntegrationMatrix}
 \title{Add a GeneIntegrationMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneIntegrationMatrix(
-  ArchRProj = NULL,
-  useMatrix = "GeneScoreMatrix",
-  matrixName = "GeneIntegrationMatrix",
-  reducedDims = "IterativeLSI",
-  seRNA = NULL,
-  groupATAC = NULL,
-  groupRNA = NULL,
-  groupList = NULL,
-  sampleCellsATAC = 10000,
-  sampleCellsRNA = 10000,
-  embeddingATAC = NULL,
-  embeddingRNA = NULL,
-  plotUMAP = TRUE,
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
-    FALSE),
-  nGenes = 2000,
-  useImputation = TRUE,
-  reduction = "cca",
-  addToArrow = TRUE,
-  scaleTo = 10000,
-  nameCell = "predictedCell",
-  nameGroup = "predictedGroup",
-  nameScore = "predictedScore",
-  transferParams = list(),
-  threads = getArchRThreads(),
-  verbose = TRUE,
-  force = FALSE,
-  logFile = createLogFile("addGeneIntegrationMatrix"),
-  ...
-)
+addGeneIntegrationMatrix(ArchRProj = NULL,
+  useMatrix = "GeneScoreMatrix", matrixName = "GeneIntegrationMatrix",
+  reducedDims = "IterativeLSI", seRNA = NULL, groupATAC = NULL,
+  groupRNA = NULL, groupList = NULL, sampleCellsATAC = 10000,
+  sampleCellsRNA = 10000, embeddingATAC = NULL, embeddingRNA = NULL,
+  plotUMAP = TRUE, UMAPParams = list(n_neighbors = 40, min_dist = 0.4,
+  metric = "cosine", verbose = FALSE), nGenes = 2000,
+  useImputation = TRUE, reduction = "cca", addToArrow = TRUE,
+  scaleTo = 10000, nameCell = "predictedCell",
+  nameGroup = "predictedGroup", nameScore = "predictedScore",
+  transferParams = list(), threads = getArchRThreads(),
+  verbose = TRUE, force = FALSE,
+  logFile = createLogFile("addGeneIntegrationMatrix"), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

@@ -4,18 +4,10 @@
 \alias{addHarmony}
 \title{Add Harmony Batch Corrected Reduced Dims to an ArchRProject}
 \usage{
-addHarmony(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  name = "Harmony",
-  groupBy = "Sample",
-  verbose = TRUE,
-  force = FALSE,
-  ...
-)
+addHarmony(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  dimsToUse = NULL, scaleDims = NULL, corCutOff = 0.75,
+  name = "Harmony", groupBy = "Sample", verbose = TRUE,
+  force = FALSE, ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}.}

@@ -4,31 +4,15 @@
 \alias{plotTrajectory}
 \title{Visualize a Trajectory from ArchR Project}
 \usage{
-plotTrajectory(
-  ArchRProj = NULL,
-  embedding = "UMAP",
-  trajectory = "Trajectory",
-  colorBy = "colData",
-  name = "Trajectory",
-  log2Norm = NULL,
-  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-    getImputeWeights(ArchRProj),
-  pal = NULL,
-  size = 0.2,
-  rastr = TRUE,
-  quantCut = c(0.01, 0.99),
-  quantHex = 0.5,
-  discreteSet = NULL,
-  continuousSet = NULL,
-  randomize = TRUE,
-  keepAxis = FALSE,
-  baseSize = 6,
-  addArrow = TRUE,
-  plotAs = NULL,
-  smoothWindow = 5,
-  logFile = createLogFile("plotTrajectory"),
-  ...
-)
+plotTrajectory(ArchRProj = NULL, embedding = "UMAP",
+  trajectory = "Trajectory", colorBy = "colData",
+  name = "Trajectory", log2Norm = NULL, imputeWeights = if
+  (!grepl("coldata", tolower(colorBy[1]))) getImputeWeights(ArchRProj),
+  pal = NULL, size = 0.2, rastr = TRUE, quantCut = c(0.01, 0.99),
+  quantHex = 0.5, discreteSet = NULL, continuousSet = NULL,
+  randomize = TRUE, keepAxis = FALSE, baseSize = 6,
+  addArrow = TRUE, plotAs = NULL, smoothWindow = 5,
+  logFile = createLogFile("plotTrajectory"), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

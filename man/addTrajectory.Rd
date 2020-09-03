@@ -4,22 +4,12 @@
 \alias{addTrajectory}
 \title{Add a Supervised Trajectory to an ArchR Project}
 \usage{
-addTrajectory(
-  ArchRProj = NULL,
-  name = "Trajectory",
-  trajectory = NULL,
-  groupBy = "Clusters",
-  reducedDims = "IterativeLSI",
-  embedding = NULL,
-  preFilterQuantile = 0.9,
-  postFilterQuantile = 0.9,
-  useAll = FALSE,
-  dof = 250,
-  spar = 1,
-  force = FALSE,
-  seed = 1,
-  logFile = createLogFile("addTrajectory")
-)
+addTrajectory(ArchRProj = NULL, name = "Trajectory",
+  trajectory = NULL, groupBy = "Clusters",
+  reducedDims = "IterativeLSI", embedding = NULL,
+  preFilterQuantile = 0.9, postFilterQuantile = 0.9, useAll = FALSE,
+  dof = 250, spar = 1, force = FALSE, seed = 1,
+  logFile = createLogFile("addTrajectory"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

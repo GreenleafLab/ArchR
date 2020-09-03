@@ -4,25 +4,12 @@
 \alias{addImputeWeights}
 \title{Add Imputation Weights to an ArchRProject}
 \usage{
-addImputeWeights(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  dimsToUse = NULL,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  td = 3,
-  ka = 4,
-  sampleCells = 5000,
-  nRep = 2,
-  k = 15,
-  epsilon = 1,
-  useHdf5 = TRUE,
-  randomSuffix = FALSE,
-  threads = getArchRThreads(),
-  seed = 1,
-  verbose = TRUE,
-  logFile = createLogFile("addImputeWeights")
-)
+addImputeWeights(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  dimsToUse = NULL, scaleDims = NULL, corCutOff = 0.75, td = 3,
+  ka = 4, sampleCells = 5000, nRep = 2, k = 15, epsilon = 1,
+  useHdf5 = TRUE, randomSuffix = FALSE, threads = getArchRThreads(),
+  seed = 1, verbose = TRUE,
+  logFile = createLogFile("addImputeWeights"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

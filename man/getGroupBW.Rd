@@ -4,17 +4,10 @@
 \alias{getGroupBW}
 \title{Export Group BigWigs}
 \usage{
-getGroupBW(
-  ArchRProj = NULL,
-  groupBy = "Sample",
-  normMethod = "ReadsInTSS",
-  tileSize = 100,
-  maxCells = 1000,
-  ceiling = 4,
-  verbose = TRUE,
-  threads = getArchRThreads(),
-  logFile = createLogFile("getGroupBW")
-)
+getGroupBW(ArchRProj = NULL, groupBy = "Sample",
+  normMethod = "ReadsInTSS", tileSize = 100, maxCells = 1000,
+  ceiling = 4, verbose = TRUE, threads = getArchRThreads(),
+  logFile = createLogFile("getGroupBW"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

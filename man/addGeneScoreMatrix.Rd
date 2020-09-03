@@ -4,29 +4,16 @@
 \alias{addGeneScoreMatrix}
 \title{Add GeneScoreMatrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneScoreMatrix(
-  input = NULL,
-  genes = getGenes(input),
+addGeneScoreMatrix(input = NULL, genes = getGenes(input),
   geneModel = "exp(-abs(x)/5000) + exp(-1)",
-  matrixName = "GeneScoreMatrix",
-  extendUpstream = c(1000, 1e+05),
-  extendDownstream = c(1000, 1e+05),
-  geneUpstream = 5000,
-  geneDownstream = 0,
-  useGeneBoundaries = TRUE,
-  useTSS = FALSE,
-  tileSize = 500,
-  ceiling = 4,
-  geneScaleFactor = 5,
-  scaleTo = 10000,
-  excludeChr = c("chrY", "chrM"),
-  blacklist = getBlacklist(input),
-  threads = getArchRThreads(),
-  parallelParam = NULL,
-  subThreading = TRUE,
-  force = FALSE,
-  logFile = createLogFile("addGeneScoreMatrix")
-)
+  matrixName = "GeneScoreMatrix", extendUpstream = c(1000, 1e+05),
+  extendDownstream = c(1000, 1e+05), geneUpstream = 5000,
+  geneDownstream = 0, useGeneBoundaries = TRUE, useTSS = FALSE,
+  tileSize = 500, ceiling = 4, geneScaleFactor = 5,
+  scaleTo = 10000, excludeChr = c("chrY", "chrM"),
+  blacklist = getBlacklist(input), threads = getArchRThreads(),
+  parallelParam = NULL, subThreading = TRUE, force = FALSE,
+  logFile = createLogFile("addGeneScoreMatrix"))
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
@@ -41,15 +28,28 @@ should be a function of \code{x}, where \code{x} is the stranded distance from t
 \item{extendUpstream}{The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene
 activity score calculation.}
 
-\item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site to consider for gene activity score calculation.}
+\item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site or transcription termination site
+(based on 'useTSS') to consider for gene activity score calculation.}
+
+\item{geneUpstream}{An integer describing the number of bp upstream the gene to extend the gene body. This effectively makes the gene body larger as there
+are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}
+
+\item{geneDownstream}{An integer describing the number of bp downstream the gene to extend the gene body.This effectively makes the gene body larger as there
+are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}
 
 \item{useGeneBoundaries}{A boolean value indicating whether gene boundaries should be employed during gene activity score
 calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene
 if there is a second gene's transcription start site between the tile and the gene of interest.}
 
+\item{useTSS}{A boolean describing whether to build gene model based on gene TSS or the gene body.}
+
 \item{tileSize}{The size of the tiles used for binning counts prior to gene activity score calculation.}
 
 \item{ceiling}{The maximum counts per tile allowed. This is used to prevent large biases in tile counts.}
+
+\item{geneScaleFactor}{A numeric scaling factor to weight genes based on the inverse of there length i.e. \link{(Scale Factor)/(Gene Length)}. This
+is scaled from 1 to the scale factor. Small genes will be the scale factor while extremely large genes will be closer to 1. This scaling helps with
+the relative gene score value.}
 
 \item{scaleTo}{Each column in the calculated gene score matrix will be normalized to a column sum designated by \code{scaleTo}.}
 

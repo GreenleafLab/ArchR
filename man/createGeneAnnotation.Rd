@@ -4,14 +4,8 @@
 \alias{createGeneAnnotation}
 \title{Create a gene annotation object for ArchR}
 \usage{
-createGeneAnnotation(
-  genome = NULL,
-  TxDb = NULL,
-  OrgDb = NULL,
-  genes = NULL,
-  exons = NULL,
-  TSS = NULL
-)
+createGeneAnnotation(genome = NULL, TxDb = NULL, OrgDb = NULL,
+  genes = NULL, exons = NULL, TSS = NULL, annoStyle = NULL)
 }
 \arguments{
 \item{genome}{A string that specifies the genome (ie "hg38", "hg19", "mm10", "mm9"). If \code{genome} is not supplied,
@@ -28,6 +22,8 @@ For example, from \code{orgdb <- org.Hs.eg.db}.}
 \item{exons}{A \code{GRanges} object containing gene exon coordinates. Must have a symbols column matching the symbols column of \code{genes}.}
 
 \item{TSS}{A \code{GRanges} object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.}
+
+\item{annoStyle}{annotation style to map between gene names and various gene identifiers e.g. "ENTREZID", "ENSEMBL".}
 }
 \description{
 This function will create a gene annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.

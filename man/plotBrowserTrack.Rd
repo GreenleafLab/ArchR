@@ -4,32 +4,18 @@
 \alias{plotBrowserTrack}
 \title{Plot an ArchR Region Track}
 \usage{
-plotBrowserTrack(
-  ArchRProj = NULL,
-  region = NULL,
-  groupBy = "Clusters",
-  useGroups = NULL,
+plotBrowserTrack(ArchRProj = NULL, region = NULL,
+  groupBy = "Clusters", useGroups = NULL,
   plotSummary = c("bulkTrack", "featureTrack", "loopTrack", "geneTrack"),
-  sizes = c(10, 1.5, 3, 4),
-  features = getPeakSet(ArchRProj),
-  loops = getCoAccessibility(ArchRProj),
-  geneSymbol = NULL,
-  upstream = 50000,
-  downstream = 50000,
-  tileSize = 250,
-  minCells = 25,
-  normMethod = "ReadsInTSS",
-  threads = getArchRThreads(),
-  ylim = NULL,
-  baseSize = 7,
-  borderWidth = 0.4,
-  tickWidth = 0.4,
-  facetbaseSize = 7,
-  geneAnnotation = getGeneAnnotation(ArchRProj),
-  title = "",
-  verbose = TRUE,
-  logFile = createLogFile("plotBrowserTrack")
-)
+  sizes = c(10, 1.5, 3, 4), features = getPeakSet(ArchRProj),
+  loops = getCoAccessibility(ArchRProj), geneSymbol = NULL,
+  upstream = 50000, downstream = 50000, tileSize = 250,
+  minCells = 25, normMethod = "ReadsInTSS",
+  threads = getArchRThreads(), ylim = NULL, pal = NULL,
+  baseSize = 7, borderWidth = 0.4, tickWidth = 0.4,
+  facetbaseSize = 7, geneAnnotation = getGeneAnnotation(ArchRProj),
+  title = "", verbose = TRUE,
+  logFile = createLogFile("plotBrowserTrack"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -53,7 +39,7 @@ are on the minus strand and red-colored genes are on the plus strand), and "loop
 The order must be the same as \code{plotSummary}.}
 
 \item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
-bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+bed track. i.e. the set of peaks obtained using \code{getPeakSet(ArchRProj))}.}
 
 \item{loops}{A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack".
 This \code{GRanges} object start represents the center position of one loop anchor and the end represents the center position of another loop anchor.
@@ -79,6 +65,8 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 \item{threads}{The number of threads to use for parallel execution.}
 
 \item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
+
+\item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override coloring for groups.}
 
 \item{baseSize}{The numeric font size to be used in the plot. This applies to all plot labels.}
 

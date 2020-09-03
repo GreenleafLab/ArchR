@@ -4,23 +4,12 @@
 \alias{addCoAccessibility}
 \title{Add Peak Co-Accessibility to an ArchRProject}
 \usage{
-addCoAccessibility(
-  ArchRProj = NULL,
-  reducedDims = "IterativeLSI",
-  dimsToUse = 1:30,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  k = 100,
-  knnIteration = 500,
-  overlapCutoff = 0.8,
-  maxDist = 1e+05,
-  scaleTo = 10^4,
-  log2Norm = TRUE,
-  seed = 1,
-  threads = getArchRThreads(),
-  verbose = TRUE,
-  logFile = createLogFile("addCoAccessibility")
-)
+addCoAccessibility(ArchRProj = NULL, reducedDims = "IterativeLSI",
+  dimsToUse = 1:30, scaleDims = NULL, corCutOff = 0.75,
+  cellsToUse = NULL, k = 100, knnIteration = 500,
+  overlapCutoff = 0.8, maxDist = 1e+05, scaleTo = 10^4,
+  log2Norm = TRUE, seed = 1, threads = getArchRThreads(),
+  verbose = TRUE, logFile = createLogFile("addCoAccessibility"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -36,6 +25,8 @@ biases since it is over-weighting latent PCs. If set to \code{NULL} this will sc
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
+
+\item{cellsToUse}{A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.}
 
 \item{k}{The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.}
 

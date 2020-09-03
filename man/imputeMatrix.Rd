@@ -4,13 +4,9 @@
 \alias{imputeMatrix}
 \title{Impute a matrix with impute weights}
 \usage{
-imputeMatrix(
-  mat = NULL,
-  imputeWeights = NULL,
-  threads = getArchRThreads(),
-  verbose = FALSE,
-  logFile = createLogFile("imputeMatrix")
-)
+imputeMatrix(mat = NULL, imputeWeights = NULL,
+  threads = getArchRThreads(), verbose = FALSE,
+  logFile = createLogFile("imputeMatrix"))
 }
 \arguments{
 \item{mat}{A matrix or sparseMatrix of class dgCMatrix to be imputed.}

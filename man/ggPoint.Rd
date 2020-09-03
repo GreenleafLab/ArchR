@@ -4,44 +4,17 @@
 \alias{ggPoint}
 \title{A ggplot-based dot plot wrapper function}
 \usage{
-ggPoint(
-  x = NULL,
-  y = NULL,
-  color = NULL,
-  discrete = TRUE,
-  discreteSet = "stallion",
-  continuousSet = "solarExtra",
-  labelMeans = TRUE,
-  pal = NULL,
-  defaultColor = "lightGrey",
-  highlightPoints = NULL,
-  colorDensity = FALSE,
-  size = 1,
-  xlim = NULL,
-  ylim = NULL,
-  extend = 0.05,
-  xlabel = "x",
-  ylabel = "y",
-  title = "",
-  randomize = FALSE,
-  seed = 1,
-  colorTitle = NULL,
-  colorOrder = NULL,
-  colorLimits = NULL,
-  alpha = 1,
-  baseSize = 10,
-  legendSize = 3,
-  ratioYX = 1,
-  labelAsFactors = TRUE,
-  fgColor = "black",
-  bgColor = "white",
-  bgWidth = 1,
-  labelSize = 3,
-  addFit = NULL,
-  rastr = FALSE,
-  dpi = 300,
-  ...
-)
+ggPoint(x = NULL, y = NULL, color = NULL, discrete = TRUE,
+  discreteSet = "stallion", continuousSet = "solarExtra",
+  labelMeans = TRUE, pal = NULL, defaultColor = "lightGrey",
+  highlightPoints = NULL, colorDensity = FALSE, size = 1,
+  xlim = NULL, ylim = NULL, extend = 0.05, xlabel = "x",
+  ylabel = "y", title = "", randomize = FALSE, seed = 1,
+  colorTitle = NULL, colorOrder = NULL, colorLimits = NULL,
+  alpha = 1, baseSize = 10, legendSize = 3, ratioYX = 1,
+  labelAsFactors = TRUE, fgColor = "black", bgColor = "white",
+  bgWidth = 1, labelSize = 3, addFit = NULL, rastr = FALSE,
+  dpi = 300, ...)
 }
 \arguments{
 \item{x}{A numeric vector containing the x-axis values for each point.}

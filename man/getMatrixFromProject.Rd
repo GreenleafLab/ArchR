@@ -4,15 +4,10 @@
 \alias{getMatrixFromProject}
 \title{Get a data matrix stored in an ArchRProject}
 \usage{
-getMatrixFromProject(
-  ArchRProj = NULL,
-  useMatrix = "GeneScoreMatrix",
-  useSeqnames = NULL,
-  verbose = TRUE,
-  binarize = FALSE,
+getMatrixFromProject(ArchRProj = NULL, useMatrix = "GeneScoreMatrix",
+  useSeqnames = NULL, verbose = TRUE, binarize = FALSE,
   threads = getArchRThreads(),
-  logFile = createLogFile("getMatrixFromProject")
-)
+  logFile = createLogFile("getMatrixFromProject"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object to get data matrix from.}

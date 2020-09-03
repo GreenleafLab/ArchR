@@ -4,13 +4,9 @@
 \alias{getPeak2GeneLinks}
 \title{Get the peak-to-gene links from an ArchRProject}
 \usage{
-getPeak2GeneLinks(
-  ArchRProj = NULL,
-  corCutOff = 0.45,
-  FDRCutOff = 1e-04,
-  resolution = 1,
-  returnLoops = TRUE
-)
+getPeak2GeneLinks(ArchRProj = NULL, corCutOff = 0.45,
+  FDRCutOff = 1e-04, varCutOffATAC = 0.25, varCutOffRNA = 0.25,
+  resolution = 1, returnLoops = TRUE)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -18,6 +14,10 @@ getPeak2GeneLinks(
 \item{corCutOff}{A numeric describing the minimum numeric peak-to-gene correlation to return.}
 
 \item{FDRCutOff}{A numeric describing the maximum numeric peak-to-gene false discovery rate to return.}
+
+\item{varCutOffATAC}{A numeric describing the minimum variance quantile of the ATAC peak accessibility when selecting links.}
+
+\item{varCutOffRNA}{A numeric describing the minimum variance quantile of the RNA gene expression when selecting links.}
 
 \item{resolution}{A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.}
 

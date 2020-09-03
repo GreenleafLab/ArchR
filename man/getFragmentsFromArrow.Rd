@@ -4,13 +4,8 @@
 \alias{getFragmentsFromArrow}
 \title{Get the fragments from an ArrowFile}
 \usage{
-getFragmentsFromArrow(
-  ArrowFile = NULL,
-  chr = NULL,
-  cellNames = NULL,
-  verbose = TRUE,
-  logFile = createLogFile("getFragmentsFromArrow")
-)
+getFragmentsFromArrow(ArrowFile = NULL, chr = NULL, cellNames = NULL,
+  verbose = TRUE, logFile = createLogFile("getFragmentsFromArrow"))
 }
 \arguments{
 \item{ArrowFile}{The path to the ArrowFile from which fragments should be obtained.}

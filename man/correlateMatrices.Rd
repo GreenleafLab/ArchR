@@ -4,28 +4,14 @@
 \alias{correlateMatrices}
 \title{Correlate Matrices within an ArchRProject}
 \usage{
-correlateMatrices(
-  ArchRProj = NULL,
-  useMatrix1 = NULL,
-  useMatrix2 = NULL,
-  useSeqnames1 = NULL,
-  useSeqnames2 = NULL,
+correlateMatrices(ArchRProj = NULL, useMatrix1 = NULL,
+  useMatrix2 = NULL, useSeqnames1 = NULL, useSeqnames2 = NULL,
   removeFromName1 = c("underscore", "dash"),
-  removeFromName2 = c("underscore", "dash"),
-  log2Norm1 = TRUE,
-  log2Norm2 = TRUE,
-  reducedDims = "IterativeLSI",
-  dimsToUse = 1:30,
-  scaleDims = NULL,
-  corCutOff = 0.75,
-  k = 100,
-  knnIteration = 500,
-  overlapCutoff = 0.8,
-  seed = 1,
-  threads = getArchRThreads(),
-  verbose = TRUE,
-  logFile = createLogFile("correlateMatrices")
-)
+  removeFromName2 = c("underscore", "dash"), log2Norm1 = TRUE,
+  log2Norm2 = TRUE, reducedDims = "IterativeLSI", dimsToUse = 1:30,
+  scaleDims = NULL, corCutOff = 0.75, k = 100, knnIteration = 500,
+  overlapCutoff = 0.8, seed = 1, threads = getArchRThreads(),
+  verbose = TRUE, logFile = createLogFile("correlateMatrices"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

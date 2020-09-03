@@ -4,19 +4,10 @@
 \alias{addMotifAnnotations}
 \title{Add motif annotations to an ArchRProject}
 \usage{
-addMotifAnnotations(
-  ArchRProj = NULL,
-  motifSet = "cisbp",
-  name = "Motif",
-  species = NULL,
-  collection = "CORE",
-  cutOff = 5e-05,
-  width = 7,
-  version = 2,
-  force = FALSE,
-  logFile = createLogFile("addMotifAnnotations"),
-  ...
-)
+addMotifAnnotations(ArchRProj = NULL, motifSet = "cisbp",
+  name = "Motif", species = NULL, collection = "CORE",
+  motifPWMs = NULL, cutOff = 5e-05, width = 7, version = 2,
+  force = FALSE, logFile = createLogFile("addMotifAnnotations"), ...)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

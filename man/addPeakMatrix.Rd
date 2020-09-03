@@ -4,16 +4,9 @@
 \alias{addPeakMatrix}
 \title{Add a Peak Matrix to the ArrowFiles of an ArchRProject}
 \usage{
-addPeakMatrix(
-  ArchRProj = NULL,
-  ceiling = 4,
-  binarize = FALSE,
-  verbose = TRUE,
-  threads = getArchRThreads(),
-  parallelParam = NULL,
-  force = TRUE,
-  logFile = createLogFile("addPeakMatrix")
-)
+addPeakMatrix(ArchRProj = NULL, ceiling = 4, binarize = FALSE,
+  verbose = TRUE, threads = getArchRThreads(), parallelParam = NULL,
+  force = TRUE, logFile = createLogFile("addPeakMatrix"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

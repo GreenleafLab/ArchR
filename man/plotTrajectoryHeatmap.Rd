@@ -4,23 +4,12 @@
 \alias{plotTrajectoryHeatmap}
 \title{Plot a Heatmap of Features across a Trajectory}
 \usage{
-plotTrajectoryHeatmap(
-  seTrajectory = NULL,
-  varCutOff = 0.9,
-  maxFeatures = 25000,
-  scaleRows = TRUE,
-  limits = c(-1.5, 1.5),
-  grepExclude = NULL,
-  pal = NULL,
-  labelMarkers = NULL,
-  labelTop = 50,
-  labelRows = FALSE,
-  rowOrder = NULL,
-  useSeqnames = NULL,
-  returnMat = FALSE,
-  force = FALSE,
-  logFile = createLogFile("plotTrajectoryHeatmap")
-)
+plotTrajectoryHeatmap(seTrajectory = NULL, varCutOff = 0.9,
+  maxFeatures = 25000, scaleRows = TRUE, limits = c(-1.5, 1.5),
+  grepExclude = NULL, pal = NULL, labelMarkers = NULL,
+  labelTop = 50, labelRows = FALSE, rowOrder = NULL,
+  useSeqnames = NULL, returnMatrix = FALSE, force = FALSE,
+  logFile = createLogFile("plotTrajectoryHeatmap"))
 }
 \arguments{
 \item{seTrajectory}{A \code{SummarizedExperiment} object that results from calling \code{getTrajectory()}.}
@@ -54,7 +43,7 @@ to rownmaes) can be provided here.}
 deviations, the \code{seqnames} do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
 raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.}
 
-\item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
+\item{returnMatrix}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
 \item{force}{If useSeqnames is longer than 1 if matrixClass is "Sparse.Assays.Matrix" to continue. This is not recommended because these matrices
 can be in different units.}

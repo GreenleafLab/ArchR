@@ -4,19 +4,11 @@
 \alias{getFootprints}
 \title{Calculate footprints from an ArchRProject}
 \usage{
-getFootprints(
-  ArchRProj = NULL,
-  positions = NULL,
-  plotName = "Plot-Footprints",
-  groupBy = "Clusters",
-  useGroups = NULL,
-  flank = 250,
-  minCells = 25,
-  nTop = NULL,
-  threads = getArchRThreads(),
-  verbose = TRUE,
-  logFile = createLogFile("getFootprints")
-)
+getFootprints(ArchRProj = NULL, positions = NULL,
+  plotName = "Plot-Footprints", groupBy = "Clusters",
+  useGroups = NULL, flank = 250, minCells = 25, nTop = NULL,
+  threads = getArchRThreads(), verbose = TRUE,
+  logFile = createLogFile("getFootprints"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

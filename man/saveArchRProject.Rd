@@ -4,15 +4,11 @@
 \alias{saveArchRProject}
 \title{Save ArchRProject for Later Usage}
 \usage{
-saveArchRProject(
-  ArchRProj = NULL,
-  outputDirectory = getOutputDirectory(ArchRProj),
-  overwrite = TRUE,
-  load = TRUE,
-  dropCells = FALSE,
+saveArchRProject(ArchRProj = NULL,
+  outputDirectory = getOutputDirectory(ArchRProj), overwrite = TRUE,
+  load = TRUE, dropCells = FALSE,
   logFile = createLogFile("saveArchRProject"),
-  threads = getArchRThreads()
-)
+  threads = getArchRThreads())
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

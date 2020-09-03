@@ -4,14 +4,9 @@
 \alias{addFeatureCounts}
 \title{This function will add total counts of scATAC cells in provided features into ArchRProject.}
 \usage{
-addFeatureCounts(
-  ArchRProj = NULL,
-  features = NULL,
-  name = NULL,
-  addRatio = TRUE,
-  threads = getArchRThreads(),
-  logFile = createLogFile("addFeatureCounts")
-)
+addFeatureCounts(ArchRProj = NULL, features = NULL, name = NULL,
+  addRatio = TRUE, threads = getArchRThreads(),
+  logFile = createLogFile("addFeatureCounts"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

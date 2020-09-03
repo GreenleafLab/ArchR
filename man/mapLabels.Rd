@@ -4,7 +4,8 @@
 \alias{mapLabels}
 \title{Re-map a character vector of labels from an old set of labels to a new set of labels}
 \usage{
-mapLabels(labels = NULL, newLabels = NULL, oldLabels = names(newLabels))
+mapLabels(labels = NULL, newLabels = NULL,
+  oldLabels = names(newLabels))
 }
 \arguments{
 \item{labels}{A character vector containing lables to map.}

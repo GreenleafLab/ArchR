@@ -4,18 +4,10 @@
 \alias{addFeatureMatrix}
 \title{Add a feature matrix to an ArchRProject or a set of ArrowFiles}
 \usage{
-addFeatureMatrix(
-  input = NULL,
-  features = NULL,
-  matrixName = "FeatureMatrix",
-  ceiling = 10^9,
-  binarize = FALSE,
-  verbose = TRUE,
-  threads = getArchRThreads(),
-  parallelParam = NULL,
-  force = TRUE,
-  logFile = createLogFile("addFeatureMatrix")
-)
+addFeatureMatrix(input = NULL, features = NULL,
+  matrixName = "FeatureMatrix", ceiling = 10^9, binarize = FALSE,
+  verbose = TRUE, threads = getArchRThreads(), parallelParam = NULL,
+  force = TRUE, logFile = createLogFile("addFeatureMatrix"))
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of paths to ArrowFiles.}

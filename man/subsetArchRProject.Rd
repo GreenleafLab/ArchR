@@ -4,14 +4,9 @@
 \alias{subsetArchRProject}
 \title{Subset an ArchRProject for downstream analysis}
 \usage{
-subsetArchRProject(
-  ArchRProj = NULL,
-  cells = getCellNames(ArchRProj),
-  outputDirectory = "ArchRSubset",
-  dropCells = TRUE,
-  logFile = NULL,
-  threads = getArchRThreads()
-)
+subsetArchRProject(ArchRProj = NULL, cells = getCellNames(ArchRProj),
+  outputDirectory = "ArchRSubset", dropCells = TRUE, logFile = NULL,
+  threads = getArchRThreads())
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

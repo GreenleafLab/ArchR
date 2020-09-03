@@ -4,16 +4,9 @@
 \alias{getGroupSE}
 \title{Export Group Summarized Experiment}
 \usage{
-getGroupSE(
-  ArchRProj = NULL,
-  useMatrix = NULL,
-  groupBy = "Sample",
-  divideN = TRUE,
-  scaleTo = NULL,
-  threads = getArchRThreads(),
-  verbose = TRUE,
-  logFile = createLogFile("getGroupSE")
-)
+getGroupSE(ArchRProj = NULL, useMatrix = NULL, groupBy = "Sample",
+  divideN = TRUE, scaleTo = NULL, threads = getArchRThreads(),
+  verbose = TRUE, logFile = createLogFile("getGroupSE"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

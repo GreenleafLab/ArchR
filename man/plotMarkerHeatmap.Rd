@@ -4,27 +4,14 @@
 \alias{plotMarkerHeatmap}
 \title{Plot a Heatmap of Identified Marker Features}
 \usage{
-plotMarkerHeatmap(
-  seMarker = NULL,
-  cutOff = "FDR <= 0.01 & Log2FC >= 0.5",
-  log2Norm = TRUE,
-  scaleTo = 10^4,
-  scaleRows = TRUE,
-  plotLog2FC = FALSE,
-  limits = c(-2, 2),
-  grepExclude = NULL,
-  pal = NULL,
-  binaryClusterRows = TRUE,
-  clusterCols = TRUE,
-  labelMarkers = NULL,
-  nLabel = NULL,
-  nPrint = 20,
-  labelRows = FALSE,
-  returnMat = FALSE,
-  transpose = FALSE,
-  invert = FALSE,
-  logFile = createLogFile("plotMarkerHeatmap")
-)
+plotMarkerHeatmap(seMarker = NULL,
+  cutOff = "FDR <= 0.01 & Log2FC >= 0.5", log2Norm = TRUE,
+  scaleTo = 10^4, scaleRows = TRUE, plotLog2FC = FALSE,
+  limits = c(-2, 2), grepExclude = NULL, pal = NULL,
+  binaryClusterRows = TRUE, clusterCols = TRUE, labelMarkers = NULL,
+  nLabel = NULL, nPrint = 20, labelRows = FALSE,
+  returnMatrix = FALSE, transpose = FALSE, invert = FALSE,
+  logFile = createLogFile("plotMarkerHeatmap"))
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{getMarkerFeatures()}.}
@@ -59,14 +46,14 @@ rownames from \code{seMarker} to be excluded from the heatmap.}
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
-\item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
+\item{returnMatrix}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
 \item{transpose}{A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.}
 
 \item{invert}{A boolean value that indicates whether the heatmap will display the features with the
-lowest \verb{log2(fold change)}. In this case, the heatmap will display features that are specifically lower in the given cell
+lowest \code{log2(fold change)}. In this case, the heatmap will display features that are specifically lower in the given cell
 group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
-looking for down-regulated markers (\verb{log2(fold change) < 0}) instead of up-regulated markers (\verb{log2(fold change) > 0}).}
+looking for down-regulated markers (\code{log2(fold change) < 0}) instead of up-regulated markers (\code{log2(fold change) > 0}).}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }

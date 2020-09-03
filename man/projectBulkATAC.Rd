@@ -4,16 +4,10 @@
 \alias{projectBulkATAC}
 \title{Project Bulk ATAC-seq data into single cell subspace}
 \usage{
-projectBulkATAC(
-  ArchRProj = NULL,
-  seATAC = NULL,
-  reducedDims = "IterativeLSI",
-  embedding = "UMAP",
-  n = 250,
-  verbose = TRUE,
-  threads = getArchRThreads(),
-  logFile = createLogFile("projectBulkATAC")
-)
+projectBulkATAC(ArchRProj = NULL, seATAC = NULL,
+  reducedDims = "IterativeLSI", embedding = "UMAP", n = 250,
+  verbose = TRUE, threads = getArchRThreads(),
+  logFile = createLogFile("projectBulkATAC"))
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}.}

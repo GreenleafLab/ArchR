@@ -4,16 +4,10 @@
 \alias{getMatrixFromArrow}
 \title{Get a data matrix stored in an ArrowFile}
 \usage{
-getMatrixFromArrow(
-  ArrowFile = NULL,
-  useMatrix = "GeneScoreMatrix",
-  useSeqnames = NULL,
-  cellNames = NULL,
-  ArchRProj = NULL,
-  verbose = TRUE,
-  binarize = FALSE,
-  logFile = createLogFile("getMatrixFromArrow")
-)
+getMatrixFromArrow(ArrowFile = NULL, useMatrix = "GeneScoreMatrix",
+  useSeqnames = NULL, cellNames = NULL, ArchRProj = NULL,
+  verbose = TRUE, binarize = FALSE,
+  logFile = createLogFile("getMatrixFromArrow"))
 }
 \arguments{
 \item{ArrowFile}{The path to an ArrowFile from which the selected data matrix should be obtained.}
