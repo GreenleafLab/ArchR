@@ -27,6 +27,8 @@
 #' @param knnAssign The number of nearest neighbors to be used during clustering for assignment of outliers (clusters with less than nOutlier cells).
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
 #' this threshold, then the cells will be considered outliers and assigned to nearby clusters.
+#' @param maxClusters The maximum number of clusters to be called. If the number exceeds this the clusters are merged unbiasedly using hclust and cutree. 
+#' This is useful for contraining the cluster calls to be reasonable if they are converging on large numbers. Useful in iterativeLSI as well for initial iteration.
 #' @param testBias A boolean value that indicates whether or not to test clusters for bias.
 #' @param filterBias A boolean value indicates whether or not to filter clusters that are identified as biased.
 #' @param biasClusters A numeric value between 0 and 1 indicating that clusters that are smaller than the specified proportion of total cells are
@@ -63,6 +65,7 @@ addClusters <- function(
   corCutOff = 0.75,
   knnAssign = 10, 
   nOutlier = 5, 
+  maxClusters = NULL,
   testBias = TRUE,
   filterBias = FALSE,
   biasClusters = 0.01,
@@ -346,14 +349,30 @@ addClusters <- function(
   }
 
   #################################################################################
+  # Merging if more than maxClusters
+  #################################################################################
+  if(!is.null(maxClusters)){
+    if(length(unique(clust)) > maxClusters){
+      meanDR <- t(ArchR:::.groupMeans(t(matDR), clust))
+      hc <- hclust(dist(as.matrix(meanDR)))
+      ct <- cutree(hc, maxClusters)
+      clust <- mapLabels(
+        labels = clust, 
+        oldLabels = names(ct), 
+        newLabels = paste0(prefix, ct)
+      )
+    }
+  }
+  
+  #################################################################################
   # Renaming Clusters based on Proximity in Reduced Dimensions
   #################################################################################
   .logDiffTime(sprintf("Assigning Cluster Names to %s Clusters", length(unique(clust))), tstart, verbose = verbose, logFile = logFile)
   
   if(length(unique(clust)) > 1){
 
-      meanSVD <- t(.groupMeans(t(matDR), clust))
-      hc <- hclust(dist(as.matrix(meanSVD)))
+      meanDR <- t(.groupMeans(t(matDR), clust))
+      hc <- hclust(dist(as.matrix(meanDR)))
       out <- mapLabels(
         labels = clust, 
         oldLabels = hc$labels[hc$order], 
@@ -484,6 +503,8 @@ addClusters <- function(
   cluster <- igraph::cluster_walktrap(snn)$membership
   paste0("Cluster", cluster)
 }
+
+
 
 
 

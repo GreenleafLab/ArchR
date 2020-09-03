@@ -794,22 +794,23 @@ getMatrixFromArrow <- function(
   ArrowFiles = NULL,
   seqnames = NULL,
   useMatrix = NULL,
+  useLog2 = FALSE,
   threads = 1
   ){
   
   .combineVariances <- function(dfMeans = NULL, dfVars = NULL, ns = NULL){
 
-  #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
+    #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
 
-  if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
-    stop("Means Variances and Ns lengths not identical")
-  }
+    if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
+      stop("Means Variances and Ns lengths not identical")
+    }
 
-  combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
-  summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
-  combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
+    combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
+    summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
+    combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
 
-  data.frame(combinedVars = combinedVars, combinedMeans = combinedMeans)
+    data.frame(combinedVars = combinedVars, combinedMeans = combinedMeans)
 
   }
 
@@ -828,6 +829,8 @@ getMatrixFromArrow <- function(
     length(.availableCells(ArrowFiles[y], useMatrix))
   }) %>% unlist
 
+
+
   #Compute RowVars
   summaryDF <- .safelapply(seq_along(featureDF), function(x){
     
@@ -837,11 +840,18 @@ getMatrixFromArrow <- function(
     varx <- matrix(NA, ncol = length(ArrowFiles), nrow = nrow(featureDF[[x]]))
 
     for(y in seq_along(ArrowFiles)){
-      meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeans"))
-      varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVars"))
+
+      if(useLog2){
+        meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeansLog2"))
+        varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVarsLog2")) 
+      }else{
+        meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeans"))
+        varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVars"))
+      }
+
     }
 
-  cbind(featureDF[[x]], DataFrame(.combineVariances(meanx, varx, ns)))
+    cbind(featureDF[[x]], DataFrame(.combineVariances(meanx, varx, ns)))
 
   }, threads = threads) %>% Reduce("rbind", .)
 

@@ -182,6 +182,7 @@ getMarkerFeatures <- function(
       bias = bias,
       k = k,
       n = maxCells,
+      bufferRatio = bufferRatio,
       logFile = logFile
     )
 
