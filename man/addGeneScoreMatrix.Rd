@@ -9,10 +9,11 @@ addGeneScoreMatrix(input = NULL, genes = getGenes(input),
   matrixName = "GeneScoreMatrix", extendUpstream = c(1000, 1e+05),
   extendDownstream = c(1000, 1e+05), geneUpstream = 5000,
   geneDownstream = 0, useGeneBoundaries = TRUE, useTSS = FALSE,
-  tileSize = 500, ceiling = 4, geneScaleFactor = 5,
-  scaleTo = 10000, excludeChr = c("chrY", "chrM"),
-  blacklist = getBlacklist(input), threads = getArchRThreads(),
-  parallelParam = NULL, subThreading = TRUE, force = FALSE,
+  extendTSS = FALSE, tileSize = 500, ceiling = 4,
+  geneScaleFactor = 5, scaleTo = 10000, excludeChr = c("chrY",
+  "chrM"), blacklist = getBlacklist(input),
+  threads = getArchRThreads(), parallelParam = NULL,
+  subThreading = TRUE, force = FALSE,
   logFile = createLogFile("addGeneScoreMatrix"))
 }
 \arguments{
@@ -42,6 +43,9 @@ calculation. Gene boundaries refers to the process of preventing tiles from cont
 if there is a second gene's transcription start site between the tile and the gene of interest.}
 
 \item{useTSS}{A boolean describing whether to build gene model based on gene TSS or the gene body.}
+
+\item{extendTSS}{A boolean describing whether to extend the gene TSS. By default useTSS uses the 1bp TSS while this parameter enables the extension of this
+region with 'geneUpstream' and 'geneDownstream' respectively.}
 
 \item{tileSize}{The size of the tiles used for binning counts prior to gene activity score calculation.}
 
