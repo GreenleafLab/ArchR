@@ -69,13 +69,13 @@ addGeneExpressionMatrix <- function(
   .logMessage("Overlap Per Sample w/ scATAC : ", paste(paste(names(overlapPerSample), round(overlapPerSample,3), sep = "="), collapse=","), logFile = logFile, verbose = verbose)
 
   #Get QC Info
-  nUMI <- colSums(assay(seRNA))
+  nUMI <- Matrix::colSums(assay(seRNA))
   mb <- assay(seRNA)
   mb@x[mb@x > 0] <- 1
-  nGenes <- colSums(mb)
+  nGenes <- Matrix::colSums(mb)
   rm(mb)
-  MitoRatio <- colSums(assay(seRNA)[grep("^MT", rownames(assay(seRNA))),]) / nUMI
-  RiboRatio <- colSums(assay(seRNA)[grep("^RP", rownames(assay(seRNA))),]) / nUMI
+  MitoRatio <- Matrix::colSums(assay(seRNA)[grep("^MT", rownames(assay(seRNA))),]) / nUMI
+  RiboRatio <- Matrix::colSums(assay(seRNA)[grep("^RP", rownames(assay(seRNA))),]) / nUMI
   qcInfo <- DataFrame(nUMI = nUMI, nGenes = nGenes, MitoRatio = MitoRatio, RiboRatio = RiboRatio)
   colnames(qcInfo) <- paste0("Gex_", colnames(qcInfo))
   
