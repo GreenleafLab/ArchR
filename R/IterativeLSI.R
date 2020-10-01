@@ -13,7 +13,7 @@
 #' @param iterations The number of LSI iterations to perform.
 #' @param clusterParams A list of Additional parameters to be passed to `addClusters()` for clustering within each iteration. 
 #' These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
-#' length == 1 or the total number of `iterations` - 1.
+#' length == 1 or the total number of `iterations` - 1. PLEASE NOTE - We have updated these params to `resolution=2` and `maxClusters=6`! To use previous settings use `resolution=0.2` and `maxClusters=NULL`.
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
@@ -64,8 +64,9 @@ addIterativeLSI <- function(
   name = "IterativeLSI",
   iterations = 2,
   clusterParams = list(
-      resolution = c(0.2), 
+      resolution = c(2), 
       sampleCells = 10000,
+      maxClusters = 6,
       n.start = 10
   ),
   varFeatures = 25000,

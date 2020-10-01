@@ -28,7 +28,7 @@
 #' @param nOutlier The minimum number of cells required for a group of cells to be called as a cluster. If a group of cells does not reach
 #' this threshold, then the cells will be considered outliers and assigned to nearby clusters.
 #' @param maxClusters The maximum number of clusters to be called. If the number exceeds this the clusters are merged unbiasedly using hclust and cutree. 
-#' This is useful for contraining the cluster calls to be reasonable if they are converging on large numbers. Useful in iterativeLSI as well for initial iteration.
+#' This is useful for contraining the cluster calls to be reasonable if they are converging on large numbers. Useful in iterativeLSI as well for initial iteration. Default is set to 25.
 #' @param testBias A boolean value that indicates whether or not to test clusters for bias.
 #' @param filterBias A boolean value indicates whether or not to filter clusters that are identified as biased.
 #' @param biasClusters A numeric value between 0 and 1 indicating that clusters that are smaller than the specified proportion of total cells are
@@ -65,7 +65,7 @@ addClusters <- function(
   corCutOff = 0.75,
   knnAssign = 10, 
   nOutlier = 5, 
-  maxClusters = NULL,
+  maxClusters = 25,
   testBias = TRUE,
   filterBias = FALSE,
   biasClusters = 0.01,
@@ -353,6 +353,7 @@ addClusters <- function(
   #################################################################################
   if(!is.null(maxClusters)){
     if(length(unique(clust)) > maxClusters){
+      .logDiffTime(sprintf("Identified more clusters than maxClusters allowed (n = %s). Merging clusters to maxClusters (n = %s).\nIf this is not desired set maxClusters = NULL!", length(clustAssign), maxClusters), tstart, verbose = verbose, logFile = logFile)
       meanDR <- t(ArchR:::.groupMeans(t(matDR), clust))
       hc <- hclust(dist(as.matrix(meanDR)))
       ct <- cutree(hc, maxClusters)
