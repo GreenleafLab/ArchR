@@ -8,7 +8,7 @@
 **Paired scATAC-seq and scRNA-seq Analysis**
 
 ArchR now supports paired scATAC-seq and scRNA-seq Analysis! <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-See updates with ImportFeatureMatrix, addIterativeLSI, addCombinedDims
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-See updates with ImportFeatureMatrix, addGeneExpressionMatrix, addIterativeLSI, addCombinedDims
 
 **Trajectory Analysis**
 
