@@ -5,11 +5,11 @@
 
 ### ArchR has new features available for scATAC-seq Analysis
 
-**Paired scATAC-seq and scRNA-seq Analysis
+**Paired scATAC-seq and scRNA-seq Analysis**
 
 ArchR now supports paired scATAC-seq and scRNA-seq Analysis
 
-**Trajectory Analysis
+**Trajectory Analysis**
 
 ArchR now supports both monocle3 and Slingshot based trajectory analysis!
 
