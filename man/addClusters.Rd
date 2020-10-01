@@ -7,12 +7,12 @@
 addClusters(input = NULL, reducedDims = "IterativeLSI",
   name = "Clusters", sampleCells = NULL, seed = 1,
   method = "Seurat", dimsToUse = NULL, scaleDims = NULL,
-  corCutOff = 0.75, knnAssign = 10, nOutlier = 5,
-  maxClusters = NULL, testBias = TRUE, filterBias = FALSE,
-  biasClusters = 0.01, biasCol = "nFrags", biasVals = NULL,
-  biasQuantiles = c(0.05, 0.95), biasEnrich = 10,
-  biasProportion = 0.5, biasPval = 0.05, nPerm = 500, prefix = "C",
-  ArchRProj = NULL, verbose = TRUE, tstart = NULL, force = FALSE,
+  corCutOff = 0.75, knnAssign = 10, nOutlier = 5, maxClusters = 25,
+  testBias = TRUE, filterBias = FALSE, biasClusters = 0.01,
+  biasCol = "nFrags", biasVals = NULL, biasQuantiles = c(0.05, 0.95),
+  biasEnrich = 10, biasProportion = 0.5, biasPval = 0.05,
+  nPerm = 500, prefix = "C", ArchRProj = NULL, verbose = TRUE,
+  tstart = NULL, force = FALSE,
   logFile = createLogFile("addClusters"), ...)
 }
 \arguments{
@@ -49,7 +49,7 @@ sequencing depth that is greater than the \code{corCutOff}, it will be excluded 
 this threshold, then the cells will be considered outliers and assigned to nearby clusters.}
 
 \item{maxClusters}{The maximum number of clusters to be called. If the number exceeds this the clusters are merged unbiasedly using hclust and cutree.
-This is useful for contraining the cluster calls to be reasonable if they are converging on large numbers. Useful in iterativeLSI as well for initial iteration.}
+This is useful for contraining the cluster calls to be reasonable if they are converging on large numbers. Useful in iterativeLSI as well for initial iteration. Default is set to 25.}
 
 \item{testBias}{A boolean value that indicates whether or not to test clusters for bias.}
 
