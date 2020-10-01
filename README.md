@@ -8,12 +8,14 @@
 **Paired scATAC-seq and scRNA-seq Analysis**
 
 ArchR now supports paired scATAC-seq and scRNA-seq Analysis! <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-See updates with ImportFeatureMatrix, addGeneExpressionMatrix, addIterativeLSI, addCombinedDims
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See updates with ImportFeatureMatrix, addGeneExpressionMatrix, addIterativeLSI, addCombinedDims <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For a brief tutorial of these features : https://greenleaflab.github.io/ArchR_2020/Ex-Analyze-Multiome.html
 
 **Trajectory Analysis**
 
 ArchR now supports both monocle3 and Slingshot based trajectory analysis! <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-See updates with getMonocleTrajectories, addMonocleTrajectory, addSlingShotTrajectories
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See updates with getMonocleTrajectories, addMonocleTrajectory, addSlingShotTrajectories
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For a brief tutorial of these features : https://greenleaflab.github.io/ArchR_2020/Ex-Analyze-Trajectory.html
 
 ### ArchR is currently in Beta and will be in active development through the peer review process.
 
