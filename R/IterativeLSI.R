@@ -14,6 +14,10 @@
 #' @param clusterParams A list of Additional parameters to be passed to `addClusters()` for clustering within each iteration. 
 #' These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
 #' length == 1 or the total number of `iterations` - 1. PLEASE NOTE - We have updated these params to `resolution=2` and `maxClusters=6`! To use previous settings use `resolution=0.2` and `maxClusters=NULL`.
+#' @param firstSelection First iteration selection method for features to use for LSI. Either "Top" for the top accessible/average or "Var" for the top variable features. 
+#' "Top" should be used for all scATAC-seq data (binary) while "Var" should be used for all scRNA/other-seq data types (non-binary).
+#' @param depthCol A column in the `ArchRProject` that represents the coverage (scATAC = unique fragments, scRNA = unique molecular identifiers) per cell.
+#' These values are used to minimize the related biases in the reduction related. For scATAC we recommend "nFrags" and for scRNA we recommend "Gex_nUMI".
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
@@ -69,6 +73,8 @@ addIterativeLSI <- function(
       maxClusters = 6,
       n.start = 10
   ),
+  firstSelection = "top",
+  depthCol = "nFrags",
   varFeatures = 25000,
   dimsToUse = 1:30,
   LSIMethod = 2,
@@ -172,7 +178,6 @@ addIterativeLSI <- function(
   ArrowFiles <- getSampleColData(ArchRProj)[,"ArrowFiles"]
 
   #Check if Matrix is supported and check type
-  stopifnot(any(tolower(useMatrix) %in% c("tilematrix","peakmatrix")))
   if(tolower(useMatrix) == "tilematrix"){
     useMatrix <- "TileMatrix"
     tileSizes <- lapply(ArrowFiles, function(x){
@@ -182,10 +187,19 @@ addIterativeLSI <- function(
       stop("Error not all TileMatrices are the same tileSize!")
     }
     tileSize <- unique(tileSizes)
-  }
-  if(tolower(useMatrix) == "peakmatrix"){
+  }else if(tolower(useMatrix) == "peakmatrix"){
     useMatrix <- "PeakMatrix"
     tileSize <- NA
+  }else{
+    tileSize <- NA
+  }
+
+  units <- unique(unlist(lapply(ArrowFiles, function(x) h5read(x, paste0(useMatrix, "/Info/Units")))))
+  if(length(units) != 1){
+    stop("Units of matrices are not identical!")
+  }
+  if(grepl("log",units,ignore.case=TRUE)){
+    stop("Cannot use log transformed values for iterativeLSI!")
   }
 
   tstart <- Sys.time()  
@@ -193,18 +207,79 @@ addIterativeLSI <- function(
   # Organize Information for LSI
   ############################################################################################################################
   chrToRun <- .availableSeqnames(ArrowFiles, subGroup = useMatrix)
-  #Compute Row Sums Across All Samples
-  .logDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
-  if(useMatrix == "TileMatrix"){
-    totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = FALSE)
-    totalAcc$start <- (totalAcc$idx - 1) * tileSize
+
+  if(tolower(firstSelection) == "top"){
+    
+    if(!binarize){
+      stop("Please binarize data if using top selection for first iteration! Set binarize = TRUE!")
+    }
+
+    #Compute Row Sums Across All Samples
+    .logDiffTime("Computing Total Across All Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+    if(useMatrix == "TileMatrix"){
+      totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = FALSE)
+      totalAcc$start <- (totalAcc$idx - 1) * tileSize
+    }else{
+      totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = TRUE)
+    }
+
+    #Filter Chromosomes
+    if(length(excludeChr) > 0){
+      totalAcc <- totalAcc[BiocGenerics::which(totalAcc$seqnames %bcni% excludeChr), , drop = FALSE]
+    }
+
+    #Identify the top features to be used here
+    .logDiffTime("Computing Top Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+    nFeature <- varFeatures[1]
+    rmTop <- floor((1-filterQuantile) * totalFeatures)
+    topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
+    topFeatures <- totalAcc[sort(topIdx),]
+
+    gc()
+
+  }else if(tolower(firstSelection) %in% c("var", "variable")){
+
+    if(binarize){
+      stop("Please do not binarize data if using variable selection for first iteration! Set binarize = FALSE!")
+    }
+
+    if(units %in% "BinarizedCounts"){
+      stop("Cannot do variable selection with BinarizedCounts. Set firstSelection = Top!")
+    }
+
+    #Compute Row Sums Across All Samples
+    .logDiffTime("Computing Variability Across All Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+    if(useMatrix == "TileMatrix"){
+      totalAcc <- .getRowVars(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, useLog2 = TRUE)
+      totalAcc$start <- (totalAcc$idx - 1) * tileSize
+    }else{
+      totalAcc <- .getRowVars(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, useLog2 = TRUE)
+    }
+
+    #Filter Chromosomes
+    if(length(excludeChr) > 0){
+      totalAcc <- totalAcc[BiocGenerics::which(totalAcc$seqnames %bcni% excludeChr), , drop = FALSE]
+    }
+
+    #Identify the top features to be used here
+    .logDiffTime("Computing Variable Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+    nFeature <- varFeatures[1]
+    if(nFeature > 0.5 * nrow(totalAcc)){
+      stop("nFeature for variable selection must be at leat 1/2 the total features!")
+    }
+    topIdx <- head(order(totalAcc$combinedVars, decreasing=TRUE), nFeature)
+    topFeatures <- totalAcc[sort(topIdx),]
+
+    gc()
+
   }else{
-    totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun, addInfo = TRUE)
+
+    stop("firstSelect method must be Top or Var/Variable!")
+
   }
-  gc()
 
   cellDepth <- tryCatch({
-      df <- getCellColData(ArchRProj = ArchRProj, select = "nFrags")
+      df <- getCellColData(ArchRProj = ArchRProj, select = depthCol)
       v <- df[,1]
       names(v) <- rownames(df)
       v
@@ -212,23 +287,11 @@ addIterativeLSI <- function(
       tryCatch({
         .getColSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
       }, error = function(y){
-        stop("Could not determine depth from nFrags or colSums!")
+        stop("Could not determine depth from depthCol or colSums!")
       })
     }
   )
   cellDepth <- log10(cellDepth + 1)
-
-  #Filter Chromosomes
-  if(length(excludeChr) > 0){
-    totalAcc <- totalAcc[BiocGenerics::which(totalAcc$seqnames %bcni% excludeChr), , drop = FALSE]
-  }
-
-  #Identify the top features to be used here
-  .logDiffTime("Computing Top Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
-  nFeature <- varFeatures[1]
-  rmTop <- floor((1-filterQuantile) * totalFeatures)
-  topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
-  topFeatures <- totalAcc[sort(topIdx),]
 
   ############################################################################################################################
   # LSI Iteration 1
@@ -335,6 +398,7 @@ addIterativeLSI <- function(
       scaleTo = scaleTo,
       totalAcc = totalAcc,
       totalFeatures = totalFeatures,
+      firstSelection = firstSelection,
       selectionMethod = selectionMethod,
       varFeatures = varFeatures,
       tstart = tstart,
@@ -872,6 +936,7 @@ addIterativeLSI <- function(
   useMatrix = NULL,
   totalAcc = NULL,
   scaleTo = NULL,
+  firstSelection = NULL,
   totalFeatures = NULL,
   selectionMethod = NULL,
   varFeatures = NULL,
@@ -912,7 +977,13 @@ addIterativeLSI <- function(
 
       .logDiffTime("Creating Cluster Matrix on the total Group Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       groupList <- SimpleList(split(clusterDF$cellNames, clusterDF$clusters))
-      groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
+
+      if(tolower(firstSelection) == "top"){
+        groupFeatures <- totalAcc[sort(head(order(totalAcc$rowSums, decreasing = TRUE), totalFeatures)),]
+      }else if(tolower(firstSelection) %in% c("var", "variable")){
+        groupFeatures <- totalAcc
+      }
+
       groupMat <- .getGroupMatrix(
         ArrowFiles = ArrowFiles, 
         featureDF = groupFeatures,
@@ -1294,13 +1365,5 @@ addIterativeLSI <- function(
   out2
 
 }
-
-
-
-
-
-
-
-
 
 
