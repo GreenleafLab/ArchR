@@ -13,9 +13,12 @@ ArchR now supports paired scATAC-seq and scRNA-seq Analysis! <br />
 
 **Trajectory Analysis**
 
-ArchR now supports both monocle3 and Slingshot based trajectory analysis! <br />
+ArchR now directly supports both monocle3 and Slingshot based trajectory analysis! <br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See updates with getMonocleTrajectories, addMonocleTrajectory, addSlingShotTrajectories <br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For a brief tutorial of these features : https://greenleaflab.github.io/ArchR_2020/Ex-Analyze-Trajectory.html
+
+Additionally ArchR now enables export of a peak matrix that is compatible with STREAM!<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See updates with exportPeakMatrixForSTREAM <br />
 
 ### ArchR is currently in Beta and will be in active development through the peer review process.
 
