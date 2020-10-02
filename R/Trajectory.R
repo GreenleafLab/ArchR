@@ -1203,9 +1203,54 @@ addSlingShotTrajectories <- function(
 
 }
 
+###################################################################
+# STREAM
+###################################################################
 
+#' Get a PeakMatrix stored in an ArchRProject and write out for STREAM
+#' 
+#' This function gets a PeakMatrix from an `ArchRProject` and writes it to a set of files for STREAM (https://github.com/pinellolab/STREAM)
+#'
+#' @param ArchRProj An `ArchRProject` object to get data matrix from.
+#' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' @export
+exportPeakMatrixForSTREAM <- function(
+  ArchRProj = NULL,
+  useSeqnames = NULL,
+  verbose = TRUE,
+  binarize = FALSE,
+  threads = getArchRThreads(),
+  logFile = createLogFile("exportMatrixForSTREAM")
+  ){
 
+  mat <- getMatrixFromProject(
+    ArchRProj = ArchRProj, 
+    useMatrix = "PeakMatrix", 
+    useSeqnames = useSeqnames, 
+    verbose = verbose, 
+    binarize = binarize,
+    threads = threads,
+    logFile = logFile
+  )
 
+  featureDF <- ArchR:::.getFeatureDF(getArrowFiles(ArchRProj)[1], "PeakMatrix")
+
+  stopifnot(all(featureDF$idx == rowData(mat)$idx))
+
+  countsDF <- Matrix::summary(assay(mat))
+  peaksDF <- data.frame(as.vector(featureDF[,1]), featureDF[,3], featureDF[,4])
+  cellsDF <- data.frame(colnames(mat))
+
+  data.table::fwrite(countsDF, file = "STREAM_Counts.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(peaksDF, file = "STREAM_Regions.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(cellsDF, file = "STREAM_Sample.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
+
+  return(0)
+
+}
 
 
 
