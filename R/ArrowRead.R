@@ -743,7 +743,7 @@ getMatrixFromArrow <- function(
 
       #Save Temporary Matrix
       outx <- paste0(tmpPath, "-", .sampleName(ArrowFiles[x]), ".rds")
-      saveRDS(matx, outx, compress = FALSE)     
+      .safeSaveRDS(matx, outx, compress = FALSE)     
 
       #Sample Matrix 
       matx <- matx[, which(colnames(matx) %in% sampledCellNames),drop = FALSE]

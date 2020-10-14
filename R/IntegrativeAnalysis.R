@@ -1168,9 +1168,9 @@ addPeak2GeneLinks <- function(
   #Save Group Matrices
   dir.create(file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks"), showWarnings = FALSE)
   outATAC <- file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks", "seATAC-Group-KNN.rds")
-  saveRDS(seATAC, outATAC, compress = FALSE)
+  .safeSaveRDS(seATAC, outATAC, compress = FALSE)
   outRNA <- file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks", "seRNA-Group-KNN.rds")
-  saveRDS(seRNA, outRNA, compress = FALSE)
+  .safeSaveRDS(seRNA, outRNA, compress = FALSE)
   metadata(out)$seATAC <- outATAC
   metadata(out)$seRNA <- outRNA
 

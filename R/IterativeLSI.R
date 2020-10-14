@@ -838,7 +838,7 @@ addIterativeLSI <- function(
 
       #Save results
       outj <- SimpleList(LSI = outLSI, clusters = clusters, uwotUmap = uwotUmap)
-      saveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-",j,".rds")))
+      .safeSaveRDS(outj, file.path(outDir, paste0("Save-LSI-Iteration-",j,".rds")))
       rm(UMAPParams, uwotUmap)
       gc()
 
@@ -1094,7 +1094,7 @@ addIterativeLSI <- function(
       idxOutlier <- which(colSm <= qCS[1] | colSm >= qCS[2])
       if(length(idxOutlier) > 0){
         .logDiffTime("Filtering Outliers Based On Counts", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
-        #saveRDS(mat, "temp.rds", compress = FALSE)
+        #.safeSaveRDS(mat, "temp.rds", compress = FALSE)
         matO <- mat[, idxOutlier, drop = FALSE]
         mat <- mat[, -idxOutlier, drop = FALSE]
         mat2 <- mat[, head(seq_len(ncol(mat)), 10), drop = FALSE] # A 2nd Matrix to Check Projection is Working

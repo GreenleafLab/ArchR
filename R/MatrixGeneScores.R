@@ -409,7 +409,7 @@ addGeneScoreMatrix <- function(
       totalGSz <- Matrix::colSums(matGS)
 
       #Save tmp file
-      saveRDS(matGS, file = paste0(tmpFile, "-", chrz, ".rds"), compress = FALSE)
+      .safeSaveRDS(matGS, file = paste0(tmpFile, "-", chrz, ".rds"), compress = FALSE)
 
       #Clean Memory
       rm(isMinus, signDist, extendedGeneRegion, uniqueTiles)

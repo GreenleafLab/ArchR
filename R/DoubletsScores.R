@@ -357,7 +357,7 @@ addDoubletScores <- function(
     doubletResults = simDoubletsSave
   )
 
-  saveRDS(summaryList, file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.rds")))
+  .safeSaveRDS(summaryList, file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.rds")))
   rm(simDoubletsSave)
   ##################################
 

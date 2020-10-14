@@ -617,7 +617,7 @@ saveArchRProject <- function(
   }
 
   message("Saving ArchRProject...")
-  saveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
+  .safeSaveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
   
   if(load){
     message("Loading ArchRProject...")

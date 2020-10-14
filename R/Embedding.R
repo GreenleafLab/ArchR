@@ -217,7 +217,7 @@ addUMAP <- function(
   uwot_dir <- file.path(mod_dir, "uwot")
   dir.create(uwot_dir)
   model_tmpfname <- file.path(uwot_dir, "model")
-  saveRDS(model, file = model_tmpfname)
+  .safeSaveRDS(model, file = model_tmpfname)
   metrics <- names(model$metric)
   n_metrics <- length(metrics)
   for (i in seq_len(n_metrics)) {

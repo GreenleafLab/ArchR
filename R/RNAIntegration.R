@@ -485,7 +485,7 @@ addGeneIntegrationMatrix <- function(
     jointCCA[paste0(colnames(subRNA), "_reference"), "Group"] <- subRNA$Group
     jointCCA[paste0(matchDF$cellNames, "_query"), "Group"] <- matchDF$predictedGroup
     jointCCA[paste0(matchDF$cellNames, "_query"), "Score"] <- matchDF$predictionScore
-    saveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
+    .safeSaveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
 
     #Clean Memory
     rm(transferParams, transferAnchors)
@@ -593,7 +593,7 @@ addGeneIntegrationMatrix <- function(
         #Add UMAP and Save Again
         jointCCA$UMAP1 <- uwotUmap[,1]
         jointCCA$UMAP2 <- uwotUmap[,2]
-        saveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
+        .safeSaveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
 
         p1 <- ggPoint(
           x = uwotUmap[,1], 

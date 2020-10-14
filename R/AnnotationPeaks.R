@@ -217,9 +217,9 @@ addPeakAnnotations <- function(
   ArchRProj@peakAnnotation[[name]]$Positions <- savePositions
   ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
 
-  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
-  saveRDS(out$regionPositions, savePositions, compress = FALSE)
-  saveRDS(out$regionMatches, saveMatches, compress = FALSE)
+  .safeSaveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  .safeSaveRDS(out$regionPositions, savePositions, compress = FALSE)
+  .safeSaveRDS(out$regionMatches, saveMatches, compress = FALSE)
 
   return(ArchRProj)
 
@@ -474,9 +474,9 @@ addMotifAnnotations <- function(
   ArchRProj@peakAnnotation[[name]]$Positions <- savePositions
   ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
 
-  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
-  saveRDS(out$motifPositions, savePositions, compress = FALSE)
-  saveRDS(out$motifMatches, saveMatches, compress = FALSE)
+  .safeSaveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  .safeSaveRDS(out$motifPositions, savePositions, compress = FALSE)
+  .safeSaveRDS(out$motifMatches, saveMatches, compress = FALSE)
 
   .endLogging(logFile = logFile)
 
@@ -742,8 +742,8 @@ addArchRAnnotations <- function(
   ArchRProj@peakAnnotation[[name]]$Positions <- "None"
   ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
 
-  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
-  saveRDS(out$regionMatches, saveMatches, compress = FALSE)
+  .safeSaveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  .safeSaveRDS(out$regionMatches, saveMatches, compress = FALSE)
 
   .endLogging(logFile = logFile)
 
