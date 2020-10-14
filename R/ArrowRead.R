@@ -328,6 +328,16 @@ getMatrixFromProject <- function(
     stop("Error with rowData being equal for every sample!")
   }
 
+  #RowRanges
+  .logDiffTime("Organizing rowRanges", t1 = tstart, verbose = verbose, logFile = logFile)
+  rR1 <- rowRanges(seL[[1]])
+  rR <- lapply(seq_along(seL), function(x){
+    identical(rowRanges(seL[[x]]), rR1)
+  }) %>% unlist %>% all
+  if(!rR){
+    stop("Error with rowRanges being equal for every sample!")
+  }
+
   #Assays
   nAssays <- names(assays(seL[[1]]))
   asy <- lapply(seq_along(nAssays), function(i){
@@ -340,13 +350,19 @@ getMatrixFromProject <- function(
   names(asy) <- nAssays
   
   .logDiffTime("Constructing SummarizedExperiment", t1 = tstart, verbose = verbose, logFile = logFile)
-  se <- SummarizedExperiment(assays = asy, colData = cD, rowData = rD1)  
+  if(!is.null(rR1)){
+    se <- SummarizedExperiment(assays = asy, colData = cD, rowRanges = rR1)
+  }else{
+    se <- SummarizedExperiment(assays = asy, colData = cD, rowData = rD1)
+  }
   rm(seL)
   gc()
 
   .logDiffTime("Finished Matrix Creation", t1 = tstart, verbose = verbose, logFile = logFile)
 
   se
+  
+  }
 
 }
 
