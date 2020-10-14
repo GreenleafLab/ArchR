@@ -29,6 +29,13 @@
 #' should have a row for each single cell described in `row.names` and 2 columns, one for each dimension of the embedding.
 #' @param embeddingRNA A `data.frame` of cell embeddings such as a UMAP for scRNA-seq cells to be used for density sampling. The `data.frame` object
 #' should have a row for each single cell described in `row.names` and 2 columns, one for each dimension of the embedding.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
+#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
+#' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param plotUMAP A boolean determining whether to plot a UMAP for each integration block.
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "plotUMAP = TRUE". See the function `umap` in the uwot package.
 #' @param nGenes The number of variable genes determined by `Seurat::FindVariableGenes()` to use for integration.
@@ -60,6 +67,9 @@ addGeneIntegrationMatrix <- function(
   sampleCellsRNA = 10000,
   embeddingATAC = NULL,
   embeddingRNA = NULL,
+  dimsToUse = 1:30,
+  scaleDims = NULL,
+  corCutOff = 0.75,
   plotUMAP = TRUE,
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose = FALSE),
   nGenes = 2000,
@@ -90,6 +100,9 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = sampleCellsRNA, name = "sampleCellsRNA", valid = c("integer", "null"))
   .validInput(input = embeddingATAC, name = "embeddingATAC", valid = c("data.frame", "null"))
   .validInput(input = embeddingRNA, name = "embeddingRNA", valid = c("data.frame", "null"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = plotUMAP, name = "plotUMAP", valid = c("boolean"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))  
   .validInput(input = nGenes, name = "nGenes", valid = c("integer"))
@@ -321,10 +334,7 @@ addGeneIntegrationMatrix <- function(
     h5disableFileLocking()
   }
 
-  rD <- getReducedDims(
-    ArchRProj = ArchRProj, 
-    reducedDims = reducedDims
-  )
+  rD <- getReducedDims(ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
 
   #Create Output Directory
   outDir1 <- getOutputDirectory(ArchRProj)

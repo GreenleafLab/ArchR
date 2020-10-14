@@ -947,6 +947,7 @@ getCoAccessibility <- function(
 #' from the `peakSet` of the `ArchRProject` and normalized to the total depth provided by `scaleTo`.
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
 #' @param predictionCutoff A numeric describing the cutoff for RNA integration to use when picking cells for groupings.
+#' @param addEmpiricalPval Add empirical p-values based on randomly correlating peaks and genes not on the same seqname.
 #' @param seed A number to be used as the seed for random number generation required in knn determination. It is recommended
 #' to keep track of the seed used so that you can reproduce results downstream.
 #' @param threads The number of threads to be used for parallel computing.
@@ -967,6 +968,7 @@ addPeak2GeneLinks <- function(
   scaleTo = 10^4,
   log2Norm = TRUE,
   predictionCutoff = 0.4,
+  addEmpiricalPval = FALSE,
   seed = 1, 
   threads = max(floor(getArchRThreads() / 2), 1),
   verbose = TRUE,
@@ -1139,8 +1141,10 @@ addPeak2GeneLinks <- function(
   colnames(o) <- c("B", "A", "distance")
 
   #Null Correlations
-  #.logDiffTime(main="Computing Background Correlations", t1=tstart, verbose=verbose, logFile=logFile)
-  #nullCor <- .getNullCorrelations(seATAC, seRNA, o, 1000)
+  if(addEmpiricalPval){
+    .logDiffTime(main="Computing Background Correlations", t1=tstart, verbose=verbose, logFile=logFile)
+    nullCor <- .getNullCorrelations(seATAC, seRNA, o, 1000)
+  }
 
   .logDiffTime(main="Computing Correlations", t1=tstart, verbose=verbose, logFile=logFile)
   o$Correlation <- rowCorCpp(as.integer(o$A), as.integer(o$B), assay(seATAC), assay(seRNA))
@@ -1149,16 +1153,18 @@ addPeak2GeneLinks <- function(
   o$TStat <- (o$Correlation / sqrt((1-o$Correlation^2)/(ncol(seATAC)-2))) #T-statistic P-value
   o$Pval <- 2*pt(-abs(o$TStat), ncol(seATAC) - 2)
   o$FDR <- p.adjust(o$Pval, method = "fdr")
-  #o$EmpPval <- 2*pnorm(-abs(((o$Correlation - mean(nullCor[[2]])) / sd(nullCor[[2]]))))
-  #o$EmpFDR <- p.adjust(o$EmpPval, method = "fdr")
-  
   out <- o[, c("A", "B", "Correlation", "FDR", "VarAssayA", "VarAssayB")]
-  colnames(out) <- c("idxATAC", "idxRNA", "Correlation", "FDR", "VarQATAC", "VarQRNA")
+  colnames(out) <- c("idxATAC", "idxRNA", "Correlation", "FDR", "VarQATAC", "VarQRNA")  
   mcols(peakSet) <- NULL
   names(peakSet) <- NULL
   metadata(out)$peakSet <- peakSet
   metadata(out)$geneSet <- geneStart
 
+  if(addEmpiricalPval){
+    out$EmpPval <- 2*pnorm(-abs(((out$Correlation - mean(nullCor[[2]])) / sd(nullCor[[2]]))))
+    out$EmpFDR <- p.adjust(out$EmpPval, method = "fdr")
+  }
+  
   #Save Group Matrices
   dir.create(file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks"), showWarnings = FALSE)
   outATAC <- file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks", "seATAC-Group-KNN.rds")
@@ -1177,52 +1183,52 @@ addPeak2GeneLinks <- function(
 
 }
 
-# .getNullCorrelations <- function(seA, seB, o, n){
+.getNullCorrelations <- function(seA, seB, o, n){
 
-#   o$seq <- seqnames(seA)[o$A]
+  o$seq <- seqnames(seA)[o$A]
 
-#   nullCor <- lapply(seq_along(unique(o$seq)), function(i){
+  nullCor <- lapply(seq_along(unique(o$seq)), function(i){
 
-#     #Get chr from olist
-#     chri <- unique(o$seq)[i]
-#     #message(chri, " ", appendLF = FALSE)
+    #Get chr from olist
+    chri <- unique(o$seq)[i]
+    #message(chri, " ", appendLF = FALSE)
 
-#     #Randomly get n seA
-#     id <- which(as.character(seqnames(seA)) != chri)
-#     if(length(id) > n){
-#       transAidx <- sample(id, n)
-#     }else{
-#       transAidx <- id
-#     }
+    #Randomly get n seA
+    id <- which(as.character(seqnames(seA)) != chri)
+    if(length(id) > n){
+      transAidx <- sample(id, n)
+    }else{
+      transAidx <- id
+    }
 
-#     #Calculate Correlations
-#     grid <- expand.grid(transAidx, unique(o[o$seq==chri,]$B))
+    #Calculate Correlations
+    grid <- expand.grid(transAidx, unique(o[o$seq==chri,]$B))
 
-#     idxA <- unique(grid[,1])
-#     idxB <- unique(grid[,2])
+    idxA <- unique(grid[,1])
+    idxB <- unique(grid[,2])
 
-#     seSubA <- seA[idxA]
-#     seSubB <- seB[idxB]
+    seSubA <- seA[idxA]
+    seSubB <- seB[idxB]
 
-#     grid[,3] <- match(grid[,1], idxA)
-#     grid[,4] <- match(grid[,2], idxB)
+    grid[,3] <- match(grid[,1], idxA)
+    grid[,4] <- match(grid[,2], idxB)
 
-#     colnames(grid) <- c("A", "B")
-#     out <- rowCorCpp(grid[,3], grid[,4], assay(seSubA), assay(seSubB))
-#     out <- na.omit(out)
+    colnames(grid) <- c("A", "B")
+    out <- rowCorCpp(grid[,3], grid[,4], assay(seSubA), assay(seSubB))
+    out <- na.omit(out)
 
-#     return(out)
+    return(out)
 
-#   }) %>% SimpleList
-#   #message("")
+  }) %>% SimpleList
+  #message("")
 
-#   summaryDF <- lapply(nullCor, function(x){
-#     data.frame(mean = mean(x), sd = sd(x), median = median(x), n = length(x))
-#   }) %>% Reduce("rbind",.)
+  summaryDF <- lapply(nullCor, function(x){
+    data.frame(mean = mean(x), sd = sd(x), median = median(x), n = length(x))
+  }) %>% Reduce("rbind",.)
 
-#   return(list(summaryDF, unlist(nullCor)))
+  return(list(summaryDF, unlist(nullCor)))
 
-# }
+}
 
 #' Get the peak-to-gene links from an ArchRProject
 #' 
