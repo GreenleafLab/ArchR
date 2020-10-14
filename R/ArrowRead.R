@@ -2,6 +2,62 @@
 # Reading fragments from Arrow Files
 ####################################################################
 
+#' Get the fragments from an ArchRProject 
+#' 
+#' This function retrieves the fragments from a given ArchRProject as a GRangesList object.
+#'
+#' @param ArchRProject An `ArchRProject` object to get fragments from.
+#' @param subsetBy A Genomic Ranges object to subset fragments by.
+#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
+#' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells
+#' from the provided ArrowFile using `getCellNames()`.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' @export
+getFragmentsFromProject <- function(
+  ArchRProj = NULL,
+  subsetBy = NULL,
+  cellNames = NULL,
+  verbose = FALSE,
+  logFile = createLogFile("getFragmentsFromProject")
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = subsetBy, name = "subsetBy", valid = c("GRanges", "null"))
+  .validInput(input = cellNames, name = "cellNames", valid = c("character","null"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+
+  ArrowFiles <- getArrowFiles(ArchRProj)
+
+  if(!is.null(subsetBy)){
+    chr <- unique(seqnames(subsetBy))
+  }else{
+    chr <- NULL
+  }
+
+  ArchR:::.startLogging(logFile = logFile)
+
+  FragmentsList <- lapply(seq_along(ArrowFiles), function(x){
+    message(sprintf("Reading ArrowFile %s of %s", x, length(ArrowFiles)))
+    fragx <- getFragmentsFromArrow(
+      ArrowFile = ArrowFiles[x], 
+      chr = chr, 
+      cellNames = cellNames, 
+      verbose = verbose,
+      logFile = logFile
+    )
+    if(!is.null(subsetBy)){
+      fragx <- subsetByOverlaps(fragx, subsetBy, ignore.strand = TRUE)
+    }
+    fragx
+  }) %>% SimpleList
+
+  names(FragmentsList) <- names(ArrowFiles)
+
+  FragmentsList
+
+}
+
 #' Get the fragments from an ArrowFile 
 #' 
 #' This function retrieves the fragments from a given ArrowFile as a GRanges object.
