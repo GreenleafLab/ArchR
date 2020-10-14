@@ -274,7 +274,7 @@ getMatrixFromProject <- function(
   cellNames <- ArchRProj$cellNames
 
   avMat <- getAvailableMatrices(ArchRProj)
-  if(useMatrix %in% avMat){
+  if(useMatrix %ni% avMat){
     stop("useMatrix is not in Available Matrices see getAvailableMatrices")
   }
 
