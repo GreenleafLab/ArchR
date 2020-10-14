@@ -10,7 +10,8 @@ subsetArchRProject(
   outputDirectory = "ArchRSubset",
   dropCells = TRUE,
   logFile = NULL,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  force = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ subsetArchRProject(
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{threads}{The number of threads to use for parallel execution.}
+
+\item{force}{If output directory exists overwrite.}
 }
 \description{
 This function will subset and ArchRProject by cells and save the output to a new directory and re-load the subsetted ArchRProject.
