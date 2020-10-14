@@ -239,6 +239,7 @@ addPeakAnnotations <- function(
 #' used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from `getGenome()`.
 #' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR
 #' collection to be used. See `getMatrixSet()` from `TFBSTools` for all options to supply for collection.
+#' @param motifPWMs A custom set of motif PWMs as a PWMList for adding motif annotations.
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
 #' (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
