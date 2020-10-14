@@ -327,6 +327,7 @@ addIterativeLSI <- function(
     projectAll = j == iterations | projectCellsPre | sampleJ > sampleCellsPre,
     threads = threads,
     useIndex = FALSE,
+    seed = seed,
     tstart = tstart,
     verbose = verbose,
     logFile = logFile
@@ -440,6 +441,7 @@ addIterativeLSI <- function(
       projectAll = j == iterations | projectCellsPre | sampleJ > sampleCellsPre,
       threads = threads,
       useIndex = FALSE,
+      seed = seed,
       tstart = tstart,
       verbose = verbose,
       logFile = logFile
@@ -515,6 +517,7 @@ addIterativeLSI <- function(
   sampleCells = 5000, 
   projectAll = TRUE,
   threads = 1, 
+  seed = 1,
   useIndex = FALSE, 
   tstart = NULL, 
   verbose = TRUE,
@@ -554,6 +557,7 @@ addIterativeLSI <- function(
        binarize = binarize, 
        outlierQuantiles = outlierQuantiles,
        verbose = FALSE, 
+       seed = seed,
        tstart = tstart,
        logFile = logFile
       )
@@ -599,6 +603,7 @@ addIterativeLSI <- function(
          nDimensions = max(dimsToUse),
          binarize = binarize, 
          outlierQuantiles = outlierQuantiles,
+         seed = seed,
          tstart = tstart,
          logFile = logFile
         )
@@ -636,6 +641,7 @@ addIterativeLSI <- function(
            nDimensions = max(dimsToUse),
            binarize = binarize, 
            outlierQuantiles = outlierQuantiles,
+           seed = seed,
            tstart = tstart,
            logFile = logFile
           )
