@@ -636,6 +636,7 @@ saveArchRProject <- function(
 #' @param dropCells A boolean indicating whether to drop cells that are not in `ArchRProject` from corresponding Arrow Files.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param threads The number of threads to use for parallel execution. 
+#' @param force If output directory exists overwrite.
 #' @export
 subsetArchRProject <- function(
   ArchRProj = NULL,
@@ -643,7 +644,8 @@ subsetArchRProject <- function(
   outputDirectory = "ArchRSubset",
   dropCells = TRUE,
   logFile = NULL,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
@@ -651,6 +653,12 @@ subsetArchRProject <- function(
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
 
   outDirOld <- getOutputDirectory(ArchRProj)
+
+  if(dir.exists(outputDirectory)){
+    if(!force){
+      stop("outputDirectory exists! Please set force = TRUE to overwrite existing directory!")
+    }
+  }
 
   if(outputDirectory == outDirOld){
     stop("outputDirectory must be different than ArchRProj outputDirectory to properly subset!")
