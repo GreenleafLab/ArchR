@@ -621,6 +621,14 @@ getMarkerFeatures <- function(
     }
 
     idF <- which(groups == groupx)
+
+    if(all(length(idF) * bgdProbx < 1)){
+      if(length(idF) < length(bgdProbx)){
+        bgdProbx <- bgdProbx[sample(names(bgdProbx), floor(length(idF) * bufferRatio))]
+        bgdProbx[1:length(bgdProbx)] <- rep(1/length(bgdProbx), length(bgdProbx))
+      }
+    }
+
     idB <- which(groups %in% names(bgdProbx))
 
     if(k > length(idB)){
@@ -726,7 +734,7 @@ getMarkerFeatures <- function(
         summaryBgd = bgdBias, 
         bgdGroups = rbind(estbgd, obsbgd),
         bgdGroupsProbs = rbind(estbgdP, obsbgdP),
-        corbgdGroups = cor(estbgdP, obsbgdP),
+        corbgdGroups = suppressWarnings(cor(estbgdP, obsbgdP)),
         n = length(sx), 
         p = it / length(sx),
         group = groupx,
