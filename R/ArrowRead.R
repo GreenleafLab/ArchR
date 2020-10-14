@@ -362,8 +362,6 @@ getMatrixFromProject <- function(
 
   se
   
-  }
-
 }
 
 #' Get a data matrix stored in an ArrowFile
