@@ -4,19 +4,34 @@
 \alias{addReproduciblePeakSet}
 \title{Add a Reproducible Peak Set to an ArchRProject}
 \usage{
-addReproduciblePeakSet(ArchRProj = NULL, groupBy = "Clusters",
-  peakMethod = "Macs2", reproducibility = "2", peaksPerCell = 500,
-  maxPeaks = 150000, minCells = 25, excludeChr = c("chrM", "chrY"),
-  pathToMacs2 = if (tolower(peakMethod) == "macs2") findMacs2() else
-  NULL, genomeSize = NULL, shift = -75, extsize = 150, method = if
-  (tolower(peakMethod) == "macs2") "q" else "p", cutOff = 0.1,
-  additionalParams = "--nomodel --nolambda", extendSummits = 250,
+addReproduciblePeakSet(
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  peakMethod = "Macs2",
+  reproducibility = "2",
+  peaksPerCell = 500,
+  maxPeaks = 150000,
+  minCells = 25,
+  excludeChr = c("chrM", "chrY"),
+  pathToMacs2 = if (tolower(peakMethod) == "macs2") findMacs2() else NULL,
+  genomeSize = NULL,
+  shift = -75,
+  extsize = 150,
+  method = if (tolower(peakMethod) == "macs2") "q" else "p",
+  cutOff = 0.1,
+  additionalParams = "--nomodel --nolambda",
+  extendSummits = 250,
   promoterRegion = c(2000, 100),
   genomeAnnotation = getGenomeAnnotation(ArchRProj),
-  geneAnnotation = getGeneAnnotation(ArchRProj), plot = TRUE,
-  threads = getArchRThreads(), parallelParam = NULL, force = FALSE,
-  verbose = TRUE, logFile = createLogFile("addReproduciblePeakSet"),
-  ...)
+  geneAnnotation = getGeneAnnotation(ArchRProj),
+  plot = TRUE,
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  force = FALSE,
+  verbose = TRUE,
+  logFile = createLogFile("addReproduciblePeakSet"),
+  ...
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

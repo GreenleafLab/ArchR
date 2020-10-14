@@ -4,8 +4,7 @@
 \alias{createLogFile}
 \title{Create a Log File for ArchR}
 \usage{
-createLogFile(name = NULL, logDir = "ArchRLogs",
-  useLogs = getArchRLogging())
+createLogFile(name = NULL, logDir = "ArchRLogs", useLogs = getArchRLogging())
 }
 \arguments{
 \item{name}{A character string to add a more descriptive name in log file.}

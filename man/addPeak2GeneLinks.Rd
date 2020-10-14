@@ -4,13 +4,26 @@
 \alias{addPeak2GeneLinks}
 \title{Add Peak2GeneLinks to an ArchRProject}
 \usage{
-addPeak2GeneLinks(ArchRProj = NULL, reducedDims = "IterativeLSI",
-  useMatrix = "GeneIntegrationMatrix", dimsToUse = 1:30,
-  scaleDims = NULL, corCutOff = 0.75, k = 100, knnIteration = 500,
-  overlapCutoff = 0.8, maxDist = 250000, scaleTo = 10^4,
-  log2Norm = TRUE, predictionCutoff = 0.4, seed = 1,
-  threads = max(floor(getArchRThreads()/2), 1), verbose = TRUE,
-  logFile = createLogFile("addPeak2GeneLinks"))
+addPeak2GeneLinks(
+  ArchRProj = NULL,
+  reducedDims = "IterativeLSI",
+  useMatrix = "GeneIntegrationMatrix",
+  dimsToUse = 1:30,
+  scaleDims = NULL,
+  corCutOff = 0.75,
+  k = 100,
+  knnIteration = 500,
+  overlapCutoff = 0.8,
+  maxDist = 250000,
+  scaleTo = 10^4,
+  log2Norm = TRUE,
+  predictionCutoff = 0.4,
+  addEmpiricalPval = FALSE,
+  seed = 1,
+  threads = max(floor(getArchRThreads()/2), 1),
+  verbose = TRUE,
+  logFile = createLogFile("addPeak2GeneLinks")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
@@ -42,6 +55,8 @@ from the \code{peakSet} of the \code{ArchRProject} and normalized to the total d
 \item{log2Norm}{A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.}
 
 \item{predictionCutoff}{A numeric describing the cutoff for RNA integration to use when picking cells for groupings.}
+
+\item{addEmpiricalPval}{Add empirical p-values based on randomly correlating peaks and genes not on the same seqname.}
 
 \item{seed}{A number to be used as the seed for random number generation required in knn determination. It is recommended
 to keep track of the seed used so that you can reproduce results downstream.}

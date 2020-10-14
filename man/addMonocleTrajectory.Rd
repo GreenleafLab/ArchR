@@ -4,9 +4,14 @@
 \alias{addMonocleTrajectory}
 \title{Add a Monocle Trajectory to an ArchR Project #NEW}
 \usage{
-addMonocleTrajectory(ArchRProj = NULL, name = "Trajectory",
-  useGroups = NULL, groupBy = "Clusters", monocleCDS = NULL,
-  force = FALSE)
+addMonocleTrajectory(
+  ArchRProj = NULL,
+  name = "Trajectory",
+  useGroups = NULL,
+  groupBy = "Clusters",
+  monocleCDS = NULL,
+  force = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

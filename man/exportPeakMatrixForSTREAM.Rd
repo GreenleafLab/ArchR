@@ -4,9 +4,14 @@
 \alias{exportPeakMatrixForSTREAM}
 \title{Get a PeakMatrix stored in an ArchRProject and write out for STREAM}
 \usage{
-exportPeakMatrixForSTREAM(ArchRProj = NULL, useSeqnames = NULL,
-  verbose = TRUE, binarize = FALSE, threads = getArchRThreads(),
-  logFile = createLogFile("exportMatrixForSTREAM"))
+exportPeakMatrixForSTREAM(
+  ArchRProj = NULL,
+  useSeqnames = NULL,
+  verbose = TRUE,
+  binarize = FALSE,
+  threads = getArchRThreads(),
+  logFile = createLogFile("exportMatrixForSTREAM")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object to get data matrix from.}

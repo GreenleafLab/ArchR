@@ -4,13 +4,23 @@
 \alias{correlateTrajectories}
 \title{Correlate Trajectories}
 \usage{
-correlateTrajectories(seTrajectory1 = NULL, seTrajectory2 = NULL,
-  corCutOff = 0.5, varCutOff1 = 0.8, varCutOff2 = 0.8,
+correlateTrajectories(
+  seTrajectory1 = NULL,
+  seTrajectory2 = NULL,
+  corCutOff = 0.5,
+  varCutOff1 = 0.8,
+  varCutOff2 = 0.8,
   removeFromName1 = c("underscore", "dash"),
-  removeFromName2 = c("underscore", "dash"), useRanges = FALSE,
-  fix1 = "center", fix2 = "start", maxDist = 250000,
-  log2Norm1 = TRUE, log2Norm2 = TRUE, force = FALSE,
-  logFile = createLogFile("correlateTrajectories"))
+  removeFromName2 = c("underscore", "dash"),
+  useRanges = FALSE,
+  fix1 = "center",
+  fix2 = "start",
+  maxDist = 250000,
+  log2Norm1 = TRUE,
+  log2Norm2 = TRUE,
+  force = FALSE,
+  logFile = createLogFile("correlateTrajectories")
+)
 }
 \arguments{
 \item{seTrajectory1}{A \code{SummarizedExperiment} object that results from calling \code{getTrajectory()}.}

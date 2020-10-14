@@ -4,9 +4,16 @@
 \alias{plotPDF}
 \title{Plot PDF in outputDirectory of an ArchRProject}
 \usage{
-plotPDF(..., name = "Plot", width = 6, height = 6,
-  ArchRProj = NULL, addDOC = TRUE, useDingbats = FALSE,
-  plotList = NULL)
+plotPDF(
+  ...,
+  name = "Plot",
+  width = 6,
+  height = 6,
+  ArchRProj = NULL,
+  addDOC = TRUE,
+  useDingbats = FALSE,
+  plotList = NULL
+)
 }
 \arguments{
 \item{...}{vector of plots to be plotted (if input is a list use plotList instead)}

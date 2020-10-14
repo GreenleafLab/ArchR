@@ -4,12 +4,23 @@
 \alias{plotTrajectoryHeatmap}
 \title{Plot a Heatmap of Features across a Trajectory}
 \usage{
-plotTrajectoryHeatmap(seTrajectory = NULL, varCutOff = 0.9,
-  maxFeatures = 25000, scaleRows = TRUE, limits = c(-1.5, 1.5),
-  grepExclude = NULL, pal = NULL, labelMarkers = NULL,
-  labelTop = 50, labelRows = FALSE, rowOrder = NULL,
-  useSeqnames = NULL, returnMatrix = FALSE, force = FALSE,
-  logFile = createLogFile("plotTrajectoryHeatmap"))
+plotTrajectoryHeatmap(
+  seTrajectory = NULL,
+  varCutOff = 0.9,
+  maxFeatures = 25000,
+  scaleRows = TRUE,
+  limits = c(-1.5, 1.5),
+  grepExclude = NULL,
+  pal = NULL,
+  labelMarkers = NULL,
+  labelTop = 50,
+  labelRows = FALSE,
+  rowOrder = NULL,
+  useSeqnames = NULL,
+  returnMatrix = FALSE,
+  force = FALSE,
+  logFile = createLogFile("plotTrajectoryHeatmap")
+)
 }
 \arguments{
 \item{seTrajectory}{A \code{SummarizedExperiment} object that results from calling \code{getTrajectory()}.}

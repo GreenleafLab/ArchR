@@ -4,10 +4,17 @@
 \alias{getMonocleTrajectories}
 \title{Get a Monocle CDS of Trajectories that can be added to an ArchRProject #NEW}
 \usage{
-getMonocleTrajectories(ArchRProj = NULL, name = "Trajectory",
-  useGroups = NULL, principalGroup = NULL, groupBy = NULL,
-  embedding = NULL, clusterParams = list(), graphParams = list(),
-  seed = 1)
+getMonocleTrajectories(
+  ArchRProj = NULL,
+  name = "Trajectory",
+  useGroups = NULL,
+  principalGroup = NULL,
+  groupBy = NULL,
+  embedding = NULL,
+  clusterParams = list(),
+  graphParams = list(),
+  seed = 1
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

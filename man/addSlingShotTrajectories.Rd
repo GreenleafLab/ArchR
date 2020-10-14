@@ -4,9 +4,17 @@
 \alias{addSlingShotTrajectories}
 \title{Add a Slingshot Trajectories to an ArchR Project #NEW}
 \usage{
-addSlingShotTrajectories(ArchRProj = NULL, name = "SlingShot",
-  useGroups = NULL, principalGroup = NULL, groupBy = NULL,
-  embedding = NULL, reducedDims = NULL, force = FALSE, seed = 1)
+addSlingShotTrajectories(
+  ArchRProj = NULL,
+  name = "SlingShot",
+  useGroups = NULL,
+  principalGroup = NULL,
+  groupBy = NULL,
+  embedding = NULL,
+  reducedDims = NULL,
+  force = FALSE,
+  seed = 1
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

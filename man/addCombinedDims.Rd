@@ -4,9 +4,15 @@
 \alias{addCombinedDims}
 \title{Combine two or more modalities dimensionality reductions.}
 \usage{
-addCombinedDims(ArchRProj = NULL, name = "CombinedDims",
-  reducedDims = NULL, dimWeights = NULL, dimsToUse = NULL,
-  scaleDims = NULL, corCutOff = 0.75)
+addCombinedDims(
+  ArchRProj = NULL,
+  name = "CombinedDims",
+  reducedDims = NULL,
+  dimWeights = NULL,
+  dimsToUse = NULL,
+  scaleDims = NULL,
+  corCutOff = 0.75
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

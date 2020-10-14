@@ -4,8 +4,13 @@
 \alias{createGenomeAnnotation}
 \title{Create a genome annotation object for ArchR}
 \usage{
-createGenomeAnnotation(genome = NULL, chromSizes = NULL,
-  blacklist = NULL, filter = TRUE, filterChr = c("chrM"))
+createGenomeAnnotation(
+  genome = NULL,
+  chromSizes = NULL,
+  blacklist = NULL,
+  filter = TRUE,
+  filterChr = c("chrM")
+)
 }
 \arguments{
 \item{genome}{Either (i) a string that is a valid \code{BSgenome} or (ii) a \code{BSgenome} object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").}

@@ -4,10 +4,16 @@
 \alias{plotTSSEnrichment}
 \title{Plot a TSS Enrichment Plot for Each Sample}
 \usage{
-plotTSSEnrichment(ArchRProj = NULL, TSS = getTSS(ArchRProj),
-  flank = 2000, norm = 100, smooth = 11, returnDF = FALSE,
+plotTSSEnrichment(
+  ArchRProj = NULL,
+  TSS = getTSS(ArchRProj),
+  flank = 2000,
+  norm = 100,
+  smooth = 11,
+  returnDF = FALSE,
   threads = getArchRThreads(),
-  logFile = createLogFile("plotTSSEnrichment"))
+  logFile = createLogFile("plotTSSEnrichment")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

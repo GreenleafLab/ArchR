@@ -4,9 +4,15 @@
 \alias{getPeak2GeneLinks}
 \title{Get the peak-to-gene links from an ArchRProject}
 \usage{
-getPeak2GeneLinks(ArchRProj = NULL, corCutOff = 0.45,
-  FDRCutOff = 1e-04, varCutOffATAC = 0.25, varCutOffRNA = 0.25,
-  resolution = 1, returnLoops = TRUE)
+getPeak2GeneLinks(
+  ArchRProj = NULL,
+  corCutOff = 0.45,
+  FDRCutOff = 1e-04,
+  varCutOffATAC = 0.25,
+  varCutOffRNA = 0.25,
+  resolution = 1,
+  returnLoops = TRUE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

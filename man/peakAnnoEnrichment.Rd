@@ -4,10 +4,15 @@
 \alias{peakAnnoEnrichment}
 \title{Peak Annotation Hypergeometric Enrichment in Marker Peaks.}
 \usage{
-peakAnnoEnrichment(seMarker = NULL, ArchRProj = NULL,
-  peakAnnotation = NULL, matches = NULL,
-  cutOff = "FDR <= 0.1 & Log2FC >= 0.5", background = "all",
-  logFile = createLogFile("peakAnnoEnrichment"))
+peakAnnoEnrichment(
+  seMarker = NULL,
+  ArchRProj = NULL,
+  peakAnnotation = NULL,
+  matches = NULL,
+  cutOff = "FDR <= 0.1 & Log2FC >= 0.5",
+  background = "all",
+  logFile = createLogFile("peakAnnoEnrichment")
+)
 }
 \arguments{
 \item{seMarker}{A \code{SummarizedExperiment} object returned by \code{markerFeatures()}.}

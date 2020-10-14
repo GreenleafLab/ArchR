@@ -4,8 +4,13 @@
 \alias{addPeakAnnotations}
 \title{Add peak annotations to an ArchRProject}
 \usage{
-addPeakAnnotations(ArchRProj = NULL, regions = NULL, name = "Region",
-  force = FALSE, logFile = createLogFile("addPeakAnnotations"))
+addPeakAnnotations(
+  ArchRProj = NULL,
+  regions = NULL,
+  name = "Region",
+  force = FALSE,
+  logFile = createLogFile("addPeakAnnotations")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

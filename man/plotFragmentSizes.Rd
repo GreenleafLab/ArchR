@@ -4,9 +4,13 @@
 \alias{plotFragmentSizes}
 \title{Plot the fragment size distribution for each sample}
 \usage{
-plotFragmentSizes(ArchRProj = NULL, maxSize = 750, returnDF = FALSE,
+plotFragmentSizes(
+  ArchRProj = NULL,
+  maxSize = 750,
+  returnDF = FALSE,
   threads = getArchRThreads(),
-  logFile = createLogFile("plotFragmentSizes"))
+  logFile = createLogFile("plotFragmentSizes")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

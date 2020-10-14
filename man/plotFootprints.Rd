@@ -4,12 +4,24 @@
 \alias{plotFootprints}
 \title{Plot Footprints}
 \usage{
-plotFootprints(seFoot = NULL, names = NULL, pal = NULL,
-  flank = 250, flankNorm = 50, normMethod = "Subtract",
-  smoothWindow = NULL, baseSize = 6, plot = TRUE, ArchRProj = NULL,
-  plotName = paste0("Plot-Footprints-", normMethod), height = 6,
-  width = 4, addDOC = TRUE, force = FALSE,
-  logFile = createLogFile("plotFootprints"))
+plotFootprints(
+  seFoot = NULL,
+  names = NULL,
+  pal = NULL,
+  flank = 250,
+  flankNorm = 50,
+  normMethod = "Subtract",
+  smoothWindow = NULL,
+  baseSize = 6,
+  plot = TRUE,
+  ArchRProj = NULL,
+  plotName = paste0("Plot-Footprints-", normMethod),
+  height = 6,
+  width = 4,
+  addDOC = TRUE,
+  force = FALSE,
+  logFile = createLogFile("plotFootprints")
+)
 }
 \arguments{
 \item{seFoot}{A summarized experiment object containing information on footprints returned by the \code{getFootprints()} function.}

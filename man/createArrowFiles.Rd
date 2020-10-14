@@ -4,20 +4,41 @@
 \alias{createArrowFiles}
 \title{Create Arrow Files}
 \usage{
-createArrowFiles(inputFiles = NULL, sampleNames = names(inputFiles),
-  outputNames = sampleNames, validBarcodes = NULL,
+createArrowFiles(
+  inputFiles = NULL,
+  sampleNames = names(inputFiles),
+  outputNames = sampleNames,
+  validBarcodes = NULL,
   geneAnnotation = getGeneAnnotation(),
-  genomeAnnotation = getGenomeAnnotation(), filterFrags = 1000,
-  filterTSS = 4, removeFilteredCells = TRUE, minFrags = 500,
-  maxFrags = 1e+05, QCDir = "QualityControl", nucLength = 147,
-  promoterRegion = c(2000, 100), TSSParams = list(),
-  excludeChr = c("chrM", "chrY"), nChunk = 5, bcTag = "qname",
-  gsubExpression = NULL, bamFlag = NULL, offsetPlus = 4,
-  offsetMinus = -5, addTileMat = TRUE, TileMatParams = list(),
-  addGeneScoreMat = TRUE, GeneScoreMatParams = list(), force = FALSE,
-  threads = getArchRThreads(), parallelParam = NULL,
-  subThreading = TRUE, verbose = TRUE, cleanTmp = TRUE,
-  logFile = createLogFile("createArrows"))
+  genomeAnnotation = getGenomeAnnotation(),
+  filterFrags = 1000,
+  filterTSS = 4,
+  removeFilteredCells = TRUE,
+  minFrags = 500,
+  maxFrags = 1e+05,
+  QCDir = "QualityControl",
+  nucLength = 147,
+  promoterRegion = c(2000, 100),
+  TSSParams = list(),
+  excludeChr = c("chrM", "chrY"),
+  nChunk = 5,
+  bcTag = "qname",
+  gsubExpression = NULL,
+  bamFlag = NULL,
+  offsetPlus = 4,
+  offsetMinus = -5,
+  addTileMat = TRUE,
+  TileMatParams = list(),
+  addGeneScoreMat = TRUE,
+  GeneScoreMatParams = list(),
+  force = FALSE,
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  subThreading = TRUE,
+  verbose = TRUE,
+  cleanTmp = TRUE,
+  logFile = createLogFile("createArrows")
+)
 }
 \arguments{
 \item{inputFiles}{A character vector containing the paths to the input files to use to generate the ArrowFiles.
@@ -66,7 +87,7 @@ as the promoter region for downstream calculation of things like the fraction of
 \item{TSSParams}{A list of parameters for computing TSS Enrichment scores. This includes the \code{window} which is the size in basepairs
 of the window centered at each TSS (default 101), the \code{flank} which is the size in basepairs of the flanking window (default 2000),
 and the \code{norm} which describes the size in basepairs of the flank window to be used for normalization of the TSS enrichment score (default 100).
-For example, given \code{window = 101, flank = 2000, norm = 100}, the accessibility within the 101-bp surrounding the TSS will be normalized
+For example, given \verb{window = 101, flank = 2000, norm = 100}, the accessibility within the 101-bp surrounding the TSS will be normalized
 to the accessibility in the 100-bp bins from -2000 bp to -1901 bp and 1901:2000.}
 
 \item{excludeChr}{A character vector containing the names of chromosomes to be excluded from downstream analyses. In most human/mouse

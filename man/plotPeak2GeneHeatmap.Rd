@@ -4,14 +4,25 @@
 \alias{plotPeak2GeneHeatmap}
 \title{Plot Peak2Gene Heatmap from an ArchRProject}
 \usage{
-plotPeak2GeneHeatmap(ArchRProj = NULL, corCutOff = 0.45,
-  FDRCutOff = 1e-04, varCutOffATAC = 0.25, varCutOffRNA = 0.25,
-  k = 25, nPlot = 25000, limitsATAC = c(-2, 2), limitsRNA = c(-2,
-  2), groupBy = "Clusters", palGroup = NULL,
+plotPeak2GeneHeatmap(
+  ArchRProj = NULL,
+  corCutOff = 0.45,
+  FDRCutOff = 1e-04,
+  varCutOffATAC = 0.25,
+  varCutOffRNA = 0.25,
+  k = 25,
+  nPlot = 25000,
+  limitsATAC = c(-2, 2),
+  limitsRNA = c(-2, 2),
+  groupBy = "Clusters",
+  palGroup = NULL,
   palATAC = paletteContinuous("solarExtra"),
-  palRNA = paletteContinuous("blueYellow"), verbose = TRUE,
-  returnMatrices = FALSE, seed = 1,
-  logFile = createLogFile("plotPeak2GeneHeatmap"))
+  palRNA = paletteContinuous("blueYellow"),
+  verbose = TRUE,
+  returnMatrices = FALSE,
+  seed = 1,
+  logFile = createLogFile("plotPeak2GeneHeatmap")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

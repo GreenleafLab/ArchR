@@ -4,11 +4,20 @@
 \alias{addDeviationsMatrix}
 \title{Add a matrix of deviations for a given peakAnnotation to Arrow Files in ArchRProject}
 \usage{
-addDeviationsMatrix(ArchRProj = NULL, peakAnnotation = NULL,
-  matches = NULL, bgdPeaks = getBgdPeaks(ArchRProj),
-  matrixName = NULL, out = c("z", "deviations"), binarize = FALSE,
-  threads = getArchRThreads(), verbose = TRUE, parallelParam = NULL,
-  force = FALSE, logFile = createLogFile("addDeviationsMatrix"))
+addDeviationsMatrix(
+  ArchRProj = NULL,
+  peakAnnotation = NULL,
+  matches = NULL,
+  bgdPeaks = getBgdPeaks(ArchRProj),
+  matrixName = NULL,
+  out = c("z", "deviations"),
+  binarize = FALSE,
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  parallelParam = NULL,
+  force = FALSE,
+  logFile = createLogFile("addDeviationsMatrix")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

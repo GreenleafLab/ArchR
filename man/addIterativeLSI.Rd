@@ -4,21 +4,42 @@
 \alias{addIterativeLSI}
 \title{Add an Iterative LSI-based dimensionality reduction to an ArchRProject}
 \usage{
-addIterativeLSI(ArchRProj = NULL, useMatrix = "TileMatrix",
-  name = "IterativeLSI", iterations = 2,
-  clusterParams = list(resolution = c(2), sampleCells = 10000,
-  maxClusters = 6, n.start = 10), firstSelection = "top",
-  depthCol = "nFrags", varFeatures = 25000, dimsToUse = 1:30,
-  LSIMethod = 2, scaleDims = TRUE, corCutOff = 0.75,
-  binarize = TRUE, outlierQuantiles = c(0.02, 0.98),
-  filterBias = TRUE, sampleCellsPre = 10000, projectCellsPre = FALSE,
-  sampleCellsFinal = NULL, selectionMethod = "var", scaleTo = 10000,
-  totalFeatures = 5e+05, filterQuantile = 0.995, excludeChr = c(),
-  saveIterations = TRUE, UMAPParams = list(n_neighbors = 40, min_dist =
-  0.4, metric = "cosine", verbose = FALSE, fast_sgd = TRUE),
-  nPlot = 10000, outDir = getOutputDirectory(ArchRProj),
-  threads = getArchRThreads(), seed = 1, verbose = TRUE,
-  force = FALSE, logFile = createLogFile("addIterativeLSI"))
+addIterativeLSI(
+  ArchRProj = NULL,
+  useMatrix = "TileMatrix",
+  name = "IterativeLSI",
+  iterations = 2,
+  clusterParams = list(resolution = c(2), sampleCells = 10000, maxClusters = 6, n.start
+    = 10),
+  firstSelection = "top",
+  depthCol = "nFrags",
+  varFeatures = 25000,
+  dimsToUse = 1:30,
+  LSIMethod = 2,
+  scaleDims = TRUE,
+  corCutOff = 0.75,
+  binarize = TRUE,
+  outlierQuantiles = c(0.02, 0.98),
+  filterBias = TRUE,
+  sampleCellsPre = 10000,
+  projectCellsPre = FALSE,
+  sampleCellsFinal = NULL,
+  selectionMethod = "var",
+  scaleTo = 10000,
+  totalFeatures = 5e+05,
+  filterQuantile = 0.995,
+  excludeChr = c(),
+  saveIterations = TRUE,
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
+    FALSE, fast_sgd = TRUE),
+  nPlot = 10000,
+  outDir = getOutputDirectory(ArchRProj),
+  threads = getArchRThreads(),
+  seed = 1,
+  verbose = TRUE,
+  force = FALSE,
+  logFile = createLogFile("addIterativeLSI")
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

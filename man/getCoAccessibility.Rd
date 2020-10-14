@@ -4,8 +4,12 @@
 \alias{getCoAccessibility}
 \title{Get the peak co-accessibility from an ArchRProject}
 \usage{
-getCoAccessibility(ArchRProj = NULL, corCutOff = 0.5, resolution = 1,
-  returnLoops = TRUE)
+getCoAccessibility(
+  ArchRProj = NULL,
+  corCutOff = 0.5,
+  resolution = 1,
+  returnLoops = TRUE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}

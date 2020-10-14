@@ -4,11 +4,18 @@
 \alias{addGeneExpressionMatrix}
 \title{Add Gene Expression Matrix to ArrowFiles or an ArchRProject}
 \usage{
-addGeneExpressionMatrix(input = NULL, seRNA = NULL,
-  chromSizes = getChromSizes(input), excludeChr = c("chrM", "chrY"),
-  scaleTo = 10000, verbose = TRUE, threads = getArchRThreads(),
-  parallelParam = NULL, force = TRUE,
-  logFile = createLogFile("addGeneExpressionMatrix"))
+addGeneExpressionMatrix(
+  input = NULL,
+  seRNA = NULL,
+  chromSizes = getChromSizes(input),
+  excludeChr = c("chrM", "chrY"),
+  scaleTo = 10000,
+  verbose = TRUE,
+  threads = getArchRThreads(),
+  parallelParam = NULL,
+  force = TRUE,
+  logFile = createLogFile("addGeneExpressionMatrix")
+)
 }
 \arguments{
 \item{input}{An \code{ArchRProject} object or character vector of ArrowFiles.}
