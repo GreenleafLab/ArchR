@@ -991,7 +991,7 @@ theme_ArchR <- function(
       required_aes = c("x", "y"),
       non_missing_aes = c("size", "shape", "colour"),
       default_aes = aes(
-        shape = 19, colour = "black", size = 1.5, fill = NA,
+        shape = 19, colour = "black", fill = NA,
         alpha = NA, stroke = 0.5
       ),
       
