@@ -273,6 +273,10 @@ getMatrixFromProject <- function(
 
   cellNames <- ArchRProj$cellNames
 
+  avMat <- getAvailableMatrices(ArchRProj)
+  if(useMatrix %in% avMat){
+    stop("useMatrix is not in Available Matrices see getAvailableMatrices")
+  }
 
   seL <- .safelapply(seq_along(ArrowFiles), function(x){
 
