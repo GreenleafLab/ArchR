@@ -309,6 +309,14 @@ plotEmbedding <- function(
       if(x == 1){
         .logThis(colorParams, name = "ColorParams 1", logFile = logFile)
       }
+
+      if(!is.null(imputeWeights)){
+        message("Imputing Matrix")
+        colorMat <- matrix(colorParams$color, nrow=1)
+        colnames(colorMat) <- rownames(df)
+        colorMat <- imputeMatrix(mat = colorMat, imputeWeights = imputeWeights, logFile = logFile)
+        colorParams$color <- as.vector(colorMat)
+      }
       colorParams
     })
 
