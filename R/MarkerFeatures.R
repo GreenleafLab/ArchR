@@ -333,6 +333,10 @@ getMarkerFeatures <- function(
 
     featureDFy <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames[y]), ]
 
+    if(length(c(cellsx, bgdx)) == 0){
+      stop(paste0("Cells in foreground and background are 0 for group = ", group))
+    }
+
     scMaty <- suppressMessages(.getPartialMatrix(
       ArrowFiles, 
       featureDF = featureDFy, 
