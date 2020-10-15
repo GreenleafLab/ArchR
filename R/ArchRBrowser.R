@@ -194,7 +194,7 @@ ArchRBrowser <- function(
             br(),
             selectizeInput("normATAC",
                label = "normMethod",
-               choices = c("ReadsInTSS", "ReadsInPromoter", "nFrags"),
+               choices = c("ReadsInTSS", "ReadsInPromoter", "nFrags", "None"),
                multiple = FALSE,
                options = list(placeholder = 'Select NormMethod'),
                selected = "ReadsInTSS"
@@ -1105,6 +1105,9 @@ plotBrowserTrack <- function(
       groupNormFactors <- unlist(lapply(split(v, g), sum))
   }else if(tolower(normMethod) == "ncells"){
       groupNormFactors <- table(g)
+  }else if(tolower(normMetho) == "none"){
+      groupNormFactors <- rep(10^4, length(g))
+      names(groupNormFactors) <- g
   }else{
     stop("Norm Method Not Recognized : ", normMethod)
   }
