@@ -76,6 +76,7 @@ Collate:
     'MatrixGeneExpression.R'
     'MatrixGeneScores.R'
     'MatrixTiles.R'
+    'ModuleScore.R'
     'MultiModal.R'
     'ProjectMethods.R'
     'QualityControl.R'
