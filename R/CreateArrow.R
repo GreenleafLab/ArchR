@@ -19,9 +19,6 @@
 #' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use
 #' in downstream analyses. Cells with a TSS enrichment score greater than or equal to `filterTSS` will be retained. TSS enrichment score
 #' is a measurement of signal-to-background in ATAC-seq.
-#' @param removeFilteredCells A boolean value that determines whether cells that do not pass `filterFrags` and `filterTSS` should be
-#' excluded entirely from the ArrowFiles. If `FALSE` cells that do not pass QC filters will be included in the ArrowFile but will be
-#' marked as not passing QC and excluded from downstream analyses.
 #' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
 #' This is useful for limiting the number of barcodes analyzed.
 #' @param maxFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
@@ -75,7 +72,6 @@ createArrowFiles <- function(
   genomeAnnotation = getGenomeAnnotation(),
   filterFrags = 1000,
   filterTSS = 4,
-  removeFilteredCells = TRUE,
   minFrags = 500, 
   maxFrags = 100000,
   QCDir = "QualityControl",
@@ -114,6 +110,7 @@ createArrowFiles <- function(
   if(length(outputNames) != length(inputFiles)){
     stop("outputNames must be equal length to inputFiles")
   }
+  removeFilteredCells <- TRUE
   .validInput(input = validBarcodes, name = "validBarcodes", valid = c("list", "character", "null"))
   geneAnnotation <- .validGeneAnnotation(geneAnnotation)
   genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
