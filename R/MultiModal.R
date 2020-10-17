@@ -26,10 +26,11 @@ import10xFeatureMatrix <- function(
     .importFM(featureMatrix = input[y], featureType = featureType, name = names[y])
   })
 
-  tryCatch({
-    featureMats <- Reduce("cbind", featureMats)
+  featureMats <- tryCatch({
+    Reduce("cbind", featureMats)
   }, error = function(e){
     message("Error in combining individual feature matrices! Returning as a list of individual feature matrices!")
+    featureMats
   })
 
   featureMats
