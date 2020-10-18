@@ -334,7 +334,7 @@ addGeneIntegrationMatrix <- function(
     h5disableFileLocking()
   }
 
-  rD <- getReducedDims(ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
+  rD <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
 
   #Create Output Directory
   outDir1 <- getOutputDirectory(ArchRProj)
@@ -399,6 +399,10 @@ addGeneIntegrationMatrix <- function(
       imputeParams <- list()
       imputeParams$ArchRProj <- subProj
       imputeParams$randomSuffix <- TRUE
+      imputeParams$reducedDims <- reducedDims
+      imputeParams$dimsToUse <- dimsToUse
+      imputeParams$scaleDims <- scaleDims
+      imputeParams$corCutOff <- corCutOff
       imputeParams$threads <- 1
       imputeParams$logFile <- logFile
       subProj <- suppressMessages(do.call(addImputeWeights, imputeParams))
