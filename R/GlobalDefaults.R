@@ -330,6 +330,15 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
           stop("BSgenome for hg19 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
         }
       }
+    }else if(tolower(genome)=="hg19test"){
+      if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)){
+        if(install){
+          message("BSgenome for hg19 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
+          BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+        }else{
+          stop("BSgenome for hg19 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
+        }
+      }
     }else if(tolower(genome)=="hg38"){
       if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)){
         if(install){
@@ -391,7 +400,7 @@ getArchRGenome <- function(
   .validInput(input = geneAnnotation, name = "geneAnnotation", valid = "boolean")
   .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = "boolean")
 
-  supportedGenomes <- c("hg19","hg38","mm9","mm10")
+  supportedGenomes <- c("hg19","hg38","mm9","mm10","hg19test")
   .ArchRGenome <- options()[["ArchR.genome"]]
 
   if(!is.null(.ArchRGenome)){
