@@ -310,7 +310,7 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
   .validInput(input = genome, name = "genome", valid = "character")
   .validInput(input = install, name = "install", valid = c("boolean"))
 
-  supportedGenomes <- c("hg19","hg38","mm9","mm10")
+  supportedGenomes <- c("hg19","hg38","mm9","mm10","hg19test")
   
   if(tolower(genome) %ni% supportedGenomes){
     
