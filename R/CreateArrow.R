@@ -14,15 +14,13 @@
 #' to calculate TSS Enrichment Scores etc.
 #' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to associate with the ArrowFiles. This is used
 #' downstream to collect chromosome sizes and nucleotide information etc.
-#' @param filterFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-#' Cells containing greater than or equal to `filterFrags` total fragments wll be retained.
-#' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use
-#' in downstream analyses. Cells with a TSS enrichment score greater than or equal to `filterTSS` will be retained. TSS enrichment score
+#' @param minTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use
+#' in downstream analyses. Cells with a TSS enrichment score greater than or equal to `minTSS` will be retained. TSS enrichment score
 #' is a measurement of signal-to-background in ATAC-seq.
-#' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
-#' This is useful for limiting the number of barcodes analyzed.
-#' @param maxFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
-#' This is useful for limiting the number of barcodes analyzed.
+#' @param minFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
+#' Cells containing greater than or equal to `minFrags` total fragments wll be retained.
+#' @param maxFrags The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
+#' Cells containing greater than or equal to `maxFrags` total fragments wll be retained.
 #' @param QCDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 #' sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
@@ -70,9 +68,8 @@ createArrowFiles <- function(
   validBarcodes = NULL,
   geneAnnotation = getGeneAnnotation(),
   genomeAnnotation = getGenomeAnnotation(),
-  filterFrags = 1000,
-  filterTSS = 4,
-  minFrags = 500, 
+  minTSS = 4,
+  minFrags = 1000, 
   maxFrags = 100000,
   QCDir = "QualityControl",
   nucLength = 147,
@@ -95,8 +92,34 @@ createArrowFiles <- function(
   subThreading = TRUE,
   verbose = TRUE,
   cleanTmp = TRUE,
-  logFile = createLogFile("createArrows")
+  logFile = createLogFile("createArrows"),
+  filterFrags = NULL,
+  filterTSS = NULL
   ){
+
+  ################
+  # NEW 
+  ################
+
+  #We have decided to force removal of filtered cells and thus we have now added messages describing this change
+  #It is a simple change we just want to create a more consistent experience!
+  removeFilteredCells <- TRUE
+  if(!is.null(filterFrags)){
+    message("filterFrags is no longer a valid input. Please use minFrags! Setting filterFrags value to minFrags!")
+    minFrags <- filterFrags 
+  }
+
+  if(!is.null(filterTSS)){
+    message("filterTSS is no longer a valid input. Please use minTSS! Setting filterTSS value to minTSS!")
+    minTSS <- filterTSS
+  }
+
+  filterTSS <- minTSS
+  filterFrags <- minFrags
+
+  ################
+  # NEW ^
+  ################
 
   .validInput(input = inputFiles, name = "inputFiles", valid = c("character"))
   if(any(!file.exists(inputFiles))){
@@ -110,7 +133,6 @@ createArrowFiles <- function(
   if(length(outputNames) != length(inputFiles)){
     stop("outputNames must be equal length to inputFiles")
   }
-  removeFilteredCells <- TRUE
   .validInput(input = validBarcodes, name = "validBarcodes", valid = c("list", "character", "null"))
   geneAnnotation <- .validGeneAnnotation(geneAnnotation)
   genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
