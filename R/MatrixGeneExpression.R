@@ -62,11 +62,15 @@ addGeneExpressionMatrix <- function(
     cellsInArrows <- allCells
   }
   overlap <- sum(cellsInArrows %in% colnames(seRNA)) / length(cellsInArrows)
-  .logMessage("Overlap w/ scATAC = ", round(overlap,3), logFile = logFile, verbose = verbose)
+  .logMessage("Overlap w/ scATAC = ", round(overlap,3), logFile = logFile, verbose = TRUE)
+
+  if(overlap == 0){
+    stop("No overlap found with scATAC!")
+  }
 
   splitCells <- split(cellsInArrows, stringr::str_split(cellsInArrows, pattern = "#", simplify=TRUE)[,1])
   overlapPerSample <- unlist(lapply(splitCells, function(x) sum(x %in% colnames(seRNA))))
-  .logMessage("Overlap Per Sample w/ scATAC : ", paste(paste(names(overlapPerSample), round(overlapPerSample,3), sep = "="), collapse=","), logFile = logFile, verbose = verbose)
+  .logMessage("Overlap Per Sample w/ scATAC : ", paste(paste(names(overlapPerSample), round(overlapPerSample,3), sep = "="), collapse=","), logFile = logFile, verbose = TRUE)
 
   #Get QC Info
   assay(se) <- Matrix::Matrix(assay(se), sparse=TRUE)
