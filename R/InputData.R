@@ -80,6 +80,7 @@ getTestProject <- function(){
       destfile = "PBMCSmall.zip"
     )
     unzip("PBMCSmall.zip", exdir = getwd())
+    file.remove("PBMCSmall.zip")
   }
   addArchRGenome("hg19test")
   loadArchRProject("PBMCSmall")
