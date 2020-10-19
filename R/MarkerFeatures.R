@@ -331,7 +331,7 @@ getMarkerFeatures <- function(
 
   .logThis(cellsx, paste0(group, "_cellsx"), logFile = logFile)
   .logThis(bgdx, paste0(group, "_bgdx"), logFile = logFile)
-  .logThis(table(paste0(featureDFy$seqnames)), paste0(group, "_FeaturesPerSeqnames"), logFile = logFile)
+  .logThis(table(paste0(featureDF$seqnames)), paste0(group, "_FeaturesPerSeqnames"), logFile = logFile)
 
   pairwiseDF <- lapply(seq_along(seqnames), function(y){
 
