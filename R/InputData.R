@@ -52,6 +52,23 @@ getTutorialData <- function(
 
 }
 
+#' Get PBMC Small Test Project
+#' 
+#' This function will download data for a small PBMC test project of chr1 and 2 (~2-300MB).
+#' 
+#' @export
+getTestProject <- function(){
+  if(!dir.exists("PBMCSmall")){
+    download.file(
+      url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.zip",
+      destfile = "PBMCSmall.zip"
+    )
+    unzip("PBMCSmall.zip", exdir = getwd())
+  }
+  addArchRGenome("hg19test")
+  loadArchRProject("PBMCSmall")
+}
+
 #' Get Input Files from paths to create arrows
 #' 
 #' This function will look for fragment files and bam files in the input paths and return the full path and sample names.
