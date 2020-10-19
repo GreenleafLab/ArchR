@@ -69,6 +69,7 @@ addGeneExpressionMatrix <- function(
   .logMessage("Overlap Per Sample w/ scATAC : ", paste(paste(names(overlapPerSample), round(overlapPerSample,3), sep = "="), collapse=","), logFile = logFile, verbose = verbose)
 
   #Get QC Info
+  assay(se) <- Matrix::Matrix(assay(se), sparse=TRUE)
   nUMI <- Matrix::colSums(assay(seRNA))
   mb <- assay(seRNA)
   mb@x[mb@x > 0] <- 1
