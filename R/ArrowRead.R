@@ -783,7 +783,8 @@ getMatrixFromArrow <- function(
 
     matFiles <- lapply(mat, function(x) x[[2]]) %>% Reduce("c", .)
     mat <- lapply(mat, function(x) x[[1]]) %>% Reduce("cbind", .)
-    mat <- mat[,sampledCellNames]
+    mat <- mat[,sampledCellNames, drop = FALSE]
+    mat <- .checkSparseMatrix(mat, length(sampledCellNames))
 
     .logDiffTime("Successfully Created Partial Matrix", tstart, verbose = verbose)
 
@@ -792,7 +793,8 @@ getMatrixFromArrow <- function(
   }else{
 
     mat <- Reduce("cbind", mat)
-    mat <- mat[,cellNames]
+    mat <- mat[,cellNames, drop = FALSE]
+    mat <- .checkSparseMatrix(mat, length(cellNames))
     
     .logDiffTime("Successfully Created Partial Matrix", tstart, verbose = verbose)
 
@@ -801,6 +803,26 @@ getMatrixFromArrow <- function(
   }
 
 
+}
+
+.checkSparseMatrix <- function(x, ncol = NULL){
+  isSM <- is(x, 'sparseMatrix')
+  if(!isSM){
+    if(is.null(ncol)){
+      stop("ncol must not be NULL if x is not a matrix!")
+    }
+    cnames <- tryCatch({
+      names(x)
+    }, error = function(e){
+      colnames(x)
+    })
+    if(length(cnames) != ncol){
+      stop("cnames != ncol!")
+    }
+    x <- Matrix::Matrix(matrix(x, ncol = ncol), sparse=TRUE)
+    colnames(x) <- cnames
+  }
+  x
 }
 
 ########################################################################

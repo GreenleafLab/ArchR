@@ -126,6 +126,8 @@ getMarkerFeatures <- function(
     featureDF <- .getFeatureDF(head(ArrowFiles, 2), useMatrix)
     matrixClass <- as.character(h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class")))
 
+    .logThis(range(as.vector(table(paste0(featureDF$seqnames)))), "FeaturesPerSeqnames", logFile = logFile)
+
     isDeviations <- FALSE
     if(all(unique(paste0(featureDF$seqnames)) %in% c("z", "dev"))){
       isDeviations <- TRUE
@@ -331,7 +333,6 @@ getMarkerFeatures <- function(
 
   .logThis(cellsx, paste0(group, "_cellsx"), logFile = logFile)
   .logThis(bgdx, paste0(group, "_bgdx"), logFile = logFile)
-  .logThis(table(paste0(featureDF$seqnames)), paste0(group, "_FeaturesPerSeqnames"), logFile = logFile)
 
   pairwiseDF <- lapply(seq_along(seqnames), function(y){
 
