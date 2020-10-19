@@ -199,6 +199,8 @@ createArrowFiles <- function(
     args$threads <- length(inputFiles)
   }
 
+  args$minTSS <- NULL
+
   #Run With Parallel or lapply
   outArrows <- tryCatch({
     unlist(.batchlapply(args))
