@@ -351,7 +351,7 @@ getMarkerFeatures <- function(
       cellNames = c(cellsx, bgdx),
       progress = FALSE
     ))
-
+    scMaty <- .checkSparseMatrix(scMaty, length(c(cellsx, bgdx)))
     .logThis(scMaty, paste0(group, "_", seqnames[y], "_scMaty"), logFile = logFile)
     rownames(scMaty) <- rownames(featureDFy)
 
