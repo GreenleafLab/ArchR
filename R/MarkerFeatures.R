@@ -329,8 +329,13 @@ getMarkerFeatures <- function(
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   seqnames <- unique(featureDF$seqnames)
 
+  .logThis(cellsx, paste0(group, "_cellsx"), logFile = logFile)
+  .logThis(bgdx, paste0(group, "_bgdx"), logFile = logFile)
+  .logThis(table(paste0(featureDFy$seqnames)), paste0(group, "_FeaturesPerSeqnames"), logFile = logFile)
+
   pairwiseDF <- lapply(seq_along(seqnames), function(y){
 
+    .logMessage(sprintf("Pairwise Test %s : Seqnames %s", group, seqnames[y]), logFile = logFile)
     featureDFy <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames[y]), ]
 
     if(length(c(cellsx, bgdx)) == 0){
@@ -345,6 +350,8 @@ getMarkerFeatures <- function(
       cellNames = c(cellsx, bgdx),
       progress = FALSE
     ))
+
+    .logThis(scMaty, paste0(group, "_", seqnames[y], "_scMaty"), logFile = logFile)
     rownames(scMaty) <- rownames(featureDFy)
 
     if(binarize){
