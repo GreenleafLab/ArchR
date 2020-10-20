@@ -1372,6 +1372,8 @@ plotBrowserTrack <- function(
       pal <- paletteDiscrete(set = "stallion", values = rev(unique(paste0(featureO$name))))
     }
     
+    featureO$name <- factor(paste0(featureO$name), levels=names(featureList))
+
     p <- ggplot(data = featureO, aes(color = name)) +
       facet_grid(facet~.) +
       geom_segment(data = featureO, aes(x = start, xend = end, y = name, yend = name, color = name), size=featureWidth) +
