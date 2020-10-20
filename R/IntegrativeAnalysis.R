@@ -1502,6 +1502,15 @@ plotPeak2GeneHeatmap <- function(
 
   }
 
+  #Log Info
+  .logThis(colorMap, "colorMap", logFile = logFile)
+  .logThis(colOrder, "colOrder", logFile = logFile)
+  .logThis(kDF, "kDF", logFile = logFile)
+  .logThis(mATAC, "mATAC", logFile = logFile)
+  .logThis(mRNA, "mRNA", logFile = logFile)
+  .logThis(cD[colOrder,,drop=FALSE], "cD", logFile = logFile)
+  .logThis(mATAC[kDF[,2],colOrder], "mATAC2", logFile = logFile)
+  .logThis(mRNA[kDF[,2],colOrder], "mRNA2", logFile = logFile)
 
   #########################################
   # Plot Heatmaps
