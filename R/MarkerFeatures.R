@@ -871,6 +871,13 @@ plotMarkerHeatmap <- function(
   .logThis(passMat, "passMat", logFile = logFile)
 
   #Now Get Values
+  if(ncol(seMarker) <= 2){
+    if(!plotLog2FC){
+      stop("Must use plotLog2FC = TRUE when ncol(seMarker) <= 2!")
+    }
+  }
+
+  #Get Matrix
   if(plotLog2FC){
     mat <- as.matrix(SummarizedExperiment::assays(seMarker)[["Log2FC"]])
   }else{
@@ -886,7 +893,11 @@ plotMarkerHeatmap <- function(
   mat[mat < min(limits)] <- min(limits)
   .logThis(mat, "mat", logFile = logFile) 
 
-  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
+  if(ncol(mat) == 1){
+    idx <- which(rowSums(passMat, na.rm = TRUE) > 0)
+  }else{
+    idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
+  }
   mat <- mat[idx,,drop=FALSE]
   passMat <- passMat[idx,,drop=FALSE]
 
@@ -928,6 +939,10 @@ plotMarkerHeatmap <- function(
     }
   }
 
+  if(ncol(mat) == 1){
+    binaryClusterRows <- FALSE
+  }
+
   if(binaryClusterRows){
     if(invert){
       bS <- .binarySort(-mat, lmat = passMat[rownames(mat), colnames(mat),drop=FALSE], clusterCols = clusterCols)
@@ -967,11 +982,10 @@ plotMarkerHeatmap <- function(
 
   if(transpose){
 
-    #mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
     if(!is.null(clusterCols)){
-      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order, drop = FALSE])
-    }else{
       mat <- t(mat[seq_len(nrow(mat)), , drop = FALSE])
+    }else{
+      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order, drop = FALSE])
     }
 
     if(!is.null(labelMarkers)){
