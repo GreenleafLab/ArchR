@@ -113,7 +113,7 @@ correlateMatrices <- function(
   featureDF2 <- .checkSeqnames(featureDF2, useMatrix2, useSeqnames2, matrixClass2, logFile)
 
   #Create Match Names
-  featureDF1$matchName <- featureDF1$name
+  featureDF1$matchName <- toupper(featureDF1$name)
   if("underscore" %in% tolower(removeFromName1)){
     featureDF1$matchName <- gsub("\\_.*","",featureDF1$matchName)
   }
@@ -127,7 +127,7 @@ correlateMatrices <- function(
     featureDF1$matchName <- gsub("\\..*","",featureDF1$matchName)
   }
 
-  featureDF2$matchName <- featureDF2$name
+  featureDF2$matchName <- toupper(featureDF2$name)
   if("underscore" %in% tolower(removeFromName2)){
     featureDF2$matchName <- gsub("\\_.*","",featureDF2$matchName)
   }
