@@ -762,11 +762,46 @@ subsetArchRProject <- function(
     i <- rownames(cD)[i]
   }
 
+  if(length(i) == 1){
+    stop("Length of subsetting cells must be greater than 1!")
+  }
+
+  i <- unique(i)
+
+  #First Subset CellColData
   x@cellColData <- cD[i, , drop=FALSE]
+  cellsKeep <- rownames(x@cellColData)
+
+  #Second Remove Impute Weights
+  if(length(i) != nrow(cD)){
+  message("Dropping ImputeWeights Since You Are Subsetting Cells! ImputeWeights is a cell-x-cell Matrix!")
+    x@imputeWeights <- SimpleList()
+  }
+
+  #Third Subset ReducedDims
+  rD <- x@reducedDims
+  rD2 <- lapply(seq_along(rD), function(x){
+    rD[[x]][[1]] <- rD[[x]][[1]][cellsKeep, , drop = FALSE]
+    rD[[x]]
+  }) %>% SimpleList()
+  names(rD2) <- names(rD)
+  rD <- x@reducedDims
+  rm(rD, rD2)
+
+  #Fourth Subset Embeddings
+  eD <- x@embeddings
+  eD2 <- lapply(seq_along(eD), function(x){
+    eD[[x]][[1]] <- eD[[x]][[1]][cellsKeep, , drop = FALSE]
+    eD[[x]]
+  }) %>% SimpleList()
+  names(eD2) <- names(eD)
+  x@embeddings <- eD2
+  rm(eD, eD2)
 
   return(x)
 
 }
+
 
 setMethod(
   f = "colnames",
