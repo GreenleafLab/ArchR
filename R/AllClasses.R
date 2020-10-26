@@ -774,7 +774,9 @@ subsetArchRProject <- function(
 
   #Second Remove Impute Weights
   if(length(i) != nrow(cD)){
-  message("Dropping ImputeWeights Since You Are Subsetting Cells! ImputeWeights is a cell-x-cell Matrix!")
+    if(length(x@imputeWeights) != 0){
+    message("Dropping ImputeWeights Since You Are Subsetting Cells! ImputeWeights is a cell-x-cell Matrix!")
+    }
     x@imputeWeights <- SimpleList()
   }
 
