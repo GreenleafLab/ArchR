@@ -736,8 +736,8 @@ getMarkerFeatures <- function(
     #####################
     # Matching Stats Bias Norm Values
     #####################
-    forBias <- .summarizeColStats(inputNorm[idX,], name = "foreground")
-    bgdBias <- .summarizeColStats(inputNorm[idY,], name = "background")
+    forBias <- .summarizeColStats(inputNorm[idX,,drop=FALSE], name = "foreground")
+    bgdBias <- .summarizeColStats(inputNorm[idY,,drop=FALSE], name = "background")
 
     out <- list(
         cells = idX, 
