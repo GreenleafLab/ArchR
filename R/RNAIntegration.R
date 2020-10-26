@@ -240,6 +240,15 @@ addGeneIntegrationMatrix <- function(
   #########################################################################################
   # 3. Create Integration Blocks
   #########################################################################################
+
+  #Check Gene Names And Seurat RowNames
+  geneDF <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
+  sumOverlap <- sum(unique(geneDF$name) %in% unique(rownames(seuratRNA)))
+  if(sumOverlap < 5){
+    stop("Error not enough overlaps (",sumOverlap,") between gene names from gene scores (ArchR) and rna matrix (seRNA)!")
+  }
+  .logDiffTime(paste0("Found ", sumOverlap, " overlapping gene names from gene scores and rna matrix!"), tstart, verbose = TRUE, logFile = logFile)
+
   .logDiffTime("Creating Integration Blocks", tstart, verbose = verbose, logFile = logFile)
 
   blockList <- SimpleList()
