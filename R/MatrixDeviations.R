@@ -753,6 +753,13 @@ getBgdPeaks <- function(
   rS$end <- end(ArchRProj@peakSet)
   rS$GC <- ArchRProj@peakSet$GC
 
+  uniqueDist <- unique(rS$end - rS$start)
+  if(length(uniqueDist) > 1){
+    if(tolower(method) != "archr"){
+      stop("When using non-fixed width peaks, you need to use method = ArchR!")
+    }
+  }
+
   #minimal chromVAR change
   #chromVAR reuiqres a matrix/se of ncol > 1 and with a log10(values) transform removing peaks with 0 reads
   #to disable this we create a column of 1's forcing chromVAR to perform log10(values + 1)
