@@ -65,7 +65,7 @@ getTestFragments <- function(x){
     )
   }
   addArchRGenome("hg19test")
-  "PBMCSmall.tsv.gz"
+  c("PBMC" = "PBMCSmall.tsv.gz")
 }
 
 #' Get PBMC Small Test Project

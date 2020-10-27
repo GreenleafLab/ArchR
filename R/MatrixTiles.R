@@ -207,7 +207,7 @@ addTileMatrix <- function(
       #Create Sparse Matrix
       mat <- Matrix::sparseMatrix(
           i = c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1,
-          j = c(matchID, matchID),
+          j = as.vector(c(matchID, matchID)),
           x = rep(1,  2*length(fragments)),
           dims = c(nTiles, length(cellNames))
         )
