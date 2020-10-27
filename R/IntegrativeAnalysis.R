@@ -1081,6 +1081,7 @@ addPeak2GeneLinks <- function(
     threads = threads,
     verbose = FALSE
   )
+  rawMatRNA <- groupMatRNA
   .logThis(groupMatRNA, "groupMatRNA", logFile = logFile)
 
   #Group Matrix ATAC
@@ -1093,6 +1094,7 @@ addPeak2GeneLinks <- function(
     threads = threads,
     verbose = FALSE
   )
+  rawMatATAC <- groupMatATAC
   .logThis(groupMatATAC, "groupMatATAC", logFile = logFile)
 
   .logDiffTime(main="Normalizing Group Matrices", t1=tstart, verbose=verbose, logFile=logFile)
@@ -1108,7 +1110,7 @@ addPeak2GeneLinks <- function(
   names(geneStart) <- NULL
 
   seRNA <- SummarizedExperiment(
-    assays = SimpleList(RNA = groupMatRNA), 
+    assays = SimpleList(RNA = groupMatRNA, RawRNA = rawMatRNA), 
     rowRanges = geneStart
   )
   metadata(seRNA)$KNNList <- knnObj
@@ -1117,7 +1119,7 @@ addPeak2GeneLinks <- function(
   names(peakSet) <- NULL
 
   seATAC <- SummarizedExperiment(
-    assays = SimpleList(ATAC = groupMatATAC), 
+    assays = SimpleList(ATAC = groupMatATAC, RawATAC = rawMatATAC), 
     rowRanges = peakSet
   )
   metadata(seATAC)$KNNList <- knnObj
