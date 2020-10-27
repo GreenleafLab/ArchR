@@ -827,8 +827,8 @@ plotMarkerHeatmap <- function(
   binaryClusterRows = TRUE,
   clusterCols = TRUE,
   labelMarkers = NULL,
-  nLabel = NULL,
-  nPrint = 20,
+  nLabel = 15,
+  nPrint = 15,
   labelRows = FALSE,
   returnMatrix = FALSE,
   transpose = FALSE,
@@ -929,14 +929,20 @@ plotMarkerHeatmap <- function(
     stop("No Makers Found!")
   }
 
+  spmat <- passMat / rowSums(passMat)
   if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
     message("Printing Top Marker Genes:")
-    spmat <- passMat / rowSums(passMat)
     for(x in seq_len(ncol(spmat))){
       genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
       message(colnames(spmat)[x], ":")
       message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
     }
+  }
+
+  if(is.null(labelMarkers)){
+    labelMarkers <- lapply(seq_len(ncol(spmat)), function(x){
+      as.vector(rownames(mat)[head(order(spmat[,x], decreasing = TRUE), nLabel)])
+    }) %>% unlist %>% unique
   }
 
   if(ncol(mat) == 1){
@@ -977,6 +983,8 @@ plotMarkerHeatmap <- function(
   if(invert){
     pal <- rev(pal)
   }
+
+  print(labelMarkers)
 
   .logThis(mat, "mat-plot", logFile = logFile) 
 
