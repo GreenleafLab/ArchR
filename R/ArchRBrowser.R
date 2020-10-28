@@ -1618,6 +1618,7 @@ plotBrowserTrack <- function(
     tstart <- Sys.time()
   }
 
+  message("a")
   #Group Info
   cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
   if(!is.null(minCells)){
@@ -1644,10 +1645,13 @@ plotBrowserTrack <- function(
     cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
     tabGroups <- table(cellGroups)
   }
+  message("a")
 
   cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, "Sample", drop = TRUE))
   groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
   uniqueGroups <- gtools::mixedsort(unique(cellGroups))
+
+  message("a")
   
   #Tile Region
   regionTiles <- seq(trunc(start(region) / tileSize), trunc(end(region) / tileSize) + 1) * tileSize
@@ -1679,6 +1683,8 @@ plotBrowserTrack <- function(
       .logError(e, fn = ".groupRegionSCArrows", info = .sampleName(ArrowFiles[i]), errorList = errorList, logFile = logFile)
     })
   }, threads = threads) %>% Reduce("cbind" , .)
+
+  message("a")
 
   groupDF <- data.frame(summary(groupMat))
   groupDF$group <- getCellColData(ArchRProj, groupBy, drop = FALSE)[colnames(groupMat)[groupDF$j], 1]
