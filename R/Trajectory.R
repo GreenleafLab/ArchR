@@ -277,7 +277,7 @@ getTrajectory <- function(
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = groupEvery, name = "groupEvery", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
-  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric", "null"))
   .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
