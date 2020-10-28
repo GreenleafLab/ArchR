@@ -1618,7 +1618,6 @@ plotBrowserTrack <- function(
     tstart <- Sys.time()
   }
 
-  message("a")
   #Group Info
   cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
   if(!is.null(minCells)){
@@ -1645,13 +1644,10 @@ plotBrowserTrack <- function(
     cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
     tabGroups <- table(cellGroups)
   }
-  message("a")
 
   cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, "Sample", drop = TRUE))
   groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
   uniqueGroups <- gtools::mixedsort(unique(cellGroups))
-
-  message("a")
   
   #Tile Region
   regionTiles <- seq(trunc(start(region) / tileSize), trunc(end(region) / tileSize) + 1) * tileSize
@@ -1684,8 +1680,6 @@ plotBrowserTrack <- function(
     })
   }, threads = threads) %>% Reduce("cbind" , .)
 
-  message("a")
-
   groupDF <- data.frame(Matrix::summary(groupMat))
   groupDF$group <- getCellColData(ArchRProj, groupBy, drop = FALSE)[colnames(groupMat)[groupDF$j], 1]
   groupDF <- lapply(split(groupDF, groupDF$group), function(z){
@@ -1698,14 +1692,10 @@ plotBrowserTrack <- function(
     z
   }) %>% Reduce("rbind", .)
   groupDF$bp <- regionTiles[groupDF$i]
-
-  message("a")
   
   if(is.null(pal)){
     pal <- suppressWarnings(paletteDiscrete(values = names(tabGroups)))
   }
-
-  message("a")
 
   nn <- paste0(names(tabGroups), ":", tabGroups)
   names(nn) <- names(tabGroups)
@@ -1714,8 +1704,6 @@ plotBrowserTrack <- function(
 
   title <- paste0(as.character(seqnames(region)),":", start(region)-1, "-", end(region), " ", title)
   
-  message("a")
-
   p <- ggplot(groupDF, aes(x=bp, y=y, width = tileSize, fill = group2, color = group2)) + 
       geom_tile(size = scTileSize) + 
       facet_grid(group2 ~ ., scales="free_y") + 
