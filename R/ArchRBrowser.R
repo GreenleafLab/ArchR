@@ -1686,7 +1686,7 @@ plotBrowserTrack <- function(
 
   message("a")
 
-  groupDF <- data.frame(summary(groupMat))
+  groupDF <- data.frame(Matrix::summary(groupMat))
   groupDF$group <- getCellColData(ArchRProj, groupBy, drop = FALSE)[colnames(groupMat)[groupDF$j], 1]
   groupDF <- lapply(split(groupDF, groupDF$group), function(z){
     nz <- tabGroups[z$group[1]]
