@@ -92,13 +92,22 @@ plotPDF <- function(
     for(i in seq_along(plotList)){
       
       if(inherits(plotList[[i]], "gg")){
-        
-        message("Plotting Ggplot!")
 
-        if(!is.null(attr(plotList[[i]], "ratioYX"))){
-          .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE)
+        if(inherits(plotList[[i]], "patchwork")){
+
+          message("Plotting Patchwork!")
+          print(plotList[[i]])
+        
         }else{
-          .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE)
+
+          message("Plotting Ggplot!")
+
+          if(!is.null(attr(plotList[[i]], "ratioYX"))){
+            .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE)
+          }else{
+            .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, newPage = FALSE)
+          }
+
         }
 
         if(i != length(plotList)){

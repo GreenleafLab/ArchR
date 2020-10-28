@@ -651,6 +651,8 @@ ArchRBrowserTrack <- function(...){
 #' A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used 
 #' to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
 #' @param geneSymbol If `region` is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.
+#' @param useMatrix If supplied geneSymbol, one can plot the corresponding GeneScores/GeneExpression within this matrix. I.E. "GeneScoreMatrix"
+#' @param log2Norm If supplied geneSymbol, Log2 normalize the corresponding GeneScores/GeneExpression matrix before plotting.
 #' @param upstream The number of basepairs upstream of the transcription start site of `geneSymbol` to extend the plotting window.
 #' If `region` is supplied, this argument is ignored.
 #' @param downstream The number of basepairs downstream of the transcription start site of `geneSymbol` to extend the plotting window.
@@ -684,6 +686,8 @@ plotBrowserTrack <- function(
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
   geneSymbol = NULL,
+  useMatrix = "GeneScoreMatrix",
+  log2Norm = TRUE,
   upstream = 50000,
   downstream = 50000,
   tileSize = 250, 
@@ -713,6 +717,8 @@ plotBrowserTrack <- function(
   .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
   .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
   .validInput(input = geneSymbol, name = "geneSymbol", valid = c("character", "null"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character", "null"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
   .validInput(input = upstream, name = "upstream", valid = c("integer"))
   .validInput(input = downstream, name = "downstream", valid = c("integer"))
   .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
@@ -722,6 +728,8 @@ plotBrowserTrack <- function(
   .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
   .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = baseSize, name = "baseSize", valid = "numeric")
+  .validInput(input = scTileSize, name = "scTileSize", valid = "numeric")
+  .validInput(input = scCellsMax, name = "scCellsMax", valid = "integer")
   .validInput(input = borderWidth, name = "borderWidth", valid = "numeric")
   .validInput(input = tickWidth, name = "tickWidth", valid = "numeric")
   .validInput(input = facetbaseSize, name = "facetbaseSize", valid = "numeric")
@@ -749,6 +757,23 @@ plotBrowserTrack <- function(
   }
   region <- .validGRanges(region)
   .logThis(region, "region", logFile = logFile)
+
+  if(is.null(geneSymbol)){
+    useMatrix <- NULL
+  }
+
+  if(!is.null(useMatrix)){
+    featureMat <- .getMatrixValues(
+      ArchRProj = ArchRProj,
+      matrixName = useMatrix,
+      name = mcols(region)$symbol
+    )
+    if(log2Norm){
+      featureMat <- log2(featureMat + 1) 
+    }
+    featureMat <- data.frame(t(featureMat))
+    featureMat$Group <- getCellColData(ArchRProj, groupBy, drop = FALSE)[rownames(featureMat), 1]
+  }
 
   ggList <- lapply(seq_along(region), function(x){
 
@@ -866,24 +891,40 @@ plotBrowserTrack <- function(
     # }
     sizes <- sizes[tolower(names(plotList))]
 
-    .logThis(names(plotList), sprintf("(%s of %s) names(plotList)",x,length(region)), logFile=logFile)
-    .logThis(sizes, sprintf("(%s of %s) sizes",x,length(region)), logFile=logFile)
-    #.logThis(nullSummary, sprintf("(%s of %s) nullSummary",x,length(region)), logFile=logFile)
-    .logDiffTime("Plotting", t1=tstart, verbose=verbose, logFile=logFile)
-    
-    tryCatch({
-      suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
-    }, error = function(e){
-      .logMessage("Error with plotting, diagnosing each element", verbose = TRUE, logFile = logFile)
-      for(i in seq_along(plotList)){
-        tryCatch({
-          print(plotList[[i]])
-        }, error = function(f){
-          .logError(f, fn = names(plotList)[i], info = "", errorList = NULL, logFile = logFile)
-        })
-      }
-      .logError(e, fn = "ggAlignPlots", info = "", errorList = NULL, logFile = logFile)
-    })
+    if(!is.null(useMatrix)){
+
+      suppressWarnings(.combinedFeaturePlot(
+        plotList = plotList,
+        log2Norm = log2Norm,
+        featureMat = featureMat,
+        feature = region[x]$symbol[[1]],
+        useMatrix = useMatrix,
+        pal = pal,
+        sizes = sizes
+      ))
+
+    }else{
+
+      .logThis(names(plotList), sprintf("(%s of %s) names(plotList)",x,length(region)), logFile=logFile)
+      .logThis(sizes, sprintf("(%s of %s) sizes",x,length(region)), logFile=logFile)
+      #.logThis(nullSummary, sprintf("(%s of %s) nullSummary",x,length(region)), logFile=logFile)
+      .logDiffTime("Plotting", t1=tstart, verbose=verbose, logFile=logFile)
+      
+      tryCatch({
+        suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
+      }, error = function(e){
+        .logMessage("Error with plotting, diagnosing each element", verbose = TRUE, logFile = logFile)
+        for(i in seq_along(plotList)){
+          tryCatch({
+            print(plotList[[i]])
+          }, error = function(f){
+            .logError(f, fn = names(plotList)[i], info = "", errorList = NULL, logFile = logFile)
+          })
+        }
+        .logError(e, fn = "ggAlignPlots", info = "", errorList = NULL, logFile = logFile)
+      })
+
+    }
 
   })
 
@@ -1776,6 +1817,108 @@ plotBrowserTrack <- function(
   return(mat)
 
 }
+
+
+
+####################################
+# Combined Feature Plot
+####################################
+
+.combinedFeaturePlot <- function(
+  plotList = NULL,
+  useMatrix = NULL,
+  featureMat = NULL,
+  log2Norm = FALSE,
+  feature = NULL,
+  pal = NULL,
+  sizes = NULL
+  ){
+
+  .requirePackage("patchwork", installInfo = "devtools::install_github('thomasp85/patchwork')")
+
+  if(is.null(pal)){
+    pal <- paletteDiscrete(values=featureMat$Group, set = "stallion")
+  }
+
+  if(log2Norm){
+    title <- paste0("Log2 ", useMatrix, " : ", feature)
+  }else{
+    title <- paste0("Raw ", useMatrix, " : ", feature) 
+  }
+
+  featurePlot <- ggGroup(
+      x = featureMat$Group,
+      y = featureMat[,feature],
+      groupOrder = gtools::mixedsort(paste0(unique(featureMat$Group))),
+      pal = pal
+    ) + 
+    facet_wrap(x~., ncol=1,scales="free_y",strip.position="right") +
+    guides(fill = FALSE, colour = FALSE) +
+    theme_ArchR(baseSize = baseSize,
+              baseRectSize = borderWidth,
+              baseLineSize = tickWidth,
+              legendPosition = "right",
+              axisTickCm = 0.1) +
+    theme(panel.spacing= unit(0, "lines"),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        strip.text = element_text(
+          size = facetbaseSize, 
+          color = "black", 
+          margin = margin(0,0.35,0,0.35, "cm")),
+          strip.text.y = element_text(angle = 0),
+        strip.background = element_rect(color="black")) +
+    theme(plot.margin = unit(c(0.35, 0.15, 0.35, 0.15), "cm")) +
+    ggtitle(title)
+
+  if(any(tolower(names(plotList)) %in% "bulktrack")){
+
+    idx <- which(tolower(names(plotList)) == "bulktrack")
+    
+    p <- plotList[[idx]] + featurePlot + plot_spacer()
+    
+    plotList[idx] <- NULL
+    
+    for(i in seq_along(plotList)){
+      p <- p + plotList[[i]] + plot_spacer() + plot_spacer()
+    }
+    
+    p <- p + plot_layout(
+      ncol = 3,
+      widths = c(3, 1, 0.2), 
+      heights = sizes
+    )
+
+  }else{
+
+
+    idx <- which(tolower(names(plotList)) == "sctrack")
+    
+    p <- plotList[[idx]] + featurePlot + plot_spacer()
+    
+    plotList[idx] <- NULL
+    
+    for(i in seq_along(plotList)){
+      p <- p + plotList[[i]] + plot_spacer() + plot_spacer()
+    }
+    
+    p <- p + plot_layout(
+      ncol = 3,
+      widths = c(3, 1, 0.2), 
+      heights = sizes
+    )
+
+  }
+
+  p
+
+}
+
+
+
+
 
 
 
