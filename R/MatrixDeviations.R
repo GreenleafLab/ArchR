@@ -832,6 +832,20 @@ getBgdPeaks <- function(
 
 .ArchRBdgPeaks <- function(object = NULL, bias = NULL, nIterations = 50){
 
+  .cleanSelf <- function(x){
+    xn <- matrix(0, nrow = nrow(x), ncol = ncol(x))
+    for(i in seq_len(nrow(x))){
+        xi <- x[i, ]
+        idx <- which(xi != i)
+        xn[i, seq_along(idx)] <- xi[idx]
+    }
+    idx <- which(colSums(xn == 0) > 0)
+    if(length(idx) > 0){
+      xn <- xn[,-idx]
+    }
+    xn
+  }
+
   #Bias Dataframe
   biasDF <- data.frame(
     rowSums = Matrix::rowSums(assay(object)),
@@ -845,8 +859,11 @@ getBgdPeaks <- function(
   #Get KNN
   knnObj <- nabor::knn(
     data =  biasDFN,
-    k = nIterations
+    k = nIterations + 1
   )[[1]]
+
+  #Filter Self
+  knnObj <- .cleanSelf(knnObj)
 
   #Shuffle
   idx <- seq_len(ncol(knnObj))
