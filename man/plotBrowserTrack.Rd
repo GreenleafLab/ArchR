@@ -14,6 +14,8 @@ plotBrowserTrack(
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
   geneSymbol = NULL,
+  useMatrix = "GeneScoreMatrix",
+  log2Norm = TRUE,
   upstream = 50000,
   downstream = 50000,
   tileSize = 250,
@@ -64,6 +66,10 @@ A "loopTrack" draws an arc between two genomic regions that show some type of in
 to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
 
 \item{geneSymbol}{If \code{region} is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
+
+\item{useMatrix}{If supplied geneSymbol, one can plot the corresponding GeneScores/GeneExpression within this matrix. I.E. "GeneScoreMatrix"}
+
+\item{log2Norm}{If supplied geneSymbol, Log2 normalize the corresponding GeneScores/GeneExpression matrix before plotting.}
 
 \item{upstream}{The number of basepairs upstream of the transcription start site of \code{geneSymbol} to extend the plotting window.
 If \code{region} is supplied, this argument is ignored.}
