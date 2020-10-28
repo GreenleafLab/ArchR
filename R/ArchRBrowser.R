@@ -640,8 +640,8 @@ ArchRBrowserTrack <- function(...){
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in
 #' `cellColData`. This limits the groups to be plotted.
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
-#' "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
-#' are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).
+#' "scTrack" (scATAC-seq signal), "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. 
+#' Blue-colored genes are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).
 #' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`.
 #' The order must be the same as `plotSummary`.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
@@ -664,6 +664,8 @@ ArchRBrowserTrack <- function(...){
 #' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override coloring for groups.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
+#' @param scTileSize The width of the tiles in scTracks. Larger numbers may make cells overlap more. Default is 0.5 for about 100 cells.
+#' @param scCellsMax The maximum number of cells for scTracks.
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
@@ -691,6 +693,8 @@ plotBrowserTrack <- function(
   ylim = NULL,
   pal = NULL,
   baseSize = 7,
+  scTileSize = 0.5,
+  scCellsMax = 100,
   borderWidth = 0.4,
   tickWidth = 0.4,
   facetbaseSize = 7,
@@ -776,6 +780,32 @@ plotBrowserTrack <- function(
         logFile = logFile) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
     }
     
+    ##########################################################
+    # Bulk Tracks
+    ##########################################################
+    if("sctrack" %in% tolower(plotSummary)){
+      .logDiffTime(sprintf("Adding SC Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
+      plotList$sctrack <- .scTracks(
+        ArchRProj = ArchRProj, 
+        region = region[x], 
+        tileSize = tileSize, 
+        groupBy = groupBy,
+        threads = threads, 
+        minCells = 5,
+        maxCells = scCellsMax,
+        pal = pal,
+        baseSize = baseSize,
+        borderWidth = borderWidth,
+        tickWidth = tickWidth,
+        scTileSize = scTileSize,
+        facetbaseSize = facetbaseSize,
+        geneAnnotation = geneAnnotation,
+        title = title,
+        useGroups = useGroups,
+        tstart = tstart,
+        logFile = logFile) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
+    }
+
     ##########################################################
     # Feature Tracks
     ##########################################################
@@ -1000,8 +1030,9 @@ plotBrowserTrack <- function(
   }
   tabGroups <- table(cellGroups)
   
-  if(any(tabGroups) > maxCells){
-    splitGroups <- split(rownames(cellGroups), cellGroups[,1])
+  if(any(tabGroups > maxCells)){
+    cellGroups2 <- getCellColData(ArchRProj, groupBy, drop = FALSE)
+    splitGroups <- split(rownames(cellGroups2), cellGroups2[,1])
     useCells <- lapply(seq_along(splitGroups), function(x){
       if(length(splitGroups[[x]]) > maxCells){
         sample(splitGroups[[x]], maxCells)
@@ -1554,4 +1585,197 @@ plotBrowserTrack <- function(
   seqlevels(gr) <- as.character(unique(seqnames(gr)))
   return(gr)
 }
+
+#######################################################
+# scATAC Track Methods
+#######################################################
+
+.scTracks <- function(
+  ArchRProj = NULL,
+  region = NULL,
+  tileSize = 100,
+  minCells = 5,
+  maxCells = 100,
+  groupBy = "Clusters",
+  useGroups = NULL,
+  threads = 1,
+  baseSize = 7,
+  scTileSize = 0.5,
+  borderWidth = 0.4,
+  tickWidth = 0.4,
+  facetbaseSize = 7,
+  geneAnnotation = getGeneAnnotation(ArchRProj),
+  title = "",
+  pal = NULL,
+  tstart = NULL,
+  verbose = FALSE,
+  logFile = NULL
+  ){
+
+  .requirePackage("ggplot2", source = "cran")
+
+  if(is.null(tstart)){
+    tstart <- Sys.time()
+  }
+
+  #Group Info
+  cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  if(!is.null(minCells)){
+    ArchRProj@cellColData <- ArchRProj@cellColData[cellGroups %bcin% names(table(cellGroups)[table(cellGroups) >= minCells]),,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  }
+  if(!is.null(useGroups)){
+    ArchRProj@cellColData <- ArchRProj@cellColData[cellGroups %bcin% useGroups,,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  }
+  tabGroups <- table(cellGroups)
+  
+  if(any(tabGroups > maxCells)){
+    cellGroups2 <- getCellColData(ArchRProj, groupBy, drop = FALSE)
+    splitGroups <- split(rownames(cellGroups2), cellGroups2[,1])
+    useCells <- lapply(seq_along(splitGroups), function(x){
+      if(length(splitGroups[[x]]) > maxCells){
+        sample(splitGroups[[x]], maxCells)
+      }else{
+        splitGroups[[x]]
+      }
+    }) %>% unlist
+    ArchRProj@cellColData <- ArchRProj@cellColData[useCells,,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+    tabGroups <- table(cellGroups)
+  }
+
+  cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, "Sample", drop = TRUE))
+  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
+  uniqueGroups <- gtools::mixedsort(unique(cellGroups))
+  
+  #Tile Region
+  regionTiles <- seq(trunc(start(region) / tileSize), trunc(end(region) / tileSize) + 1) * tileSize
+  ArrowFiles <- getArrowFiles(ArchRProj)
+  ArrowFiles <- ArrowFiles[names(cellsBySample)]
+
+  groupMat <- .safelapply(seq_along(ArrowFiles), function(i){
+    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)))
+    tryCatch({
+      .regionSCArrows(
+        ArrowFile = ArrowFiles[i], 
+        region = region, 
+        regionTiles = regionTiles,
+        tileSize = tileSize,
+        cellNames = cellsBySample[[names(ArrowFiles)[i]]],
+        cellGroups = groupsBySample[[names(ArrowFiles)[i]]],
+        uniqueGroups = uniqueGroups
+      )
+    }, error = function(e){
+      errorList <- list(
+        ArrowFile = ArrowFiles[i], 
+        region = region, 
+        regionTiles = regionTiles,
+        tileSize = tileSize,
+        cellNames = cellsBySample[[names(ArrowFiles)[i]]],
+        cellGroups = groupsBySample[[names(ArrowFiles)[i]]],
+        uniqueGroups = uniqueGroups
+      )
+      .logError(e, fn = ".groupRegionSCArrows", info = .sampleName(ArrowFiles[i]), errorList = errorList, logFile = logFile)
+    })
+  }, threads = threads) %>% Reduce("cbind" , .)
+
+  groupDF <- data.frame(summary(groupMat))
+  groupDF$group <- getCellColData(ArchRProj, groupBy, drop = FALSE)[colnames(groupMat)[groupDF$j], 1]
+  groupDF <- lapply(split(groupDF, groupDF$group), function(z){
+    nz <- tabGroups[z$group[1]]
+    nc <- length(unique(z$j))
+    idx <- sort(sample(seq_len(nz), nc))
+    idx[1] <- 1
+    idx[length(idx)] <- nz
+    z$y <- idx[match(z$j, unique(z$j))]
+    z
+  }) %>% Reduce("rbind", .)
+  groupDF$bp <- regionTiles[groupDF$i]
+
+  if(is.null(pal)){
+    pal <- suppressWarnings(paletteDiscrete(values = names(tabGroups)))
+  }
+
+  nn <- paste0(names(tabGroups), ":", tabGroups)
+  names(nn) <- names(tabGroups)
+  groupDF$group2 <- nn[groupDF$group]
+  names(pal) <- nn[names(pal)]
+
+  title <- paste0(as.character(seqnames(region)),":", start(region)-1, "-", end(region), " ", title)
+  
+  p <- ggplot(groupDF, aes(x=bp, y=y, width = tileSize, fill = group2, color = group2)) + 
+      geom_tile(size = scTileSize) + 
+      facet_grid(group2 ~ ., scales="free_y") + 
+      theme_ArchR() + 
+      scale_color_manual(values = pal) +
+      scale_fill_manual(values = pal) +
+      ylab("Binarized SC Coverage") + 
+      scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+      theme_ArchR(baseSize = baseSize,
+                  baseRectSize = borderWidth,
+                  baseLineSize = tickWidth,
+                  legendPosition = "right",
+                  axisTickCm = 0.1) +
+      theme(panel.spacing= unit(0, "lines"),
+            axis.title.x=element_blank(),
+            axis.text.y=element_blank(),
+            axis.ticks.y=element_blank(),
+            strip.text = element_text(
+              size = facetbaseSize, 
+              color = "black", 
+              margin = margin(0,0.35,0,0.35, "cm")),
+              strip.text.y = element_text(angle = 0),
+            strip.background = element_rect(color="black")) +
+      guides(fill = FALSE, colour = FALSE) + ggtitle(title)
+
+    p
+
+}
+
+.regionSCArrows <- function(
+  ArrowFile = NULL,
+  region = NULL,
+  regionTiles = NULL,
+  tileSize = NULL,
+  cellNames = NULL,
+  cellGroups = NULL,
+  uniqueGroups = NULL,
+  logFile = NULL
+  ){
+  
+  cellFragsRegion <- .getFragsFromArrow(
+      ArrowFile = ArrowFile, 
+      chr = paste0(seqnames(region)), 
+      cellNames = cellNames, 
+      out = "GRanges"
+    ) %>% subsetByOverlaps(., region, ignore.strand = TRUE)
+  
+  #Starts
+  ts <- match(trunc(start(cellFragsRegion)/tileSize) * tileSize, regionTiles, nomatch = 0)
+  ids <- which(ts > 0)
+  
+  #Ends
+  te <- match(trunc(start(cellFragsRegion)/tileSize) * tileSize, regionTiles, nomatch = 0)
+  ide <- which(te > 0)
+  
+  #Match
+  matchID <- S4Vectors::match(mcols(cellFragsRegion)$RG, cellNames)
+  
+  #Sparse Matrix
+  mat <- Matrix::sparseMatrix(
+    i = c(ts[ids], te[ide]),
+    j = as.vector(c(matchID[ids], matchID[ide])),
+    x = rep(1,  length(ids) + length(ide)),
+    dims = c(length(regionTiles), length(cellNames))
+  )
+  colnames(mat) <- cellNames
+  
+  mat@x[mat@x > 1] <- 1
+
+  return(mat)
+
+}
+
+
 
