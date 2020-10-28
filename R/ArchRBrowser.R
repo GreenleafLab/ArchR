@@ -900,7 +900,11 @@ plotBrowserTrack <- function(
         feature = region[x]$symbol[[1]],
         useMatrix = useMatrix,
         pal = pal,
-        sizes = sizes
+        sizes = sizes,
+        baseSize = baseSize,
+        facetbaseSize = facetbaseSize,
+        borderWidth = borderWidth,
+        tickWidth = tickWidth
       ))
 
     }else{
@@ -1831,7 +1835,11 @@ plotBrowserTrack <- function(
   log2Norm = FALSE,
   feature = NULL,
   pal = NULL,
-  sizes = NULL
+  sizes = NULL,
+  baseSize = NULL,
+  facetbaseSize = NULL,
+  borderWidth = NULL,
+  tickWidth = NULL
   ){
 
   .requirePackage("patchwork", installInfo = "devtools::install_github('thomasp85/patchwork')")
