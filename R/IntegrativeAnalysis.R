@@ -768,7 +768,9 @@ addCoAccessibility <- function(
   o$seqnames <- seqnames(peakSet)[o[,1]]
   o$idx1 <- peakSet$idx[o[,1]]
   o$idx2 <- peakSet$idx[o[,2]]
-  o$correlation <- -999
+  o$correlation <- -999.999
+  o$Variability1 <- 0.000
+  o$Variability2 <- 0.000
 
   #Peak Matrix ColSums
   cS <- .getColSums(getArrowFiles(ArchRProj), chri, verbose = FALSE, useMatrix = "PeakMatrix")
@@ -804,7 +806,11 @@ addCoAccessibility <- function(
     corVals <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
     .logThis(head(corVals), paste0("SubsetCorVals-", x), logFile = logFile)
 
+    rowVars <- as.numeric(matrixStats::rowVars(groupMat))
+
     o[idx,]$correlation <- as.numeric(corVals)
+    o[idx,]$Variability1 <- rowVars[o[idx,]$idx1]
+    o[idx,]$Variability2 <- rowVars[o[idx,]$idx2]
 
     .logThis(groupMat, paste0("SubsetGroupMat-", x), logFile = logFile)
     .logThis(o[idx,], paste0("SubsetCoA-", x), logFile = logFile)
@@ -818,6 +824,8 @@ addCoAccessibility <- function(
   o$TStat <- (o$correlation / sqrt((max(1-o$correlation^2, 0.00000000000000001))/(length(knnObj)-2))) #T-statistic P-value
   o$Pval <- 2*pt(-abs(o$TStat), length(knnObj) - 2)
   o$FDR <- p.adjust(o$Pval, method = "fdr")
+  o$VarQuantile1 <- .getQuantiles(o$Variability1)
+  o$VarQuantile2 <- .getQuantiles(o$Variability2)
 
   mcols(peakSet) <- NULL
   o@metadata$peakSet <- peakSet
@@ -882,6 +890,8 @@ getCoAccessibility <- function(
         start = summitTiles[coA[,1]],
         end = summitTiles[coA[,2]]
       )
+      metadata(coA) <- list()
+      mcols(loops) <- coA[,-c(1:3)]
       mcols(loops)$value <- coA$correlation
 
       loops <- loops[order(mcols(loops)$value, decreasing=TRUE)]
