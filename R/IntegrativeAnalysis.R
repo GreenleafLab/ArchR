@@ -814,6 +814,11 @@ addCoAccessibility <- function(
   o$idx1 <- NULL
   o$idx2 <- NULL
   o <- o[!is.na(o$correlation),]
+
+  o$TStat <- (o$correlation / sqrt((max(1-o$correlation^2, 0.00000000000000001))/(length(knnObj)-2))) #T-statistic P-value
+  o$Pval <- 2*pt(-abs(o$TStat), length(knnObj) - 2)
+  o$FDR <- p.adjust(o$Pval, method = "fdr")
+
   mcols(peakSet) <- NULL
   o@metadata$peakSet <- peakSet
 
@@ -1045,7 +1050,7 @@ addPeak2GeneLinks <- function(
   if(!is.null(cellsToUse)){
     rD <- rD[cellsToUse, ,drop=FALSE]
   }
-  
+
   #Subsample
   idx <- sample(seq_len(nrow(rD)), knnIteration, replace = !nrow(rD) >= knnIteration)
 
@@ -1158,7 +1163,7 @@ addPeak2GeneLinks <- function(
   o$Correlation <- rowCorCpp(as.integer(o$A), as.integer(o$B), assay(seATAC), assay(seRNA))
   o$VarAssayA <- .getQuantiles(matrixStats::rowVars(assay(seATAC)))[o$A]
   o$VarAssayB <- .getQuantiles(matrixStats::rowVars(assay(seRNA)))[o$B]
-  o$TStat <- (o$Correlation / sqrt((1-o$Correlation^2)/(ncol(seATAC)-2))) #T-statistic P-value
+  o$TStat <- (o$correlation / sqrt((max(1-o$Correlation^2, 0.00000000000000001))/(ncol(seATAC)-2))) #T-statistic P-value
   o$Pval <- 2*pt(-abs(o$TStat), ncol(seATAC) - 2)
   o$FDR <- p.adjust(o$Pval, method = "fdr")
   out <- o[, c("A", "B", "Correlation", "FDR", "VarAssayA", "VarAssayB")]
