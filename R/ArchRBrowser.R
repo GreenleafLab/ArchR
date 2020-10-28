@@ -1181,7 +1181,7 @@ plotBrowserTrack <- function(
       groupNormFactors <- unlist(lapply(split(v, g), sum))
   }else if(tolower(normMethod) == "ncells"){
       groupNormFactors <- table(g)
-  }else if(tolower(normMetho) == "none"){
+  }else if(tolower(normMethod) == "none"){
       groupNormFactors <- rep(10^4, length(g))
       names(groupNormFactors) <- g
   }else{
