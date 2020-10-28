@@ -1055,7 +1055,7 @@ plotBrowserTrack <- function(
   ArrowFiles <- ArrowFiles[names(cellsBySample)]
 
   groupMat <- .safelapply(seq_along(ArrowFiles), function(i){
-    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)))
+    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)), logFile = logFile)
     tryCatch({
       .regionSumArrows(
         ArrowFile = ArrowFiles[i], 
@@ -1659,7 +1659,7 @@ plotBrowserTrack <- function(
   ArrowFiles <- ArrowFiles[names(cellsBySample)]
 
   groupMat <- .safelapply(seq_along(ArrowFiles), function(i){
-    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)))
+    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)), logFile = logFile)
     tryCatch({
       .regionSCArrows(
         ArrowFile = ArrowFiles[i], 
@@ -1715,7 +1715,7 @@ plotBrowserTrack <- function(
   title <- paste0(as.character(seqnames(region)),":", start(region)-1, "-", end(region), " ", title)
   
   message("a")
-  
+
   p <- ggplot(groupDF, aes(x=bp, y=y, width = tileSize, fill = group2, color = group2)) + 
       geom_tile(size = scTileSize) + 
       facet_grid(group2 ~ ., scales="free_y") + 
