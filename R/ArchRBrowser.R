@@ -1699,9 +1699,13 @@ plotBrowserTrack <- function(
   }) %>% Reduce("rbind", .)
   groupDF$bp <- regionTiles[groupDF$i]
 
+  message("a")
+  
   if(is.null(pal)){
     pal <- suppressWarnings(paletteDiscrete(values = names(tabGroups)))
   }
+
+  message("a")
 
   nn <- paste0(names(tabGroups), ":", tabGroups)
   names(nn) <- names(tabGroups)
@@ -1709,6 +1713,8 @@ plotBrowserTrack <- function(
   names(pal) <- nn[names(pal)]
 
   title <- paste0(as.character(seqnames(region)),":", start(region)-1, "-", end(region), " ", title)
+  
+  message("a")
   
   p <- ggplot(groupDF, aes(x=bp, y=y, width = tileSize, fill = group2, color = group2)) + 
       geom_tile(size = scTileSize) + 
