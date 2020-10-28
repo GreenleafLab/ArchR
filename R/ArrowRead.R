@@ -30,7 +30,7 @@ getFragmentsFromProject <- function(
   ArrowFiles <- getArrowFiles(ArchRProj)
 
   if(!is.null(subsetBy)){
-    chr <- unique(seqnames(subsetBy))
+    chr <- paste0(unique(seqnames(subsetBy)))
   }else{
     chr <- NULL
   }

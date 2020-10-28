@@ -14,7 +14,7 @@ plotBrowserTrack(
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
   geneSymbol = NULL,
-  useMatrix = "GeneScoreMatrix",
+  useMatrix = NULL,
   log2Norm = TRUE,
   upstream = 50000,
   downstream = 50000,
