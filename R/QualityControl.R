@@ -53,6 +53,10 @@ plotTSSEnrichment <- function(
   groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = FALSE)
   uniqGroups <- gtools::mixedsort(unique(groups[,1]))
 
+  if(threads > 1){
+     h5disableFileLocking()
+  }
+
   dfTSS <- .safelapply(seq_along(uniqGroups), function(x){
 
     .logDiffTime(paste0(uniqGroups[x], " Computing TSS (",x," of ",length(uniqGroups),")!"), t1 = tstart, logFile = logFile)
@@ -106,6 +110,10 @@ plotTSSEnrichment <- function(
 
   .endLogging(logFile = logFile)
 
+  if(threads > 1){
+    h5enableFileLocking()
+  }
+  
   if(returnDF){
     
     return(dfTSS)
@@ -174,6 +182,10 @@ plotFragmentSizes <- function(
   groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = FALSE)
   uniqGroups <- gtools::mixedsort(unique(groups[,1]))
 
+  if(threads > 1){
+     h5disableFileLocking()
+  }
+
   dfFS <- .safelapply(seq_along(uniqGroups), function(x){
 
     .logDiffTime(paste0(uniqGroups[x], " Computing FragmentSizes (",x," of ",length(uniqGroups),")!"), t1 = tstart, logFile = logFile)
@@ -216,6 +228,10 @@ plotFragmentSizes <- function(
   .logThis(dfFS, paste0("All : FragSizes DF"), logFile = logFile)
 
   .endLogging(logFile = logFile)
+
+  if(threads > 1){
+    h5enableFileLocking()
+  }
 
   if(returnDF){
     
