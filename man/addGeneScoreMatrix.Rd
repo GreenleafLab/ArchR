@@ -15,6 +15,7 @@ addGeneScoreMatrix(
   geneDownstream = 0,
   useGeneBoundaries = TRUE,
   useTSS = FALSE,
+  extendTSS = FALSE,
   tileSize = 500,
   ceiling = 4,
   geneScaleFactor = 5,
@@ -41,15 +42,31 @@ should be a function of \code{x}, where \code{x} is the stranded distance from t
 \item{extendUpstream}{The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene
 activity score calculation.}
 
-\item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site to consider for gene activity score calculation.}
+\item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site or transcription termination site
+(based on 'useTSS') to consider for gene activity score calculation.}
+
+\item{geneUpstream}{An integer describing the number of bp upstream the gene to extend the gene body. This effectively makes the gene body larger as there
+are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}
+
+\item{geneDownstream}{An integer describing the number of bp downstream the gene to extend the gene body.This effectively makes the gene body larger as there
+are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}
 
 \item{useGeneBoundaries}{A boolean value indicating whether gene boundaries should be employed during gene activity score
 calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene
 if there is a second gene's transcription start site between the tile and the gene of interest.}
 
+\item{useTSS}{A boolean describing whether to build gene model based on gene TSS or the gene body.}
+
+\item{extendTSS}{A boolean describing whether to extend the gene TSS. By default useTSS uses the 1bp TSS while this parameter enables the extension of this
+region with 'geneUpstream' and 'geneDownstream' respectively.}
+
 \item{tileSize}{The size of the tiles used for binning counts prior to gene activity score calculation.}
 
 \item{ceiling}{The maximum counts per tile allowed. This is used to prevent large biases in tile counts.}
+
+\item{geneScaleFactor}{A numeric scaling factor to weight genes based on the inverse of there length i.e. \link{(Scale Factor)/(Gene Length)}. This
+is scaled from 1 to the scale factor. Small genes will be the scale factor while extremely large genes will be closer to 1. This scaling helps with
+the relative gene score value.}
 
 \item{scaleTo}{Each column in the calculated gene score matrix will be normalized to a column sum designated by \code{scaleTo}.}
 

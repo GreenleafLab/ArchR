@@ -3,6 +3,23 @@
 
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 
+### ArchR has new features available for scATAC-seq Analysis
+
+**Paired scATAC-seq and scRNA-seq Analysis**
+
+ArchR now supports paired scATAC-seq and scRNA-seq Analysis! <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See updates with importFeatureMatrix, addGeneExpressionMatrix, addIterativeLSI, addCombinedDims <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For a brief tutorial of these features : https://greenleaflab.github.io/ArchR_2020/Ex-Analyze-Multiome.html
+
+**Trajectory Analysis**
+
+ArchR now directly supports both monocle3 and Slingshot based trajectory analysis! <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See updates with getMonocleTrajectories, addMonocleTrajectory, addSlingShotTrajectories <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For a brief tutorial of these features : https://greenleaflab.github.io/ArchR_2020/Ex-Analyze-Trajectory.html
+
+Additionally ArchR now enables export of a peak matrix that is compatible with STREAM!<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See updates with exportPeakMatrixForSTREAM <br />
+
 ### ArchR is currently in Beta and will be in active development through the peer review process.
 
 ArchR is a full-featured R package for processing and analyzing single-cell ATAC-seq data. ArchR provides the most extensive suite of scATAC-seq analysis tools of any software available. Additionally, ArchR excels in both speed and resource usage, making it possible to analyze 1 million cells in 8 hours on a MacBook Pro laptop.

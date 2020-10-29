@@ -37,6 +37,38 @@
 }
 
 ##########################################################################################
+# Safe saveRDS check
+##########################################################################################
+
+.safeSaveRDS <- function(
+  object = NULL, 
+  file = "", 
+  ascii = FALSE, 
+  version = NULL, 
+  compress = TRUE, 
+  refhook = NULL
+  ){
+  #Try to save a test data.frame in location
+  testDF <- data.frame(a=1,b=2)
+  canSave <- suppressWarnings(tryCatch({
+    saveRDS(object = testDF, file = file, ascii = ascii, version = version, compress = compress, refhook = refhook)
+    TRUE
+  }, error = function(x){
+    FALSE
+  }))
+  if(!canSave){
+    dirExists <- dir.exists(dirname(file))
+    if(dirExists){
+      stop("Cannot saveRDS. File Path : ", file)
+    }else{
+      stop("Cannot saveRDS because directory does not exist (",dirname(file),"). File Path : ", file)
+    }
+  }else{
+    saveRDS(object = object, file = file, ascii = ascii, version = version, compress = compress, refhook = refhook)
+  }
+}
+
+##########################################################################################
 # Stat/Summary Methods
 ##########################################################################################
 

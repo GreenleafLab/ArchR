@@ -330,7 +330,7 @@ getGroupBW <- function(
       
       mat <- Matrix::sparseMatrix(
           i = c(trunc(start(fragik) / tileSize), trunc(end(fragik) / tileSize)) + 1,
-          j = c(matchID, matchID),
+          j = as.vector(c(matchID, matchID)),
           x = rep(1,  2*length(fragik)),
           dims = c(nTiles, length(cellGroupi))
         )
@@ -345,10 +345,13 @@ getGroupBW <- function(
          
       tilesk$reads <- mat
 
-      if(tolower(normMethod) %in% c("ReadsInTSS", "ReadsInPromoter", "nFrags")){
+      if(tolower(normMethod) %in% c("readsintss", "readsinpromoter", "nfrags")){
         tilesk$reads <- tilesk$reads * 10^4 / sum(normBy[cellGroupi, 1])
-      }else if(tolower(normMethod) %in% c("nCells")){
+      }else if(tolower(normMethod) %in% c("ncells")){
         tilesk$reads <- tilesk$reads / length(cellGroupi)
+      }else if(tolower(normMethod) %in% c("none")){
+      }else{
+        stop("NormMethod not recognized!")
       }
 
     }
@@ -368,6 +371,5 @@ getGroupBW <- function(
   return(covFile)
 
 }
-
 
 

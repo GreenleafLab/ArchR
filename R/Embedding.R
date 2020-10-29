@@ -126,7 +126,7 @@ addUMAP <- function(
   uwot_umap <- do.call(uwot::umap, embeddingParams)
 
   if(estimateUMAP){
-    uwot_umap2 <- uwot::umap_transform(X = saveX, model = uwot_umap, n_threads = threads, verbose = verbose)
+    uwot_umap2 <- uwot::umap_transform(X = saveX, model = uwot_umap, n_threads = as.integer(threads), verbose = verbose)
     #We should check the distances
     knnRef <- as.vector(nabor::knn(data = uwot_umap[[1]], query = uwot_umap[[1]], k = 2)$nn.dists[,-1])
     knnProj <- as.vector(nabor::knn(data = uwot_umap[[1]], query = uwot_umap2, k = 1)$nn.dists)
@@ -217,7 +217,7 @@ addUMAP <- function(
   uwot_dir <- file.path(mod_dir, "uwot")
   dir.create(uwot_dir)
   model_tmpfname <- file.path(uwot_dir, "model")
-  saveRDS(model, file = model_tmpfname)
+  .safeSaveRDS(model, file = model_tmpfname)
   metrics <- names(model$metric)
   n_metrics <- length(metrics)
   for (i in seq_len(n_metrics)) {

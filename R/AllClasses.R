@@ -617,7 +617,7 @@ saveArchRProject <- function(
   }
 
   message("Saving ArchRProject...")
-  saveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
+  .safeSaveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
   
   if(load){
     message("Loading ArchRProject...")
@@ -636,6 +636,7 @@ saveArchRProject <- function(
 #' @param dropCells A boolean indicating whether to drop cells that are not in `ArchRProject` from corresponding Arrow Files.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param threads The number of threads to use for parallel execution. 
+#' @param force If output directory exists overwrite.
 #' @export
 subsetArchRProject <- function(
   ArchRProj = NULL,
@@ -643,7 +644,8 @@ subsetArchRProject <- function(
   outputDirectory = "ArchRSubset",
   dropCells = TRUE,
   logFile = NULL,
-  threads = getArchRThreads()
+  threads = getArchRThreads(),
+  force = FALSE
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
@@ -651,6 +653,12 @@ subsetArchRProject <- function(
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
 
   outDirOld <- getOutputDirectory(ArchRProj)
+
+  if(dir.exists(outputDirectory)){
+    if(!force){
+      stop("outputDirectory exists! Please set force = TRUE to overwrite existing directory!")
+    }
+  }
 
   if(outputDirectory == outDirOld){
     stop("outputDirectory must be different than ArchRProj outputDirectory to properly subset!")
@@ -754,11 +762,48 @@ subsetArchRProject <- function(
     i <- rownames(cD)[i]
   }
 
+  if(length(i) == 1){
+    stop("Length of subsetting cells must be greater than 1!")
+  }
+
+  i <- unique(i)
+
+  #First Subset CellColData
   x@cellColData <- cD[i, , drop=FALSE]
+  cellsKeep <- rownames(x@cellColData)
+
+  #Second Remove Impute Weights
+  if(length(i) != nrow(cD)){
+    if(length(x@imputeWeights) != 0){
+    message("Dropping ImputeWeights Since You Are Subsetting Cells! ImputeWeights is a cell-x-cell Matrix!")
+    }
+    x@imputeWeights <- SimpleList()
+  }
+
+  #Third Subset ReducedDims
+  rD <- x@reducedDims
+  rD2 <- lapply(seq_along(rD), function(x){
+    rD[[x]][[1]] <- rD[[x]][[1]][cellsKeep, , drop = FALSE]
+    rD[[x]]
+  }) %>% SimpleList()
+  names(rD2) <- names(rD)
+  rD <- x@reducedDims
+  rm(rD, rD2)
+
+  #Fourth Subset Embeddings
+  eD <- x@embeddings
+  eD2 <- lapply(seq_along(eD), function(x){
+    eD[[x]][[1]] <- eD[[x]][[1]][cellsKeep, , drop = FALSE]
+    eD[[x]]
+  }) %>% SimpleList()
+  names(eD2) <- names(eD)
+  x@embeddings <- eD2
+  rm(eD, eD2)
 
   return(x)
 
 }
+
 
 setMethod(
   f = "colnames",

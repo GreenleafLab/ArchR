@@ -24,6 +24,8 @@
 #' @param geneDownstream An integer describing the number of bp downstream the gene to extend the gene body.This effectively makes the gene body larger as there
 #' are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.
 #' @param useTSS A boolean describing whether to build gene model based on gene TSS or the gene body.
+#' @param extendTSS A boolean describing whether to extend the gene TSS. By default useTSS uses the 1bp TSS while this parameter enables the extension of this
+#' region with 'geneUpstream' and 'geneDownstream' respectively.
 #' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
 #' @param ceiling The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
 #' @param geneScaleFactor A numeric scaling factor to weight genes based on the inverse of there length i.e. [(Scale Factor)/(Gene Length)]. This
@@ -50,6 +52,7 @@ addGeneScoreMatrix <- function(
   geneDownstream = 0, #New Param
   useGeneBoundaries = TRUE,
   useTSS = FALSE, #New Param
+  extendTSS = FALSE,
   tileSize = 500,
   ceiling = 4,
   geneScaleFactor = 5, #New Param
@@ -154,6 +157,7 @@ addGeneScoreMatrix <- function(
   geneDownstream = 0, #New Param
   useGeneBoundaries = TRUE,
   useTSS = FALSE, #New Param
+  extendTSS = FALSE,
   tileSize = 500,
   ceiling = 4,
   geneScaleFactor = 5, #New Param
@@ -209,6 +213,9 @@ addGeneScoreMatrix <- function(
     geneRegions$geneStart <- start(resize(geneRegions, 1, "start"))
     geneRegions$geneEnd <- start(resize(geneRegions, 1, "end"))
     geneRegions <- resize(geneRegions, 1, "start")
+    if(extendTSS){
+      geneRegions <- extendGR(gr = geneRegions, upstream = geneUpstream, downstream = geneDownstream)
+    }
     geneRegions$geneWeight <- geneScaleFactor
   }else{
     .logMessage(paste0(sampleName, " .addGeneScoreMat useTSS = FALSE"))
@@ -402,7 +409,7 @@ addGeneScoreMatrix <- function(
       totalGSz <- Matrix::colSums(matGS)
 
       #Save tmp file
-      saveRDS(matGS, file = paste0(tmpFile, "-", chrz, ".rds"), compress = FALSE)
+      .safeSaveRDS(matGS, file = paste0(tmpFile, "-", chrz, ".rds"), compress = FALSE)
 
       #Clean Memory
       rm(isMinus, signDist, extendedGeneRegion, uniqueTiles)

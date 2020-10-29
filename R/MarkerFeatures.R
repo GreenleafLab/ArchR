@@ -126,6 +126,8 @@ getMarkerFeatures <- function(
     featureDF <- .getFeatureDF(head(ArrowFiles, 2), useMatrix)
     matrixClass <- as.character(h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class")))
 
+    .logThis(range(as.vector(table(paste0(featureDF$seqnames)))), "FeaturesPerSeqnames", logFile = logFile)
+
     isDeviations <- FALSE
     if(all(unique(paste0(featureDF$seqnames)) %in% c("z", "dev"))){
       isDeviations <- TRUE
@@ -182,6 +184,7 @@ getMarkerFeatures <- function(
       bias = bias,
       k = k,
       n = maxCells,
+      bufferRatio = bufferRatio,
       logFile = logFile
     )
 
@@ -328,9 +331,17 @@ getMarkerFeatures <- function(
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   seqnames <- unique(featureDF$seqnames)
 
+  .logThis(cellsx, paste0(group, "_cellsx"), logFile = logFile)
+  .logThis(bgdx, paste0(group, "_bgdx"), logFile = logFile)
+
   pairwiseDF <- lapply(seq_along(seqnames), function(y){
 
+    .logMessage(sprintf("Pairwise Test %s : Seqnames %s", group, seqnames[y]), logFile = logFile)
     featureDFy <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames[y]), ]
+
+    if(length(c(cellsx, bgdx)) == 0){
+      stop(paste0("Cells in foreground and background are 0 for group = ", group))
+    }
 
     scMaty <- suppressMessages(.getPartialMatrix(
       ArrowFiles, 
@@ -340,6 +351,8 @@ getMarkerFeatures <- function(
       cellNames = c(cellsx, bgdx),
       progress = FALSE
     ))
+    scMaty <- .checkSparseMatrix(scMaty, length(c(cellsx, bgdx)))
+    .logThis(scMaty, paste0(group, "_", seqnames[y], "_scMaty"), logFile = logFile)
     rownames(scMaty) <- rownames(featureDFy)
 
     if(binarize){
@@ -620,6 +633,14 @@ getMarkerFeatures <- function(
     }
 
     idF <- which(groups == groupx)
+
+    if(all(length(idF) * bgdProbx < 1)){
+      if(length(idF) < length(bgdProbx)){
+        bgdProbx <- bgdProbx[sample(names(bgdProbx), floor(length(idF) * bufferRatio))]
+        bgdProbx[1:length(bgdProbx)] <- rep(1/length(bgdProbx), length(bgdProbx))
+      }
+    }
+
     idB <- which(groups %in% names(bgdProbx))
 
     if(k > length(idB)){
@@ -715,8 +736,8 @@ getMarkerFeatures <- function(
     #####################
     # Matching Stats Bias Norm Values
     #####################
-    forBias <- .summarizeColStats(inputNorm[idX,], name = "foreground")
-    bgdBias <- .summarizeColStats(inputNorm[idY,], name = "background")
+    forBias <- .summarizeColStats(inputNorm[idX,,drop=FALSE], name = "foreground")
+    bgdBias <- .summarizeColStats(inputNorm[idY,,drop=FALSE], name = "background")
 
     out <- list(
         cells = idX, 
@@ -725,7 +746,7 @@ getMarkerFeatures <- function(
         summaryBgd = bgdBias, 
         bgdGroups = rbind(estbgd, obsbgd),
         bgdGroupsProbs = rbind(estbgdP, obsbgdP),
-        corbgdGroups = cor(estbgdP, obsbgdP),
+        corbgdGroups = suppressWarnings(cor(estbgdP, obsbgdP)),
         n = length(sx), 
         p = it / length(sx),
         group = groupx,
@@ -806,8 +827,8 @@ plotMarkerHeatmap <- function(
   binaryClusterRows = TRUE,
   clusterCols = TRUE,
   labelMarkers = NULL,
-  nLabel = NULL,
-  nPrint = 20,
+  nLabel = 15,
+  nPrint = 15,
   labelRows = FALSE,
   returnMatrix = FALSE,
   transpose = FALSE,
@@ -850,6 +871,13 @@ plotMarkerHeatmap <- function(
   .logThis(passMat, "passMat", logFile = logFile)
 
   #Now Get Values
+  if(ncol(seMarker) <= 2){
+    if(!plotLog2FC){
+      stop("Must use plotLog2FC = TRUE when ncol(seMarker) <= 2!")
+    }
+  }
+
+  #Get Matrix
   if(plotLog2FC){
     mat <- as.matrix(SummarizedExperiment::assays(seMarker)[["Log2FC"]])
   }else{
@@ -865,7 +893,11 @@ plotMarkerHeatmap <- function(
   mat[mat < min(limits)] <- min(limits)
   .logThis(mat, "mat", logFile = logFile) 
 
-  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
+  if(ncol(mat) == 1){
+    idx <- which(rowSums(passMat, na.rm = TRUE) > 0)
+  }else{
+    idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
+  }
   mat <- mat[idx,,drop=FALSE]
   passMat <- passMat[idx,,drop=FALSE]
 
@@ -897,14 +929,24 @@ plotMarkerHeatmap <- function(
     stop("No Makers Found!")
   }
 
+  spmat <- passMat / rowSums(passMat)
   if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
     message("Printing Top Marker Genes:")
-    spmat <- passMat / rowSums(passMat)
     for(x in seq_len(ncol(spmat))){
       genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
       message(colnames(spmat)[x], ":")
       message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
     }
+  }
+
+  if(is.null(labelMarkers)){
+    labelMarkers <- lapply(seq_len(ncol(spmat)), function(x){
+      as.vector(rownames(mat)[head(order(spmat[,x], decreasing = TRUE), nLabel)])
+    }) %>% unlist %>% unique
+  }
+
+  if(ncol(mat) == 1){
+    binaryClusterRows <- FALSE
   }
 
   if(binaryClusterRows){
@@ -942,15 +984,16 @@ plotMarkerHeatmap <- function(
     pal <- rev(pal)
   }
 
+  print(labelMarkers)
+
   .logThis(mat, "mat-plot", logFile = logFile) 
 
   if(transpose){
 
-    #mat <- t(mat[rev(seq_len(nrow(mat))), rev(clusterCols$order)])
     if(!is.null(clusterCols)){
-      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order, drop = FALSE])
-    }else{
       mat <- t(mat[seq_len(nrow(mat)), , drop = FALSE])
+    }else{
+      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order, drop = FALSE])
     }
 
     if(!is.null(labelMarkers)){

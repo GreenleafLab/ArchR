@@ -11,6 +11,7 @@ addPeak2GeneLinks(
   dimsToUse = 1:30,
   scaleDims = NULL,
   corCutOff = 0.75,
+  cellsToUse = NULL,
   k = 100,
   knnIteration = 500,
   overlapCutoff = 0.8,
@@ -18,6 +19,7 @@ addPeak2GeneLinks(
   scaleTo = 10^4,
   log2Norm = TRUE,
   predictionCutoff = 0.4,
+  addEmpiricalPval = FALSE,
   seed = 1,
   threads = max(floor(getArchRThreads()/2), 1),
   verbose = TRUE,
@@ -39,6 +41,8 @@ biases since it is over-weighting latent PCs. If set to \code{NULL} this will sc
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
 correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
+\item{cellsToUse}{A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.}
+
 \item{k}{The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.}
 
 \item{knnIteration}{The number of k-nearest neighbor groupings to test for passing the supplied \code{overlapCutoff}.}
@@ -54,6 +58,8 @@ from the \code{peakSet} of the \code{ArchRProject} and normalized to the total d
 \item{log2Norm}{A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.}
 
 \item{predictionCutoff}{A numeric describing the cutoff for RNA integration to use when picking cells for groupings.}
+
+\item{addEmpiricalPval}{Add empirical p-values based on randomly correlating peaks and genes not on the same seqname.}
 
 \item{seed}{A number to be used as the seed for random number generation required in knn determination. It is recommended
 to keep track of the seed used so that you can reproduce results downstream.}

@@ -473,6 +473,7 @@
 
     cellNames <- paste0(sampleName, "#", .h5read(inArrow, paste0(groupName, "/Info/CellNames")))
     featureDF <- .getFeatureDF(ArrowFile = inArrow, subGroup = groupName)
+    seqOrder <- c("Info", seqOrder[!grepl("Info", seqOrder)])
 
     for(j in seq_along(seqOrder)){
 
@@ -546,3 +547,6 @@
   outArrow
 
 }
+
+
+
