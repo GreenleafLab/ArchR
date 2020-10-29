@@ -319,7 +319,7 @@ createLogFile <- function(
 
     if(!is.null(errorList)){
       tryCatch({
-        #saveRDS(errorList, "Save-Error.rds")
+        #.safeSaveRDS(errorList, "Save-Error.rds")
         .logThis(errorList, name = "errorList", logFile)
       }, error = function(e){
         cat("Error recording errorList", file = logFile, append = TRUE)
@@ -336,7 +336,7 @@ createLogFile <- function(
     if(!is.null(errorList)){
       debugFile <- paste0(gsub("\\.log", "", logFile), "-debug.rds")
       cat(sprintf("\n%s : ArchRDebugging is set to TRUE, DebugFile = %s\n", Sys.time(), debugFile))
-      saveRDS(errorList, debugFile)
+      .safeSaveRDS(errorList, debugFile)
     }
   }
 

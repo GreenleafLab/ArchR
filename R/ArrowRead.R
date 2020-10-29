@@ -2,6 +2,62 @@
 # Reading fragments from Arrow Files
 ####################################################################
 
+#' Get the fragments from an ArchRProject 
+#' 
+#' This function retrieves the fragments from a given ArchRProject as a GRangesList object.
+#'
+#' @param ArchRProject An `ArchRProject` object to get fragments from.
+#' @param subsetBy A Genomic Ranges object to subset fragments by.
+#' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
+#' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells
+#' from the provided ArrowFile using `getCellNames()`.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' @export
+getFragmentsFromProject <- function(
+  ArchRProj = NULL,
+  subsetBy = NULL,
+  cellNames = NULL,
+  verbose = FALSE,
+  logFile = createLogFile("getFragmentsFromProject")
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = subsetBy, name = "subsetBy", valid = c("GRanges", "null"))
+  .validInput(input = cellNames, name = "cellNames", valid = c("character","null"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+
+  ArrowFiles <- getArrowFiles(ArchRProj)
+
+  if(!is.null(subsetBy)){
+    chr <- paste0(unique(seqnames(subsetBy)))
+  }else{
+    chr <- NULL
+  }
+
+  ArchR:::.startLogging(logFile = logFile)
+
+  FragmentsList <- lapply(seq_along(ArrowFiles), function(x){
+    message(sprintf("Reading ArrowFile %s of %s", x, length(ArrowFiles)))
+    fragx <- getFragmentsFromArrow(
+      ArrowFile = ArrowFiles[x], 
+      chr = chr, 
+      cellNames = cellNames, 
+      verbose = verbose,
+      logFile = logFile
+    )
+    if(!is.null(subsetBy)){
+      fragx <- subsetByOverlaps(fragx, subsetBy, ignore.strand = TRUE)
+    }
+    fragx
+  }) %>% SimpleList
+
+  names(FragmentsList) <- names(ArrowFiles)
+
+  FragmentsList
+
+}
+
 #' Get the fragments from an ArrowFile 
 #' 
 #' This function retrieves the fragments from a given ArrowFile as a GRanges object.
@@ -217,6 +273,10 @@ getMatrixFromProject <- function(
 
   cellNames <- ArchRProj$cellNames
 
+  avMat <- getAvailableMatrices(ArchRProj)
+  if(useMatrix %ni% avMat){
+    stop("useMatrix is not in Available Matrices see getAvailableMatrices")
+  }
 
   seL <- .safelapply(seq_along(ArrowFiles), function(x){
 
@@ -268,6 +328,16 @@ getMatrixFromProject <- function(
     stop("Error with rowData being equal for every sample!")
   }
 
+  #RowRanges
+  .logDiffTime("Organizing rowRanges", t1 = tstart, verbose = verbose, logFile = logFile)
+  rR1 <- rowRanges(seL[[1]])
+  rR <- lapply(seq_along(seL), function(x){
+    identical(rowRanges(seL[[x]]), rR1)
+  }) %>% unlist %>% all
+  if(!rR){
+    stop("Error with rowRanges being equal for every sample!")
+  }
+
   #Assays
   nAssays <- names(assays(seL[[1]]))
   asy <- lapply(seq_along(nAssays), function(i){
@@ -280,14 +350,18 @@ getMatrixFromProject <- function(
   names(asy) <- nAssays
   
   .logDiffTime("Constructing SummarizedExperiment", t1 = tstart, verbose = verbose, logFile = logFile)
-  se <- SummarizedExperiment(assays = asy, colData = cD, rowData = rD1)  
+  if(!is.null(rR1)){
+    se <- SummarizedExperiment(assays = asy, colData = cD, rowRanges = rR1)
+  }else{
+    se <- SummarizedExperiment(assays = asy, colData = cD, rowData = rD1)
+  }
   rm(seL)
   gc()
 
   .logDiffTime("Finished Matrix Creation", t1 = tstart, verbose = verbose, logFile = logFile)
 
   se
-
+  
 }
 
 #' Get a data matrix stored in an ArrowFile
@@ -687,7 +761,7 @@ getMatrixFromArrow <- function(
 
       #Save Temporary Matrix
       outx <- paste0(tmpPath, "-", .sampleName(ArrowFiles[x]), ".rds")
-      saveRDS(matx, outx, compress = FALSE)     
+      .safeSaveRDS(matx, outx, compress = FALSE)     
 
       #Sample Matrix 
       matx <- matx[, which(colnames(matx) %in% sampledCellNames),drop = FALSE]
@@ -709,7 +783,8 @@ getMatrixFromArrow <- function(
 
     matFiles <- lapply(mat, function(x) x[[2]]) %>% Reduce("c", .)
     mat <- lapply(mat, function(x) x[[1]]) %>% Reduce("cbind", .)
-    mat <- mat[,sampledCellNames]
+    mat <- mat[,sampledCellNames, drop = FALSE]
+    mat <- .checkSparseMatrix(mat, length(sampledCellNames))
 
     .logDiffTime("Successfully Created Partial Matrix", tstart, verbose = verbose)
 
@@ -718,7 +793,8 @@ getMatrixFromArrow <- function(
   }else{
 
     mat <- Reduce("cbind", mat)
-    mat <- mat[,cellNames]
+    mat <- mat[,cellNames, drop = FALSE]
+    mat <- .checkSparseMatrix(mat, length(cellNames))
     
     .logDiffTime("Successfully Created Partial Matrix", tstart, verbose = verbose)
 
@@ -727,6 +803,26 @@ getMatrixFromArrow <- function(
   }
 
 
+}
+
+.checkSparseMatrix <- function(x, ncol = NULL){
+  isSM <- is(x, 'sparseMatrix')
+  if(!isSM){
+    if(is.null(ncol)){
+      stop("ncol must not be NULL if x is not a matrix!")
+    }
+    cnames <- tryCatch({
+      names(x)
+    }, error = function(e){
+      colnames(x)
+    })
+    if(length(cnames) != ncol){
+      stop("cnames != ncol!")
+    }
+    x <- Matrix::Matrix(matrix(x, ncol = ncol), sparse=TRUE)
+    colnames(x) <- cnames
+  }
+  x
 }
 
 ########################################################################
@@ -794,22 +890,23 @@ getMatrixFromArrow <- function(
   ArrowFiles = NULL,
   seqnames = NULL,
   useMatrix = NULL,
+  useLog2 = FALSE,
   threads = 1
   ){
   
   .combineVariances <- function(dfMeans = NULL, dfVars = NULL, ns = NULL){
 
-  #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
+    #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
 
-  if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
-    stop("Means Variances and Ns lengths not identical")
-  }
+    if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
+      stop("Means Variances and Ns lengths not identical")
+    }
 
-  combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
-  summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
-  combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
+    combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
+    summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
+    combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
 
-  data.frame(combinedVars = combinedVars, combinedMeans = combinedMeans)
+    data.frame(combinedVars = combinedVars, combinedMeans = combinedMeans)
 
   }
 
@@ -828,6 +925,8 @@ getMatrixFromArrow <- function(
     length(.availableCells(ArrowFiles[y], useMatrix))
   }) %>% unlist
 
+
+
   #Compute RowVars
   summaryDF <- .safelapply(seq_along(featureDF), function(x){
     
@@ -837,11 +936,18 @@ getMatrixFromArrow <- function(
     varx <- matrix(NA, ncol = length(ArrowFiles), nrow = nrow(featureDF[[x]]))
 
     for(y in seq_along(ArrowFiles)){
-      meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeans"))
-      varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVars"))
+
+      if(useLog2){
+        meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeansLog2"))
+        varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVarsLog2")) 
+      }else{
+        meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeans"))
+        varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVars"))
+      }
+
     }
 
-  cbind(featureDF[[x]], DataFrame(.combineVariances(meanx, varx, ns)))
+    cbind(featureDF[[x]], DataFrame(.combineVariances(meanx, varx, ns)))
 
   }, threads = threads) %>% Reduce("rbind", .)
 

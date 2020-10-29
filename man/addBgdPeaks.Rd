@@ -10,6 +10,7 @@ addBgdPeaks(
   w = 0.1,
   binSize = 50,
   seed = 1,
+  method = "chromVAR",
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
   force = FALSE
 )
@@ -25,6 +26,8 @@ addBgdPeaks(
 
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that
 you can reproduce results downstream.}
+
+\item{method}{A string indicating whether to use chromVAR or ArchR for background peak identification.}
 
 \item{outFile}{The path to save the \code{backgroundPeaks} object as a \code{.RDS} file for the given \code{ArchRProject}. The default action
 is to save this file in the \code{outputDirectory} of the \code{ArchRProject}.}

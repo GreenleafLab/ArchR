@@ -413,6 +413,9 @@ getGenomeAnnotation <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @export
 getBlacklist <- function(ArchRProj = NULL){
+  if(is.character(ArchRProj)){
+    ArchRProj <- NULL
+  }
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
   if(is.null(ArchRProj)){
     genomeAnnotation <- getArchRGenome(genomeAnnotation = TRUE)

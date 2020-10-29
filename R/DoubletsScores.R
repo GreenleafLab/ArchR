@@ -357,7 +357,7 @@ addDoubletScores <- function(
     doubletResults = simDoubletsSave
   )
 
-  saveRDS(summaryList, file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.rds")))
+  .safeSaveRDS(summaryList, file.path(outDir, paste0(.sampleName(ArrowFile), "-Doublet-Summary.rds")))
   rm(simDoubletsSave)
   ##################################
 
@@ -611,7 +611,7 @@ addDoubletScores <- function(
 
   if(mean(corProjection[[2]]) < 0.9){
     if(!force){
-      msg <- paste0(prefix, "Correlation of UMAP Projection is below 0.9 (normally this is ~0.99)\nThis means there is little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to contniue (not recommended).")
+      msg <- paste0(prefix, "Correlation of UMAP Projection is below 0.9 (normally this is ~0.99)\nThis means there is little heterogeneity in your sample and thus doubletCalling is inaccurate.\nforce = FALSE, thus returning -1 doubletScores and doubletEnrichments!\nSet force = TRUE if you want to continue (not recommended).")
       .logMessage(msg, logFile = logFile)
       message(msg)
       out$doubletEnrichLSI <- rep(-1, nrow(LSI$matSVD))

@@ -28,7 +28,7 @@ addDeviationsMatrix <- function(
   ArchRProj = NULL,
   peakAnnotation = NULL,
   matches = NULL,
-  bgdPeaks = getBgdPeaks(ArchRProj),
+  bgdPeaks = getBgdPeaks(ArchRProj, method = "chromVAR"),
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,
@@ -598,6 +598,7 @@ getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE
 #' you can reproduce results downstream.
 #' @param outFile The path to save the `backgroundPeaks` object as a `.RDS` file for the given `ArchRProject`. The default action
 #' is to save this file in the `outputDirectory` of the `ArchRProject`.
+#' @param method A string indicating whether to use chromVAR or ArchR for background peak identification.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 addBgdPeaks <- function(
@@ -606,6 +607,7 @@ addBgdPeaks <- function(
   w = 0.1, 
   binSize = 50, 
   seed = 1,
+  method  = "chromVAR",
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds"),
   force = FALSE
   ){
@@ -629,7 +631,7 @@ addBgdPeaks <- function(
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = outFile, method = method)
       
       }else{
       
@@ -642,7 +644,7 @@ addBgdPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = outFile)
+    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = outFile, method = method)
 
   }
 
@@ -666,6 +668,7 @@ addBgdPeaks <- function(
 #' @param binSize The precision with which the similarity is computed. See `chromVAR::getBackgroundPeaks()`.
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used
 #' so that you can reproduce results downstream.
+#' @param method A string indicating whether to use chromVAR or ArchR for background peak identification.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
 #' @export
 getBgdPeaks <- function(
@@ -674,6 +677,7 @@ getBgdPeaks <- function(
   w = 0.1, 
   binSize = 50, 
   seed = 1,
+  method  = "chromVAR",
   force = FALSE
   ){
 
@@ -696,7 +700,7 @@ getBgdPeaks <- function(
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = NULL, method = method)
       
       }else{
       
@@ -709,7 +713,7 @@ getBgdPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = NULL)
+    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = NULL, method = method)
 
   }
 
@@ -727,6 +731,7 @@ getBgdPeaks <- function(
   w = 0.1, 
   binSize = 50, 
   seed = 1, 
+  method = "chromVAR",
   outFile = file.path(getOutputDirectory(ArchRProj), "Background-Peaks.rds")
   ){
 
@@ -748,25 +753,73 @@ getBgdPeaks <- function(
   rS$end <- end(ArchRProj@peakSet)
   rS$GC <- ArchRProj@peakSet$GC
 
+  uniqueDist <- unique(rS$end - rS$start)
+  if(length(uniqueDist) > 1){
+    if(tolower(method) != "archr"){
+      stop("When using non-fixed width peaks, you need to use method = ArchR!")
+    }
+  }
+
   #minimal chromVAR change
   #chromVAR reuiqres a matrix/se of ncol > 1 and with a log10(values) transform removing peaks with 0 reads
   #to disable this we create a column of 1's forcing chromVAR to perform log10(values + 1)
 
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = SimpleList(counts = as.matrix(data.frame(rS$rowSums, 1))),
-    rowData = DataFrame(bias = rS$GC)
+    rowData = DataFrame(bias = rS$GC, start = rS$start, end = rS$end)
   )
 
-  bgdPeaks <- chromVAR::getBackgroundPeaks(
-    object = se,
-    bias = rowData(se)$bias, 
-    niterations = nIterations, 
-    w = w, 
-    bs = binSize
-  )
+  if(tolower(method) == "chromvar"){
+
+    bgdPeaks <- tryCatch({
+
+      chromVAR::getBackgroundPeaks(
+        object = se,
+        bias = rowData(se)$bias, 
+        niterations = nIterations, 
+        w = w, 
+        bs = binSize
+      )
+
+    }, error = function(e){
+
+      message("Error with chromVAR::getBackgroundPeaks! Handling this with a safer method for getting background peaks with ArchR!")
+
+      .ArchRBdgPeaks(
+        object = se,
+        bias = rowData(se)$bias, 
+        nIterations = nIterations
+      )
+
+    })
+
+  }else{
+
+      bgdPeaks <- .ArchRBdgPeaks(
+        object = se,
+        bias = rowData(se)$bias, 
+        nIterations = nIterations
+      )
+
+  }
 
   bgdPeaks <- SummarizedExperiment(assays = SimpleList(bgdPeaks = bgdPeaks), 
     rowRanges = GRanges(rS$seqnames,IRanges(rS$start,rS$end),value=rS$rowSums,GC=rS$GC))
+
+  biasDF <- data.frame(
+    rowSums = Matrix::rowSums(assay(se)),
+    bias = rowData(se)$bias,
+    length = rowData(se)$end - rowData(se)$start
+  )
+
+  rowData(bgdPeaks)$bgdSumMean <- round(rowMeans(matrix(biasDF[assay(bgdPeaks),1], nrow = nrow(bgdPeaks))),3)
+  rowData(bgdPeaks)$bgdSumSd <- round(matrixStats::rowSds(matrix(biasDF[assay(bgdPeaks),1], nrow = nrow(bgdPeaks))),3)
+
+  rowData(bgdPeaks)$bgdGCMean <- round(rowMeans(matrix(biasDF[assay(bgdPeaks),2], nrow = nrow(bgdPeaks))),3)
+  rowData(bgdPeaks)$bgdGCSd <- round(matrixStats::rowSds(matrix(biasDF[assay(bgdPeaks),2], nrow = nrow(bgdPeaks))),3)
+
+  rowData(bgdPeaks)$bgdLengthMean <- round(rowMeans(matrix(biasDF[assay(bgdPeaks),3], nrow = nrow(bgdPeaks))),3)
+  rowData(bgdPeaks)$bgdLengthSd <- round(matrixStats::rowSds(matrix(biasDF[assay(bgdPeaks),3], nrow = nrow(bgdPeaks))),3)
 
   #Save Background Peaks
   if(!is.null(outFile)){
@@ -776,4 +829,54 @@ getBgdPeaks <- function(
   return(bgdPeaks)
 
 }
+
+.ArchRBdgPeaks <- function(object = NULL, bias = NULL, nIterations = 50){
+
+  .cleanSelf <- function(x){
+    xn <- matrix(0, nrow = nrow(x), ncol = ncol(x))
+    for(i in seq_len(nrow(x))){
+        xi <- x[i, ]
+        idx <- which(xi != i)
+        xn[i, seq_along(idx)] <- xi[idx]
+    }
+    idx <- which(colSums(xn == 0) > 0)
+    if(length(idx) > 0){
+      xn <- xn[,-idx]
+    }
+    xn
+  }
+
+  #Bias Dataframe
+  biasDF <- data.frame(
+    rowSums = Matrix::rowSums(assay(object)),
+    bias = bias,
+    length = rowData(object)$end - rowData(object)$start
+  )
+
+  #Quantile Normalize
+  biasDFN <- apply(biasDF, 2, .getQuantiles)
+
+  #Get KNN
+  knnObj <- nabor::knn(
+    data =  biasDFN,
+    k = nIterations + 1
+  )[[1]]
+
+  #Filter Self
+  knnObj <- .cleanSelf(knnObj)
+
+  #Shuffle
+  idx <- seq_len(ncol(knnObj))
+  knnObj2 <- matrix(0, nrow = nrow(knnObj), ncol = ncol(knnObj))
+  for(x in seq_len(nrow(knnObj2))){
+    knnObj2[x,] <- knnObj[x, sample(idx, length(idx))]
+  }
+
+  knnObj2
+
+}
+
+
+
+
 

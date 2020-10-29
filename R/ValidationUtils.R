@@ -30,7 +30,7 @@
 
       if(all(is.numeric(input))){
         #https://stackoverflow.com/questions/3476782/check-if-the-number-is-integer
-        cv <- min(abs(c(input%%1, input%%1-1))) < .Machine$double.eps^0.5
+        cv <- min(abs(c(input%%1, input%%1-1)), na.rm = TRUE) < .Machine$double.eps^0.5
       }else{
         cv <- FALSE
       }

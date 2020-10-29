@@ -10,6 +10,7 @@ getBgdPeaks(
   w = 0.1,
   binSize = 50,
   seed = 1,
+  method = "chromVAR",
   force = FALSE
 )
 }
@@ -24,6 +25,8 @@ getBgdPeaks(
 
 \item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used
 so that you can reproduce results downstream.}
+
+\item{method}{A string indicating whether to use chromVAR or ArchR for background peak identification.}
 
 \item{force}{A boolean value indicating whether to force the file indicated by \code{outFile} to be overwritten if it already exists.}
 }
