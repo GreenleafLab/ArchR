@@ -1,3 +1,5 @@
+# Configuration for probot-auto-comment - https://github.com/probot/auto-comment
+
 # Comment to a new issue.
 issueOpened: >
   Thank your for raising a issue. We will try and get back to you as soon as possible.
