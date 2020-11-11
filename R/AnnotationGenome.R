@@ -110,28 +110,30 @@ createGeneAnnotation <- function(
     ###########################
     message("Getting Genes..")
     genes <- GenomicFeatures::genes(TxDb)
-    isEntrez <- mcols(genes)$symbol <- tryCatch({
-      suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
-      TRUE
-    }, error = function(x){
-      FALSE
-    })
-
-    isEnsembl <- mcols(genes)$symbol <- tryCatch({
-      suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENSEMBL", multiVals = "first"))
-      TRUE
-    }, error = function(x){
-      FALSE
-    })
-
-    if(isEntrez){
-      annoStyle <- "ENTREZID"
-    }else if(isEnsembl){
-      annoStyle <- "ENSEMBL"
-    }else{
-      stop("Could not identify keytype for annotation format!")
+    
+    if(is.null(annoStyle)){
+      isEntrez <- mcols(genes)$symbol <- tryCatch({
+        suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
+        TRUE
+      }, error = function(x){
+        FALSE
+      })
+      isEnsembl <- mcols(genes)$symbol <- tryCatch({
+        suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENSEMBL", multiVals = "first"))
+        TRUE
+      }, error = function(x){
+        FALSE
+      })
+      if(isEntrez){
+        annoStyle <- "ENTREZID"
+      }else if(isEnsembl){
+        annoStyle <- "ENSEMBL"
+      }else{
+        stop("Could not identify keytype for annotation format!")
+      }
     }
-
+    annoStyle <- toupper(annoStyle)
+    
     message("Determined Annotation Style = ", annoStyle)
 
     ###########################

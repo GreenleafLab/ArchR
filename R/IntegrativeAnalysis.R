@@ -1166,7 +1166,7 @@ addPeak2GeneLinks <- function(
   o$Correlation <- rowCorCpp(as.integer(o$A), as.integer(o$B), assay(seATAC), assay(seRNA))
   o$VarAssayA <- .getQuantiles(matrixStats::rowVars(assay(seATAC)))[o$A]
   o$VarAssayB <- .getQuantiles(matrixStats::rowVars(assay(seRNA)))[o$B]
-  o$TStat <- (o$correlation / sqrt((max(1-o$Correlation^2, 0.00000000000000001))/(ncol(seATAC)-2))) #T-statistic P-value
+  o$TStat <- (o$Correlation / sqrt((max(1-o$Correlation^2, 0.00000000000000001))/(ncol(seATAC)-2))) #T-statistic P-value
   o$Pval <- 2*pt(-abs(o$TStat), ncol(seATAC) - 2)
   o$FDR <- p.adjust(o$Pval, method = "fdr")
   out <- o[, c("A", "B", "Correlation", "FDR", "VarAssayA", "VarAssayB")]
