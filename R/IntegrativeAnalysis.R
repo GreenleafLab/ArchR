@@ -762,13 +762,9 @@ addCoAccessibility <- function(
   o$seqnames <- seqnames(peakSet)[o[,1]]
   o$idx1 <- peakSet$idx[o[,1]]
   o$idx2 <- peakSet$idx[o[,2]]
-<<<<<<< HEAD
-  o$correlation <- NA
-=======
   o$correlation <- -999.999
   o$Variability1 <- 0.000
   o$Variability2 <- 0.000
->>>>>>> 2f022a4... Release 1.0.0 (#376)
 
   #Peak Matrix ColSums
   cS <- .getColSums(getArrowFiles(ArchRProj), chri, verbose = FALSE, useMatrix = "PeakMatrix")
@@ -801,9 +797,6 @@ addCoAccessibility <- function(
 
     #Correlations
     idx <- BiocGenerics::which(o$seqnames==chri[x])
-<<<<<<< HEAD
-    o[idx,]$correlation <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
-=======
     corVals <- rowCorCpp(idxX = o[idx,]$idx1, idxY = o[idx,]$idx2, X = as.matrix(groupMat), Y = as.matrix(groupMat))
     .logThis(head(corVals), paste0("SubsetCorVals-", x), logFile = logFile)
 
@@ -812,8 +805,6 @@ addCoAccessibility <- function(
     o[idx,]$correlation <- as.numeric(corVals)
     o[idx,]$Variability1 <- rowVars[o[idx,]$idx1]
     o[idx,]$Variability2 <- rowVars[o[idx,]$idx2]
->>>>>>> 2f022a4... Release 1.0.0 (#376)
-
     .logThis(groupMat, paste0("SubsetGroupMat-", x), logFile = logFile)
     .logThis(o[idx,], paste0("SubsetCoA-", x), logFile = logFile)
 
@@ -1459,8 +1450,6 @@ plotPeak2GeneHeatmap <- function(
   colOrder <- colnames(bS[[1]])
   kDF[,3] <- as.integer(mapLabels(paste0(kDF[,1]), newLabels = paste0(seq_along(rowOrder)), oldLabels = rowOrder))
 
-<<<<<<< HEAD
-=======
   if(returnMatrices){
 
     out <- SimpleList(
@@ -1490,8 +1479,6 @@ plotPeak2GeneHeatmap <- function(
   .logThis(cD[colOrder,,drop=FALSE], "cD", logFile = logFile)
   .logThis(mATAC[kDF[,2],colOrder], "mATAC2", logFile = logFile)
   .logThis(mRNA[kDF[,2],colOrder], "mRNA2", logFile = logFile)
-
->>>>>>> 2f022a4... Release 1.0.0 (#376)
   #########################################
   # Plot Heatmaps
   #########################################

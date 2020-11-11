@@ -58,11 +58,8 @@ export(createGenomeAnnotation)
 export(createLogFile)
 export(enrichHeatmap)
 export(exportGroupSE)
-<<<<<<< HEAD
 export(exportMonocle3)
-=======
 export(exportPeakMatrixForSTREAM)
->>>>>>> 2f022a4... Release 1.0.0 (#376)
 export(extendGR)
 export(filterChrGR)
 export(filterDoublets)

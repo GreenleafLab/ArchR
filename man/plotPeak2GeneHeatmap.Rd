@@ -8,8 +8,6 @@ plotPeak2GeneHeatmap(
   ArchRProj = NULL,
   corCutOff = 0.45,
   FDRCutOff = 1e-04,
-  varCutOffATAC = 0.25,
-  varCutOffRNA = 0.25,
   k = 25,
   nPlot = 25000,
   limitsATAC = c(-2, 2),
@@ -19,8 +17,6 @@ plotPeak2GeneHeatmap(
   palATAC = paletteContinuous("solarExtra"),
   palRNA = paletteContinuous("blueYellow"),
   verbose = TRUE,
-  returnMatrices = FALSE,
-  seed = 1,
   logFile = createLogFile("plotPeak2GeneHeatmap")
 )
 }
@@ -30,10 +26,6 @@ plotPeak2GeneHeatmap(
 \item{corCutOff}{A numeric describing the minimum numeric peak-to-gene correlation to return.}
 
 \item{FDRCutOff}{A numeric describing the maximum numeric peak-to-gene false discovery rate to return.}
-
-\item{varCutOffATAC}{A numeric describing the minimum variance quantile of the ATAC peak accessibility when selecting links.}
-
-\item{varCutOffRNA}{A numeric describing the minimum variance quantile of the RNA gene expression when selecting links.}
 
 \item{k}{An integer describing the number of k-means clusters to group peak-to-gene links prior to plotting heatmaps.}
 
@@ -52,11 +44,6 @@ plotPeak2GeneHeatmap(
 \item{palRNA}{A color palette describing the colors to be used for the RNA heatmap. For example, paletteContinuous("blueYellow").}
 
 \item{verbose}{A boolean value that determines whether standard output should be printed.}
-
-\item{returnMatrices}{A boolean value that determines whether the matrices should be returned with kmeans id versus plotting.}
-
-\item{seed}{A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
-reproduce results downstream.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }

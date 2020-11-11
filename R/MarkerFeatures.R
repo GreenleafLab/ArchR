@@ -890,11 +890,6 @@ plotMarkerHeatmap <- function(
   mat[mat < min(limits)] <- min(limits)
   .logThis(mat, "mat", logFile = logFile) 
 
-<<<<<<< HEAD
-  idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
-  mat <- mat[idx,]
-  passMat <- passMat[idx,]
-=======
   if(ncol(mat) == 1){
     idx <- which(rowSums(passMat, na.rm = TRUE) > 0)
   }else{
@@ -902,7 +897,6 @@ plotMarkerHeatmap <- function(
   }
   mat <- mat[idx,,drop=FALSE]
   passMat <- passMat[idx,,drop=FALSE]
->>>>>>> 2f022a4... Release 1.0.0 (#376)
 
   if(nrow(mat) == 0){
     stop("No Makers Found!")
@@ -994,15 +988,9 @@ plotMarkerHeatmap <- function(
   if(transpose){
 
     if(!is.null(clusterCols)){
-<<<<<<< HEAD
-      mat <- t(mat[seq_len(nrow(mat)), clusterCols$order])
-    }else{
-      mat <- t(mat[seq_len(nrow(mat)), ])
-=======
       mat <- t(mat[seq_len(nrow(mat)), , drop = FALSE])
     }else{
       mat <- t(mat[seq_len(nrow(mat)), clusterCols$order, drop = FALSE])
->>>>>>> 2f022a4... Release 1.0.0 (#376)
     }
 
     if(!is.null(labelMarkers)){

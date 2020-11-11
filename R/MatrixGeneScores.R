@@ -20,8 +20,6 @@
 #' @param useGeneBoundaries A boolean value indicating whether gene boundaries should be employed during gene activity score
 #' calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene
 #' if there is a second gene's transcription start site between the tile and the gene of interest.
-<<<<<<< HEAD
-=======
 #' @param geneUpstream An integer describing the number of bp upstream the gene to extend the gene body. This effectively makes the gene body larger as there
 #' are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.
 #' @param geneDownstream An integer describing the number of bp downstream the gene to extend the gene body.This effectively makes the gene body larger as there
@@ -34,7 +32,6 @@
 #' @param geneScaleFactor A numeric scaling factor to weight genes based on the inverse of there length i.e. [(Scale Factor)/(Gene Length)]. This
 #' is scaled from 1 to the scale factor. Small genes will be the scale factor while extremely large genes will be closer to 1. This scaling helps with
 #' the relative gene score value.
->>>>>>> 2f022a4... Release 1.0.0 (#376)
 #' @param scaleTo Each column in the calculated gene score matrix will be normalized to a column sum designated by `scaleTo`.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param blacklist A `GRanges` object containing genomic regions to blacklist that may be extremeley over-represented and thus

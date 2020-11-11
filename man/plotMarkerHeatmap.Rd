@@ -20,7 +20,7 @@ plotMarkerHeatmap(
   nLabel = 15,
   nPrint = 15,
   labelRows = FALSE,
-  returnMatrix = FALSE,
+  returnMat = FALSE,
   transpose = FALSE,
   invert = FALSE,
   logFile = createLogFile("plotMarkerHeatmap")
@@ -59,7 +59,7 @@ rownames from \code{seMarker} to be excluded from the heatmap.}
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
-\item{returnMatrix}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
+\item{returnMat}{A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.}
 
 \item{transpose}{A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.}
 

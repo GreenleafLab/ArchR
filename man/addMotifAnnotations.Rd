@@ -10,7 +10,6 @@ addMotifAnnotations(
   name = "Motif",
   species = NULL,
   collection = "CORE",
-  motifPWMs = NULL,
   cutOff = 5e-05,
   width = 7,
   version = 2,
@@ -34,8 +33,6 @@ used from CisBP/JASPAR. By default, this function will attempt to guess the spec
 \item{collection}{If one of the JASPAR motif sets is used via \code{motifSet}, this parameter allows you to indicate the JASPAR
 collection to be used. See \code{getMatrixSet()} from \code{TFBSTools} for all options to supply for collection.}
 
-\item{motifPWMs}{A custom set of motif PWMs as a PWMList for adding motif annotations.}
-
 \item{cutOff}{The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
 (see \code{MOODS} for more details on this determination).}
 
@@ -49,6 +46,8 @@ it already exists in the given \code{ArchRProject}.}
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{...}{Additional parameters to be passed to \code{TFBSTools::getMatrixSet} for getting a PWM object.}
+
+\item{motifPWMs}{A custom set of motif PWMs as a PWMList for adding motif annotations.}
 }
 \description{
 This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value
