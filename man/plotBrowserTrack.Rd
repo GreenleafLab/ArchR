@@ -23,6 +23,7 @@ plotBrowserTrack(
   normMethod = "ReadsInTSS",
   threads = getArchRThreads(),
   ylim = NULL,
+  pal = NULL,
   baseSize = 7,
   scTileSize = 0.5,
   scCellsMax = 100,
@@ -87,6 +88,8 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 \item{threads}{The number of threads to use for parallel execution.}
 
 \item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
+
+\item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override coloring for groups.}
 
 \item{baseSize}{The numeric font size to be used in the plot. This applies to all plot labels.}
 

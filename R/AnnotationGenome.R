@@ -71,6 +71,7 @@ createGenomeAnnotation <- function(
 #' @param genes A `GRanges` object containing gene coordinates (start to end). Must have a symbols column matching the symbols column of `exons`.
 #' @param exons A `GRanges` object containing gene exon coordinates. Must have a symbols column matching the symbols column of `genes`.
 #' @param TSS A `GRanges` object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.
+#' @param annoStyle annotation style to map between gene names and various gene identifiers e.g. "ENTREZID", "ENSEMBL".
 #' @export
 createGeneAnnotation <- function(
   genome = NULL,
@@ -78,7 +79,8 @@ createGeneAnnotation <- function(
   OrgDb = NULL,
   genes = NULL,
   exons = NULL,
-  TSS = NULL
+  TSS = NULL,
+  annoStyle = NULL
   ){
 
   .validInput(input = genome, name = "genome", valid = c("character", "null"))
@@ -87,6 +89,7 @@ createGeneAnnotation <- function(
   .validInput(input = genes, name = "genes", valid = c("GRanges", "null"))
   .validInput(input = exons, name = "exons", valid = c("GRanges", "null"))
   .validInput(input = TSS, name = "TSS", valid = c("GRanges", "null"))
+  .validInput(input = annoStyle, name = "annoStyle", valid = c("character", "null"))
 
   if(is.null(genes) | is.null(exons) | is.null(TSS)){
 
@@ -110,7 +113,6 @@ createGeneAnnotation <- function(
     ###########################
     message("Getting Genes..")
     genes <- GenomicFeatures::genes(TxDb)
-    
     if(is.null(annoStyle)){
       isEntrez <- mcols(genes)$symbol <- tryCatch({
         suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
@@ -131,9 +133,10 @@ createGeneAnnotation <- function(
       }else{
         stop("Could not identify keytype for annotation format!")
       }
+
     }
     annoStyle <- toupper(annoStyle)
-    
+
     message("Determined Annotation Style = ", annoStyle)
 
     ###########################

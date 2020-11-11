@@ -104,7 +104,6 @@ ArchRProject <- function(
   geneAnnotation <- .validGeneAnnoByGenomeAnno(geneAnnotation = geneAnnotation, genomeAnnotation = genomeAnnotation)
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
   .validInput(input = threads, name = "threads", valid = c("integer"))
-
   # if(grepl(" ", outputDirectory)){
   #   stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
   # }
@@ -113,6 +112,7 @@ ArchRProject <- function(
   #   stop("outputDirectory cannot have a space in the full path! Full path : ", outputDirectory)
   # }
   sampleDirectory <- file.path(outputDirectory, "ArrowFiles")
+
   dir.create(sampleDirectory,showWarnings=FALSE)
 
   if(is.null(ArrowFiles)){
@@ -390,16 +390,20 @@ loadArchRProject <- function(
       #Postions
       if(!is.null(ArchRProj@peakAnnotation[[i]]$Positions)){
 
-        PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Positions)
-        if(!all(file.exists(PositionsNew))){
-          if(force){
-            keepAnno[i] <- FALSE
-            message("Positions for peakAnnotation do not exist in saved ArchRProject!")
-          }else{
-            stop("Positions for peakAnnotation do not exist in saved ArchRProject!")
+        if(tolower(ArchRProj@peakAnnotation[[i]]$Positions) != "none"){
+
+          PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Positions)
+          if(!all(file.exists(PositionsNew))){
+            if(force){
+              keepAnno[i] <- FALSE
+              message("Positions for peakAnnotation do not exist in saved ArchRProject!")
+            }else{
+              stop("Positions for peakAnnotation do not exist in saved ArchRProject!")
+            }
           }
+          ArchRProj@peakAnnotation[[i]]$Positions <- PositionsNew
+
         }
-        ArchRProj@peakAnnotation[[i]]$Positions <- PositionsNew
 
       }
 
@@ -490,7 +494,6 @@ saveArchRProject <- function(
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
   .validInput(input = overwrite, name = "overwrite", valid = "boolean")
   .validInput(input = load, name = "load", valid = "boolean")
-
   # if(grepl(" ", outputDirectory)){
   #   stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
   # }

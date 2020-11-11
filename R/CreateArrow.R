@@ -496,6 +496,12 @@ createArrowFiles <- function(
   #Filter
   Metadata$Keep <- 1*(Metadata$nFrags >= filterFrags & Metadata$TSSEnrichment >= filterTSS)
 
+  if(sum(Metadata$Keep) < 3){
+    mTSS <- round(median(Metadata$TSSEnrichment[Metadata$TSSEnrichment>0]), 2)
+    mFrag <- round(median(Metadata$nFrags[Metadata$nFrags>0]), 2)
+    .logStop(sprintf("Detected 2 or less cells pass filter (Non-Zero median TSS = %s, median Frags = %s) in file!\n       Check inputs such as 'filterFrags' or 'filterTSS' to keep cells! Exiting!", mTSS, mFrag), logFile = logFile)
+  }
+
   .logDiffTime(sprintf("%s CellStats : Number of Cells Pass Filter = %s ", prefix, sum(Metadata$Keep)), t1 = tstart, verbose = verbose, logFile = logFile)
   .logDiffTime(sprintf("%s CellStats : Median Frags = %s ", prefix, median(Metadata$nFrags[Metadata$Keep==1])), t1 = tstart, verbose = verbose, logFile = logFile)
   .logDiffTime(sprintf("%s CellStats : Median TSS Enrichment = %s ", prefix, median(Metadata$TSSEnrichment[Metadata$Keep==1])), t1 = tstart, verbose = verbose, logFile = logFile)
@@ -637,8 +643,10 @@ createArrowFiles <- function(
     o <- h5write(obj = Metadata$ReadsInPromoter[idx], file = ArrowFile, name = "Metadata/ReadsInPromoter")
     o <- h5write(obj = Metadata$PromoterRatio[idx], file = ArrowFile, name = "Metadata/PromoterRatio")
     if(!is.null(genomeAnnotation$blacklist)){
-      o <- h5write(obj = Metadata$ReadsInBlacklist[idx], file = ArrowFile, name = "Metadata/ReadsInBlacklist")
-      o <- h5write(obj = Metadata$BlacklistRatio[idx], file = ArrowFile, name = "Metadata/BlacklistRatio")
+      if(length(genomeAnnotation$blacklist) > 0){
+        o <- h5write(obj = Metadata$ReadsInBlacklist[idx], file = ArrowFile, name = "Metadata/ReadsInBlacklist")
+        o <- h5write(obj = Metadata$BlacklistRatio[idx], file = ArrowFile, name = "Metadata/BlacklistRatio")
+      }
     }
     Metadata <- Metadata[idx, , drop = FALSE]
   }
@@ -690,7 +698,7 @@ createArrowFiles <- function(
       GeneScoreMatParams$excludeChr <- excludeChr
       GeneScoreMatParams$subThreads <- subThreads
       GeneScoreMatParams$logFile <- logFile
-      geneScoreMat <- suppressMessages(do.call(.addGeneScoreMat, GeneScoreMatParams))
+      geneScoreMat <- suppressWarnings(suppressMessages(do.call(.addGeneScoreMat, GeneScoreMatParams)))
       gc()
       .logDiffTime(sprintf("%s Finished Adding GeneScoreMatrix!", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
@@ -1848,6 +1856,9 @@ createArrowFiles <- function(
   .logThis(dt, name = paste0(prefix, " BarcodeFrequencyTable"), logFile)
  
   bcPass <- BStringSet(dt$values.V1[dt$V1 >= minFrags & dt$V1 <= maxFrags])
+  if(length(bcPass) < 3){
+    .logStop(sprintf("Detected 2 or less cells (%s barcodes have greater than 50 fragments) in file!\n       Check inputs such as 'minFrags' or 'maxFrags' to keep cells! Exiting!", sum(dt$V1 > 50)), logFile = logFile)
+  }
   .logThis(data.frame(bc = as.character(bcPass)), name = paste0(prefix, " BarcodesMinMaxFrags"), logFile = logFile)
 
   rm(dt)
@@ -2249,7 +2260,6 @@ createArrowFiles <- function(
   gr2
 
 }
-
 
 
 

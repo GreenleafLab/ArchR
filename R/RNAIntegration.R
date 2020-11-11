@@ -173,8 +173,8 @@ addGeneIntegrationMatrix <- function(
   }
 
   if(!all(nCell == 1)){
-    .logMessage(paste0("Missing ", length(which(nCell == 0)), " Overlapping ", length(which(nCell > 1))," cells from ArchRProj in groupList!"), logFile = logFile)
-    stop("Missing ", length(which(nCell == 0)), " Overlapping ", length(which(nCell > 1))," cells from ArchRProj in groupList!")
+    .logMessage(paste0("Missing ", length(which(nCell == 0)), " cells. Found ", length(which(nCell > 1))," overlapping cells from ArchRProj in groupList! Cannot have overlapping/missing cells in ATAC input, check 'groupList' argument!"), logFile = logFile)
+    stop("Missing ", length(which(nCell == 0)), " cells. Found ", length(which(nCell > 1))," overlapping cells from ArchRProj in groupList! Cannot have overlapping/missing cells in ATAC input, check 'groupList' argument!")
   }
 
   #########################################################################################

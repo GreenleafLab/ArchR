@@ -547,15 +547,18 @@ createLogFile <- function(
   }
 
   rL <- readLines(logFile)
-  t1 <- gsub("Start Time : ","", grep("Start Time", rL, ignore.case = TRUE, value = TRUE))
-  mn <- as.numeric(difftime(Sys.time(), as.POSIXct(t1), units = "mins"))
-  hr <- as.numeric(difftime(Sys.time(), as.POSIXct(t1), units = "hours"))
-  cat("\n------- Completed\n\n", file = logFile, append = TRUE)
-  cat(paste0("End Time : ",Sys.time(),"\n"), file = logFile, append = TRUE)
-  cat(paste0("Elapsed Time Minutes = ", mn), file = logFile, append = TRUE)
-  cat(paste0("\nElapsed Time Hours = ", hr), file = logFile, append = TRUE)
-  cat("\n\n-------\n\n\n\n", file = logFile, append = TRUE)
-  message("ArchR logging successful to : ", logFile)
+  o <- tryCatch({
+    t1 <- gsub("Start Time : ","", grep("Start Time", rL, ignore.case = TRUE, value = TRUE))
+    mn <- as.numeric(difftime(Sys.time(), as.POSIXct(t1), units = "mins"))
+    hr <- as.numeric(difftime(Sys.time(), as.POSIXct(t1), units = "hours"))
+    cat("\n------- Completed\n\n", file = logFile, append = TRUE)
+    cat(paste0("End Time : ",Sys.time(),"\n"), file = logFile, append = TRUE)
+    cat(paste0("Elapsed Time Minutes = ", mn), file = logFile, append = TRUE)
+    cat(paste0("\nElapsed Time Hours = ", hr), file = logFile, append = TRUE)
+    cat("\n\n-------\n\n\n\n", file = logFile, append = TRUE)
+    message("ArchR logging successful to : ", logFile)
+  }, error = function(x){
+  })
 
   # tryCatch({
   #   R.utils::gzip(logFile, paste0(logFile, ".gz"))

@@ -42,7 +42,14 @@ should be a function of \code{x}, where \code{x} is the stranded distance from t
 \item{extendUpstream}{The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene
 activity score calculation.}
 
-\item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site to consider for gene activity score calculation.}
+\item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site or transcription termination site
+(based on 'useTSS') to consider for gene activity score calculation.}
+
+\item{geneUpstream}{An integer describing the number of bp upstream the gene to extend the gene body. This effectively makes the gene body larger as there
+are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}
+
+\item{geneDownstream}{An integer describing the number of bp downstream the gene to extend the gene body.This effectively makes the gene body larger as there
+are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}
 
 \item{geneUpstream}{An integer describing the number of bp upstream the gene to extend the gene body. This effectively makes the gene body larger as there
 are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}

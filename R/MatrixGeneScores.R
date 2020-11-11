@@ -14,9 +14,8 @@
 #' @param matrixName The name to be used for storage of the gene activity score matrix in the provided `ArchRProject` or ArrowFiles.
 #' @param extendUpstream The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene
 #' activity score calculation.
-#' @param extendDownstream The minimum and maximum number of basepairs downstream of the transcription start site to consider for gene activity score calculation.
-#' @param tileSize The size of the tiles used for binning counts prior to gene activity score calculation.
-#' @param ceiling The maximum counts per tile allowed. This is used to prevent large biases in tile counts.
+#' @param extendDownstream The minimum and maximum number of basepairs downstream of the transcription start site or transcription termination site 
+#' (based on 'useTSS') to consider for gene activity score calculation.
 #' @param useGeneBoundaries A boolean value indicating whether gene boundaries should be employed during gene activity score
 #' calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene
 #' if there is a second gene's transcription start site between the tile and the gene of interest.
@@ -242,13 +241,16 @@ addGeneScoreMatrix <- function(
 
   #Blacklist Split
   if(!is.null(blacklist)){
-    blacklist <- split(blacklist, seqnames(blacklist))
+    if(length(blacklist) > 0){
+      blacklist <- split(blacklist, seqnames(blacklist))
+    }
   }
 
   #Get all cell ids before constructing matrix
   if(is.null(cellNames)){
     cellNames <- .availableCells(ArrowFile)
   }
+
   if(!is.null(allCells)){
     cellNames <- cellNames[cellNames %in% allCells]
   }
@@ -381,11 +383,13 @@ addGeneScoreMatrix <- function(
 
       #Remove Blacklisted Tiles!
       if(!is.null(blacklist)){
-        blacklistz <- blacklist[[chrz]]
-        if(is.null(blacklistz) | length(blacklistz) > 0){
-          tilesBlacklist <- 1 * (!overlapsAny(uniqueTiles, ranges(blacklistz)))
-          if(sum(tilesBlacklist == 0) > 0){
-            x <- x * tilesBlacklist[subjectHits(tmp)] #Multiply Such That All Blacklisted Tiles weight is now 0!
+        if(length(blacklist) > 0){
+          blacklistz <- blacklist[[chrz]]
+          if(is.null(blacklistz) | length(blacklistz) > 0){
+            tilesBlacklist <- 1 * (!overlapsAny(uniqueTiles, ranges(blacklistz)))
+            if(sum(tilesBlacklist == 0) > 0){
+              x <- x * tilesBlacklist[subjectHits(tmp)] #Multiply Such That All Blacklisted Tiles weight is now 0!
+            }
           }
         }
       }
@@ -395,7 +399,8 @@ addGeneScoreMatrix <- function(
         i = queryHits(tmp), 
         j = subjectHits(tmp), 
         x = x, 
-        dims = c(length(geneRegionz), nrow(matGS)))
+        dims = c(length(geneRegionz), nrow(matGS))
+      )
 
       #Calculate Gene Scores
       matGS <- tmp %*% matGS
