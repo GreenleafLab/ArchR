@@ -49,8 +49,6 @@ it already exists in the given \code{ArchRProject}.}
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 
 \item{...}{Additional parameters to be passed to \code{TFBSTools::getMatrixSet} for getting a PWM object.}
-
-\item{motifPWMs}{A custom set of motif PWMs as a PWMList for adding motif annotations.}
 }
 \description{
 This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value

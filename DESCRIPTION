@@ -7,7 +7,6 @@ Authors@R: c(
     person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
 Description: This package is designed to streamline scATAC analyses in R.
-Version: 1.0.0
 Roxygen: list(markdown = TRUE)
 License: GPL (>= 2)
 LinkingTo: Rcpp
@@ -82,7 +81,6 @@ Collate:
     'ProjectMethods.R'
     'QualityControl.R'
     'RNAIntegration.R'
-    'RcppExports.R'
     'ReproduciblePeakSet.R'
     'Trajectory.R'
     'ValidationUtils.R'

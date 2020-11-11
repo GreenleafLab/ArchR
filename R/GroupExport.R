@@ -474,6 +474,7 @@ getmode<-function(v) {
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
+
 .createGroupBW <- function(
   i = NULL, 
   cellGroups = NULL,
@@ -491,22 +492,22 @@ getmode<-function(v) {
   verbose = TRUE,
   logFile = NULL,
   threads = 1
-  ){
-
+){
+  
   .logDiffTime(sprintf("%s (%s of %s) : Creating BigWig for Group", names(cellGroups)[i], i, length(cellGroups)), tstart, logFile = logFile, verbose = verbose)
-
+  
   #Cells
   cellGroupi <- cellGroups[[i]]
   #print(sum(normBy[cellGroupi, 1]))
-
+  
   #Bigwig File!
   covFile <- file.path(bwDir, paste0(make.names(names(cellGroups)[i]), "-TileSize-",tileSize,"-normMethod-",normMethod,"-ArchR.bw"))
   rmf <- .suppressAll(file.remove(covFile))
-
+  
   covList <- .safelapply(seq_along(availableChr), function(k){
-
+    
     it <- 0
-
+    
     for(j in seq_along(ArrowFiles)){
       cellsInI <- sum(cellsInArrow[[names(ArrowFiles)[j]]] %in% cellGroupi)
       if(cellsInI > 0){
@@ -518,28 +519,28 @@ getmode<-function(v) {
         }
       }
     }
-
+    
     tilesk <- tiles[BiocGenerics::which(seqnames(tiles) %bcin% availableChr[k])]
-
+    
     if(length(fragik) == 0){
-
+      
       tilesk$reads <- 0
-
+      
     }else{
-
+      
       #N Tiles
       nTiles <- trunc(chromLengths[availableChr[k]] / tileSize) + 1
-
+      
       #Create Sparse Matrix
       matchID <- S4Vectors::match(mcols(fragik)$RG, cellGroupi)
       
       mat <- Matrix::sparseMatrix(
-          i = c(trunc(start(fragik) / tileSize), trunc(end(fragik) / tileSize)) + 1,
-          j = as.vector(c(matchID, matchID)),
-          x = rep(1,  2*length(fragik)),
-          dims = c(nTiles, length(cellGroupi))
-        )
-
+        i = c(trunc(start(fragik) / tileSize), trunc(end(fragik) / tileSize)) + 1,
+        j = as.vector(c(matchID, matchID)),
+        x = rep(1,  2*length(fragik)),
+        dims = c(nTiles, length(cellGroupi))
+      )
+      
       if(!is.null(ceiling)){
         mat@x[mat@x > ceiling] <- ceiling
       }
@@ -547,9 +548,9 @@ getmode<-function(v) {
       mat <- Matrix::rowSums(mat)
       
       rm(fragik, matchID)
-         
+      
       tilesk$reads <- mat
-
+      
       if(tolower(normMethod) %in% c("readsintss", "readsinpromoter", "nfrags")){
         tilesk$reads <- tilesk$reads * 10^4 / sum(normBy[cellGroupi, 1])
       }else if(tolower(normMethod) %in% c("ncells")){
@@ -558,6 +559,21 @@ getmode<-function(v) {
       }else{
         stop("NormMethod not recognized!")
       }
-
-
-
+      
+    }
+    
+    tilesk <- coverage(tilesk, weight = tilesk$reads)[[availableChr[k]]]
+    
+    tilesk
+    
+  }, threads = threads)
+  
+  names(covList) <- availableChr
+  
+  covList <- as(covList, "RleList")
+  
+  rtracklayer::export.bw(object = covList, con = covFile)
+  
+  return(covFile)
+  
+}
