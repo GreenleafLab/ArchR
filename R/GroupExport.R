@@ -267,7 +267,7 @@ exportMonocle3 <- function(
   ArchR:::.logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportMonocle3 Input-Parameters", logFile = logFile)
   
   ArrowFiles <- getArrowFiles(ArchRProj)
-  ArrowFiles <- sapply(ArrowFiles, ArchR:::.validArrow())
+  ArrowFiles <- sapply(ArrowFiles, function(file) ArchR:::.validArrow(file))
   featureDF <- ArchR:::.getFeatureDF(ArrowFiles, subGroup = useMatrix)
   Groups <- getCellColData(ArchRProj = ArchRProj)
   Cells <- ArchRProj$cellNames
