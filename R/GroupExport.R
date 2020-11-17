@@ -309,8 +309,8 @@ exportMonocle3 <- function(
   cds<-cds[,rownames(ArchRProj@reducedDims$IterativeLSI$matSVD)]
   reducedDims(cds)<-SimpleList(LSI=ArchRProj@reducedDims$IterativeLSI$matSVD, 
                                UMAP=ArchRProj@embeddings$UMAP$df)
-  irlba_rotation = ArchRProj@reducedDims$IterativeLSI$svd$u
-  row.names(irlba_rotation) = paste0(ArchRProj@reducedDims$IterativeLSI$LSIFeatures$seqnames, "_", ArchRProj@reducedDims$IterativeLSI$LSIFeatures$idx)
+  # irlba_rotation = ArchRProj@reducedDims$IterativeLSI$svd$u
+  # rownames(irlba_rotation) = ArchRProj@reducedDims$IterativeLSI$LSIFeatures$idx
   iLSI<-SimpleList(svd=ArchRProj@reducedDims$IterativeLSI$svd,
                    features=ArchRProj@reducedDims$IterativeLSI$LSIFeatures, 
                    row_sums = ArchRProj@reducedDims$IterativeLSI$rowSm,
@@ -321,7 +321,7 @@ exportMonocle3 <- function(
                    resolution=NULL, 
                    granges=ArchRProj@reducedDims$IterativeLSI$LSIFeatures, 
                    LSI_method=ArchRProj@reducedDims$IterativeLSI$LSIMethod, outliers=NULL)
-  pp_aux <- SimpleList(iLSI=iLSI, gene_loadings=irlba_rotation)
+  pp_aux <- SimpleList(iLSI=iLSI, gene_loadings=NULL)
   cds@preprocess_aux <- pp_aux
   if(is.null(cds@preprocess_aux$iLSI$granges$end)){
     starts<-cds@preprocess_aux$iLSI$granges[as.character(cds@preprocess_aux$iLSI$granges$seqnames) %in% as.character(cds@preprocess_aux$iLSI$granges$seqnames)[1],]$start
