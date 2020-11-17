@@ -8,7 +8,7 @@ addDeviationsMatrix(
   ArchRProj = NULL,
   peakAnnotation = NULL,
   matches = NULL,
-  bgdPeaks = getBgdPeaks(ArchRProj),
+  bgdPeaks = getBgdPeaks(ArchRProj, method = "chromVAR"),
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,

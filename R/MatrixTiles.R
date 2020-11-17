@@ -96,6 +96,7 @@ addTileMatrix <- function(
   excludeChr = c("chrM", "chrY"), 
   blacklist = NULL, 
   chromLengths = NULL, 
+  chromSizes = NULL,
   force = FALSE,
   subThreads = 1,
   tstart = NULL,
@@ -122,7 +123,9 @@ addTileMatrix <- function(
 
   tstart <- Sys.time()
   if(!is.null(blacklist)){
-    blacklist <- split(blacklist, seqnames(blacklist))
+    if(length(blacklist) > 0){
+      blacklist <- split(blacklist, seqnames(blacklist))
+    }
   }
 
   #Get all cell ids before constructing matrix
@@ -190,11 +193,21 @@ addTileMatrix <- function(
       #N Tiles
       nTiles <- trunc(chromLengths[z] / tileSize) + 1
 
-      #Create Sparse Matrix
+      #Match Cells
       matchID <- S4Vectors::match(mcols(fragments)$RG, cellNames)
+
+      #Log Info
+      .logThis(nTiles, paste0("NTiles_TileMatrix_",z,"_",chr), logFile = logFile)
+      .logThis(length(cellNames), paste0("NCells_TileMatrix_",z,"_",chr), logFile = logFile)
+      .logThis(trunc(min(start(fragments)) / tileSize) + 1, paste0("MinTile_TileMatrix_",z,"_",chr), logFile = logFile)
+      .logThis(trunc(max(end(fragments)) / tileSize) + 1, paste0("MaxTile_TileMatrix_",z,"_",chr), logFile = logFile)
+      .logThis(min(matchID), paste0("MinCell_TileMatrix_",z,"_",chr), logFile = logFile)
+      .logThis(max(matchID), paste0("MaxCell_TileMatrix_",z,"_",chr), logFile = logFile)
+
+      #Create Sparse Matrix
       mat <- Matrix::sparseMatrix(
           i = c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1,
-          j = c(matchID, matchID),
+          j = as.vector(c(matchID, matchID)),
           x = rep(1,  2*length(fragments)),
           dims = c(nTiles, length(cellNames))
         )
@@ -209,15 +222,17 @@ addTileMatrix <- function(
 
       #Remove Blacklisted Tiles!
       if(!is.null(blacklist)){
-        blacklistz <- blacklist[[chr]]
-        if(length(blacklistz) > 0){
-          tile2 <- floor(tileSize/2)
-          blacklistIdx <- unique(trunc(start(unlist(GenomicRanges::slidingWindows(blacklistz,tile2,tile2)))/tileSize) + 1)
-          blacklistIdx <- sort(blacklistIdx)
-          idxToZero <- which((mat@i + 1) %bcin% blacklistIdx)
-          if(length(idxToZero) > 0){
-            mat@x[idxToZero] <- 0
-            mat <- Matrix::drop0(mat)
+        if(length(blacklist) > 0){
+          blacklistz <- blacklist[[chr]]
+          if(length(blacklistz) > 0){
+            tile2 <- floor(tileSize/2)
+            blacklistIdx <- unique(trunc(start(unlist(GenomicRanges::slidingWindows(blacklistz,tile2,tile2)))/tileSize) + 1)
+            blacklistIdx <- sort(blacklistIdx)
+            idxToZero <- which((mat@i + 1) %bcin% blacklistIdx)
+            if(length(idxToZero) > 0){
+              mat@x[idxToZero] <- 0
+              mat <- Matrix::drop0(mat)
+            }
           }
         }
       }

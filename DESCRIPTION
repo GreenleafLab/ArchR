@@ -1,8 +1,8 @@
 Package: ArchR
 Type: Package
-Date: 2019-05-11
+Date: 2020-10-01
 Title: Analyzing single-cell regulatory chromatin in R.
-Version: 0.9.6
+Version: 1.0.0
 Authors@R: c(
     person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
@@ -73,12 +73,14 @@ Collate:
     'MarkerFeatures.R'
     'MatrixDeviations.R'
     'MatrixFeatures.R'
+    'MatrixGeneExpression.R'
     'MatrixGeneScores.R'
     'MatrixTiles.R'
+    'ModuleScore.R'
+    'MultiModal.R'
     'ProjectMethods.R'
     'QualityControl.R'
     'RNAIntegration.R'
-    'RcppExports.R'
     'ReproduciblePeakSet.R'
     'Trajectory.R'
     'ValidationUtils.R'

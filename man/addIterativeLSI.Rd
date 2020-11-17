@@ -9,7 +9,10 @@ addIterativeLSI(
   useMatrix = "TileMatrix",
   name = "IterativeLSI",
   iterations = 2,
-  clusterParams = list(resolution = c(0.2), sampleCells = 10000, n.start = 10),
+  clusterParams = list(resolution = c(2), sampleCells = 10000, maxClusters = 6, n.start
+    = 10),
+  firstSelection = "top",
+  depthCol = "nFrags",
   varFeatures = 25000,
   dimsToUse = 1:30,
   LSIMethod = 2,
@@ -50,7 +53,13 @@ addIterativeLSI(
 
 \item{clusterParams}{A list of Additional parameters to be passed to \code{addClusters()} for clustering within each iteration.
 These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
-length == 1 or the total number of \code{iterations} - 1.}
+length == 1 or the total number of \code{iterations} - 1. PLEASE NOTE - We have updated these params to \code{resolution=2} and \code{maxClusters=6}! To use previous settings use \code{resolution=0.2} and \code{maxClusters=NULL}.}
+
+\item{firstSelection}{First iteration selection method for features to use for LSI. Either "Top" for the top accessible/average or "Var" for the top variable features.
+"Top" should be used for all scATAC-seq data (binary) while "Var" should be used for all scRNA/other-seq data types (non-binary).}
+
+\item{depthCol}{A column in the \code{ArchRProject} that represents the coverage (scATAC = unique fragments, scRNA = unique molecular identifiers) per cell.
+These values are used to minimize the related biases in the reduction related. For scATAC we recommend "nFrags" and for scRNA we recommend "Gex_nUMI".}
 
 \item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
 

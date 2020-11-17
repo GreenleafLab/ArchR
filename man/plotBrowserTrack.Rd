@@ -14,6 +14,8 @@ plotBrowserTrack(
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
   geneSymbol = NULL,
+  useMatrix = NULL,
+  log2Norm = TRUE,
   upstream = 50000,
   downstream = 50000,
   tileSize = 250,
@@ -21,7 +23,10 @@ plotBrowserTrack(
   normMethod = "ReadsInTSS",
   threads = getArchRThreads(),
   ylim = NULL,
+  pal = NULL,
   baseSize = 7,
+  scTileSize = 0.5,
+  scCellsMax = 100,
   borderWidth = 0.4,
   tickWidth = 0.4,
   facetbaseSize = 7,
@@ -46,8 +51,8 @@ column will be grouped together and the average signal will be plotted.}
 \code{cellColData}. This limits the groups to be plotted.}
 
 \item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
-"featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
-are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).}
+"scTrack" (scATAC-seq signal), "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown.
+Blue-colored genes are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).}
 
 \item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}.
 The order must be the same as \code{plotSummary}.}
@@ -61,6 +66,10 @@ A "loopTrack" draws an arc between two genomic regions that show some type of in
 to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
 
 \item{geneSymbol}{If \code{region} is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.}
+
+\item{useMatrix}{If supplied geneSymbol, one can plot the corresponding GeneScores/GeneExpression within this matrix. I.E. "GeneScoreMatrix"}
+
+\item{log2Norm}{If supplied geneSymbol, Log2 normalize the corresponding GeneScores/GeneExpression matrix before plotting.}
 
 \item{upstream}{The number of basepairs upstream of the transcription start site of \code{geneSymbol} to extend the plotting window.
 If \code{region} is supplied, this argument is ignored.}
@@ -80,7 +89,13 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 
 \item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
 
+\item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override coloring for groups.}
+
 \item{baseSize}{The numeric font size to be used in the plot. This applies to all plot labels.}
+
+\item{scTileSize}{The width of the tiles in scTracks. Larger numbers may make cells overlap more. Default is 0.5 for about 100 cells.}
+
+\item{scCellsMax}{The maximum number of cells for scTracks.}
 
 \item{borderWidth}{The numeric line width to be used for plot borders.}
 

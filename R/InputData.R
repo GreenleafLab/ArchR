@@ -52,6 +52,40 @@ getTutorialData <- function(
 
 }
 
+#' Get PBMC Small Test Fragments
+#' 
+#' This function will download fragments for a small PBMC test dataset (2k Cells) spanning chr1 and 2 (~20MB).
+#' 
+#' @export
+getTestFragments <- function(x){
+  if(!file.exists("PBMCSmall.tsv.gz")){
+    download.file(
+      url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.tsv.gz",
+      destfile = "PBMCSmall.tsv.gz"
+    )
+  }
+  addArchRGenome("hg19test")
+  c("PBMC" = "PBMCSmall.tsv.gz")
+}
+
+#' Get PBMC Small Test Project
+#' 
+#' This function will download an ArchRProject for a small PBMC test dataset (2k Cells) spanning chr1 and 2 (~2-300MB).
+#' 
+#' @export
+getTestProject <- function(){
+  if(!dir.exists("PBMCSmall")){
+    download.file(
+      url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.zip",
+      destfile = "PBMCSmall.zip"
+    )
+    unzip("PBMCSmall.zip", exdir = getwd())
+    file.remove("PBMCSmall.zip")
+  }
+  addArchRGenome("hg19test")
+  loadArchRProject("PBMCSmall")
+}
+
 #' Get Input Files from paths to create arrows
 #' 
 #' This function will look for fragment files and bam files in the input paths and return the full path and sample names.

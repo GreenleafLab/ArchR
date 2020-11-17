@@ -217,9 +217,9 @@ addPeakAnnotations <- function(
   ArchRProj@peakAnnotation[[name]]$Positions <- savePositions
   ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
 
-  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
-  saveRDS(out$regionPositions, savePositions, compress = FALSE)
-  saveRDS(out$regionMatches, saveMatches, compress = FALSE)
+  .safeSaveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  .safeSaveRDS(out$regionPositions, savePositions, compress = FALSE)
+  .safeSaveRDS(out$regionMatches, saveMatches, compress = FALSE)
 
   return(ArchRProj)
 
@@ -239,6 +239,7 @@ addPeakAnnotations <- function(
 #' used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from `getGenome()`.
 #' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR
 #' collection to be used. See `getMatrixSet()` from `TFBSTools` for all options to supply for collection.
+#' @param motifPWMs A custom set of motif PWMs as a PWMList for adding motif annotations.
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
 #' (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
@@ -254,6 +255,7 @@ addMotifAnnotations <- function(
   name = "Motif",
   species = NULL,
   collection = "CORE",
+  motifPWMs = NULL,
   cutOff = 5e-05, 
   width = 7,
   version = 2,
@@ -263,7 +265,7 @@ addMotifAnnotations <- function(
   ){
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = motifSet, name = "motifSet", valid = c("character"))
+  .validInput(input = motifSet, name = "motifSet", valid = c("character", "null"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = species, name = "species", valid = c("character", "null"))
   .validInput(input = collection, name = "collection", valid = c("character", "null"))
@@ -271,6 +273,17 @@ addMotifAnnotations <- function(
   .validInput(input = width, name = "width", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
+
+  if(!is.null(motifPWMs)){
+    if(!is(motifPWMs, "PWMatrixList")){
+      stop("User Supplied motifPWMS must be a PWMatrixList!")
+    }
+    motifSet <- "Custom"
+  }
+
+  if(is.null(motifSet)){
+    stop("Must provide motifSet or motifPWMs!")
+  }
 
   .requirePackage("motifmatchr", installInfo='BiocManager::install("motifmatchr")')
 
@@ -389,6 +402,12 @@ addMotifAnnotations <- function(
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
 
+  }else if(tolower(motifSet)=="custom"){
+
+    obj <- NULL
+    motifs <- motifPWMs
+    motifSummary <- NULL
+
   }else{
 
     stop("Error MotifSet Not Recognized!")
@@ -455,9 +474,9 @@ addMotifAnnotations <- function(
   ArchRProj@peakAnnotation[[name]]$Positions <- savePositions
   ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
 
-  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
-  saveRDS(out$motifPositions, savePositions, compress = FALSE)
-  saveRDS(out$motifMatches, saveMatches, compress = FALSE)
+  .safeSaveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  .safeSaveRDS(out$motifPositions, savePositions, compress = FALSE)
+  .safeSaveRDS(out$motifMatches, saveMatches, compress = FALSE)
 
   .endLogging(logFile = logFile)
 
@@ -501,6 +520,10 @@ addMotifAnnotations <- function(
 
   motifNames <- lapply(seq_along(motifs), function(x){
     namex <- make.names(motifs[[x]]@name)
+    if(grepl("LINE", namex)){
+      splitNamex <- stringr::str_split(motifs[[x]]@ID, pattern="\\_", simplify = TRUE)
+      namex <- splitNamex[1, grep("LINE",splitNamex[1,]) + 1]
+    }
     if(substr(namex,nchar(namex),nchar(namex))=="."){
       namex <- substr(namex,1,nchar(namex)-1)
     }
@@ -508,10 +531,22 @@ addMotifAnnotations <- function(
     namex
   }) %>% unlist(.)
 
+  motifNames2 <- lapply(seq_along(motifs), function(x){
+    namex <- make.names(motifs[[x]]@name)
+    if(grepl("LINE", namex)){
+      splitNamex <- stringr::str_split(motifs[[x]]@ID, pattern="\\_", simplify = TRUE)
+      namex <- splitNamex[1, grep("LINE",splitNamex[1,]) + 1]
+    }
+    if(substr(namex,nchar(namex),nchar(namex))=="."){
+      namex <- substr(namex,1,nchar(namex)-1)
+    }
+    namex
+  }) %>% unlist(.)
+
   motifDF <- lapply(seq_along(motifs), function(x){
     df <- data.frame(
       row.names = motifNames[x],
-      name = motifs[[x]]@name[[1]],
+      name = motifNames2[[x]],
       ID = motifs[[x]]@ID,
       strand = motifs[[x]]@strand,
       stringsAsFactors = FALSE
@@ -707,8 +742,8 @@ addArchRAnnotations <- function(
   ArchRProj@peakAnnotation[[name]]$Positions <- "None"
   ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
 
-  saveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
-  saveRDS(out$regionMatches, saveMatches, compress = FALSE)
+  .safeSaveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  .safeSaveRDS(out$regionMatches, saveMatches, compress = FALSE)
 
   .endLogging(logFile = logFile)
 

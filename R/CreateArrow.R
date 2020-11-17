@@ -14,18 +14,13 @@
 #' to calculate TSS Enrichment Scores etc.
 #' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to associate with the ArrowFiles. This is used
 #' downstream to collect chromosome sizes and nucleotide information etc.
-#' @param filterFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-#' Cells containing greater than or equal to `filterFrags` total fragments wll be retained.
-#' @param filterTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use
-#' in downstream analyses. Cells with a TSS enrichment score greater than or equal to `filterTSS` will be retained. TSS enrichment score
+#' @param minTSS The minimum numeric transcription start site (TSS) enrichment score required for a cell to pass filtering for use
+#' in downstream analyses. Cells with a TSS enrichment score greater than or equal to `minTSS` will be retained. TSS enrichment score
 #' is a measurement of signal-to-background in ATAC-seq.
-#' @param removeFilteredCells A boolean value that determines whether cells that do not pass `filterFrags` and `filterTSS` should be
-#' excluded entirely from the ArrowFiles. If `FALSE` cells that do not pass QC filters will be included in the ArrowFile but will be
-#' marked as not passing QC and excluded from downstream analyses.
-#' @param minFrags The minimum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
-#' This is useful for limiting the number of barcodes analyzed.
-#' @param maxFrags The maximum fragments per cell to be filtered immediately before any QC calculations (such as TSS Enrichment Score).
-#' This is useful for limiting the number of barcodes analyzed.
+#' @param minFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
+#' Cells containing greater than or equal to `minFrags` total fragments wll be retained.
+#' @param maxFrags The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
+#' Cells containing greater than or equal to `maxFrags` total fragments wll be retained.
 #' @param QCDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 #' sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
@@ -73,10 +68,8 @@ createArrowFiles <- function(
   validBarcodes = NULL,
   geneAnnotation = getGeneAnnotation(),
   genomeAnnotation = getGenomeAnnotation(),
-  filterFrags = 1000,
-  filterTSS = 4,
-  removeFilteredCells = TRUE,
-  minFrags = 500, 
+  minTSS = 4,
+  minFrags = 1000, 
   maxFrags = 100000,
   QCDir = "QualityControl",
   nucLength = 147,
@@ -99,8 +92,34 @@ createArrowFiles <- function(
   subThreading = TRUE,
   verbose = TRUE,
   cleanTmp = TRUE,
-  logFile = createLogFile("createArrows")
+  logFile = createLogFile("createArrows"),
+  filterFrags = NULL,
+  filterTSS = NULL
   ){
+
+  ################
+  # NEW 
+  ################
+
+  #We have decided to force removal of filtered cells and thus we have now added messages describing this change
+  #It is a simple change we just want to create a more consistent experience!
+  removeFilteredCells <- TRUE
+  if(!is.null(filterFrags)){
+    message("filterFrags is no longer a valid input. Please use minFrags! Setting filterFrags value to minFrags!")
+    minFrags <- filterFrags 
+  }
+
+  if(!is.null(filterTSS)){
+    message("filterTSS is no longer a valid input. Please use minTSS! Setting filterTSS value to minTSS!")
+    minTSS <- filterTSS
+  }
+
+  filterTSS <- minTSS
+  filterFrags <- minFrags
+
+  ################
+  # NEW ^
+  ################
 
   .validInput(input = inputFiles, name = "inputFiles", valid = c("character"))
   if(any(!file.exists(inputFiles))){
@@ -179,6 +198,8 @@ createArrowFiles <- function(
   }else{
     args$threads <- length(inputFiles)
   }
+
+  args$minTSS <- NULL
 
   #Run With Parallel or lapply
   outArrows <- tryCatch({
@@ -475,6 +496,12 @@ createArrowFiles <- function(
   #Filter
   Metadata$Keep <- 1*(Metadata$nFrags >= filterFrags & Metadata$TSSEnrichment >= filterTSS)
 
+  if(sum(Metadata$Keep) < 3){
+    mTSS <- round(median(Metadata$TSSEnrichment[Metadata$TSSEnrichment>0]), 2)
+    mFrag <- round(median(Metadata$nFrags[Metadata$nFrags>0]), 2)
+    .logStop(sprintf("Detected 2 or less cells pass filter (Non-Zero median TSS = %s, median Frags = %s) in file!\n       Check inputs such as 'filterFrags' or 'filterTSS' to keep cells! Exiting!", mTSS, mFrag), logFile = logFile)
+  }
+
   .logDiffTime(sprintf("%s CellStats : Number of Cells Pass Filter = %s ", prefix, sum(Metadata$Keep)), t1 = tstart, verbose = verbose, logFile = logFile)
   .logDiffTime(sprintf("%s CellStats : Median Frags = %s ", prefix, median(Metadata$nFrags[Metadata$Keep==1])), t1 = tstart, verbose = verbose, logFile = logFile)
   .logDiffTime(sprintf("%s CellStats : Median TSS Enrichment = %s ", prefix, median(Metadata$TSSEnrichment[Metadata$Keep==1])), t1 = tstart, verbose = verbose, logFile = logFile)
@@ -616,8 +643,10 @@ createArrowFiles <- function(
     o <- h5write(obj = Metadata$ReadsInPromoter[idx], file = ArrowFile, name = "Metadata/ReadsInPromoter")
     o <- h5write(obj = Metadata$PromoterRatio[idx], file = ArrowFile, name = "Metadata/PromoterRatio")
     if(!is.null(genomeAnnotation$blacklist)){
-      o <- h5write(obj = Metadata$ReadsInBlacklist[idx], file = ArrowFile, name = "Metadata/ReadsInBlacklist")
-      o <- h5write(obj = Metadata$BlacklistRatio[idx], file = ArrowFile, name = "Metadata/BlacklistRatio")
+      if(length(genomeAnnotation$blacklist) > 0){
+        o <- h5write(obj = Metadata$ReadsInBlacklist[idx], file = ArrowFile, name = "Metadata/ReadsInBlacklist")
+        o <- h5write(obj = Metadata$BlacklistRatio[idx], file = ArrowFile, name = "Metadata/BlacklistRatio")
+      }
     }
     Metadata <- Metadata[idx, , drop = FALSE]
   }
@@ -669,7 +698,7 @@ createArrowFiles <- function(
       GeneScoreMatParams$excludeChr <- excludeChr
       GeneScoreMatParams$subThreads <- subThreads
       GeneScoreMatParams$logFile <- logFile
-      geneScoreMat <- suppressMessages(do.call(.addGeneScoreMat, GeneScoreMatParams))
+      geneScoreMat <- suppressWarnings(suppressMessages(do.call(.addGeneScoreMat, GeneScoreMatParams)))
       gc()
       .logDiffTime(sprintf("%s Finished Adding GeneScoreMatrix!", prefix), t1 = tstart, verbose = FALSE, logFile = logFile)
 
@@ -1827,6 +1856,9 @@ createArrowFiles <- function(
   .logThis(dt, name = paste0(prefix, " BarcodeFrequencyTable"), logFile)
  
   bcPass <- BStringSet(dt$values.V1[dt$V1 >= minFrags & dt$V1 <= maxFrags])
+  if(length(bcPass) < 3){
+    .logStop(sprintf("Detected 2 or less cells (%s barcodes have greater than 50 fragments) in file!\n       Check inputs such as 'minFrags' or 'maxFrags' to keep cells! Exiting!", sum(dt$V1 > 50)), logFile = logFile)
+  }
   .logThis(data.frame(bc = as.character(bcPass)), name = paste0(prefix, " BarcodesMinMaxFrags"), logFile = logFile)
 
   rm(dt)
@@ -2228,7 +2260,6 @@ createArrowFiles <- function(
   gr2
 
 }
-
 
 
 

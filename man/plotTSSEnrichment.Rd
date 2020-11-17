@@ -6,10 +6,13 @@
 \usage{
 plotTSSEnrichment(
   ArchRProj = NULL,
+  groupBy = "Sample",
+  chromSizes = getChromSizes(ArchRProj),
   TSS = getTSS(ArchRProj),
   flank = 2000,
   norm = 100,
   smooth = 11,
+  pal = NULL,
   returnDF = FALSE,
   threads = getArchRThreads(),
   logFile = createLogFile("plotTSSEnrichment")
@@ -17,6 +20,10 @@ plotTSSEnrichment(
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
+
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for summarizing.}
+
+\item{chromSizes}{A GRanges object of the chromosome lengths. See \code{getChromSizes} for more info.}
 
 \item{TSS}{A \code{GRanges} object containing the locations of stranded TSS regions. The default behavior is to try to retrieve
 this information from the \code{geneAnnotation} stored in the \code{ArchRProject}.}
@@ -27,6 +34,8 @@ this information from the \code{geneAnnotation} stored in the \code{ArchRProject
 For example if \code{flank=2000} and \code{norm=100}, the TSS insertions will be normalized by +/- 1900-2000 bp from the TSS.}
 
 \item{smooth}{An integer that indicates the smoothing window (in basepairs) to be applied to the TSS plot.}
+
+\item{pal}{A color palette representing the groups from groupBy in TSS plot.}
 
 \item{returnDF}{A boolean value that indicates whether to return a \code{data.frame} containing the plot information
 instead of plotting the TSS enrichment plot.}

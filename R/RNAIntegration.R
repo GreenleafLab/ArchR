@@ -29,6 +29,13 @@
 #' should have a row for each single cell described in `row.names` and 2 columns, one for each dimension of the embedding.
 #' @param embeddingRNA A `data.frame` of cell embeddings such as a UMAP for scRNA-seq cells to be used for density sampling. The `data.frame` object
 #' should have a row for each single cell described in `row.names` and 2 columns, one for each dimension of the embedding.
+#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
+#' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
+#' biases since it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the
+#' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
+#' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param plotUMAP A boolean determining whether to plot a UMAP for each integration block.
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "plotUMAP = TRUE". See the function `umap` in the uwot package.
 #' @param nGenes The number of variable genes determined by `Seurat::FindVariableGenes()` to use for integration.
@@ -60,6 +67,9 @@ addGeneIntegrationMatrix <- function(
   sampleCellsRNA = 10000,
   embeddingATAC = NULL,
   embeddingRNA = NULL,
+  dimsToUse = 1:30,
+  scaleDims = NULL,
+  corCutOff = 0.75,
   plotUMAP = TRUE,
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose = FALSE),
   nGenes = 2000,
@@ -90,6 +100,9 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = sampleCellsRNA, name = "sampleCellsRNA", valid = c("integer", "null"))
   .validInput(input = embeddingATAC, name = "embeddingATAC", valid = c("data.frame", "null"))
   .validInput(input = embeddingRNA, name = "embeddingRNA", valid = c("data.frame", "null"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = plotUMAP, name = "plotUMAP", valid = c("boolean"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))  
   .validInput(input = nGenes, name = "nGenes", valid = c("integer"))
@@ -160,8 +173,8 @@ addGeneIntegrationMatrix <- function(
   }
 
   if(!all(nCell == 1)){
-    .logMessage(paste0("Missing ", length(which(nCell == 0)), " Overlapping ", length(which(nCell > 1))," cells from ArchRProj in groupList!"), logFile = logFile)
-    stop("Missing ", length(which(nCell == 0)), " Overlapping ", length(which(nCell > 1))," cells from ArchRProj in groupList!")
+    .logMessage(paste0("Missing ", length(which(nCell == 0)), " cells. Found ", length(which(nCell > 1))," overlapping cells from ArchRProj in groupList! Cannot have overlapping/missing cells in ATAC input, check 'groupList' argument!"), logFile = logFile)
+    stop("Missing ", length(which(nCell == 0)), " cells. Found ", length(which(nCell > 1))," overlapping cells from ArchRProj in groupList! Cannot have overlapping/missing cells in ATAC input, check 'groupList' argument!")
   }
 
   #########################################################################################
@@ -227,6 +240,15 @@ addGeneIntegrationMatrix <- function(
   #########################################################################################
   # 3. Create Integration Blocks
   #########################################################################################
+
+  #Check Gene Names And Seurat RowNames
+  geneDF <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
+  sumOverlap <- sum(unique(geneDF$name) %in% unique(rownames(seuratRNA)))
+  if(sumOverlap < 5){
+    stop("Error not enough overlaps (",sumOverlap,") between gene names from gene scores (ArchR) and rna matrix (seRNA)!")
+  }
+  .logDiffTime(paste0("Found ", sumOverlap, " overlapping gene names from gene scores and rna matrix!"), tstart, verbose = TRUE, logFile = logFile)
+
   .logDiffTime("Creating Integration Blocks", tstart, verbose = verbose, logFile = logFile)
 
   blockList <- SimpleList()
@@ -321,10 +343,7 @@ addGeneIntegrationMatrix <- function(
     h5disableFileLocking()
   }
 
-  rD <- getReducedDims(
-    ArchRProj = ArchRProj, 
-    reducedDims = reducedDims
-  )
+  rD <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
 
   #Create Output Directory
   outDir1 <- getOutputDirectory(ArchRProj)
@@ -389,6 +408,10 @@ addGeneIntegrationMatrix <- function(
       imputeParams <- list()
       imputeParams$ArchRProj <- subProj
       imputeParams$randomSuffix <- TRUE
+      imputeParams$reducedDims <- reducedDims
+      imputeParams$dimsToUse <- dimsToUse
+      imputeParams$scaleDims <- scaleDims
+      imputeParams$corCutOff <- corCutOff
       imputeParams$threads <- 1
       imputeParams$logFile <- logFile
       subProj <- suppressMessages(do.call(addImputeWeights, imputeParams))
@@ -475,7 +498,7 @@ addGeneIntegrationMatrix <- function(
     jointCCA[paste0(colnames(subRNA), "_reference"), "Group"] <- subRNA$Group
     jointCCA[paste0(matchDF$cellNames, "_query"), "Group"] <- matchDF$predictedGroup
     jointCCA[paste0(matchDF$cellNames, "_query"), "Score"] <- matchDF$predictionScore
-    saveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
+    .safeSaveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
 
     #Clean Memory
     rm(transferParams, transferAnchors)
@@ -583,7 +606,7 @@ addGeneIntegrationMatrix <- function(
         #Add UMAP and Save Again
         jointCCA$UMAP1 <- uwotUmap[,1]
         jointCCA$UMAP2 <- uwotUmap[,2]
-        saveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
+        .safeSaveRDS(object = jointCCA, file = file.path(outDir3, paste0("Save-Block", i,"-JointCCA.rds")))
 
         p1 <- ggPoint(
           x = uwotUmap[,1], 

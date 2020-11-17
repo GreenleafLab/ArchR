@@ -6,7 +6,10 @@
 \usage{
 plotFragmentSizes(
   ArchRProj = NULL,
+  groupBy = "Sample",
+  chromSizes = getChromSizes(ArchRProj),
   maxSize = 750,
+  pal = NULL,
   returnDF = FALSE,
   threads = getArchRThreads(),
   logFile = createLogFile("plotFragmentSizes")
@@ -15,7 +18,13 @@ plotFragmentSizes(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for summarizing.}
+
+\item{chromSizes}{A GRanges object of the chromosome lengths. See \code{getChromSizes} for more info.}
+
 \item{maxSize}{The maximum fragment size (in basepairs) to be included when plotting the fragment size distribution.}
+
+\item{pal}{A color palette representing the groups from groupBy in fragment size plot.}
 
 \item{returnDF}{A boolean value that indicates whether to return a \code{data.frame} containing the plot information
 instead of plotting the fragment size distribution.}

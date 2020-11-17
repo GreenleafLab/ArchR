@@ -194,7 +194,7 @@ ArchRBrowser <- function(
             br(),
             selectizeInput("normATAC",
                label = "normMethod",
-               choices = c("ReadsInTSS", "ReadsInPromoter", "nFrags"),
+               choices = c("ReadsInTSS", "ReadsInPromoter", "nFrags", "None"),
                multiple = FALSE,
                options = list(placeholder = 'Select NormMethod'),
                selected = "ReadsInTSS"
@@ -640,8 +640,8 @@ ArchRBrowserTrack <- function(...){
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in
 #' `cellColData`. This limits the groups to be plotted.
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
-#' "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. Blue-colored genes
-#' are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).
+#' "scTrack" (scATAC-seq signal), "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. 
+#' Blue-colored genes are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).
 #' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`.
 #' The order must be the same as `plotSummary`.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
@@ -651,6 +651,8 @@ ArchRBrowserTrack <- function(...){
 #' A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used 
 #' to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
 #' @param geneSymbol If `region` is not supplied, plotting can be centered at the transcription start site corresponding to the gene symbol(s) passed here.
+#' @param useMatrix If supplied geneSymbol, one can plot the corresponding GeneScores/GeneExpression within this matrix. I.E. "GeneScoreMatrix"
+#' @param log2Norm If supplied geneSymbol, Log2 normalize the corresponding GeneScores/GeneExpression matrix before plotting.
 #' @param upstream The number of basepairs upstream of the transcription start site of `geneSymbol` to extend the plotting window.
 #' If `region` is supplied, this argument is ignored.
 #' @param downstream The number of basepairs downstream of the transcription start site of `geneSymbol` to extend the plotting window.
@@ -662,7 +664,10 @@ ArchRBrowserTrack <- function(...){
 #' is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
 #' @param threads The number of threads to use for parallel execution.
 #' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
+#' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override coloring for groups.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
+#' @param scTileSize The width of the tiles in scTracks. Larger numbers may make cells overlap more. Default is 0.5 for about 100 cells.
+#' @param scCellsMax The maximum number of cells for scTracks.
 #' @param borderWidth The numeric line width to be used for plot borders.
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
@@ -681,6 +686,8 @@ plotBrowserTrack <- function(
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
   geneSymbol = NULL,
+  useMatrix = NULL,
+  log2Norm = TRUE,
   upstream = 50000,
   downstream = 50000,
   tileSize = 250, 
@@ -688,7 +695,10 @@ plotBrowserTrack <- function(
   normMethod = "ReadsInTSS",
   threads = getArchRThreads(), 
   ylim = NULL,
+  pal = NULL,
   baseSize = 7,
+  scTileSize = 0.5,
+  scCellsMax = 100,
   borderWidth = 0.4,
   tickWidth = 0.4,
   facetbaseSize = 7,
@@ -707,6 +717,8 @@ plotBrowserTrack <- function(
   .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
   .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
   .validInput(input = geneSymbol, name = "geneSymbol", valid = c("character", "null"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character", "null"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
   .validInput(input = upstream, name = "upstream", valid = c("integer"))
   .validInput(input = downstream, name = "downstream", valid = c("integer"))
   .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
@@ -714,7 +726,10 @@ plotBrowserTrack <- function(
   .validInput(input = normMethod, name = "normMethod", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
+  .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = baseSize, name = "baseSize", valid = "numeric")
+  .validInput(input = scTileSize, name = "scTileSize", valid = "numeric")
+  .validInput(input = scCellsMax, name = "scCellsMax", valid = "integer")
   .validInput(input = borderWidth, name = "borderWidth", valid = "numeric")
   .validInput(input = tickWidth, name = "tickWidth", valid = "numeric")
   .validInput(input = facetbaseSize, name = "facetbaseSize", valid = "numeric")
@@ -743,6 +758,23 @@ plotBrowserTrack <- function(
   region <- .validGRanges(region)
   .logThis(region, "region", logFile = logFile)
 
+  if(is.null(geneSymbol)){
+    useMatrix <- NULL
+  }
+
+  if(!is.null(useMatrix)){
+    featureMat <- .getMatrixValues(
+      ArchRProj = ArchRProj,
+      matrixName = useMatrix,
+      name = mcols(region)$symbol
+    )
+    if(log2Norm){
+      featureMat <- log2(featureMat + 1) 
+    }
+    featureMat <- data.frame(t(featureMat))
+    featureMat$Group <- getCellColData(ArchRProj, groupBy, drop = FALSE)[rownames(featureMat), 1]
+  }
+
   ggList <- lapply(seq_along(region), function(x){
 
     plotList <- list()
@@ -759,6 +791,7 @@ plotBrowserTrack <- function(
         groupBy = groupBy,
         threads = threads, 
         minCells = minCells,
+        pal = pal,
         ylim = ylim,
         baseSize = baseSize,
         borderWidth = borderWidth,
@@ -772,6 +805,32 @@ plotBrowserTrack <- function(
         logFile = logFile) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
     }
     
+    ##########################################################
+    # Bulk Tracks
+    ##########################################################
+    if("sctrack" %in% tolower(plotSummary)){
+      .logDiffTime(sprintf("Adding SC Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
+      plotList$sctrack <- .scTracks(
+        ArchRProj = ArchRProj, 
+        region = region[x], 
+        tileSize = tileSize, 
+        groupBy = groupBy,
+        threads = threads, 
+        minCells = 5,
+        maxCells = scCellsMax,
+        pal = pal,
+        baseSize = baseSize,
+        borderWidth = borderWidth,
+        tickWidth = tickWidth,
+        scTileSize = scTileSize,
+        facetbaseSize = facetbaseSize,
+        geneAnnotation = geneAnnotation,
+        title = title,
+        useGroups = useGroups,
+        tstart = tstart,
+        logFile = logFile) + theme(plot.margin = unit(c(0.35, 0.75, 0.35, 0.75), "cm"))
+    }
+
     ##########################################################
     # Feature Tracks
     ##########################################################
@@ -832,24 +891,44 @@ plotBrowserTrack <- function(
     # }
     sizes <- sizes[tolower(names(plotList))]
 
-    .logThis(names(plotList), sprintf("(%s of %s) names(plotList)",x,length(region)), logFile=logFile)
-    .logThis(sizes, sprintf("(%s of %s) sizes",x,length(region)), logFile=logFile)
-    #.logThis(nullSummary, sprintf("(%s of %s) nullSummary",x,length(region)), logFile=logFile)
-    .logDiffTime("Plotting", t1=tstart, verbose=verbose, logFile=logFile)
-    
-    tryCatch({
-      suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
-    }, error = function(e){
-      .logMessage("Error with plotting, diagnosing each element", verbose = TRUE, logFile = logFile)
-      for(i in seq_along(plotList)){
-        tryCatch({
-          print(plotList[[i]])
-        }, error = function(f){
-          .logError(f, fn = names(plotList)[i], info = "", errorList = NULL, logFile = logFile)
-        })
-      }
-      .logError(e, fn = "ggAlignPlots", info = "", errorList = NULL, logFile = logFile)
-    })
+    if(!is.null(useMatrix)){
+
+      suppressWarnings(.combinedFeaturePlot(
+        plotList = plotList,
+        log2Norm = log2Norm,
+        featureMat = featureMat,
+        feature = region[x]$symbol[[1]],
+        useMatrix = useMatrix,
+        pal = pal,
+        sizes = sizes,
+        baseSize = baseSize,
+        facetbaseSize = facetbaseSize,
+        borderWidth = borderWidth,
+        tickWidth = tickWidth
+      ))
+
+    }else{
+
+      .logThis(names(plotList), sprintf("(%s of %s) names(plotList)",x,length(region)), logFile=logFile)
+      .logThis(sizes, sprintf("(%s of %s) sizes",x,length(region)), logFile=logFile)
+      #.logThis(nullSummary, sprintf("(%s of %s) nullSummary",x,length(region)), logFile=logFile)
+      .logDiffTime("Plotting", t1=tstart, verbose=verbose, logFile=logFile)
+      
+      tryCatch({
+        suppressWarnings(ggAlignPlots(plotList = plotList, sizes=sizes, draw = FALSE))
+      }, error = function(e){
+        .logMessage("Error with plotting, diagnosing each element", verbose = TRUE, logFile = logFile)
+        for(i in seq_along(plotList)){
+          tryCatch({
+            print(plotList[[i]])
+          }, error = function(f){
+            .logError(f, fn = names(plotList)[i], info = "", errorList = NULL, logFile = logFile)
+          })
+        }
+        .logError(e, fn = "ggAlignPlots", info = "", errorList = NULL, logFile = logFile)
+      })
+
+    }
 
   })
 
@@ -996,8 +1075,9 @@ plotBrowserTrack <- function(
   }
   tabGroups <- table(cellGroups)
   
-  if(any(tabGroups) > maxCells){
-    splitGroups <- split(rownames(cellGroups), cellGroups[,1])
+  if(any(tabGroups > maxCells)){
+    cellGroups2 <- getCellColData(ArchRProj, groupBy, drop = FALSE)
+    splitGroups <- split(rownames(cellGroups2), cellGroups2[,1])
     useCells <- lapply(seq_along(splitGroups), function(x){
       if(length(splitGroups[[x]]) > maxCells){
         sample(splitGroups[[x]], maxCells)
@@ -1020,7 +1100,7 @@ plotBrowserTrack <- function(
   ArrowFiles <- ArrowFiles[names(cellsBySample)]
 
   groupMat <- .safelapply(seq_along(ArrowFiles), function(i){
-    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)))
+    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)), logFile = logFile)
     tryCatch({
       .regionSumArrows(
         ArrowFile = ArrowFiles[i], 
@@ -1101,6 +1181,9 @@ plotBrowserTrack <- function(
       groupNormFactors <- unlist(lapply(split(v, g), sum))
   }else if(tolower(normMethod) == "ncells"){
       groupNormFactors <- table(g)
+  }else if(tolower(normMethod) == "none"){
+      groupNormFactors <- rep(10^4, length(g))
+      names(groupNormFactors) <- g
   }else{
     stop("Norm Method Not Recognized : ", normMethod)
   }
@@ -1365,6 +1448,8 @@ plotBrowserTrack <- function(
       pal <- paletteDiscrete(set = "stallion", values = rev(unique(paste0(featureO$name))))
     }
     
+    featureO$name <- factor(paste0(featureO$name), levels=names(featureList))
+
     p <- ggplot(data = featureO, aes(color = name)) +
       facet_grid(facet~.) +
       geom_segment(data = featureO, aes(x = start, xend = end, y = name, yend = name, color = name), size=featureWidth) +
@@ -1545,4 +1630,303 @@ plotBrowserTrack <- function(
   seqlevels(gr) <- as.character(unique(seqnames(gr)))
   return(gr)
 }
+
+#######################################################
+# scATAC Track Methods
+#######################################################
+
+.scTracks <- function(
+  ArchRProj = NULL,
+  region = NULL,
+  tileSize = 100,
+  minCells = 5,
+  maxCells = 100,
+  groupBy = "Clusters",
+  useGroups = NULL,
+  threads = 1,
+  baseSize = 7,
+  scTileSize = 0.5,
+  borderWidth = 0.4,
+  tickWidth = 0.4,
+  facetbaseSize = 7,
+  geneAnnotation = getGeneAnnotation(ArchRProj),
+  title = "",
+  pal = NULL,
+  tstart = NULL,
+  verbose = FALSE,
+  logFile = NULL
+  ){
+
+  .requirePackage("ggplot2", source = "cran")
+
+  if(is.null(tstart)){
+    tstart <- Sys.time()
+  }
+
+  #Group Info
+  cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  if(!is.null(minCells)){
+    ArchRProj@cellColData <- ArchRProj@cellColData[cellGroups %bcin% names(table(cellGroups)[table(cellGroups) >= minCells]),,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  }
+  if(!is.null(useGroups)){
+    ArchRProj@cellColData <- ArchRProj@cellColData[cellGroups %bcin% useGroups,,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  }
+  tabGroups <- table(cellGroups)
+  
+  if(any(tabGroups > maxCells)){
+    cellGroups2 <- getCellColData(ArchRProj, groupBy, drop = FALSE)
+    splitGroups <- split(rownames(cellGroups2), cellGroups2[,1])
+    useCells <- lapply(seq_along(splitGroups), function(x){
+      if(length(splitGroups[[x]]) > maxCells){
+        sample(splitGroups[[x]], maxCells)
+      }else{
+        splitGroups[[x]]
+      }
+    }) %>% unlist
+    ArchRProj@cellColData <- ArchRProj@cellColData[useCells,,drop=FALSE]
+    cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+    tabGroups <- table(cellGroups)
+  }
+
+  cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, "Sample", drop = TRUE))
+  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
+  uniqueGroups <- gtools::mixedsort(unique(cellGroups))
+  
+  #Tile Region
+  regionTiles <- seq(trunc(start(region) / tileSize), trunc(end(region) / tileSize) + 1) * tileSize
+  ArrowFiles <- getArrowFiles(ArchRProj)
+  ArrowFiles <- ArrowFiles[names(cellsBySample)]
+
+  groupMat <- .safelapply(seq_along(ArrowFiles), function(i){
+    .logMessage(sprintf("Getting Region From Arrow Files %s of %s", i, length(ArrowFiles)), logFile = logFile)
+    tryCatch({
+      .regionSCArrows(
+        ArrowFile = ArrowFiles[i], 
+        region = region, 
+        regionTiles = regionTiles,
+        tileSize = tileSize,
+        cellNames = cellsBySample[[names(ArrowFiles)[i]]],
+        cellGroups = groupsBySample[[names(ArrowFiles)[i]]],
+        uniqueGroups = uniqueGroups
+      )
+    }, error = function(e){
+      errorList <- list(
+        ArrowFile = ArrowFiles[i], 
+        region = region, 
+        regionTiles = regionTiles,
+        tileSize = tileSize,
+        cellNames = cellsBySample[[names(ArrowFiles)[i]]],
+        cellGroups = groupsBySample[[names(ArrowFiles)[i]]],
+        uniqueGroups = uniqueGroups
+      )
+      .logError(e, fn = ".groupRegionSCArrows", info = .sampleName(ArrowFiles[i]), errorList = errorList, logFile = logFile)
+    })
+  }, threads = threads) %>% Reduce("cbind" , .)
+
+  groupDF <- data.frame(Matrix::summary(groupMat))
+  groupDF$group <- getCellColData(ArchRProj, groupBy, drop = FALSE)[colnames(groupMat)[groupDF$j], 1]
+  groupDF <- lapply(split(groupDF, groupDF$group), function(z){
+    nz <- tabGroups[z$group[1]]
+    nc <- length(unique(z$j))
+    idx <- sort(sample(seq_len(nz), nc))
+    idx[1] <- 1
+    idx[length(idx)] <- nz
+    z$y <- idx[match(z$j, unique(z$j))]
+    z
+  }) %>% Reduce("rbind", .)
+  groupDF$bp <- regionTiles[groupDF$i]
+  
+  if(is.null(pal)){
+    pal <- suppressWarnings(paletteDiscrete(values = names(tabGroups)))
+  }
+
+  nn <- paste0(names(tabGroups), ":", tabGroups)
+  names(nn) <- names(tabGroups)
+  groupDF$group2 <- nn[groupDF$group]
+  names(pal) <- nn[names(pal)]
+
+  title <- paste0(as.character(seqnames(region)),":", start(region)-1, "-", end(region), " ", title)
+  
+  p <- ggplot(groupDF, aes(x=bp, y=y, width = tileSize, fill = group2, color = group2)) + 
+      geom_tile(size = scTileSize) + 
+      facet_grid(group2 ~ ., scales="free_y") + 
+      theme_ArchR() + 
+      scale_color_manual(values = pal) +
+      scale_fill_manual(values = pal) +
+      ylab("Binarized SC Coverage") + 
+      scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
+      theme_ArchR(baseSize = baseSize,
+                  baseRectSize = borderWidth,
+                  baseLineSize = tickWidth,
+                  legendPosition = "right",
+                  axisTickCm = 0.1) +
+      theme(panel.spacing= unit(0, "lines"),
+            axis.title.x=element_blank(),
+            axis.text.y=element_blank(),
+            axis.ticks.y=element_blank(),
+            strip.text = element_text(
+              size = facetbaseSize, 
+              color = "black", 
+              margin = margin(0,0.35,0,0.35, "cm")),
+              strip.text.y = element_text(angle = 0),
+            strip.background = element_rect(color="black")) +
+      guides(fill = FALSE, colour = FALSE) + ggtitle(title)
+
+    p
+
+}
+
+.regionSCArrows <- function(
+  ArrowFile = NULL,
+  region = NULL,
+  regionTiles = NULL,
+  tileSize = NULL,
+  cellNames = NULL,
+  cellGroups = NULL,
+  uniqueGroups = NULL,
+  logFile = NULL
+  ){
+  
+  cellFragsRegion <- .getFragsFromArrow(
+      ArrowFile = ArrowFile, 
+      chr = paste0(seqnames(region)), 
+      cellNames = cellNames, 
+      out = "GRanges"
+    ) %>% subsetByOverlaps(., region, ignore.strand = TRUE)
+  
+  #Starts
+  ts <- match(trunc(start(cellFragsRegion)/tileSize) * tileSize, regionTiles, nomatch = 0)
+  ids <- which(ts > 0)
+  
+  #Ends
+  te <- match(trunc(start(cellFragsRegion)/tileSize) * tileSize, regionTiles, nomatch = 0)
+  ide <- which(te > 0)
+  
+  #Match
+  matchID <- S4Vectors::match(mcols(cellFragsRegion)$RG, cellNames)
+  
+  #Sparse Matrix
+  mat <- Matrix::sparseMatrix(
+    i = c(ts[ids], te[ide]),
+    j = as.vector(c(matchID[ids], matchID[ide])),
+    x = rep(1,  length(ids) + length(ide)),
+    dims = c(length(regionTiles), length(cellNames))
+  )
+  colnames(mat) <- cellNames
+  
+  mat@x[mat@x > 1] <- 1
+
+  return(mat)
+
+}
+
+
+
+####################################
+# Combined Feature Plot
+####################################
+
+.combinedFeaturePlot <- function(
+  plotList = NULL,
+  useMatrix = NULL,
+  featureMat = NULL,
+  log2Norm = FALSE,
+  feature = NULL,
+  pal = NULL,
+  sizes = NULL,
+  baseSize = NULL,
+  facetbaseSize = NULL,
+  borderWidth = NULL,
+  tickWidth = NULL
+  ){
+
+  .requirePackage("patchwork", installInfo = "devtools::install_github('thomasp85/patchwork')")
+
+  if(is.null(pal)){
+    pal <- paletteDiscrete(values=featureMat$Group, set = "stallion")
+  }
+
+  if(log2Norm){
+    title <- paste0("Log2 ", useMatrix, " : ", feature)
+  }else{
+    title <- paste0("Raw ", useMatrix, " : ", feature) 
+  }
+
+  featurePlot <- ggGroup(
+      x = featureMat$Group,
+      y = featureMat[,feature],
+      groupOrder = gtools::mixedsort(paste0(unique(featureMat$Group))),
+      pal = pal
+    ) + 
+    facet_wrap(x~., ncol=1,scales="free_y",strip.position="right") +
+    guides(fill = FALSE, colour = FALSE) +
+    theme_ArchR(baseSize = baseSize,
+              baseRectSize = borderWidth,
+              baseLineSize = tickWidth,
+              legendPosition = "right",
+              axisTickCm = 0.1) +
+    theme(panel.spacing= unit(0, "lines"),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        strip.text = element_text(
+          size = facetbaseSize, 
+          color = "black", 
+          margin = margin(0,0.35,0,0.35, "cm")),
+          strip.text.y = element_text(angle = 0),
+        strip.background = element_rect(color="black")) +
+    theme(plot.margin = unit(c(0.35, 0.15, 0.35, 0.15), "cm")) +
+    ggtitle(title)
+
+  if(any(tolower(names(plotList)) %in% "bulktrack")){
+
+    idx <- which(tolower(names(plotList)) == "bulktrack")
+    
+    p <- plotList[[idx]] + featurePlot + plot_spacer()
+    
+    plotList[idx] <- NULL
+    
+    for(i in seq_along(plotList)){
+      p <- p + plotList[[i]] + plot_spacer() + plot_spacer()
+    }
+    
+    p <- p + plot_layout(
+      ncol = 3,
+      widths = c(3, 1, 0.2), 
+      heights = sizes
+    )
+
+  }else{
+
+
+    idx <- which(tolower(names(plotList)) == "sctrack")
+    
+    p <- plotList[[idx]] + featurePlot + plot_spacer()
+    
+    plotList[idx] <- NULL
+    
+    for(i in seq_along(plotList)){
+      p <- p + plotList[[i]] + plot_spacer() + plot_spacer()
+    }
+    
+    p <- p + plot_layout(
+      ncol = 3,
+      widths = c(3, 1, 0.2), 
+      heights = sizes
+    )
+
+  }
+
+  p
+
+}
+
+
+
+
+
+
 

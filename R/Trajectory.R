@@ -277,7 +277,7 @@ getTrajectory <- function(
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = groupEvery, name = "groupEvery", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
-  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric", "null"))
   .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
@@ -412,7 +412,7 @@ trajectoryHeatmap <- function(...){
 #' `seqnames` that are not listed will be ignored. In the context of a `Sparse.Assays.Matrix`, such as a matrix containing chromVAR
 #' deviations, the `seqnames` do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
 #' raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.
-#' @param returnMat A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
+#' @param returnMatrix A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param force If useSeqnames is longer than 1 if matrixClass is "Sparse.Assays.Matrix" to continue. This is not recommended because these matrices
 #' can be in different units.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -430,7 +430,7 @@ plotTrajectoryHeatmap <- function(
   labelRows = FALSE,
   rowOrder = NULL, 
   useSeqnames = NULL,
-  returnMat = FALSE,
+  returnMatrix = FALSE,
   force = FALSE,
   logFile = createLogFile("plotTrajectoryHeatmap")
   ){
@@ -447,7 +447,7 @@ plotTrajectoryHeatmap <- function(
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = rowOrder, name = "rowOrder", valid = c("vector", "null"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
-  .validInput(input = returnMat, name = "returnMat", valid = c("boolean"))
+  .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
@@ -595,7 +595,7 @@ plotTrajectoryHeatmap <- function(
 
   .endLogging(logFile = logFile)
 
-  if(returnMat){
+  if(returnMatrix){
     return(mat[idx, ])
   }else{
     return(ht)
@@ -900,6 +900,380 @@ plotTrajectory <- function(
   list(out, out2)
 
 }
+
+
+###################################################################
+# New Trajectory Analyses
+#
+# - Support for Monocle3 based trajectory analysis
+# - Support for Slingshot based trajectory analysis
+#
+###################################################################
+
+###################################################################
+# Monocle3
+###################################################################
+
+#' Get a Monocle CDS of Trajectories that can be added to an ArchRProject #NEW
+#' 
+#' This function will use monocle3 to find trajectories and then returns a monocle CDS object that can be used as
+#' input for `addMonocleTrajectory`.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name A string indicating the name of the fitted trajectory.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column
+#' in `cellColData`. This limits the groups used to identify trajectories.
+#' @param principalGroup The principal group which represents the group that will be the starting point for all trajectories.
+#' @param groupBy A string indicating the column name from `cellColData` that contains the cell group definitions used in
+#' `useGroups` to constrain trajectory analysis.
+#' @param embedding A string indicating the name of the `embedding` object from the `ArchRProject` that should be used for trajectory analysis.
+#' @param clusterParams A list of parameters to be added when clustering cells for monocle3 with `monocle3::cluster_cells`.
+#' @param graphParams A list of parameters to be added when learning graphs for monocle3 with `monocle3::learn_graph`.
+#' @param seed A number to be used as the seed for random number generation for trajectory creation.
+#' @export
+getMonocleTrajectories <- function(
+  ArchRProj = NULL,
+  name = "Trajectory",
+  useGroups = NULL,
+  principalGroup = NULL,
+  groupBy = NULL,
+  embedding = NULL,
+  clusterParams = list(),
+  graphParams = list(),
+  seed = 1
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = useGroups, name = "useGroups", valid = c("character"))
+  .validInput(input = principalGroup, name = "principalGroup", valid = c("character"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = embedding, name = "embedding", valid = c("character"))
+  .validInput(input = clusterParams, name = "clusterParams", valid = c("list"))
+  .validInput(input = graphParams, name = "graphParams", valid = c("list"))
+  .validInput(input = seed, name = "seed", valid = c("numeric"))
+
+  .requirePackage("monocle3")
+
+  set.seed(seed)
+
+  message("Running Monocole3 Trajectory Infrastructure!")
+
+  #Create CDS
+  sce <- SingleCellExperiment(
+    assays = SimpleList(
+      counts = as(matrix(rnorm(nCells(ArchRProj) * 3), ncol = nCells(ArchRProj), nrow = 3), "dgCMatrix")
+    ),
+    colData = getCellColData(ArchRProj)
+  )
+
+  cds <- methods::new(
+    "cell_data_set", 
+    assays = SummarizedExperiment::Assays(list(counts = methods::as(assay(sce), "dgCMatrix"))), 
+    colData = colData(sce), 
+    int_elementMetadata = int_elementMetadata(sce), 
+      int_colData = int_colData(sce), 
+      int_metadata = int_metadata(sce), 
+      metadata = metadata(sce), 
+      NAMES = NULL, 
+      elementMetadata = elementMetadata(sce)[, 0], 
+      rowRanges = rowRanges(sce)
+  )
+  metadata(cds)$cds_version <- Biobase::package.version("monocle3")
+
+  rm(sce)
+
+  #Add Embedding
+  message("Adding Embedding")
+  reducedDims(cds)$UMAP <- getEmbedding(ArchRProj, embedding = embedding)
+
+  if(!is.null(useGroups)){
+    cds <- cds[, which(colData(cds)[, groupBy] %in% useGroups)]
+  }
+
+  #Check principalGroup
+  pCells <- which(colData(cds)[, groupBy] == principalGroup)
+  if(length(pCells) == 0){
+    stop("No Cells in groupBy are equal to principalGroup")
+  }
+
+  #Run Clustering on Embedding and LearnGraph
+  message("Clustering Embedding")
+  clusterParams$cds <- cds
+  cds <- do.call(monocle3::cluster_cells, clusterParams)
+  rm(clusterParams)
+  gc()
+
+  message("Learning Graphs")
+  graphParams$cds <- cds
+  cds <- do.call(monocle3::learn_graph, graphParams)
+  rm(graphParams)
+  gc()
+
+  #Get Prinicipal Node
+  message("Getting Principal Node")
+  closestVertex <- cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
+  closestVertex <- as.matrix(closestVertex[colnames(cds), ])
+  rootNodes <- igraph::V(principal_graph(cds)[["UMAP"]])$name[as.numeric(names(which.max(table(closestVertex[pCells,]))))]
+
+  #Order Cells
+  message("Ordering Cells")
+  cds <- order_cells(cds, root_pr_nodes = rootNodes)
+
+  #Get Pseudotime
+  cds@principal_graph_aux[[1]]$pseudotime <- ArchR:::.getQuantiles(cds@principal_graph_aux[[1]]$pseudotime) * 100
+
+  #Plot Results
+  canRaster <- requireNamespace("ggrastr", quietly = TRUE)
+
+  p1 <- plot_cells(cds,
+         color_cells_by = groupBy,
+         rasterize = canRaster,
+         label_groups_by_cluster=FALSE,
+         label_leaves=FALSE,
+         label_branch_points=FALSE) + 
+    scale_colour_manual(values = paletteDiscrete(values = colData(cds)[,groupBy])) + theme_ArchR() + 
+      theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank())
+
+  p2 <- plot_cells(cds,
+         color_cells_by = "pseudotime",
+         label_cell_groups=FALSE,
+         rasterize = canRaster,
+         label_leaves=FALSE,
+         label_branch_points=FALSE,
+         graph_label_size=1.5) + theme_ArchR() +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank())
+
+
+  path <- file.path(getOutputDirectory(ArchRProj), "Monocole3", paste0("Plot-Results-", name, ".pdf"))
+
+  message("Plotting Results - ", path)
+  pdf(path, width = 6, height = 6, useDingbats = FALSE)
+  ArchR:::.fixPlotSize(p1)
+  ArchR:::.fixPlotSize(p2, newPage = TRUE)
+  dev.off()
+
+  cds
+
+}
+
+#' Add a Monocle Trajectory to an ArchR Project #NEW
+#' 
+#' This function will add a trajectory from a monocle CDS created from `getMonocleTrajectories` to an
+#' ArchRProject.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name A string indicating the name of the fitted trajectory to be added in `cellColData`.
+#' @param useGroups The cell groups to be used for creating trajectory analysis.
+#' @param groupBy A string indicating the column name from `cellColData` that contains the cell group definitions used in
+#' `useGroups` to constrain trajectory analysis.
+#' @param monocleCDS A monocle CDS object created from `getMonocleTrajectories`.
+#' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
+#' @export
+addMonocleTrajectory <- function(
+  ArchRProj = NULL,
+  name = "Trajectory",
+  useGroups = NULL, 
+  groupBy = "Clusters",
+  monocleCDS = NULL, 
+  force = FALSE
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = useGroups, name = "useGroups", valid = c("character"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+
+  .requirePackage("monocle3")
+
+  groupDF <- getCellColData(ArchRProj = ArchRProj, select = groupBy)
+  groupDF <- groupDF[groupDF[,1] %in% useGroups,,drop=FALSE]
+
+  if(sum(unique(groupDF[,1]) %in% useGroups)==0){
+    stop("useGroups does not span any groups in groupBy! Are you sure your input is correct?")
+  }
+
+  monoclePT <- pseudotime(monocleCDS)
+  monoclePT <- monoclePT[rownames(groupDF)]
+  monoclePT <- ArchR:::.getQuantiles(monoclePT) * 100
+
+  #Add To ArchR Project
+  ArchRProj <- addCellColData(
+      ArchRProj = ArchRProj,
+      data = as.vector(monoclePT),
+      name = name,
+      cells = names(monoclePT),
+      force = force
+  )
+
+  ArchRProj
+
+}
+
+###################################################################
+# Slingshot
+###################################################################
+
+
+#' Add a Slingshot Trajectories to an ArchR Project #NEW
+#' 
+#' This function will fit a supervised trajectory in a lower dimensional space that 
+#' can then be used for downstream analyses.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param name A string indicating the name of the fitted trajectory to be added in `cellColData`.
+#' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column
+#' in `cellColData`. This limits the groups used to identify trajectories.
+#' @param principalGroup The principal group which represents the group that will be the starting point for all trajectories.
+#' @param groupBy A string indicating the column name from `cellColData` that contains the cell group definitions used in
+#' `useGroups` to constrain trajectory analysis.
+#' @param embedding A string indicating the name of the `embedding` object from the `ArchRProject` that should be used for trajectory analysis.
+#' @param reducedDims A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for trajectory analysis. `embedding` must equal NULL to use.
+#' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
+#' @param seed A number to be used as the seed for random number generation for trajectory creation.
+#' @export
+addSlingShotTrajectories <- function(
+  ArchRProj = NULL,
+  name = "SlingShot",
+  useGroups = NULL,
+  principalGroup = NULL,
+  groupBy = NULL,
+  embedding = NULL,
+  reducedDims = NULL,
+  force = FALSE,
+  seed = 1
+  ){
+
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = useGroups, name = "useGroups", valid = c("character"))
+  .validInput(input = principalGroup, name = "principalGroup", valid = c("character"))
+  .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = embedding, name = "embedding", valid = c("character", "null"))
+  .validInput(input = reducedDims, name = "reducedDims", valid = c("character", "null"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = seed, name = "seed", valid = c("numeric"))
+
+  .requirePackage("slingshot")
+
+  set.seed(seed)
+
+  if(!is.null(embedding)){
+    rD <- getEmbedding(ArchRProj, embedding = embedding)
+  }else{
+    rD <- getReducedDims(ArchRProj, reducedDims = reducedDims)
+  }
+
+  groups <- getCellColData(ArchRProj, groupBy)
+
+  if(!is.null(useGroups)){
+    idx <- which(groups[,1] %in% useGroups)
+    rD <- rD[idx, , drop = FALSE]
+    groups <- groups[idx, , drop = FALSE]
+  }
+
+  sds <- slingshot(
+    data = rD, 
+    clusterLabels = groups[rownames(rD), ], 
+      start.clus = principalGroup
+  )
+
+  #Get PseudoTimes
+  pt <- slingPseudotime(sds)
+  colnames(pt) <- paste0(name, ".Curve", seq_len(ncol(pt)))
+
+  #Scale
+  ptn <- apply(pt, 2, ArchR:::.getQuantiles) * 100
+
+  for(i in seq_len(ncol(ptn))){
+
+    ArchRProj <- addCellColData(
+      ArchRProj = ArchRProj,
+      data = as.vector(ptn[, i]),
+      name = colnames(ptn)[i],
+      cells = rownames(ptn),
+      force = force
+    )
+
+  }
+
+  ArchRProj
+
+}
+
+###################################################################
+# STREAM
+###################################################################
+
+#' Get a PeakMatrix stored in an ArchRProject and write out for STREAM
+#' 
+#' This function gets a PeakMatrix from an `ArchRProject` and writes it to a set of files for STREAM (https://github.com/pinellolab/STREAM)
+#'
+#' @param ArchRProj An `ArchRProject` object to get data matrix from.
+#' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
+#' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' @export
+exportPeakMatrixForSTREAM <- function(
+  ArchRProj = NULL,
+  useSeqnames = NULL,
+  verbose = TRUE,
+  binarize = FALSE,
+  threads = getArchRThreads(),
+  logFile = createLogFile("exportMatrixForSTREAM")
+  ){
+
+  mat <- getMatrixFromProject(
+    ArchRProj = ArchRProj, 
+    useMatrix = "PeakMatrix", 
+    useSeqnames = useSeqnames, 
+    verbose = verbose, 
+    binarize = binarize,
+    threads = threads,
+    logFile = logFile
+  )
+
+  featureDF <- ArchR:::.getFeatureDF(getArrowFiles(ArchRProj)[1], "PeakMatrix")
+
+  stopifnot(all(featureDF$idx == rowData(mat)$idx))
+
+  countsDF <- Matrix::summary(assay(mat))
+  peaksDF <- data.frame(as.vector(featureDF[,1]), featureDF[,3], featureDF[,4])
+  cellsDF <- data.frame(colnames(mat))
+
+  data.table::fwrite(countsDF, file = "STREAM_Counts.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(peaksDF, file = "STREAM_Regions.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(cellsDF, file = "STREAM_Sample.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
+
+  return(0)
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
