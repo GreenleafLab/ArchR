@@ -80,6 +80,7 @@ Collate:
     'MultiModal.R'
     'ProjectMethods.R'
     'QualityControl.R'
+    'RcppExports.R'
     'RNAIntegration.R'
     'ReproduciblePeakSet.R'
     'Trajectory.R'
