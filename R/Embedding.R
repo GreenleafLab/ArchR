@@ -211,14 +211,14 @@ addUMAP <- function(
 .saveUWOT <- function(model, file){
   tryCatch({
     uwot::save_uwot(model = model, file = file, verbose = TRUE)
-  }, error = function(x){
-    .saveUWOT_Depreciated(model = model, file = file) #backwards to previous version
+  }, error = function(e){
+    .saveUWOT_Deprecated(model = model, file = file) #backwards to previous version
   })
 }
 
 #save_uwot does not work because tarring doesnt work for some reason on Stanford's compute server
 #Adapted from save_uwot
-.saveUWOT_Depreciated <- function(model, file){
+.saveUWOT_Deprecated <- function(model, file){
   file <- file.path(normalizePath(dirname(file)), basename(file))
   wd <- getwd()
   mod_dir <- tempfile(pattern = "dir")
@@ -256,13 +256,13 @@ addUMAP <- function(
 .loadUWOT <- function(file){
   tryCatch({
     uwot::load_uwot(file = file, verbose = TRUE)
-  }, error = function(x){
-    .loadUWOT_Depreciated(file = file, nDim = nDim) #backwards to previous version
+  }, error = function(e){
+    .loadUWOT_Deprecated(file = file, nDim = nDim) #backwards to previous version
   })
 }
 
 #Adapted from load_uwot
-.loadUWOT_Depreciated <- function(file, nDim = NULL){
+.loadUWOT_Deprecated <- function(file, nDim = NULL){
     model <- NULL
     tryCatch({
         mod_dir <- tempfile(pattern = "dir")
