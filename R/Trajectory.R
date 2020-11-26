@@ -477,6 +477,13 @@ plotTrajectoryHeatmap <- function(
   }
 
   mat <- assay(seTrajectory)
+
+  if(!is.null(grepExclude)){
+    idxExclude <- grep(grepExclude, rownames(mat))
+    if(length(idxExclude) > 0){
+      mat <- mat[-grep(grepExclude, rownames(mat)), , drop = FALSE]
+    }
+  }
   
   #Rows with NA
   rSNA <- rowSums(is.na(mat))
