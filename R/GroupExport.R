@@ -323,7 +323,7 @@ getGroupBW <- function(
     }else{
 
       #N Tiles
-      nTiles <- trunc(chromLengths[availableChr[k]] / tileSize) + 2
+      nTiles <- trunc(chromLengths[availableChr[k]] / tileSize) + 1
 
       #Create Sparse Matrix
       matchID <- S4Vectors::match(mcols(fragik)$RG, cellGroupi)

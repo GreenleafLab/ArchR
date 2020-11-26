@@ -72,7 +72,9 @@ addTrajectory <- function(
   }
 
   if(sum(unique(groupDF[,1]) %in% trajectory) < 3){
-    .logStop("trajectory must span at least 3 groups in groupBy!", logFile = logFile)
+    if(!force){
+      .logStop("trajectory must span at least 3 groups in groupBy!", logFile = logFile)
+    }
   }
 
   if(is.null(embedding)){

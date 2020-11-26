@@ -191,7 +191,7 @@ addTileMatrix <- function(
       fragments <- .getFragsFromArrow(ArrowFile, chr = chr, out = "IRanges", cellNames = cellNames)
 
       #N Tiles
-      nTiles <- trunc(chromLengths[z] / tileSize) + 2
+      nTiles <- trunc(chromLengths[z] / tileSize) + 1
 
       #Match Cells
       matchID <- S4Vectors::match(mcols(fragments)$RG, cellNames)
