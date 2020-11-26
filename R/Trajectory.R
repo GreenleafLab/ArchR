@@ -678,7 +678,7 @@ plotTrajectory <- function(
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = rastr, name = "rastr", valid = c("boolean"))
-  .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
   .validInput(input = quantHex, name = "quantHex", valid = c("numeric"))
   .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
   .validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
@@ -694,6 +694,10 @@ plotTrajectory <- function(
 
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
+
+  if(is.null(quantCut)){
+    quantCut <- c(0, 1)
+  }
 
   #Make Sure ColorBy is valid!
   if(length(colorBy) > 1){
