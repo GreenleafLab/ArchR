@@ -164,5 +164,24 @@ extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
   return(gr)
 }
 
-
+.featureDFtoGR <- function(featureDF, seqlevels){
+  ArchR:::.validInput(input = featureDF, name = "featureDF", valid = c("DataFrame"))
+  ArchR:::.validInput(input = seqlevels, name = "seqlevels", valid = c("character"))
+  #find what strand is F
+  if(length(levels(factor(featureDF$strand)))>2){stop("Error with featureDF; more than two strands provided")}
+  for(qstrand in levels(factor(featureDF$strand))){
+    if(all(featureDF[featureDF$strand %in% qstrand,]$start>featureDF[featureDF$strand %in% qstrand,]$end))
+      isMinus<-qstrand
+    else{
+      isOther<-qstrand
+    }
+  }
+  minusDF<-featureDF[featureDF$strand %in% isMinus,]
+  otherDF<-featureDF[featureDF$strand %in% isOther,]
+  minusGR<-GRanges(seqnames = minusDF$seqnames, ranges = IRanges(start = minusDF$end, end = minusDF$start), names=minusDF$name, strand = "-")
+  otherGR<-GRanges(seqnames = otherDF$seqnames, ranges = IRanges(start = otherDF$start, end = otherDF$end), names=otherDF$name, strand = "+")
+  seqlevels(minusGR) <- seqlevels
+  seqlevels(otherGR) <- seqlevels
+  return(sort(sortSeqlevels(c(otherGR, minusGR)), ignore.strand=TRUE))
+}
 

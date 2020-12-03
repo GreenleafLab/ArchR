@@ -113,7 +113,6 @@ createGeneAnnotation <- function(
     ###########################
     message("Getting Genes..")
     genes <- GenomicFeatures::genes(TxDb)
-
     if(is.null(annoStyle)){
       isEntrez <- mcols(genes)$symbol <- tryCatch({
         suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENTREZID", multiVals = "first"))
@@ -121,14 +120,12 @@ createGeneAnnotation <- function(
       }, error = function(x){
         FALSE
       })
-
       isEnsembl <- mcols(genes)$symbol <- tryCatch({
         suppressMessages(AnnotationDbi::mapIds(OrgDb, keys = mcols(genes)$gene_id, column = "SYMBOL", keytype = "ENSEMBL", multiVals = "first"))
         TRUE
       }, error = function(x){
         FALSE
       })
-
       if(isEntrez){
         annoStyle <- "ENTREZID"
       }else if(isEnsembl){

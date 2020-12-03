@@ -99,7 +99,7 @@ filterDoublets <- function(ArchRProj = NULL, cutEnrich = 1, cutScore = -Inf, fil
   }
   
   ArchRProj <- addProjectSummary(ArchRProj = ArchRProj, name = "filterDoublets", 
-    summary = c("Date" = Sys.time(), cutEnrich = cutEnrich, cutScore = cutScore, filterRatio = filterRatio))
+    summary = c(cutEnrich = cutEnrich, cutScore = cutScore, filterRatio = filterRatio))
 
   ArchRProj
 
