@@ -223,14 +223,14 @@ addUMAP <- function(
   for (i in seq_len(n_metrics)) {
       nn_tmpfname <- file.path(uwot_dir, paste0("nn", i))
       if (n_metrics == 1) {
-          model$nn_index$save(nn_tmpfname)
+          model$nn_index$ann$save(nn_tmpfname)
           model$nn_index$unload()
-          model$nn_index$load(nn_tmpfname)
+          model$nn_index$ann$load(nn_tmpfname)
       }
       else {
-          model$nn_index[[i]]$save(nn_tmpfname)
+          model$nn_index[[i]]$ann$save(nn_tmpfname)
           model$nn_index[[i]]$unload()
-          model$nn_index[[i]]$load(nn_tmpfname)
+          model$nn_index[[i]]$ann$load(nn_tmpfname)
       }
   }
   setwd(mod_dir)
