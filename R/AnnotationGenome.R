@@ -41,7 +41,7 @@ createGenomeAnnotation <- function(
 
     ##################
     message("Getting blacklist..")
-    blacklist <- .getBlacklist(genome = bsg@provider_version)
+    blacklist <- .getBlacklist(genome = bsg@metadata$genome)
 
   }else{
 
