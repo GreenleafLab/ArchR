@@ -184,6 +184,9 @@ addPeakAnnotations <- function(
   # Peak Overlap Matrix
   #############################################################
   peakSet <- getPeakSet(ArchRProj)
+  if(is.null(peakSet)){
+    .logStop("peakSet is NULL. You need a peakset to run addMotifAnnotations! See addReproduciblePeakSet!", logFile = logFile)
+  }
   allPositions <- unlist(regionPositions)
 
   .logDiffTime("Creating Peak Overlap Matrix", t1 = tstart, verbose = TRUE, logFile = logFile)
@@ -431,6 +434,9 @@ addMotifAnnotations <- function(
   #############################################################
   .logDiffTime("Finding Motif Positions with motifmatchr!", t1 = tstart, verbose = TRUE, logFile = logFile)
   peakSet <- ArchRProj@peakSet
+  if(is.null(peakSet)){
+    .logStop("peakSet is NULL. You need a peakset to run addMotifAnnotations! See addReproduciblePeakSet!", logFile = logFile)
+  }
   motifPositions <- motifmatchr::matchMotifs(
       pwms = motifs,
       subject = peakSet,
@@ -690,6 +696,9 @@ addArchRAnnotations <- function(
   # Peak Overlap Matrix
   #############################################################
   peakSet <- getPeakSet(ArchRProj)
+  if(is.null(peakSet)){
+    .logStop("peakSet is NULL. You need a peakset to run addMotifAnnotations! See addReproduciblePeakSet!", logFile = logFile)
+  }
   chr <- paste0(unique(seqnames(peakSet)))
 
   .logMessage("Annotating Chromosomes", verbose = TRUE, logFile = logFile)
