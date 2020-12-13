@@ -1028,9 +1028,16 @@ addPeak2GeneLinks <- function(
   tstart <- Sys.time()
 
   dfAll <- .safelapply(seq_along(ArrowFiles), function(x){
+    cNx <- paste0(names(ArrowFiles)[x], "#", h5read(ArrowFiles[x], paste0(useMatrix, "/Info/CellNames")))
+    pSx <- tryCatch({
+      h5read(ArrowFiles[x], paste0(useMatrix, "/Info/predictionScore"))
+    }, error = function(e){
+      message("No predictionScore found. Continuing without predictionScore!")
+      rep(9999999, length(cNx))
+    })
     DataFrame(
-      cellNames = paste0(names(ArrowFiles)[x], "#", h5read(ArrowFiles[x], paste0(useMatrix, "/Info/CellNames"))),
-      predictionScore = h5read(ArrowFiles[x], paste0(useMatrix, "/Info/predictionScore"))
+      cellNames = cNx,
+      predictionScore = pSx
     )
   }, threads = threads) %>% Reduce("rbind", .)
 
