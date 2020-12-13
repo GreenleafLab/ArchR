@@ -363,24 +363,56 @@ getPeakSet <- function(ArchRProj = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param peakSet A `GRanges` object containing the set of regions that define all peaks in the desired peak set.
+#' @param genomeAnnotation The genomeAnnotation (see `createGenomeAnnotation()`) to be used for generating peak metadata such as nucleotide
+#' information (GC content) or chromosome sizes.
 #' @param force If a `peakSet` object has already been added to the given `ArchRProject`, the value of `force` determines
 #' whether or not to overwrite this `peakSet`.
 #' @export
-addPeakSet <- function(ArchRProj = NULL, peakSet = NULL, force = FALSE){
+addPeakSet <- function(
+  ArchRProj = NULL, 
+  peakSet = NULL, 
+  genomeAnnotation = getGenomeAnnotation(ArchRProj),
+  force = FALSE
+  ){
+  
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = peakSet, name = "peakSet", valid = c("GRanges"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
+  
   if(is.null(ArchRProj@peakSet) | force){
+   
     #Index The Peak Set
     peakSet <- lapply(split(peakSet, seqnames(peakSet)), function(x){
       mcols(x)$idx <- seq_along(x)
       x
     }) %>% Reduce("c", .) %>% sortSeqlevels %>% sort
+
+    #Get NucleoTide Content
+    peakSet <- tryCatch({
+      .requirePackage(genomeAnnotation$genome)
+      .requirePackage("Biostrings",source="bioc")
+      BSgenome <- eval(parse(text = genomeAnnotation$genome))
+      BSgenome <- validBSgenome(BSgenome)
+      nucFreq <- BSgenome::alphabetFrequency(getSeq(BSgenome, peakSet))
+      mcols(peakSet)$GC <- round(rowSums(nucFreq[,c("G","C")]) / rowSums(nucFreq),4)
+      mcols(peakSet)$N <- round(nucFreq[,c("N")] / rowSums(nucFreq),4)
+      peakSet
+    }, error = function(e){
+      peakSet
+    })
+
+    #Add PeakSet
     ArchRProj@peakSet <- peakSet
+
   }else{
+  
     stop("Error peakSet exists! Set force=TRUE to override!")
+  
   }
+  
   return(ArchRProj)
+
 }
 
 ##########################################################################################

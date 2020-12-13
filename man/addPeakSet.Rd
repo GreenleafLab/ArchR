@@ -4,12 +4,20 @@
 \alias{addPeakSet}
 \title{Add a peak set to an ArchRProject}
 \usage{
-addPeakSet(ArchRProj = NULL, peakSet = NULL, force = FALSE)
+addPeakSet(
+  ArchRProj = NULL,
+  peakSet = NULL,
+  genomeAnnotation = getGenomeAnnotation(ArchRProj),
+  force = FALSE
+)
 }
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{peakSet}{A \code{GRanges} object containing the set of regions that define all peaks in the desired peak set.}
+
+\item{genomeAnnotation}{The genomeAnnotation (see \code{createGenomeAnnotation()}) to be used for generating peak metadata such as nucleotide
+information (GC content) or chromosome sizes.}
 
 \item{force}{If a \code{peakSet} object has already been added to the given \code{ArchRProject}, the value of \code{force} determines
 whether or not to overwrite this \code{peakSet}.}
