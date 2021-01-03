@@ -98,7 +98,7 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 #' binary value is stored indicating whether each region is observed within the peak region.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param regions A `list` of `GRanges` that are to be overlapped with the `peakSet` in the `ArchRProject`.
+#' @param regions A named `list` of `GRanges` that are to be overlapped with the `peakSet` in the `ArchRProject`.
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten
 #' if it already exists in the given `ArchRProject`.
