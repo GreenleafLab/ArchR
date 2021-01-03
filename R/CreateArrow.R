@@ -1278,7 +1278,7 @@ createArrowFiles <- function(
           o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
           o <- .suppressAll(h5createDataset(tmpFile, chrRGValues, storage.mode = "character", 
             dims = c(lengthRG, 1), level = 0, size = max(nchar(RG@values)) + 1))
-          o <- h5write(obj = cbind(dt$V2,dt$V3-dt$V2), file = tmpFile, name = chrPos)
+          o <- h5write(obj = cbind(dt$V2,dt$V3 - dt$V2 + 1), file = tmpFile, name = chrPos)
           o <- h5write(obj = RG@lengths, file = tmpFile, name = chrRGLengths)
           o <- h5write(obj = RG@values, file = tmpFile, name = chrRGValues)
 
@@ -1314,7 +1314,7 @@ createArrowFiles <- function(
           o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", 
             dims = c(lengthRG, 1), level = 0, size = max(nchar(RG@values)) + 1))
           
-          o <- h5write(obj = cbind(dt$V2,dt$V3-dt$V2), file = tmpChrFile, name = chrPos)
+          o <- h5write(obj = cbind(dt$V2,dt$V3 - dt$V2 + 1), file = tmpChrFile, name = chrPos)
           o <- h5write(obj = RG@lengths, file = tmpChrFile, name = chrRGLengths)
           o <- h5write(obj = RG@values, file = tmpChrFile, name = chrRGValues)
 
@@ -1650,7 +1650,7 @@ createArrowFiles <- function(
           o <- .suppressAll(h5createDataset(tmpFile, chrRGValues, storage.mode = "character", 
                     dims = c(lengthRG, 1), level = 0, size = max(nchar(RG@values)) + 1))
 
-          o <- h5write(obj = cbind(dt$start,dt$end-dt$start), file = tmpFile, name = chrPos)
+          o <- h5write(obj = cbind(dt$start, dt$end - dt$start + 1), file = tmpFile, name = chrPos)
           o <- h5write(obj = RG@lengths, file = tmpFile, name = chrRGLengths)
           o <- h5write(obj = RG@values, file = tmpFile, name = chrRGValues)
 
@@ -1686,7 +1686,7 @@ createArrowFiles <- function(
           o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", 
                     dims = c(lengthRG, 1), level = 0, size = max(nchar(RG@values)) + 1))
 
-          o <- h5write(obj = cbind(dt$start,dt$end-dt$start), file = tmpChrFile, name = chrPos)
+          o <- h5write(obj = cbind(dt$start, dt$end - dt$start + 1), file = tmpChrFile, name = chrPos)
           o <- h5write(obj = RG@lengths, file = tmpChrFile, name = chrRGLengths)
           o <- h5write(obj = RG@values, file = tmpChrFile, name = chrRGValues)
 
