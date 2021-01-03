@@ -1074,6 +1074,10 @@ plotEnrichHeatmap <- function(
   mat <- mat[keep, ,drop = FALSE]
   .logThis(mat, "mat-mlog10Padj-Filter", logFile = logFile)
 
+  if(nrow(mat)==0){
+    stop("No enrichments found for your cutoff!")
+  }
+
   passMat <- lapply(seq_len(nrow(mat)), function(x){
     (mat[x, ] >= 0.9*max(mat[x, ])) * 1
   }) %>% Reduce("rbind", .) %>% data.frame
@@ -1083,7 +1087,7 @@ plotEnrichHeatmap <- function(
   mat[mat > pMax] <- pMax
 
   if(nrow(mat)==0){
-    stop("No enrichments found!")
+    stop("No enrichments found for your cutoff!")
   }
 
   mat <- .rowScale(as.matrix(mat), min = 0)
