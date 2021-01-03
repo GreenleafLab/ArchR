@@ -671,7 +671,7 @@ addGroupCoverages <- function(
 .getCoverageMetadata <- function(ArchRProj = NULL, groupBy = NULL, useGroups = NULL, minCells = NULL){
   coverageMetadata <- ArchRProj@projectMetadata$GroupCoverages[[groupBy]]$coverageMetadata
   if(is.null(coverageMetadata)){
-    stop("No Coverage Metadata found for : ", groupBy)
+    stop("No Coverage Metadata found for : ", groupBy, ". Please run addGroupCoverages!")
   }
   if(!is.null(useGroups)){
     if(sum(coverageMetadata[,1] %in% useGroups) == 0){
