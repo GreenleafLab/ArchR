@@ -136,6 +136,10 @@ addPeakAnnotations <- function(
 
   }else{
 
+    if(is.null(names(regions))){
+      names(regions) <- paste0("Region_", seq_along(regions))
+    }
+
     regionPositions <- lapply(seq_along(regions), function(x){
       
       .logThis(regions[[x]], paste0("regions[[x]]-", x), logFile = logFile)
