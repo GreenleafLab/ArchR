@@ -803,9 +803,7 @@ addIterativeLSI <- function(
       UMAPParams$n_threads <- floor(threads / 2)
       uwotUmap <- do.call(uwot::umap, UMAPParams)
       
-      #Plot
-      pdf(file.path(outDir, paste0("Save-LSI-Iteration-",j,".pdf")), width = 6, height = 6)
-      
+      #Plot      
       p1 <- ggPoint(
         uwotUmap[,1], 
         uwotUmap[,2], 
@@ -831,6 +829,7 @@ addIterativeLSI <- function(
           theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
                 axis.text.y = element_blank(), axis.ticks.y = element_blank())
 
+      pdf(file.path(outDir, paste0("Save-LSI-Iteration-",j,".pdf")), width = 6, height = 6)
       .fixPlotSize(p1, plotWidth = 6, plotHeight = 6)
       grid::grid.newpage()
       .fixPlotSize(p2, plotWidth = 6, plotHeight = 6)
