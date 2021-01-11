@@ -8,7 +8,8 @@ ArchRDefaults <- list(
   ArchR.logging = TRUE,
   ArchR.genome = NA,
   ArchR.chrPrefix = TRUE,
-  ArchR.debugging = FALSE 
+  ArchR.debugging = FALSE,
+  ArchR.verbose = TRUE
 )
 
 .onAttach <- function(libname, pkgname){
@@ -27,7 +28,28 @@ ArchRDefaults <- list(
   if(!.checkCairo()){
     packageStartupMessage("WARNING : Cairo check shows Cairo is not functional.\n          ggplot2 rasterization will not be available without Cario.\n          This may cause issues editing plots with many thousands of points from single cells.")
   }
+  if(.checkJupyter()){
+    packageStartupMessage("Detected Jupyer Notebook session. Disabling Log Messages!\n\tIf this is undesired use `addArchRVerbose(TRUE)`")
+    addArchRVerbose(verbose = FALSE)
+  }
   invisible()
+}
+
+#Check Jupyer Status
+.checkJupyter <- function(){
+  tryCatch({
+    sysID <- Sys.getenv("JPY_PARENT_PID")
+    if(!is.character(sysID)){
+      return(FALSE)
+    }
+    if(sysID == ""){
+      FALSE
+    }else{
+      TRUE
+    }
+  },erro r= function(e){
+    FALSE
+  })
 }
 
 #' Install extra packages used in ArchR that are not installed by default

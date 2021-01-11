@@ -410,6 +410,10 @@ getMarkerFeatures <- function(
     
     }
 
+    .logThis(o, paste0(group, "_", seqnames[y], "_diffResult"), logFile = logFile)
+
+    o
+
   }) %>% Reduce("rbind", .)
 
   idxFilter <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0

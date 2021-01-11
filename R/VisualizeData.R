@@ -95,12 +95,12 @@ plotPDF <- function(
 
         if(inherits(plotList[[i]], "patchwork")){
 
-          message("Plotting Patchwork!")
+          if(getArchRVerbose()) message("Plotting Patchwork!")
           print(plotList[[i]])
         
         }else{
 
-          message("Plotting Ggplot!")
+          if(getArchRVerbose()) message("Plotting Ggplot!")
 
           if(!is.null(attr(plotList[[i]], "ratioYX"))){
             .fixPlotSize(plotList[[i]], plotWidth = width, plotHeight = height, height = attr(plotList[[i]], "ratioYX"), newPage = FALSE)
@@ -116,7 +116,7 @@ plotPDF <- function(
       
       }else if(inherits(plotList[[i]], "gtable")){
 
-        message("Plotting Gtable!")
+        if(getArchRVerbose()) message("Plotting Gtable!")
         
         print(grid::grid.draw(plotList[[i]]))
         if(i != length(plotList)){
@@ -124,7 +124,7 @@ plotPDF <- function(
         }
       }else if(inherits(plotList[[i]], "HeatmapList") | inherits(plotList[[i]], "Heatmap") ){ 
 
-        message("Plotting ComplexHeatmap!")
+        if(getArchRVerbose()) message("Plotting ComplexHeatmap!")
 
         padding <- 15
         draw(plotList[[i]], 
@@ -135,7 +135,7 @@ plotPDF <- function(
 
       }else{
 
-        message("Plotting Other")
+        if(getArchRVerbose()) message("Plotting Other")
        
         print(plotList[[i]])
 
@@ -147,7 +147,7 @@ plotPDF <- function(
 
   }, error = function(x){
 
-    message(x)
+    if(getArchRVerbose()) message(x)
 
   })
 
@@ -320,7 +320,7 @@ plotEmbedding <- function(
       }
 
       if(!is.null(imputeWeights)){
-        message("Imputing Matrix")
+        if(getArchRVerbose()) message("Imputing Matrix")
         colorMat <- matrix(colorParams$color, nrow=1)
         colnames(colorMat) <- rownames(df)
         colorMat <- imputeMatrix(mat = colorMat, imputeWeights = imputeWeights, logFile = logFile)
@@ -367,7 +367,7 @@ plotEmbedding <- function(
     .logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
 
     if(!is.null(imputeWeights)){
-      message("Imputing Matrix")
+      if(getArchRVerbose()) message("Imputing Matrix")
       colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights, logFile = logFile)
       if(!inherits(colorMat, "matrix")){
         colorMat <- matrix(colorMat, ncol = nrow(df))
@@ -401,11 +401,11 @@ plotEmbedding <- function(
 
   }
 
-  message("Plotting Embedding")
+  if(getArchRVerbose()) message("Plotting Embedding")
 
   ggList <- lapply(seq_along(colorList), function(x){
 
-    message(x, " ", appendLF = FALSE)
+    if(getArchRVerbose()) message(x, " ", appendLF = FALSE)
 
     plotParamsx <- .mergeParams(colorList[[x]], plotParams)
 
@@ -483,7 +483,7 @@ plotEmbedding <- function(
 
   })
   names(ggList) <- name
-  message("")
+  if(getArchRVerbose()) message("")
 
   if(length(ggList) == 1){
     ggList <- ggList[[1]]
@@ -663,7 +663,7 @@ plotGroups <- function(
 
   pl <- lapply(seq_along(colorList), function(x){
 
-    message(paste0(x, " "), appendLF = FALSE)
+    if(getArchRVerbose()) message(paste0(x, " "), appendLF = FALSE)
 
     if(is.null(ylim)){
       ylim <- range(colorList[[x]]$color,na.rm=TRUE) %>% extendrange(f = 0.05)
@@ -692,7 +692,7 @@ plotGroups <- function(
   })
 
   names(pl) <- name
-  message("")
+  if(getArchRVerbose()) message("")
   
   if(length(name)==1){
     pl[[1]]
@@ -764,7 +764,7 @@ plotGroups <- function(
   cellNamesList <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
   
   values <- .safelapply(seq_along(cellNamesList), function(x){
-    message(x, " ", appendLF = FALSE)
+    if(getArchRVerbose()) message(x, " ", appendLF = FALSE)
     valuesx <- tryCatch({
       o <- h5closeAll()
       ArrowFile <- getSampleColData(ArchRProj)[names(cellNamesList)[x],"ArrowFiles"]
@@ -792,7 +792,7 @@ plotGroups <- function(
     valuesx
   }, threads = threads) %>% Reduce("cbind", .)
   values <- values[, ArchRProj$cellNames, drop = FALSE]
-  message("")
+  if(getArchRVerbose()) message("")
   gc()
   .logThis(values, "Feature-Matrix", logFile = logFile)
 
@@ -804,7 +804,7 @@ plotGroups <- function(
   #Values Summary
   if(!is.null(log2Norm)){
     if(log2Norm){
-      message("Log2 Normalizing...")
+      if(getArchRVerbose()) message("Log2 Normalizing...")
       values <- log2(values + 1)
     }
   }

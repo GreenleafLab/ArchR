@@ -1032,7 +1032,7 @@ addPeak2GeneLinks <- function(
     pSx <- tryCatch({
       h5read(ArrowFiles[x], paste0(useMatrix, "/Info/predictionScore"))
     }, error = function(e){
-      message("No predictionScore found. Continuing without predictionScore!")
+      if(getArchRVerbose()) message("No predictionScore found. Continuing without predictionScore!")
       rep(9999999, length(cNx))
     })
     DataFrame(

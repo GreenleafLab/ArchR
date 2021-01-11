@@ -473,7 +473,7 @@ createArrowFiles <- function(
 
       .logDiffTime("Continuing through after error ggplot for Fragment Size Distribution", t1 = tstart, logFile = logFile)
       #print(x)
-      message("\n")
+      if(getArchRVerbose()) message("\n")
 
   })
   gc()
@@ -537,7 +537,7 @@ createArrowFiles <- function(
 
       .logDiffTime("Continuing through after error ggplot for TSS by Frags", t1 = tstart, logFile = logFile)
       #message(x)
-      message("\n")
+      if(getArchRVerbose()) message("\n")
 
   })
 
@@ -1119,7 +1119,7 @@ createArrowFiles <- function(
     TRUE
   }, error = function(x){
     tryCatch({
-      message("Attempting to index ", file," as tabix..")
+      if(getArchRVerbose()) message("Attempting to index ", file," as tabix..")
       indexTabix(file, format = "bed")
       TRUE
     }, error = function(y){
@@ -1138,7 +1138,7 @@ createArrowFiles <- function(
     }
   }, error = function(x){
     tryCatch({
-      message("Attempting to index ", file," as bam...")
+      if(getArchRVerbose()) message("Attempting to index ", file," as bam...")
       indexBam(file)
       TRUE
     }, error = function(y){
