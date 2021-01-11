@@ -47,7 +47,7 @@ ArchRDefaults <- list(
     }else{
       TRUE
     }
-  },erro r= function(e){
+  },error= function(e){
     FALSE
   })
 }

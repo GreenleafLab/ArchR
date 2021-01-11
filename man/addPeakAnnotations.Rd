@@ -15,7 +15,7 @@ addPeakAnnotations(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{regions}{A \code{list} of \code{GRanges} that are to be overlapped with the \code{peakSet} in the \code{ArchRProject}.}
+\item{regions}{A named \code{list} of \code{GRanges} that are to be overlapped with the \code{peakSet} in the \code{ArchRProject}.}
 
 \item{name}{The name of \code{peakAnnotation} object to be stored as in \code{ArchRProject}.}
 
