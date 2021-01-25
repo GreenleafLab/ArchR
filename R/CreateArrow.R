@@ -1930,14 +1930,29 @@ createArrowFiles <- function(
           chrPos <- paste0("Fragments/",chr,"/Ranges")
           chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
           chrRGValues <- paste0("Fragments/",chr,"/RGValues")
-          o <- h5createGroup(outArrow, paste0("Fragments/",chr))
-          o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
-          o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-          o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
-                  size = max(nchar(mcols(fragments)$RG@values)) + 1))
-          o <- h5write(obj = cbind(start(fragments),width(fragments)), file = outArrow, name = chrPos)
-          o <- h5write(obj = mcols(fragments)$RG@lengths, file = outArrow, name = chrRGLengths)
-          o <- h5write(obj = mcols(fragments)$RG@values, file = outArrow, name = chrRGValues)
+
+          if(lengthRG == 0){
+          
+            .logMessage(msg = paste0(prefix, " detected 0 Fragments in cells passing filtering threshold for ", chr), logFile = logFile)
+          
+            o <- h5createGroup(outArrow, paste0("Fragments/",chr))
+            o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
+            o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
+            o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, 
+                    size = 10)
+            
+          }else{
+
+            o <- h5createGroup(outArrow, paste0("Fragments/",chr))
+            o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
+            o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+            o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
+                    size = max(nchar(mcols(fragments)$RG@values)) + 1))
+            
+            o <- h5write(obj = cbind(start(fragments),width(fragments)), file = outArrow, name = chrPos)
+            o <- h5write(obj = mcols(fragments)$RG@lengths, file = outArrow, name = chrRGLengths)
+            o <- h5write(obj = mcols(fragments)$RG@values, file = outArrow, name = chrRGValues)
+          }
 
           #Free Some Memory!
           rm(fragments)
@@ -1995,15 +2010,26 @@ createArrowFiles <- function(
           chrRGLengths <- paste0(chr, "._.RGLengths")
           chrRGValues <- paste0(chr, "._.RGValues")
 
-          #HDF5 Write
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
-                  size = max(nchar(mcols(fragments)$RG@values)) + 1))
+          if(lengthRG == 0){
+                   
+            #HDF5 Write
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, 
+                    size = 10)
 
-          o <- h5write(obj = cbind(start(fragments),width(fragments)), file = tmpChrFile, name = chrPos)
-          o <- h5write(obj = mcols(fragments)$RG@lengths, file = tmpChrFile, name = chrRGLengths)
-          o <- h5write(obj = mcols(fragments)$RG@values, file = tmpChrFile, name = chrRGValues)
+          }else{
+           
+            #HDF5 Write
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
+                    size = max(nchar(mcols(fragments)$RG@values)) + 1))
+
+            o <- h5write(obj = cbind(start(fragments),width(fragments)), file = tmpChrFile, name = chrPos)
+            o <- h5write(obj = mcols(fragments)$RG@lengths, file = tmpChrFile, name = chrRGLengths)
+            o <- h5write(obj = mcols(fragments)$RG@values, file = tmpChrFile, name = chrRGValues)
+          }
 
           #Free Some Memory!
           rm(fragments)
