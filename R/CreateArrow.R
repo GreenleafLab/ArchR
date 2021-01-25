@@ -2016,7 +2016,7 @@ createArrowFiles <- function(
             o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
             o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
             o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, 
-                    size = 10)
+                    size = 10))
 
           }else{
            
