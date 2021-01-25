@@ -617,9 +617,9 @@ addArchRAnnotations <- function(
   }
 
   genome <- tolower(tryCatch({
-    validBSgenome(getGenome(ArchRProj))
+    validBSgenome(getGenome(ArchRProj))$provider_version
   }, error = function(e){
-    strsplit(validBSgenome(getGenome(ArchRProj)),"\\.")[[1]][4]
+    strsplit(validBSgenome(getGenome(ArchRProj))@pkgname,"\\.")[[1]][4]
   }))
 
   annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
