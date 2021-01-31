@@ -195,7 +195,11 @@ addGroupCoverages <- function(
   args$ArrowFiles <- getArrowFiles(ArchRProj)
   args$availableChr <- .availableSeqnames(getArrowFiles(ArchRProj))
   args$chromLengths <- getChromLengths(ArchRProj)
-  args$cellsInArrow <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
+  #args$cellsInArrow <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
+  args$cellsInArrow <-   cellsInArrow <- split(
+    rownames(getCellColData(ArchRProj)), 
+    stringr::str_split(rownames(getCellColData(ArchRProj)), pattern="\\#", simplify=TRUE)[,1]
+  )
   args$covDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy)
   args$parallelParam <- parallelParam
   args$threads <- threads
