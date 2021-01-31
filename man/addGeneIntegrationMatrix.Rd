@@ -28,6 +28,7 @@ addGeneIntegrationMatrix(
   reduction = "cca",
   addToArrow = TRUE,
   scaleTo = 10000,
+  genesUse = NULL,
   nameCell = "predictedCell",
   nameGroup = "predictedGroup",
   nameScore = "predictedScore",
@@ -97,6 +98,8 @@ correlation to sequencing depth that is greater than the \code{corCutOff}, it wi
 \item{addToArrow}{A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the Arrow files.}
 
 \item{scaleTo}{Each column in the integrated RNA matrix will be normalized to a column sum designated by \code{scaleTo} prior to adding to Arrow files.}
+
+\item{genesUse}{If desired a character vector of gene names to use for integration instead of determined ones from Seurat::variableGenes.}
 
 \item{nameCell}{A column name to add to \code{cellColData} for the predicted scRNA-seq cell in the specified \code{ArchRProject}. This is useful for identifying which cell was closest to the scATAC-seq cell.}
 
