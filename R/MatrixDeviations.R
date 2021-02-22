@@ -378,11 +378,17 @@ addDeviationsMatrix <- function(
 
   if("z" %in% tolower(out)){
     z <- t(vapply(results, function(x) x[["z"]], rep(0, length(cn))))
+    if(length(cn)==1){
+      z <- matrix(z, ncol=length(cn))
+    }
   }else{
     z <- matrix(0, nrow = ncol(annotationsMatrix), ncol = length(cn))
   }
   if("deviations" %in% tolower(out)){
     dev <- t(vapply(results, function(x) x[["dev"]], rep(0, length(cn))))
+    if(length(cn)==1){
+      dev <- matrix(dev, ncol=length(cn))
+    }
   }else{
     dev <- matrix(0, nrow = ncol(annotationsMatrix), ncol = length(cn))
   }

@@ -4,7 +4,9 @@
 \name{ArchRPalettes}
 \alias{ArchRPalettes}
 \title{List of color palettes that can be used in plots}
-\format{An object of class \code{list} of length 30.}
+\format{
+An object of class \code{list} of length 30.
+}
 \usage{
 ArchRPalettes
 }

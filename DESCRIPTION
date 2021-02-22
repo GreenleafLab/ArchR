@@ -1,8 +1,8 @@
 Package: ArchR
 Type: Package
-Date: 2020-10-01
+Date: 2020-11-23
 Title: Analyzing single-cell regulatory chromatin in R.
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(
     person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
@@ -11,7 +11,7 @@ Roxygen: list(markdown = TRUE)
 License: GPL (>= 2)
 LinkingTo: Rcpp
 LazyData: TRUE
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Encoding: UTF-8
 Imports:
     Rcpp (>= 0.12.16),

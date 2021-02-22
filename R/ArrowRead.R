@@ -783,6 +783,11 @@ getMatrixFromArrow <- function(
 
     matFiles <- lapply(mat, function(x) x[[2]]) %>% Reduce("c", .)
     mat <- lapply(mat, function(x) x[[1]]) %>% Reduce("cbind", .)
+    if(!all(cellNames %in% colnames(mat))){
+      .logThis(sampledCellNames, "cellNames supplied", logFile = logFile)
+      .logThis(colnames(mat), "cellNames from matrix", logFile = logFile)
+      stop("Error not all cellNames found in partialMatrix")
+    }
     mat <- mat[,sampledCellNames, drop = FALSE]
     mat <- .checkSparseMatrix(mat, length(sampledCellNames))
 
@@ -793,6 +798,11 @@ getMatrixFromArrow <- function(
   }else{
 
     mat <- Reduce("cbind", mat)
+    if(!all(cellNames %in% colnames(mat))){
+      .logThis(cellNames, "cellNames supplied", logFile = logFile)
+      .logThis(colnames(mat), "cellNames from matrix", logFile = logFile)
+      stop("Error not all cellNames found in partialMatrix")
+    }
     mat <- mat[,cellNames, drop = FALSE]
     mat <- .checkSparseMatrix(mat, length(cellNames))
     
@@ -902,6 +912,16 @@ getMatrixFromArrow <- function(
       stop("Means Variances and Ns lengths not identical")
     }
 
+    #Check if samples have NAs due to N = 1 sample or some other weird thing.
+    #Set it to min non NA variance
+    dfVars <- lapply(seq_len(nrow(dfVars)), function(x){
+      vx <- dfVars[x, ]
+      if(any(is.na(vx))){
+        vx[is.na(vx)] <- min(vx[!is.na(vx)])
+      }
+      vx
+    }) %>% Reduce("rbind", .)
+
     combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
     summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
     combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
@@ -924,8 +944,6 @@ getMatrixFromArrow <- function(
   ns <- lapply(seq_along(ArrowFiles), function(y){
     length(.availableCells(ArrowFiles[y], useMatrix))
   }) %>% unlist
-
-
 
   #Compute RowVars
   summaryDF <- .safelapply(seq_along(featureDF), function(x){

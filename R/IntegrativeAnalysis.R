@@ -821,7 +821,7 @@ addCoAccessibility <- function(
   o$idx2 <- NULL
   o <- o[!is.na(o$correlation),]
 
-  o$TStat <- (o$correlation / sqrt((max(1-o$correlation^2, 0.00000000000000001))/(length(knnObj)-2))) #T-statistic P-value
+  o$TStat <- (o$correlation / sqrt((pmax(1-o$correlation^2, 0.00000000000000001, na.rm = TRUE))/(length(knnObj)-2))) #T-statistic P-value
   o$Pval <- 2*pt(-abs(o$TStat), length(knnObj) - 2)
   o$FDR <- p.adjust(o$Pval, method = "fdr")
   o$VarQuantile1 <- .getQuantiles(o$Variability1)
@@ -1028,9 +1028,16 @@ addPeak2GeneLinks <- function(
   tstart <- Sys.time()
 
   dfAll <- .safelapply(seq_along(ArrowFiles), function(x){
+    cNx <- paste0(names(ArrowFiles)[x], "#", h5read(ArrowFiles[x], paste0(useMatrix, "/Info/CellNames")))
+    pSx <- tryCatch({
+      h5read(ArrowFiles[x], paste0(useMatrix, "/Info/predictionScore"))
+    }, error = function(e){
+      if(getArchRVerbose()) message("No predictionScore found. Continuing without predictionScore!")
+      rep(9999999, length(cNx))
+    })
     DataFrame(
-      cellNames = paste0(names(ArrowFiles)[x], "#", h5read(ArrowFiles[x], paste0(useMatrix, "/Info/CellNames"))),
-      predictionScore = h5read(ArrowFiles[x], paste0(useMatrix, "/Info/predictionScore"))
+      cellNames = cNx,
+      predictionScore = pSx
     )
   }, threads = threads) %>% Reduce("rbind", .)
 
@@ -1173,7 +1180,7 @@ addPeak2GeneLinks <- function(
   o$Correlation <- rowCorCpp(as.integer(o$A), as.integer(o$B), assay(seATAC), assay(seRNA))
   o$VarAssayA <- .getQuantiles(matrixStats::rowVars(assay(seATAC)))[o$A]
   o$VarAssayB <- .getQuantiles(matrixStats::rowVars(assay(seRNA)))[o$B]
-  o$TStat <- (o$Correlation / sqrt((max(1-o$Correlation^2, 0.00000000000000001))/(ncol(seATAC)-2))) #T-statistic P-value
+  o$TStat <- (o$Correlation / sqrt((pmax(1-o$Correlation^2, 0.00000000000000001, na.rm = TRUE))/(ncol(seATAC)-2))) #T-statistic P-value
   o$Pval <- 2*pt(-abs(o$TStat), ncol(seATAC) - 2)
   o$FDR <- p.adjust(o$Pval, method = "fdr")
   out <- o[, c("A", "B", "Correlation", "FDR", "VarAssayA", "VarAssayB")]

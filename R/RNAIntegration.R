@@ -43,6 +43,7 @@
 #' @param reduction The Seurat reduction method to use for integrating modalities. See `Seurat::FindTransferAnchors()` for possible reduction methods.
 #' @param addToArrow A boolean value indicating whether to add the log2-normalized transcript counts from the integrated matched RNA to the Arrow files.
 #' @param scaleTo Each column in the integrated RNA matrix will be normalized to a column sum designated by `scaleTo` prior to adding to Arrow files.
+#' @param genesUse If desired a character vector of gene names to use for integration instead of determined ones from Seurat::variableGenes.
 #' @param nameCell A column name to add to `cellColData` for the predicted scRNA-seq cell in the specified `ArchRProject`. This is useful for identifying which cell was closest to the scATAC-seq cell.
 #' @param nameGroup A column name to add to `cellColData` for the predicted scRNA-seq group in the specified `ArchRProject`. See `groupRNA` for more details.
 #' @param nameScore A column name to add to `cellColData` for the predicted scRNA-seq score in the specified `ArchRProject`. These scores represent
@@ -77,6 +78,7 @@ addGeneIntegrationMatrix <- function(
   reduction = "cca",
   addToArrow = TRUE,
   scaleTo = 10000,
+  genesUse = NULL,
   nameCell = "predictedCell",
   nameGroup = "predictedGroup",
   nameScore = "predictedScore",
@@ -110,6 +112,7 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = reduction, name = "reduction", valid = c("character"))
   .validInput(input = addToArrow, name = "addToArrow", valid = c("boolean"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = genesUse, name = "genesUse", valid = c("character", "null"))
   .validInput(input = nameCell, name = "nameCell", valid = c("character"))
   .validInput(input = nameGroup, name = "nameGroup", valid = c("character"))
   .validInput(input = nameScore, name = "nameScore", valid = c("character"))
@@ -385,7 +388,9 @@ addGeneIntegrationMatrix <- function(
     .logDiffTime(sprintf("%s Identifying Variable Genes", prefix), tstart, verbose = verbose, logFile = logFile)
     subRNA <- FindVariableFeatures(object = subRNA, nfeatures = nGenes, verbose = FALSE)
     subRNA <- ScaleData(object = subRNA, verbose = FALSE)
-    genesUse <- VariableFeatures(object = subRNA)
+    if(is.null(genesUse)){
+      genesUse <- VariableFeatures(object = subRNA)
+    }
 
     ##############################################################################################
     #2. Get Gene Score Matrix and Create Seurat ATAC
