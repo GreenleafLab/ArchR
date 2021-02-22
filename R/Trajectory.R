@@ -72,7 +72,9 @@ addTrajectory <- function(
   }
 
   if(sum(unique(groupDF[,1]) %in% trajectory) < 3){
-    .logStop("trajectory must span at least 3 groups in groupBy!", logFile = logFile)
+    if(!force){
+      .logStop("trajectory must span at least 3 groups in groupBy!", logFile = logFile)
+    }
   }
 
   if(is.null(embedding)){
@@ -475,6 +477,13 @@ plotTrajectoryHeatmap <- function(
   }
 
   mat <- assay(seTrajectory)
+
+  if(!is.null(grepExclude)){
+    idxExclude <- grep(grepExclude, rownames(mat))
+    if(length(idxExclude) > 0){
+      mat <- mat[-grep(grepExclude, rownames(mat)), , drop = FALSE]
+    }
+  }
   
   #Rows with NA
   rSNA <- rowSums(is.na(mat))
@@ -676,7 +685,7 @@ plotTrajectory <- function(
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = size, name = "size", valid = c("numeric"))
   .validInput(input = rastr, name = "rastr", valid = c("boolean"))
-  .validInput(input = quantCut, name = "quantCut", valid = c("numeric"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
   .validInput(input = quantHex, name = "quantHex", valid = c("numeric"))
   .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
   .validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
@@ -692,6 +701,10 @@ plotTrajectory <- function(
 
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
+
+  if(is.null(quantCut)){
+    quantCut <- c(0, 1)
+  }
 
   #Make Sure ColorBy is valid!
   if(length(colorBy) > 1){

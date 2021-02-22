@@ -195,7 +195,11 @@ addGroupCoverages <- function(
   args$ArrowFiles <- getArrowFiles(ArchRProj)
   args$availableChr <- .availableSeqnames(getArrowFiles(ArchRProj))
   args$chromLengths <- getChromLengths(ArchRProj)
-  args$cellsInArrow <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
+  #args$cellsInArrow <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
+  args$cellsInArrow <-   cellsInArrow <- split(
+    rownames(getCellColData(ArchRProj)), 
+    stringr::str_split(rownames(getCellColData(ArchRProj)), pattern="\\#", simplify=TRUE)[,1]
+  )
   args$covDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy)
   args$parallelParam <- parallelParam
   args$threads <- threads
@@ -217,9 +221,6 @@ addGroupCoverages <- function(
   coverageFiles <- lapply(seq_along(batchOut),function(x) batchOut[[x]]$covFile) %>% unlist
   nCells <- lapply(seq_along(batchOut),function(x) batchOut[[x]]$nCells) %>% unlist
   nFragments <- lapply(seq_along(batchOut),function(x) batchOut[[x]]$nFragments) %>% unlist
-
-  #Enable Hdf5 File Locking
-  h5enableFileLocking()
 
   #Add To Project
   coverageMetadata <- DataFrame(
@@ -244,6 +245,9 @@ addGroupCoverages <- function(
   )
 
   ArchRProj@projectMetadata$GroupCoverages[[groupBy]] <- SimpleList(Params = Params, coverageMetadata = coverageMetadata)
+
+  #Enable Hdf5 File Locking
+  h5enableFileLocking()
 
   .logDiffTime(sprintf("Finished Creation of Coverage Files!"), tstart, addHeader = FALSE)
   .endLogging(logFile = logFile)
@@ -671,7 +675,7 @@ addGroupCoverages <- function(
 .getCoverageMetadata <- function(ArchRProj = NULL, groupBy = NULL, useGroups = NULL, minCells = NULL){
   coverageMetadata <- ArchRProj@projectMetadata$GroupCoverages[[groupBy]]$coverageMetadata
   if(is.null(coverageMetadata)){
-    stop("No Coverage Metadata found for : ", groupBy)
+    stop("No Coverage Metadata found for : ", groupBy, ". Please run addGroupCoverages!")
   }
   if(!is.null(useGroups)){
     if(sum(coverageMetadata[,1] %in% useGroups) == 0){

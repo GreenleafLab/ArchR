@@ -56,6 +56,33 @@ getArchRDebugging <- function(){
   ArchRDebugging
 }
 
+#' Set ArchR Verbosity for Log Messaging
+#' 
+#' This function will set ArchR logging verbosity.
+#'
+#' @param verbose A boolean describing whether to printMessages in addition to logging with ArchR.
+#' @export
+addArchRVerbose <- function(verbose = TRUE){
+  .validInput(input = verbose, name = "verbose", valid = "boolean")
+  message("Setting addArchRVerbose = ", verbose)
+  options(ArchR.verbose = verbose)
+  return(invisible(0))
+}
+
+#' Set ArchR Verbosity for Log Messaging
+#' 
+#' This function will get ArchR logging verbosity.
+#'
+#' @export
+getArchRVerbose <- function(){
+  ArchRVerbose <- options()[["ArchR.verbose"]]
+  if(!is.logical(ArchRVerbose)){
+    options(ArchR.verbose = TRUE)
+    return(TRUE)
+  }
+  ArchRVerbose
+}
+
 #' Create a Log File for ArchR
 #' 
 #' This function will create a log file for ArchR functions. If ArchRLogging is not TRUE
@@ -113,9 +140,9 @@ createLogFile <- function(
       }else{
         msg <- sprintf("%s : %s, %s %s %s", Sys.time(), main, dt, units, tail)
       }
-      message(msg)
+      if(getArchRVerbose()) message(msg)
     }, error = function(x){
-      message("Time Error : ", x)
+      if(getArchRVerbose()) message("Time Error : ", x)
     })
 
   }
@@ -172,7 +199,7 @@ createLogFile <- function(
   }
   }
 
-  message("ArchR logging to : ", logFile, 
+  if(getArchRVerbose()) message("ArchR logging to : ", logFile, 
     "\nIf there is an issue, please report to github with logFile!")
   
   #Begin With
@@ -220,8 +247,12 @@ createLogFile <- function(
   useLogs = getArchRLogging()
   ){
 
-  msg <- utils::capture.output(message(...), type = "message")
-  msg <- paste0(msg, collapse = "\n")
+  if(getArchRVerbose()){
+    msg <- utils::capture.output(message(...), type = "message")
+    msg <- paste0(msg, collapse = "\n")
+  }else{
+    msg <- "SuppressedMessaged due to getArchRVerbose() is FALSE!"
+  }
 
   if(is.null(msg)){
     stop("Message must be provided when logging!")
@@ -556,7 +587,7 @@ createLogFile <- function(
     cat(paste0("Elapsed Time Minutes = ", mn), file = logFile, append = TRUE)
     cat(paste0("\nElapsed Time Hours = ", hr), file = logFile, append = TRUE)
     cat("\n\n-------\n\n\n\n", file = logFile, append = TRUE)
-    message("ArchR logging successful to : ", logFile)
+    if(getArchRVerbose()) message("ArchR logging successful to : ", logFile)
   }, error = function(x){
   })
 

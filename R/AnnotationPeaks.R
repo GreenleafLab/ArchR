@@ -98,7 +98,7 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 #' binary value is stored indicating whether each region is observed within the peak region.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param regions A `list` of `GRanges` that are to be overlapped with the `peakSet` in the `ArchRProject`.
+#' @param regions A named `list` of `GRanges` that are to be overlapped with the `peakSet` in the `ArchRProject`.
 #' @param name The name of `peakAnnotation` object to be stored as in `ArchRProject`.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten
 #' if it already exists in the given `ArchRProject`.
@@ -135,6 +135,10 @@ addPeakAnnotations <- function(
     regionPositions <- GRangesList(region = regions)
 
   }else{
+
+    if(is.null(names(regions))){
+      names(regions) <- paste0("Region_", seq_along(regions))
+    }
 
     regionPositions <- lapply(seq_along(regions), function(x){
       
@@ -184,6 +188,9 @@ addPeakAnnotations <- function(
   # Peak Overlap Matrix
   #############################################################
   peakSet <- getPeakSet(ArchRProj)
+  if(is.null(peakSet)){
+    .logStop("peakSet is NULL. You need a peakset to run addMotifAnnotations! See addReproduciblePeakSet!", logFile = logFile)
+  }
   allPositions <- unlist(regionPositions)
 
   .logDiffTime("Creating Peak Overlap Matrix", t1 = tstart, verbose = TRUE, logFile = logFile)
@@ -431,6 +438,9 @@ addMotifAnnotations <- function(
   #############################################################
   .logDiffTime("Finding Motif Positions with motifmatchr!", t1 = tstart, verbose = TRUE, logFile = logFile)
   peakSet <- ArchRProj@peakSet
+  if(is.null(peakSet)){
+    .logStop("peakSet is NULL. You need a peakset to run addMotifAnnotations! See addReproduciblePeakSet!", logFile = logFile)
+  }
   motifPositions <- motifmatchr::matchMotifs(
       pwms = motifs,
       subject = peakSet,
@@ -606,7 +616,11 @@ addArchRAnnotations <- function(
     }
   }
 
-  genome <- tolower(validBSgenome(getGenome(ArchRProj))@provider_version)
+  genome <- tolower(tryCatch({
+    validBSgenome(getGenome(ArchRProj))$provider_version
+  }, error = function(e){
+    strsplit(validBSgenome(getGenome(ArchRProj))@pkgname,"\\.")[[1]][4]
+  }))
 
   annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
   dir.create(annoPath, showWarnings = FALSE)
@@ -690,6 +704,9 @@ addArchRAnnotations <- function(
   # Peak Overlap Matrix
   #############################################################
   peakSet <- getPeakSet(ArchRProj)
+  if(is.null(peakSet)){
+    .logStop("peakSet is NULL. You need a peakset to run addMotifAnnotations! See addReproduciblePeakSet!", logFile = logFile)
+  }
   chr <- paste0(unique(seqnames(peakSet)))
 
   .logMessage("Annotating Chromosomes", verbose = TRUE, logFile = logFile)
@@ -1061,6 +1078,10 @@ plotEnrichHeatmap <- function(
   mat <- mat[keep, ,drop = FALSE]
   .logThis(mat, "mat-mlog10Padj-Filter", logFile = logFile)
 
+  if(nrow(mat)==0){
+    stop("No enrichments found for your cutoff!")
+  }
+
   passMat <- lapply(seq_len(nrow(mat)), function(x){
     (mat[x, ] >= 0.9*max(mat[x, ])) * 1
   }) %>% Reduce("rbind", .) %>% data.frame
@@ -1070,7 +1091,7 @@ plotEnrichHeatmap <- function(
   mat[mat > pMax] <- pMax
 
   if(nrow(mat)==0){
-    stop("No enrichments found!")
+    stop("No enrichments found for your cutoff!")
   }
 
   mat <- .rowScale(as.matrix(mat), min = 0)

@@ -262,7 +262,7 @@ addReproduciblePeakSet <- function(
 
 	}else if(tolower(peakMethod) == "tiles"){
 
-		.logMessage("Calling Peaks with TileMatrix", logFile = logFile)
+		.logMessage("Calling Peaks with TileMatrix. We recommend using the Macs2 Version.\nThis method is still under development.", logFile = logFile)
 
 		useMatrix <- "TileMatrix"
 		
@@ -325,11 +325,13 @@ addReproduciblePeakSet <- function(
 		#Compute Row Sums Across All Samples
 		.logDiffTime("Computing Total Accessibility Across All Features", tstart, addHeader = FALSE, verbose = verbose)
 		totalAcc <- .getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
+  	.logThis(totalAcc, "PeakCallTiles-totalAcc", logFile=logFile)		
 		nTiles <- nrow(totalAcc)
 		gc()
 
 		#Pre-Filter 0s
 		topFeatures <- totalAcc[which(totalAcc$rowSums != 0), ]
+  	.logThis(topFeatures, "PeakCallTiles-topFeatures", logFile=logFile)		
 
 		#Group Matrix
 		#Consider reading in group-wise if this is getting too large?
@@ -344,9 +346,12 @@ addReproduciblePeakSet <- function(
       asSparse = TRUE,
       verbose = FALSE
     )
-		
+  	.logThis(groupMat, "PeakCallTiles-groupMat", logFile=logFile)		
+
 		.logDiffTime(sprintf("Created Pseudo-Grouped Tile Matrix (%s GB)", round(object.size(groupMat) / 10^9, 3)), tstart, addHeader = FALSE, verbose = verbose)
     expectation <- Matrix::colSums(groupMat) / nTiles
+    .logMessage(paste0("colSums = ", Matrix::colSums(groupMat)), logFile = logFile)
+    .logMessage(paste0("nTiles = ", nTiles), logFile = logFile)
     .logMessage(paste0("Expectation = ", expectation), logFile = logFile)
 
 		#####################################################
@@ -400,6 +405,8 @@ addReproduciblePeakSet <- function(
 	    }
 
     }, threads = threads) %>% Reduce("rbind", .)
+
+  	.logThis(groupPeaks, "PeakCallTiles-groupPeaks", logFile=logFile)
 
     groupPeaks <- groupPeaks[order(groupPeaks$normmlogp, decreasing=TRUE), ]
 

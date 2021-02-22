@@ -222,7 +222,11 @@ getGroupBW <- function(
 
   o <- suppressWarnings(file.remove(list.files(bwDir2, full.names = TRUE)))
 
-  cellsInArrow <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
+  #cellsInArrow <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
+  cellsInArrow <- split(
+    rownames(getCellColData(ArchRProj)), 
+    stringr::str_split(rownames(getCellColData(ArchRProj)), pattern="\\#", simplify=TRUE)[,1]
+  )
   availableChr <- .availableSeqnames(head(getArrowFiles(ArchRProj)))
   chromLengths <- getChromLengths(ArchRProj)
   chromSizes <- getChromSizes(ArchRProj)

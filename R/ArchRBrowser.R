@@ -1749,6 +1749,12 @@ plotBrowserTrack <- function(
 
   title <- paste0(as.character(seqnames(region)),":", start(region)-1, "-", end(region), " ", title)
   
+  #Re-Order
+  groupDF$group2 <- factor(
+    paste0(groupDF$group2), 
+    levels = gtools::mixedsort(unique(paste0(groupDF$group2)))
+  )
+
   p <- ggplot(groupDF, aes(x=bp, y=y, width = tileSize, fill = group2, color = group2)) + 
       geom_tile(size = scTileSize) + 
       facet_grid(group2 ~ ., scales="free_y") + 

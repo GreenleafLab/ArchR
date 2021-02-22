@@ -41,7 +41,14 @@ createGenomeAnnotation <- function(
 
     ##################
     message("Getting blacklist..")
-    blacklist <- .getBlacklist(genome = bsg@provider_version)
+
+    genomeName <- tryCatch({
+      bsg@provider_version
+    }, error = function(e){
+      strsplit(bsg@pkgname,"\\.")[[1]][4]
+    })
+
+    blacklist <- .getBlacklist(genome = genomeName)
 
   }else{
 

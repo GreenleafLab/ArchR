@@ -130,7 +130,7 @@ ArchRProject <- function(
 
   message("Getting SampleNames...")
   sampleNames <- unlist(.safelapply(seq_along(ArrowFiles), function(x){
-    message(x, " ", appendLF = FALSE)
+    if(getArchRVerbose()) message(x, " ", appendLF = FALSE)
     .sampleName(ArrowFiles[x])
   }, threads = threads))
   message("")
@@ -159,7 +159,7 @@ ArchRProject <- function(
   #Cell Information
   message("Getting Cell Metadata...")
   metadataList <- .safelapply(seq_along(ArrowFiles), function(x){
-    message(x, " ", appendLF = FALSE)
+    if(getArchRVerbose()) message(x, " ", appendLF = FALSE)
     .getMetadata(ArrowFiles[x])
   }, threads = threads)
   message("")
