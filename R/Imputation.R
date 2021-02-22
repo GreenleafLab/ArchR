@@ -109,9 +109,8 @@ addImputeWeights <- function(
     }else{
       weightFiles <- file.path(getOutputDirectory(ArchRProj), "ImputeWeights", paste0("Impute-Weights-Rep-", seq_len(nRep)))
     }
+    o <- suppressWarnings(file.remove(weightFiles))
   }
-
-  o <- suppressWarnings(file.remove(weightFiles))
 
   weightList <- .safelapply(seq_len(nRep), function(y){
 
@@ -124,9 +123,8 @@ addImputeWeights <- function(
       blocks <- list(rownames(matDR)) 
     }
 
-    weightFile <- weightFiles[y]
-
     if(useHdf5){
+      weightFile <- weightFiles[y]
       o <- h5createFile(weightFile)
     }
 
