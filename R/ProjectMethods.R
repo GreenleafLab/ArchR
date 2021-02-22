@@ -603,6 +603,10 @@ getGenes <- function(ArchRProj = NULL, symbols = NULL){
     genes <- genes[which(tolower(genes$symbol) %in% tolower(symbols))]
   }
 
+  if(inherits(mcols(genes)$symbol, "list") | inherits(mcols(genes)$symbol, "SimpleList")){
+    stop("Found a list in genes symbol! This is an incorrect format. Please correct your genes!")
+  }
+
   genes
 
 }

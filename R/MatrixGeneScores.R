@@ -100,6 +100,10 @@ addGeneScoreMatrix <- function(
     stop("Error Input Arrow Files do not all exist!")
   }
 
+  if(inherits(mcols(genes)$symbol, "list") | inherits(mcols(genes)$symbol, "SimpleList")){
+    stop("Found a list in genes symbol! This is an incorrect format. Please correct your genes!")
+  }
+
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addGeneScoreMatrix Input-Parameters", logFile = logFile)
 
@@ -190,6 +194,10 @@ addGeneScoreMatrix <- function(
   .validInput(input = allCells, name = "allCells", valid = c("character", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = tmpFile, name = "tmpFile", valid = c("character", "null"))
+
+  if(inherits(mcols(genes)$symbol, "list") | inherits(mcols(genes)$symbol, "SimpleList")){
+    stop("Found a list in genes symbol! This is an incorrect format. Please correct your genes!")
+  }
 
   ArrowFile <- ArrowFiles[i]
   sampleName <- .sampleName(ArrowFile)
