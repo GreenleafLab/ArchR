@@ -912,6 +912,16 @@ getMatrixFromArrow <- function(
       stop("Means Variances and Ns lengths not identical")
     }
 
+    #Check if samples have NAs due to N = 1 sample or some other weird thing.
+    #Set it to min non NA variance
+    dfVars <- lapply(seq_len(nrow(dfVars)), function(x){
+      vx <- dfVars[x, ]
+      if(any(is.na(vx))){
+        vx[is.na(vx)] <- min(vx[!is.na(vx)])
+      }
+      vx
+    }) %>% Reduce("rbind", .)
+
     combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
     summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
     combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
@@ -934,8 +944,6 @@ getMatrixFromArrow <- function(
   ns <- lapply(seq_along(ArrowFiles), function(y){
     length(.availableCells(ArrowFiles[y], useMatrix))
   }) %>% unlist
-
-
 
   #Compute RowVars
   summaryDF <- .safelapply(seq_along(featureDF), function(x){
