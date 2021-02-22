@@ -112,7 +112,7 @@ addGeneIntegrationMatrix <- function(
   .validInput(input = reduction, name = "reduction", valid = c("character"))
   .validInput(input = addToArrow, name = "addToArrow", valid = c("boolean"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
-  .validInput(input = genesUse, name = "genesUse", valid = c("character"))
+  .validInput(input = genesUse, name = "genesUse", valid = c("character", "null"))
   .validInput(input = nameCell, name = "nameCell", valid = c("character"))
   .validInput(input = nameGroup, name = "nameGroup", valid = c("character"))
   .validInput(input = nameScore, name = "nameScore", valid = c("character"))
