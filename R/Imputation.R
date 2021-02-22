@@ -170,8 +170,8 @@ addImputeWeights <- function(
       for(i in seq_len(td)){
           Wt <- Wt %*% W
       }
-      rownames(Wt) <- rownames(matDR)[ix]
-      colnames(Wt) <- rownames(matDR)[ix]
+      rownames(Wt) <- ix
+      colnames(Wt) <- ix
 
       rm(knnIdx)
       rm(knnDist)
