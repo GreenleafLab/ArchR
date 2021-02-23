@@ -854,6 +854,9 @@ createArrowFiles <- function(
   )
   tssFlank$type <- "flank"
   tssFeatures <- c(tssWindow, tssFlank)
+
+  #Trim In Case Extending beyond Chromosomes
+  tssFeatures <- GenomicRanges::trim(tssFeatures)
   #.logThis(tssFeatures, paste0(prefix, " tssFeatures"), logFile = logFile)
 
   #Counting
