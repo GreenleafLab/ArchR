@@ -428,18 +428,17 @@
     RGRle <- Rle(paste0(sampleName, "#", RGValues), RGLengths)
     
     #Determine Which to Keep
-    idx <- BiocGenerics::which(RGRle %bcin% cellsKeep)
-    RGRle <- RGRle[idx]
+    idxj <- BiocGenerics::which(RGRle %bcin% cellsKeep)
+
+    if(length(idxj) == 0){
+      idxj <- 1
+    }
+
+    #Info
+    Ranges <- .h5read(inArrow, paste0(groupJ, "/Ranges"))[idxj, ,drop=FALSE]
+    RGRle <- RGRle[idxj]
     RGLengths <- RGRle@lengths
-
-    #print(head(RGRle@values))
     RGValues <- stringr::str_split(RGRle@values, pattern = "#", simplify = TRUE)[,2]
-
-    #Create Data Sets
-    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/Ranges"), storage.mode = "integer", dims = c(length(RGRle), 2), level = level))
-    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/RGLengths"), storage.mode = "integer", dims = c(length(RGRle), 1), level = level))
-    # o <- .suppressAll(h5createDataset(outArrow, paste0(groupJ, "/RGValues"), storage.mode = "character", dims = c(length(RGRle), 1), level = level, 
-    #         size = max(nchar(RGValues) + 1)))
 
     #Write Barcodes
     o <- .suppressAll(h5write(RGLengths, file = outArrow, name = paste0(groupJ, "/RGLengths"), level = level))
@@ -448,7 +447,7 @@
     #Write Ranges
     o <- .suppressAll(
       h5write(
-        obj = .h5read(inArrow, paste0(groupJ, "/Ranges"))[idx, ], 
+        obj = Ranges, 
         file = outArrow, 
         name = paste0(groupJ, "/Ranges"), 
         level = level
