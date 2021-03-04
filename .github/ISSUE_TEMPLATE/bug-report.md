@@ -7,7 +7,11 @@ assignees: ''
 
 ---
 
-Before you submit this issue please update ArchR to the latest version and make sure that this issue has not already been fixed in the latest release. ArchR is in *beta* and we will fix problems as they arise. To update ArchR:
+This is an issue template made by the developers of ArchR. You MUST follow these instructions.
+
+Questions related to how to use ArchR or requests for new features should be posted in the Discussions forum (https://github.com/GreenleafLab/ArchR/discussions).
+
+Before you submit this Bug Report please update ArchR to the latest stable version and make sure that this issue has not already been fixed in the latest release. ArchR is still in active development and we will fix problems as they arise. To update ArchR:
 
 devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())
 
@@ -22,13 +26,13 @@ ArchR has a built-in logging functionality for all complex functions. You MUST a
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-To help us optimally address your issue, please try to reproduce this issue using the tutorial hematopoiesis dataset and provide us the command(s) to reproduce your bug.
+To help us optimally address your issue, please try to reproduce this issue using the tutorial hematopoiesis dataset and provide us the command(s) to reproduce your bug. Our first question to you will be "can you reproduce this with the tutorial dataset" so please do this.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+If applicable, add screenshots to help explain your problem. Do not screenshot code or text but embed this in markdown using triple-backticks.
 
 **Session Info**
 If you do not have a log file because the function that caused the error does not produce one, please paste the output of "sessionInfo()" here.
