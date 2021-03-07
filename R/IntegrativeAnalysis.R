@@ -760,7 +760,7 @@ addCoAccessibility <- function(
 
   #Create Ranges
   peakSummits <- resize(peakSet, 1, "center")
-  peakWindows <- resize(peakSummits, maxDist, "center")
+  peakWindows <- resize(peakSummits, 2*maxDist + 1, "center")
 
   #Create Pairwise Things to Test
   o <- DataFrame(findOverlaps(peakSummits, peakWindows, ignore.strand = TRUE))
