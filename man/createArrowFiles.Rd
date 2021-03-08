@@ -14,6 +14,8 @@ createArrowFiles(
   minTSS = 4,
   minFrags = 1000,
   maxFrags = 1e+05,
+  minFragSize = 10,
+  maxFragSize = 2000,
   QCDir = "QualityControl",
   nucLength = 147,
   promoterRegion = c(2000, 100),
@@ -68,6 +70,10 @@ Cells containing greater than or equal to \code{minFrags} total fragments wll be
 
 \item{maxFrags}{The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
 Cells containing greater than or equal to \code{maxFrags} total fragments wll be retained.}
+
+\item{minFragSize}{The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.}
+
+\item{maxFragSize}{The maximum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.}
 
 \item{QCDir}{The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.}
 
