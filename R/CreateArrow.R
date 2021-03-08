@@ -21,6 +21,8 @@
 #' Cells containing greater than or equal to `minFrags` total fragments wll be retained.
 #' @param maxFrags The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
 #' Cells containing greater than or equal to `maxFrags` total fragments wll be retained.
+#' @param minFragSize The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.
+#' @param maxFragSize The maximum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.
 #' @param QCDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 #' sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
@@ -71,6 +73,8 @@ createArrowFiles <- function(
   minTSS = 4,
   minFrags = 1000, 
   maxFrags = 100000,
+  minFragSize = 10,
+  maxFragSize = 2000,
   QCDir = "QualityControl",
   nucLength = 147,
   promoterRegion = c(2000, 100),
@@ -142,6 +146,9 @@ createArrowFiles <- function(
   .validInput(input = removeFilteredCells, name = "removeFilteredCells", valid = c("boolean"))
   .validInput(input = minFrags, name = "minFrags", valid = c("numeric"))
   .validInput(input = maxFrags, name = "maxFrags", valid = c("numeric"))
+  .validInput(input = minFragSize, name = "minFragSize", valid = c("numeric"))
+  .validInput(input = maxFragSize, name = "maxFragSize", valid = c("numeric"))  
+  stopifnot(minFragSize < maxFragSize)
   .validInput(input = QCDir, name = "QCDir", valid = c("character"))
   .validInput(input = nucLength, name = "nucLength", valid = c("integer"))
   .validInput(input = promoterRegion, name = "promoterRegion", valid = c("integer"))
@@ -241,8 +248,10 @@ createArrowFiles <- function(
   offsetMinus = -5,
   geneAnnotation = NULL,
   genomeAnnotation = NULL,
-  minFrags = 500, 
+  minFrags = 1000, 
   maxFrags = 100000,
+  minFragSize = 10,
+  maxFragSize = 2000,
   removeFilteredCells = TRUE,
   filterFrags = 1000,
   filterTSS = 4,
@@ -414,7 +423,7 @@ createArrowFiles <- function(
 
       .tmpToArrow(tmpFile = tmp, outArrow = ArrowFile, genome = genomeAnnotation$genome, 
                   minFrags = minFrags, maxFrags = maxFrags, sampleName = sampleName, prefix = prefix, threads = subThreads,
-                  verbose = verbose, tstart = tstart, 
+                  verbose = verbose, tstart = tstart, minFragSize = minFragSize, maxFragSize = maxFragSize,
                   chromSizes = genomeAnnotation$chromSizes, removeFilteredCells = removeFilteredCells, logFile = logFile)
 
       }, error = function(e){
@@ -1248,6 +1257,11 @@ createArrowFiles <- function(
         return(list(tmpChrFile = NULL, errorCheck = errorCheck))
       }
 
+      #No NAs
+      dt <- dt[!is.na(dt$RG), , drop=FALSE] 
+      dt <- dt[!is.na(dt$start), , drop=FALSE]
+      dt <- dt[!is.na(dt$end), , drop=FALSE]
+      
       #Care for Break Points
       dt <- dt[dt$V2 >= start(tileChromSizes[x]),]
 
@@ -1622,13 +1636,18 @@ createArrowFiles <- function(
         .logThis(unique(dt$V4), name = paste0(prefix, " .bamToTmp Barcodes-Chunk-(",x," of ",length(tileChromSizes),")-", tileChromSizes[x]), logFile = logFile)
       }
 
+      #No NAs
+      dt <- dt[!is.na(dt$RG), , drop=FALSE] 
+      dt <- dt[!is.na(dt$start), , drop=FALSE]
+      dt <- dt[!is.na(dt$end), , drop=FALSE]
+
       #Care for Break Points
-      dt <- dt[dt$start >= start(tileChromSizes[x]),] 
-      dt <- dt[dt$end - dt$start >= 10, ] #Minimum Fragment Size
+      dt <- dt[dt$start >= start(tileChromSizes[x]),, drop=FALSE] 
+      dt <- dt[dt$end - dt$start >= 10, , drop=FALSE] #Minimum Fragment Size
 
       #Check for valid barcodes
       if(!is.null(validBC)){
-        dt <- dt[dt$RG %in% validBC, ]
+        dt <- dt[dt$RG %in% validBC, , drop=FALSE]
       }
 
       if(all(!is.null(dt), nrow(dt) > 0)){
@@ -1790,8 +1809,10 @@ createArrowFiles <- function(
   outArrow = NULL, 
   genome = NULL, 
   chromSizes = NULL,
-  minFrags = 500, 
-  maxFrags = 100000, 
+  minFrags = 1000, 
+  maxFrags = 100000,
+  minFragSize = 10,
+  maxFragSize = 2000, 
   sampleName = NULL, 
   verbose = TRUE,
   tstart = NULL,
@@ -1922,6 +1943,12 @@ createArrowFiles <- function(
           #Order RG RLE based on bcPass
           fragments <- fragments[BiocGenerics::which(mcols(fragments)$RG %bcin% bcPass)]
           fragments <- fragments[order(S4Vectors::match(mcols(fragments)$RG, bcPass))]
+
+          #Check if Fragments are greater than minFragSize and smaller than maxFragSize
+          fragments <- fragments[width(fragments) >= minFragSize]
+          fragments <- fragments[width(fragments) <= maxFragSize]
+
+          #Length of BC
           lengthRG <- length(mcols(fragments)$RG@lengths)
 
           if(x == 1){
@@ -2002,6 +2029,12 @@ createArrowFiles <- function(
           #Order RG RLE based on bcPass
           fragments <- fragments[BiocGenerics::which(mcols(fragments)$RG %bcin% bcPass)]
           fragments <- fragments[order(S4Vectors::match(mcols(fragments)$RG, bcPass))]
+
+          #Check if Fragments are greater than minFragSize and smaller than maxFragSize
+          fragments <- fragments[width(fragments) >= minFragSize]
+          fragments <- fragments[width(fragments) <= maxFragSize]
+
+          #Length of BC
           lengthRG <- length(mcols(fragments)$RG@lengths)
 
           if(x == 1){
