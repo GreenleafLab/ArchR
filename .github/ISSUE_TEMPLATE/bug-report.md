@@ -1,6 +1,7 @@
 ---
 name: Bug Report
-about: Create a bug report to help us improve ArchR
+about: Create a bug report to help us improve ArchR. NOT to be used for questions
+  or feature requests!
 title: ''
 labels: bug
 assignees: ''
