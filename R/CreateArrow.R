@@ -22,7 +22,7 @@
 #' @param maxFrags The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
 #' Cells containing greater than or equal to `maxFrags` total fragments wll be retained.
 #' @param minFragSize The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.
-#' @param maxFragSize The maximum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.
+#' @param maxFragSize The maximum fragment size to be included into Arrow File. Fragments above than this number are discarded. Must be greater than maxFragSize.
 #' @param QCDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
 #' @param nucLength The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
 #' sub-nucleosome-spanning, mono-nucleosome-spanning, or multi-nucleosome-spanning.
@@ -1261,7 +1261,7 @@ createArrowFiles <- function(
       dt <- dt[!is.na(dt$RG), , drop=FALSE] 
       dt <- dt[!is.na(dt$start), , drop=FALSE]
       dt <- dt[!is.na(dt$end), , drop=FALSE]
-      
+
       #Care for Break Points
       dt <- dt[dt$V2 >= start(tileChromSizes[x]),]
 

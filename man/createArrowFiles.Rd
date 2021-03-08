@@ -73,7 +73,7 @@ Cells containing greater than or equal to \code{maxFrags} total fragments wll be
 
 \item{minFragSize}{The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.}
 
-\item{maxFragSize}{The maximum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.}
+\item{maxFragSize}{The maximum fragment size to be included into Arrow File. Fragments above than this number are discarded. Must be greater than maxFragSize.}
 
 \item{QCDir}{The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.}
 
