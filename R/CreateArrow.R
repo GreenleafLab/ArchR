@@ -45,8 +45,10 @@
 #' @param bamFlag A vector of bam flags to be used for reading in fragments from input bam files. Should be in the format of a
 #' `scanBamFlag` passed to `ScanBam` in Rsamtools.
 #' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site.
+#' This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 #' See Buenrostro et al. Nature Methods 2013.
 #' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site.
+#' This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 #' See Buenrostro et al. Nature Methods 2013.
 #' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that,
 #' instead of using peaks, uses a fixed-width sliding window of bins across the whole genome. This matrix can be used in many downstream ArchR operations.
