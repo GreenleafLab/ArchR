@@ -734,6 +734,10 @@ plotTrajectory <- function(
   # Get Embedding
   ##############################
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+  if (length(colnames(df)) > 2){
+    .logMessage("Greater than two dimensions in embedding, only keeping the first two.", logFile = logFile)
+    df <- df[,1:2]
+  }
   .logThis(df, "embedding", logFile = logFile)
   dfT <- cbind(df, dfT[rownames(df),])
   colnames(dfT) <- c("x", "y", "PseudoTime")
