@@ -755,6 +755,22 @@ getBgdPeaks <- function(
       useMatrix = useMatrix,
       filter0 = FALSE
     ))
+
+  all1 <- all(
+    paste0(rS$seqnames, ":", rS$idx) %in% 
+    paste0(seqnames(ArchRProj@peakSet), ":", ArchRProj@peakSet$idx)
+  )
+
+  all2 <- all(
+  paste0(seqnames(ArchRProj@peakSet), ":", ArchRProj@peakSet$idx) %in% 
+    paste0(rS$seqnames, ":", rS$idx)
+  )
+
+  if(!(all1 & all2)){
+    stop("PeakSet in Arrows does not match PeakSet in ArchRProject!
+     To try to solve this, try re-running addPeakMatrix(ArchRProj, force=TRUE)")    
+  }
+
   rS$start <- start(ArchRProj@peakSet)
   rS$end <- end(ArchRProj@peakSet)
   rS$GC <- ArchRProj@peakSet$GC
