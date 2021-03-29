@@ -1096,7 +1096,7 @@ addIterativeLSI <- function(
         #.safeSaveRDS(mat, "temp.rds", compress = FALSE)
         matO <- mat[, idxOutlier, drop = FALSE]
         mat <- mat[, -idxOutlier, drop = FALSE]
-        mat2 <- mat[, head(seq_len(ncol(mat)), 10), drop = FALSE] # A 2nd Matrix to Check Projection is Working
+        mat2 <- mat[, head(seq_len(ncol(mat)), 50), drop = FALSE] # A 2nd Matrix to Check Projection is Working
         colSm <- colSm[-idxOutlier]
         filterOutliers <- 1       
       }
@@ -1196,6 +1196,12 @@ addIterativeLSI <- function(
         cor(pCheck[,x], pCheck2[,x])
       }) %>% unlist
       if(min(pCheck3) < 0.95){
+        print("Check1 :")
+        print(head(pCheck))
+        print("\nCheck2 :")
+        print(head(pCheck2))
+        print("\nCheck3 :")
+        print(pCheck3)
         stop("Error with LSI-projection! Cor less than 0.95 of re-projection. Please report bug to github!")
       }
       #Project LSI Outliers
