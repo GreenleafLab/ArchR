@@ -1196,13 +1196,10 @@ addIterativeLSI <- function(
         cor(pCheck[,x], pCheck2[,x])
       }) %>% unlist
       if(min(pCheck3) < 0.95){
-        print("Check1 :")
-        print(head(pCheck))
-        print("\nCheck2 :")
-        print(head(pCheck2))
-        print("\nCheck3 :")
-        print(pCheck3)
-        stop("Error with LSI-projection! Cor less than 0.95 of re-projection. Please report bug to github!")
+        .logThis(pCheck, "pCheck", logFile=logFile)
+        .logThis(pCheck2, "pCheck2", logFile=logFile)
+        .logThis(pCheck3, "pCheck3", logFile=logFile)
+        warning("Warning with LSI-projection! Cor less than 0.95 of re-projection. Please report this to github with logFile!")
       }
       #Project LSI Outliers
       out$outliers <- colnames(matO)
