@@ -203,6 +203,12 @@ addGeneIntegrationMatrix <- function(
     seuratRNA$Group <- paste0(seRNA@meta.data[,groupRNA])
     rm(seRNA)
   }
+
+  if("RNA" %in% names(seuratRNA@assays)){
+    DefaultAssay(seuratRNA) <- "RNA"
+  }else{
+    stop("'RNA' is not present in Seurat Object's Assays! Please make sure that this assay is present!")
+  }
   gc()
 
   if(!is.null(groupRNA)){
