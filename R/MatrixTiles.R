@@ -217,7 +217,7 @@ addTileMatrix <- function(
 
       #Check N
       nf2 <- length(fragments)
-      if(nf2 < nf1)
+      if(nf2 < nf1){
         warning("Skipping over fragments not within chromosome range on Chr:", chr)
         .logThis(fragmentsBad1, "fragmentsBad1", logFile = logFile)
         print("Bad1 (Start not greater than 0): ")

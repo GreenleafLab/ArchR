@@ -106,9 +106,11 @@ gsubExpression would be ":.*". This would retrieve the string after the colon as
 \code{scanBamFlag} passed to \code{ScanBam} in Rsamtools.}
 
 \item{offsetPlus}{The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site.
+This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 See Buenrostro et al. Nature Methods 2013.}
 
 \item{offsetMinus}{The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site.
+This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 See Buenrostro et al. Nature Methods 2013.}
 
 \item{addTileMat}{A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that,
