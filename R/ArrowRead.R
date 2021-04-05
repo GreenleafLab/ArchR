@@ -719,7 +719,8 @@ getMatrixFromArrow <- function(
   tmpPath = .tempfile(pattern = paste0("tmp-partial-mat")), 
   useIndex = FALSE,
   tstart = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  logFile = NULL
   ){
 
   #########################################

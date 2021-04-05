@@ -544,7 +544,8 @@ addIterativeLSI <- function(
         cellNames = cellNames,
         doSampleCells = FALSE,
         threads = threads,
-        verbose = FALSE
+        verbose = FALSE,
+        logFile = logFile
       )
 
       #Compute LSI
@@ -591,7 +592,8 @@ addIterativeLSI <- function(
           cellNames = sampledCellNames,
           doSampleCells = FALSE,
           threads = threads,
-          verbose = FALSE
+          verbose = FALSE,
+          logFile = logFile
         )
 
         #Compute LSI
@@ -628,7 +630,8 @@ addIterativeLSI <- function(
             tmpPath = tmpPath,
             useIndex = useIndex,
             threads = threads,
-            verbose = FALSE
+            verbose = FALSE,
+            logFile = logFile
           )
         gc()
 
