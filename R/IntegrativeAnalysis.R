@@ -774,6 +774,8 @@ addCoAccessibility <- function(
 
   #Peak Matrix ColSums
   cS <- .getColSums(getArrowFiles(ArchRProj), chri, verbose = FALSE, useMatrix = "PeakMatrix")
+  cS <- cS[ArchRProj$cellNames]
+  
   gS <- unlist(lapply(seq_along(knnObj), function(x) sum(cS[knnObj[[x]]], na.rm=TRUE)))
 
   for(x in seq_along(chri)){

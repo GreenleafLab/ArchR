@@ -285,7 +285,7 @@ addIterativeLSI <- function(
       v
     }, error = function(e){
       tryCatch({
-        .getColSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
+        .getColSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)[ArchRProj$cellNames]
       }, error = function(y){
         stop("Could not determine depth from depthCol or colSums!")
       })
