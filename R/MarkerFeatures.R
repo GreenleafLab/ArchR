@@ -191,11 +191,16 @@ getMarkerFeatures <- function(
     #####################################################
     # Pairwise Test Per Seqnames
     #####################################################
+    #ColSums
     mColSums <- tryCatch({
       suppressMessages(.getColSums(ArrowFiles, seqnames = featureDF$seqnames@values, useMatrix = useMatrix, threads = threads))
     }, error = function(x){
       rep(1, nCells(ArchRProj))
     })
+
+    #Subset By Cells in ArchRProj
+    mColSums <- mColSums[ArchRProj$cellNames]
+
     if(all(mColSums==1) & is.null(normBy)){
       normBy <- "none"
     }
