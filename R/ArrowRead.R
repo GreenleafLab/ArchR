@@ -1021,7 +1021,7 @@ getMatrixFromArrow <- function(
   ){
 
   if(tolower(method) == "fast" & is.null(index) & is.null(start) & is.null(block) & is.null(count)){
-    fid <- H5Fopen(file)
+    fid <- H5Fopen(file, "H5F_ACC_RDONLY"))
     dapl <- H5Pcreate("H5P_DATASET_ACCESS")
     did <- .Call("_H5Dopen", fid@ID, name, dapl@ID, PACKAGE='rhdf5')
     res <- .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, fid@native, PACKAGE='rhdf5')
