@@ -253,7 +253,7 @@ addUMAP <- function(
 }
 
 #New Save UWOT
-.loadUWOT <- function(file){
+.loadUWOT <- function(file, nDim = NULL){
   tryCatch({
     uwot::load_uwot(file = file, verbose = TRUE)
   }, error = function(e){
