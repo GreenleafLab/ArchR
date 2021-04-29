@@ -20,7 +20,7 @@
 #' This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.
 #' @param pathToMacs2 The full path to the MACS2 executable.
-#' @param genomeSize The genome size to be used for MACS2 peak calling (see MACS2 documentation).
+#' @param genomeSize The genome size to be used for MACS2 peak calling (see MACS2 documentation). This is required if genome is not hg19, hg38, mm9, or mm10.
 #' @param shift The number of basepairs to shift each Tn5 insertion. When combined with `extsize` this allows you to create proper fragments,
 #' centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
 #' @param extsize The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this
@@ -166,6 +166,8 @@ addReproduciblePeakSet <- function(
 				genomeSize <- 2.7e9
 			}else if(grepl("mm9|mm10", getGenome(ArchRProj), ignore.case = TRUE)){
 				genomeSize <- 1.87e9
+			}else {
+				stop("Non-standard genome detected. Argument genomeSize is required!")
 			}
 		}
 
