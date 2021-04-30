@@ -143,6 +143,11 @@ addGeneIntegrationMatrix <- function(
   #########################################################################################
   .logDiffTime("Checking ATAC Input", tstart, verbose = verbose, logFile = logFile)
 
+  if (useMatrix %ni% getAvailableMatrices(ArchRProj)) {
+    .logMessage(paste0("Matrix ", useMatrix, " does not exist in the provided ArchRProject. See available matrix names from getAvailableMatrices()!"), logFile = logFile)
+    stop("Matrix name provided to useMatrix does not exist in ArchRProject!")
+  }
+  
   if(!is.null(groupATAC)){
     dfATAC <- getCellColData(ArchRProj = ArchRProj, select = groupATAC, drop = FALSE)
   }
