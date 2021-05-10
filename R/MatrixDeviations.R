@@ -626,6 +626,11 @@ addBgdPeaks <- function(
   .validInput(input = outFile, name = "outFile", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
+  if ("PeakMatrix" %ni% getAvailableMatrices(ArchRProj)) {
+    .logMessage(paste0("PeakMatrix does not exist in the provided ArchRProject. Add a peak matrix using addPeakMatrix(). See available matrix names from getAvailableMatrices()!"), logFile = logFile)
+    stop("PeakMatrix does not exist in the provided ArchRProject. Add a peak matrix using addPeakMatrix(). See available matrix names from getAvailableMatrices()!")
+  }
+  
   if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
     
     if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
