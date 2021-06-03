@@ -9,6 +9,7 @@
 #' @param n An integer specifying the number of subsampled "pseudo single cells" per bulk sample.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param threads The number of threads used for parallel execution
+#' @param force A boolean value indicating whether to force the projection of bulk ATAC data even if fewer than 25% of the features are present in the bulk ATAC data set.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 #'
@@ -20,6 +21,7 @@ projectBulkATAC <- function(
   n = 250,
   verbose = TRUE,
   threads = getArchRThreads(),
+  force = FALSE,
   logFile = createLogFile("projectBulkATAC")
   ){
 
@@ -30,8 +32,9 @@ projectBulkATAC <- function(
   .validInput(input = n, name = "n", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
-
+  
   tstart <- Sys.time()
 
   .startLogging(logFile = logFile)
