@@ -103,6 +103,9 @@ addGeneScoreMatrix <- function(
   if(inherits(mcols(genes)$symbol, "list") | inherits(mcols(genes)$symbol, "SimpleList")){
     stop("Found a list in genes symbol! This is an incorrect format. Please correct your genes!")
   }
+  if(!any(colnames(mcols(genes)) == "symbol")) {
+    stop("No symbol column in genes! A column named symbol is exected in the GRanges object passed to the genes parameter!")
+  }
 
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addGeneScoreMatrix Input-Parameters", logFile = logFile)
