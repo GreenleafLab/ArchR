@@ -1260,9 +1260,9 @@ createArrowFiles <- function(
       }
 
       #No NAs
-      dt <- dt[!is.na(dt$RG), , drop=FALSE] 
-      dt <- dt[!is.na(dt$start), , drop=FALSE]
-      dt <- dt[!is.na(dt$end), , drop=FALSE]
+      dt <- dt[!is.na(dt$V2), , drop=FALSE] 
+      dt <- dt[!is.na(dt$V3), , drop=FALSE]
+      dt <- dt[!is.na(dt$V4), , drop=FALSE]
 
       #Care for Break Points
       dt <- dt[dt$V2 >= start(tileChromSizes[x]),]
