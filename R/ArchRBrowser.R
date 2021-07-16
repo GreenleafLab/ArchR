@@ -995,7 +995,7 @@ plotBrowserTrack <- function(
   # Plot Track
   ######################################################
   if(!is.null(ylim)){
-    ylim <- quantile(df$y, ylim)
+    ylim <- c(0,quantile(df$y, ylim))
     df$y[df$y < ylim[1]] <- ylim[1]
     df$y[df$y > ylim[2]] <- ylim[2]
   }else{
