@@ -24,23 +24,30 @@ createGenomeAnnotation <- function(
   .validInput(input = filter, name = "filter", valid = c("boolean"))
   .validInput(input = filterChr, name = "filterChr", valid = c("character", "null"))
 
-  if(is.null(genome) | is.null(blacklist) | is.null(chromSizes)){
+  ##################
+  message("Getting genome..")
+  #validBSgenome works on both character and BSgenome inputs, which are the only allowable inputs to the param
+  bsg <- validBSgenome(genome)
+  genome <- bsg@pkgname
 
-    ##################
-    message("Getting genome..")
-    bsg <- validBSgenome(genome)
-    genome <- bsg@pkgname
-
-    ##################
-    message("Getting chromSizes..")
+  if(is.null(chromSizes)) {
+    message("Attempting to infer chromSizes..")
     chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
     if(filter){
-        chromSizes <- filterChrGR(chromSizes, remove = filterChr)
+      if(is.null(filterChr)) {
+        stop("Cannot have filterChr = NULL when filter = TRUE!")
+      }
+      chromSizes <- filterChrGR(chromSizes, remove = filterChr)
     }
     seqlengths(chromSizes) <- end(chromSizes)
+  } else {
+    message("Using provided chromSizes..")
+    chromSizes <- .validGRanges(chromSizes)
+  }
 
+  if(is.null(blacklist)){
     ##################
-    message("Getting blacklist..")
+    message("Attempting to infer blacklist..")
 
     genomeName <- tryCatch({
       bsg@provider_version
@@ -50,15 +57,9 @@ createGenomeAnnotation <- function(
 
     blacklist <- .getBlacklist(genome = genomeName)
 
-  }else{
-
-    bsg <- validBSgenome(genome)
-    genome <- bsg@pkgname
-    
-    chromSizes <- .validGRanges(chromSizes)
-    
+  } else {
+    message("Using provided blacklist...")
     blacklist <- .validGRanges(blacklist)
-
   }
 
   SimpleList(genome = genome, chromSizes = chromSizes, blacklist = blacklist)
