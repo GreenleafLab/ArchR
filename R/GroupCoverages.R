@@ -585,7 +585,6 @@ addGroupCoverages <- function(
 
   .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "kmerBias-Parameters", logFile = logFile)
   
-  .requirePackage(genome)
   .requirePackage("Biostrings", source = "bioc")
   BSgenome <- eval(parse(text = genome))
   BSgenome <- validBSgenome(BSgenome)
