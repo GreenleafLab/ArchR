@@ -32,7 +32,7 @@ addGroupCoverages <- function(
   ArchRProj = NULL,
   groupBy = "Clusters",
   useLabels = TRUE,
-  sampleLabels = NULL,
+  sampleLabels = "Sample",
   minCells = 40,
   maxCells = 500,
   maxFragments = 25*10^6,
@@ -51,7 +51,7 @@ addGroupCoverages <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
   .validInput(input = useLabels, name = "useLabels", valid = c("boolean"))
-  .validInput(input = sampleLabels, name = "sampleLabels", valid = c("character","null"))
+  .validInput(input = sampleLabels, name = "sampleLabels", valid = c("character"))
   .validInput(input = minCells, name = "minCells", valid = c("integer"))
   .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
   .validInput(input = maxFragments, name = "maxFragments", valid = c("integer"))
@@ -70,10 +70,8 @@ addGroupCoverages <- function(
     stop("minReplicates must be at least 2!")
   }
 
-  if(!is.null(sampleLabels)){
-    if(sampleLabels %ni% colnames(ArchRProj@cellColData)) {
-      stop("sampleLabels is not a column in cellColData!")
-    }
+  if(sampleLabels %ni% colnames(ArchRProj@cellColData)) {
+    stop("sampleLabels is not a column in cellColData!")
   }
 
   tstart <- Sys.time()
@@ -130,9 +128,6 @@ addGroupCoverages <- function(
       #  outListx <- SimpleList(LowCellGroup = cellNamesx) or NULL
       #}
       if(useLabels){
-        if(is.null(sampleLabels)) {
-          sampleLabels <- "Sample"
-        }
         sampleLabelsx <- paste0(subColDat[,sampleLabels])
       } else {
         sampleLabelsx <- NULL
