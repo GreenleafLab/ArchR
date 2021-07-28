@@ -6,9 +6,10 @@
 #' @param chromSizes A `GRanges` object containing chromosome start and end coordinates.
 #' @param blacklist A `GRanges` object containing regions that should be excluded from analyses due to unwanted biases.
 #' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded.
-#' These "non-standard" chromosomes are defined by `filterChrGR()`.
+#' These "non-standard" chromosomes are defined by `filterChrGR()` and by manual annotation using the `filterChr` parameter.
 #' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
-#' If no manual removal is desired, `filterChr` should be set to `NULL`.
+#' If no manual removal is desired, `filterChr` should be set to `NULL`. If `filter` is set to `TRUE` but `filterChr` is set to `NULL`,
+#' non-standard chromosomes will still be removed as defined in `filterChrGR()`.
 #' @export
 createGenomeAnnotation <- function(
   genome = NULL,
@@ -34,9 +35,6 @@ createGenomeAnnotation <- function(
     message("Attempting to infer chromSizes..")
     chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
     if(filter){
-      if(is.null(filterChr)) {
-        stop("Cannot have filterChr = NULL when filter = TRUE!")
-      }
       chromSizes <- filterChrGR(chromSizes, remove = filterChr)
     }
     seqlengths(chromSizes) <- end(chromSizes)
