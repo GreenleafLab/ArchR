@@ -239,7 +239,12 @@ getFragmentsFromArrow <- function(
 
 #' Get a data matrix stored in an ArchRProject
 #' 
-#' This function gets a given data matrix from an `ArchRProject`.
+#' This function gets a given data matrix from an `ArchRProject` and returns it as a `SummarizedExperiment`.
+#' This function will return the matrix you ask it for, without altering that matrix unless you tell it to.
+#' For example, if you added your `PeakMatrix` using `addPeakMatrix()` with `binarize = TRUE`, then
+#' `getMatrixFromProject()` will return a binarized `PeakMatrix`. Alternatively, you could set `binarize = TRUE`
+#' in the parameters passed to `getMatrixFromProject()` and the `PeakMatrix` will be binarized as you pull
+#' it out. No other normalization is applied to the matrix by this function.
 #'
 #' @param ArchRProj An `ArchRProject` object to get data matrix from.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
