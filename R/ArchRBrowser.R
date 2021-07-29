@@ -5,7 +5,8 @@
 #' Launch ArchR Genome Browser
 #' 
 #' This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which
-#' enables direct comparison across samples.
+#' enables direct comparison across samples. Note that the genes displayed in this browser are derived from your `geneAnnotation`
+#' (i.e. the `BSgenome` object you used) so they may not match other online genome browsers that use different gene annotations.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
@@ -628,7 +629,8 @@ ArchRBrowserTrack <- function(...){
 #' Plot an ArchR Region Track
 #' 
 #' This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal
-#' which enables direct comparison across samples.
+#' which enables direct comparison across samples. Note that the genes displayed in these plots are derived from your `geneAnnotation`
+#' (i.e. the `BSgenome` object you used) so they may not match other online genome browsers that use different gene annotations.
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object,
