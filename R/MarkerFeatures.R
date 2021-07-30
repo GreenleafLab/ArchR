@@ -965,7 +965,9 @@ plotMarkerHeatmap <- function(
       mat <- bS[[1]][,colnames(mat),drop=FALSE]
     }
     clusterRows <- FALSE
-    clusterCols <- bS[[2]]
+    if (clusterCols) {
+      clusterCols <- bS[[2]]
+    }
   }else{
     clusterRows <- TRUE
     clusterCols <- TRUE
