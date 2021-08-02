@@ -429,7 +429,6 @@ addMotifAnnotations <- function(
   # Get BSgenome Information!
   #############################################################
   genome <- ArchRProj@genomeAnnotation$genome
-  .requirePackage(genome)
   BSgenome <- eval(parse(text = genome))
   BSgenome <- validBSgenome(BSgenome)
 
