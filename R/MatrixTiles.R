@@ -267,7 +267,8 @@ addTileMatrix <- function(
         Group = paste0("TileMatrix/", chr), 
         binarize = binarize,
         addColSums = TRUE,
-        addRowSums = TRUE
+        addRowSums = TRUE,
+        addRowVarsLog2 = TRUE
         )
 
       gc()
