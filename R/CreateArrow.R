@@ -1153,11 +1153,11 @@ createArrowFiles <- function(
     }
   }, error = function(x){
     tryCatch({
-      if(getArchRVerbose()) 
-       ("Attempting to index ", file," as bam...")
+      if(getArchRVerbose()) message("Attempting to index ", file," as bam...")
       indexBam(file)
       TRUE
     }, error = function(y){
+      message("Indexing of BAM file failed for ",file,".")
       FALSE
     })
   })
