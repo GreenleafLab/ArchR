@@ -1137,6 +1137,7 @@ createArrowFiles <- function(
       indexTabix(file, format = "bed")
       TRUE
     }, error = function(y){
+      message("Tabix indexing failed for ", file,". Note that ArchR requires bgzipped fragment files which is different from gzip. See samtools bgzip!")
       FALSE
     })
   })
@@ -1152,7 +1153,8 @@ createArrowFiles <- function(
     }
   }, error = function(x){
     tryCatch({
-      if(getArchRVerbose()) message("Attempting to index ", file," as bam...")
+      if(getArchRVerbose()) 
+       ("Attempting to index ", file," as bam...")
       indexBam(file)
       TRUE
     }, error = function(y){
