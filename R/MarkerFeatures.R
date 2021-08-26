@@ -1225,7 +1225,8 @@ plotMarkers <- function(
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
-  scaleTo = 10^4
+  scaleTo = 10^4,
+  rastr = TRUE
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -1233,6 +1234,7 @@ plotMarkers <- function(
   .validInput(input = cutOff, name = "cutOff", valid = c("character"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))
@@ -1287,7 +1289,7 @@ plotMarkers <- function(
       ylim = c(-qLFC, qLFC),
       size = 1,
       extend = 0,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,
@@ -1304,7 +1306,7 @@ plotMarkers <- function(
       xlim = c(-qLFC, qLFC),
       extend = 0,
       size = 1,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,
@@ -1321,7 +1323,7 @@ plotMarkers <- function(
       xlim = c(-qDiff, qDiff),
       extend = 0,
       size = 1,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,
