@@ -1219,6 +1219,8 @@ markerPlot <- function(...){
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted.
 #' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
+#' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
+#' lines and labels, just the internal portions of the plot.
 #' @export
 plotMarkers <- function(
   seMarker = NULL,
