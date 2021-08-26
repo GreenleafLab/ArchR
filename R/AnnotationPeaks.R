@@ -59,7 +59,8 @@ getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 
 #' Get peak annotation matches from an ArchRProject
 #' 
-#' This function gets peak annotation matches from a given ArchRProject.
+#' This function gets peak annotation matches from a given ArchRProject. The peaks in the returned object are in the
+#' same order as the peaks returned by `getPeakSet()`.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
