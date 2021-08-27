@@ -30,6 +30,16 @@ addModuleScore <- function(
   logFile = createLogFile("addModuleScore")
   ){
 
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = features, name = "features", valid = c("character"))
+  .validInput(input = nBin, name = "nBin", valid = c("integer"))
+  .validInput(input = nBgd, name = "nBgd", valid = c("integer"))
+  .validInput(input = seed, name = "seed", valid = c("integer","null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
+  
   if(useMatrix %ni% getAvailableMatrices(ArchRProj)){
       stop("useMatrix not in available matrices! See getAvailableMatrices!")
   }
