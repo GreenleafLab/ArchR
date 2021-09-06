@@ -1137,6 +1137,7 @@ createArrowFiles <- function(
       indexTabix(file, format = "bed")
       TRUE
     }, error = function(y){
+      message("Tabix indexing failed for ", file,". Note that ArchR requires bgzipped fragment files which is different from gzip. See samtools bgzip!")
       FALSE
     })
   })
@@ -1156,6 +1157,7 @@ createArrowFiles <- function(
       indexBam(file)
       TRUE
     }, error = function(y){
+      message("Indexing of BAM file failed for ",file,".")
       FALSE
     })
   })
@@ -1260,9 +1262,9 @@ createArrowFiles <- function(
       }
 
       #No NAs
-      dt <- dt[!is.na(dt$RG), , drop=FALSE] 
-      dt <- dt[!is.na(dt$start), , drop=FALSE]
-      dt <- dt[!is.na(dt$end), , drop=FALSE]
+      dt <- dt[!is.na(dt$V2), , drop=FALSE] 
+      dt <- dt[!is.na(dt$V3), , drop=FALSE]
+      dt <- dt[!is.na(dt$V4), , drop=FALSE]
 
       #Care for Break Points
       dt <- dt[dt$V2 >= start(tileChromSizes[x]),]
