@@ -501,7 +501,7 @@ plotFootprints <- function(
   biasMat <- t(t(biasMat) / colMeans(biasMat[idx, ,drop=FALSE]))
 
   errorList$footMatNorm <- footMat
-  errorList$biasMatNorm <- footMat
+  errorList$biasMatNorm <- biasMat
 
   #Norm Foot By Bias
   if(tolower(normMethod) == "none"){
