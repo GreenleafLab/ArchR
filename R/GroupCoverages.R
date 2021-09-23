@@ -765,7 +765,7 @@ addGroupCoverages <- function(
       if(!any(is.na(iS$start))) {
         data.table::fwrite(iS, out, sep = "\t", col.names = FALSE, append = TRUE)
       } else {
-        message(paste0("Warning - No insertions found on seqnames ", allChr[x], " for coverageFile ", coverageFile,".")
+        message(paste0("Warning - No insertions found on seqnames ", allChr[x], " for coverageFile ", coverageFile,"."))
         .logMessage(paste0("Warning - No insertions found on seqnames ", allChr[x], " for coverageFile ", coverageFile,"."), logFile = logFile)
       }
     }, error = function(e){
