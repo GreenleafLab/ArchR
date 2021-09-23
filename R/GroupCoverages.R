@@ -762,7 +762,12 @@ addGroupCoverages <- function(
       if(x == 1) .logThis(iS, "InsertionSites", logFile = logFile)
       iS <- data.table(seqnames = allChr[x], start = iS - 1L, end = iS)
       if(x == 1) .logThis(iS, "InsertionSites-DT", logFile = logFile)
-      data.table::fwrite(iS, out, sep = "\t", col.names = FALSE, append = TRUE)
+      if(!any(is.na(iS$start))) {
+        data.table::fwrite(iS, out, sep = "\t", col.names = FALSE, append = TRUE)
+      } else {
+        message(paste0("Warning - No insertions found on seqnames ", allChr[x], " for coverageFile ", coverageFile,"."))
+        .logMessage(paste0("Warning - No insertions found on seqnames ", allChr[x], " for coverageFile ", coverageFile,"."), logFile = logFile)
+      }
     }, error = function(e){
       errorList <- list(
         x = x, 
