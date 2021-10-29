@@ -1352,17 +1352,17 @@ plotBrowserTrack <- function(
     #Add Labels if There are Genes with this orientation!
     if(length(which(genesO$strand!="-")) > 0){
       p <- p + ggrepel::geom_label_repel(data=genesO[which(genesO$strand!="-"),], 
-        aes(x = start, y = cluster, label = symbol, color = strand, fill = NA), 
+        aes(x = start, y = cluster, label = symbol, color = strand), 
           segment.color = "grey", nudge_x = -0.01*(end(region) - start(region)), nudge_y = -0.25, 
-          size = labelSize, direction = "x")
+          size = labelSize, direction = "x", inherit.aes=FALSE)
     }
 
     #Add Labels if There are Genes with this orientation!
     if(length(which(genesO$strand=="-")) > 0){
       p <- p + ggrepel::geom_label_repel(data=genesO[which(genesO$strand=="-"),], 
-        aes(x = end, y = cluster, label = symbol, color = strand, fill = NA), 
+        aes(x = end, y = cluster, label = symbol, color = strand), 
           segment.color = "grey", nudge_x = +0.01*(end(region) - start(region)), nudge_y = 0.25, 
-          size = labelSize, direction = "x")
+          size = labelSize, direction = "x", inherit.aes=FALSE)
     }
 
     p <- p + theme(legend.justification = c(0, 1), 
