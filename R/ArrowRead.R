@@ -783,10 +783,10 @@ getMatrixFromArrow <- function(
 
     matFiles <- lapply(mat, function(x) x[[2]]) %>% Reduce("c", .)
     mat <- lapply(mat, function(x) x[[1]]) %>% Reduce("cbind", .)
-    if(!all(colnames(mat) %in% cellNames)){
+    if(!all(cellNames %in% colnames(mat))){
       .logThis(sampledCellNames, "cellNames supplied", logFile = logFile)
       .logThis(colnames(mat), "cellNames from matrix", logFile = logFile)
-      stop("Error - some colnames in partialMatrix do not match cellNames")
+      stop("Error not all cellNames found in partialMatrix")
     }
     mat <- mat[,sampledCellNames, drop = FALSE]
     mat <- .checkSparseMatrix(mat, length(sampledCellNames))
