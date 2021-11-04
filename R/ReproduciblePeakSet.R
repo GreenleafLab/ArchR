@@ -625,9 +625,9 @@ addReproduciblePeakSet <- function(
 	distTSS <- distanceToNearest(peakSummits, resize(geneAnnotation$TSS, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToTSS <- mcols(distTSS)$distance
 	if("symbol" %in% colnames(mcols(geneAnnotation$TSS))){
-		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$symbol[subjectHits(distPeaks)]
+		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$symbol[subjectHits(distTSS)]
 	}else if("tx_name" %in% colnames(mcols(geneAnnotation$TSS))){
-		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$tx_name[subjectHits(distPeaks)]
+		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$tx_name[subjectHits(distTSS)]
 	}
 
 	#Get NucleoTide Content
