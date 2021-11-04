@@ -33,7 +33,7 @@ addModuleScore <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = name, name = "name", valid = c("character"))
-  .validInput(input = features, name = "features", valid = c("character"))
+  .validInput(input = features, name = "features", valid = c("list"))
   .validInput(input = nBin, name = "nBin", valid = c("integer"))
   .validInput(input = nBgd, name = "nBgd", valid = c("integer"))
   .validInput(input = seed, name = "seed", valid = c("integer","null"))
