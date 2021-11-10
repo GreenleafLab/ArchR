@@ -211,7 +211,10 @@ addIterativeLSI <- function(
   if(tolower(firstSelection) == "top"){
     
     if(!binarize){
-      stop("Please binarize data if using top selection for first iteration! Set binarize = TRUE!")
+      matClass <- h5read(ArrowFiles[1], paste0(useMatrix,"/Info/Class"))
+      if(matClass != "Sparse.Binary.Matrix"){
+        stop("Input matrix is not binarized and binarize != TRUE. Please use binarized data if using top selection for first iteration! Set binarize = TRUE!")
+      }
     }
 
     #Compute Row Sums Across All Samples
