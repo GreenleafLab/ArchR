@@ -69,7 +69,7 @@ addModuleScore <- function(
     idx <- lapply(seq_along(name), function(x){
       ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))
       if(length(ix)==0){
-        .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", name[x]), logFile = logFile)
+        .logStop(sprintf("FeatureName (%s) does not exist! See available features using getFeatures()", name[x]), logFile = logFile)
       }
       ix
     }) %>% unlist
@@ -79,7 +79,7 @@ addModuleScore <- function(
     idx <- lapply(seq_along(unlist(features)), function(x){
       ix <- which(tolower(unlist(features)[x]) == tolower(featureDF$name))[1]
       if(is.na(ix)){
-        .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", unlist(features)[x]), logFile = logFile)
+        .logStop(sprintf("FeatureName (%s) does not exist! See available features using getFeatures()", unlist(features)[x]), logFile = logFile)
       }
       ix
     }) %>% unlist
