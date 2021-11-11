@@ -78,7 +78,7 @@ addModuleScore <- function(
 
     idx <- lapply(seq_along(unlist(features)), function(x){
       ix <- which(tolower(unlist(features)[x]) == tolower(featureDF$name))[1]
-      if(length(ix)==0){
+      if(is.na(ix)){
         .logStop(sprintf("FeatureName (%s) does not exist! See getFeatures", unlist(features)[x]), logFile = logFile)
       }
       ix
