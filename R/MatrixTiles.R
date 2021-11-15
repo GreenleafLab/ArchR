@@ -5,7 +5,6 @@
 #' Add TileMatrix to ArrowFiles or an ArchRProject
 #' 
 #' This function, for each sample, will independently compute counts for each tile
-#' per cell in the ArrowFile
 #'
 #' @param input An `ArchRProject` object or character vector of ArrowFiles.
 #' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve
@@ -212,8 +211,8 @@ addTileMatrix <- function(
       fragments <- fragments[start(fragments) >= 1]
 
       #Check 2
-      fragmentsBad2 <- fragments[!(end(fragments) < chromLengths[z])]
-      fragments <- fragments[end(fragments) < chromLengths[z]]
+      fragmentsBad2 <- fragments[!(end(fragments) <= chromLengths[z])]
+      fragments <- fragments[end(fragments) <= chromLengths[z]]
 
       #Check N
       nf2 <- length(fragments)
