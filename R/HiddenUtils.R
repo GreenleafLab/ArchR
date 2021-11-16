@@ -393,7 +393,7 @@
   }
 
   if(threads > 1){
-
+    require(parallel)
     o <- mclapply(..., mc.cores = threads, mc.preschedule = preschedule)
 
     errorMsg <- list()
