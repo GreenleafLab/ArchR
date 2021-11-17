@@ -475,7 +475,6 @@ correlateTrajectories <- function(
     #mcols(ranges1) <- featureDF1
     names(ranges1) <- rownames(featureDF1)
     rowRanges(seTrajectory1) <- ranges1
-    rm(ranges1)
 
     if("strand" %in% colnames(featureDF2)){
       ranges2 <- GRanges(
@@ -492,11 +491,12 @@ correlateTrajectories <- function(
     #mcols(ranges2) <- featureDF2
     names(ranges2) <- rownames(featureDF2)
     rowRanges(seTrajectory2) <- ranges2
-    rm(ranges2)
 
     .logThis(ranges1, "ranges1", logFile = logFile)
     .logThis(ranges2, "ranges2", logFile = logFile)
-
+    rm(ranges1)
+    rm(ranges2)
+	  
     #Find Associations to test
     isStranded1 <- any(as.integer(strand(seTrajectory1)) == 2)
     isStranded2 <- any(as.integer(strand(seTrajectory2)) == 2)
