@@ -36,6 +36,10 @@ getTutorialData <- function(
         )        
       }, threads = min(threads, length(filesUrl)))
 
+      #check for success of file download
+      if(!all(unlist(downloadFiles) == 0)) {
+        stop("Error! Some tutorial files did not download successfully. Please try again.")
+      }
     }
     pathFragments <- "HemeFragments"
 
