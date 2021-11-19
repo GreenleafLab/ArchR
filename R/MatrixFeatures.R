@@ -265,6 +265,8 @@ addPeakMatrix <- function(
 
   for(z in seq_along(uniqueChr)){
 
+    prefix <- sprintf("Chr %s (%s of %s)!", uniqueChr[z], z, length(uniqueChr))
+    
     o <- tryCatch({
 
       o <- h5closeAll()
