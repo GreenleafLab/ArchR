@@ -357,6 +357,7 @@ getMatrixFromProject <- function(
   .logDiffTime("Constructing SummarizedExperiment", t1 = tstart, verbose = verbose, logFile = logFile)
   if(!is.null(rR1)){
     se <- SummarizedExperiment(assays = asy, colData = cD, rowRanges = rR1)
+    se <- sort(se)
   }else{
     se <- SummarizedExperiment(assays = asy, colData = cD, rowData = rD1)
   }
