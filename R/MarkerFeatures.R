@@ -129,7 +129,7 @@ getMarkerFeatures <- function(
     .logThis(range(as.vector(table(paste0(featureDF$seqnames)))), "FeaturesPerSeqnames", logFile = logFile)
 
     isDeviations <- FALSE
-    if(all(unique(paste0(featureDF$seqnames)) %in% c("z", "dev"))){
+    if(all(unique(paste0(featureDF$seqnames)) %in% c("z", "deviations"))){
       isDeviations <- TRUE
     }
 
