@@ -1,0 +1,24 @@
+name: Auto Comment
+on: [issues]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wow-actions/auto-comment@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          issuesOpened: |
+            Hi @{{ author }}! Thanks for using ArchR! Please make sure that your post belongs in the Issues section. Only bugs and error reports belong in the Issues section. Usage questions and feature requests should be posted in the [Discussions](https://github.com/GreenleafLab/ArchR/discussions) section, not in Issues.<br />
+            __Before we help you, you must respond to the following questions__ unless your original post already contained this information:
+            __1.__ If you've encountered an error, have you already searched previous Issues to make sure that this hasn't already been solved?
+            __2.__ Can you recapitulate your error using the tutorial code and dataset? If so, provide a reproducible example.
+            __3.__ Did you post your log file? If not, add it now.
+            
+#          issuesOpened: |
+#            Hi @{{ author }}! Thanks for using ArchR! I am currently on paternity leave and will not be responding to any issues or discussion threads. I plan to be back in late January and will do my best to address your issue then.<br />
+#            In the meantime, it is worth noting that there are very few actual bugs in ArchR. If you are getting an error, it is probably something specific to your dataset, usage, or computational environment. Search the previous [Issues](https://github.com/GreenleafLab/ArchR/issues), [Discussions](https://github.com/GreenleafLab/ArchR/discussions), [function definitions](https://www.archrproject.com/reference/index.html), or the [ArchR manual](https://www.archrproject.com/bookdown/index.html) and you will likely find the answers you are looking for.<br />
+#            If you are able to solve your issue, please post the solution and close this issue post. <br />
+#            Otherwise __if you would like my help when I return, you must respond to the following questions__ unless your original post already contained this information:
+#            __1.__ If you've encountered an error, have you already searched previous Issues to make sure that this hasn't already been solved?
+#            __2.__ Can you recapitulate your error using the tutorial code and dataset? If so, provide a reproducible example.
+#            __3.__ Did you post your log file? If not, add it now.
