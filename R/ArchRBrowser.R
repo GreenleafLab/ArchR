@@ -665,7 +665,7 @@ ArchRBrowserTrack <- function(...){
 #' @param normMethod The name of the column in `cellColData` by which normalization should be performed. The recommended and default value
 #' is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
 #' @param threads The number of threads to use for parallel execution.
-#' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).
+#' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. This should be expressed as `c(lower limit, upper limit)` such as `c(0,0.99)`. If not provided, the y-axis limit will be c(0, 0.999).
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override coloring for groups.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
 #' @param scTileSize The width of the tiles in scTracks. Larger numbers may make cells overlap more. Default is 0.5 for about 100 cells.
@@ -997,7 +997,7 @@ plotBrowserTrack <- function(
   # Plot Track
   ######################################################
   if(!is.null(ylim)){
-    ylim <- c(0,quantile(df$y, probs=c(ylim)))
+    ylim <- quantile(df$y, ylim)
     df$y[df$y < ylim[1]] <- ylim[1]
     df$y[df$y > ylim[2]] <- ylim[2]
   }else{
