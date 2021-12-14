@@ -78,7 +78,7 @@ reformatFragmentFiles <- function(
     }
     #Make sure no spaces or #
     dt$V4 <- gsub(" |#", ".", dt$V4)
-    fileNew <- gsub(".tsv.bgz|.tsv.gz", "-Reformat.tsv", fragmentFiles[i])
+    fileNew <- gsub(".tsv.bgz|.tsv.gz|.bed.gz|.bed.bgz|.txt.gz|.txt.bgz", "-Reformat.tsv", fragmentFiles[i])
     data.table::fwrite(dt, fileNew, sep = "\t", col.names = FALSE)
     Rsamtools::bgzip(fileNew)
     file.remove(fileNew)
