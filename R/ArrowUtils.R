@@ -425,6 +425,9 @@
     #Read In Fragments
     RGLengths <- .h5read(inArrow, paste0(groupJ, "/RGLengths"))
     RGValues <- .h5read(inArrow, paste0(groupJ, "/RGValues"))
+    if(length(RGLengths) == 0 | length(RGValues) == 0){
+        next
+    }
     RGRle <- Rle(paste0(sampleName, "#", RGValues), RGLengths)
     
     #Determine Which to Keep
