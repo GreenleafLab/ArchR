@@ -26,7 +26,7 @@ import10xFeatureMatrix <- function(
   }
   featureMats <- lapply(seq_along(input), function(y) {
     message("Importing Feature Matrix ", y, " of ", length(input))
-    ArchR:::.importFM(featureMatrix = input[y], featureType = featureType, 
+    .importFM(featureMatrix = input[y], featureType = featureType, 
               name = names[y])
   })
 
