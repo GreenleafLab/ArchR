@@ -65,7 +65,7 @@ addGeneExpressionMatrix <- function(
   .logMessage("Overlap w/ scATAC = ", round(overlap,3), logFile = logFile, verbose = TRUE)
 
   if(overlap == 0){
-    stop("No overlap found with scATAC!")
+    stop("No overlapping cell names found between ArrowFiles and seRNA object!")
   }
 
   splitCells <- split(cellsInArrows, stringr::str_split(cellsInArrows, pattern = "#", simplify=TRUE)[,1])
