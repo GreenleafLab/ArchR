@@ -17,21 +17,43 @@ import10xFeatureMatrix <- function(
   featureType = "Gene Expression"
   ){
 
-  if(!all(file.exists(input))){
+  .validInput(input = input, name = "input", valid = c("character"))
+  .validInput(input = names, name = "names", valid = c("character"))
+  .validInput(input = featureType, name = "featureType", valid = c("character"))
+  
+  if (!all(file.exists(input))) {
     stop("Not all input file paths exist!")
   }
-
-  featureMats <- lapply(seq_along(input), function(y){
+  featureMats <- lapply(seq_along(input), function(y) {
     message("Importing Feature Matrix ", y, " of ", length(input))
-    .importFM(featureMatrix = input[y], featureType = featureType, name = names[y])
+    ArchR:::.importFM(featureMatrix = input[y], featureType = featureType, 
+              name = names[y])
   })
 
-  featureMats <- tryCatch({
-    Reduce("cbind", featureMats)
-  }, error = function(e){
-    message("Error in combining individual feature matrices! Returning as a list of individual feature matrices!")
-    featureMats
-  })
+  #if more than one filtered feature barcode matrix is supplied, then merge the RSE objects
+  if(length(featureMats) > 1) {
+    featureMats <- tryCatch({
+      rse_final <- featureMats[[1]]
+      #for each element of the list, test to make sure each SE attribute is identical
+      for(i in 2:length(featureMats)){
+
+        if(!all.equal(rownames(featureMats[[1]]),rownames(featureMats[[i]]))) {
+          stop("Error - rownames (genes) of individual RNA objects are not equivalent.")
+        }
+        if(!all.equal(rowData(featureMats[[1]]),rowData(featureMats[[i]]))) {
+          stop("Error - rowData (gene metadata) of individual RNA objects are not equivalent.")
+        }
+        if(!all.equal(names(assays(featureMats[[1]])),names(assays(featureMats[[i]])))) {
+          stop("Error - available assays of individual RNA objects are not equivalent. Each object is expected to only have one assay named 'counts'.")
+        }
+        rse_final <- cbind(rse_final,featureMats[[i]])
+      }
+      rse_final
+    }, error = function(e) {
+      message("Error in combining individual feature matrices! Returning as a list of individual feature matrices!")
+      featureMats
+    })
+  }
 
   featureMats
 
