@@ -43,7 +43,7 @@ import10xFeatureMatrix <- function(
       if (!all.equal(names(assays(rse_final)), names(assays(featureMats[[i]])))) {
         stop("Error - available assays of individual RNA objects are not equivalent. Each object is expected to only have one assay named 'counts'.")
       }
-      rse_final <- cbind(rse_final, featureMats[[i]])
+      rse_final <- SummarizedExperiment::combineCols(rse_final, featureMats[[i]])
     }
     return(rse_final)
   }
