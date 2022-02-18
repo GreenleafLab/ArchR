@@ -31,31 +31,25 @@ import10xFeatureMatrix <- function(
   })
 
   #if more than one filtered feature barcode matrix is supplied, then merge the RSE objects
-  if(length(featureMats) > 1) {
-    featureMats <- tryCatch({
-      rse_final <- featureMats[[1]]
-      #for each element of the list, test to make sure each SE attribute is identical
-      for(i in 2:length(featureMats)){
-
-        if(!all.equal(rownames(featureMats[[1]]),rownames(featureMats[[i]]))) {
-          stop("Error - rownames (genes) of individual RNA objects are not equivalent.")
-        }
-        if(!all.equal(rowData(featureMats[[1]]),rowData(featureMats[[i]]))) {
-          stop("Error - rowData (gene metadata) of individual RNA objects are not equivalent.")
-        }
-        if(!all.equal(names(assays(featureMats[[1]])),names(assays(featureMats[[i]])))) {
-          stop("Error - available assays of individual RNA objects are not equivalent. Each object is expected to only have one assay named 'counts'.")
-        }
-        rse_final <- cbind(rse_final,featureMats[[i]])
+  if (length(featureMats) > 1) {
+    rse_final <- featureMats[[1]]
+    for (i in 2:length(featureMats)) {
+      if (!all.equal(rownames(featureMats[[1]]), rownames(featureMats[[i]]))) {
+        stop("Error - rownames (genes) of individual RNA objects are not equivalent.")
       }
-      rse_final
-    }, error = function(e) {
-      message("Error in combining individual feature matrices! Returning as a list of individual feature matrices!")
-      featureMats
-    })
+      if (!all.equal(rowData(featureMats[[1]]), rowData(featureMats[[i]]))) {
+        stop("Error - rowData (gene metadata) of individual RNA objects are not equivalent.")
+      }
+      if (!all.equal(names(assays(featureMats[[1]])), 
+                     names(assays(featureMats[[i]])))) {
+        stop("Error - available assays of individual RNA objects are not equivalent. Each object is expected to only have one assay named 'counts'.")
+      }
+      rse_final <- cbind(rse_final, featureMats[[i]])
+    }
+    return(rse_final)
+  } else {
+    return(featureMats)
   }
-
-  featureMats
 
 }
 
