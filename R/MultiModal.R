@@ -34,23 +34,22 @@ import10xFeatureMatrix <- function(
   if (length(featureMats) > 1) {
     rse_final <- featureMats[[1]]
     for (i in 2:length(featureMats)) {
-      if (!all.equal(rownames(featureMats[[1]]), rownames(featureMats[[i]]))) {
+      if (!all.equal(rownames(rse_final), rownames(featureMats[[i]]))) {
         stop("Error - rownames (genes) of individual RNA objects are not equivalent.")
       }
-      if (!all.equal(rowData(featureMats[[1]]), rowData(featureMats[[i]]))) {
+      if (!all.equal(rowData(rse_final), rowData(featureMats[[i]]))) {
         stop("Error - rowData (gene metadata) of individual RNA objects are not equivalent.")
       }
-      if (!all.equal(names(assays(featureMats[[1]])), 
-                     names(assays(featureMats[[i]])))) {
+      if (!all.equal(names(assays(rse_final)), names(assays(featureMats[[i]])))) {
         stop("Error - available assays of individual RNA objects are not equivalent. Each object is expected to only have one assay named 'counts'.")
       }
       rse_final <- cbind(rse_final, featureMats[[i]])
     }
     return(rse_final)
-  } else {
+  }
+  else {
     return(featureMats)
   }
-
 }
 
 .importFM <- function(featureMatrix = NULL, featureType = NULL, name = NULL){
