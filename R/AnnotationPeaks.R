@@ -787,7 +787,7 @@ addArchRAnnotations <- function(
   }
   
   if(chr %ni% .availableSeqnames(AnnoFile, Group)){
-    stop("Error Chromosome not in AnnoFile!")
+    stop(paste("Error! Chromosome ",chr," not in AnnoFile!"))
   }
 
   o <- h5closeAll()
