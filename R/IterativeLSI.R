@@ -779,10 +779,12 @@ addIterativeLSI <- function(
 
       .requirePackage("uwot", source = "cran")
 
-      if(scaleDims){
+      if(is.null(scaleDims)){
+        dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]        
+      }else if(scaleDims){
         dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
       }else{
-        dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
+        stop("scaleDims can only be set to TRUE or NULL")
       }
 
       if(nrow(outLSI[[1]]) > nPlot){
@@ -793,10 +795,12 @@ addIterativeLSI <- function(
       
       #Plot Quick UMAP
       UMAPParams <- .mergeParams(UMAPParams, list(n_neighbors = 40, min_dist = 0.4, metric="cosine", verbose=FALSE, fast_sgd = TRUE))
-      if(scaleDims){
-        UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])
-      }else{
+      if(is.null(scaleDims)){
         UMAPParams$X <- (outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE]
+      }else if(scaleDims){
+        UMAPParams$X <- .scaleDims((outLSI[[1]][saveIdx,,drop=FALSE])[, dimsPF, drop = FALSE])        
+      }else{       
+        stop("scaleDims can only be set to TRUE or NULL")
       }
       UMAPParams$ret_nn <- FALSE
       UMAPParams$ret_model <- FALSE
@@ -874,10 +878,12 @@ addIterativeLSI <- function(
 
   df2 <- tryCatch({
 
-    if(scaleDims){
+    if(is.null(scaleDims)){
+      dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]      
+    }else if(scaleDims){
       dimsPF <- dimsToUse[which(outLSI$corToDepth$scaled[dimsToUse] <= corCutOff)]
     }else{
-      dimsPF <- dimsToUse[which(outLSI$corToDepth$none[dimsToUse] <= corCutOff)]
+      stop("scaleDims can only be TRUE or NULL")
     }
     if(length(dimsPF)!=length(dimsToUse)){
       message("Filtering ", length(dimsToUse) - length(dimsPF), " dims correlated > ", corCutOff, " to log10(depth + 1)")
@@ -896,10 +902,12 @@ addIterativeLSI <- function(
       }
     })
     parClust$verbose <- FALSE
-    if(scaleDims){
+    if(is.null(scaleDims)){
+      parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]      
+    }else if(scaleDims){
       parClust$input <- .scaleDims(outLSI$matSVD)[, dimsPF, drop = FALSE]
     }else{
-      parClust$input <- outLSI$matSVD[, dimsPF, drop = FALSE]
+      stop("scaleDims can only be TRUE or NULL")
     }
 
     parClust$input <- as.matrix(parClust$input)
