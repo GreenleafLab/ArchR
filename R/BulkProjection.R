@@ -143,12 +143,14 @@ projectBulkATAC <- function(
     }
 
     if(!is.null(corCutOff)){
-      if(scaleDims){
+      if(is.null(scaleDims)){
+        corToDepth <- rD$corToDepth$none
+        dimsToUse <- dimsToUse[corToDepth < corCutOff]
+      }else if(scaleDims){
         corToDepth <- rD$corToDepth$scaled
         dimsToUse <- dimsToUse[corToDepth < corCutOff]
       }else{
-        corToDepth <- rD$corToDepth$none
-        dimsToUse <- dimsToUse[corToDepth < corCutOff]
+        stop("scaleDims can only be set to TRUE or NULL")
       }
     }
 

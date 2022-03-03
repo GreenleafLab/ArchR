@@ -700,17 +700,19 @@ getReducedDims <- function(
     }
 
     #Get Dimensions
-    if(scaleDims){
-      corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$scaled
-      matDR <- .scaleDims(ArchRProj@reducedDims[[reducedDims]][[1]])
-    }else{
+    if(is.null(scaleDims)){      
       if(is.na(ArchRProj@reducedDims[[reducedDims]]$corToDepth[1])){
         corToDepth <- rep(0, ncol(ArchRProj@reducedDims[[reducedDims]][[1]]))
         matDR <- ArchRProj@reducedDims[[reducedDims]][[1]]
       }else{
         corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$none
         matDR <- ArchRProj@reducedDims[[reducedDims]][[1]]
-      }
+      }      
+    }else if(scaleDims){
+      corToDepth <- ArchRProj@reducedDims[[reducedDims]]$corToDepth$scaled
+      matDR <- .scaleDims(ArchRProj@reducedDims[[reducedDims]][[1]])
+    }else{
+      stop("scaleDims can only be set to TRUE or NULL")
     }
     
     #Determine PCs to Keep
