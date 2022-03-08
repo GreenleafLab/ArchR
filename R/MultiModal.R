@@ -31,19 +31,40 @@ import10xFeatureMatrix <- function(
   })
 
   #if more than one filtered feature barcode matrix is supplied, then merge the RSE objects
-  if (length(featureMats) > 1) {
+    if (length(featureMats) > 1) {
     rse_final <- featureMats[[1]]
     for (i in 2:length(featureMats)) {
-      if (!all.equal(rownames(rse_final), rownames(featureMats[[i]]))) {
+      print(paste0("featureMats[[",i,"]]"))
+      if (!identical(rownames(rse_final), rownames(featureMats[[i]]))) {
         stop("Error - rownames (genes) of individual RNA objects are not equivalent.")
       }
-      if (!all.equal(rowData(rse_final), rowData(featureMats[[i]]))) {
-        stop("Error - rowData (gene metadata) of individual RNA objects are not equivalent.")
+      if (!identical(colnames(rowData(rse_final)), colnames(rowData(featureMats[[i]])))) {
+        stop("Error - rowData (gene metadata) of individual RNA objects have different columns. This is highly unusual and merging has been aborted.")
       }
-      if (!all.equal(names(assays(rse_final)), names(assays(featureMats[[i]])))) {
+      if (!identical(names(assays(rse_final)), names(assays(featureMats[[i]])))) {
         stop("Error - available assays of individual RNA objects are not equivalent. Each object is expected to only have one assay named 'counts'.")
       }
-      rse_final <- SummarizedExperiment::cbind(rse_final, featureMats[[i]])
+      
+      #check each column in rowData to check for mismatches that should be thrown as warnings
+      #occasionally, it seems like 10x is annotating different ensembl IDs to the same gene which seems like a bad way to go
+      #this is a bit heavy-handed but it seems like the safest thing to do is report any mismatch rather than merge blindly
+      mismatchWarning <- TRUE
+      for (x in 1:ncol(rowData(rse_final))) {
+        if (!identical(rowData(rse_final)[,x], rowData(featureMats[[i]])[,x])) {
+          if(mismatchWarning) {
+            message(sprintf("Warning! Some values within column \"%s\" the rowData of your objects do not precisely match!", colnames(rowData(rse_final))[x]))
+            message("This is often caused by slight variations in Ensembl IDs used by cellranger. ArchR will ignore these mismatches and allow merging to proceed but you should check to make sure that these are ok for your data.\n")
+            mismatchWarning <- FALSE
+          }
+          
+          mismatch <- which(rowData(rse_final)[,x] != rowData(featureMats[[i]])[,x])
+          for (y in 1:length(mismatch)) {
+            message(sprintf("Mismatch in column \"%s\" row %s for %s: %s does not exactly match %s!", colnames(rowData(rse_final))[x], mismatch[y], names[i], rowData(rse_final)[mismatch[y],x], rowData(featureMats[[i]])[mismatch[y],x]))
+          }
+        }
+      }
+      
+      rse_final <- cbind(rse_final, featureMats[[i]])
     }
     return(rse_final)
   }
