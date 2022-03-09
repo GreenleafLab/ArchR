@@ -48,7 +48,7 @@ plotTSSEnrichment <- function(
   chr <- paste0(seqnames(chromSizes))
   chr <- gtools::mixedsort(intersect(chr, paste0(seqnames(TSS))))
   TSS <- sort(sortSeqlevels(TSS))
-  splitTSS <- split(resize(TSS,1,"start"), seqnames(TSS))[chr]
+  splitTSS <- split(GenomicRanges::resize(TSS,1,"start"), seqnames(TSS))[chr]
   window <- 2 * flank + 1
   groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = FALSE)
   uniqGroups <- gtools::mixedsort(unique(groups[,1]))
