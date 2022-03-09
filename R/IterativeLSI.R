@@ -24,8 +24,7 @@
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
 #' @param scaleDims A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
 #' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
-#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
-#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' it is over-weighting latent PCs.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
@@ -117,7 +116,7 @@ addIterativeLSI <- function(
   .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer"))
   .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
-  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = outlierQuantiles, name = "outlierQuantiles", valid = c("numeric", "null"))
