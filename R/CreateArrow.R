@@ -580,7 +580,7 @@ createArrowFiles <- function(
 
   featureList <- list()
   featureList$Promoter <-  extendGR(
-      gr = resize(geneAnnotation$genes, 1, "start"), 
+      gr = GenomicRanges::resize(geneAnnotation$genes, 1, "start"), 
       upstream = promoterRegion[1], 
       downstream = promoterRegion[2]
   )
@@ -852,10 +852,10 @@ createArrowFiles <- function(
   }
 
   #Create Window and Flank
-  TSS <- resize(TSS, 1, fix = "start")
+  TSS <- GenomicRanges::resize(TSS, 1, fix = "start")
   strand(TSS) <- "*"
   TSS <- unique(TSS)
-  tssWindow <- resize(TSS, window, "center")
+  tssWindow <- GenomicRanges::resize(TSS, window, "center")
   tssWindow$type <- "window"
   tssFlank <- c(
     #Positive Flank
