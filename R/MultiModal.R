@@ -64,7 +64,7 @@ import10xFeatureMatrix <- function(
         }
       }
       
-      rse_final <- cbind(rse_final, featureMats[[i]])
+      rse_final <- SummarizedExperiment::cbind(rse_final, featureMats[[i]])
     }
     return(rse_final)
   }
