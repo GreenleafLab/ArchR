@@ -221,9 +221,9 @@ addGeneScoreMatrix <- function(
   if(useTSS){
     .logMessage(paste0(sampleName, " .addGeneScoreMat useTSS = TRUE"))
     distMethod <- "GenePromoter"
-    geneRegions$geneStart <- start(resize(geneRegions, 1, "start"))
-    geneRegions$geneEnd <- start(resize(geneRegions, 1, "end"))
-    geneRegions <- resize(geneRegions, 1, "start")
+    geneRegions$geneStart <- start(GenomicRanges::resize(geneRegions, 1, "start"))
+    geneRegions$geneEnd <- start(GenomicRanges::resize(geneRegions, 1, "end"))
+    geneRegions <- GenomicRanges::resize(geneRegions, 1, "start")
     if(extendTSS){
       geneRegions <- extendGR(gr = geneRegions, upstream = geneUpstream, downstream = geneDownstream)
     }
@@ -231,8 +231,8 @@ addGeneScoreMatrix <- function(
   }else{
     .logMessage(paste0(sampleName, " .addGeneScoreMat useTSS = FALSE"))
     distMethod <- "GeneBody"
-    geneRegions$geneStart <- start(resize(geneRegions, 1, "start"))
-    geneRegions$geneEnd <- start(resize(geneRegions, 1, "end"))
+    geneRegions$geneStart <- start(GenomicRanges::resize(geneRegions, 1, "start"))
+    geneRegions$geneEnd <- start(GenomicRanges::resize(geneRegions, 1, "end"))
     geneRegions <- extendGR(gr = geneRegions, upstream = geneUpstream, downstream = geneDownstream)
     m <- 1 / width(geneRegions)
     geneRegions$geneWeight <- 1 + m * (geneScaleFactor - 1) / (max(m) - min(m))
@@ -317,8 +317,8 @@ addGeneScoreMatrix <- function(
       #Time to Overlap Gene Windows
       if(useGeneBoundaries){
 
-        geneStartz <- start(resize(geneRegionz, 1, "start"))
-        geneEndz <- start(resize(geneRegionz, 1, "end"))
+        geneStartz <- start(GenomicRanges::resize(geneRegionz, 1, "start"))
+        geneEndz <- start(GenomicRanges::resize(geneRegionz, 1, "end"))
 
         pminGene <- pmin(geneStartz, geneEndz)
         pmaxGene <- pmax(geneStartz, geneEndz)
@@ -380,7 +380,7 @@ addGeneScoreMatrix <- function(
 
       #Determine Sign for Distance relative to strand (Directionality determined based on dist from gene start)
       isMinus <- BiocGenerics::which(strand(geneRegionz) == "-")
-      signDist <- sign(start(uniqueTiles)[subjectHits(tmp)] - start(resize(geneRegionz,1,"start"))[queryHits(tmp)])
+      signDist <- sign(start(uniqueTiles)[subjectHits(tmp)] - start(GenomicRanges::resize(geneRegionz,1,"start"))[queryHits(tmp)])
       signDist[isMinus] <- signDist[isMinus] * -1
 
       #Correct the orientation for the distance!
