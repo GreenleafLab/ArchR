@@ -596,7 +596,7 @@ addReproduciblePeakSet <- function(
 
 	#Validate
 	peaks <- .validGRanges(peaks)
-	peakSummits <- resize(peaks,1,"center")
+	peakSummits <- GenomicRanges::resize(peaks,1,"center")
 	geneAnnotation$genes <- .validGRanges(geneAnnotation$genes)
 	geneAnnotation$exons <- .validGRanges(geneAnnotation$exons)
 	geneAnnotation$TSS <- .validGRanges(geneAnnotation$TSS)
@@ -604,11 +604,11 @@ addReproduciblePeakSet <- function(
 
 	#First Lets Get Distance to Nearest Gene Start
 	.logMessage("Annotating Peaks : Nearest Gene", logFile = logFile)
-	distPeaks <- distanceToNearest(peakSummits, resize(geneAnnotation$genes, 1, "start"), ignore.strand = TRUE)
+	distPeaks <- distanceToNearest(peakSummits, GenomicRanges::resize(geneAnnotation$genes, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToGeneStart <- mcols(distPeaks)$distance
 	mcols(peaks)$nearestGene <- mcols(geneAnnotation$genes)$symbol[subjectHits(distPeaks)]
 	.logMessage("Annotating Peaks : Gene", logFile = logFile)
-	promoters <- extendGR(resize(geneAnnotation$genes, 1, "start"), upstream = promoterRegion[1], downstream = promoterRegion[2])
+	promoters <- extendGR(GenomicRanges::resize(geneAnnotation$genes, 1, "start"), upstream = promoterRegion[1], downstream = promoterRegion[2])
 	op <- overlapsAny(peakSummits, promoters, ignore.strand = TRUE)
 	og <- overlapsAny(peakSummits, geneAnnotation$genes, ignore.strand = TRUE)
 	oe <- overlapsAny(peakSummits, geneAnnotation$exons, ignore.strand = TRUE)
@@ -620,7 +620,7 @@ addReproduciblePeakSet <- function(
 
 	#First Lets Get Distance to Nearest TSS's
 	.logMessage("Annotating Peaks : TSS", logFile = logFile)
-	distTSS <- distanceToNearest(peakSummits, resize(geneAnnotation$TSS, 1, "start"), ignore.strand = TRUE)
+	distTSS <- distanceToNearest(peakSummits, GenomicRanges::resize(geneAnnotation$TSS, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToTSS <- mcols(distTSS)$distance
 	if("symbol" %in% colnames(mcols(geneAnnotation$TSS))){
 		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$symbol[subjectHits(distPeaks)]
@@ -661,7 +661,7 @@ addReproduciblePeakSet <- function(
 	  summits <- Reduce("c", as(summits, "GRangesList"))
 
 		.logMessage(paste0(prefix, " Extending Summits"), logFile = logFile)
-	  extendedSummits <- resize(summits, extendSummits * 2 + 1, "center")
+	  extendedSummits <- GenomicRanges::resize(summits, extendSummits * 2 + 1, "center")
 	  extendedSummits <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
 	    nonES <- nonOverlappingGR(x, by = "score", decreasing = TRUE)
 	    nonES$replicateScoreQuantile <- round(.getQuantiles(nonES$score),3)
