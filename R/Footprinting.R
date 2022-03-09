@@ -221,7 +221,7 @@ getFootprints <- function(
   footprintDF <- lapply(seq_along(featureList), function(x){
     outx <- tryCatch({
       
-      featurex <- split(resize(featureList[[x]],1,"center"), seqnames(featureList[[x]]))
+      featurex <- split(GenomicRanges::resize(featureList[[x]],1,"center"), seqnames(featureList[[x]]))
       intSeq <- intersect(names(featurex), names(cov))
       if(length(intSeq)==0){
         .logMessage(paste0("No intersecting chromsomes for feature ", names(featureList)[x], "!"))
@@ -292,7 +292,7 @@ getFootprints <- function(
 
   kmerList <- .safelapply(seq_along(featureList), function(i){
     .logDiffTime(sprintf("Computing Kmer Tables for %s of %s features", i, length(featureList)), tstart, verbose=verbose, logFile = logFile)
-    bsv <- BSgenomeViews(genome , resize(featureList[[i]], window + k, "center"))
+    bsv <- BSgenomeViews(genome, GenomicRanges::resize(featureList[[i]], window + k, "center"))
     bsv <- bsv[width(bsv) == window + k] #none that are trimmed!
     #BSgenome is already stranded
     #kmerPositionFrequencyCpp is Rcpp export for getting kmer position frequencies from strings
