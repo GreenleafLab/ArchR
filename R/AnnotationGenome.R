@@ -8,7 +8,6 @@
 #' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded.
 #' These "non-standard" chromosomes are defined by `filterChrGR()` and by manual annotation using the `filterChr` parameter.
 #' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
-#' If no manual removal is desired, `filterChr` should be set to `NULL`. If `filter` is set to `TRUE` but `filterChr` is set to `NULL`,
 #' non-standard chromosomes will still be removed as defined in `filterChrGR()`.
 #' @export
 createGenomeAnnotation <- function(
@@ -171,7 +170,7 @@ createGeneAnnotation <- function(
 
     ###########################
     message("Getting TSS..")
-    TSS <- unique(resize(GenomicFeatures::transcripts(TxDb), width = 1, fix = "start"))
+    TSS <- unique(GenomicRanges::resize(GenomicFeatures::transcripts(TxDb), width = 1, fix = "start"))
 
     if(!is.null(inGenes)){
       genes <- .validGRanges(inGenes)
