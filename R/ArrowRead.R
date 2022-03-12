@@ -922,7 +922,7 @@ getMatrixFromArrow <- function(
     #Check if samples have NAs due to N = 1 sample or some other weird thing.
     #Set it to min non NA variance
     dfVars <- lapply(seq_len(nrow(dfVars)), function(x){
-      vx <- dfVars[x, ]
+      vx <- dfVars[x, , drop = FALSE]
       if(any(is.na(vx))){
         vx[is.na(vx)] <- min(vx[!is.na(vx)])
       }
