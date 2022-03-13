@@ -729,8 +729,6 @@ ggGroup <- function(
       p <- p + geom_density_ridges(data = df,
         aes(x = y, y = x, color = x, fill = x), scale = ridgeScale,
         alpha = alpha, color = "black") + scale_y_discrete(expand = expansion(mult = c(0.01, val)))
-      xmax <- layer_scales(p)$x$range$range[2]
-      p <- p + xlim(0, xmax)
     }
   }else{
     type <- "violin"
