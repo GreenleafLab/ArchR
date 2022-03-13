@@ -699,8 +699,8 @@ ggGroup <- function(
   df$x <- factor(df$x, groupOrder)
   
   p <- ggplot(df, aes(x = x, y = y, color = x)) +
-      scale_color_manual(values = pal, guide = FALSE) + 
-      scale_fill_manual(values = pal, guide = FALSE) +
+      scale_color_manual(values = pal, guide = "none") + 
+      scale_fill_manual(values = pal, guide = "none") +
       ggtitle(title)
 
   if(tolower(plotAs) == "ridges" | tolower(plotAs) == "ggridges"){
@@ -728,7 +728,9 @@ ggGroup <- function(
       val <- 1/length(unique(x))
       p <- p + geom_density_ridges(data = df,
         aes(x = y, y = x, color = x, fill = x), scale = ridgeScale,
-        alpha = alpha, color = "black") + scale_y_discrete(expand = expand_scale(mult = c(0.01, val)))
+        alpha = alpha, color = "black") + scale_y_discrete(expand = expansion(mult = c(0.01, val)))
+      xmax <- layer_scales(p)$x$range$range[2]
+      p <- p + xlim(0, xmax)
     }
   }else{
     type <- "violin"
