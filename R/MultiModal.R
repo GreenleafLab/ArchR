@@ -110,12 +110,14 @@ import10xFeatureMatrix <- function(
       rse_final <- SummarizedExperiment::cbind(rse_final, featureMats[[i]])
     }
     if (strictMatch) {
-      rse_final <- rse_final[-rowsToRemove,]
+      if(length(rowsToRemove) > 0) {
+        rse_final <- rse_final[-rowsToRemove,]
+      }
     }
     return(rse_final)
   }
   else {
-    return(featureMats)
+    return(featureMats[[1]])
   }
 }
 
