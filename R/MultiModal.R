@@ -40,9 +40,9 @@ import10xFeatureMatrix <- function(
               name = names[y])
   })
   
-  message("Re-ordering RNA matricies alphabetically for consistency.")
+  message("Re-ordering RNA matricies for consistency.")
   for(j in 1:length(featureMats)) {
-    featureMats[[j]] <- featureMats[[j]][order(rownames(featureMats[[j]])),]
+    featureMats[[j]] <- sort(sortSeqlevels(featureMats[[j]]), ignore.strand = TRUE)
   }
   
   #if more than one filtered feature barcode matrix is supplied, then merge the RSE objects
