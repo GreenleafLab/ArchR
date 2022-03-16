@@ -42,7 +42,7 @@ import10xFeatureMatrix <- function(
   
   message("Re-ordering RNA matricies for consistency.")
   for(j in 1:length(featureMats)) {
-    featureMats[[j]] <- sort(sortSeqlevels(featureMats[[j]]), ignore.strand = TRUE)
+    featureMats[[j]] <- sort.GenomicRanges(sortSeqlevels(featureMats[[j]]), ignore.strand = TRUE)
   }
   
   #if more than one filtered feature barcode matrix is supplied, then merge the RSE objects
