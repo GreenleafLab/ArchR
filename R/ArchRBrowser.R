@@ -808,7 +808,7 @@ plotBrowserTrack <- function(
     }
     
     ##########################################################
-    # Bulk Tracks
+    # Single-cell Tracks
     ##########################################################
     if("sctrack" %in% tolower(plotSummary)){
       .logDiffTime(sprintf("Adding SC Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
@@ -850,7 +850,7 @@ plotBrowserTrack <- function(
     }
 
     ##########################################################
-    # Feature Tracks
+    # Loop Tracks
     ##########################################################
     if("looptrack" %in% tolower(plotSummary)){
       if(!is.null(loops)){
