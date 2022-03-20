@@ -285,6 +285,9 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force =
       threads <- parallel::detectCores()-2
     }
   }
+  if(threads > 1){
+    RNGkind("L'Ecuyer-CMRG")
+  }
   
   message("Setting default number of Parallel threads to ", threads, ".")
   options(ArchR.threads = as.integer(round(threads)))
