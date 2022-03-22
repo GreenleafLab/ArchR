@@ -846,7 +846,8 @@ addCoAccessibility <- function(
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
-#' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
+#' @param resolution A numeric describing the bp resolution to use when returning loops. This helps with overplotting of correlated regions.
+#'  This only takes affect if `returnLoops = TRUE`.
 #' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
 #' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
 #' @export
