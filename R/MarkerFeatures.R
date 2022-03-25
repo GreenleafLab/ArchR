@@ -419,7 +419,7 @@ getMarkerFeatures <- function(
 
   }) %>% Reduce("rbind", .)
 
-  idxFilter <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
+  idxFilter <- intersect(which(rowSums(pairwiseDF[,c("mean1", "mean2")]) != 0), which(!is.na(pairwiseDF[, c("mean1", "mean2")])))
   pairwiseDF$fdr <- NA
   pairwiseDF$fdr[idxFilter] <- p.adjust(pairwiseDF$pval[idxFilter], method = "fdr")
   pairwiseDF <- pairwiseDF[rownames(featureDF), , drop = FALSE]
