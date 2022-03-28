@@ -569,51 +569,29 @@ saveArchRProject <- function(
       newProj@imputeWeights <- SimpleList()
     }
 
-    #Copy Other Folders 2 layers nested
+    #Copy Recursively
     message("Copying Other Files...")
     for(i in seq_along(oldFiles)){
-      
-      fin <- file.path(outDirOld, oldFiles[i])
-      fout <- file.path(outputDirectory, oldFiles[i])
-      message(sprintf("Copying Other Files (%s of %s): %s", i, length(oldFiles), basename(fin)))
-      
-      if(dir.exists(fin)){
-      
-        dir.create(file.path(outputDirectory, basename(fin)), showWarnings=FALSE)
-        fin2 <- list.files(fin, full.names = TRUE)
-      
-        for(j in seq_along(fin2)){
-      
-          if(dir.exists(fin2[j])){
-      
-            dir.create(file.path(outputDirectory, basename(fin), basename(fin2)[j]), showWarnings=FALSE)
-            fin3 <- list.files(fin2[j], full.names = TRUE)
-      
-            for(k in seq_along(fin3)){
-      
-              cf <- file.copy(fin3[k], file.path(fout, basename(fin3[k])), overwrite = overwrite)
-      
-            }
-      
-          }else{
-      
-            cf <- file.copy(fin2[j], file.path(fout, basename(fin2[j])), overwrite = overwrite)
-      
-          }
-      
-        }
-      
-      }else{
-      
-        cf <- file.copy(fin, fout, overwrite = overwrite)
-      
-      }
-
+      message(sprintf("Copying Other Files (%s of %s): %s", i, length(oldFiles), oldFiles[i]))
+      oldPath <- file.path(outDirOld, oldFiles[i])
+      file.copy(oldPath, outputDirectory, recursive=TRUE, overwrite=overwrite)
     }
 
+    #Set New Info
     newProj@sampleColData <- newProj@sampleColData[names(ArrowFilesNew), , drop = FALSE]
     newProj@sampleColData$ArrowFiles <- ArrowFilesNew[rownames(newProj@sampleColData)]
   
+    #Check for Group Coverages Copied
+    groupC <- length(newProj@projectMetadata$GroupCoverages)
+    if(length(groupC) > 0){
+      for(z in seq_len(groupC)){
+        zdata <- newProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata
+        zfiles <- gsub(outDirOld, outputDirectory, zdata$File)
+        newProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata$File <- zfiles
+        stopifnot(all(file.exists(zfiles)))
+      }
+    }
+
   }
 
   message("Saving ArchRProject...")

@@ -17,6 +17,10 @@ getTutorialData <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   #########
 
+  #Make Sure URL doesnt timeout
+  oldTimeout <- getOption('timeout')
+  options(timeout=100000)
+
   if(tolower(tutorial) %in% c("heme","hematopoiesis")){
     
     if(!dir.exists("HemeFragments")){
@@ -49,6 +53,10 @@ getTutorialData <- function(
   
   }
 
+  #Set back URL Options
+  options(timeout=oldTimeout)
+
+  #Return Fragment Files
   inputFiles <- list.files(pathFragments, pattern = ".gz", full.names = TRUE)
   names(inputFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathFragments, pattern = ".gz"))
   inputFiles <- inputFiles[!grepl(".tbi", inputFiles)]
@@ -62,14 +70,24 @@ getTutorialData <- function(
 #' 
 #' @export
 getTestFragments <- function(x){
+
+  #Make Sure URL doesnt timeout
+  oldTimeout <- getOption('timeout')
+  options(timeout=100000)
+
   if(!file.exists("PBMCSmall.tsv.gz")){
     download.file(
       url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.tsv.gz",
       destfile = "PBMCSmall.tsv.gz"
     )
   }
+  #Set back URL Options
+  options(timeout=oldTimeout)
+
+  #Add Genome Return Name Vector
   addArchRGenome("hg19test")
   c("PBMC" = "PBMCSmall.tsv.gz")
+
 }
 
 #' Get PBMC Small Test Project
@@ -78,6 +96,10 @@ getTestFragments <- function(x){
 #' 
 #' @export
 getTestProject <- function(){
+  #Make Sure URL doesnt timeout
+  oldTimeout <- getOption('timeout')
+  options(timeout=100000)
+  #Download
   if(!dir.exists("PBMCSmall")){
     download.file(
       url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.zip",
@@ -86,6 +108,9 @@ getTestProject <- function(){
     unzip("PBMCSmall.zip", exdir = getwd())
     file.remove("PBMCSmall.zip")
   }
+  #Set back URL Options
+  options(timeout=oldTimeout)
+  #Load
   addArchRGenome("hg19test")
   loadArchRProject("PBMCSmall")
 }
