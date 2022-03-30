@@ -12,6 +12,7 @@ projectBulkATAC(
   n = 250,
   verbose = TRUE,
   threads = getArchRThreads(),
+  force = FALSE,
   logFile = createLogFile("projectBulkATAC")
 )
 }
@@ -29,6 +30,8 @@ projectBulkATAC(
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 
 \item{threads}{The number of threads used for parallel execution}
+
+\item{force}{A boolean value indicating whether to force the projection of bulk ATAC data even if fewer than 25\% of the features are present in the bulk ATAC data set.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }

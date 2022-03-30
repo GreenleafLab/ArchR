@@ -70,8 +70,7 @@ Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logid
 
 \item{scaleDims}{A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
 of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
-it is over-weighting latent PCs. If set to \code{NULL} this will scale the dimensions based on the value of \code{scaleDims} when the \code{reducedDims} were
-originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.}
+it is over-weighting latent PCs.}
 
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}

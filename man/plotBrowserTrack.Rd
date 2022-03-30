@@ -87,7 +87,7 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 
 \item{threads}{The number of threads to use for parallel execution.}
 
-\item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. If not provided, the y-axis limit will be c(0, 0.999).}
+\item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. This should be expressed as \verb{c(lower limit, upper limit)} such as \code{c(0,0.99)}. If not provided, the y-axis limit will be c(0, 0.999).}
 
 \item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override coloring for groups.}
 
@@ -113,5 +113,6 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 }
 \description{
 This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal
-which enables direct comparison across samples.
+which enables direct comparison across samples. Note that the genes displayed in these plots are derived from your \code{geneAnnotation}
+(i.e. the \code{BSgenome} object you used) so they may not match other online genome browsers that use different gene annotations.
 }

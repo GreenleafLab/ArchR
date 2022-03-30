@@ -104,6 +104,9 @@ IntegerVector rleSumsStranded(List rleList, List grList, int width, Function as_
   IntegerVector strand, debug, start;
   IntegerVector out = IntegerVector(width);
   
+  // Clone grList
+  grList = Rcpp::clone(grList);
+
   int n = grList.size();
   int shift = floor(width/2);
 
