@@ -219,7 +219,12 @@ getMarkerFeatures <- function(
     }else{
       if(tolower(normBy) == "none"){
         normFactors <- NULL
+      }else if(normBy %in% colnames(ArchRProj@cellColData)) {
+        normFactors <- getCellColData(ArchRProj, normBy, drop=FALSE)
+        normFactors[,1] <- median(normFactors[,1]) / normFactors[,1]
       }else{
+        .logMessage("Warning! Parameter 'normBy' was set to ", normBy," but no matching column was found in cellColData.\n",
+                    "Continuing with normalization based on column sums of matrix!", verbose = verbose, logFile = logFile)
         normFactors <- scaleTo / mColSums
         normFactors <- DataFrame(normFactors)
       }
