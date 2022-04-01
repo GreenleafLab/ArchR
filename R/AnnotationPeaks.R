@@ -260,7 +260,7 @@ addPeakAnnotations <- function(
 addMotifAnnotations <- function(
   ArchRProj = NULL,
   motifSet = "cisbp",
-  name = "Motif",
+  AnnotationName = "Motif",
   species = NULL,
   collection = "CORE",
   motifPWMs = NULL,
