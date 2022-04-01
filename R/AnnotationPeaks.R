@@ -242,7 +242,7 @@ addPeakAnnotations <- function(
 #' @param motifSet The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020"
 #' which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the
 #' corresponding motif sets from the `chromVAR` package. 
-#' @param name The name of the `peakAnnotation` object to be stored in the provided `ArchRProject`
+#' @param annoName The name of the `peakAnnotation` object to be stored in the provided `ArchRProject`
 #' @param species The name of the species relevant to the supplied `ArchRProject`. This is used for identifying which motif to be
 #' used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from `getGenome()`.
 #' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR
@@ -252,7 +252,7 @@ addPeakAnnotations <- function(
 #' (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
 #' @param version An integer specifying version 1 or version 2 of chromVARmotifs see github for more info GreenleafLab/chromVARmotifs.
-#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten if
+#' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `annoName` to be overwritten if
 #' it already exists in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a PWM object.
@@ -260,7 +260,7 @@ addPeakAnnotations <- function(
 addMotifAnnotations <- function(
   ArchRProj = NULL,
   motifSet = "cisbp",
-  name = "Motif",
+  annoName = "Motif",
   species = NULL,
   collection = "CORE",
   motifPWMs = NULL,
@@ -274,7 +274,7 @@ addMotifAnnotations <- function(
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = motifSet, name = "motifSet", valid = c("character", "null"))
-  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = annoName, name = "annoName", valid = c("character"))
   .validInput(input = species, name = "species", valid = c("character", "null"))
   .validInput(input = collection, name = "collection", valid = c("character", "null"))
   .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
@@ -299,7 +299,7 @@ addMotifAnnotations <- function(
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addMotifAnnotations Input-Parameters", logFile = logFile)
 
-  if(name %in% names(ArchRProj@peakAnnotation)){
+  if(annoName %in% names(ArchRProj@peakAnnotation)){
     if(force){
       message("peakAnnotation name already exists! Overriding.")
     }else{
@@ -476,16 +476,16 @@ addMotifAnnotations <- function(
     )
 
   dir.create(file.path(getOutputDirectory(ArchRProj), "Annotations"), showWarnings=FALSE)
-  savePositions <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Positions-In-Peaks.rds"))
-  saveMatches <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Matches-In-Peaks.rds"))
+  savePositions <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(annoName,"-Positions-In-Peaks.rds"))
+  saveMatches <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(annoName,"-Matches-In-Peaks.rds"))
 
-  ArchRProj@peakAnnotation[[name]]$Name <- name
-  ArchRProj@peakAnnotation[[name]]$motifs <- motifs
-  ArchRProj@peakAnnotation[[name]]$motifSummary <- motifSummary
-  ArchRProj@peakAnnotation[[name]]$Positions <- savePositions
-  ArchRProj@peakAnnotation[[name]]$Matches <- saveMatches
+  ArchRProj@peakAnnotation[[annoName]]$Name <- annoName
+  ArchRProj@peakAnnotation[[annoName]]$motifs <- motifs
+  ArchRProj@peakAnnotation[[annoName]]$motifSummary <- motifSummary
+  ArchRProj@peakAnnotation[[annoName]]$Positions <- savePositions
+  ArchRProj@peakAnnotation[[annoName]]$Matches <- saveMatches
 
-  .safeSaveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(name,"-In-Peaks-Summary.rds")), compress = FALSE)
+  .safeSaveRDS(out, file.path(getOutputDirectory(ArchRProj),  "Annotations", paste0(annoName,"-In-Peaks-Summary.rds")), compress = FALSE)
   .safeSaveRDS(out$motifPositions, savePositions, compress = FALSE)
   .safeSaveRDS(out$motifMatches, saveMatches, compress = FALSE)
 
