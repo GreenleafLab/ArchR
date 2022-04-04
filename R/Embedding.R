@@ -209,6 +209,48 @@ addUMAP <- function(
 
 #New Save UWOT
 .saveUWOT <- function(model, file){
+
+  #save_uwot does not work because tarring doesnt work for some reason on Stanford's compute server
+  #Adapted from save_uwot
+  #this function is evaluated because it doesnt work on newer versions of uwot
+  #this is kept for legacy R versions
+  strUWOT <- "
+    .saveUWOT_Deprecated <- function(model, file){
+      file <- file.path(normalizePath(dirname(file)), basename(file))
+      wd <- getwd()
+      mod_dir <- tempfile(pattern = 'dir')
+      dir.create(mod_dir)
+      uwot_dir <- file.path(mod_dir, 'uwot')
+      dir.create(uwot_dir)
+      model_tmpfname <- file.path(uwot_dir, 'model')
+      .safeSaveRDS(model, file = model_tmpfname)
+      metrics <- names(model$metric)
+      n_metrics <- length(metrics)
+      for (i in seq_len(n_metrics)) {
+          nn_tmpfname <- file.path(uwot_dir, paste0('nn', i))
+          if (n_metrics == 1) {
+              model$nn_index$save(nn_tmpfname)
+              model$nn_index$unload()
+              model$nn_index$load(nn_tmpfname)
+          }
+          else {
+              model$nn_index[[i]]$save(nn_tmpfname)
+              model$nn_index[[i]]$unload()
+              model$nn_index[[i]]$load(nn_tmpfname)
+          }
+      }
+      setwd(mod_dir)
+      system2('tar', '-cvf uwot.tar uwot', stdout = NULL, stderr = NULL)
+      o <- .fileRename('uwot.tar', file)
+      setwd(wd)
+      if (file.exists(mod_dir)) {
+          unlink(mod_dir, recursive = TRUE)
+      }
+      return(o)
+    }
+    "
+  eval(parse(text=strUWOT))
+
   tryCatch({
     uwot::save_uwot(model = model, file = file, verbose = TRUE)
   }, error = function(e){
@@ -216,95 +258,66 @@ addUMAP <- function(
   })
 }
 
-#save_uwot does not work because tarring doesnt work for some reason on Stanford's compute server
-#Adapted from save_uwot
-.saveUWOT_Deprecated <- function(model, file){
-  file <- file.path(normalizePath(dirname(file)), basename(file))
-  wd <- getwd()
-  mod_dir <- tempfile(pattern = "dir")
-  dir.create(mod_dir)
-  uwot_dir <- file.path(mod_dir, "uwot")
-  dir.create(uwot_dir)
-  model_tmpfname <- file.path(uwot_dir, "model")
-  .safeSaveRDS(model, file = model_tmpfname)
-  metrics <- names(model$metric)
-  n_metrics <- length(metrics)
-  for (i in seq_len(n_metrics)) {
-      nn_tmpfname <- file.path(uwot_dir, paste0("nn", i))
-      if (n_metrics == 1) {
-          model$nn_index$save(nn_tmpfname)
-          model$nn_index$unload()
-          model$nn_index$load(nn_tmpfname)
-      }
-      else {
-          model$nn_index[[i]]$save(nn_tmpfname)
-          model$nn_index[[i]]$unload()
-          model$nn_index[[i]]$load(nn_tmpfname)
-      }
-  }
-  setwd(mod_dir)
-  system2("tar", "-cvf uwot.tar uwot", stdout = NULL, stderr = NULL)
-  o <- .fileRename("uwot.tar", file)
-  setwd(wd)
-  if (file.exists(mod_dir)) {
-      unlink(mod_dir, recursive = TRUE)
-  }
-  return(o)
-}
-
 #New Save UWOT
 .loadUWOT <- function(file, nDim = NULL){
+
+  #load_uwot does not work because tarring doesnt work for some reason on Stanford's compute server
+  #Adapted from load_uwot
+  #this function is evaluated because it doesnt work on newer versions of uwot
+  #this is kept for legacy R versions
+  strUWOT <- "
+    .loadUWOT_Deprecated <- function(file, nDim = NULL){
+        model <- NULL
+        tryCatch({
+            mod_dir <- tempfile(pattern = 'dir')
+            dir.create(mod_dir)
+            utils::untar(file, exdir = mod_dir)
+            model_fname <- file.path(mod_dir, 'uwot/model')
+            if (!file.exists(model_fname)) {
+                stop('Cant find model in ', file)
+            }
+            model <- readRDS(file = model_fname)
+            metrics <- names(model$metric)
+            n_metrics <- length(metrics)
+            for (i in seq_len(n_metrics)){
+                nn_fname <- file.path(mod_dir, paste0('uwot/nn', i))
+                if (!file.exists(nn_fname)) {
+                    stop('Cant find nearest neighbor index ', nn_fname, ' in ', file)
+                }
+                metric <- metrics[[i]]
+                if(length(model$metric[[i]]) == 0){
+                  if(!is.null(nDim)){
+                    nDim2 <- nDim
+                  }else{
+                    nDim2 <- length(model$metric[[i]])
+                  }
+                }
+                if(!is.null(nDim)){
+                  nDim2 <- nDim
+                }
+                ann <- uwot:::create_ann(metric, ndim = nDim2)
+                ann$load(nn_fname)
+                if (n_metrics == 1) {
+                    model$nn_index <- ann
+                }else{
+                    model$nn_index[[i]] <- ann
+                }
+            }
+        }, finally = {
+            if (file.exists(mod_dir)) {
+                unlink(mod_dir, recursive = TRUE)
+            }
+        })
+        model 
+    }
+    "
+  eval(parse(text=strUWOT))
+
   tryCatch({
     uwot::load_uwot(file = file, verbose = TRUE)
   }, error = function(e){
     .loadUWOT_Deprecated(file = file, nDim = nDim) #backwards to previous version
   })
-}
-
-#Adapted from load_uwot
-.loadUWOT_Deprecated <- function(file, nDim = NULL){
-    model <- NULL
-    tryCatch({
-        mod_dir <- tempfile(pattern = "dir")
-        dir.create(mod_dir)
-        utils::untar(file, exdir = mod_dir)
-        model_fname <- file.path(mod_dir, "uwot/model")
-        if (!file.exists(model_fname)) {
-            stop("Can't find model in ", file)
-        }
-        model <- readRDS(file = model_fname)
-        metrics <- names(model$metric)
-        n_metrics <- length(metrics)
-        for (i in seq_len(n_metrics)){
-            nn_fname <- file.path(mod_dir, paste0("uwot/nn", i))
-            if (!file.exists(nn_fname)) {
-                stop("Can't find nearest neighbor index ", nn_fname, " in ", file)
-            }
-            metric <- metrics[[i]]
-            if(length(model$metric[[i]]) == 0){
-              if(!is.null(nDim)){
-                nDim2 <- nDim
-              }else{
-                nDim2 <- length(model$metric[[i]])
-              }
-            }
-            if(!is.null(nDim)){
-              nDim2 <- nDim
-            }
-            ann <- uwot:::create_ann(metric, ndim = nDim2)
-            ann$load(nn_fname)
-            if (n_metrics == 1) {
-                model$nn_index <- ann
-            }else{
-                model$nn_index[[i]] <- ann
-            }
-        }
-    }, finally = {
-        if (file.exists(mod_dir)) {
-            unlink(mod_dir, recursive = TRUE)
-        }
-    })
-    model 
 }
 
 #' Add a TSNE embedding of a reduced dimensions object to an ArchRProject

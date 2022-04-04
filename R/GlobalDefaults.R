@@ -12,27 +12,72 @@ ArchRDefaults <- list(
   ArchR.verbose = TRUE
 )
 
+ArchRDependency <- c(
+  "grid",
+  "gridExtra",
+  "gtools",
+  "gtable",
+  "ggplot2",
+  "magrittr",
+  "plyr",
+  "stringr",
+  "data.table",
+  "matrixStats",
+  "S4Vectors",
+  "GenomicRanges",
+  "BiocGenerics",
+  "Matrix",
+  "Rcpp",
+  "SummarizedExperiment",
+  "rhdf5"
+)
+
 .onAttach <- function(libname, pkgname){
-  if(!interactive()) return()
-  v <- packageVersion("ArchR")
+  
+  #Logo
   .ArchRLogo()
+  
+  #Package Startup
+  v <- packageVersion("ArchR")
   packageStartupMessage("ArchR : Version ", v, "\nFor more information see our website : www.ArchRProject.com\nIf you encounter a bug please report : https://github.com/GreenleafLab/ArchR/issues")
+  
+  #Load Packages
+  packageStartupMessage("Loading Required Packages...")
+  pkgs <- ArchRDependency
+  for(i in seq_along(pkgs)){
+    packageStartupMessage("\tLoading Package : ", pkgs[i], " v", packageVersion(pkgs[i]))
+    tryCatch({
+      suppressPackageStartupMessages(require(pkgs[i], character.only=TRUE))
+    }, error = function(e){
+      packageStartupMessage("\tFailed To Load Package : ", pkgs[i], " v", packageVersion(pkgs[i]))
+    })
+  }
+
+  if(!interactive()) return()
+
+  #Set Default Options
   op <- options()
   toset <- !(names(ArchRDefaults) %in% names(op))
+  
   if (any(toset)) options(ArchRDefaults[toset])
+  
   if(!.isWholenumber(options()[["ArchR.threads"]])){
     addArchRThreads()
   }else if(options()[["ArchR.threads"]] == 1){
     addArchRThreads()
   }
+  
   if(!.checkCairo()){
     packageStartupMessage("WARNING : Cairo check shows Cairo is not functional.\n          ggplot2 rasterization will not be available without Cario.\n          This may cause issues editing plots with many thousands of points from single cells.")
   }
+  
   if(.checkJupyter()){
     packageStartupMessage("Detected Jupyer Notebook session. Disabling Log Messages!\n\tIf this is undesired use `addArchRVerbose(TRUE)`")
     addArchRVerbose(verbose = FALSE)
   }
+  
   invisible()
+
 }
 
 #Check Jupyer Status

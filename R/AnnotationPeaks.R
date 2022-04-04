@@ -141,6 +141,10 @@ addPeakAnnotations <- function(
       names(regions) <- paste0("Region_", seq_along(regions))
     }
 
+    if(any(duplicated(names(regions)))){
+      stop("Found duplicated region names! Please make unique!")
+    }
+
     regionPositions <- lapply(seq_along(regions), function(x){
       
       .logThis(regions[[x]], paste0("regions[[x]]-", x), logFile = logFile)
@@ -192,11 +196,14 @@ addPeakAnnotations <- function(
   if(is.null(peakSet)){
     .logStop("peakSet is NULL. You need a peakset to run addMotifAnnotations! See addReproduciblePeakSet!", logFile = logFile)
   }
-  allPositions <- unlist(regionPositions)
+  allPositions <- unlist(regionPositions, use.names=TRUE)
 
   .logDiffTime("Creating Peak Overlap Matrix", t1 = tstart, verbose = TRUE, logFile = logFile)
 
   overlapRegions <- findOverlaps(peakSet, allPositions, ignore.strand=TRUE)
+  if(length(overlapRegions) == 0){
+    stop("No Overlaps Found between regions and peak Matrix!")
+  }
   .logThis(overlapRegions, "overlapRegions", logFile = logFile)
 
   regionMat <- Matrix::sparseMatrix(
@@ -210,6 +217,31 @@ addPeakAnnotations <- function(
 
   regionMat <- SummarizedExperiment::SummarizedExperiment(assays=SimpleList(matches = regionMat), rowRanges = peakSet)
   .logThis(regionMat, "regionSE", logFile = logFile)
+
+  #############################################################
+  # Filter Regions With No Matches
+  #############################################################
+
+  #Number of Overlaps
+  nO <- Matrix::colSums(assay(regionMat))
+  rF <- names(which(nO == 0))
+
+  if(all(nO == 0)){
+    stop("No Overlaps Found! Please check your peakSet and genome!")
+  }
+
+  if(length(rF) > 0){
+    .logDiffTime(paste0("Filtering Region Annotations with 0 overlaps :\n\n ", paste(rF, collapse=", "), "\n\n"), t1 = tstart, verbose = TRUE, logFile = logFile)
+    #Filter
+    regionPositions <- regionPositions[!(names(regionPositions) %in% rF)]
+    regionMat <- regionMat[,names(regionPositions),drop=FALSE]
+  }else{
+    .logDiffTime(paste0("All Regions Overlap at least 1 peak!"), t1 = tstart, verbose = TRUE, logFile = logFile)
+  }  
+
+  #############################################################
+  # Summarize and Save
+  #############################################################
 
   dir.create(file.path(getOutputDirectory(ArchRProj), "Annotations"), showWarnings=FALSE)
   savePositions <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Positions-In-Peaks.rds"))
@@ -452,6 +484,28 @@ addMotifAnnotations <- function(
     )
 
   #############################################################
+  # Filter Motifs With No Matches
+  #############################################################
+
+  #Number of Overlaps
+  nO <- lapply(motifPositions, length) %>% unlist
+  mF <- names(which(nO == 0))
+
+  if(all(nO == 0)){
+    stop("No Overlaps Found! Please check your peakSet and genome!")
+  }
+
+  if(length(mF) > 0){
+    .logDiffTime(paste0("Filtering Motif Annotations with 0 overlaps :\n\n ", paste(mF, collapse=", "), "\n\n"), t1 = tstart, verbose = TRUE, logFile = logFile)
+    #Filter
+    motifPositions <- motifPositions[nO > 0]
+    motifSummary <- motifSummary[names(motifPositions),,drop=FALSE]
+    motifs <- motifs[names(motifPositions)]
+  }else{
+    .logDiffTime(paste0("All Motifs Overlap at least 1 peak!"), t1 = tstart, verbose = TRUE, logFile = logFile)
+  }  
+
+  #############################################################
   # Motif Overlap Matrix
   #############################################################
   .logDiffTime("Creating Motif Overlap Matrix", t1 = tstart, verbose = TRUE, logFile = logFile)
@@ -665,12 +719,15 @@ addArchRAnnotations <- function(
 
     #Download
     if(!file.exists(file.path(annoPath, basename(url)))){
+      oldTimeout <- getOption('timeout')
+      options(timeout=10000)
       message("Annotation ", basename(url)," does not exist! Downloading..")
       download.file(
         url = url, 
         destfile = file.path(annoPath, basename(url)),
         quiet = FALSE
       )
+      options(timeout=oldTimeout)
     }
     AnnoFile <- file.path(annoPath, basename(url))
 
@@ -746,6 +803,30 @@ addArchRAnnotations <- function(
     colData = regionMetadata
   )
   .logThis(regionMat, "regionSE", logFile=logFile)
+
+  #############################################################
+  # Filter Regions With No Matches
+  #############################################################
+
+  #Number of Overlaps
+  nO <- Matrix::colSums(assay(regionMat))
+  rF <- names(which(nO == 0))
+
+  if(all(nO == 0)){
+    stop("No Overlaps Found! Please check your peakSet and genome!")
+  }
+
+  if(length(rF) > 0){
+    .logDiffTime(paste0("Filtering Region Annotations with 0 overlaps :\n\n ", paste(rF, collapse=", "), "\n\n"), t1 = tstart, verbose = TRUE, logFile = logFile)
+    #Filter
+    regionMat <- regionMat[,nO > 0,drop=FALSE]
+  }else{
+    .logDiffTime(paste0("All Regions Overlap at least 1 peak!"), t1 = tstart, verbose = TRUE, logFile = logFile)
+  }  
+
+  #############################################################
+  # Save
+  #############################################################
 
   dir.create(file.path(getOutputDirectory(ArchRProj), "Annotations"), showWarnings=FALSE)
   saveMatches <- file.path(getOutputDirectory(ArchRProj), "Annotations", paste0(name,"-Matches-In-Peaks.rds"))

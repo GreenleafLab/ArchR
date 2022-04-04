@@ -1,6 +1,6 @@
 Package: ArchR
 Type: Package
-Date: 2021-02-23
+Date: 2022-04-03
 Title: Analyzing single-cell regulatory chromatin in R.
 Version: 1.0.2
 Authors@R: c(
@@ -14,6 +14,14 @@ LazyData: TRUE
 RoxygenNote: 7.1.2
 Encoding: UTF-8
 Imports:
+    ggplot2,
+    SummarizedExperiment,
+    data.table,
+    Matrix,
+    rhdf5,
+    magrittr,
+    S4Vectors (>= 0.9.25),
+    BiocGenerics,
     Rcpp (>= 0.12.16),
     matrixStats,
     plyr,
@@ -29,17 +37,9 @@ Imports:
     grid,
     gridExtra,
     Biostrings,
-    ComplexHeatmap
-Depends:
-    ggplot2,
-    SummarizedExperiment,
-    data.table,
-    Matrix,
-    rhdf5,
-    magrittr,
-    S4Vectors (>= 0.9.25),
-    BiocGenerics,
+    ComplexHeatmap,
     GenomicRanges
+Depends:
 Collate: 
     'AllClasses.R'
     'AnnotationGenome.R'

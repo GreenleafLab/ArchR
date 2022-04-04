@@ -1,5 +1,6 @@
 #' @useDynLib ArchR
 #' @importFrom Rcpp sourceCpp
+#' @import GenomicRanges
 NULL
 
 setClassUnion("characterOrNull", c("character", "NULL"))
