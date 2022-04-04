@@ -13,6 +13,7 @@ jobs:
             __1.__ If you've encountered an error, have you already searched previous Issues to make sure that this hasn't already been solved?
             __2.__ Can you recapitulate your error using the tutorial code and dataset? If so, provide a reproducible example.
             __3.__ Did you post your log file? If not, add it now.
+            __4.__ Remove any screenshots that contain text and instead copy and paste the text using markdown's codeblock syntax (three consecutive backticks). You can do this by editing your original post.
             
 #          issuesOpened: |
 #            Hi @{{ author }}! Thanks for using ArchR! I am currently on paternity leave and will not be responding to any issues or discussion threads. I plan to be back in late January and will do my best to address your issue then.<br />
