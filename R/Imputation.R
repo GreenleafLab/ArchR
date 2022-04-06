@@ -198,7 +198,7 @@ addImputeWeights <- function(
   }, threads = threads) %>% SimpleList
   names(weightList) <- paste0("w",seq_along(weightList))
 
-  .logDiffTime(sprintf("Completed Getting Magic Weights!", round(object.size(weightList) / 10^9, 3)), 
+  .logDiffTime(sprintf("Completed Getting Magic Weights! Object size - %s.", round(object.size(weightList) / 10^9, 3)), 
     t1 = tstart, verbose = FALSE, logFile = logFile)
 
   ArchRProj@imputeWeights <- SimpleList(
