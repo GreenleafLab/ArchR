@@ -46,9 +46,9 @@
 #' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total number of insertions.
 #' These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a `TileMatrix` to a defined peakSet.
 #' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior
-#' @param excludeChr A string of chromosomes to exclude for iterativeLSI procedure.
 #' to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in
 #' insertion counts will be ignored for the first LSI iteration.
+#' @param excludeChr A string of chromosomes to exclude for iterativeLSI procedure.
 #' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in
 #' the designated `outDir`.
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" if `saveIterations=TRUE`. See the function `uwot::umap()`.
