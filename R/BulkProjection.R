@@ -153,7 +153,7 @@ projectBulkATAC <- function(
     }
 
     if(embedding$params$nc != ncol(simRD)){
-      .logMessage("Warning! Inconsistency found with matching LSI dimensions to those used in addUMAP or addTSNE",
+      .logMessage("Error! Inconsistency found with matching LSI dimensions to those used in addUMAP or addTSNE",
         "\nReturning with simulated reduced dimension coordinates...", verbose = TRUE, logFile = logFile)
       out <- SimpleList(
         simulatedReducedDims = simRD
