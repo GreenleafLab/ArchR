@@ -390,7 +390,6 @@ addPeakSet <- function(
 
     #Get NucleoTide Content
     peakSet <- tryCatch({
-      .requirePackage(genomeAnnotation$genome)
       .requirePackage("Biostrings",source="bioc")
       BSgenome <- eval(parse(text = genomeAnnotation$genome))
       BSgenome <- validBSgenome(BSgenome)
