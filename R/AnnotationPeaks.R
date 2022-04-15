@@ -459,7 +459,7 @@ addMotifAnnotations <- function(
       motifs <- readRDS(fileName)
       file.remove(fileName)
     } else {
-      stop(paste0("Error! collection ", collection, " not recognized for motifSet ",motifSet
+      stop(paste0("Error! collection ", collection, " not recognized for motifSet ",motifSet,
         ". Accepted values are 'individual' and 'archetype'"))
     }
     obj <- NULL
