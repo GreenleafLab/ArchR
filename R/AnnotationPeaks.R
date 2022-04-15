@@ -447,21 +447,29 @@ addMotifAnnotations <- function(
 
   }else if(tolower(motifSet)=="vierstra"){
     if(tolower(collection)=="individual"){
-      fileName <- "Vierstra_Individual_Motifs.rds"
-      download.file(url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Individual_Motifs.rds",
-        destfile = fileName)
-      motifs <- readRDS(fileName)
-      file.remove(fileName)
+      url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Individual_Motifs.rds"
     } else if(tolower(collection == "archetype")){
-      fileName <- "Vierstra_Archetype_Motifs.rds"
-      download.file(url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Archetype_Motifs.rds",
-        destfile = fileName)
-      motifs <- readRDS(fileName)
-      file.remove(fileName)
+      url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Archetype_Motifs.rds"
     } else {
       stop(paste0("Error! collection ", collection, " not recognized for motifSet ",motifSet,
         ". Accepted values are 'individual' and 'archetype'"))
     }
+
+    annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
+    dir.create(annoPath, showWarnings = FALSE)
+
+    #Download
+    if(!file.exists(file.path(annoPath, basename(url)))){
+      message("Motif file ", basename(url)," does not exist! Downloading..")
+      download.file(
+        url = url, 
+        destfile = file.path(annoPath, basename(url)),
+        quiet = FALSE
+      )
+    }
+    motifFile <- file.path(annoPath, basename(url))
+
+    motifs <- readRDS(motifFile)
     obj <- NULL
     motifSummary <- NULL
 
