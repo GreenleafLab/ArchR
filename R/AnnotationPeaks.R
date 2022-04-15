@@ -272,13 +272,16 @@ addPeakAnnotations <- function(
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param motifSet The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020"
-#' which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the
-#' corresponding motif sets from the `chromVAR` package. 
+#' which gives the 2016, 2018 or 2020 version of JASPAR motifs, (ii) one of "cisbp", "encode", or "homer" which gives the
+#' corresponding motif sets from the `chromVAR` package, or (iii) "vierstra" which gives the clustered archetype motifs
+#' created by Jeff Vierstra (https://github.com/jvierstra/motif-clustering). 
 #' @param annoName The name of the `peakAnnotation` object to be stored in the provided `ArchRProject`
 #' @param species The name of the species relevant to the supplied `ArchRProject`. This is used for identifying which motif to be
 #' used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from `getGenome()`.
 #' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR
-#' collection to be used. See `getMatrixSet()` from `TFBSTools` for all options to supply for collection.
+#' collection to be used. See `getMatrixSet()` from `TFBSTools` for all options to supply for collection. If `motifSet` is
+#' "vierstra", then this must either be "individual" (for individual motif models), or "archetype" (for clustered models).
+#' NOTE: vierstra archetype motifs are currently in beta and have not been finalized by Jeff Vierstra.
 #' @param motifPWMs A custom set of motif PWMs as a PWMList for adding motif annotations.
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
 #' (see `MOODS` for more details on this determination).
@@ -441,6 +444,26 @@ addMotifAnnotations <- function(
     obj <- .summarizeChromVARMotifs(motifs)
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
+
+  }else if(tolower(motifSet)=="vierstra"){
+    if(tolower(collection)=="individual"){
+      fileName <- "Vierstra_Individual_Motifs.rds"
+      download.file(url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Individual_Motifs.rds",
+        destfile = fileName)
+      motifs <- readRDS(fileName)
+      file.remove(fileName)
+    } else if(tolower(collection == "archetype")){
+      fileName <- "Vierstra_Archetype_Motifs.rds"
+      download.file(url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Archetype_Motifs.rds",
+        destfile = fileName)
+      motifs <- readRDS(fileName)
+      file.remove(fileName)
+    } else {
+      stop(paste0("Error! collection ", collection, " not recognized for motifSet ",motifSet
+        ". Accepted values are 'individual' and 'archetype'"))
+    }
+    obj <- NULL
+    motifSummary <- NULL
 
   }else if(tolower(motifSet)=="custom"){
 
