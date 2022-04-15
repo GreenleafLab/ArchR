@@ -170,7 +170,7 @@ addUMAP <- function(
 
     ArchRProj@embeddings[[name]] <- SimpleList(
       df = dfEmbedding, 
-      params = c(
+      params = list(
         embeddingParams,
         dimsToUse = dimsToUse,
         scaleDims = scaleDims,
@@ -189,7 +189,7 @@ addUMAP <- function(
     embeddingParams$X <- NULL
     ArchRProj@embeddings[[name]] <- SimpleList(
       df = dfEmbedding, 
-      params = c(
+      params = list(
         embeddingParams,
         dimsToUse = dimsToUse,
         scaleDims = scaleDims,
