@@ -81,7 +81,7 @@ projectBulkATAC <- function(
   # Create Bulk Matrix
   ##################################################
   bulkMat <- .safeSubset(
-    mat = .getAssay(subATAC, "counts"), 
+    mat = as.matrix(.getAssay(subATAC, "counts")), 
     subsetRows = paste0("f", seq_along(rDGR))
   )
   .logThis(bulkMat, "bulkATACMat", logFile = logFile)
