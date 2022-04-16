@@ -174,6 +174,10 @@ plotPDF <- function(
 #' @param imputeWeights The weights to be used for imputing numerical values for each cell as a linear combination of other cells values.
 #' See `addImputationWeights()` and `getImutationWeights()` for more information.
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
+#' If you are using `pal` in conjuction with `highlightCells`, your palette must be a named vector with two entries, one named for the value
+#' of the cells in the `name` column of `cellColData` and the other named "Non.Highlighted". For example, `pal=c("Mono" = "green", "Non.Highlighted" = "lightgrey")`
+#' would be used to change the color of cells with the value "Mono" in the `cellColData` column indicated by `name`. Because of this,
+#' the cells indicated by `highlightCells` must also match this value in the `name` column.
 #' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
 #' @param sampleCells A numeric describing number of cells to use for plot. If using impute weights, this will occur after imputation.
 #' @param highlightCells A character vector of cellNames describing which cells to hightlight if using `plotAs = "points"` (default if discrete). 
