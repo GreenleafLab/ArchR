@@ -555,6 +555,9 @@ ggHex <- function(
     .validInput(input = hexCut, name = "quantCut", valid = c("numeric", "null"))
     .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
+     #require hexbin to be installed. otherwise, this section wont work properly
+    .requirePackage(x = "hexbin", source = "CRAN")
+    
     df <- data.frame(x = x, y = y)
     include <- which(is.finite(x) & is.finite(y))
 
