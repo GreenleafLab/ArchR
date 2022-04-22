@@ -280,7 +280,7 @@ addPeakAnnotations <- function(
 #' used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from `getGenome()`.
 #' @param collection If one of the JASPAR motif sets is used via `motifSet`, this parameter allows you to indicate the JASPAR
 #' collection to be used. See `getMatrixSet()` from `TFBSTools` for all options to supply for collection. If `motifSet` is
-#' "vierstra", then this must either be "archetype" (for the v2 clustered models) or "individual" (for the original v1 individual motif models). 
+#' "vierstra", then this must either be "archetype" (for the v2.1 clustered models) or "individual" (for the original v1 individual motif models). 
 #' NOTE: vierstra archetype motifs are currently in beta and have not been finalized by Jeff Vierstra.
 #' @param motifPWMs A custom set of motif PWMs as a PWMList for adding motif annotations.
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
@@ -449,7 +449,7 @@ addMotifAnnotations <- function(
     if(tolower(collection)=="individual"){
       url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Individual_Motifs.rds"
     } else if(tolower(collection == "archetype")){
-      url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Archetype_Motifs.rds"
+      url = "https://jeffgranja.s3.amazonaws.com/ArchR/Annotations/Vierstra_Archetype_Motifs_v2.1.rds"
     } else {
       stop(paste0("Error! collection ", collection, " not recognized for motifSet ",motifSet,
         ". Accepted values are 'individual' and 'archetype'"))
