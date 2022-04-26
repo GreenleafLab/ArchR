@@ -132,8 +132,14 @@ addModuleScore <- function(
       doSampleCells = FALSE
     )
     Matrix::colMeans(m[seq_along(idxFgd), ]) - Matrix::colMeans(m[-seq_along(idxFgd), ])
-  }) %>% Reduce("cbind", .)
-
+  })
+  
+  if (length(features) > 1) {
+    dfM <- Reduce("cbind", dfM)
+  } else {
+    dfM <- as.data.frame(dfM[[1]], row.names = names(dfM), drop = FALSE)
+  }
+  
   #add the module scores as new columns in cellColData
   for(x in seq_len(ncol(dfM))){
     ArchRProj <- addCellColData(ArchRProj, data = dfM[,x], name=names(featureList)[x], cells=rownames(dfM), force = TRUE)
