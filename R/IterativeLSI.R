@@ -11,9 +11,10 @@
 #' "TileMatrix" or "PeakMatrix".
 #' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
-#' @param clusterParams A list of Additional parameters to be passed to `addClusters()` for clustering within each iteration. 
+#' @param clusterParams A list of additional parameters to be passed to `addClusters()` for clustering within each iteration. 
 #' These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
-#' length == 1 or the total number of `iterations` - 1. PLEASE NOTE - We have updated these params to `resolution=2` and `maxClusters=6`! To use previous settings use `resolution=0.2` and `maxClusters=NULL`.
+#' length == 1 or the total number of `iterations` - 1. If you want to use `scran` for clustering, you would pass this as `method="scran"`.
+#` PLEASE NOTE - We have updated these params to `resolution=2` and `maxClusters=6`! To use previous settings use `resolution=0.2` and `maxClusters=NULL`.
 #' @param firstSelection First iteration selection method for features to use for LSI. Either "Top" for the top accessible/average or "Var" for the top variable features. 
 #' "Top" should be used for all scATAC-seq data (binary) while "Var" should be used for all scRNA/other-seq data types (non-binary).
 #' @param depthCol A column in the `ArchRProject` that represents the coverage (scATAC = unique fragments, scRNA = unique molecular identifiers) per cell.
