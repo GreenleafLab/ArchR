@@ -249,6 +249,7 @@ getFragmentsFromArrow <- function(
 #' @param ArchRProj An `ArchRProject` object to get data matrix from.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -257,6 +258,7 @@ getMatrixFromProject <- function(
   ArchRProj = NULL,
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = c(),
   verbose = TRUE,
   binarize = FALSE,
   threads = getArchRThreads(),
@@ -266,6 +268,7 @@ getMatrixFromProject <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
@@ -297,6 +300,7 @@ getMatrixFromProject <- function(
         ArrowFile = ArrowFiles[x],
         useMatrix = useMatrix,
         useSeqnames = useSeqnames,
+        excludeChr = excludeChr,
         cellNames = allCells, 
         ArchRProj = ArchRProj,
         verbose = FALSE,
@@ -377,6 +381,7 @@ getMatrixFromProject <- function(
 #' @param ArrowFile The path to an ArrowFile from which the selected data matrix should be obtained.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
 #' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
 #' the provided ArrowFile using `getCellNames()`.
@@ -391,6 +396,7 @@ getMatrixFromArrow <- function(
   ArrowFile = NULL, 
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = c(),
   cellNames = NULL, 
   ArchRProj = NULL,
   verbose = TRUE,
@@ -401,6 +407,7 @@ getMatrixFromArrow <- function(
   .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
   .validInput(input = useMatrix, name = "useMatrix", valid = "character")
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = cellNames, name = "cellNames", valid = c("character","null"))
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj","null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
@@ -419,6 +426,9 @@ getMatrixFromArrow <- function(
 
   if(!is.null(useSeqnames)){
     seqnames <- seqnames[seqnames %in% useSeqnames]
+  }
+  if(!is.null(excludeChr)) {
+    seqnames <- seqnames[seqnames %ni% excludeChr]
   }
 
   if(length(seqnames) == 0){
