@@ -957,6 +957,7 @@ getCoAccessibility <- function(
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
 #' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param cellsToUse A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current
@@ -981,6 +982,7 @@ addPeak2GeneLinks <- function(
   scaleDims = NULL,
   corCutOff = 0.75,
   cellsToUse = NULL,
+  excludeChr = c(),
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
@@ -1002,6 +1004,7 @@ addPeak2GeneLinks <- function(
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = cellsToUse, name = "cellsToUse", valid = c("character", "null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
   .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
@@ -1108,7 +1111,8 @@ addPeak2GeneLinks <- function(
   groupMatRNA <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = geneDF, 
-    groupList = knnObj, 
+    groupList = knnObj,
+    excludeSeqnames = excludeChr,
     useMatrix = useMatrix,
     threads = threads,
     verbose = FALSE
@@ -1121,7 +1125,8 @@ addPeak2GeneLinks <- function(
   groupMatATAC <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = peakDF, 
-    groupList = knnObj, 
+    groupList = knnObj,
+    excludeSeqnames = excludeChr,
     useMatrix = "PeakMatrix",
     threads = threads,
     verbose = FALSE

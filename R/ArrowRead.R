@@ -611,6 +611,7 @@ getMatrixFromArrow <- function(
   ArrowFiles = NULL, 
   featureDF = NULL, 
   groupList = NULL,
+  excludeSeqnames = NULL,
   threads = 1, 
   useIndex = FALSE, 
   verbose = TRUE, 
@@ -630,6 +631,9 @@ getMatrixFromArrow <- function(
   # Construct Matrix
   #########################################
   seqnames <- unique(featureDF$seqnames)
+  if(!is.null(excludeSeqnames)) {
+    seqnames <- seqnames[which(seqnames %ni% excludeSeqnames)]
+  }
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check QQQ
 

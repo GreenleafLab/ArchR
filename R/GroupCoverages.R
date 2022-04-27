@@ -17,7 +17,7 @@
 #' @param minReplicates The minimum number of pseudo-bulk replicates to be generated.
 #' @param maxReplicates The maximum number of pseudo-bulk replicates to be generated.
 #' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
-#' @param excludeChr A string of chromosomes to exclude for iterativeLSI procedure.
+#' @param excludeChr A character vector of chromosome names (seqnames) to exclude from analysis.
 #' @param kmerLength The length of the k-mer used for estimating Tn5 bias.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param returnGroups A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
