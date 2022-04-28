@@ -108,6 +108,32 @@
   return(z)
 }
 
+.computeClostestCellsList <- function(
+    data = NULL,
+    query = NULL,
+    k = 50,
+    ...
+){
+  .validInput(input = data, name = "data", valid = c("dataframe", "matrix"))
+  .validInput(input = query, name = "query", valid = c("dataframe", "matrix"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .requirePackage("nabor", source = "cran")
+  
+  nn1 = nabor::knn(data = data, query = query, k = k, ...)
+  dists = nn1$nn.dists
+  indxs = nn1$nn.idx
+  data = c()
+  elements_len = dim(indxs)[2]
+  for (i in 1:dim(indxs)[1]){
+    new_part = cbind(rep(i, elements_len), indxs[i,], dists[i,])
+    data = rbind(data, new_part)
+  }
+  pairs_dist_df = as.data.frame(data)
+  colnames(pairs_dist_df) = c("Cells", "Bgd", "Dist")
+  pairs_dist_df = pairs_dist_df[order(pairs_dist_df$Dist),]
+  pairs_dist_df
+}
+
 .computeROC <- function(labels = NULL, scores = NULL, name="ROC"){
   .calcAUC <- function(TPR = NULL, FPR = NULL){
     # http://blog.revolutionanalytics.com/2016/11/calculating-auc.html
