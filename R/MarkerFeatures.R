@@ -746,11 +746,10 @@ getMarkerFeatures <- function(
         groupit <- match(groups[idB][knnit],names(nx))
         selectUnique <- FALSE
         selectit <- 0
-        oit <- order(groupit)
         
         while(!selectUnique){
           selectit <- selectit + 1
-          itx <- which(oit==selectit)
+          itx <- selectit
           cellx <- knnit[itx]
           groupitx <- groupit[itx]
           if(is.infinite(nx[groupitx])){
