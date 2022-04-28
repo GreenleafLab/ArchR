@@ -41,6 +41,8 @@ markerFeatures <- function(...){
 #' `seqnames` that are not listed will be ignored. In the context of a `Sparse.Assays.Matrix`, such as a matrix containing chromVAR
 #' deviations, the `seqnames` do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
 #' raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.
+#' @param closest A boolean value that indicated whether to use closest cells from foreground and background instead of random sampling
+#' of the foreground cells.
 #' @param verbose A boolean value that determines whether standard output is printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
@@ -60,6 +62,7 @@ getMarkerFeatures <- function(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
+  closest = FALSE,
   verbose = TRUE,
   logFile = createLogFile("getMarkerFeatures")
   ){
@@ -79,6 +82,7 @@ getMarkerFeatures <- function(
   .validInput(input = bufferRatio, name = "bufferRatio", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
+  .validInput(input = closest, name = "closest", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
 
@@ -110,6 +114,7 @@ getMarkerFeatures <- function(
   threads = 1,
   binarize = FALSE,
   useSeqnames = NULL,
+  closest=closest,
   testMethod = "wilcoxon",
   useMatrix = "GeneScoreMatrix",
   markerParams = list(),
@@ -185,6 +190,7 @@ getMarkerFeatures <- function(
       k = k,
       n = maxCells,
       bufferRatio = bufferRatio,
+      closest=closest,
       logFile = logFile
     )
 
@@ -576,6 +582,7 @@ getMarkerFeatures <- function(
   n = 500,
   seed = 1,
   bufferRatio = 0.8,
+  closest=FALSE,
   logFile = NULL
   ){
 
@@ -670,71 +677,115 @@ getMarkerFeatures <- function(
     }else{
       k2 <- k
     }
-
-    knnx <- .computeKNN(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
-    sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
-
-    minTotal <- min(n, length(sx) * bufferRatio)
-    nx <- sort(floor(minTotal * bgdProbx))
     
-    ###############
-    # ID Matching
-    ###############
-    idX <- c()
-    idY <- c()
-    it <- 0
-    
-    if(any(nx <= 0)){
-      nx[which(nx <= 0)] <- Inf
-      nx <- sort(nx)
-    }
-
-    while(it < length(sx) & length(idX) < minTotal){
+    if (closest){
+      .logMessage("Using the closest cells identified by KKN between the foreground and background", verbose = TRUE, logFile = logFile)
+      sortedCells = .computeClostestCellsList(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
+      idX = c()
+      inspected_cells = c()
+      idY = c()
+      i = 1
+      df_counter = 1
       
-      it <- it + 1
-      knnit <- knnx[sx[it],]
-      groupit <- match(groups[idB][knnit],names(nx))
-      selectUnique <- FALSE
-      selectit <- 0
-      oit <- order(groupit)
+      sx = idF
+      minTotal <- min(n, length(sx) * bufferRatio)
+      nx <- sort(floor(minTotal * bgdProbx))
       
-      while(!selectUnique){
-        selectit <- selectit + 1
-        itx <- which(oit==selectit)
-        cellx <- knnit[itx]
-        groupitx <- groupit[itx]
-        if(is.infinite(nx[groupitx])){
-          if(selectit == k2){
-            itx <- NA
-            cellx <- NA
-            selectUnique <- TRUE
+      if (length(bgdGroups)==1){
+        upper_border = min(length(idB), length(idF))
+        while (i <= upper_border & df_counter <= nrow(sortedCells)){
+          inspected_cells = append(inspected_cells, sortedCells$Cells[df_counter])
+          if (sortedCells$Cells[df_counter] %ni% idX && sortedCells$Bgd[df_counter] %ni% idY){
+            idX = append(idX, sortedCells$Cells[df_counter])
+            idY = append(idY, sortedCells$Bgd[df_counter])
+            i = i + 1
           }
-        }else{
-          if(cellx %ni% idY){
-            selectUnique <- TRUE
+          df_counter = df_counter + 1 
+        }
+      }else{
+        while (i <= floor(minTotal) & df_counter <= nrow(sortedCells)){
+          inspected_cells = append(inspected_cells, sortedCells$Cells[df_counter])
+          if (sortedCells$Cells[df_counter] %ni% idX && sortedCells$Bgd[df_counter] %ni% idY){
+            groupitx <- match(groups[idB][sortedCells$Bgd[df_counter]],names(nx))
+            if (nx[groupitx]>0){
+              idX = append(idX, sortedCells$Cells[df_counter])
+              idY = append(idY, sortedCells$Bgd[df_counter])
+              i = i + 1
+              nx[groupitx] = nx[groupitx]-1
+            }
           }
-          if(selectit == k2){
-            itx <- NA
-            cellx <- NA
-            selectUnique <- TRUE
-          }
+          df_counter = df_counter + 1 
         }
       }
+      it = length(unique(inspected_cells))
       
-      if(!is.na(itx)){
-        idX <- c(idX, sx[it])
-        idY <- c(idY, cellx)
-        nx[groupitx] <- nx[groupitx] - 1
-        if(any(nx <= 0)){
-          nx[which(nx <= 0)] <- Inf
-          nx <- sort(nx)
+    } else{
+  
+      knnx <- .computeKNN(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
+      sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
+  
+      minTotal <- min(n, length(sx) * bufferRatio)
+      nx <- sort(floor(minTotal * bgdProbx))
+      
+      ###############
+      # ID Matching
+      ###############
+      idX <- c()
+      idY <- c()
+      it <- 0
+      
+      if(any(nx <= 0)){
+        nx[which(nx <= 0)] <- Inf
+        nx <- sort(nx)
+      }
+  
+      while(it < length(sx) & length(idX) < minTotal){
+        
+        it <- it + 1
+        knnit <- knnx[sx[it],]
+        groupit <- match(groups[idB][knnit],names(nx))
+        selectUnique <- FALSE
+        selectit <- 0
+        oit <- order(groupit)
+        
+        while(!selectUnique){
+          selectit <- selectit + 1
+          itx <- which(oit==selectit)
+          cellx <- knnit[itx]
+          groupitx <- groupit[itx]
+          if(is.infinite(nx[groupitx])){
+            if(selectit == k2){
+              itx <- NA
+              cellx <- NA
+              selectUnique <- TRUE
+            }
+          }else{
+            if(cellx %ni% idY){
+              selectUnique <- TRUE
+            }
+            if(selectit == k2){
+              itx <- NA
+              cellx <- NA
+              selectUnique <- TRUE
+            }
+          }
         }
+        
+        if(!is.na(itx)){
+          idX <- c(idX, sx[it])
+          idY <- c(idY, cellx)
+          nx[groupitx] <- nx[groupitx] - 1
+          if(any(nx <= 0)){
+            nx[which(nx <= 0)] <- Inf
+            nx <- sort(nx)
+          }
+        }
+  
+        if(all(is.infinite(nx))){
+          it <- length(sx)
+        }
+  
       }
-
-      if(all(is.infinite(nx))){
-        it <- length(sx)
-      }
-
     }
 
     #####################
