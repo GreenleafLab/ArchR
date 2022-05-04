@@ -290,7 +290,7 @@ addPeakAnnotations <- function(
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `annoName` to be overwritten if
 #' it already exists in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
-#' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a PWM object.
+#' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a JASPAR PWM object.
 #' @export
 addMotifAnnotations <- function(
   ArchRProj = NULL,
