@@ -7,7 +7,7 @@
 addMotifAnnotations(
   ArchRProj = NULL,
   motifSet = "cisbp",
-  name = "Motif",
+  annoName = "Motif",
   species = NULL,
   collection = "CORE",
   motifPWMs = NULL,
@@ -23,16 +23,19 @@ addMotifAnnotations(
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
 \item{motifSet}{The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020"
-which gives the 2016, 2018 or 2020 version of JASPAR motifs or (ii) one of "cisbp", "encode", or "homer" which gives the
-corresponding motif sets from the \code{chromVAR} package.}
+which gives the 2016, 2018 or 2020 version of JASPAR motifs, (ii) one of "cisbp", "encode", or "homer" which gives the
+corresponding motif sets from the \code{chromVAR} package, or (iii) "vierstra" which gives the clustered archetype motifs
+created by Jeff Vierstra (https://github.com/jvierstra/motif-clustering).}
 
-\item{name}{The name of the \code{peakAnnotation} object to be stored in the provided \code{ArchRProject}}
+\item{annoName}{The name of the \code{peakAnnotation} object to be stored in the provided \code{ArchRProject}}
 
 \item{species}{The name of the species relevant to the supplied \code{ArchRProject}. This is used for identifying which motif to be
 used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from \code{getGenome()}.}
 
 \item{collection}{If one of the JASPAR motif sets is used via \code{motifSet}, this parameter allows you to indicate the JASPAR
-collection to be used. See \code{getMatrixSet()} from \code{TFBSTools} for all options to supply for collection.}
+collection to be used. See \code{getMatrixSet()} from \code{TFBSTools} for all options to supply for collection. If \code{motifSet} is
+"vierstra", then this must either be "archetype" (for the v2.1 clustered models) or "individual" (for the original v1 individual motif models).
+NOTE: vierstra archetype motifs are currently in beta and have not been finalized by Jeff Vierstra.}
 
 \item{motifPWMs}{A custom set of motif PWMs as a PWMList for adding motif annotations.}
 
@@ -43,7 +46,7 @@ collection to be used. See \code{getMatrixSet()} from \code{TFBSTools} for all o
 
 \item{version}{An integer specifying version 1 or version 2 of chromVARmotifs see github for more info GreenleafLab/chromVARmotifs.}
 
-\item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{name} to be overwritten if
+\item{force}{A boolean value indicating whether to force the \code{peakAnnotation} object indicated by \code{annoName} to be overwritten if
 it already exists in the given \code{ArchRProject}.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}

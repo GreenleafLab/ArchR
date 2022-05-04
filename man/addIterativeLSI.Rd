@@ -51,9 +51,9 @@ addIterativeLSI(
 
 \item{iterations}{The number of LSI iterations to perform.}
 
-\item{clusterParams}{A list of Additional parameters to be passed to \code{addClusters()} for clustering within each iteration.
+\item{clusterParams}{A list of additional parameters to be passed to \code{addClusters()} for clustering within each iteration.
 These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
-length == 1 or the total number of \code{iterations} - 1. PLEASE NOTE - We have updated these params to \code{resolution=2} and \code{maxClusters=6}! To use previous settings use \code{resolution=0.2} and \code{maxClusters=NULL}.}
+length == 1 or the total number of \code{iterations} - 1. If you want to use \code{scran} for clustering, you would pass this as \code{method="scran"}.}
 
 \item{firstSelection}{First iteration selection method for features to use for LSI. Either "Top" for the top accessible/average or "Var" for the top variable features.
 "Top" should be used for all scATAC-seq data (binary) while "Var" should be used for all scRNA/other-seq data types (non-binary).}
@@ -102,11 +102,11 @@ variance calculation and TF-IDF normalization.}
 \item{totalFeatures}{The number of features to consider for use in LSI after ranking the features by the total number of insertions.
 These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a \code{TileMatrix} to a defined peakSet.}
 
-\item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior}
-
-\item{excludeChr}{A string of chromosomes to exclude for iterativeLSI procedure.
+\item{filterQuantile}{A number \link{0,1} that indicates the quantile above which features should be removed based on insertion counts prior
 to the first iteration of the iterative LSI paradigm. For example, if \code{filterQuantile = 0.99}, any features above the 99th percentile in
 insertion counts will be ignored for the first LSI iteration.}
+
+\item{excludeChr}{A string of chromosomes to exclude for iterativeLSI procedure.}
 
 \item{saveIterations}{A boolean value indicating whether the results of each LSI iterations should be saved as compressed \code{.rds} files in
 the designated \code{outDir}.}

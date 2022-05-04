@@ -19,11 +19,11 @@ projectBulkATAC(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}.}
 
-\item{seATAC}{Bulk ATAC Summarized Experiment.}
+\item{seATAC}{A \code{SummarizedExperiment} object containing bulk ATAC-seq data.}
 
-\item{reducedDims}{A string specifying the reducedDims.}
+\item{reducedDims}{A string specifying the name of the \code{reducedDims} object to be used.}
 
-\item{embedding}{A string specifying embedding.}
+\item{embedding}{A string specifying the name of the \code{embedding} object to be used.}
 
 \item{n}{An integer specifying the number of subsampled "pseudo single cells" per bulk sample.}
 
