@@ -643,6 +643,7 @@ getMatrixFromArrow <- function(
   seqnames <- unique(featureDF$seqnames)
   if(!is.null(excludeSeqnames)) {
     seqnames <- seqnames[which(seqnames %ni% excludeSeqnames)]
+    featureDF <- featureDF[which(featureDF$seqnames %bcni% excludeSeqnames),]
   }
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check QQQ
