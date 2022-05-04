@@ -1062,10 +1062,12 @@ addPeak2GeneLinks <- function(
 
   #Get Peak Set
   peakSet <- getPeakSet(ArchRProj)
+  peakSet <- peakSet[BiocGenerics::which(seqnames(peakSet) %bcni% excludeChr)]
   .logThis(peakSet, "peakSet", logFile = logFile)
 
   #Gene Info
   geneSet <- .getFeatureDF(ArrowFiles, useMatrix, threads = threads)
+  geneSet <- geneSet[BiocGenerics::which(geneSet$seqnames %bcni% excludeChr),]
   geneStart <- GRanges(geneSet$seqnames, IRanges(geneSet$start, width = 1), name = geneSet$name, idx = geneSet$idx)
   .logThis(geneStart, "geneStart", logFile = logFile)
 
