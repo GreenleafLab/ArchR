@@ -1327,7 +1327,7 @@ getPeak2GeneLinks <- function(
         geneTiles <- floor(start(geneStarts) / resolution) * resolution + floor(resolution / 2)
       }else{
         summitTiles <- start(peakSummits)
-        geneTiles <- start(geneTiles)
+        geneTiles <- start(geneStarts)
       }
     
       loops <- .constructGR(
