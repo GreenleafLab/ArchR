@@ -389,7 +389,9 @@ addPeakSet <- function(
     }) %>% Reduce("c", .) %>% sortSeqlevels %>% sort
 
     #Name each peak
-    peakSet$name <- paste0(seqnames(ps),"_peak",ps$idx)
+    if(is.null(peakSet$name)) {
+      peakSet$name <- paste0(seqnames(ps),"_peak",ps$idx)
+    }
     
     #Get NucleoTide Content
     peakSet <- tryCatch({
