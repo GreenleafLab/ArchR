@@ -147,6 +147,7 @@ addGeneExpressionMatrix <- function(
   #Remove Input from args
   args$input <- NULL
   args$chromSizes <- NULL
+  args$strictMatch <- NULL
 
   #Run With Parallel or lapply
   outList <- .batchlapply(args)
