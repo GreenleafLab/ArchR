@@ -926,7 +926,12 @@ plotMarkerHeatmap <- function(
   }
 
   if(!is.null(subsetMarkers)) {
-    idx <- subsetMarkers
+    if(length(which(subsetMarkers %ni% 1:nrow(mat)))){
+      idx <- subsetMarkers
+    } else {
+      stop("Rownames / indices provided to the subsetMarker parameter are outside of the boundaries of seMarker.")
+    }
+    
   }
 
   mat <- mat[idx,,drop=FALSE]
