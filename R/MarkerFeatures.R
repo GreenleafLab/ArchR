@@ -872,6 +872,7 @@ plotMarkerHeatmap <- function(
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
+  .validInput(input = subsetMarkers, name = "subsetMarkers", valid = c("integer", "null"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
   .validInput(input = nLabel, name = "nLabel", valid = c("integer", "null"))
   .validInput(input = nPrint, name = "nPrint", valid = c("integer", "null"))
