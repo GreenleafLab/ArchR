@@ -959,14 +959,18 @@ plotMarkerHeatmap <- function(
   }
 
   spmat <- passMat / rowSums(passMat)
-  if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
-    message("Printing Top Marker Genes:")
-    for(x in seq_len(ncol(spmat))){
-      genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
-      message(colnames(spmat)[x], ":")
-      message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
+  #only print out identified marker genes if subsetMarkers is NULL
+  if(is.null(subsetMarkers)) {
+    if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
+      message("Printing Top Marker Genes:")
+      for(x in seq_len(ncol(spmat))){
+        genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
+        message(colnames(spmat)[x], ":")
+        message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
+      }
     }
   }
+
 
   if(is.null(labelMarkers)){
     labelMarkers <- lapply(seq_len(ncol(spmat)), function(x){
