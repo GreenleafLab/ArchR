@@ -823,6 +823,8 @@ markerHeatmap <- function(...){
 #' @param pal A custom continuous palette from `ArchRPalettes` (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
 #' @param clusterCols A boolean value that indicates whether the columns of the marker heatmap should be clustered.
+#' @param subsetMarkers A vector of rownames from seMarker to use for subsetting of seMarker to only plot specific features on the heatmap.
+#' Note that these rownames are expected to be integers that come from `rownames(rowData(seMarker))`.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.
@@ -847,6 +849,7 @@ plotMarkerHeatmap <- function(
   pal = NULL,
   binaryClusterRows = TRUE,
   clusterCols = TRUE,
+  subsetMarkers = NULL,
   labelMarkers = NULL,
   nLabel = 15,
   nPrint = 15,
@@ -919,6 +922,11 @@ plotMarkerHeatmap <- function(
   }else{
     idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
   }
+
+  if(!is.null(subsetMarkers)) {
+    idx <- subsetMarkers
+  }
+
   mat <- mat[idx,,drop=FALSE]
   passMat <- passMat[idx,,drop=FALSE]
 
