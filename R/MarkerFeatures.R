@@ -824,7 +824,8 @@ markerHeatmap <- function(...){
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
 #' @param clusterCols A boolean value that indicates whether the columns of the marker heatmap should be clustered.
 #' @param subsetMarkers A vector of rownames from seMarker to use for subsetting of seMarker to only plot specific features on the heatmap.
-#' Note that these rownames are expected to be integers that come from `rownames(rowData(seMarker))`.
+#' Note that these rownames are expected to be integers that come from `rownames(rowData(seMarker))`. If this parameter is used for
+#' subsetting, then the values provided to `cutOff` are effectively ignored.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
 #' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
 #' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.
