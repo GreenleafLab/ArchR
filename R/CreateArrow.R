@@ -1884,7 +1884,7 @@ createArrowFiles <- function(
  
   bcPass <- BStringSet(dt$values.V1[dt$V1 >= minFrags & dt$V1 <= maxFrags])
   if(length(bcPass) < 3){
-    .logStop(sprintf("Detected 2 or less cells (%s barcodes have greater than 50 fragments) in file!\n       Check inputs such as 'minFrags' or 'maxFrags' to keep cells! Exiting!", sum(dt$V1 > 50)), logFile = logFile)
+    .logStop(sprintf("Detected 2 or less cells (%s barcodes have greater than 50 fragments) in file!\n       Check inputs such as 'minFrags' or 'maxFrags' to keep cells!\n       Also check that you are using the correct reference genome.\n       Exiting!", sum(dt$V1 > 50)), logFile = logFile)
   }
   .logThis(data.frame(bc = as.character(bcPass)), name = paste0(prefix, " BarcodesMinMaxFrags"), logFile = logFile)
 
