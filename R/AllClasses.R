@@ -230,6 +230,11 @@ recoverArchRProject <- function(ArchRProj){
     }
   }
 
+  #Try to make sure that DataFrame matches currently loaded
+  #S4Vectors Package
+  ArchRProj@cellColData <- DataFrame(ArchRProj@cellColData)
+  ArchRProj@sampleColData <- DataFrame(ArchRProj@sampleColData)
+
   if(inherits(ArchRProj@peakSet, "GRanges")){
 
     peakSet <- tryCatch({
