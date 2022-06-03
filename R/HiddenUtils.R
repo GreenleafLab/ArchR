@@ -326,6 +326,10 @@
 .tempfile <- function(pattern = "tmp", tmpdir = "tmp", fileext = "", addDOC = TRUE){
 
   dir.create(tmpdir, showWarnings = FALSE)
+  
+  if(!dir.exists(tmpdir)){
+    stop(paste0("Unable to create temporary directory ", tmpdir,". Check file permissions!")) 
+  }
 
   if(addDOC){
     doc <- paste0("-Date-", Sys.Date(), "_Time-", gsub(":","-", stringr::str_split(Sys.time(), pattern=" ",simplify=TRUE)[1,2]))
