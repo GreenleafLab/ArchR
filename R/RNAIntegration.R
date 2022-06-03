@@ -353,8 +353,17 @@ addGeneIntegrationMatrix <- function(
   tmpFile <- .tempfile()
   o <- suppressWarnings(file.remove(paste0(tmpFile, "-IntegrationBlock-", seq_along(blockList), ".h5")))
 
-  if(threads > 1){
-    h5disableFileLocking()
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(threads > 1){
+      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      threads <- 1
+    }
+  }else{
+    if(threads > 1){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
   }
 
   rD <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)

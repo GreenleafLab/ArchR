@@ -144,6 +144,20 @@ addIterativeLSI <- function(
     stop("Please provide more than 1000 varFeatures!")
   }
 
+  if(nCells(ArchRProj) < 500){
+     message(
+        "Detected less than 500 Cells.\n",
+        "\t`filterBias` disabled.\n",
+        "\t`outlierQuantiles` disabled\n",
+        "\t`sampleCellsPre` disabled\n",
+        "\t`testBias` in `addClusters` disabled\n"
+      )
+     filterBias <- FALSE
+     outlierQuantiles <- c(0, 1)
+     sampleCellsPre <- NULL
+     clusterParams$testBias <- FALSE
+  }
+
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "IterativeLSI Input-Parameters", logFile=logFile)
 
@@ -235,8 +249,14 @@ addIterativeLSI <- function(
     .logDiffTime("Computing Top Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     nFeature <- varFeatures[1]
     rmTop <- floor((1-filterQuantile) * totalFeatures)
-    topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
+    if(sum(totalAcc$rowSums > 0) > 2.25 * varFeatures){
+      topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature + rmTop)[-seq_len(rmTop)]
+    }else{
+      message("Not Enough Non-Zero Features to Filter!")
+      topIdx <- head(order(totalAcc$rowSums, decreasing=TRUE), nFeature)
+    }
     topFeatures <- totalAcc[sort(topIdx),]
+    topFeatures <- topFeatures[topFeatures$rowSums > 0,]
 
     gc()
 
@@ -268,10 +288,11 @@ addIterativeLSI <- function(
     .logDiffTime("Computing Variable Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     nFeature <- varFeatures[1]
     if(nFeature > 0.5 * nrow(totalAcc)){
-      stop("nFeature for variable selection must be at leat 1/2 the total features!")
+      stop("nFeature for variable selection must be at most 1/2 the total features!")
     }
     topIdx <- head(order(totalAcc$combinedVars, decreasing=TRUE), nFeature)
     topFeatures <- totalAcc[sort(topIdx),]
+    topFeatures <- topFeatures[topFeatures$combinedMeans > 0,]
 
     gc()
 
@@ -279,6 +300,10 @@ addIterativeLSI <- function(
 
     stop("firstSelect method must be Top or Var/Variable!")
 
+  }
+
+  if(nrow(topFeatures) < varFeatures){
+    stop(sprintf("Not Enough Features Found in data (%s)!", nrow(topFeatures)))
   }
 
   cellDepth <- tryCatch({

@@ -5,6 +5,7 @@
 ########################################################
 ArchRDefaults <- list(
   ArchR.threads = 1,
+  ArchR.locking = FALSE,
   ArchR.logging = TRUE,
   ArchR.genome = NA,
   ArchR.chrPrefix = TRUE,
@@ -360,6 +361,80 @@ getArchRThreads <- function(){
 }
 
 ##########################################################################################
+# H5 File Locking
+##########################################################################################
+
+#' Add a globally-applied H5 file locking setup
+#' 
+#' This function will set the default H5 file locking parameters
+#' 
+#' @param locking The default value for H5 File Locking
+#' @export
+addArchRLocking <- function(locking=FALSE){
+  
+  .validInput(input = locking, name = "locking", valid = "boolean")
+
+  #Check if Lockign is Valid
+  h5test <- h5testFileLocking(".")
+  if(!h5test){
+    message(
+      "H5 Locking is not enabled based on 'h5testFileLocking'.\nSetting ArchRLocking locking to ", 
+      locking, "."
+    )
+    locking <- TRUE
+  }else{
+    message("Setting ArchRLocking to ", locking, ".")
+  }
+  options(ArchR.locking = locking)
+
+}
+
+#' Set a globally-applied H5 file locking setup
+#' 
+#' This function will set the default H5 file locking parameters to the system
+#' 
+#' @export
+setArchRLocking <- function(){
+  
+  #Get Value
+  .ArchRLocking <- options()[["ArchR.locking"]]
+  if(is.null(.ArchRLocking)){
+    .ArchRLocking <- TRUE
+  }else if(!is.logical(.ArchRLocking)){
+    .ArchRLocking <- TRUE
+  }
+
+  #Get Environment Value
+  h5lock <- tryCatch({
+      Sys.getenv("HDF5_USE_FILE_LOCKING")
+    }, error = function(e){
+      ""
+  })
+  if(h5lock=="FALSE"){
+    h5lock <- FALSE
+  }else if(h5lock==""){
+    h5lock <- TRUE
+  }else{
+    stop("H5 Locking Not Valid!")
+  }
+
+  #Set Environmental Value
+  if(.ArchRLocking != h5lock){
+    if(.ArchRLocking){
+      message("Enabling H5 File Locking. If this is not desired check `addArchRLocking`.")
+      h5enableFileLocking()
+    }else{
+      message("Disabling H5 File Locking. If this is not desired check `addArchRLocking`.")
+      h5disableFileLocking()
+    }
+  }
+
+  #Return Value
+  .ArchRLocking
+
+}
+
+##########################################################################################
 # Create Gene/Genome Annotation
 ##########################################################################################
 
@@ -380,7 +455,7 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
   .validInput(input = genome, name = "genome", valid = "character")
   .validInput(input = install, name = "install", valid = c("boolean"))
 
-  supportedGenomes <- c("hg19","hg38","mm9","mm10","hg19test")
+  supportedGenomes <- c("hg19","hg38","mm9","mm10","hg19test", "hg19test2")
   
   if(tolower(genome) %ni% supportedGenomes){
     
@@ -400,7 +475,7 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
           stop("BSgenome for hg19 not installed! Please install by setting install = TRUE or by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
         }
       }
-    }else if(tolower(genome)=="hg19test"){
+    }else if(tolower(genome) %in% c("hg19test", "hg19test2")){
       if(!requireNamespace("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)){
         if(install){
           message("BSgenome for hg19 not installed! Now installing by the following:\n\tBiocManager::install(\"BSgenome.Hsapiens.UCSC.hg19\")")
@@ -470,7 +545,7 @@ getArchRGenome <- function(
   .validInput(input = geneAnnotation, name = "geneAnnotation", valid = "boolean")
   .validInput(input = genomeAnnotation, name = "genomeAnnotation", valid = "boolean")
 
-  supportedGenomes <- c("hg19","hg38","mm9","mm10","hg19test")
+  supportedGenomes <- c("hg19","hg38","mm9","mm10","hg19test", "hg19test2")
   .ArchRGenome <- options()[["ArchR.genome"]]
 
   if(!is.null(.ArchRGenome)){

@@ -948,8 +948,19 @@ addFeatureCounts <- function(
   ArrowFiles <- getArrowFiles(ArchRProj)
   cellNames <- ArchRProj$cellNames
   featuresList <- split(features, seqnames(features))
-
-  h5disableFileLocking()
+  
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(threads > 1){
+      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      threads <- 1
+    }
+  }else{
+    if(threads > 1){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
+  }
 
   countsDF <- .safelapply(seq_along(featuresList), function(i){
 

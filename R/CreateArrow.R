@@ -202,12 +202,21 @@ createArrowFiles <- function(
   args$registryDir <- file.path(QCDir, "CreateArrowsRegistry")
   args$cleanTmp <- NULL
 
-  if(subThreading){
-    h5disableFileLocking()
-  }else{
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(subThreading){
+      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      subThreading <- FALSE
+    }
     args$threads <- length(inputFiles)
+  }else{
+    if(subThreading){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
   }
 
+  #Default Param
   args$minTSS <- NULL
 
   #Run With Parallel or lapply
@@ -227,10 +236,6 @@ createArrowFiles <- function(
     }
     paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
   })
-
-  if(subThreading){
-    h5enableFileLocking()
-  }
 
   .endLogging(logFile = logFile)
 

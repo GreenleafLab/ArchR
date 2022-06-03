@@ -233,8 +233,15 @@ getGroupBW <- function(
   chromSizes <- getChromSizes(ArchRProj)
   tiles <- unlist(slidingWindows(chromSizes, width = tileSize, step = tileSize))
 
-  if(threads > 1){
-    h5disableFileLocking()
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    threads <- 1
+  }else{
+    if(threads > 1){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }
+    args$threads <- threads
   }
 
   covFiles <- c()
@@ -262,10 +269,6 @@ getGroupBW <- function(
 
     covFiles <- c(covFiles, o)
 
-  }
-
-  if(threads > 1){
-    h5enableFileLocking()
   }
 
   .endLogging(logFile = logFile)

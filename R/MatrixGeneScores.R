@@ -122,10 +122,18 @@ addGeneScoreMatrix <- function(
   args$registryDir <- file.path(outDir, "GeneScoresRegistry")
   args$logFile <- logFile
 
-  if(subThreading){
-    h5disableFileLocking()
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(subThreading){
+      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      subThreading <- FALSE
+    }
+    args$threads <- length(inputFiles)
   }else{
-    args$threads <- length(ArrowFiles)
+    if(subThreading){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
   }
 
   #Remove Input from args

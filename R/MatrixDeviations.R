@@ -644,8 +644,10 @@ addBgdPeaks <- function(
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
 
         #Force
-        if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
-          file.remove(metadata(getPeakSet(ArchRProj))$bgdPeaks)
+        if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+          if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+            file.remove(metadata(getPeakSet(ArchRProj))$bgdPeaks)
+          }
         }
         if(file.exists(outFile)){
           file.remove(outFile)
@@ -665,8 +667,10 @@ addBgdPeaks <- function(
   }else{
     
     #Force
-    if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
-      file.remove(metadata(getPeakSet(ArchRProj))$bgdPeaks)
+    if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+      if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+        file.remove(metadata(getPeakSet(ArchRProj))$bgdPeaks)
+      }
     }
     if(file.exists(outFile)){
       file.remove(outFile)

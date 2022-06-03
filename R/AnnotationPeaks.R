@@ -390,41 +390,57 @@ addMotifAnnotations <- function(
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
 
-  }else if(tolower(motifSet)=="cisbp"){
+  }else if(tolower(motifSet) %in% c("cisbp", "cisbptest")){
 
     .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
-    if(tolower(species) == "mus musculus"){
-      if(version == 1){
-        message("Using version 1 motifs!")
-        data("mouse_pwms_v1")
-        motifs <- mouse_pwms_v1        
-      }else if(version == 2){
-        message("Using version 2 motifs!")
-        data("mouse_pwms_v2")
-        motifs <- mouse_pwms_v2
-      }else{
-        stop("Only versions 1 and 2 exist!")
-      }
-      obj <- .summarizeChromVARMotifs(motifs)
-      motifs <- obj$motifs
-      motifSummary <- obj$motifSummary
-    }else if(tolower(species) == "homo sapiens"){
-      if(version == 1){
-        message("Using version 1 motifs!")
-        data("human_pwms_v1")
-        motifs <- human_pwms_v1        
-      }else if(version == 2){
+
+    if(tolower(motifSet) == "cisbptest"){
+        
         message("Using version 2 motifs!")
         data("human_pwms_v2")
         motifs <- human_pwms_v2
-      }else{
-        stop("Only versions 1 and 2 exist!")
-      }
-      obj <- .summarizeChromVARMotifs(motifs)
-      motifs <- obj$motifs
-      motifSummary <- obj$motifSummary
+        subset <- grep("PAX5|CEBPA|CEBPB|IRF4|ETS1|EOMES", names(motifs), value=TRUE)
+        motifs <- motifs[subset]
+        obj <- .summarizeChromVARMotifs(motifs)
+        motifs <- obj$motifs
+        motifSummary <- obj$motifSummary
+
     }else{
-      stop("Species not recognized homo sapiens, mus musculus supported by CisBP!")
+
+      if(tolower(species) == "mus musculus"){
+        if(version == 1){
+          message("Using version 1 motifs!")
+          data("mouse_pwms_v1")
+          motifs <- mouse_pwms_v1        
+        }else if(version == 2){
+          message("Using version 2 motifs!")
+          data("mouse_pwms_v2")
+          motifs <- mouse_pwms_v2
+        }else{
+          stop("Only versions 1 and 2 exist!")
+        }
+        obj <- .summarizeChromVARMotifs(motifs)
+        motifs <- obj$motifs
+        motifSummary <- obj$motifSummary
+      }else if(tolower(species) == "homo sapiens"){
+        if(version == 1){
+          message("Using version 1 motifs!")
+          data("human_pwms_v1")
+          motifs <- human_pwms_v1        
+        }else if(version == 2){
+          message("Using version 2 motifs!")
+          data("human_pwms_v2")
+          motifs <- human_pwms_v2
+        }else{
+          stop("Only versions 1 and 2 exist!")
+        }
+        obj <- .summarizeChromVARMotifs(motifs)
+        motifs <- obj$motifs
+        motifSummary <- obj$motifSummary
+      }else{
+        stop("Species not recognized homo sapiens, mus musculus supported by CisBP!")
+      }
+
     }
 
   }else if(tolower(motifSet)=="encode"){

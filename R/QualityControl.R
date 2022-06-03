@@ -55,8 +55,17 @@ plotTSSEnrichment <- function(
   groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = FALSE)
   uniqGroups <- gtools::mixedsort(unique(groups[,1]))
 
-  if(threads > 1){
-     h5disableFileLocking()
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(threads > 1){
+      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      threads <- 1
+    }
+  }else{
+    if(threads > 1){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
   }
 
   dfTSS <- .safelapply(seq_along(uniqGroups), function(z){
@@ -129,10 +138,6 @@ plotTSSEnrichment <- function(
   .logThis(dfTSS, paste0("All : TSSDf"), logFile = logFile)
 
   .endLogging(logFile = logFile)
-
-  if(threads > 1){
-    h5enableFileLocking()
-  }
   
   if(returnDF){
     

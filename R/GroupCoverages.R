@@ -212,18 +212,25 @@ addGroupCoverages <- function(
   )
   args$covDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy)
   args$parallelParam <- parallelParam
-  args$threads <- threads
   args$verbose <- verbose
   args$tstart <- tstart
   args$logFile <- logFile
   args$registryDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", "batchRegistry")
 
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    args$threads <- 1
+  }else{
+    if(threads > 1){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }
+    args$threads <- threads
+  }
+
   #####################################################
   # Batch Apply to Create Insertion Coverage Files
   #####################################################
-
-  #Disable Hdf5 File Locking
-  h5disableFileLocking()
 
   #Batch Apply
   .logDiffTime(sprintf("Creating Coverage Files!"), tstart, addHeader = FALSE)
@@ -255,9 +262,6 @@ addGroupCoverages <- function(
   )
 
   ArchRProj@projectMetadata$GroupCoverages[[groupBy]] <- SimpleList(Params = Params, coverageMetadata = coverageMetadata)
-
-  #Enable Hdf5 File Locking
-  h5enableFileLocking()
 
   .logDiffTime(sprintf("Finished Creation of Coverage Files!"), tstart, addHeader = FALSE)
   .endLogging(logFile = logFile)
