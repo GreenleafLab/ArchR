@@ -324,6 +324,10 @@
 }
 
 .tempfile <- function(pattern = "tmp", tmpdir = "tmp", fileext = "", addDOC = TRUE){
+  
+  if(file.exists(tmpdir)){
+    stop(paste0("Attempted to create temporary directory ", tmpdir," but a file already exists with this name. Please remove this file and try again!"))
+  }
 
   dir.create(tmpdir, showWarnings = FALSE)
   
