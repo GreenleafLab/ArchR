@@ -33,7 +33,7 @@ getTutorialData <- function(
     
     dir.create(pathDownload, showWarnings = FALSE)
     
-    downloadFiles <- downloadFiles2(filesUrl = filesUrl, pathDownload = pathDownload, threads = threads)
+    downloadFiles <- .downloadFiles(filesUrl = filesUrl, pathDownload = pathDownload, threads = threads)
     
     inputFiles <- list.files(pathDownload, pattern = "\\.gz$", full.names = TRUE)
     names(inputFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathDownload, pattern = "\\.gz$"))
@@ -52,7 +52,7 @@ getTutorialData <- function(
     
     dir.create(pathDownload, showWarnings = FALSE)
     
-    downloadFiles <- downloadFiles2(filesUrl = filesUrl, pathDownload = pathDownload, threads = threads)
+    downloadFiles <- .downloadFiles(filesUrl = filesUrl, pathDownload = pathDownload, threads = threads)
       
     fragFiles <- list.files(pathDownload, pattern = "\\.gz$", full.names = TRUE)
     names(fragFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathDownload, pattern = "\\.gz$"))
