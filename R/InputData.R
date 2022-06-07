@@ -11,57 +11,98 @@ getTutorialData <- function(
   tutorial = "hematopoiesis", 
   threads = getArchRThreads()
   ){
-
+  
   #Validate
   .validInput(input = tutorial, name = "tutorial", valid = "character")
   .validInput(input = threads, name = "threads", valid = c("integer"))
   #########
-
+  
   #Make Sure URL doesnt timeout
   oldTimeout <- getOption('timeout')
   options(timeout=100000)
-
+  
   if(tolower(tutorial) %in% c("heme","hematopoiesis")){
     
-    if(!dir.exists("HemeFragments")){
-
-      filesUrl <- c(
-        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_BMMC_R1.fragments.tsv.gz",
-        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_CD34_BMMC_R1.fragments.tsv.gz",
-        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_PBMC_R1.fragments.tsv.gz"
-      )
-
-      dir.create("HemeFragments", showWarnings = FALSE)
-
-      downloadFiles <- .safelapply(seq_along(filesUrl), function(x){
-        download.file(
-          url = filesUrl[x], 
-          destfile = file.path("HemeFragments", basename(filesUrl[x]))
-        )        
-      }, threads = min(threads, length(filesUrl)))
-
-      #check for success of file download
-      if(!all(unlist(downloadFiles) == 0)) {
-        stop("Error! Some tutorial files did not download successfully. Please try again.")
-      }
-    }
-    pathFragments <- "HemeFragments"
-
-  }else{
-  
+    pathDownload <- "HemeFragments"
+    
+    filesUrl <- c(
+      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_BMMC_R1.fragments.tsv.gz",
+      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_CD34_BMMC_R1.fragments.tsv.gz",
+      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_PBMC_R1.fragments.tsv.gz"
+    )
+    
+    dir.create(pathDownload, showWarnings = FALSE)
+    
+    downloadFiles <- .downloadFiles(filesUrl = filesUrl, pathDownload = pathDownload, threads = threads)
+    
+    inputFiles <- list.files(pathDownload, pattern = "\\.gz$", full.names = TRUE)
+    names(inputFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathDownload, pattern = "\\.gz$"))
+    inputFiles <- inputFiles[!grepl(".tbi", inputFiles)]
+    
+  }else if(tolower(tutorial) %in% c("multiome")){
+    
+    filesUrl <- c(
+      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_sorted_3k.fragments.tsv.gz",
+      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_sorted_3k.filtered_feature_bc_matrix.h5",
+      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_unsorted_3k.fragments.tsv.gz",
+      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_unsorted_3k.filtered_feature_bc_matrix.h5"
+    )
+    
+    pathDownload <- "Multiome"
+    
+    dir.create(pathDownload, showWarnings = FALSE)
+    
+    downloadFiles <- .downloadFiles(filesUrl = filesUrl, pathDownload = pathDownload, threads = threads)
+      
+    fragFiles <- list.files(pathDownload, pattern = "\\.gz$", full.names = TRUE)
+    names(fragFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathDownload, pattern = "\\.gz$"))
+    fragFiles <- fragFiles[!grepl(".tbi", fragFiles)]
+    geneFiles <- list.files(pathDownload, pattern = "\\.h5$", full.names = TRUE)
+    names(geneFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathDownload, pattern = "\\.gz$"))
+    
+    inputFiles <- c(fragFiles, geneFiles)
+    
+  } else{
+    
     stop("There is no tutorial data for : ", tutorial)
-  
+    
   }
-
+  
   #Set back URL Options
   options(timeout=oldTimeout)
-
-  #Return Fragment Files
-  inputFiles <- list.files(pathFragments, pattern = ".gz", full.names = TRUE)
-  names(inputFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathFragments, pattern = ".gz"))
-  inputFiles <- inputFiles[!grepl(".tbi", inputFiles)]
+  
   inputFiles
+  
+}
 
+#helper for file downloads
+.downloadFiles <- function(filesUrl = NULL, pathDownload = NULL, threads = 1){
+  if(is.null(filesUrl)) {
+    stop("No value supplied to filesUrl in .downloadFiles()!")
+  }
+  if(is.null(pathDownload)) {
+    stop("No value supplied to pathDownload in .downloadFiles()!")
+  }
+  message(paste0("Downloading files to ",pathDownload,"..."))
+  downloadFiles <- .safelapply(seq_along(filesUrl), function(x){
+    if(!file.exists(file.path(pathDownload, basename(filesUrl[x])))){
+      message(paste0("Downloading file ", basename(filesUrl[x]),"..."))
+      download.file(
+        url = filesUrl[x], 
+        destfile = file.path(pathDownload, basename(filesUrl[x]))
+      ) 
+    } else {
+      message(paste0("File exists! Skipping file ", basename(filesUrl[x]),"..."))
+    }
+  }, threads = min(threads, length(filesUrl)))
+  
+  #check for success of file download
+  if(!all(unlist(downloadFiles) == 0)) {
+    stop("Some tutorial files did not download successfully. Please try again.")
+  }
+  
+  downloadFiles 
+  
 }
 
 #' Get PBMC Small Test Fragments
