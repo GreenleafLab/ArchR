@@ -268,7 +268,7 @@ addIterativeLSI <- function(
     .logDiffTime("Computing Variable Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     nFeature <- varFeatures[1]
     if(nFeature > 0.5 * nrow(totalAcc)){
-      stop("nFeature for variable selection must be at leat 1/2 the total features!")
+      stop("nFeature for variable selection must be less than 1/2 the total features!")
     }
     topIdx <- head(order(totalAcc$combinedVars, decreasing=TRUE), nFeature)
     topFeatures <- totalAcc[sort(topIdx),]
