@@ -835,7 +835,7 @@ findMacs2 <- function(){
 	  if(search2[1] != "ERROR"){
 		  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
 		  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-		  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+		  if(.suppressAll(.checkPath(path2Bin, throwError = FALSE))){
 		  	message("Found with pip!")
 		    return(path2Bin)
 		  }
@@ -848,7 +848,7 @@ findMacs2 <- function(){
 	  if(search3[1] != "ERROR"){
 		  path2Install <- gsub("Location: ","",search3[grep("Location", search3, ignore.case=TRUE)])
 		  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-		  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+		  if(.suppressAll(.checkPath(path2Bin, throwError = FALSE))){
 		  	message("Found with pip3!")
 		    return(path2Bin)
 		  }
