@@ -1044,7 +1044,7 @@ plotBrowserTrack <- function(
             margin = margin(0,0.35,0,0.35, "cm")),
             strip.text.y = element_text(angle = 0),
           strip.background = element_rect(color="black")) +
-    guides(fill = FALSE, colour = FALSE) + ggtitle(title)
+    guides(fill = "none", colour = "none") + ggtitle(title)
 
   p
 
@@ -1346,7 +1346,7 @@ plotBrowserTrack <- function(
       theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
       theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank()) +
       theme(legend.text = element_text(size = baseSize), strip.text.y = element_text(size = facetbaseSize, angle = 0)) +
-      guides(fill = guide_legend(override.aes = list(colour = NA, shape = "c", size=3)), color = FALSE) + 
+      guides(fill = guide_legend(override.aes = list(colour = NA, shape = "c", size=3)), color = "none") + 
       theme(legend.position="bottom") +
       theme(legend.title=element_text(size=5), legend.text=element_text(size=7),
         legend.key.size = unit(0.75,"line"), legend.background = element_rect(color =NA), strip.background = element_blank())
@@ -1475,7 +1475,7 @@ plotBrowserTrack <- function(
       scale_color_manual(values = pal) +
       theme(legend.text = element_text(size = baseSize)) + 
       theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth) +
-      guides(color = FALSE, fill = FALSE) + theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank())
+      guides(color = "none", fill = "none") + theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank())
 
   }else{
 
@@ -1795,7 +1795,7 @@ plotBrowserTrack <- function(
               margin = margin(0,0.35,0,0.35, "cm")),
               strip.text.y = element_text(angle = 0),
             strip.background = element_rect(color="black")) +
-      guides(fill = FALSE, colour = FALSE) + ggtitle(title)
+      guides(fill = "none", colour = "none") + ggtitle(title)
 
     p
 
@@ -1884,7 +1884,7 @@ plotBrowserTrack <- function(
       pal = pal
     ) + 
     facet_wrap(x~., ncol=1,scales="free_y",strip.position="right") +
-    guides(fill = FALSE, colour = FALSE) +
+    guides(fill = "none", colour = "none") +
     theme_ArchR(baseSize = baseSize,
               baseRectSize = borderWidth,
               baseLineSize = tickWidth,
