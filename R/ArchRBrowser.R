@@ -1431,6 +1431,10 @@ plotBrowserTrack <- function(
     featureO <- lapply(seq_along(featureList), function(x){
       featurex <- featureList[[x]]
       namex <- names(featureList)[x]
+      if(is.null(namex) || namex == "") {
+        message("Warning! Object ",x," in your GRangesList (features) is not named. Generic numbering will be used.")
+        namex <- as.character(x)
+      }
       mcols(featurex) <- NULL
       sub <- subsetByOverlaps(featurex, region, ignore.strand = TRUE)
       if(length(sub) > 0){
