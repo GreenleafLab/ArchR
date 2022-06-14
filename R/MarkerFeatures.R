@@ -827,8 +827,8 @@ markerHeatmap <- function(...){
 #' Note that these rownames are expected to be integers that come from `rownames(rowData(seMarker))`. If this parameter is used for
 #' subsetting, then the values provided to `cutOff` are effectively ignored.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
-#' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
-#' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.
+#' @param nLabel An integer value that indicates how many of the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
+#' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top `n` genes for each group based on how uniquely up-regulated the gene is.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMatrix A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param transpose A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.
