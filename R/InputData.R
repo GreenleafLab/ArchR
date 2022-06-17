@@ -25,10 +25,18 @@ getTutorialData <- function(
     
     pathDownload <- "HemeFragments"
     
-    filesUrl <- c(
-      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_BMMC_R1.fragments.tsv.gz",
-      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_CD34_BMMC_R1.fragments.tsv.gz",
-      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_PBMC_R1.fragments.tsv.gz"
+    filesUrl <- data.frame(
+      fileUrl = c(
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_BMMC_R1.fragments.tsv.gz",
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_CD34_BMMC_R1.fragments.tsv.gz",
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_PBMC_R1.fragments.tsv.gz"
+      ),
+      md5sum = c(
+        "77502e1f195e21d2f7a4e8ac9c96e65e",
+        "618613b486e4f8c0101f4c05c69723b0",
+        "a8d5ae747841055ef230ba496bcfe937"
+      ),
+      stringsAsFactors = FALSE
     )
     
     dir.create(pathDownload, showWarnings = FALSE)
@@ -41,11 +49,20 @@ getTutorialData <- function(
     
   }else if(tolower(tutorial) %in% c("multiome")){
     
-    filesUrl <- c(
-      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_sorted_3k.fragments.tsv.gz",
-      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_sorted_3k.filtered_feature_bc_matrix.h5",
-      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_unsorted_3k.fragments.tsv.gz",
-      "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_unsorted_3k.filtered_feature_bc_matrix.h5"
+    filesUrl <- data.frame(
+      fileUrl = c(
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_sorted_3k.fragments.tsv.gz",
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_sorted_3k.filtered_feature_bc_matrix.h5",
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_unsorted_3k.fragments.tsv.gz",
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/Multiome/pbmc_unsorted_3k.filtered_feature_bc_matrix.h5"
+      ),
+      md5sum = c(
+        "d49f4012ff65d9edfee86281d6afb286",
+        "e326066b51ec8975197c29a7f911a4fd",
+        "5737fbfcb85d5ebf4dab234a1592e740",
+        "bd4cc4ff040987e1438f1737be606a27"
+      ),
+      stringsAsFactors = FALSE
     )
     
     pathDownload <- "Multiome"
@@ -83,16 +100,26 @@ getTutorialData <- function(
   if(is.null(pathDownload)) {
     stop("No value supplied to pathDownload in .downloadFiles()!")
   }
+  if(length(which(c("fileUrl","md5sum") %ni% colnames(filesUrl))) != 0) {
+    cat(colnames(filesUrl))
+    stop("File download dataframe does not include columns named 'fileUrl' and 'md5sum' which are required!")
+  }
   message(paste0("Downloading files to ",pathDownload,"..."))
-  downloadFiles <- .safelapply(seq_along(filesUrl), function(x){
-    if(!file.exists(file.path(pathDownload, basename(filesUrl[x])))){
-      message(paste0("Downloading file ", basename(filesUrl[x]),"..."))
+  downloadFiles <- .safelapply(seq_along(filesUrl$fileUrl), function(x){
+    if(file.exists(file.path(pathDownload, basename(filesUrl$fileUrl[x])))){
+      if(tools::md5sum(file.path(pathDownload, basename(filesUrl$fileUrl[x]))) != filesUrl$md5sum[x]) {
+        message(paste0("File ",basename(filesUrl$fileUrl[x])," exists but has an incorrect md5sum. Removing..."))
+        file.remove(file.path(pathDownload, basename(filesUrl$fileUrl[x])))
+      }
+    }
+    if(!file.exists(file.path(pathDownload, basename(filesUrl$fileUrl[x])))){
+      message(paste0("Downloading file ", basename(filesUrl$fileUrl[x]),"..."))
       download.file(
-        url = filesUrl[x], 
-        destfile = file.path(pathDownload, basename(filesUrl[x]))
+        url = filesUrl$fileUrl[x], 
+        destfile = file.path(pathDownload, basename(filesUrl$fileUrl[x]))
       ) 
     } else {
-      message(paste0("File exists! Skipping file ", basename(filesUrl[x]),"..."))
+      message(paste0("File exists! Skipping file ", basename(filesUrl$fileUrl[x]),"..."))
     }
   }, threads = min(threads, length(filesUrl)))
   
