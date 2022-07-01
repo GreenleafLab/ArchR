@@ -7,6 +7,8 @@
 import10xFeatureMatrix(
   input = NULL,
   names = NULL,
+  strictMatch = TRUE,
+  verbose = TRUE,
   featureType = "Gene Expression"
 )
 }
@@ -14,6 +16,14 @@ import10xFeatureMatrix(
 \item{input}{A character of paths to 10x feature hdf5 file(s). These will traditionally have a suffix similar to "filtered_feature_bc_matrix.h5".}
 
 \item{names}{A character of sample names associated with each input file.}
+
+\item{strictMatch}{Only relevant when multiple input files are used. A boolean that indictes whether rows (genes) that do not match perfectly in the matrices
+should be removed (\code{strictMatch = TRUE}) or coerced (\code{strictMatch = FALSE}). CellRanger seems to occassionally use different ensembl ids for the same gene across
+different samples. If you are comfortable tolerating such mismatches, you can coerce all matrices to fit together, in which case the gene metadata present in
+the first listed sample will be applied to all matrices for that particular gene entry. Regardless of what value is used for \code{strictMatch}, this function
+cannot tolerate mismatched gene names, only mismatched metadata for the same gene.}
+
+\item{verbose}{Only relevant when multiple input files are used. A boolean that indicates whether messaging about mismatches should be verbose (\code{TRUE}) or minimal (\code{FALSE})}
 
 \item{featureType}{The name of the feature to extract from the 10x feature file.
 See https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/h5_matrices for more information.}

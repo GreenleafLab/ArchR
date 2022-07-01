@@ -475,7 +475,6 @@ correlateTrajectories <- function(
     #mcols(ranges1) <- featureDF1
     names(ranges1) <- rownames(featureDF1)
     rowRanges(seTrajectory1) <- ranges1
-    rm(ranges1)
 
     if("strand" %in% colnames(featureDF2)){
       ranges2 <- GRanges(
@@ -492,11 +491,12 @@ correlateTrajectories <- function(
     #mcols(ranges2) <- featureDF2
     names(ranges2) <- rownames(featureDF2)
     rowRanges(seTrajectory2) <- ranges2
-    rm(ranges2)
 
     .logThis(ranges1, "ranges1", logFile = logFile)
     .logThis(ranges2, "ranges2", logFile = logFile)
-
+    rm(ranges1)
+    rm(ranges2)
+	  
     #Find Associations to test
     isStranded1 <- any(as.integer(strand(seTrajectory1)) == 2)
     isStranded2 <- any(as.integer(strand(seTrajectory2)) == 2)
@@ -760,7 +760,7 @@ addCoAccessibility <- function(
 
   #Create Ranges
   peakSummits <- resize(peakSet, 1, "center")
-  peakWindows <- resize(peakSummits, maxDist, "center")
+  peakWindows <- resize(peakSummits, 2*maxDist + 1, "center")
 
   #Create Pairwise Things to Test
   o <- DataFrame(findOverlaps(peakSummits, peakWindows, ignore.strand = TRUE))
@@ -774,6 +774,8 @@ addCoAccessibility <- function(
 
   #Peak Matrix ColSums
   cS <- .getColSums(getArrowFiles(ArchRProj), chri, verbose = FALSE, useMatrix = "PeakMatrix")
+  cS <- cS[ArchRProj$cellNames]
+  
   gS <- unlist(lapply(seq_along(knnObj), function(x) sum(cS[knnObj[[x]]], na.rm=TRUE)))
 
   for(x in seq_along(chri)){
@@ -844,7 +846,8 @@ addCoAccessibility <- function(
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param corCutOff A numeric describing the minimum numeric peak-to-peak correlation to return.
-#' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
+#' @param resolution A numeric describing the bp resolution to use when returning loops. This helps with overplotting of correlated regions.
+#'  This only takes affect if `returnLoops = TRUE`.
 #' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
 #' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
 #' @export
@@ -946,6 +949,7 @@ getCoAccessibility <- function(
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param reducedDims The name of the `reducedDims` object (i.e. "IterativeLSI") to retrieve from the designated `ArchRProject`.
+#' @param useMatrix The name of the matrix containing gene expression information to be used for determining peak-to-gene links. See `getAvailableMatrices(ArchRProj)`
 #' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
 #' @param scaleDims A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing
 #' the contribution of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific
@@ -994,6 +998,7 @@ addPeak2GeneLinks <- function(
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = reducedDims, name = "reducedDims", valid = c("character"))
+  .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
@@ -1322,7 +1327,7 @@ getPeak2GeneLinks <- function(
         geneTiles <- floor(start(geneStarts) / resolution) * resolution + floor(resolution / 2)
       }else{
         summitTiles <- start(peakSummits)
-        geneTiles <- start(geneTiles)
+        geneTiles <- start(geneStarts)
       }
     
       loops <- .constructGR(

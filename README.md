@@ -34,22 +34,22 @@ ArchR is a full-featured R package for processing and analyzing single-cell ATAC
 For a full walk through of installation and frequently related issues please visit www.ArchRProject.com.
 
 **First, install devtools (for installing GitHub packages) if it isn't already installed:**
-```{r}
+``` r
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 ```
 
 **Then, install BiocManager (for installing bioconductor packages) if it isn't already installed:**
-```{r}
+``` r
 if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 ```
 
 **Then, install ArchR:**
-```{r}
+``` r
 devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())
 ```
 
 **Lastly, install all of the ArchR dependencies that aren't installed by default:**
-```{r}
+``` r
 library(ArchR)
 ArchR::installExtraPackages()
 ```
@@ -58,7 +58,7 @@ If any of these steps fails, you should identify the offending package and troub
 # Issues using ArchR?
 
 ArchR is currently in __beta__. We expect there to be bumps in the road. If you think you have found a bug, please first install the latest version of ArchR via
-```{r}
+``` r
 devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())
 ```
 If this does not fix your problem, please [report an issue on Github](https://github.com/GreenleafLab/ArchR/issues) with the __Bug Report__ form.

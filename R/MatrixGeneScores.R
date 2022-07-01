@@ -103,6 +103,9 @@ addGeneScoreMatrix <- function(
   if(inherits(mcols(genes)$symbol, "list") | inherits(mcols(genes)$symbol, "SimpleList")){
     stop("Found a list in genes symbol! This is an incorrect format. Please correct your genes!")
   }
+  if(!any(colnames(mcols(genes)) == "symbol")) {
+    stop("No symbol column in genes! A column named symbol is exected in the GRanges object passed to the genes parameter!")
+  }
 
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addGeneScoreMatrix Input-Parameters", logFile = logFile)
@@ -122,7 +125,7 @@ addGeneScoreMatrix <- function(
   if(subThreading){
     h5disableFileLocking()
   }else{
-    args$threads <- length(inputFiles)
+    args$threads <- length(ArrowFiles)
   }
 
   #Remove Input from args
@@ -218,9 +221,9 @@ addGeneScoreMatrix <- function(
   if(useTSS){
     .logMessage(paste0(sampleName, " .addGeneScoreMat useTSS = TRUE"))
     distMethod <- "GenePromoter"
-    geneRegions$geneStart <- start(resize(geneRegions, 1, "start"))
-    geneRegions$geneEnd <- start(resize(geneRegions, 1, "end"))
-    geneRegions <- resize(geneRegions, 1, "start")
+    geneRegions$geneStart <- start(GenomicRanges::resize(geneRegions, 1, "start"))
+    geneRegions$geneEnd <- start(GenomicRanges::resize(geneRegions, 1, "end"))
+    geneRegions <- GenomicRanges::resize(geneRegions, 1, "start")
     if(extendTSS){
       geneRegions <- extendGR(gr = geneRegions, upstream = geneUpstream, downstream = geneDownstream)
     }
@@ -228,8 +231,8 @@ addGeneScoreMatrix <- function(
   }else{
     .logMessage(paste0(sampleName, " .addGeneScoreMat useTSS = FALSE"))
     distMethod <- "GeneBody"
-    geneRegions$geneStart <- start(resize(geneRegions, 1, "start"))
-    geneRegions$geneEnd <- start(resize(geneRegions, 1, "end"))
+    geneRegions$geneStart <- start(GenomicRanges::resize(geneRegions, 1, "start"))
+    geneRegions$geneEnd <- start(GenomicRanges::resize(geneRegions, 1, "end"))
     geneRegions <- extendGR(gr = geneRegions, upstream = geneUpstream, downstream = geneDownstream)
     m <- 1 / width(geneRegions)
     geneRegions$geneWeight <- 1 + m * (geneScaleFactor - 1) / (max(m) - min(m))
@@ -314,8 +317,8 @@ addGeneScoreMatrix <- function(
       #Time to Overlap Gene Windows
       if(useGeneBoundaries){
 
-        geneStartz <- start(resize(geneRegionz, 1, "start"))
-        geneEndz <- start(resize(geneRegionz, 1, "end"))
+        geneStartz <- start(GenomicRanges::resize(geneRegionz, 1, "start"))
+        geneEndz <- start(GenomicRanges::resize(geneRegionz, 1, "end"))
 
         pminGene <- pmin(geneStartz, geneEndz)
         pmaxGene <- pmax(geneStartz, geneEndz)
@@ -377,7 +380,7 @@ addGeneScoreMatrix <- function(
 
       #Determine Sign for Distance relative to strand (Directionality determined based on dist from gene start)
       isMinus <- BiocGenerics::which(strand(geneRegionz) == "-")
-      signDist <- sign(start(uniqueTiles)[subjectHits(tmp)] - start(resize(geneRegionz,1,"start"))[queryHits(tmp)])
+      signDist <- sign(start(uniqueTiles)[subjectHits(tmp)] - start(GenomicRanges::resize(geneRegionz,1,"start"))[queryHits(tmp)])
       signDist[isMinus] <- signDist[isMinus] * -1
 
       #Correct the orientation for the distance!
@@ -393,7 +396,7 @@ addGeneScoreMatrix <- function(
       if(!is.null(blacklist)){
         if(length(blacklist) > 0){
           blacklistz <- blacklist[[chrz]]
-          if(is.null(blacklistz) | length(blacklistz) > 0){
+          if(!is.null(blacklistz) | length(blacklistz) > 0){
             tilesBlacklist <- 1 * (!overlapsAny(uniqueTiles, ranges(blacklistz)))
             if(sum(tilesBlacklist == 0) > 0){
               x <- x * tilesBlacklist[subjectHits(tmp)] #Multiply Such That All Blacklisted Tiles weight is now 0!

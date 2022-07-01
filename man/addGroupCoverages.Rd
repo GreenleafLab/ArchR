@@ -8,6 +8,7 @@ addGroupCoverages(
   ArchRProj = NULL,
   groupBy = "Clusters",
   useLabels = TRUE,
+  sampleLabels = "Sample",
   minCells = 40,
   maxCells = 500,
   maxFragments = 25 * 10^6,
@@ -29,6 +30,11 @@ addGroupCoverages(
 \item{groupBy}{The name of the column in \code{cellColData} to use for grouping multiple cells together prior to generation of the insertion coverage file.}
 
 \item{useLabels}{A boolean value indicating whether to use sample labels to create sample-aware subgroupings during as pseudo-bulk replicate generation.}
+
+\item{sampleLabels}{The name of a column in \code{cellColData} to use to identify samples. In most cases, this parameter should be left as \code{NULL} and you
+should only use this parameter if you do not want to use the default sample labels stored in \code{cellColData$Sample}. However, if your individual Arrow
+files do not map to individual samples, then you should set this parameter to accurately identify your samples. This is the case in (for example)
+multiplexing applications where cells from different biological samples are mixed into the same reaction and demultiplexed based on a lipid barcode or genotype.}
 
 \item{minCells}{The minimum number of cells required in a given cell group to permit insertion coverage file generation.}
 

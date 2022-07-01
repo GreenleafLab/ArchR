@@ -17,6 +17,9 @@
 #' @param verbose A boolean describing whether to print to console messages of progress.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
+#' @param strictMatch A boolean value indicating whether every cell in `input` must be represented in `seRNA`. If set to `FALSE`,
+#' and this `GeneExpressionMatrix` is used for certain downstream analyses such as `addIterativeLSI()`, then errors may occur
+#' because not all cells will have relevant information.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
@@ -29,9 +32,23 @@ addGeneExpressionMatrix <- function(
   verbose = TRUE,
   threads = getArchRThreads(),
   parallelParam = NULL,
+  strictMatch = FALSE,
   force = TRUE,
   logFile = createLogFile("addGeneExpressionMatrix")
   ){
+
+  .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
+  .validInput(input = seRNA, name = "seRNA", valid = c("SummarizedExperiment"))
+  .validInput(input = chromSizes, name = "chromSizes", valid = c("granges"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
+  .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
+  .validInput(input = strictMatch, name = "strictMatch", valid = c("boolean"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
+
 
   if(inherits(input, "ArchRProject")){
     ArrowFiles <- getArrowFiles(input)
@@ -61,11 +78,18 @@ addGeneExpressionMatrix <- function(
   if(!is.null(allCells)){
     cellsInArrows <- allCells
   }
+
   overlap <- sum(cellsInArrows %in% colnames(seRNA)) / length(cellsInArrows)
   .logMessage("Overlap w/ scATAC = ", round(overlap,3), logFile = logFile, verbose = TRUE)
 
   if(overlap == 0){
-    stop("No overlap found with scATAC!")
+    stop("No overlapping cell names found between ArrowFiles and seRNA object! Cell names in ArrowFiles must match colnames in seRNA!")
+  } else if(overlap != 1) {
+    if(strictMatch){
+      stop("Error! 'strictMatch = TRUE' and not all cells in input are represented in the provided gene expression seRNA. To proceed, please subset your ArchRProject using the subsetArchRProject() function to contain only cells present in seRNA or set 'strictMatch = FALSE'.")
+    } else {
+      .logMessage("Warning! Not all cells in input exist in seRNA! This may cause downstream issues with functions that require information from all cells. For example, addIterativeLSI() will not work on this GeneExpressionMatrix! To remove these mis-matched cells, subset your ArchRProject using the subsetArchRProject() function to contain only cells present in seRNA and set 'strictMatch = TRUE'", logFile = logFile, verbose = TRUE)
+    }
   }
 
   splitCells <- split(cellsInArrows, stringr::str_split(cellsInArrows, pattern = "#", simplify=TRUE)[,1])
@@ -123,6 +147,7 @@ addGeneExpressionMatrix <- function(
   #Remove Input from args
   args$input <- NULL
   args$chromSizes <- NULL
+  args$strictMatch <- NULL
 
   #Run With Parallel or lapply
   outList <- .batchlapply(args)

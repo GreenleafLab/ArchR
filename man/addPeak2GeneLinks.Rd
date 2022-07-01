@@ -31,6 +31,8 @@ addPeak2GeneLinks(
 
 \item{reducedDims}{The name of the \code{reducedDims} object (i.e. "IterativeLSI") to retrieve from the designated \code{ArchRProject}.}
 
+\item{useMatrix}{The name of the matrix containing gene expression information to be used for determining peak-to-gene links. See \code{getAvailableMatrices(ArchRProj)}}
+
 \item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
 
 \item{scaleDims}{A boolean value that indicates whether to z-score the reduced dimensions for each cell. This is useful for minimizing

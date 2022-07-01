@@ -109,9 +109,8 @@ addImputeWeights <- function(
     }else{
       weightFiles <- file.path(getOutputDirectory(ArchRProj), "ImputeWeights", paste0("Impute-Weights-Rep-", seq_len(nRep)))
     }
+    o <- suppressWarnings(file.remove(weightFiles))
   }
-
-  o <- suppressWarnings(file.remove(weightFiles))
 
   weightList <- .safelapply(seq_len(nRep), function(y){
 
@@ -124,9 +123,8 @@ addImputeWeights <- function(
       blocks <- list(rownames(matDR)) 
     }
 
-    weightFile <- weightFiles[y]
-
     if(useHdf5){
+      weightFile <- weightFiles[y]
       o <- h5createFile(weightFile)
     }
 
@@ -172,8 +170,8 @@ addImputeWeights <- function(
       for(i in seq_len(td)){
           Wt <- Wt %*% W
       }
-      rownames(Wt) <- rownames(matDR)[ix]
-      colnames(Wt) <- rownames(matDR)[ix]
+      rownames(Wt) <- ix
+      colnames(Wt) <- ix
 
       rm(knnIdx)
       rm(knnDist)
@@ -200,7 +198,7 @@ addImputeWeights <- function(
   }, threads = threads) %>% SimpleList
   names(weightList) <- paste0("w",seq_along(weightList))
 
-  .logDiffTime(sprintf("Completed Getting Magic Weights!", round(object.size(weightList) / 10^9, 3)), 
+  .logDiffTime(sprintf("Completed Getting Magic Weights! Object size - %s.", round(object.size(weightList) / 10^9, 3)), 
     t1 = tstart, verbose = FALSE, logFile = logFile)
 
   ArchRProj@imputeWeights <- SimpleList(

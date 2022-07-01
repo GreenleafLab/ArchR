@@ -24,7 +24,8 @@ user-supplied \code{cellColData} metadata columns (for example, "Clusters"). Cel
 column will be grouped together and the average signal will be plotted.}
 
 \item{normMethod}{The name of the column in \code{cellColData} by which normalization should be performed. The recommended and default value
-is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
+is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality. Accepted values are
+"None", "ReadsInTSS", "nCells", "ReadsInPromoter", or "nFrags".}
 
 \item{tileSize}{The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.}
 
