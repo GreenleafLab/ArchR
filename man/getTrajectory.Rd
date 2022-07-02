@@ -43,3 +43,15 @@ trajectory matrix to better reveal temporal dynamics.}
 This function will get a supervised trajectory from an \code{ArchRProject} (see \code{addTrajectory}), get data
 from a desired matrix, and smooth each value across the input trajectory.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Add Trajectory
+proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+
+#Get Trajectory
+seTraj <- getTrajectory(proj)
+
+}

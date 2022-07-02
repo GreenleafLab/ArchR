@@ -70,3 +70,12 @@ insertion coverage / pseudo-bulk replicate information already exists.}
 This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then
 merge these replicates into a single insertion coverage file.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Group Coverages
+proj <- addGroupCoverages(proj, force = TRUE)
+
+}

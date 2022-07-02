@@ -116,3 +116,15 @@ This function will plot the coverage at an input region in the style of a browse
 which enables direct comparison across samples. Note that the genes displayed in these plots are derived from your \code{geneAnnotation}
 (i.e. the \code{BSgenome} object you used) so they may not match other online genome browsers that use different gene annotations.
 }
+\examples{
+
+#Get Test ArchR Project
+proj <- getTestProject()
+
+#Plot Track
+p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType")
+
+#Plot PDF
+plotPDF(p, name = "Track-CD3D-MS4A1", ArchRProj = proj)
+
+}

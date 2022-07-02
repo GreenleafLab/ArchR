@@ -27,6 +27,14 @@
 #' @param threads The number of threads to use for parallel execution.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+# #Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Launch Browser with `ArchRBrowser(proj)`
+#'
 #' @export
 ArchRBrowser <- function(
   ArchRProj = NULL,
@@ -67,7 +75,9 @@ ArchRBrowser <- function(
   #Determine Grouping Methods
   ccd <- getCellColData(ArchRProj)
   discreteCols <- lapply(seq_len(ncol(ccd)), function(x){
-    .isDiscrete(ccd[, x])
+    check1 <- .isDiscrete(ccd[, x])
+    check2 <- max(table(ccd[, x])) > minCells
+    check1 & check2
   }) %>% unlist %>% {colnames(ccd)[.]}
   if("Clusters" %in% discreteCols){
     selectCols <- "Clusters"
@@ -80,22 +90,24 @@ ArchRBrowser <- function(
     .validInput(input = gr, name = "gr", valid = c("GRanges"))
     .validInput(input = upstream, name = "upstream", valid = c("integer"))
     .validInput(input = downstream, name = "downstream", valid = c("integer"))
-    #Get Info From gr
-    st <- start(gr)
-    ed <- end(gr)
-    #https://bioinformatics.stackexchange.com/questions/4390/expand-granges-object-different-amounts-upstream-vs-downstream
-    isMinus <- BiocGenerics::which(strand(gr) == "-")
-    isOther <- BiocGenerics::which(strand(gr) != "-")
-    #Forward
-    st[isOther] <- st[isOther] - upstream
-    ed[isOther] <- ed[isOther] + downstream
-    #Reverse
-    ed[isMinus] <- ed[isMinus] + upstream
-    st[isMinus] <- st[isMinus] - downstream
-    #If Any extensions now need to be flipped.
-    end(gr) <- pmax(st, ed)
-    start(gr) <- pmin(st, ed)
-    return(gr)
+    suppressWarnings({
+      #Get Info From gr
+      st <- start(gr)
+      ed <- end(gr)
+      #https://bioinformatics.stackexchange.com/questions/4390/expand-granges-object-different-amounts-upstream-vs-downstream
+      isMinus <- BiocGenerics::which(strand(gr) == "-")
+      isOther <- BiocGenerics::which(strand(gr) != "-")
+      #Forward
+      st[isOther] <- st[isOther] - upstream
+      ed[isOther] <- ed[isOther] + downstream
+      #Reverse
+      ed[isMinus] <- ed[isMinus] + upstream
+      st[isMinus] <- st[isMinus] - downstream
+      #If Any extensions now need to be flipped.
+      end(gr) <- pmax(st, ed)
+      start(gr) <- pmin(st, ed)
+      gr
+    })
   }
 
 
@@ -311,7 +323,11 @@ ArchRBrowser <- function(
             groupBy <- isolate(input$grouping)
 
             groupDF <- tryCatch({
-              isolate(hot_to_r(input$Metadata))
+              o <- isolate(hot_to_r(input$Metadata))
+              if(is.null(o)){
+                stop() #switch methods!
+              }
+              o
             },error=function(x){
               groups <- gtools::mixedsort(unique(ccd[,isolate(input$grouping)]))
               mdata <- data.frame(
@@ -341,7 +357,6 @@ ArchRBrowser <- function(
             }
 
             useGroups <- groupDF[groupDF[,"include"],"group"]
-
 
             if(!all(.isColor(groupDF[groupDF[,"include"], "color"]))){
               p <- ggplot() +
@@ -677,6 +692,18 @@ ArchRBrowserTrack <- function(...){
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' #Get Test ArchR Project
+#' proj <- getTestProject()
+#' 
+#' #Plot Track
+#' p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType")
+#' 
+#' #Plot PDF
+#' plotPDF(p, name = "Track-CD3D-MS4A1", ArchRProj = proj)
+#' 
 #' @export
 plotBrowserTrack <- function(
   ArchRProj = NULL, 
@@ -1042,7 +1069,7 @@ plotBrowserTrack <- function(
             margin = margin(0,0.35,0,0.35, "cm")),
             strip.text.y = element_text(angle = 0),
           strip.background = element_rect(color="black")) +
-    guides(fill = FALSE, colour = FALSE) + ggtitle(title)
+    .gg_guides(fill = FALSE, colour = FALSE) + ggtitle(title)
 
   p
 
@@ -1344,7 +1371,7 @@ plotBrowserTrack <- function(
       theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
       theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank()) +
       theme(legend.text = element_text(size = baseSize), strip.text.y = element_text(size = facetbaseSize, angle = 0)) +
-      guides(fill = guide_legend(override.aes = list(colour = NA, shape = "c", size=3)), color = FALSE) + 
+      .gg_guides(fill = guide_legend(override.aes = list(colour = NA, shape = "c", size=3)), color = FALSE) + 
       theme(legend.position="bottom") +
       theme(legend.title=element_text(size=5), legend.text=element_text(size=7),
         legend.key.size = unit(0.75,"line"), legend.background = element_rect(color =NA), strip.background = element_blank())
@@ -1460,7 +1487,8 @@ plotBrowserTrack <- function(
       scale_color_manual(values = pal) +
       theme(legend.text = element_text(size = baseSize)) + 
       theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth) +
-      guides(color = FALSE, fill = FALSE) + theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank())
+      .gg_guides(color = FALSE, fill = FALSE) + 
+      theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank())
 
   }else{
 
@@ -1579,7 +1607,7 @@ plotBrowserTrack <- function(
         theme_ArchR(baseSize = baseSize, baseLineSize = borderWidth, baseRectSize = borderWidth, legendPosition = "right") +
         theme(strip.text.y = element_text(size = facetbaseSize, angle = 0), strip.background = element_blank(),
           legend.box.background = element_rect(color = NA)) +
-        guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
+        .gg_guides(color= guide_colorbar(barwidth = 0.75, barheight = 3))
 
     }else{
 
@@ -1780,7 +1808,7 @@ plotBrowserTrack <- function(
               margin = margin(0,0.35,0,0.35, "cm")),
               strip.text.y = element_text(angle = 0),
             strip.background = element_rect(color="black")) +
-      guides(fill = FALSE, colour = FALSE) + ggtitle(title)
+      .gg_guides(fill = FALSE, colour = FALSE) + ggtitle(title)
 
     p
 
@@ -1869,7 +1897,7 @@ plotBrowserTrack <- function(
       pal = pal
     ) + 
     facet_wrap(x~., ncol=1,scales="free_y",strip.position="right") +
-    guides(fill = FALSE, colour = FALSE) +
+    .gg_guides(fill = FALSE, colour = FALSE) +
     theme_ArchR(baseSize = baseSize,
               baseRectSize = borderWidth,
               baseLineSize = tickWidth,

@@ -27,6 +27,15 @@
 #' insertion coverage / pseudo-bulk replicate information already exists.
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Group Coverages
+#' proj <- addGroupCoverages(proj, force = TRUE)
+#'
 #' @export
 addGroupCoverages <- function(
   ArchRProj = NULL,
@@ -392,8 +401,8 @@ addGroupCoverages <- function(
     chrValues <- paste0("Coverage/",availableChr[k],"/Values")
     lengthRle <- length(covk@lengths)
     o <- h5createGroup(covFile, paste0("Coverage/",availableChr[k]))
-    o <- .suppressAll(h5createDataset(covFile, chrLengths, storage.mode = "integer", dims = c(lengthRle, 1), level = 0))
-    o <- .suppressAll(h5createDataset(covFile, chrValues, storage.mode = "integer", dims = c(lengthRle, 1), level = 0))
+    o <- .suppressAll(h5createDataset(covFile, chrLengths, storage.mode = "integer", dims = c(lengthRle, 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5createDataset(covFile, chrValues, storage.mode = "integer", dims = c(lengthRle, 1), level = getArchRH5Level()))
     o <- h5write(obj = covk@lengths, file = covFile, name = chrLengths)
     o <- h5write(obj = covk@values, file = covFile, name = chrValues)
 

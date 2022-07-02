@@ -140,3 +140,19 @@ ATAC-seq signal proximal to the TSS to estimate gene activity.}
 \description{
 This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.
 }
+\examples{
+
+# Get Test Fragments
+fragments <- getTestFragments()
+
+# Create Arrow Files
+arrowFiles <- createArrowFiles(
+  inputFiles = fragments,
+  sampleNames = "PBSmall",
+  minFrags = 100,
+  nChunk = 1,
+  TileMatParams=list(tileSize=10000),
+  force = TRUE
+)
+
+}

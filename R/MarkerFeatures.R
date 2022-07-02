@@ -43,6 +43,20 @@ markerFeatures <- function(...){
 #' raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.
 #' @param verbose A boolean value that determines whether standard output is printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#'
 #' @export
 getMarkerFeatures <- function(
   ArchRProj = NULL,
@@ -834,6 +848,26 @@ markerHeatmap <- function(...){
 #' group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
 #' looking for down-regulated markers (`log2(fold change) < 0`) instead of up-regulated markers (`log2(fold change) > 0`). 
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#' 
+#' #Plot Markers
+#' p <- plotMarkerHeatmap(seMarker)
+#' 
+#' #PDF
+#' plotPDF(p, name = "Marker-Heatmap", ArchRProj = proj)
+#'
 #' @export
 plotMarkerHeatmap <- function(
   seMarker = NULL,
@@ -1136,6 +1170,23 @@ plotMarkerHeatmap <- function(
 #' of the `assayNames` from `seMarker`.
 #' @param n An integer that indicates the maximum number of features to return per group.
 #' @param returnGR A boolean indicating whether to return as a `GRanges` object. Only valid when `seMarker` is computed for a PeakMatrix.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#' 
+#' #Get Markers
+#' getMarkers(seMarker)
+#' 
 #' @export
 getMarkers <- function(
   seMarker = NULL,
@@ -1235,6 +1286,26 @@ markerPlot <- function(...){
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
 #' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
 #' lines and labels, just the internal portions of the plot.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#' 
+#' #Plot Markers
+#' p <- plotMarkers(seMarker, name = "C1")
+#' 
+#' #PDF
+#' plotPDF(p, name = "Marker-Plot", ArchRProj = proj)
+#'
 #' @export
 plotMarkers <- function(
   seMarker = NULL,

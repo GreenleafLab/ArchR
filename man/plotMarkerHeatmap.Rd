@@ -73,3 +73,23 @@ looking for down-regulated markers (\verb{log2(fold change) < 0}) instead of up-
 \description{
 This function will plot a heatmap of the results from markerFeatures
 }
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
+#Plot Markers
+p <- plotMarkerHeatmap(seMarker)
+
+#PDF
+plotPDF(p, name = "Marker-Heatmap", ArchRProj = proj)
+
+}

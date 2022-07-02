@@ -23,6 +23,22 @@
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it
 #' already exists in the ArrowFiles associated with the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Background Peaks
+#' proj <- addBgdPeaks(proj, force = TRUE)
+#'
+#' # Add Motif Deviations
+#' proj <- addDeviationsMatrix(
+#'   ArchRProj = proj, 
+#'   peakAnnotation = "Motif",
+#'   force = TRUE
+#' )
+#'
 #' @export
 addDeviationsMatrix <- function(
   ArchRProj = NULL,
@@ -559,6 +575,15 @@ addDeviationsMatrix <- function(
 #' @param name The name of the `DeviationsMatrix` object stored in the `ArchRProject`. See `addDeviationsMatrix()`.
 #' @param plot A boolean value indicating whether the ranked variability should be plotted for each peakAnnotation in `DeviationsMatrix`.
 #' @param n The number of annotations to label with `ggrepel`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Variable Motif Deviations
+#' varDev <- getVarDeviations(proj)
+#'
 #' @export
 getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE, n = 25){
 
@@ -606,6 +631,15 @@ getVarDeviations <- function(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE
 #' is to save this file in the `outputDirectory` of the `ArchRProject`.
 #' @param method A string indicating whether to use chromVAR or ArchR for background peak identification.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Background Peaks
+#' proj <- addBgdPeaks(proj, force = TRUE)
+#'
 #' @export
 addBgdPeaks <- function(
   ArchRProj = NULL, 
@@ -703,6 +737,15 @@ addBgdPeaks <- function(
 #' so that you can reproduce results downstream.
 #' @param method A string indicating whether to use chromVAR or ArchR for background peak identification.
 #' @param force A boolean value indicating whether to force the file indicated by `outFile` to be overwritten if it already exists.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Background Peaks
+#' bgdPeaks <- getBgdPeaks(proj, force = TRUE)
+#'
 #' @export
 getBgdPeaks <- function(
   ArchRProj = NULL, 

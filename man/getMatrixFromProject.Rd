@@ -36,3 +36,12 @@ For example, if you added your \code{PeakMatrix} using \code{addPeakMatrix()} wi
 in the parameters passed to \code{getMatrixFromProject()} and the \code{PeakMatrix} will be binarized as you pull
 it out. No other normalization is applied to the matrix by this function.
 }
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+# Get Fragments
+se <- getMatrixFromProject(proj)
+
+}

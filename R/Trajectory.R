@@ -26,6 +26,15 @@
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
 #' @param seed A number to be used as the seed for random number generation for trajectory creation.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
 #' @export
 addTrajectory <- function(
   ArchRProj = NULL,
@@ -138,23 +147,25 @@ addTrajectory <- function(
   ######################################################
   .logMessage("Spline Fit", logFile = logFile)
   matSpline <- lapply(seq_len(ncol(matFilter)), function(x){
-    tryCatch({
-      stats::smooth.spline(
+    suppressWarnings(
+      tryCatch({
+        stats::smooth.spline(
+            x = initialTime, 
+            y = matFilter[names(initialTime), x], 
+            df = dof, 
+            spar = spar
+        )[[2]]
+      }, error = function(e){
+        errorList <- list(
+          it = x,
           x = initialTime, 
           y = matFilter[names(initialTime), x], 
           df = dof, 
           spar = spar
-      )[[2]]
-    }, error = function(e){
-      errorList <- list(
-        it = x,
-        x = initialTime, 
-        y = matFilter[names(initialTime), x], 
-        df = dof, 
-        spar = spar
-      )
-      .logError(e, fn = "smooth.spline", info = "", errorList = errorList, logFile = logFile)      
-    })
+        )
+        .logError(e, fn = "smooth.spline", info = "", errorList = errorList, logFile = logFile)      
+      })
+    )
   }) %>% Reduce("cbind",.) %>% data.frame()
 
   ######################################################
@@ -262,6 +273,18 @@ addTrajectory <- function(
 #' @param smoothWindow An integer value indicating the smoothing window in size (relaive to `groupEvery`) for the sequential 
 #' trajectory matrix to better reveal temporal dynamics.
 #' @param threads The number of threads to be used for parallel computing.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
+#' #Get Trajectory
+#' seTraj <- getTrajectory(proj)
+#'
 #' @export
 getTrajectory <- function(
   ArchRProj = NULL,
@@ -418,6 +441,24 @@ trajectoryHeatmap <- function(...){
 #' @param force If useSeqnames is longer than 1 if matrixClass is "Sparse.Assays.Matrix" to continue. This is not recommended because these matrices
 #' can be in different units.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
+#' #Get Trajectory
+#' seTraj <- getTrajectory(proj)
+#'
+#' #Plot Trajectory Heatmap
+#' p <- plotTrajectoryHeatmap(seTraj)
+#'
+#' #Plot PDF
+#' plotPDF(p, name = "Trajectory-Heatmap", ArchRProj = proj)
+#'
 #' @export
 plotTrajectoryHeatmap <- function(
   seTrajectory = NULL,
@@ -649,6 +690,21 @@ plotTrajectoryHeatmap <- function(
 #' @param smoothWindow An integer value indicating the smoothing window for creating inferred Arrow overlay on to embedding.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
+#' #Plot Trajectory
+#' p <- plotTrajectory(proj, smoothWindow = 20)
+#'
+#' #PDF
+#' plotPDF(p, name = "Trajcetory", ArchRProj = proj)
+#'
 #' @export
 plotTrajectory <- function(
   ArchRProj = NULL,
@@ -850,11 +906,11 @@ plotTrajectory <- function(
       }
       message("Plotting")
       .logThis(plotParams, name = "PlotParams", logFile = logFile)
-      out <- do.call(ggHex, plotParams)
+      out <- suppressWarnings(do.call(ggHex, plotParams))
     }else{
       message("Plotting")
       .logThis(plotParams, name = "PlotParams", logFile = logFile)
-      out <- do.call(ggPoint, plotParams)
+      out <- suppressWarnings(do.call(ggPoint, plotParams))
     }
   
   }else{
@@ -864,7 +920,8 @@ plotTrajectory <- function(
   }
 
   if(!keepAxis){
-    out <- out + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+    out <- out + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), 
+      axis.text.y=element_blank(), axis.ticks.y=element_blank())
   }
 
   .logMessage("Plotting Trajectory", logFile = logFile)
@@ -877,7 +934,7 @@ plotTrajectory <- function(
   .logThis(dfT, "TrajectoryDF", logFile = logFile)
 
   #Plot Pseudo-Time
-  out2 <- ggPoint(
+  out2 <- suppressWarnings(ggPoint(
     x = dfT$PseudoTime, 
     y = dfT$value, 
     color = dfT$PseudoTime, 
@@ -887,7 +944,7 @@ plotTrajectory <- function(
     pal = plotParams$pal,
     ratioYX = 0.5, 
     rastr = TRUE
-  ) + geom_smooth(color = "black")
+  ) + geom_smooth(color = "black"))
 
   attr(out2, "ratioYX") <- 0.5
 
@@ -943,6 +1000,21 @@ plotTrajectory <- function(
 #' @param clusterParams A list of parameters to be added when clustering cells for monocle3 with `monocle3::cluster_cells`.
 #' @param graphParams A list of parameters to be added when learning graphs for monocle3 with `monocle3::learn_graph`.
 #' @param seed A number to be used as the seed for random number generation for trajectory creation.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Create Monocole Trajectory
+#' cds <- getMonocleTrajectories(
+#'   ArchRProj = proj, 
+#'   useGroups = c("C1", "C2", "C3"), 
+#'   principalGroup = "C1", 
+#'   groupBy = "Clusters", 
+#'   embedding = "UMAP"
+#' )
+#'
 #' @export
 getMonocleTrajectories <- function(
   ArchRProj = NULL,
@@ -966,7 +1038,7 @@ getMonocleTrajectories <- function(
   .validInput(input = graphParams, name = "graphParams", valid = c("list"))
   .validInput(input = seed, name = "seed", valid = c("numeric"))
 
-  .requirePackage("monocle3")
+  .requirePackage("monocle3", installInfo = "devtools::install_github('cole-trapnell-lab/monocle3')")
 
   set.seed(seed)
 
@@ -1019,7 +1091,7 @@ getMonocleTrajectories <- function(
 
   message("Learning Graphs")
   graphParams$cds <- cds
-  cds <- do.call(monocle3::learn_graph, graphParams)
+  cds <- suppressWarnings(do.call(monocle3::learn_graph, graphParams))
   rm(graphParams)
   gc()
 
@@ -1059,7 +1131,7 @@ getMonocleTrajectories <- function(
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
                 axis.text.y = element_blank(), axis.ticks.y = element_blank())
 
-
+  dir.create(file.path(getOutputDirectory(ArchRProj), "Monocole3"), showWarnings=FALSE)
   path <- file.path(getOutputDirectory(ArchRProj), "Monocole3", paste0("Plot-Results-", name, ".pdf"))
 
   message("Plotting Results - ", path)
@@ -1084,6 +1156,29 @@ getMonocleTrajectories <- function(
 #' `useGroups` to constrain trajectory analysis.
 #' @param monocleCDS A monocle CDS object created from `getMonocleTrajectories`.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Create Monocole Trajectory
+#' cds <- getMonocleTrajectories(
+#'   ArchRProj = proj, 
+#'   useGroups = c("C1", "C2", "C3"), 
+#'   principalGroup = "C1", 
+#'   groupBy = "Clusters", 
+#'   embedding = "UMAP"
+#' )
+#'
+#' # Add Monocole Trajectory
+#' proj <- addMonocleTrajectory(
+#'   ArchRProj = proj, 
+#'   name = "Trajectory_Monocole",
+#'   useGroups = c("C1", "C2", "C3"),
+#'   monocleCDS = cds
+#' )
+#'
 #' @export
 addMonocleTrajectory <- function(
   ArchRProj = NULL,
@@ -1146,6 +1241,22 @@ addMonocleTrajectory <- function(
 #' @param reducedDims A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for trajectory analysis. `embedding` must equal NULL to use.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
 #' @param seed A number to be used as the seed for random number generation for trajectory creation.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add SlingShot Trajectory
+#' proj <- addSlingShotTrajectories(
+#'   ArchRProj = proj,
+#'   name = "Trajectory_SlingShot", 
+#'   useGroups = c("C1", "C2", "C3"), 
+#'   principalGroup = "C1", 
+#'   groupBy = "Clusters", 
+#'   embedding = "UMAP"
+#' )
+#'
 #' @export
 addSlingShotTrajectories <- function(
   ArchRProj = NULL,
@@ -1169,7 +1280,7 @@ addSlingShotTrajectories <- function(
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("numeric"))
 
-  .requirePackage("slingshot")
+  .requirePackage("slingshot", installInfo = "BiocManager::install('slingshot')")
 
   set.seed(seed)
 
@@ -1229,6 +1340,15 @@ addSlingShotTrajectories <- function(
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Export Matrix For Stream
+#' exportPeakMatrixForSTREAM(proj)
+#'
 #' @export
 exportPeakMatrixForSTREAM <- function(
   ArchRProj = NULL,
@@ -1249,12 +1369,8 @@ exportPeakMatrixForSTREAM <- function(
     logFile = logFile
   )
 
-  featureDF <- ArchR:::.getFeatureDF(getArrowFiles(ArchRProj)[1], "PeakMatrix")
-
-  stopifnot(all(featureDF$idx == rowData(mat)$idx))
-
   countsDF <- Matrix::summary(assay(mat))
-  peaksDF <- data.frame(as.vector(featureDF[,1]), featureDF[,3], featureDF[,4])
+  peaksDF <- data.frame(rowRanges(mat))[,1:3]
   cellsDF <- data.frame(colnames(mat))
 
   data.table::fwrite(countsDF, file = "STREAM_Counts.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)

@@ -44,3 +44,17 @@ grouping of multiple features together into a single quantitative measurement. C
 function only works for modules derived from the \code{GeneScoreMatrix}. Each module is added as a
 new column in \code{cellColData}
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Module Score
+proj <- addModuleScore(proj, useMatrix = "GeneIntegrationMatrix", nBin = 25, nBgd = 25, features = list(TScore = c('CD3D', 'CD3E')))
+
+#Check
+split(proj@cellColData$Module.TScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
+#         B         M         T 
+# -5.834066 -9.176063 17.594090 
+
+}

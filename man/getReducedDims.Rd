@@ -34,3 +34,12 @@ to sequencing depth that is greater than the \code{corCutOff}, it will be exclud
 \description{
 This function gets a dimensionality reduction object (i.e. UMAP, tSNE, etc) from a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Iterative LSI
+getReducedDims(proj, reducedDims = "IterativeLSI")
+
+}

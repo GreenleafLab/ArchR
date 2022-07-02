@@ -89,3 +89,12 @@ biasing the geneScores for genes nearby that locus.}
 This function, for each sample, will independently compute counts for each tile
 per cell and then infer gene activity scores.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Gene Score Matrix With New Model
+proj <- addGeneScoreMatrix(proj, matrixName = "GeneScoreMatrix2", geneModel = "exp(-abs(x)/10000) + exp(-1)")
+
+}

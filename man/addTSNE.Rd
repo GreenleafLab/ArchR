@@ -64,3 +64,12 @@ reproduce results downstream.}
 \description{
 This function will compute a TSNE embedding and add it to an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add UMAP for Small Project
+proj <- addTSNE(proj, force = TRUE)
+
+}

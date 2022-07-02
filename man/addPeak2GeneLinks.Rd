@@ -75,3 +75,15 @@ to keep track of the seed used so that you can reproduce results downstream.}
 \description{
 This function will add peak-to-gene links to a given ArchRProject
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add P2G Links
+proj <- addPeak2GeneLinks(proj, k = 20)
+
+# Get P2G Links
+p2g <- getPeak2GeneLinks(proj)
+
+}

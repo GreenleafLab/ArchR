@@ -7,6 +7,7 @@ ArchRDefaults <- list(
   ArchR.threads = 1,
   ArchR.locking = FALSE,
   ArchR.logging = TRUE,
+  ArchR.h5level = 0,
   ArchR.genome = NA,
   ArchR.chrPrefix = TRUE,
   ArchR.debugging = FALSE,
@@ -14,6 +15,7 @@ ArchRDefaults <- list(
 )
 
 ArchRDependency <- c(
+  "devtools",
   "grid",
   "gridExtra",
   "gtools",
@@ -103,6 +105,12 @@ ArchRDependency <- c(
 #' This function will install extra packages used in ArchR that are not installed by default.
 #' 
 #' @param force If you want to force a reinstall of these pacakges.
+#' 
+#' @examples
+#'
+#' # Install
+#' installExtraPackages()
+#'
 #' @export
 installExtraPackages <- function(force = FALSE){
 
@@ -263,6 +271,12 @@ installExtraPackages <- function(force = FALSE){
 #' This function will set the default requirement of chromosomes to have a "chr" prefix.
 #' 
 #' @param chrPrefix A boolean describing the requirement of chromosomes to have a "chr" prefix.
+#' 
+#' @examples
+#'
+#' # Add ArchR Chr Prefix
+#' addArchRChrPrefix()
+#'
 #' @export
 addArchRChrPrefix <- function(chrPrefix = TRUE){
   
@@ -282,6 +296,11 @@ addArchRChrPrefix <- function(chrPrefix = TRUE){
 #' 
 #' This function will get the default requirement of chromosomes to have a "chr" prefix.
 #' 
+#' @examples
+#'
+#' # Get ArchR Chr Prefix
+#' getArchRChrPrefix()
+#'
 #' @export
 getArchRChrPrefix <- function(){
   
@@ -312,6 +331,12 @@ getArchRChrPrefix <- function(){
 #' This can be overwritten on a per-function basis using the given function's `threads` parameter.
 #' @param force If you request more than the total number of CPUs minus 2, ArchR will set `threads` to `(nCPU - 2)`.
 #' To bypass this, setting `force = TRUE` will use the number provided to `threads`.
+#' 
+#' @examples
+#'
+#' # Add ArchR Threads
+#' addArchRThreads()
+#'
 #' @export
 addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force = FALSE){
   
@@ -344,6 +369,12 @@ addArchRThreads <- function(threads = floor(parallel::detectCores()/ 2), force =
 #' 
 #' This function will get the number of threads to be used for parallel execution across all ArchR functions.
 #' 
+#' 
+#' @examples
+#'
+#' # Get ArchR Threads
+#' getArchRThreads()
+#'
 #' @export
 getArchRThreads <- function(){
   .ArchRThreads <- options()[["ArchR.threads"]]
@@ -361,6 +392,55 @@ getArchRThreads <- function(){
 }
 
 ##########################################################################################
+# h5 compression level
+##########################################################################################
+
+#' Add a globally-applied compression level for h5 files
+#' 
+#' This function will set the default compression level to be used for h5 file execution across all ArchR functions.
+#' 
+#' @param level The default compression level to be used for h5 file execution across all ArchR functions.
+#' 
+#' @examples
+#'
+#' # Add ArchR H5 Compression level
+#' addArchRH5Level()
+#'
+#' @export
+addArchRH5Level <- function(level = 0){
+  
+  .validInput(input = level, name = "level", valid = "integer")
+  message("Setting default h5 compression to ", level, ".")
+  options(ArchR.h5level = as.integer(round(level)))
+
+}
+
+#' Get globally-applied compression level for h5 files
+#' 
+#' This function will get the default compression level to be used for h5 file execution across all ArchR functions.
+#' 
+#' @examples
+#'
+#' # Get ArchR H5 Compression level
+#' getArchRH5Level()
+#'
+#' @export
+getArchRH5Level <- function(){
+  .ArchRH5Level <- options()[["ArchR.h5level"]]
+  if(!is.null(.ArchRH5Level)){
+    if(!.isWholenumber(.ArchRH5Level)){
+      message("option(.ArchRH5Level) : ", .ArchRThreads, " is not an integer. \nDid you mistakenly set this to a value without addArchRH5Level? Reseting to default!")
+      addArchRH5Level()
+      options()[["ArchR.threads"]]
+    }else{
+      .ArchRH5Level
+    }
+  }else{
+    0
+  }
+}
+
+##########################################################################################
 # H5 File Locking
 ##########################################################################################
 
@@ -369,6 +449,12 @@ getArchRThreads <- function(){
 #' This function will set the default H5 file locking parameters
 #' 
 #' @param locking The default value for H5 File Locking
+#' 
+#' @examples
+#'
+#' # Disable/Add ArchR H5 Locking Globally
+#' addArchRLocking(locking=FALSE)
+#'
 #' @export
 addArchRLocking <- function(locking=FALSE){
   
@@ -393,6 +479,12 @@ addArchRLocking <- function(locking=FALSE){
 #' 
 #' This function will set the default H5 file locking parameters to the system
 #' 
+#' 
+#' @examples
+#'
+#' # Set ArchR H5 Locking Globally
+#' setArchRLocking()
+#'
 #' @export
 setArchRLocking <- function(){
   
@@ -449,6 +541,12 @@ setArchRLocking <- function(){
 #' For something other than one of the currently supported, see `createGeneAnnnotation()` and `createGenomeAnnnotation()`.
 #' @param install  A boolean value indicating whether the `BSgenome` object associated with the provided `genome` should be
 #' automatically installed if it is not currently installed. This is useful for helping reduce user download requirements.
+#' 
+#' @examples
+#'
+#' # Add ArchR Genome to use globally
+#' addArchRGenome("hg19test2")
+#'
 #' @export
 addArchRGenome <- function(genome = NULL, install = TRUE){
   
@@ -536,6 +634,12 @@ addArchRGenome <- function(genome = NULL, install = TRUE){
 #' @param genomeAnnotation A boolean value indicating whether the `genomeAnnotation` associated with the ArchRGenome should be returned
 #' instead of the globally defined genome. The `genomeAnnotation` is used downstream to determine things like chromosome sizes and nucleotide content.
 #' This function is not meant to be run with both `geneAnnotation` and `genomeAnnotation` set to `TRUE` (it is an either/or return value).
+#' 
+#' @examples
+#'
+#' # Get ArchR Genome to use globally
+#' getArchRGenome()
+#'
 #' @export
 getArchRGenome <- function(
   geneAnnotation=FALSE, 

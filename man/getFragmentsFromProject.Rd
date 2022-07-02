@@ -28,3 +28,12 @@ from the provided ArrowFile using \code{getCellNames()}.}
 \description{
 This function retrieves the fragments from a given ArchRProject as a GRangesList object.
 }
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+# Get Fragments
+frags <- getFragmentsFromProject(proj)
+
+}

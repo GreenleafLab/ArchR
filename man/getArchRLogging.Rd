@@ -9,3 +9,9 @@ getArchRLogging()
 \description{
 This function will get ArchR logging
 }
+\examples{
+
+# Get ArchR Logging
+getArchRLogging()
+
+}

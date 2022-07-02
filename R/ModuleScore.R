@@ -17,6 +17,20 @@
 #' to keep track of the seed used so that you can reproduce results downstream.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Module Score
+#' proj <- addModuleScore(proj, useMatrix = "GeneIntegrationMatrix", nBin = 25, nBgd = 25, features = list(TScore = c('CD3D', 'CD3E')))
+#'
+#' #Check
+#' split(proj@cellColData$Module.TScore, proj@cellColData$CellType) %>% lapply(mean) %>% unlist
+#' #         B         M         T 
+#' # -5.834066 -9.176063 17.594090 
+#'
 #' @export
 addModuleScore <- function(
   ArchRProj = NULL,
@@ -99,9 +113,15 @@ addModuleScore <- function(
   #so that the features can be binned into nBins
   rS <- ArchR:::.getRowSums(ArrowFiles = getArrowFiles(ArchRProj), useMatrix = useMatrix)
   rS <- rS[order(rS[,3]), ]
-  rS$Bins <- Rle(ggplot2::cut_number(x = rS[,3] + rnorm(length(rS[,3]))/1e30, n = nBin, labels = FALSE, right = FALSE))
   rS$Match <- match(paste0(rS$seqnames, ":", rS$idx), rownames(featureDF))
-  
+
+  #Determine Bins
+  rS$Bins <- 0
+  idx <- which(rS$rowSums > 0)
+  rS$Bins[idx] <- ceiling(seq_along(idx) / ceiling(length(idx)/nBin))
+  rS$Bins <- Rle(rS$Bins + 1)
+  #rS$Bins <- Rle(ggplot2::cut_number(x = rS[,3] + rnorm(length(rS[,3]))/1e30, n = nBin, labels = FALSE, right = FALSE))
+
   #check that the number of selected background features isnt bigger than the size of each bin
   if(nBgd > min(rS$Bins@lengths)){
     stop("nBgd must be lower than ", min(rS$Bins@lengths), "!")

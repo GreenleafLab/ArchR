@@ -12,3 +12,12 @@ getSampleNames(ArchRProj = NULL)
 \description{
 This function gets the names of all samples from a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Sample Names
+getSampleNames(proj)
+
+}

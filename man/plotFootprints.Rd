@@ -62,3 +62,18 @@ This prevents large amount of footprint plots stored as an object.}
 \description{
 This function will get footprints for all samples in a given ArchRProject or a properly-formatted Summarized Experiment
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Motif Positions
+positions <- getPositions(proj)
+
+# Get Footprints
+seFoot <- getFootprints(ArchRProj = proj, positions = positions, groupBy = "Clusters", minCells = 10)
+
+# Plot Footprints
+plotFootprints(seFoot, smoothWindow = 11)
+
+}

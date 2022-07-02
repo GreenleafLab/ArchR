@@ -18,3 +18,12 @@ the full embedding object.}
 \description{
 This function gets an embedding (i.e. UMAP) from a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get UMAP
+getEmbedding(proj, embedding = "UMAP")
+
+}

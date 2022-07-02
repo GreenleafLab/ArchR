@@ -62,3 +62,17 @@ ggOneToOne(
 \description{
 This function is a wrapper around ggplot geom_point to allow for plotting one-to-one sample comparisons in ArchR.
 }
+\examples{
+
+# Create Random Data
+m <- data.frame(matrix(rnorm(20, 2),ncol=2))
+
+# Plot
+p <- ggOneToOne(x = m[,1], y = m[,2])
+
+# To PDF
+pdf("test.pdf", width = 4, height = 4)
+p
+dev.off()
+
+}

@@ -33,3 +33,15 @@ the \code{ArchRBrowser()} or as an \code{ArchRBrowserTrack()}.}
 \description{
 This function obtains peak-to-gene links from an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add P2G Links
+proj <- addPeak2GeneLinks(proj, k = 20)
+
+# Get P2G Links
+p2g <- getPeak2GeneLinks(proj)
+
+}

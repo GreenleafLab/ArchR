@@ -124,3 +124,31 @@ the assignment accuracy of the group in the RNA cells. Lower scores represent am
 This function, will integrate multiple subsets of scATAC cells with a scRNA experiment, compute matched scRNA profiles and
 then store this in each samples ArrowFile.
 }
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Get RNA Matrix
+sePBMC <- readRDS(
+  file.path(system.file("testdata", package = "ArchR"), "seRNA_PBMC.rds")
+)
+
+#Gene Integration Matrix
+proj <- addGeneIntegrationMatrix(
+    ArchRProj = proj, 
+    useMatrix = "GeneScoreMatrix",
+    matrixName = "GeneIntegrationMatrix",
+    reducedDims = "IterativeLSI",
+    seRNA = sePBMC,
+    addToArrow = FALSE,
+    groupRNA = "CellType",
+    nameCell = "predictedCell_Un2",
+    nameGroup = "predictedGroup_Un2",
+    nameScore = "predictedScore_Un2",
+    dimsToUse = 1:10,
+    nGenes = 250,
+    force = TRUE
+)
+
+}

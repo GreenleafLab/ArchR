@@ -39,3 +39,12 @@ provide the \code{ArchRProject} object here.}
 \description{
 This function gets a given data matrix from an individual ArrowFile.
 }
+\examples{
+
+#Get Test Arrow
+arrow <- getTestArrow()
+
+# Get Fragments
+se <- getMatrixFromArrow(arrow)
+
+}

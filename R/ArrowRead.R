@@ -13,6 +13,15 @@
 #' from the provided ArrowFile using `getCellNames()`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#'
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#'
+#' # Get Fragments
+#' frags <- getFragmentsFromProject(proj)
+#'
 #' @export
 getFragmentsFromProject <- function(
   ArchRProj = NULL,
@@ -69,6 +78,15 @@ getFragmentsFromProject <- function(
 #' from the provided ArrowFile using `getCellNames()`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#'
+#' @examples
+#'
+#' #Get Test Arrow
+#' arrow <- getTestArrow()
+#'
+#' # Get Fragments
+#' frags <- getFragmentsFromArrow(arrow)
+#'
 #' @export
 getFragmentsFromArrow <- function(
   ArrowFile = NULL, 
@@ -253,6 +271,15 @@ getFragmentsFromArrow <- function(
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return.
 #' This is often desired when working with insertion counts. Note that if the matrix has already been binarized previously, this should be set to `TRUE`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#'
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#'
+#' # Get Fragments
+#' se <- getMatrixFromProject(proj)
+#'
 #' @export
 getMatrixFromProject <- function(
   ArchRProj = NULL,
@@ -387,6 +414,15 @@ getMatrixFromProject <- function(
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#'
+#' @examples
+#'
+#' #Get Test Arrow
+#' arrow <- getTestArrow()
+#'
+#' # Get Fragments
+#' se <- getMatrixFromArrow(arrow)
+#'
 #' @export
 getMatrixFromArrow <- function(
   ArrowFile = NULL, 

@@ -92,3 +92,15 @@ if \code{colorBy} is numeric, then \code{plotAs} is set to "hex".}
 \description{
 This function will plot an embedding stored in an ArchRProject
 }
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Plot UMAP
+p <- plotEmbedding(proj, name = "Clusters")
+
+#PDF
+plotPDF(p, name = "UMAP-Clusters", ArchRProj = proj)
+
+}

@@ -64,3 +64,21 @@ can be in different units.}
 \description{
 This function will plot a heatmap of the results from getTrajectory
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Add Trajectory
+proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+
+#Get Trajectory
+seTraj <- getTrajectory(proj)
+
+#Plot Trajectory Heatmap
+p <- plotTrajectoryHeatmap(seTraj)
+
+#Plot PDF
+plotPDF(p, name = "Trajectory-Heatmap", ArchRProj = proj)
+
+}

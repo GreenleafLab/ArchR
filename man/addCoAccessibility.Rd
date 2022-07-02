@@ -66,3 +66,12 @@ of the seed used so that you can reproduce results downstream.}
 \description{
 This function will add co-accessibility scores to peaks in a given ArchRProject
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Co-Accessibility
+proj <- addCoAccessibility(proj, k = 20)
+
+}

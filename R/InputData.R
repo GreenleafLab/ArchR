@@ -2,10 +2,17 @@
 #' 
 #' This function will download data for a given tutorial and return the input files required for ArchR.
 #' 
-#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".
+#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. The main option is "Hematopoiesis".
 #' "Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
-#' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.
+#' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow. The second option is "Test"
+#' which is downloading a small test PBMC fragments file mainly used to test the url capabilities of this function.
 #' @param threads The number of threads to be used for parallel computing.
+#'
+#' @examples
+#'
+#' # Get Tutorial Fragments using `test` since its smaller
+#' fragments <- getTutorialData(tutorial = "test")
+#' 
 #' @export
 getTutorialData <- function(
   tutorial = "hematopoiesis", 
@@ -17,12 +24,12 @@ getTutorialData <- function(
   .validInput(input = threads, name = "threads", valid = c("integer"))
   #########
 
-  #Make Sure URL doesnt timeout
-  oldTimeout <- getOption('timeout')
-  options(timeout=100000)
-
   if(tolower(tutorial) %in% c("heme","hematopoiesis")){
     
+    #Make Sure URL doesnt timeout
+    oldTimeout <- getOption('timeout')
+    options(timeout=100000)
+
     if(!dir.exists("HemeFragments")){
 
       filesUrl <- c(
@@ -47,55 +54,122 @@ getTutorialData <- function(
     }
     pathFragments <- "HemeFragments"
 
+    #Set back URL Options
+    options(timeout=oldTimeout)
+
+    #Return Fragment Files
+    inputFiles <- list.files(pathFragments, pattern = ".gz", full.names = TRUE)
+    names(inputFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathFragments, pattern = ".gz"))
+    inputFiles <- inputFiles[!grepl(".tbi", inputFiles)]
+    inputFiles
+
+  }else if(tolower(tutorial) == "test"){
+
+    #Tests URL Method
+    getTestFragments(version = 1)
+
   }else{
   
     stop("There is no tutorial data for : ", tutorial)
   
   }
 
-  #Set back URL Options
-  options(timeout=oldTimeout)
+}
 
-  #Return Fragment Files
-  inputFiles <- list.files(pathFragments, pattern = ".gz", full.names = TRUE)
-  names(inputFiles) <- gsub(".fragments.tsv.gz", "", list.files(pathFragments, pattern = ".gz"))
-  inputFiles <- inputFiles[!grepl(".tbi", inputFiles)]
-  inputFiles
+#' Get PBMC Small Test Arrow file
+#' 
+#' V2 : This function will return a test arrow file in your cwd.
+#' 
+#' @param version version of test arrow to return
+#'
+#' @examples
+#'
+#' # Get Test Arrow
+#' arrow <- getTestArrow()
+#' 
+#' @export
+getTestArrow <- function(version = 2){
+
+  if(version == 2){
+    #Add Genome Return Arrow
+    addArchRGenome("hg19test2")
+    arrow <- file.path(system.file("testdata", package="ArchR"), "PBSmall.arrow")
+    file.copy(arrow, basename(arrow), overwrite = TRUE)
+    basename(arrow)
+  }else{
+    stop("test version doesnt exist!")
+  }
 
 }
 
 #' Get PBMC Small Test Fragments
 #' 
-#' This function will download fragments for a small PBMC test dataset (2k Cells) spanning chr1 and 2 (~20MB).
+#' V1 : This function will download fragments for a small PBMC test dataset.
+#' V2 : This function will return test fragments for a small PBMC test dataset in your cwd.
+#' 
+#' @param version version of test fragments to return
+#'
+#' @examples
+#'
+#' # Get Test Fragments
+#' fragments <- getTestFragments()
 #' 
 #' @export
-getTestFragments <- function(x){
+getTestFragments <- function(version = 2){
 
-  #Make Sure URL doesnt timeout
-  oldTimeout <- getOption('timeout')
-  options(timeout=100000)
+  if(version == 1){
 
-  if(!file.exists("PBMCSmall.tsv.gz")){
-    download.file(
-      url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.tsv.gz",
-      destfile = "PBMCSmall.tsv.gz"
-    )
+    #Make Sure URL doesnt timeout
+    oldTimeout <- getOption('timeout')
+    options(timeout=100000)
+
+    if(!file.exists("PBMCSmall.tsv.gz")){
+      download.file(
+        url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.tsv.gz",
+        destfile = "PBMCSmall.tsv.gz"
+      )
+    }
+    #Set back URL Options
+    options(timeout=oldTimeout)
+
+    #Add Genome Return Name Vector
+    addArchRGenome("hg19test")
+    c("PBMC" = "PBMCSmall.tsv.gz")
+
+  }else if(version == 2){
+
+    #Add Genome Return Name Vector
+    addArchRGenome("hg19test2")
+    fragments <- file.path(system.file("testdata", package="ArchR"), "PBSmall.tsv.gz")
+    file.copy(fragments, basename(fragments), overwrite = TRUE)
+    c("PBMC" = basename(fragments))
+
+  }else{
+  
+  stop("test version doesnt exist!")
+  
   }
-  #Set back URL Options
-  options(timeout=oldTimeout)
-
-  #Add Genome Return Name Vector
-  addArchRGenome("hg19test")
-  c("PBMC" = "PBMCSmall.tsv.gz")
 
 }
 
+
 #' Get PBMC Small Test Project
 #' 
-#' This function will download an ArchRProject for a small PBMC test dataset (2k Cells) spanning chr1 and 2 (~2-300MB).
+#' V1 : This function will download an ArchRProject for a small PBMC test dataset.
+#' V2 : This function will return an ArchRProject for a small PBMC test dataset in your cwd.
+#' 
+#' @param version version of test fragments to return
+#'
+#' @examples
+#'
+#' # Get Test Project
+#' proj <- getTestProject()
 #' 
 #' @export
-getTestProject <- function(){
+getTestProject <- function(version = 2){
+
+  if(version == 1){
+
   #Make Sure URL doesnt timeout
   oldTimeout <- getOption('timeout')
   options(timeout=100000)
@@ -113,6 +187,24 @@ getTestProject <- function(){
   #Load
   addArchRGenome("hg19test")
   loadArchRProject("PBMCSmall")
+
+
+  }else if(version == 2){
+
+    #Add Genome Return Name Vector
+    addArchRGenome("hg19test2")
+    archrproj <- file.path(system.file("testdata", package="ArchR"), "PBSmall.zip")
+    file.copy(archrproj, basename(archrproj), overwrite = TRUE)
+    unzip(basename(archrproj), overwrite = TRUE)
+    file.remove(basename(archrproj))
+    loadArchRProject("PBSmall")
+
+  }else{
+  
+  stop("test version doesnt exist!")
+  
+  }
+
 }
 
 #' Get Input Files from paths to create arrows

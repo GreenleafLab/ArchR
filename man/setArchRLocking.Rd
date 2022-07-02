@@ -9,3 +9,9 @@ setArchRLocking()
 \description{
 This function will set the default H5 file locking parameters to the system
 }
+\examples{
+
+# Set ArchR H5 Locking Globally
+setArchRLocking()
+
+}

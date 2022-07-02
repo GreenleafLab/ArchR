@@ -18,6 +18,15 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given `input`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Tile Matrix
+#' proj <- addTileMatrix(proj, force = TRUE, tileSize = 25000)
+#'
 #' @export
 addTileMatrix <- function(
   input = NULL,
@@ -172,7 +181,7 @@ addTileMatrix <- function(
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,
-    force = force
+    force = TRUE
   )
 
   ######################################

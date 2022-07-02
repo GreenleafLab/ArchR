@@ -57,3 +57,12 @@ it already exists in the given \code{ArchRProject}.}
 This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value
 is stored indicating whether each motif is observed within the peak region.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Motif Annotations
+proj <- addMotifAnnotations(proj, motifSet = "cisbptest", annoName = "test")
+
+}

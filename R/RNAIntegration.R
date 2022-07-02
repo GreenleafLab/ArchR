@@ -54,6 +54,34 @@
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the given `input`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional params to be added to `Seurat::FindTransferAnchors`
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Get RNA Matrix
+#' sePBMC <- readRDS(
+#'   file.path(system.file("testdata", package = "ArchR"), "seRNA_PBMC.rds")
+#' )
+#' 
+#' #Gene Integration Matrix
+#' proj <- addGeneIntegrationMatrix(
+#'     ArchRProj = proj, 
+#'     useMatrix = "GeneScoreMatrix",
+#'     matrixName = "GeneIntegrationMatrix",
+#'     reducedDims = "IterativeLSI",
+#'     seRNA = sePBMC,
+#'     addToArrow = FALSE,
+#'     groupRNA = "CellType",
+#'     nameCell = "predictedCell_Un2",
+#'     nameGroup = "predictedGroup_Un2",
+#'     nameScore = "predictedScore_Un2",
+#'     dimsToUse = 1:10,
+#'     nGenes = 250,
+#'     force = TRUE
+#' )
+#' 
 #' @export
 addGeneIntegrationMatrix <- function(
   ArchRProj = NULL,
@@ -566,16 +594,16 @@ addGeneIntegrationMatrix <- function(
 
         #Create Data Set
         o <- .suppressAll(h5createDataset(tmpFilei, paste0(Group,"/i"), storage.mode = "integer", 
-          dims = c(lengthI, 1), level = 0))
+          dims = c(lengthI, 1), level = getArchRH5Level()))
 
         o <- .suppressAll(h5createDataset(tmpFilei, paste0(Group,"/jLengths"), storage.mode = "integer", 
-          dims = c(lengthRle, 1), level = 0))
+          dims = c(lengthRle, 1), level = getArchRH5Level()))
 
         o <- .suppressAll(h5createDataset(tmpFilei, paste0(Group,"/jValues"), storage.mode = "integer", 
-          dims = c(lengthRle, 1), level = 0))
+          dims = c(lengthRle, 1), level = getArchRH5Level()))
 
         o <- .suppressAll(h5createDataset(tmpFilei, paste0(Group, "/x"), storage.mode = "double", 
-          dims = c(lengthI, 1), level = 0))
+          dims = c(lengthI, 1), level = getArchRH5Level()))
 
         #Write Data Set
         o <- .suppressAll(h5write(obj = mat@i + 1, file = tmpFilei, name = paste0(Group,"/i")))

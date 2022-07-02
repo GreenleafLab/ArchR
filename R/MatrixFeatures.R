@@ -17,6 +17,15 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the `input`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Custom Matrix Which Is Just Peak Set
+#' proj <- addFeatureMatrix(proj, features = getPeakSet(proj))
+#'
 #' @export
 addFeatureMatrix <- function(
   input = NULL,
@@ -111,6 +120,15 @@ addFeatureMatrix <- function(
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the "PeakMatrix" to be overwritten if it already exist in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Peak Matrix
+#' proj <- addPeakMatrix(proj)
+#'
 #' @export
 addPeakMatrix <- function(
   ArchRProj = NULL,

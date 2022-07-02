@@ -15,3 +15,12 @@ getSeqnames(ArchRProj = NULL, useMatrix = "GeneScoreMatrix")
 This function will identify available seqnames from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return
 them for downstream plotting utilities.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Seqnames in Matrix
+getSeqnames(proj, useMatrix = "GeneScoreMatrix")
+
+}

@@ -24,3 +24,12 @@ getFeatures(
 This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return
 them for downstream plotting utilities.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Features
+getFeatures(proj, useMatrix = "GeneScoreMatrix", select = 'CD3')
+
+}

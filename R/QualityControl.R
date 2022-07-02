@@ -17,6 +17,18 @@
 #' instead of plotting the TSS enrichment plot.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Plot TSS
+#' p <- plotTSSEnrichment(proj, groupBy = "Clusters")
+#'
+#' # PDF
+#' plotPDF(p, name = "TSS-Enrich", ArchRProj = proj)
+#'
 #' @export
 plotTSSEnrichment <- function(
   ArchRProj = NULL,
@@ -181,6 +193,18 @@ plotTSSEnrichment <- function(
 #' instead of plotting the fragment size distribution.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Plot Frag Sizes
+#' p <- plotFragmentSizes(proj, groupBy = "Clusters")
+#'
+#' # PDF
+#' plotPDF(p, name = "Frag-Sizes", ArchRProj = proj)
+#'
 #' @export
 plotFragmentSizes <- function(
   ArchRProj = NULL,

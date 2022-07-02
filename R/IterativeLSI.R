@@ -50,6 +50,7 @@
 #' to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in
 #' insertion counts will be ignored for the first LSI iteration.
 #' @param excludeChr A string of chromosomes to exclude for iterativeLSI procedure.
+#' @param keep0lsi A boolean whether to keep cells with no reads in features used for LSI.
 #' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in
 #' the designated `outDir`.
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" if `saveIterations=TRUE`. See the function `uwot::umap()`.
@@ -61,6 +62,15 @@
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param force A boolean value that indicates whether or not to overwrite relevant data in the `ArchRProject` object.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Iterative LSI
+#' proj <- addIterativeLSI(proj, dimsToUse = 1:5, varFeatures=1000, iterations = 2, force=TRUE)
+#'
 #' @export
 addIterativeLSI <- function(
   ArchRProj = NULL, 
@@ -91,6 +101,7 @@ addIterativeLSI <- function(
   totalFeatures = 500000,
   filterQuantile = 0.995,
   excludeChr = c(),
+  keep0lsi = FALSE,
   saveIterations = TRUE,
   UMAPParams = list(
     n_neighbors = 40, 
@@ -129,6 +140,7 @@ addIterativeLSI <- function(
   .validInput(input = totalFeatures, name = "totalFeatures", valid = c("integer"))
   .validInput(input = filterQuantile, name = "filterQuantile", valid = c("numeric"))
   .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
+  .validInput(input = keep0lsi, name = "keep0lsi", valid = c("boolean"))
   .validInput(input = saveIterations, name = "saveIterations", valid = c("boolean"))
   .validInput(input = UMAPParams, name = "UMAPParams", valid = c("list"))
   .validInput(input = nPlot, name = "nPlot", valid = c("integer"))
@@ -351,6 +363,7 @@ addIterativeLSI <- function(
     dimsToUse = dimsToUse, 
     binarize = binarize, 
     outlierQuantiles = outlierQuantiles,
+    keep0lsi = keep0lsi,
     sampleCells = if(j != iterations) sampleCellsPre else sampleCellsFinal,
     projectAll = j == iterations | projectCellsPre | sampleJ > sampleCellsPre,
     threads = threads,
@@ -465,6 +478,7 @@ addIterativeLSI <- function(
       dimsToUse = dimsToUse,
       binarize = binarize,
       outlierQuantiles = outlierQuantiles, 
+      keep0lsi = keep0lsi,
       sampleCells = if(j != iterations) sampleCellsPre else sampleCellsFinal,
       projectAll = j == iterations | projectCellsPre | sampleJ > sampleCellsPre,
       threads = threads,
@@ -540,6 +554,7 @@ addIterativeLSI <- function(
   dimsToUse = NULL, 
   binarize = TRUE, 
   outlierQuantiles = c(0.02, 0.98),
+  keep0lsi = FALSE,
   LSIMethod = FALSE,
   scaleTo = 10^4,
   sampleCells = 5000, 
@@ -585,6 +600,7 @@ addIterativeLSI <- function(
        nDimensions = max(dimsToUse),
        binarize = binarize, 
        outlierQuantiles = outlierQuantiles,
+       keep0lsi = keep0lsi,
        verbose = FALSE, 
        seed = seed,
        tstart = tstart,
@@ -633,6 +649,7 @@ addIterativeLSI <- function(
          nDimensions = max(dimsToUse),
          binarize = binarize, 
          outlierQuantiles = outlierQuantiles,
+         keep0lsi = keep0lsi,
          seed = seed,
          tstart = tstart,
          logFile = logFile
@@ -672,6 +689,7 @@ addIterativeLSI <- function(
            nDimensions = max(dimsToUse),
            binarize = binarize, 
            outlierQuantiles = outlierQuantiles,
+           keep0lsi = keep0lsi,
            seed = seed,
            tstart = tstart,
            logFile = logFile
@@ -687,7 +705,7 @@ addIterativeLSI <- function(
         .logDiffTime("Projecting Matrices with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         pLSI <- .safelapply(seq_along(tmpMatFiles), function(x){
           .logDiffTime(sprintf("Projecting Matrix (%s of %s) with LSI-Projection", x, length(tmpMatFiles)), tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
-          .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, verbose = FALSE, tstart = tstart, logFile = logFile)
+          .projectLSI(mat = readRDS(tmpMatFiles[x]), LSI = outLSI, keep0lsi = keep0lsi, verbose = FALSE, tstart = tstart, logFile = logFile)
         }, threads = threads2) %>% Reduce("rbind", .)
 
         #Remove Temporary Matrices
@@ -1082,6 +1100,7 @@ addIterativeLSI <- function(
   nDimensions = 50, 
   binarize = TRUE, 
   outlierQuantiles = c(0.02, 0.98),
+  keep0lsi = FALSE,
   seed = 1, 
   verbose = FALSE, 
   tstart = NULL,
@@ -1109,7 +1128,22 @@ addIterativeLSI <- function(
     #Compute Col Sums
     .logDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     colSm <- Matrix::colSums(mat)
+
+    #Check
+    if(keep0lsi){
+      colSm[colSm==0] <- 1
+    }
+
     if(any(colSm == 0)){
+      ############
+      wng <- paste0(
+        "Filtering ", sum(colSm==0), " of ", ncol(mat), " used in LSI since 0 reads were found in the features used!",
+        "\nPlease consider increasing the number of varFeatures to cleanly handle this issue or",
+        "\nUse argument `keep0lsi` to keep 0 sum cells by setting their colSums to 1 artificially!"
+      )
+      .logDiffTime(wng, tstart, addHeader = verbose, verbose = verbose, logFile = logFile)
+      warnings(wng)
+      ############
       exclude <- which(colSm==0)
       mat <- mat[,-exclude, drop = FALSE]
       colSm <- colSm[-exclude]
@@ -1213,6 +1247,7 @@ addIterativeLSI <- function(
         scaleTo = scaleTo,
         nDimensions = nDimensions,
         LSIMethod = LSIMethod,
+        keep0lsi = keep0lsi,
         outliers = NA,
         date = Sys.Date(),
         seed = seed
@@ -1221,7 +1256,7 @@ addIterativeLSI <- function(
     if(filterOutliers == 1){
       .logDiffTime("Projecting Outliers with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
       #Quick Check LSI-Projection Works
-      pCheck <- .projectLSI(mat = mat2, LSI = out, verbose = verbose, logFile = logFile)
+      pCheck <- .projectLSI(mat = mat2, LSI = out, keep0lsi = keep0lsi, verbose = verbose, logFile = logFile)
       pCheck2 <- out[[1]][rownames(pCheck), ]
       pCheck3 <- lapply(seq_len(ncol(pCheck)), function(x){
         cor(pCheck[,x], pCheck2[,x])
@@ -1234,7 +1269,7 @@ addIterativeLSI <- function(
       }
       #Project LSI Outliers
       out$outliers <- colnames(matO)
-      outlierLSI <- .projectLSI(mat = matO, LSI = out, verbose = verbose, logFile = logFile)
+      outlierLSI <- .projectLSI(mat = matO, LSI = out, keep0lsi = keep0lsi, verbose = verbose, logFile = logFile)
       allLSI <- rbind(out[[1]], outlierLSI)
       allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
       out[[1]] <- allLSI
@@ -1269,6 +1304,7 @@ addIterativeLSI <- function(
   mat = NULL, 
   LSI = NULL, 
   returnModel = FALSE, 
+  keep0lsi = FALSE,
   verbose = FALSE, 
   tstart = NULL,
   logFile = NULL
@@ -1300,7 +1336,22 @@ addIterativeLSI <- function(
     #TF
     .logDiffTime("Computing Term Frequency", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     colSm <- Matrix::colSums(mat)
+
+    #Check
+    if(keep0lsi){
+      colSm[colSm==0] <- 1
+    }
+
     if(any(colSm == 0)){
+      ############
+      wng <- paste0(
+        "Filtering ", sum(colSm==0), " of ", ncol(mat), " used for LSI Projection since 0 reads were found in the features used!",
+        "\nPlease consider increasing the number of varFeatures to cleanly handle this issue or",
+        "\nUse argument `keep0lsi` to keep 0 sum cells by setting their colSums to 1 artificially!"
+      )
+      .logDiffTime(wng, tstart, addHeader = verbose, verbose = verbose, logFile = logFile)
+      warnings(wng)
+      ############
       exclude <- which(colSm==0)
       mat <- mat[,-exclude]
       colSm <- colSm[-exclude]
@@ -1357,7 +1408,7 @@ addIterativeLSI <- function(
     gc()
 
     #Clean Up Matrix
-    idxNA <- Matrix::which(is.na(mat),arr.ind=TRUE)
+    idxNA <- Matrix::which(is.na(mat), arr.ind=TRUE)
     if(length(idxNA) > 0){
         .logDiffTime(sprintf("Zeroing %s NA elements", length(idxNA)), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
         mat[idxNA] <- 0

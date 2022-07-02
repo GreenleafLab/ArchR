@@ -34,6 +34,21 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Correlate Matrices
+#' dfCor <- correlateMatrices(
+#'   ArchRProj = proj, 
+#'   useMatrix1 = "GeneScoreMatrix", 
+#'   useMatrix2 = "GeneIntegrationMatrix",
+#'   dimsToUse = 1:5,
+#'   k = 20
+#' )
+#'
 #' @export
 correlateMatrices <- function(
   ArchRProj = NULL,
@@ -381,6 +396,22 @@ correlateMatrices <- function(
 #' @param force A boolean value that determines whether analysis should continue if resizing coordinates in `seTrajectory1` or 
 #' `seTrajectory2` does not align with the strandedness. Only when `useRanges = TRUE`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
+#' #Get Trajectories
+#' seTraj1 <- getTrajectory(proj, useMatrix = "GeneScoreMatrix")
+#' seTraj2 <- getTrajectory(proj, useMatrix = "GeneIntegrationMatrix")
+#'
+#' #Correlate
+#' corTraj <- correlateTrajectories(seTraj1, seTraj2, corCutOff = 0.35, varCutOff1 = 0.6, varCutOff2 = 0.6)
+#'
 #' @export
 correlateTrajectories <- function(
   seTrajectory1 = NULL,
@@ -682,6 +713,15 @@ correlateTrajectories <- function(
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Co-Accessibility
+#' proj <- addCoAccessibility(proj, k = 20)
+#'
 #' @export
 addCoAccessibility <- function(
   ArchRProj = NULL,
@@ -850,6 +890,18 @@ addCoAccessibility <- function(
 #'  This only takes affect if `returnLoops = TRUE`.
 #' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
 #' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Co Accessibility
+#' proj <- addCoAccessibility(proj, k = 20)
+#'
+#' # Get Co Accessibility
+#' CoA <- getCoAccessibility(proj)
+#'
 #' @export
 getCoAccessibility <- function(
   ArchRProj = NULL, 
@@ -973,6 +1025,18 @@ getCoAccessibility <- function(
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add P2G Links
+#' proj <- addPeak2GeneLinks(proj, k = 20)
+#'
+#' # Get P2G Links
+#' p2g <- getPeak2GeneLinks(proj)
+#'
 #' @export
 addPeak2GeneLinks <- function(
   ArchRProj = NULL,
@@ -1277,6 +1341,18 @@ addPeak2GeneLinks <- function(
 #' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
 #' @param returnLoops A boolean indicating to return the peak-to-gene links as a `GRanges` "loops" object designed for use with
 #' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add P2G Links
+#' proj <- addPeak2GeneLinks(proj, k = 20)
+#'
+#' # Get P2G Links
+#' p2g <- getPeak2GeneLinks(proj)
+#'
 #' @export
 getPeak2GeneLinks <- function(
   ArchRProj = NULL, 
@@ -1385,6 +1461,22 @@ peak2GeneHeatmap <- function(...){
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add P2G Links
+#' proj <- addPeak2GeneLinks(proj, k = 20)
+#'
+#' # Get P2G Links
+#' p2g <- getPeak2GeneLinks(proj)
+#'
+#' # Plot P2G
+#' p <- plotPeak2GeneHeatmap(proj)
+#' plotPDF(p, name = "P2G-Heatmap", ArchRProj = proj)
+#' 
 #' @export
 plotPeak2GeneHeatmap <- function(
   ArchRProj = NULL, 

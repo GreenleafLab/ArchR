@@ -231,7 +231,7 @@
 .dropGroupsFromArrow <- function(
   ArrowFile = NULL, 
   dropGroups = NULL,
-  level = 0,
+  level = getArchRH5Level(),
   verbose = FALSE,
   logFile = NULL
   ){
@@ -328,7 +328,7 @@
   inArrows = NULL,
   outArrows = NULL,
   cellsKeep = NULL,
-  level = 0,
+  level = getArchRH5Level(),
   verbose = FALSE,
   logFile = NULL,
   threads = 1
@@ -353,7 +353,7 @@
   inArrow = NULL,
   outArrow = NULL,
   cellsKeep = NULL,
-  level = 0,
+  level = getArchRH5Level(),
   verbose = FALSE,
   logFile = NULL
   ){

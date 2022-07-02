@@ -19,6 +19,15 @@ exportGroupSE <- function(...){
 #' @param threads An integer specifying the number of threads for parallel.
 #' @param verbose A boolean specifying to print messages during computation.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Group SE
+#' se <- getGroupSE(proj, useMatrix = "PeakMatrix", groupBy = "Clusters")
+#'
 #' @export
 getGroupSE <- function(
   ArchRProj = NULL,
@@ -148,6 +157,15 @@ getGroupSE <- function(
 #' @param verbose A boolean specifying to print messages during computation.
 #' @param threads An integer specifying the number of threads for parallel.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Group BW
+#' bw <- getGroupBW(proj, groupBy = "Clusters")
+#'
 #' @export
 getGroupBW <- function(
   ArchRProj = NULL,
@@ -241,7 +259,7 @@ getGroupBW <- function(
     if(threads > 1){
       message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
     }
-    args$threads <- threads
+    threads <- threads
   }
 
   covFiles <- c()

@@ -17,6 +17,18 @@
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
 #' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted
 #' object (ggplot2, plot, heatmap, etc).
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Plot UMAP
+#' p <- plotEmbedding(proj, name = "Clusters")
+#' 
+#' #PDF
+#' plotPDF(p, name = "UMAP-Clusters", ArchRProj = proj)
+#'
 #' @export
 plotPDF <- function(
   ...,
@@ -86,7 +98,7 @@ plotPDF <- function(
     filename <- file.path(outDir, paste0(name, ".pdf"))
   }
 
-  o <- tryCatch({
+  o <- suppressWarnings(tryCatch({
 
     pdf(filename, width = width, height = height, useDingbats = useDingbats)
     for(i in seq_along(plotList)){
@@ -149,7 +161,7 @@ plotPDF <- function(
 
     if(getArchRVerbose()) message(x)
 
-  })
+  }))
 
   return(invisible(0))
 
@@ -201,6 +213,18 @@ plotPDF <- function(
 #' @param threads The number of threads to be used for parallel computing.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Plot UMAP
+#' p <- plotEmbedding(proj, name = "Clusters")
+#' 
+#' #PDF
+#' plotPDF(p, name = "UMAP-Clusters", ArchRProj = proj)
+#'
 #' @export
 plotEmbedding <- function(
   ArchRProj = NULL,
@@ -530,6 +554,18 @@ plotEmbedding <- function(
 #' @param plotAs A string that indicates whether a rigdge plot ("ridges") should be plotted or a violin plot ("violin") should be plotted.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param ... Additional parameters to pass to `ggGroup()`.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Plot Groups
+#' p <- plotGroups(proj, groupBy = "Clusters", colorBy = "colData", name = "TSSEnrichment", plotAs = "violin", alpha = 0.5)
+#' 
+#' #PDF
+#' plotPDF(p, name = "Clusters-TSS", ArchRProj = proj)
+#'
 #' @export
 plotGroups <- function(
   ArchRProj = NULL,
@@ -946,7 +982,7 @@ plotGroups <- function(
               legend.spacing.x = unit(0, 'cm'),
               legend.spacing.y = unit(0, 'cm'),
               legend.text = element_text(size = max(size, 2))
-              ) + guides(fill = guide_legend(ncol = 4), color =  guide_legend(ncol = 4))
+              ) + .gg_guides(fill = guide_legend(ncol = 4), color =  guide_legend(ncol = 4))
         )$grobs[[legend]]
 
       slh <- convertHeight(

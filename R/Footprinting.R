@@ -19,6 +19,18 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Motif Positions
+#' positions <- getPositions(proj)
+#'
+#' # Get Footprints
+#' seFoot <- getFootprints(ArchRProj = proj, positions = positions, groupBy = "Clusters", minCells = 10)
+#'
 #' @export
 getFootprints <- function(
   ArchRProj = NULL,
@@ -69,7 +81,11 @@ getFootprints <- function(
 
   genome <- getGenome(ArchRProj)
   .requirePackage("Biostrings", source = "bioc")
-  BSgenome <- eval(parse(text = genome))
+  BSgenome <- tryCatch({
+    eval(parse(text = paste0(genome)))
+  }, error = function(e){
+    eval(parse(text = paste0(genome,"::",genome)))
+  })
   BSgenome <- validBSgenome(BSgenome)
 
   .logDiffTime("Computing Kmer Bias Table", tstart, verbose = verbose, logFile = logFile)
@@ -344,6 +360,21 @@ getFootprints <- function(
 #' @param force If many footprints are requested when plot = FALSE, please set force = TRUE. 
 #' This prevents large amount of footprint plots stored as an object.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Motif Positions
+#' positions <- getPositions(proj)
+#'
+#' # Get Footprints
+#' seFoot <- getFootprints(ArchRProj = proj, positions = positions, groupBy = "Clusters", minCells = 10)
+#'
+#' # Plot Footprints
+#' plotFootprints(seFoot, smoothWindow = 11)
+#'
 #' @export
 plotFootprints <- function(
   seFoot = NULL,
@@ -578,8 +609,8 @@ plotFootprints <- function(
         ylim = c(quantile(plotFootDF$mean, 0.0001), 1.15*quantile(smoothFoot, 0.999)), 
         xlim = c(min(plotFootDF$x),max(plotFootDF$x))
       ) + theme_ArchR(baseSize = baseSize) + ggtitle(name) +
-      guides(fill = FALSE) + 
-      guides(color = FALSE) + ylab(paste0(title,"Normalized Insertions"))
+      .gg_guides(fill = FALSE, color = FALSE) + 
+      ylab(paste0(title,"Normalized Insertions"))
       #removed ggrepel due to incompatibility with coord_cartesian - see https://github.com/GreenleafLab/ArchR/issues/493#issuecomment-870012873
       #ggrepel::geom_label_repel(data = plotMax, aes(label = group), size = 3, xlim = c(75, NA))
 
@@ -616,7 +647,7 @@ plotFootprints <- function(
   ) {
     #https://stackoverflow.com/questions/52297978/decrease-overal-legend-size-elements-and-text
     gg +
-        guides(shape = guide_legend(override.aes = list(size = pointSize)),
+        .gg_guides(shape = guide_legend(override.aes = list(size = pointSize)),
                color = guide_legend(override.aes = list(size = pointSize))) +
         theme(legend.title = element_text(size = baseSize), 
               legend.text  = element_text(size = baseSize),

@@ -8,6 +8,15 @@
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Peak Annotations
+#' peakAnno <- getPeakAnnotation(proj)
+#'
 #' @export
 getPeakAnnotation <- function(ArchRProj = NULL, name = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -29,6 +38,15 @@ getPeakAnnotation <- function(ArchRProj = NULL, name = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param annoName The name of a specific annotation to subset within the `peakAnnotation`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Annotation Positions
+#' positions <- getPositions(proj)
+#'
 #' @export
 getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -65,6 +83,15 @@ getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param annoName The name of a specific annotation to subset within the `peakAnnotation`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Annotation Matches
+#' matches <- getMatches(proj)
+#'
 #' @export
 getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -104,6 +131,18 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten
 #' if it already exists in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Motif Positions Can Be Any Interval GRanges List
+#' positions <- getPositions(proj)
+#'
+#' # Add Peak Annotations
+#' proj <- addPeakAnnotations(proj, regions = positions)
+#'
 #' @export
 addPeakAnnotations <- function(
   ArchRProj = NULL,
@@ -291,6 +330,15 @@ addPeakAnnotations <- function(
 #' it already exists in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a JASPAR PWM object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Motif Annotations
+#' proj <- addMotifAnnotations(proj, motifSet = "cisbptest", annoName = "test")
+#'
 #' @export
 addMotifAnnotations <- function(
   ArchRProj = NULL,
@@ -511,7 +559,11 @@ addMotifAnnotations <- function(
   # Get BSgenome Information!
   #############################################################
   genome <- ArchRProj@genomeAnnotation$genome
-  BSgenome <- eval(parse(text = genome))
+  BSgenome <- tryCatch({
+    eval(parse(text = paste0(genome)))
+  }, error = function(e){
+    eval(parse(text = paste0(genome,"::",genome)))
+  })
   BSgenome <- validBSgenome(BSgenome)
 
   #############################################################
@@ -690,6 +742,15 @@ addMotifAnnotations <- function(
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be
 #' overwritten if it already exists in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Motif Annotations
+#' proj <- addArchRAnnotations(proj, name = "test")
+#'
 #' @export
 addArchRAnnotations <- function(
   ArchRProj = NULL,
@@ -990,6 +1051,27 @@ addArchRAnnotations <- function(
 #' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param background A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#'
+#' # Get Peak Annotation Enrichment
+#' annoEnrich <- peakAnnoEnrichment(
+#'   seMarker = seMarker, 
+#'   ArchRProj = proj,
+#'   cutOff = "FDR <= 0.1 & Log2FC >= 0"
+#' )
+#'
 #' @export
 peakAnnoEnrichment <- function(
   seMarker = NULL,
@@ -1165,6 +1247,36 @@ enrichHeatmap <- function(...){
 #' @param transpose A boolean determining whether to transpose the heatmap in the plot.
 #' @param returnMatrix A boolean determining whether to return the matrix corresponding to the heatmap rather than generate a plot.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#'
+#' # Get Peak Annotation Enrichment
+#' annoEnrich <- peakAnnoEnrichment(
+#'   seMarker = seMarker, 
+#'   ArchRProj = proj,
+#'   cutOff = "FDR <= 0.1 & Log2FC >= 0"
+#' )
+#' 
+#' # Multiply by 50 since this is a super small test sample
+#' assay(annoEnrich) <- assay(annoEnrich) * 50
+#' 
+#' #Plot
+#' p <- plotEnrichHeatmap(annoEnrich)
+#' 
+#' #PDF
+#' plotPDF(p, name = "PeakAnnoEnrich", ArchRProj = proj)
+#' 
 #' @export
 plotEnrichHeatmap <- function(
   seEnrich = NULL,

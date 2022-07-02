@@ -12,3 +12,9 @@ addArchRLocking(locking = FALSE)
 \description{
 This function will set the default H5 file locking parameters
 }
+\examples{
+
+# Disable/Add ArchR H5 Locking Globally
+addArchRLocking(locking=FALSE)
+
+}

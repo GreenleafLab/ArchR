@@ -76,3 +76,17 @@ raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviati
 \description{
 This function will identify features that are definitional of each provided cell grouping where possible
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
+}
