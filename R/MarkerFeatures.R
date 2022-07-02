@@ -837,9 +837,13 @@ markerHeatmap <- function(...){
 #' @param pal A custom continuous palette from `ArchRPalettes` (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
 #' @param clusterCols A boolean value that indicates whether the columns of the marker heatmap should be clustered.
+#' @param subsetMarkers A vector of rownames from seMarker to use for subsetting of seMarker to only plot specific features on the heatmap.
+#' Note that these rownames are expected to be integers that come from `rownames(rowData(seMarker))`. If this parameter is used for
+#' subsetting, then the values provided to `cutOff` are effectively ignored.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
-#' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
-#' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.
+#' @param nLabel An integer value that indicates how many of the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
+#' To remove all feature labels, set `nLabel = 0`.
+#' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top `n` genes for each group based on how uniquely up-regulated the gene is.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMatrix A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param transpose A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.
@@ -881,6 +885,7 @@ plotMarkerHeatmap <- function(
   pal = NULL,
   binaryClusterRows = TRUE,
   clusterCols = TRUE,
+  subsetMarkers = NULL,
   labelMarkers = NULL,
   nLabel = 15,
   nPrint = 15,
@@ -902,9 +907,10 @@ plotMarkerHeatmap <- function(
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
+  .validInput(input = subsetMarkers, name = "subsetMarkers", valid = c("integer", "null"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
-  .validInput(input = nLabel, name = "nLabel", valid = c("integer", "null"))
-  .validInput(input = nPrint, name = "nPrint", valid = c("integer", "null"))
+  .validInput(input = nLabel, name = "nLabel", valid = c("integer"))
+  .validInput(input = nPrint, name = "nPrint", valid = c("integer"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
   .validInput(input = transpose, name = "transpose", valid = c("boolean"))
@@ -953,6 +959,16 @@ plotMarkerHeatmap <- function(
   }else{
     idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
   }
+
+  if(!is.null(subsetMarkers)) {
+    if(length(which(subsetMarkers %ni% 1:nrow(mat))) == 0){
+      idx <- subsetMarkers
+    } else {
+      stop("Rownames / indices provided to the subsetMarker parameter are outside of the boundaries of seMarker.")
+    }
+    
+  }
+
   mat <- mat[idx,,drop=FALSE]
   passMat <- passMat[idx,,drop=FALSE]
 
@@ -985,14 +1001,18 @@ plotMarkerHeatmap <- function(
   }
 
   spmat <- passMat / rowSums(passMat)
-  if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
-    message("Printing Top Marker Genes:")
-    for(x in seq_len(ncol(spmat))){
-      genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
-      message(colnames(spmat)[x], ":")
-      message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
+  #only print out identified marker genes if subsetMarkers is NULL
+  if(is.null(subsetMarkers)) {
+    if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
+      message("Printing Top Marker Genes:")
+      for(x in seq_len(ncol(spmat))){
+        genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
+        message(colnames(spmat)[x], ":")
+        message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
+      }
     }
   }
+
 
   if(is.null(labelMarkers)){
     labelMarkers <- lapply(seq_len(ncol(spmat)), function(x){

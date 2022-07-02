@@ -661,8 +661,10 @@ ArchRBrowserTrack <- function(...){
 #' Blue-colored genes are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).
 #' @param sizes A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to `plotSummary`.
 #' The order must be the same as `plotSummary`.
-#' @param features A `GRanges` object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
-#' bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`. 
+#' @param features A `GRanges` (for a single feature track) or `GRangesList` (for multiple feature tracks) object containing the "features" to
+#' be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using `getPeakSet(ArchRProj))`.
+#' If you provide a `GRangesList`, then each element of that object must be named and this name will be used on the plot.
+#' For example - `GRangesList("peaks" = peak_gr, "other" = other_gr)`.
 #' @param loops A `GRanges` object containing the "loops" to be plotted via the "loopTrack".
 #' This `GRanges` object start represents the center position of one loop anchor and the end represents the center position of another loop anchor. 
 #' A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used 
@@ -1451,6 +1453,15 @@ plotBrowserTrack <- function(
       featureList <- features
       hideY <- FALSE
     }
+
+    #make sure all elements in featureList have a name for plot display
+    for(i in seq_along(featureList)){
+      if(is.null(names(featureList)[i]) || is.na(names(featureList)[i]) || nchar(names(featureList)[i]) == 0) {
+        message("Warning! Object ",i," in your GRangesList (features) is not named. Generic numbering will be used.")
+        names(featureList)[i] <- as.character(i)
+      }
+    }
+
     featureList <- featureList[rev(seq_along(featureList))]
 
     featureO <- lapply(seq_along(featureList), function(x){

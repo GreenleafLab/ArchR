@@ -445,7 +445,9 @@ plotEmbedding <- function(
 
     if(!plotParamsx$discrete){
 
-      plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
+      if(!is.null(quantCut)){
+        plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
+      }
 
       plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
 

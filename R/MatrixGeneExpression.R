@@ -18,7 +18,7 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param strictMatch A boolean value indicating whether every cell in `input` must be represented in `seRNA`. If set to `FALSE`,
-#' this and this `GeneExpressionMatrix` is used for certain downstream analyses such as `addIterativeLSI()`, then errors may occur
+#' and this `GeneExpressionMatrix` is used for certain downstream analyses such as `addIterativeLSI()`, then errors may occur
 #' because not all cells will have relevant information.
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exist in the given `input`.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -88,7 +88,7 @@ addGeneExpressionMatrix <- function(
     if(strictMatch){
       stop("Error! 'strictMatch = TRUE' and not all cells in input are represented in the provided gene expression seRNA. To proceed, please subset your ArchRProject using the subsetArchRProject() function to contain only cells present in seRNA or set 'strictMatch = FALSE'.")
     } else {
-      .logMessage("Warning! Not all cells in input exist in seRNA! This may cause downstream issues with functions that require information from all cells. For example, addIterativeLSI() will not work on this GeneExpressionMatrix!", logFile = logFile, verbose = TRUE)
+      .logMessage("Warning! Not all cells in input exist in seRNA! This may cause downstream issues with functions that require information from all cells. For example, addIterativeLSI() will not work on this GeneExpressionMatrix! To remove these mis-matched cells, subset your ArchRProject using the subsetArchRProject() function to contain only cells present in seRNA and set 'strictMatch = TRUE'", logFile = logFile, verbose = TRUE)
     }
   }
 
