@@ -193,6 +193,44 @@ getTestArrow <- function(version = 2){
     stop("test version doesnt exist!")
   }
 
+#helper for file downloads
+.downloadFiles <- function(filesUrl = NULL, pathDownload = NULL, threads = 1){
+  if(is.null(filesUrl)) {
+    stop("No value supplied to filesUrl in .downloadFiles()!")
+  }
+  if(is.null(pathDownload)) {
+    stop("No value supplied to pathDownload in .downloadFiles()!")
+  }
+  if(length(which(c("fileUrl","md5sum") %ni% colnames(filesUrl))) != 0) {
+    cat(colnames(filesUrl))
+    stop("File download dataframe does not include columns named 'fileUrl' and 'md5sum' which are required!")
+  }
+  message(paste0("Downloading files to ",pathDownload,"..."))
+  downloadFiles <- .safelapply(seq_along(filesUrl$fileUrl), function(x){
+    if(file.exists(file.path(pathDownload, basename(filesUrl$fileUrl[x])))){
+      if(tools::md5sum(file.path(pathDownload, basename(filesUrl$fileUrl[x]))) != filesUrl$md5sum[x]) {
+        message(paste0("File ",basename(filesUrl$fileUrl[x])," exists but has an incorrect md5sum. Removing..."))
+        file.remove(file.path(pathDownload, basename(filesUrl$fileUrl[x])))
+      }
+    }
+    if(!file.exists(file.path(pathDownload, basename(filesUrl$fileUrl[x])))){
+      message(paste0("Downloading file ", basename(filesUrl$fileUrl[x]),"..."))
+      download.file(
+        url = filesUrl$fileUrl[x], 
+        destfile = file.path(pathDownload, basename(filesUrl$fileUrl[x]))
+      ) 
+    } else {
+      message(paste0("File exists! Skipping file ", basename(filesUrl$fileUrl[x]),"..."))
+    }
+  }, threads = min(threads, length(filesUrl)))
+  
+  #check for success of file download
+  if(!all(unlist(downloadFiles) == 0)) {
+    stop("Some tutorial files did not download successfully. Please try again.")
+  }
+  
+  downloadFiles 
+  
 }
 
 #' Get PBMC Small Test Fragments

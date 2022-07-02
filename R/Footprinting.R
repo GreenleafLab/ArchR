@@ -351,7 +351,8 @@ getFootprints <- function(
 #' @param smoothWindow The size in basepairs of the sliding window to be used for smoothing of the footprint signal.
 #' @param baseSize A numeric specifying the baseSize of font in the plots.
 #' @param plot A boolean value indicating whether or not the footprints should be plotted (`TRUE`) or returned as grob objects (`FALSE`).
-#' @param ArchRProj An `ArchRProject` object to be used for plotting directory in `getOutputDirectory`.
+#' @param ArchRProj An `ArchRProject` object to be used for plotting directory in `getOutputDirectory`. If no `ArchRProj` is supplied,
+#' then plots will be stored in a directory called "Plots" in the current working directory.
 #' @param plotName A string indicating the name/prefix of the file to be used for output plots.
 #' @param height The height in inches to be used for the output PDF file.
 #' @param width The width in inches to be used for the output PDF file.
