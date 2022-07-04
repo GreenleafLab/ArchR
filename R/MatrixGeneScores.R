@@ -125,7 +125,7 @@ addGeneScoreMatrix <- function(
   if(subThreading){
     h5disableFileLocking()
   }else{
-    args$threads <- length(ArrowFiles)
+    args$threads <- max(length(ArrowFiles), threads)
   }
 
   #Remove Input from args
