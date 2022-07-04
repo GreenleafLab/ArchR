@@ -205,7 +205,7 @@ createArrowFiles <- function(
   if(subThreading){
     h5disableFileLocking()
   }else{
-    args$threads <- max(length(inputFiles), threads)
+    args$threads <- min(length(inputFiles), threads)
   }
 
   args$minTSS <- NULL
