@@ -81,7 +81,7 @@ projectBulkATAC <- function(
   # Create Bulk Matrix
   ##################################################
   bulkMat <- .safeSubset(
-    mat = .getAssay(subATAC, "counts"), 
+    mat = as.matrix(.getAssay(subATAC, "counts")), 
     subsetRows = paste0("f", seq_along(rDGR))
   )
   .logThis(bulkMat, "bulkATACMat", logFile = logFile)
@@ -145,12 +145,14 @@ projectBulkATAC <- function(
     if(!is.null(corCutOff)){
       if(scaleDims){
         corToDepth <- rD$corToDepth$scaled
-        dimsToUse <- dimsToUse[corToDepth < corCutOff]
+        dimsToUse <- dimsToUse[intersect(dimsToUse, which(corToDepth < corCutOff))]
       }else{
         corToDepth <- rD$corToDepth$none
-        dimsToUse <- dimsToUse[corToDepth < corCutOff]
+        dimsToUse <- dimsToUse[intersect(dimsToUse, which(corToDepth < corCutOff))]
       }
     }
+
+    simRD <- simRD[, dimsToUse, drop = FALSE]
 
     if(embedding$params$nc != ncol(simRD)){
       .logMessage("Error! Inconsistency found with matching LSI dimensions to those used in addUMAP or addTSNE",
@@ -160,8 +162,6 @@ projectBulkATAC <- function(
       )
       return(out)
     }
-
-    simRD <- simRD[, dimsToUse, drop = FALSE]
 
   }
 

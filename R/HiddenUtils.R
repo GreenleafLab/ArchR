@@ -188,8 +188,18 @@
     idxNotIn <- which(subsetRows %ni% rownames(mat))
     if(length(idxNotIn) > 0){
       subsetNamesNotIn <- subsetRows[idxNotIn]
-      matNotIn <- Matrix::sparseMatrix(i=1,j=1,x=0,dims=c(length(idxNotIn), ncol = ncol(mat)))
+
+      #check matrix class and make a matching empty matrix for the idxNotIn rows
+      if (class(mat)[[1]] == "dgCMatrix") {
+        matNotIn <- Matrix::sparseMatrix(i = 1, j = 1, x = 0, dims = c(length(idxNotIn), ncol = ncol(mat)))
+      } else if (class(mat)[[1]] == "matrix") {
+        matNotIn <- matrix(nrow = length(idxNotIn), ncol = ncol(mat), 0)
+      } else{
+        stop("Error! Argument 'mat' in .safeSubset is not either of class matrix or class dgCMatrix!")
+      }
+      
       rownames(matNotIn) <- subsetNamesNotIn
+      colnames(matNotIn) <- colnames(mat)
       mat <- rbind(mat, matNotIn)
     }
     mat <- mat[subsetRows,]
@@ -199,7 +209,16 @@
     idxNotIn <- which(subsetCols %ni% colnames(mat))
     if(length(idxNotIn) > 0){
       subsetNamesNotIn <- subsetCols[idxNotIn]
-      matNotIn <- Matrix::sparseMatrix(i=1,j=1,x=0,dims=c(nrow(mat), ncol = length(idxNotIn)))
+
+      #check matrix class and make a matching empty matrix for the idxNotIn rows
+      if (class(mat)[[1]] == "dgCMatrix") {
+        matNotIn <- Matrix::sparseMatrix(i = 1, j = 1, x = 0, dims = c(nrow(mat), ncol = length(idxNotIn)))
+      } else if (class(mat)[[1]] == "matrix") {
+        matNotIn <- matrix(nrow = nrow(mat), ncol = length(idxNotIn), 0)
+      } else{
+        stop("Error! Argument 'mat' in .safeSubset is not either of class matrix or class dgCMatrix!")
+      }
+      rownames(matNotIn) <- rownames(mat)
       colnames(matNotIn) <- subsetNamesNotIn
       mat <- cbind(mat, matNotIn)
     }
