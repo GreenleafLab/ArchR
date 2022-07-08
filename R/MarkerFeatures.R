@@ -87,7 +87,7 @@ getMarkerFeatures <- function(
   .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
   out <- do.call(.MarkersSC, args)
   .endLogging(logFile = logFile)
-  metadata(out)$Params <- args
+  S4Vectors::metadata(out)$Params <- args
 
   return(out)
 
@@ -302,7 +302,7 @@ getMarkerFeatures <- function(
     }
     colnames(pse) <- names(matchObj[[1]])
 
-    metadata(pse)$MatchInfo <- matchObj
+    S4Vectors::metadata(pse)$MatchInfo <- matchObj
 
     if(isDeviations){
       assays(pse)[["Log2FC"]] <- NULL #This measure does not make sense with deviations matrices better to just remove
@@ -969,7 +969,7 @@ plotMarkerHeatmap <- function(
   spmat <- passMat / rowSums(passMat)
   #only print out identified marker genes if subsetMarkers is NULL
   if(is.null(subsetMarkers)) {
-    if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
+    if(S4Vectors::metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
       message("Printing Top Marker Genes:")
       for(x in seq_len(ncol(spmat))){
         genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
@@ -1014,9 +1014,9 @@ plotMarkerHeatmap <- function(
   message(sprintf("Identified %s markers!", nrow(mat)))
 
   if(is.null(pal)){
-    if(is.null(metadata(seMarker)$Params$useMatrix)){
+    if(is.null(S4Vectors::metadata(seMarker)$Params$useMatrix)){
       pal <- paletteContinuous(set = "solarExtra", n = 100)
-    }else if(tolower(metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
+    }else if(tolower(S4Vectors::metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
       pal <- paletteContinuous(set = "blueYellow", n = 100)
     }else{
       pal <- paletteContinuous(set = "solarExtra", n = 100)
@@ -1065,7 +1065,7 @@ plotMarkerHeatmap <- function(
         customColLabel = mn,
         showRowDendrogram = TRUE,
         draw = FALSE,
-        name = paste0("Column Z-Scores\n", ncol(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+        name = paste0("Column Z-Scores\n", ncol(mat), " features\n", S4Vectors::metadata(seMarker)$Params$useMatrix)
       )
 
     }, error = function(e){
@@ -1082,7 +1082,7 @@ plotMarkerHeatmap <- function(
         customColLabel = mn,
         showRowDendrogram = TRUE,
         draw = FALSE,
-        name = paste0("Column Z-Scores\n", ncol(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+        name = paste0("Column Z-Scores\n", ncol(mat), " features\n", S4Vectors::metadata(seMarker)$Params$useMatrix)
       )
 
     })
@@ -1115,7 +1115,7 @@ plotMarkerHeatmap <- function(
         customRowLabel = mn,
         showColDendrogram = TRUE,
         draw = FALSE,
-        name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+        name = paste0("Row Z-Scores\n", nrow(mat), " features\n", S4Vectors::metadata(seMarker)$Params$useMatrix)
       )
 
     }, error = function(e){
@@ -1132,7 +1132,7 @@ plotMarkerHeatmap <- function(
         customRowLabel = mn,
         showColDendrogram = TRUE,
         draw = FALSE,
-        name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+        name = paste0("Row Z-Scores\n", nrow(mat), " features\n", S4Vectors::metadata(seMarker)$Params$useMatrix)
       )
 
       .logError(e, fn = ".ArchRHeatmap", info = "", errorList = errorList, logFile = logFile)
@@ -1181,7 +1181,7 @@ getMarkers <- function(
 
   if(returnGR){
 
-    if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+    if(S4Vectors::metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
       stop("Only markers can be returned as GRanges when PeakMatrix!")
     }
 
