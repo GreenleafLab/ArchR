@@ -122,6 +122,11 @@ addGeneScoreMatrix <- function(
   #Valid GRanges
   genes <- .validGRanges(genes)
 
+  #We are going to remove seqlengths from the genes to ensure now errors
+  seql <- rep(NA, length(seqlengths(genes)))
+  names(seql) <- names(seqlengths(genes))
+  seqlengths(genes) <- seql
+
   #Add args to list
   args <- mget(names(formals()),sys.frame(sys.nframe()))#as.list(match.call())
   args$ArrowFiles <- ArrowFiles
@@ -372,6 +377,9 @@ addGeneScoreMatrix <- function(
           )
         e <- pmax(pmaxGene + pForwardMin, e)
 
+        #Check
+        s <- pmax(1, s) #Must Be higher than 0!
+        e <- pmin(e, 2147483647) #Maximum allowable Integer!
         extendedGeneRegion <- IRanges(start = s, end = e)
 
         idx1 <- which(pminGene - pReverseMin < start(extendedGeneRegion))
