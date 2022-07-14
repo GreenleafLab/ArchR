@@ -577,6 +577,8 @@ addGeneIntegrationMatrix <- function(
         subsetCols = matchDF$cellNames
       )
 
+      #Since this is a temporary addition this does not need the ArchR Arrow version update!
+
       for(z in seq_along(uniqueSamples)){
 
         mat <- matchedRNA[, which(sampleNames == uniqueSamples[z]), drop = FALSE]
