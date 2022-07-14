@@ -84,6 +84,7 @@ Collate:
     'RNAIntegration.R'
     'RcppExports.R'
     'ReproduciblePeakSet.R'
+    'SparseUtils.R'
     'Trajectory.R'
     'ValidationUtils.R'
     'VisualizeData.R'
