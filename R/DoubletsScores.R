@@ -560,14 +560,21 @@ addDoubletScores <- function(
     .logError(e, fn = "uwot::umap_transform", info = prefix, errorList = errorList, logFile = logFile)    
   })
 
+  #make sure rownames are the same here
+  #simulated LSI are first so lets remove
+  corLSI <- allLSI[-seq_len(nSimLSI), , drop = FALSE]
+  corUMAP <- umapProject[-seq_len(nSimLSI), , drop = FALSE]
+  idx <- intersect(rownames(corLSI), rownames(LSI$matSVD))  
   corProjection <- list(
-    LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(allLSI[-seq_len(nSimLSI), x], LSI$matSVD[, x]) )),
+    LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(corLSI[idx, x, drop=FALSE], LSI$matSVD[idx, x, drop=FALSE]) )),
     UMAP =  c(
-        dim1 = cor(uwotUmap[[1]][,1], umapProject[-seq_len(nSimLSI), 1]),
-        dim2 = cor(uwotUmap[[1]][,2], umapProject[-seq_len(nSimLSI), 2])
+        dim1 = cor(uwotUmap[[1]][,1], corUMAP[idx, 1]),
+        dim2 = cor(uwotUmap[[1]][,2], corUMAP[idx, 2])
       )
   )
   names(corProjection[[1]]) <- paste0("SVD", LSI$dimsKept)
+  rm(corLSI)
+  rm(corUMAP)
 
   .logThis(uwotUmap[[1]], name = paste0(prefix, "OriginalUMAP"), logFile = logFile)
   .logThis(umapProject[-seq_len(nSimLSI), ], name = paste0(prefix, "OriginalReProjectedUMAP"), logFile = logFile)
