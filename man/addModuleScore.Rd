@@ -50,11 +50,28 @@ new column in \code{cellColData}
 proj <- getTestProject()
 
 # Add Module Score
-proj <- addModuleScore(proj, useMatrix = "GeneIntegrationMatrix", nBin = 25, nBgd = 25, features = list(TScore = c('CD3D', 'CD3E')))
+proj <- addModuleScore(proj, useMatrix = "GeneScoreMatrix", nBin = 25, nBgd = 25, features = list(TScore = c('CD3D', 'CD3E')))
 
 #Check
 split(proj@cellColData$Module.TScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
-#         B         M         T 
-# -5.834066 -9.176063 17.594090 
+#        B         M         T 
+# -4.352769 -8.438259  9.942678 
+
+#Get T cell Features
+features <- getGenes()
+T <- features[features$symbol \%in\% c("CD3D", "CD3E")]
+B <- features[features$symbol \%in\% c("MS4A1")]
+
+# Add Module Score
+proj <- addModuleScore(proj, useMatrix = "TileMatrix", nBin = 25, nBgd = 25, features = list(TScore = T, BScore = B))
+
+#Check
+split(proj@cellColData$Module.TScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
+         B           M           T 
+-0.03866667 -0.05303030  0.10306122
+
+split(proj@cellColData$Module.BScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
+         B           M           T 
+0.10000000 -0.03939394 -0.05387755 
 
 }

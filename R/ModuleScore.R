@@ -24,12 +24,29 @@
 #' proj <- getTestProject()
 #'
 #' # Add Module Score
-#' proj <- addModuleScore(proj, useMatrix = "GeneIntegrationMatrix", nBin = 25, nBgd = 25, features = list(TScore = c('CD3D', 'CD3E')))
+#' proj <- addModuleScore(proj, useMatrix = "GeneScoreMatrix", nBin = 25, nBgd = 25, features = list(TScore = c('CD3D', 'CD3E')))
 #'
 #' #Check
 #' split(proj@cellColData$Module.TScore, proj@cellColData$CellType) %>% lapply(mean) %>% unlist
-#' #         B         M         T 
-#' # -5.834066 -9.176063 17.594090 
+#' #        B         M         T 
+#' # -4.352769 -8.438259  9.942678 
+#'
+#' #Get T cell Features
+#' features <- getGenes()
+#' T <- features[features$symbol %in% c("CD3D", "CD3E")]
+#' B <- features[features$symbol %in% c("MS4A1")]
+#'
+#' # Add Module Score
+#' proj <- addModuleScore(proj, useMatrix = "TileMatrix", nBin = 25, nBgd = 25, features = list(TScore = T, BScore = B))
+#'
+#' #Check
+#' split(proj@cellColData$Module.TScore, proj@cellColData$CellType) %>% lapply(mean) %>% unlist
+#'          B           M           T 
+#' -0.03866667 -0.05303030  0.10306122
+#'
+#' split(proj@cellColData$Module.BScore, proj@cellColData$CellType) %>% lapply(mean) %>% unlist
+#'          B           M           T 
+#' 0.10000000 -0.03939394 -0.05387755 
 #'
 #' @export
 addModuleScore <- function(
@@ -62,41 +79,119 @@ addModuleScore <- function(
 
   #Get Feature DF
   featureDF <- ArchR:::.getFeatureDF(head(getArrowFiles(ArchRProj),2), subGroup=useMatrix)
-    rownames(featureDF) <- paste0(featureDF$seqnames, ":", featureDF$idx)
-    featureDF$Match <- seq_len(nrow(featureDF))
+  featureDF$Match <- seq_len(nrow(featureDF))
 
-  matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class"))
+  if("name" %in% colnames(featureDF)){
 
-  if(matrixClass == "Sparse.Assays.Matrix"){
-    if(!all(unlist(lapply(unlist(features), function(x) grepl(":",x))))){
-      .logMessage("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!", logFile = logFile)
-      stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!")
-    }
-  }
-
-  #Figure out the index numbers of the selected features within the given matrix
-  if(grepl(":",unlist(features)[1])){
-
-    sname <- stringr::str_split(unlist(features),pattern=":",simplify=TRUE)[,1]
-    name <- stringr::str_split(unlist(features),pattern=":",simplify=TRUE)[,2]
-
-    idx <- lapply(seq_along(name), function(x){
-      ix <- intersect(which(tolower(name[x]) == tolower(featureDF$name)), BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames)))
-      if(length(ix)==0){
-        .logStop(sprintf("FeatureName (%s) does not exist! See available features using getFeatures()", name[x]), logFile = logFile)
-      }
-      ix
-    }) %>% unlist
+    type <- "name"
+    featureData <- featureDF
+    featureData$Match <- seq_len(nrow(featureDF))
 
   }else{
 
+    if(all(c("start", "end") %in% colnames(featureDF))){
+      type <- "GRanges"
+      featureData <- GRanges(
+        seqnames = featureDF$seqnames,
+        ranges = IRanges(
+          start = featureDF$start,
+          end = featureDF$end
+        )
+      )
+      mcols(featureData)$idx <- featureDF$idx
+      mcols(featureData)$Match <- seq_len(nrow(featureDF))
+      mcols(featureData)$name <- paste0(featureDF$seqnames, ":", featureDF$idx)
+    }else if(c("start") %in% colnames(featureDF)){
+      type <- "GRanges"
+      featureData <- GRanges(
+        seqnames = featureDF$seqnames,
+        ranges = IRanges(
+          start = featureDF$start,
+          width = diff(featureDF$start)[1]
+        )
+      )
+      mcols(featureData)$idx <- featureDF$idx
+      mcols(featureData)$Match <- seq_len(nrow(featureDF))
+      mcols(featureData)$name <- paste0(featureDF$seqnames, ":", featureDF$idx)
+    }else{
+
+      stop("Error Unrecognized Feature Type!")
+
+    }
+
+  }
+
+  matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class"))
+
+  if(type == "name"){
+    if(matrixClass == "Sparse.Assays.Matrix"){
+      if(!all(unlist(lapply(unlist(features), function(x) grepl(":",x))))){
+        .logMessage("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!", logFile = logFile)
+        stop("When accessing features from a matrix of class Sparse.Assays.Matrix it requires seqnames\n(denoted by seqnames:name) specifying to which assay to pull the feature from.\nIf confused, try getFeatures(ArchRProj, useMatrix) to list out available formats for input!")
+      }
+    }
+  }
+
+  if(type == "name"){
+
+    if(!is(features[[1]], "GRanges")){
+      stop("Feature Input is Not A character of names!")
+    }
+
+    #Figure out the index numbers of the selected features within the given matrix
+    if(grepl(":",unlist(features)[1])){
+
+      sname <- stringr::str_split(unlist(features),pattern=":",simplify=TRUE)[,1]
+      name <- stringr::str_split(unlist(features),pattern=":",simplify=TRUE)[,2]
+
+      idx <- lapply(seq_along(name), function(x){
+        ix <- intersect(
+          which(tolower(name[x]) == tolower(featureDF$name)), 
+          BiocGenerics::which(tolower(sname[x]) == tolower(featureDF$seqnames))
+        )
+        if(length(ix)==0){
+          .logStop(sprintf("FeatureName (%s) does not exist! See available features using getFeatures()", name[x]), logFile = logFile)
+        }
+        ix
+      })
+
+    }else{
+
+      idx <- lapply(seq_along(unlist(features)), function(x){
+      
+        ix <- which(tolower(unlist(features)[x]) == tolower(featureDF$name))[1]
+      
+        if(length(ix) == 0){
+          .logStop(sprintf("FeatureName (%s) no regions found overlapping! See available features using getFeatures()", unlist(features)[x]), logFile = logFile)
+        }
+
+        ix
+      
+      })
+
+    }
+
+  }else{
+
+    if(!is(features[[1]], "GRanges")){
+      stop("Feature Input is Not A GRanges object!")
+    }
+
     idx <- lapply(seq_along(unlist(features)), function(x){
-      ix <- which(tolower(unlist(features)[x]) == tolower(featureDF$name))[1]
-      if(is.na(ix)){
+
+      #Check
+      o <- tryCatch({GenomeInfoDb::seqlevelsStyle(features[[x]]) <- "UCSC"}, warning = function(w) 0, error = function(e) 0)
+
+      #Overlaps
+      ix <- which(overlapsAny(featureData, features[[x]], ignore.strand=TRUE))
+
+      if(length(ix)==0){
         .logStop(sprintf("FeatureName (%s) does not exist! See available features using getFeatures()", unlist(features)[x]), logFile = logFile)
       }
+      
       ix
-    }) %>% unlist
+
+    })
 
   }
 
@@ -106,14 +201,14 @@ addModuleScore <- function(
     names(features) <- paste0(name, ".", names(features))
   }
 
-  featuresUse <- featureDF[idx,]
-  featuresUse$Module <- Rle(stack(features)[,2])
+  featuresUse <- featureDF[unlist(idx),]
+  featuresUse$Module <- Rle(unlist(lapply(seq_along(features), function(z) rep(names(features)[z], length(idx[[z]])))))
 
   #Get average values for all features and then order the features based on their average values
   #so that the features can be binned into nBins
   rS <- ArchR:::.getRowSums(ArrowFiles = getArrowFiles(ArchRProj), useMatrix = useMatrix)
   rS <- rS[order(rS[,3]), ]
-  rS$Match <- match(paste0(rS$seqnames, ":", rS$idx), rownames(featureDF))
+  rS$Match <- match(paste0(rS$seqnames, ":", rS$idx), featureData$name)
 
   #Determine Bins
   rS$Bins <- 0
