@@ -80,6 +80,8 @@ plotTSSEnrichment <- function(
     }    
   }
 
+  chromLengths <- getChromLengths(ArchRProj)
+
   dfTSS <- .safelapply(seq_along(uniqGroups), function(z){
 
     .logDiffTime(paste0(uniqGroups[z], " Computing TSS (",z," of ",length(uniqGroups),")!"), t1 = tstart, logFile = logFile)
@@ -90,6 +92,12 @@ plotTSSEnrichment <- function(
 
       #TSS for Chr
       TSSi <- splitTSS[[chr[k]]]
+
+      #Check All Positions Are at least 50 + flank from chromSize start!
+      idx1 <- start(TSSi) > flank + 50
+
+      #Check End + 50 + flank less than chromSize end!
+      idx2 <- end(TSSi) + flank + 50 < chromLengths[paste0(seqnames(TSSi))]
 
       #Set TSS To be a dummy chr1
       TSSi <- GRanges(seqnames=rep("chr1",length(TSSi)), ranges = ranges(TSSi), strand = strand(TSSi))
