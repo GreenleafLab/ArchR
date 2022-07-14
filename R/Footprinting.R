@@ -62,6 +62,29 @@ getFootprints <- function(
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
 
+  #Validate Positions
+  chromLengths <- getChromLengths(ArchRProj)
+  positions0 <- positions
+  positions <- lapply(seq_along(positions), function(x){
+
+    if(x %% 100 == 0) message("Checking Postions ", x, " of ", length(positions))
+
+    #Check All Positions Are at least 50 + flank from chromSize start!
+    idx1 <- start(positions[[x]]) > flank + 50
+
+    #Check End + 50 + flank less than chromSize end!
+    idx2 <- end(positions[[x]]) + flank + 50 < chromLengths[paste0(seqnames(positions[[x]]))]
+
+    if(sum(idx1 & idx2)==0){
+      NULL
+    }else{
+      positions[[x]][idx1 & idx2]
+    }
+
+  })
+  names(positions) <- names(positions0)
+  positions <- as(positions, "GRangesList")
+
   #####################################################
   # Compute Kmer Frequency Table 
   #####################################################
