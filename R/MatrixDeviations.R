@@ -123,7 +123,7 @@ addDeviationsMatrix <- function(
   rS$GC <- ArchRProj@peakSet$GC
   rownames(rS) <- paste0(rS$seqnames, "_", rS$start, "_", rS$end)
 
-  annotationsMatrix <- annotationsMatrix[rownames(rS), ]
+  annotationsMatrix <- annotationsMatrix[rownames(rS), , drop = FALSE]
 
   #Create args list
   args <- mget(names(formals()),sys.frame(sys.nframe()))
