@@ -1112,7 +1112,7 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
-#' @param select A string specifying a specific feature name (or rowname) to be found with `grep`.
+#' @param select A string specifying a specific feature name (or rowname) to be found with `grep` or granges to overlap.
 #' @param ignoreCase A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.
 #' 
 #' @examples
@@ -1129,29 +1129,65 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = useMatrix, name = "useMatrix", valid = "character")
-  .validInput(input = select, name = "select", valid = c("character", "null"))
+  .validInput(input = select, name = "select", valid = c("character", "null", "granges"))
   .validInput(input = ignoreCase, name = "ignoreCase", valid = "boolean")
   #########
 
   fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
   matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class"))
-  if(is.null(select)){
-    if(any(duplicated(paste0(fdf$name))) | matrixClass == "Sparse.Assays.Matrix"){
-      paste0(fdf$seqnames,":",fdf$name)
+
+  if("name" %in% colnames(fdf)){
+
+    if(is.null(select)){
+      if(any(duplicated(paste0(fdf$name))) | matrixClass == "Sparse.Assays.Matrix"){
+        return(paste0(fdf$seqnames,":",fdf$name))
+      }else{
+        return(fdf$name)
+      }
     }else{
-      fdf$name
+      grepNames <- grep(select, fdf$name, value = TRUE, ignore.case = ignoreCase)
+      if(any(duplicated(grepNames))){
+        grepIdx <- grep(select, fdf$name, ignore.case = ignoreCase)
+        grepNames <- paste0(fdf$seqnames[grepIdx],":",fdf$name[grepIdx])
+      }
+      if(all(c("deviations", "z") %in% unique(paste0(fdf$seqnames)))){
+        grepNames <- rev(grepNames)
+      }
+      return(grepNames)
     }
+
   }else{
-    grepNames <- grep(select, fdf$name, value = TRUE, ignore.case = ignoreCase)
-    if(any(duplicated(grepNames))){
-      grepIdx <- grep(select, fdf$name, ignore.case = ignoreCase)
-      grepNames <- paste0(fdf$seqnames[grepIdx],":",fdf$name[grepIdx])
+
+    if(all(c("start", "end") %in% colnames(fdf))){
+      featureData <- GRanges(
+        seqnames = fdf$seqnames,
+        ranges = IRanges(
+          start = fdf$start,
+          end = fdf$end
+        )
+      )
+      mcols(featureData)$idx <- fdf$idx
+      if(!is.null(select)){
+        featureData <- featureData[overlapsAny(featureData, select, ignore.strand=TRUE)]
+      }
+      return(featureData)
+    }else if(c("start") %in% colnames(fdf)){
+      featureData <- GRanges(
+        seqnames = fdf$seqnames,
+        ranges = IRanges(
+          start = fdf$start,
+          width = diff(fdf$start)[1]
+        )
+      )
+      mcols(featureData)$idx <- fdf$idx
+      if(!is.null(select)){
+        featureData <- featureData[overlapsAny(featureData, select, ignore.strand=TRUE)]
+      }
+      return(featureData)
     }
-    if(all(c("deviations", "z") %in% unique(paste0(fdf$seqnames)))){
-      grepNames <- rev(grepNames)
-    }
-    grepNames
+
   }
+
 }
 
 #' Get the seqnames that could be selected from a given data matrix within an ArchRProject
