@@ -15,7 +15,7 @@
 #' @param extendUpstream The minimum and maximum number of basepairs upstream of the transcription start site to consider for gene
 #' activity score calculation.
 #' @param extendDownstream The minimum and maximum number of basepairs downstream of the transcription start site or transcription termination site 
-#' (based on 'useTSS') to consider for gene activity score calculation.
+#' (based on 'useTSS' and 'extendTSS') to consider for gene activity score calculation.
 #' @param useGeneBoundaries A boolean value indicating whether gene boundaries should be employed during gene activity score
 #' calculation. Gene boundaries refers to the process of preventing tiles from contributing to the gene score of a given gene
 #' if there is a second gene's transcription start site between the tile and the gene of interest.
@@ -61,7 +61,7 @@ addGeneScoreMatrix <- function(
   geneDownstream = 0, #New Param
   useGeneBoundaries = TRUE,
   useTSS = FALSE, #New Param
-  extendTSS = FALSE,
+  extendTSS = TRUE, #Make TRUE so if you useTSS it will extend if that is desired...
   tileSize = 500,
   ceiling = 4,
   geneScaleFactor = 5, #New Param
