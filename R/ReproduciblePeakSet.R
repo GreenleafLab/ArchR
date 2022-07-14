@@ -129,9 +129,11 @@ addReproduciblePeakSet <- function(
 	#####################################################
 	# Create Output Directory
 	#####################################################
-	outDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls")
-	outSubDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", "ReplicateCalls")
-	outBedDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", "InsertionBeds")
+	outDir0 <- file.path(getOutputDirectory(ArchRProj), "PeakCalls")
+	outDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", groupBy)
+	outSubDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", groupBy, "ReplicateCalls")
+	outBedDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", groupBy, "InsertionBeds")
+	dir.create(outDir0, showWarnings = FALSE)
 	dir.create(outDir, showWarnings = FALSE)
 	dir.create(outSubDir, showWarnings = FALSE)
 	dir.create(outBedDir, showWarnings = FALSE)
