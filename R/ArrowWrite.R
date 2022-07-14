@@ -111,8 +111,19 @@
   addColSums = FALSE,
   addRowMeans = FALSE,
   addRowVars = FALSE,
+  addColMeansLog2 = FALSE,     #New
+  addRowMeansLog2 = FALSE,     #New
   addRowVarsLog2 = FALSE,
-  logFile = NULL
+  addRowMeansGeo = FALSE,      #New
+  addRowVarsGeo = FALSE,       #New
+  addRowSumsBinary = FALSE,    #New
+  addColSumsBinary = FALSE,    #New
+  addRowMeansLog2Norm = FALSE, #New
+  addRowVarsLog2Norm = FALSE,  #New
+  scaleTo = 10000,             #New
+  colSm = NULL,                #New
+  logFile = NULL,
+  version = 2                  #New
   ){
 
   stopifnot(inherits(mat, "dgCMatrix"))
@@ -130,48 +141,82 @@
   o <- h5closeAll()
   o <- h5createGroup(ArrowFile, Group)
   
-  #Convert Columns to Rle
-  j <- Rle(findInterval(seq(mat@x)-1,mat@p[-1]) + 1)
+  if(version == 1){
 
-  #Info
-  lengthRle <- length(j@lengths)
-  lengthI <- length(mat@i)
+    #Convert Columns to Rle
+    j <- Rle(findInterval(seq(mat@x)-1,mat@p[-1]) + 1)
 
-  #Create Data Set
-  o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group,"/i"), storage.mode = "integer", 
-    dims = c(lengthI, 1), level = getArchRH5Level()))
+    #Info
+    lengthRle <- length(j@lengths)
+    lengthI <- length(mat@i)
 
-  o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group,"/jLengths"), storage.mode = "integer", 
-    dims = c(lengthRle, 1), level = getArchRH5Level()))
-
-  o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group,"/jValues"), storage.mode = "integer", 
-    dims = c(lengthRle, 1), level = getArchRH5Level()))
-  
-  #Write Data Set
-  o <- .suppressAll(h5write(obj = mat@i + 1, file = ArrowFile, name = paste0(Group,"/i")))
-  o <- .suppressAll(h5write(obj = j@lengths, file = ArrowFile, name = paste0(Group,"/jLengths")))
-  o <- .suppressAll(h5write(obj = j@values, file = ArrowFile, name = paste0(Group,"/jValues")))
-  
-  #If binary dont store x
-  if(!binarize){
-
-    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/x"), storage.mode = "double", 
+    #Create Data Set
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group,"/i"), storage.mode = "integer", 
       dims = c(lengthI, 1), level = getArchRH5Level()))
 
-    o <- .suppressAll(h5write(obj = mat@x, file = ArrowFile, name = paste0(Group, "/x")))
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group,"/jLengths"), storage.mode = "integer", 
+      dims = c(lengthRle, 1), level = getArchRH5Level()))
+
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group,"/jValues"), storage.mode = "integer", 
+      dims = c(lengthRle, 1), level = getArchRH5Level()))
+    
+    #Write Data Set
+    o <- .suppressAll(h5write(obj = mat@i + 1, file = ArrowFile, name = paste0(Group,"/i")))
+    o <- .suppressAll(h5write(obj = j@lengths, file = ArrowFile, name = paste0(Group,"/jLengths")))
+    o <- .suppressAll(h5write(obj = j@values, file = ArrowFile, name = paste0(Group,"/jValues")))
+    
+    #If binary dont store x
+    if(!binarize){
+
+      o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/x"), storage.mode = "double", 
+        dims = c(lengthI, 1), level = getArchRH5Level()))
+
+      o <- .suppressAll(h5write(obj = mat@x, file = ArrowFile, name = paste0(Group, "/x")))
+
+    }else{
+
+      mat@x[mat@x > 0] <- 1
+
+    }
+
+    rm(j)
+
+  }else if(version == 2){
+
+    #Info
+    lengthP <- length(mat@p)
+    lengthI <- length(mat@i)
+
+    if(binarize){
+      mat@x[mat@x > 0] <- 1
+    }
+
+    #Write Data Set
+    o <- .suppressAll(h5write(obj = mat@i, file = ArrowFile, name = paste0(Group,"/indices")))
+    o <- .suppressAll(h5write(obj = mat@p, file = ArrowFile, name = paste0(Group,"/indptr")))
+    o <- .suppressAll(h5write(obj = mat@x, file = ArrowFile, name = paste0(Group, "/data")))
+    o <- .suppressAll(h5write(obj = dim(mat), file = ArrowFile, name = paste0(Group, "/shape")))
 
   }else{
 
-    mat@x[mat@x > 0] <- 1
+    stop("ArchR Write Method Does Not Exist! Only versions = 1 and 2 exist!")
 
   }
-  
+
+  ####################
+  # Normal
+  ####################
+
+  cS <- 0
+  rS <- 0
+  rM <- 0
+  rV <- 0
+
   if(addColSums){
     cS <- Matrix::colSums(mat)
     o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/colSums"), storage.mode = "double", 
       dims = c(ncol(mat), 1), level = getArchRH5Level()))
     o <- .suppressAll(h5write(obj = cS, file = ArrowFile, name = paste0(Group, "/colSums")))
-
   }
 
   if(addRowSums){
@@ -179,56 +224,130 @@
     o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowSums"), storage.mode = "double", 
       dims = c(nrow(mat), 1), level = getArchRH5Level()))
     o <- .suppressAll(h5write(obj = rS, file = ArrowFile, name = paste0(Group, "/rowSums")))
-
   }
 
-  if(addRowMeans){
+  if(addRowMeans | addRowVars){
     rM <- Matrix::rowMeans(mat)
     o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowMeans"), storage.mode = "double", 
       dims = c(nrow(mat), 1), level = getArchRH5Level()))
     o <- .suppressAll(h5write(obj = rM, file = ArrowFile, name = paste0(Group, "/rowMeans")))
-
   }
 
   if(addRowVars){
-    if(!addRowMeans){
-      rM <- Matrix::rowMeans(mat)
-    }
-    rV <- computeSparseRowVariances(mat@i + 1, mat@x, rM, n = ncol(mat))
+    rV <- .sparseRowVars(m=mat, rM=rM)
     o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowVars"), storage.mode = "double", 
       dims = c(nrow(mat), 1), level = getArchRH5Level()))
     o <- .suppressAll(h5write(obj = rV, file = ArrowFile, name = paste0(Group, "/rowVars")))
+  }
 
+  rm(cS, rS, rM, rV)
+
+  ####################
+  # Binary
+  ####################
+
+  cSB <- 0
+  rSB <- 0
+
+  if(addColSumsBinary){
+    cSB <- .colBinarySums(mat)
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/colSumsBinary"), storage.mode = "double", 
+      dims = c(ncol(mat), 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5write(obj = cSB, file = ArrowFile, name = paste0(Group, "/colSumsBinary")))
+
+  }
+
+  if(addRowSumsBinary){
+    rSB <- .rowBinarySums(mat)
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowSumsBinary"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5write(obj = rSB, file = ArrowFile, name = paste0(Group, "/rowSumsBinary")))
+  }
+
+  rm(cSB, rSB)
+
+  ####################
+  # Log2
+  ####################
+
+  cMLog <- 0
+  rMLog <- 0
+  rVLog <- 0
+
+  if(addColMeansLog2){
+    cMLog <- .sparseColLog2p1Means(mat)
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/colMeansLog2"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5write(obj = cMLog, file = ArrowFile, name = paste0(Group, "/colMeansLog2")))
+  }
+
+  if(addRowMeansLog2 | addRowVarsLog2){
+    rMLog <- .sparseRowLog2p1Means(mat)
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowMeansLog2"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5write(obj = rMLog, file = ArrowFile, name = paste0(Group, "/rowMeansLog2")))
   }
 
   if(addRowVarsLog2){
-
-    mat@x <- log2(mat@x + 1) #log-normalize
-    rM <- Matrix::rowMeans(mat)
-    idx <- seq_along(rM)
-    idxSplit <- .splitEvery(idx, 2000)
-
-    #Make sure not too much memory so split into 2000 gene chunks
-    #Check this doesnt cause memory mapping issues!
-    rV <- lapply(seq_along(idxSplit), function(x){
-      idxX <- idxSplit[[x]]
-      matx <- mat[idxX, , drop = FALSE]
-      computeSparseRowVariances(matx@i + 1, matx@x, rM[idxX], n = ncol(mat))
-    }) %>% unlist
-
-    #Have to write rowMeansLog2 as well
-    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowMeansLog2"), storage.mode = "double", 
-      dims = c(nrow(mat), 1), level = getArchRH5Level()))
-    o <- .suppressAll(h5write(obj = rM, file = ArrowFile, name = paste0(Group, "/rowMeansLog2")))
-
-    #Write rowVarsLog2
+    rVLog <- .sparseRowLog2p1Vars(mat, rM = rMLog)
     o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowVarsLog2"), storage.mode = "double", 
       dims = c(nrow(mat), 1), level = getArchRH5Level()))
-    o <- .suppressAll(h5write(obj = rV, file = ArrowFile, name = paste0(Group, "/rowVarsLog2")))
+    o <- .suppressAll(h5write(obj = rVLog, file = ArrowFile, name = paste0(Group, "/rowVarsLog2")))
   }
 
+  rm(cMLog, rMLog, rVLog)
+
+  ####################
+  # Geo
+  ####################
+
+  rMGeo <- 0
+  rVGeo <- 0
+
+  if(addRowMeansGeo | addRowVarsGeo){
+    rMGeo <- .sparseRowGeoMeans(mat)
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowMeansGeo"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5write(obj = rMGeo, file = ArrowFile, name = paste0(Group, "/rowMeansGeo")))
+  }
+
+  if(addRowVarsGeo){
+    rVGeo <- .sparseRowGeoVars(mat, rM = rMGeo)
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowVarsGeo"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5write(obj = rVGeo, file = ArrowFile, name = paste0(Group, "/rowVarsGeo")))
+  }
+
+  rm(rMGeo, rVGeo)
+
+  ####################
+  # Log2 Depth Norm
+  ####################
+
+  rMLogNorm <- 0
+  rVLogNorm <- 0
+
+  if(addRowMeansLog2Norm | addRowVarsLog2Norm){
+    mat <- .normalizeCols(mat, colSm = colSm, scaleTo = scaleTo)
+    rMLogNorm <- .sparseRowLog2p1Means(mat)
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowMeansLog2Norm"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5write(obj = rMLogNorm, file = ArrowFile, name = paste0(Group, "/rowMeansLog2Norm")))
+  }
+
+  if(addRowVarsLog2Norm){
+    rVLogNorm <- .sparseRowLog2p1Vars(mat, rM = rMLogNorm)
+    o <- .suppressAll(h5createDataset(ArrowFile, paste0(Group, "/rowVarsLog2Norm"), storage.mode = "double", 
+      dims = c(nrow(mat), 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5write(obj = rVLogNorm, file = ArrowFile, name = paste0(Group, "/rowVarsLog2Norm")))
+  }
+
+  rm(rMLogNorm, rVLogNorm)
+
+  ####################
   #Clean Up Memorys
-  rm(j,mat)
+  ####################
+  rm(mat)
   gc()
 
   o <- h5closeAll()

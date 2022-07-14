@@ -43,7 +43,8 @@ include "none", "subtract", "divide". "Subtract" means subtracting the normalize
 
 \item{plot}{A boolean value indicating whether or not the footprints should be plotted (\code{TRUE}) or returned as grob objects (\code{FALSE}).}
 
-\item{ArchRProj}{An \code{ArchRProject} object to be used for plotting directory in \code{getOutputDirectory}.}
+\item{ArchRProj}{An \code{ArchRProject} object to be used for plotting directory in \code{getOutputDirectory}. If no \code{ArchRProj} is supplied,
+then plots will be stored in a directory called "Plots" in the current working directory.}
 
 \item{plotName}{A string indicating the name/prefix of the file to be used for output plots.}
 

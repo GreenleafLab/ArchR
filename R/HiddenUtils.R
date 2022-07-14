@@ -170,46 +170,6 @@
   return(x)
 }
 
-.normalizeCols <- function(mat = NULL, colSm = NULL, scaleTo = NULL){
-    if(is.null(colSm)){
-        colSm <- Matrix::colSums(mat)
-    }
-    if(!is.null(scaleTo)){
-        mat@x <- scaleTo * mat@x / rep.int(colSm, Matrix::diff(mat@p))
-    }else{
-        mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
-    }
-    return(mat)
-}
-
-.safeSubset <- function(mat = NULL, subsetRows = NULL, subsetCols = NULL){
-  
-  if(!is.null(subsetRows)){
-    idxNotIn <- which(subsetRows %ni% rownames(mat))
-    if(length(idxNotIn) > 0){
-      subsetNamesNotIn <- subsetRows[idxNotIn]
-      matNotIn <- Matrix::sparseMatrix(i=1,j=1,x=0,dims=c(length(idxNotIn), ncol = ncol(mat)))
-      rownames(matNotIn) <- subsetNamesNotIn
-      mat <- rbind(mat, matNotIn)
-    }
-    mat <- mat[subsetRows,]
-  }
-
-  if(!is.null(subsetCols)){
-    idxNotIn <- which(subsetCols %ni% colnames(mat))
-    if(length(idxNotIn) > 0){
-      subsetNamesNotIn <- subsetCols[idxNotIn]
-      matNotIn <- Matrix::sparseMatrix(i=1,j=1,x=0,dims=c(nrow(mat), ncol = length(idxNotIn)))
-      colnames(matNotIn) <- subsetNamesNotIn
-      mat <- cbind(mat, matNotIn)
-    }
-    mat <- mat[,subsetCols]
-  }
-
-  mat
-
-}
-
 .groupMeans <- function(mat = NULL, groups=NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))

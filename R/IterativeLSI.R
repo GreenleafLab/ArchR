@@ -1254,13 +1254,14 @@ addIterativeLSI <- function(
       )
 
     if(filterOutliers == 1){
-      .logDiffTime("Projecting Outliers with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
+      .logDiffTime("Projecting Outliers with LSI-Projection (Granja* et al 2019)", tstart, addHeader = FALSE, verbose = FALSE, logFile = logFile)
       #Quick Check LSI-Projection Works
-      pCheck <- .projectLSI(mat = mat2, LSI = out, keep0lsi = keep0lsi, verbose = verbose, logFile = logFile)
+      pCheck <- .projectLSI(mat = mat2, LSI = out, keep0lsi = keep0lsi, verbose = FALSE, logFile = logFile) #Dont Neeed This
       pCheck2 <- out[[1]][rownames(pCheck), ]
       pCheck3 <- lapply(seq_len(ncol(pCheck)), function(x){
         cor(pCheck[,x], pCheck2[,x])
       }) %>% unlist
+      .logThis(pCheck3, "Projection Correlation Test", logFile=logFile)
       if(min(pCheck3) < 0.95){
         .logThis(pCheck, "pCheck", logFile=logFile)
         .logThis(pCheck2, "pCheck2", logFile=logFile)
@@ -1269,7 +1270,7 @@ addIterativeLSI <- function(
       }
       #Project LSI Outliers
       out$outliers <- colnames(matO)
-      outlierLSI <- .projectLSI(mat = matO, LSI = out, keep0lsi = keep0lsi, verbose = verbose, logFile = logFile)
+      outlierLSI <- .projectLSI(mat = matO, LSI = out, keep0lsi = keep0lsi, verbose = FALSE, logFile = logFile)
       allLSI <- rbind(out[[1]], outlierLSI)
       allLSI <- allLSI[cn, , drop = FALSE] #Re-Order Correctly to original
       out[[1]] <- allLSI

@@ -225,7 +225,7 @@ createArrowFiles <- function(
       message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
       subThreading <- FALSE
     }
-    args$threads <- length(inputFiles)
+    args$threads <- min(length(inputFiles), threads)
   }else{
     if(subThreading){
       message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")

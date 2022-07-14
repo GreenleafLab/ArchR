@@ -57,8 +57,10 @@ Blue-colored genes are on the minus strand and red-colored genes are on the plus
 \item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}.
 The order must be the same as \code{plotSummary}.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
-bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} (for a single feature track) or \code{GRangesList} (for multiple feature tracks) object containing the "features" to
+be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.
+If you provide a \code{GRangesList}, then each element of that object must be named and this name will be used on the plot.
+For example - \code{GRangesList("peaks" = peak_gr, "other" = other_gr)}.}
 
 \item{loops}{A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack".
 This \code{GRanges} object start represents the center position of one loop anchor and the end represents the center position of another loop anchor.

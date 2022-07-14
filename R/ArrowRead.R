@@ -577,47 +577,102 @@ getMatrixFromArrow <- function(
 
   seqnames <- unique(featureDF$seqnames)
 
+  h5df <- h5ls(ArrowFile)
+  if(all(c("indptr", "indices", "data") %in% h5df[,2])){
+    version <- 2
+  }else if(all(c("i", "jValues", "jLengths") %in% h5df[,2])){
+    version <- 1
+  }else{
+    version <- 1 #Lets Test this out more before throwing a version error
+  }
+
   mat <- .safelapply(seq_along(seqnames), function(x){
 
+    #Feature Info
     seqnamex <- seqnames[x]
     featureDFx <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnamex),]
     idxRows <- featureDFx$idx
 
-    j <- Rle(
-      values = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jValues")), 
-      lengths = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jLengths"))
+    #Version 1 vs Version 2
+    if(version == 1){
+
+      #Get J
+      j <- Rle(
+        values = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jValues")), 
+        lengths = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jLengths"))
       )
 
-    #Match J
-    matchJ <- S4Vectors::match(j, idxCols, nomatch = 0)
-    idxJ <- BiocGenerics::which(matchJ > 0)
-    if(useIndex){
-      i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/i"), index = list(idxJ, 1))
-    }else{
-      i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/i"))[idxJ]
-    }
-    j <- matchJ[idxJ]
+      #Match J
+      matchJ <- S4Vectors::match(j, idxCols, nomatch = 0)
+      idxJ <- BiocGenerics::which(matchJ > 0)
+      if(useIndex){
+        i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/i"), index = list(idxJ, 1))
+      }else{
+        i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/i"))[idxJ]
+      }
+      j <- matchJ[idxJ]
 
-    #Match I
-    matchI <- match(i, idxRows, nomatch = 0)
-    idxI <- which(matchI > 0)
-    i <- i[idxI]
-    j <- j[idxI]
-    i <- matchI[idxI]
-    
-    if(!binarize){
-      x <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/x"))[idxJ][idxI]
-    }else{
-      x <- rep(1, length(j))
-    }
+      #Match I
+      matchI <- match(i, idxRows, nomatch = 0)
+      idxI <- which(matchI > 0)
+      i <- i[idxI]
+      j <- j[idxI]
+      i <- matchI[idxI]
+      
+      if(!binarize){
+        x <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/x"))[idxJ][idxI]
+      }else{
+        x <- rep(1, length(j))
+      }
 
-    mat <- Matrix::sparseMatrix(
-      i=as.vector(i),
-      j=j,
-      x=x,
-      dims = c(length(idxRows), length(idxCols))
-    )
-    rownames(mat) <- rownames(featureDFx)
+      mat <- Matrix::sparseMatrix(
+        i=as.vector(i),
+        j=as.vector(j),
+        x=as.numeric(x),
+        dims = c(length(idxRows), length(idxCols))
+      )
+      rownames(mat) <- rownames(featureDFx)
+
+    }else if(version == 2){
+
+      #Get j
+      j <- .sparseMatrixPToJRle(
+        h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/indptr"))
+      )
+
+      #Match J
+      matchJ <- S4Vectors::match(j, idxCols, nomatch = 0)
+      idxJ <- BiocGenerics::which(matchJ > 0)
+      #I is no longer 1 indexed in this version
+      if(useIndex){
+        i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/indices"), index = list(idxJ, 1)) + 1
+      }else{
+        i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/indices"))[idxJ] + 1
+      }
+      j <- matchJ[idxJ]
+
+      #Match I
+      matchI <- match(i, idxRows, nomatch = 0)
+      idxI <- which(matchI > 0)
+      i <- i[idxI]
+      j <- j[idxI]
+      i <- matchI[idxI]
+      
+      if(!binarize){
+        x <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/data"))[idxJ][idxI]
+      }else{
+        x <- rep(1, length(j))
+      }
+
+      mat <- Matrix::sparseMatrix(
+        i=as.vector(i),
+        j=as.vector(j),
+        x=as.numeric(x),
+        dims = c(length(idxRows), length(idxCols))
+      )
+      rownames(mat) <- rownames(featureDFx)
+
+    }
 
     rm(matchI, idxI, matchJ, idxJ, featureDFx, idxRows)
 
@@ -639,6 +694,14 @@ getMatrixFromArrow <- function(
 
   return(mat)
 
+}
+
+#Adapted from
+#https://github.com/mojaveazure/seurat-disk/blob/master/R/sparse_matrix.R
+.sparseMatrixPToJRle <- function(p) {
+  dp <- diff(x = p)
+  j <- Rle(rep.int(x = seq_along(along.with = dp), times = dp))
+  return(j)
 }
 
 ####################################################################
@@ -945,39 +1008,18 @@ getMatrixFromArrow <- function(
   seqnames = NULL,
   useMatrix = NULL,
   useLog2 = FALSE,
+  useGeo = FALSE,
+  useLog2Norm = FALSE,
   threads = 1
   ){
   
-  .combineVariances <- function(dfMeans = NULL, dfVars = NULL, ns = NULL){
+  stopifnot(useLog2 + useGeo + useLog2Norm <= 1)
 
-    #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
-
-    if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
-      stop("Means Variances and Ns lengths not identical")
-    }
-
-    #Check if samples have NAs due to N = 1 sample or some other weird thing.
-    #Set it to min non NA variance
-    dfVars <- lapply(seq_len(nrow(dfVars)), function(x){
-      vx <- dfVars[x, , drop = FALSE]
-      if(any(is.na(vx))){
-        vx[is.na(vx)] <- min(vx[!is.na(vx)])
-      }
-      vx
-    }) %>% Reduce("rbind", .)
-
-    combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
-    summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
-    combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
-
-    data.frame(combinedVars = combinedVars, combinedMeans = combinedMeans)
-
-  }
-
+  #Feature DF
   featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
 
   if(!is.null(seqnames)){
-    featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames),]
+    featureDF <- featureDF[BiocGenerics::which(paste0(featureDF$seqnames) %bcin% seqnames),]
   }
 
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
@@ -1002,6 +1044,12 @@ getMatrixFromArrow <- function(
       if(useLog2){
         meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeansLog2"))
         varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVarsLog2")) 
+      }else if(useGeo){
+        meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeansGeo"))
+        varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVarsGeo"))
+      }else if(useLog2Norm){
+        meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeansLog2Norm"))
+        varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVarsLog2Norm"))
       }else{
         meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeans"))
         varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVars"))
@@ -1016,6 +1064,33 @@ getMatrixFromArrow <- function(
   summaryDF <- summaryDF[fnames, , drop = FALSE]
   
   return(summaryDF)
+
+}
+
+.combineVariances <- function(dfMeans = NULL, dfVars = NULL, ns = NULL){
+
+  #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
+
+  if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
+    stop("Means Variances and Ns lengths not identical")
+  }
+
+  #Check if samples have NAs due to N = 1 sample or some other weird thing.
+  #Set it to 0
+  if(any(is.na(dfVars))){
+    idx <- which(rowSums(is.na(dfVars)) > 0)
+    dfVars[is.na(dfVars)] <- 0
+  }
+
+  #Compute
+  combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
+  summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
+  combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
+
+  data.frame(
+    combinedVars = combinedVars, 
+    combinedMeans = combinedMeans
+  )
 
 }
 
