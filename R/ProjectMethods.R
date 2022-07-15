@@ -690,6 +690,14 @@ getReducedDims <- function(
 
   if(reducedDims %in% names(ArchRProj@reducedDims)){
     
+    #check if the dimsToUse are all present in the available dims
+    #if not, provide a warning
+    dimsAvailable <- 1:length(ArchRProj@reducedDims[[reducedDims]]$corToDepth$none)
+    if(!length(which(dimsToUse %in% dimsAvailable)) == length(dimsToUse)) {
+      message("Warning! Not all requested dimsToUse are available! The follow dims were not found in ", reducedDims,":\n",
+              paste(which(dimsToUse %ni% dimsAvailable), collapse = ", "),"\nUnavailable dims will be automatically excluded...")
+    }
+    
     if(is.na(ArchRProj@reducedDims[[reducedDims]]$scaleDims[1])){
       scaleDims <- FALSE # if na this means dont scaleDims ever.
     }
