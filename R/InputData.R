@@ -364,14 +364,20 @@ getValidBarcodes <- function(
   }
 
   barcodeList <- lapply(seq_along(csvFiles), function(x){
-    df <- .suppressAll(data.frame(readr::read_csv(csvFiles[x])))
-    if("cell_id" %ni% colnames(df)){
-      stop("cell_id not in colnames of 10x singlecell.csv file! Are you sure inut is correct?")
+    df <- ArchR:::.suppressAll(data.frame(readr::read_csv(csvFiles[x])))
+    if("cell_id" %in% colnames(df)){
+      as.character(df[which(paste0(df$cell_id) != "None"),]$barcode)
+    }else if("is__cell_barcode" %in% colnames(df)){
+      as.character(df[which(paste0(df$is__cell_barcode) == 1),]$barcode)
+    }else{
+      stop("cell_id and is__cell_barcode not in colnames of 10x singlecell.csv file! Are you sure inut is correct?")
     }
-    as.character(df[which(paste0(df$cell_id) != "None"),]$barcode)
   }) %>% SimpleList
   names(barcodeList) <- sampleNames
 
   barcodeList
 
 }
+
+
+
