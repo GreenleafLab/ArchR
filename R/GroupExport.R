@@ -401,4 +401,77 @@ getGroupBW <- function(
 
 }
 
+#' Export Group Fragment Files
+#' 
+#' This function will group export fragment files for each group in an ArchRProject.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or
+#' user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata
+#' column will be grouped together and their fragments exported to `outputDirectory`/GroupFragments.
+#' @param threads An integer specifying the number of threads for parallel.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Group BW
+#' frags <- exportGroupFragments(proj, groupBy = "Clusters")
+#'
+#' @export
+exportGroupFragments <- function(
+  ArchRProj = NULL,
+  groupBy = "Clusters",
+  threads = getArchRThreads(),
+  logFile = createLogFile("exportGroupFragments")
+  ){
 
+  #Cell Col Data
+  ccd <- getCellColData(ArchRProj = ArchRProj)
+
+  #Get Groups
+  Groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = TRUE)
+
+  #Cell Split
+  cellGroups <- split(getCellNames(ArchRProj), Groups)
+
+  #Outdir
+  outDir <- file.path(getOutputDirectory(ArchRProj), "GroupFragments")
+  dir.create(outDir, showWarnings = FALSE)
+
+  #Read Fragments From Each Sample Export
+  outList <- .safelapply(seq_along(cellGroups), function(x){
+
+    message("Export Fragments : ", x, " of ", length(cellGroups))
+
+    #Get Fragments
+    frags <- suppressMessages(getFragmentsFromProject(
+      ArchRProj = ArchRProj,
+      cellNames = cellGroups[[x]],
+      logFile = logFile,
+    ) %>% Reduce("c", .))
+
+    #Export Fragments
+    dt <- data.frame(
+      V1 = seqnames(frags),
+      V2 = start(frags) - 1,
+      V3 = end(frags),
+      V4 = mcols(frags)$RG
+    ) %>% data.table
+
+    #Write Bgzip Etc
+    groupFile <- file.path(outDir, paste0(groupBy, ".", names(cellGroups)[x], ".tsv"))
+    data.table::fwrite(dt, groupFile, sep = "\t", col.names = FALSE)
+    Rsamtools::bgzip(groupFile)
+    file.remove(groupFile)
+    .fileRename(paste0(groupFile, ".bgz"), paste0(groupFile, ".gz"))
+    paste0(groupFile, ".gz")
+
+  }, threads = threads)
+
+  #Return
+  unlist(outList)
+
+}
