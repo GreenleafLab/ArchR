@@ -1030,6 +1030,9 @@ getCoAccessibility <- function(
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
 #' @param predictionCutoff A numeric describing the cutoff for RNA integration to use when picking cells for groupings.
 #' @param addEmpiricalPval Add empirical p-values based on randomly correlating peaks and genes not on the same seqname.
+#' @param addPermutedPval Add permuted p-values based on shuffle sample correlating peaks and genes. This approach was adapted from
+#' Regner et al 2021 "A multi-omic single-cell landscape of human gynecologic malignancies".
+#' @param nperm An integer representing the number of permutations to run for Regner et al 2021 approach.
 #' @param seed A number to be used as the seed for random number generation required in knn determination. It is recommended
 #' to keep track of the seed used so that you can reproduce results downstream.
 #' @param threads The number of threads to be used for parallel computing.
@@ -1065,6 +1068,8 @@ addPeak2GeneLinks <- function(
   log2Norm = TRUE,
   predictionCutoff = 0.4,
   addEmpiricalPval = FALSE,
+  addPermutedPval = FALSE,
+  nperm = 100,
   seed = 1, 
   threads = max(floor(getArchRThreads() / 2), 1),
   verbose = TRUE,
@@ -1085,6 +1090,10 @@ addPeak2GeneLinks <- function(
   .validInput(input = maxDist, name = "maxDist", valid = c("integer"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
+  .validInput(input = predictionCutoff, name = "predictionCutoff", valid = c("numeric", "null"))
+  .validInput(input = addEmpiricalPval, name = "addEmpiricalPval", valid = c("boolean"))
+  .validInput(input = addPermutedPval, name = "addPermutedPval", valid = c("boolean"))
+  .validInput(input = nperm, name = "nperm", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
@@ -1259,12 +1268,7 @@ addPeak2GeneLinks <- function(
   o$distance <- distance(rowRanges(seRNA)[o[,1]] , rowRanges(seATAC)[o[,2]] )
   colnames(o) <- c("B", "A", "distance")
 
-  #Null Correlations
-  if(addEmpiricalPval){
-    .logDiffTime(main="Computing Background Correlations", t1=tstart, verbose=verbose, logFile=logFile)
-    nullCor <- .getNullCorrelations(seATAC, seRNA, o, 1000)
-  }
-
+  #Compute PVal Stats
   .logDiffTime(main="Computing Correlations", t1=tstart, verbose=verbose, logFile=logFile)
   o$Correlation <- rowCorCpp(as.integer(o$A), as.integer(o$B), assay(seATAC), assay(seRNA))
   o$VarAssayA <- .getQuantiles(matrixStats::rowVars(assay(seATAC)))[o$A]
@@ -1279,11 +1283,33 @@ addPeak2GeneLinks <- function(
   metadata(out)$peakSet <- peakSet
   metadata(out)$geneSet <- geneStart
 
+  #Null Correlations
   if(addEmpiricalPval){
+    .logDiffTime(main="Computing Background Correlations", t1=tstart, verbose=verbose, logFile=logFile)
+    nullCor <- .getNullCorrelations(seATAC, seRNA, o, 1000)
     out$EmpPval <- 2*pnorm(-abs(((out$Correlation - mean(nullCor[[2]])) / sd(nullCor[[2]]))))
     out$EmpFDR <- p.adjust(out$EmpPval, method = "fdr")
   }
-  
+
+  #Permuted Pval
+  if(addPermutedPval){
+    message("Performing Permuted P-values similar to Regner et al., 2021")
+    #Permute
+    p <- o
+    o$PermPval <- 0
+    for(i in seq_len(nperm)){
+      message("Running Permutation ", i, " of ", nperm)
+      idx <- sample(ncol(seATAC))
+      p$Correlation <- rowCorCpp(as.integer(p$A), as.integer(p$B), assay(seATAC)[,idx,drop=FALSE], assay(seRNA))
+      p$TStat <- (p$Correlation / sqrt((1-p$Correlation^2)/(ncol(seATAC)-2))) #T-statistic P-value
+      p$Pval <- 2*pt(-abs(p$TStat), ncol(seATAC) - 2)
+      cdf <- ecdf(p$Pval)
+      o$PermPval <- o$PvalPerm + p$Pval
+    }
+    o$PermPval <- (o$PermPval / nperm) #Average
+    o$PermFDR <- pmin(ecdf(o$PermPval)(o$Pval) / ecdf(o$Pval)(o$Pval), 1)
+  }
+
   #Save Group Matrices
   dir.create(file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks"), showWarnings = FALSE)
   outATAC <- file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks", "seATAC-Group-KNN.rds")
