@@ -688,8 +688,16 @@ addBgdPeaks <- function(
         }
         metadata(getPeakSet(ArchRProj))$bgdPeaks <- NULL
 
-        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = outFile, method = method)
-      
+        bgdPeaks <- .computeBgdPeaks(
+          ArchRProj = ArchRProj, 
+          nIterations = nIterations, 
+          w = w, 
+          binSize = binSize, 
+          seed = seed, 
+          outFile = outFile, 
+          method = method
+        )
+
       }else{
       
         stop("Previous Background Peaks file does not exist! set force = TRUE to addBgdPeaks!")
@@ -711,7 +719,15 @@ addBgdPeaks <- function(
     }
 
     message("Identifying Background Peaks!")
-    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = outFile, method = method)
+    bgdPeaks <- .computeBgdPeaks(
+      ArchRProj = ArchRProj, 
+      nIterations = nIterations, 
+      w = w, 
+      binSize = binSize, 
+      seed = seed, 
+      outFile = outFile, 
+      method = method
+    )
 
   }
 
@@ -776,7 +792,15 @@ getBgdPeaks <- function(
       if(force){
       
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
-        bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = NULL, method = method)
+        bgdPeaks <- .computeBgdPeaks(
+          ArchRProj=ArchRProj, 
+          nIterations=nIterations, 
+          w=w, 
+          binSize=binSize, 
+          seed = seed, 
+          outFile = NULL, 
+          method = method
+        )
       
       }else{
       
@@ -789,13 +813,31 @@ getBgdPeaks <- function(
   }else{
     
     message("Identifying Background Peaks!")
-    bgdPeaks <- .computeBgdPeaks(ArchRProj=ArchRProj, nIterations=nIterations, w=w, binSize=binSize, seed = seed, outFile = NULL, method = method)
+    bgdPeaks <- .computeBgdPeaks(
+      ArchRProj=ArchRProj, 
+      nIterations=nIterations,
+      w=w, 
+      binSize=binSize, 
+      seed = seed, 
+      outFile = NULL, 
+      method = method
+    )
 
   }
 
   if(length(getPeakSet(ArchRProj)) != nrow(bgdPeaks)){
     stop("Number of rows in Background Peaks does not match peakSet!")
   }
+
+  #Check
+  rr1 <- paste0(getPeakSet(ArchRProj))
+  rr2 <- paste0(rowRanges(bgdPeaks)) 
+  if(!all(rr1 %in% rr2)){
+    stop("Background Peaks Do Not Match Current ArchRPeakSet! Re-run `addBgdPeaks`!")
+  }
+  rownames(bgdPeaks) <- rr2
+  bgdPeaks <- bgdPeaks[rr1, , drop=FALSE]
+  rownames(bgdPeaks) <- NULL
 
   bgdPeaks
 
@@ -823,26 +865,23 @@ getBgdPeaks <- function(
       ArrowFiles = ArrowFiles, 
       seqnames = availableChr,
       useMatrix = useMatrix,
-      filter0 = FALSE
+      filter0 = FALSE,
+      addInfo = TRUE
     ))
 
-  all1 <- all(
-    paste0(rS$seqnames, ":", rS$idx) %in% 
-    paste0(seqnames(ArchRProj@peakSet), ":", ArchRProj@peakSet$idx)
-  )
-
-  all2 <- all(
-  paste0(seqnames(ArchRProj@peakSet), ":", ArchRProj@peakSet$idx) %in% 
-    paste0(rS$seqnames, ":", rS$idx)
-  )
-
-  if(!(all1 & all2)){
+  #Check
+  rr1 <- paste0(rS$seqnames, ":", rS$start, "-", rS$end)
+  rr2 <- paste0(ArchRProj@peakSet)
+  if(!all(rr1 %in% rr2)){
     stop("PeakSet in Arrows does not match PeakSet in ArchRProject!
-     To try to solve this, try re-running addPeakMatrix(ArchRProj, force=TRUE)")    
+     To try to solve this, try re-running addPeakMatrix(ArchRProj, force=TRUE)")      
   }
 
-  rS$start <- start(ArchRProj@peakSet)
-  rS$end <- end(ArchRProj@peakSet)
+  #ReOrder
+  rownames(rS) <- rr1
+  rS <- rS[rr2, ,drop=FALSE]
+
+  #Add GC
   rS$GC <- ArchRProj@peakSet$GC
 
   uniqueDist <- unique(rS$end - rS$start)

@@ -117,7 +117,17 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
     }
     matches <- matches[, idx, drop=FALSE]
   }
+  #Check
+  rr1 <- paste0(rowRanges(matches))
+  rr2 <- paste0(getPeakSet(ArchRProj))
+  if(!all(rr1 %in% rr2)){
+    stop("Not all matches in PeakSet")
+  }
+  rownames(matches) <- rr1
+  matches <- matches[rr2,]
+  rownames(matches) <- NULL
   matches
+
 }
 
 #' Add peak annotations to an ArchRProject
@@ -1035,6 +1045,101 @@ addArchRAnnotations <- function(
   }
 
   return(output)
+
+}
+
+#' Hypergeometric Enrichment in input peak ranges.
+#' 
+#' This function will perform hypergeometric enrichment of a given peak matches object and ranges.
+#' 
+#' @param ranges  A `GenomicRanges` object of peaks/regions to overlap with peaks.
+#' @param matches A custom `peakAnnotation` matches object used as input for the hypergeometric test. See
+#' `motifmatchr::matchmotifs()` for additional information.
+#' @param bgdPeaks A `SummarizedExperiment` of background peaks from `getBgdPeaks` can be NULL for using all peaks.
+#' 
+#' @examples
+#' #Project
+#' proj <- getTestProject()
+#' 
+#' #Get Peaks
+#' peaks <- getPeakSet(proj)
+#' 
+#' #Custom C1 Mono
+#' peaks1 <- peaks[names(peaks)=="C1"]
+#' 
+#' #All Peaks
+#' customEnrichment(
+#'   ranges = peaks1, 
+#'   matches = getMatches(proj)
+#' )
+#' #         feature CompareFrequency nCompare CompareProportion BackgroundFrequency
+#' # CEBPB_1 CEBPB_1               70      635        0.11023622                 122
+#' # CEBPA_2 CEBPA_2               81      635        0.12755906                 156
+#' # IRF4_4   IRF4_4              103      635        0.16220472                 276
+#' # EOMES_6 EOMES_6               36      635        0.05669291                 120
+#' # ETS1_3   ETS1_3               38      635        0.05984252                 149
+#' # PAX5_5   PAX5_5               23      635        0.03622047                 124
+#' #         nBackground BackgroundProporition Enrichment mlog10p mlog10Padj
+#' # CEBPB_1        2142            0.05695612  1.9354589 10.3279   9.373657
+#' # CEBPA_2        2142            0.07282913  1.7514839  8.9394   7.985157
+#' # IRF4_4         2142            0.12885154  1.2588497  2.6938   1.739557
+#' # EOMES_6        2142            0.05602241  1.0119685  0.3001   0.000000
+#' # ETS1_3         2142            0.06956116  0.8602864  0.0487   0.000000
+#' # PAX5_5         2142            0.05788982  0.6256795  0.0006   0.000000
+#' 
+#' #Background Peaks
+#' customEnrichment(
+#'  ranges = peaks1, 
+#'   matches = getMatches(proj), 
+#'  bgdPeaks = getBgdPeaks(proj, force=TRUE)
+#' )
+#' #         feature CompareFrequency nCompare CompareProportion BackgroundFrequency
+#' # CEBPB_1 CEBPB_1               70      635        0.11023622                2459
+#' # CEBPA_2 CEBPA_2               81      635        0.12755906                3154
+#' # IRF4_4   IRF4_4              103      635        0.16220472                4836
+#' # ETS1_3   ETS1_3               38      635        0.05984252                1781
+#' # EOMES_6 EOMES_6               36      635        0.05669291                1975
+#' # PAX5_5   PAX5_5               23      635        0.03622047                1495
+#' #         nBackground BackgroundProporition Enrichment mlog10p mlog10Padj
+#' # CEBPB_1       32385            0.07593021  1.4518097  2.9544   2.000157
+#' # CEBPA_2       32385            0.09739077  1.3097654  2.1341   1.179857
+#' # IRF4_4        32385            0.14932839  1.0862283  0.7142   0.000000
+#' # ETS1_3        32385            0.05499460  1.0881527  0.4975   0.000000
+#' # EOMES_6       32385            0.06098502  0.9296203  0.1551   0.000000
+#' # PAX5_5        32385            0.04616335  0.7846154  0.0422   0.000000
+#' #
+#' @export
+customEnrichment <- function(
+  ranges = NULL,
+  matches = NULL,
+  bgdPeaks = NULL
+  ){
+
+  if(is.null(matches)){
+    stop("Please supply matches! Try `matches` = getMatches(ArchRProj)!")
+  }
+
+  .validInput(input = ranges, name = "ranges", valid = c("granges"))
+  .validInput(input = matches, name = "matches", valid = c("SummarizedExperiment"))
+  .validInput(input = bgdPeaks, name = "bgdPeaks", valid = c("SummarizedExperiment", "null"))
+
+  if(!is.null(bgdPeaks)){
+    
+    rownames(matches) <- paste0(rowRanges(matches))
+    rownames(bgdPeaks) <- paste0(rowRanges(bgdPeaks))
+    
+    bgdPeaks <- bgdPeaks[rownames(matches), ]
+    idx <- unique(queryHits(findOverlaps(matches, ranges, ignore.strand=TRUE)))
+    
+    .computeEnrichment(matches, idx, c(idx, as.vector(assay(bgdPeaks)[idx,])))
+  
+  }else{
+   
+    idx <- unique(queryHits(findOverlaps(matches, ranges, ignore.strand=TRUE)))
+    
+    .computeEnrichment(matches, idx, seq_len(nrow(matches)))
+  
+  }
 
 }
 
