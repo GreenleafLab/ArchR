@@ -700,6 +700,7 @@ correlateTrajectories <- function(
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param cellsToUse A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be
@@ -730,6 +731,7 @@ addCoAccessibility <- function(
   scaleDims = NULL,
   corCutOff = 0.75,
   cellsToUse = NULL,
+  excludeChr = NULL,
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
@@ -748,6 +750,7 @@ addCoAccessibility <- function(
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = cellsToUse, name = "cellsToUse", valid = c("character", "null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
   .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
@@ -798,6 +801,12 @@ addCoAccessibility <- function(
   chrj <- gtools::mixedsort(unique(paste0(seqnames(getPeakSet(ArchRProj)))))
   stopifnot(identical(chri,chrj))
 
+  #Filter Chromosomes
+  if(!is.null(excludeChr)){
+    chri <- chri[which(paste0(chri) %ni% excludeChr)]
+    chrj <- chrj[which(paste0(chrj) %ni% excludeChr)]
+  }
+
   #Create Ranges
   peakSummits <- resize(peakSet, 1, "center")
   peakWindows <- resize(peakSummits, 2*maxDist + 1, "center")
@@ -823,7 +832,7 @@ addCoAccessibility <- function(
     .logDiffTime(sprintf("Computing Co-Accessibility %s (%s of %s)", chri[x], x, length(chri)), t1=tstart, verbose=verbose, logFile=logFile)
 
     #Features
-    featureDF <- mcols(peakSet)[BiocGenerics::which(seqnames(peakSet) == chri[x]),]
+    featureDF <- mcols(peakSet)[BiocGenerics::which(seqnames(peakSet) == chri[x]),,drop=FALSE]
     featureDF$seqnames <- chri[x]
 
     #Group Matrix
@@ -1010,6 +1019,7 @@ getCoAccessibility <- function(
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
 #' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param cellsToUse A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current
@@ -1046,6 +1056,7 @@ addPeak2GeneLinks <- function(
   scaleDims = NULL,
   corCutOff = 0.75,
   cellsToUse = NULL,
+  excludeChr = NULL,
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
@@ -1067,6 +1078,7 @@ addPeak2GeneLinks <- function(
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = cellsToUse, name = "cellsToUse", valid = c("character", "null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
   .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
@@ -1124,10 +1136,16 @@ addPeak2GeneLinks <- function(
 
   #Get Peak Set
   peakSet <- getPeakSet(ArchRProj)
+  if(!is.null(excludeChr)){
+    peakSet <- peakSet[BiocGenerics::which(paste0(seqnames(peakSet)) %bcni% excludeChr)]
+  }
   .logThis(peakSet, "peakSet", logFile = logFile)
 
   #Gene Info
   geneSet <- .getFeatureDF(ArrowFiles, useMatrix, threads = threads)
+  if(!is.null(excludeChr)){
+    geneSet <- geneSet[BiocGenerics::which(geneSet$seqnames %bcni% excludeChr),,drop=FALSE]
+  }
   geneStart <- GRanges(geneSet$seqnames, IRanges(geneSet$start, width = 1), name = geneSet$name, idx = geneSet$idx)
   .logThis(geneStart, "geneStart", logFile = logFile)
 
@@ -1174,6 +1192,7 @@ addPeak2GeneLinks <- function(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = geneDF, 
     groupList = knnObj, 
+    excludeSeqnames = excludeChr,
     useMatrix = useMatrix,
     threads = threads,
     verbose = FALSE
@@ -1187,6 +1206,7 @@ addPeak2GeneLinks <- function(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = peakDF, 
     groupList = knnObj, 
+    excludeSeqnames = excludeChr,
     useMatrix = "PeakMatrix",
     threads = threads,
     verbose = FALSE

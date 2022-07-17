@@ -1196,7 +1196,8 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
 #' them for downstream plotting utilities.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
+#' @param useMatrix The name of the data matrix or "Fragments" as stored in the ArrowFiles of the `ArchRProject`. 
+#' Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' 
 #' @examples
 #'
@@ -1212,8 +1213,12 @@ getSeqnames <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix"){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = useMatrix, name = "useMatrix", valid = "character")
   #########
-  fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
-  unique(paste0(fdf$seqnames))
+  if(useMatrix=="Fragments"){
+    unique(.availableSeqnames(getArrowFiles(ArchRProj)))
+  }else{
+    fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
+    unique(paste0(fdf$seqnames))      
+  }
 }
 
 #' Get a list available matrices in the ArrowFiles storted in an ArchRProject

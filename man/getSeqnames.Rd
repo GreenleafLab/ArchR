@@ -9,7 +9,8 @@ getSeqnames(ArchRProj = NULL, useMatrix = "GeneScoreMatrix")
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{useMatrix}{The name of the data matrix as stored in the ArrowFiles of the \code{ArchRProject}. Options include "TileMatrix", "GeneScoreMatrix", etc.}
+\item{useMatrix}{The name of the data matrix or "Fragments" as stored in the ArrowFiles of the \code{ArchRProject}.
+Options include "TileMatrix", "GeneScoreMatrix", etc.}
 }
 \description{
 This function will identify available seqnames from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return

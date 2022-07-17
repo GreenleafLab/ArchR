@@ -15,6 +15,7 @@ addGroupCoverages(
   minReplicates = 2,
   maxReplicates = 5,
   sampleRatio = 0.8,
+  excludeChr = NULL,
   kmerLength = 6,
   threads = getArchRThreads(),
   returnGroups = FALSE,
@@ -49,6 +50,8 @@ of excessively large files which would negatively impact memory requirements.}
 
 \item{sampleRatio}{The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.}
 
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
+
 \item{kmerLength}{The length of the k-mer used for estimating Tn5 bias.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
@@ -59,7 +62,7 @@ TileMatrix (\code{peakMethod = "Tiles"}).}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if
+\item{force}{A boolean value that indicates whether or not to skip validation and overwrite the relevant data in the \code{ArchRProject} object if
 insertion coverage / pseudo-bulk replicate information already exists.}
 
 \item{verbose}{A boolean value that determines whether standard output includes verbose sections.}

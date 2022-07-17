@@ -8,6 +8,7 @@ getMatrixFromProject(
   ArchRProj = NULL,
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = NULL,
   verbose = TRUE,
   binarize = FALSE,
   threads = getArchRThreads(),
@@ -20,6 +21,8 @@ getMatrixFromProject(
 \item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
 \item{useSeqnames}{A character vector of chromosome names to be used to subset the data matrix being obtained.}
+
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 

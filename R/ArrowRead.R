@@ -267,6 +267,7 @@ getFragmentsFromArrow <- function(
 #' @param ArchRProj An `ArchRProject` object to get data matrix from.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return.
 #' This is often desired when working with insertion counts. Note that if the matrix has already been binarized previously, this should be set to `TRUE`.
@@ -285,6 +286,7 @@ getMatrixFromProject <- function(
   ArchRProj = NULL,
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = NULL,
   verbose = TRUE,
   binarize = FALSE,
   threads = getArchRThreads(),
@@ -294,6 +296,7 @@ getMatrixFromProject <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
@@ -325,6 +328,7 @@ getMatrixFromProject <- function(
         ArrowFile = ArrowFiles[x],
         useMatrix = useMatrix,
         useSeqnames = useSeqnames,
+        excludeChr = excludeChr,
         cellNames = allCells, 
         ArchRProj = ArchRProj,
         verbose = FALSE,
@@ -405,6 +409,7 @@ getMatrixFromProject <- function(
 #' @param ArrowFile The path to an ArrowFile from which the selected data matrix should be obtained.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
 #' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
 #' the provided ArrowFile using `getCellNames()`.
@@ -428,6 +433,7 @@ getMatrixFromArrow <- function(
   ArrowFile = NULL, 
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = NULL,
   cellNames = NULL, 
   ArchRProj = NULL,
   verbose = TRUE,
@@ -438,6 +444,7 @@ getMatrixFromArrow <- function(
   .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
   .validInput(input = useMatrix, name = "useMatrix", valid = "character")
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = cellNames, name = "cellNames", valid = c("character","null"))
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj","null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
@@ -458,11 +465,27 @@ getMatrixFromArrow <- function(
     seqnames <- seqnames[seqnames %in% useSeqnames]
   }
 
+  if(!is.null(excludeChr)){
+    seqnames <- seqnames[seqnames %ni% excludeChr]
+  }
+
   if(length(seqnames) == 0){
     stop("No seqnames available!")
   }
 
-  featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames), ]
+  # if(!force){
+  #   #Check that the seqnames that will be used actually exist in the ArrowFiles
+  #   missSeq <- .validateSeqNotEmpty(ArrowFile = ArrowFile, seqnames = seqnames)
+  #     if(!is.null(missSeq)) {
+  #     stop("The following seqnames do not have fragment information in ArrowFile ",ArrowFile,":\n",
+  #       paste(missSeq, collapse = ","),
+  #       "\nYou can proceed with the analysis by ignoring these seqnames by passing them to the 'excludeChr' parameter.")
+  #   }
+  # }else{
+  #   message("Skipping validation of empty chromosomes since `force` = TRUE!")
+  # }
+
+  featureDF <- featureDF[BiocGenerics::which(paste0(featureDF$seqnames) %bcin% seqnames), ]
 
   .logDiffTime(paste0("Getting ",useMatrix," from ArrowFile : ", basename(ArrowFile)), 
     t1 = tstart, verbose = verbose, logFile = logFile)
@@ -471,6 +494,10 @@ getMatrixFromArrow <- function(
     allCells <- .availableCells(ArrowFile = ArrowFile, subGroup = useMatrix)
     if(!all(cellNames %in% allCells)){
       stop("cellNames must all be within the ArrowFile!!!!")
+    }
+    if(sum(allCells %in% cellNames) == 0){
+      message("Warning: No cellNames in ",useMatrix," for ",basename(ArrowFile)," returning NULL")
+      return(NULL)
     }
   }
 
@@ -482,6 +509,9 @@ getMatrixFromArrow <- function(
     binarize = binarize,
     useIndex = FALSE
   )
+  if(is.null(mat)){
+    return(NULL)
+  }
   .logThis(mat, paste0("mat ", sampleName), logFile = logFile)
 
   .logDiffTime(paste0("Organizing SE ",useMatrix," from ArrowFile : ", basename(ArrowFile)), 
@@ -575,6 +605,12 @@ getMatrixFromArrow <- function(
     idxCols <- seq_along(matColNames)
   }
 
+  #Check Any Cells Are Present Exist
+  if(length(idxCols) == 0){
+    message("Warning: No CellNames found in ", basename(ArrowFile), " Returning NULL")
+    return(NULL)
+  }
+
   seqnames <- unique(featureDF$seqnames)
 
   h5df <- h5ls(ArrowFile)
@@ -597,10 +633,26 @@ getMatrixFromArrow <- function(
     if(version == 1){
 
       #Get J
-      j <- Rle(
-        values = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jValues")), 
-        lengths = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jLengths"))
-      )
+      j <- tryCatch({
+        Rle(
+          values = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jValues")), 
+          lengths = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jLengths"))
+        )
+      }, error = function(e){
+        NULL
+      })
+      if(is.null(j)){
+        message("Found 0 Column in ", seqnamex, " for ", basename(ArrowFile)," creating 0 value sparseMatrix!")
+        #Make 0 matrix
+        mat <- Matrix::sparseMatrix(
+          i=1,
+          j=1,
+          x=0,
+          dims = c(length(idxRows), length(idxCols))
+        )
+        rownames(mat) <- rownames(featureDFx)
+        return(mat)
+      }
 
       #Match J
       matchJ <- S4Vectors::match(j, idxCols, nomatch = 0)
@@ -635,10 +687,26 @@ getMatrixFromArrow <- function(
 
     }else if(version == 2){
 
-      #Get j
-      j <- .sparseMatrixPToJRle(
-        h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/indptr"))
-      )
+      #Get J
+      j <- tryCatch({
+        .sparseMatrixPToJRle(
+          h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/indptr"))
+        )
+      }, error = function(e){
+        NULL
+      })
+      if(is.null(j)){
+        message("Found 0 Column in ", seqnamex, " for ", basename(ArrowFile)," creating 0 value sparseMatrix!")
+        #Make 0 matrix
+        mat <- Matrix::sparseMatrix(
+          i=1,
+          j=1,
+          x=0, #Set 0
+          dims = c(length(idxRows), length(idxCols))
+        )
+        rownames(mat) <- rownames(featureDFx)
+        return(mat)
+      }
 
       #Match J
       matchJ <- S4Vectors::match(j, idxCols, nomatch = 0)
@@ -711,6 +779,7 @@ getMatrixFromArrow <- function(
   ArrowFiles = NULL, 
   featureDF = NULL, 
   groupList = NULL,
+  excludeSeqnames = NULL,
   threads = 1, 
   useIndex = FALSE, 
   verbose = TRUE, 
@@ -730,6 +799,11 @@ getMatrixFromArrow <- function(
   # Construct Matrix
   #########################################
   seqnames <- unique(featureDF$seqnames)
+  if(!is.null(excludeSeqnames)) {
+    seqnames <- seqnames[which(seqnames %ni% excludeSeqnames)]
+    featureDF <- featureDF[BiocGenerics::which(paste0(featureDF$seqnames) %bcni% excludeSeqnames),,drop=FALSE]
+  }
+
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check QQQ
 
@@ -757,7 +831,7 @@ getMatrixFromArrow <- function(
 
     for(y in seq_along(ArrowFiles)){
 
-      allCells <- allCellsList[[y]]
+      allCells <- allCellsList[[y]] #These should be at least 1 cell so getMatFromArrow should never be NULL
       
       if(!is.null(allCells)){
 
@@ -847,6 +921,7 @@ getMatrixFromArrow <- function(
     allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)
     allCells <- allCells[allCells %in% cellNames]
 
+    #Handled 0 Cells
     if(length(allCells) == 0){
       if(doSampleCells){
         return(list(mat = NULL, out = NULL))
@@ -1194,6 +1269,5 @@ getMatrixFromArrow <- function(
   matrixUnits
 
 }
-
 
 
