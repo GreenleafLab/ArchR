@@ -781,14 +781,18 @@ getMarkerFeatures <- function(
         summaryBgd = bgdBias, 
         bgdGroups = rbind(estbgd, obsbgd),
         bgdGroupsProbs = rbind(estbgdP, obsbgdP),
-        corbgdGroups = suppressWarnings(cor(estbgdP, obsbgdP)),
         n = length(sx), 
         p = it / length(sx),
         group = groupx,
         k = k2
       )
 
-    .logThis(out, paste0("MatchSummary ", useGroups[x]), logFile = logFile)
+    .logThis(out, paste0("MatchSummary : Pre", useGroups[x]), logFile = logFile)
+
+    out$corbgdGroups <- suppressWarnings(cor(estbgdP, obsbgdP)),
+
+    .logThis(out, paste0("MatchSummary : Post", useGroups[x]), logFile = logFile)
+
     return(out)
 
   }) %>% SimpleList
