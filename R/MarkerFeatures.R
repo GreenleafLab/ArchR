@@ -789,7 +789,7 @@ getMarkerFeatures <- function(
 
     .logThis(out, paste0("MatchSummary : Pre", useGroups[x]), logFile = logFile)
 
-    out$corbgdGroups <- suppressWarnings(cor(estbgdP, obsbgdP)),
+    out$corbgdGroups <- suppressWarnings(cor(estbgdP, obsbgdP))
 
     .logThis(out, paste0("MatchSummary : Post", useGroups[x]), logFile = logFile)
 

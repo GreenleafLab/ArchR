@@ -21,6 +21,8 @@ addPeak2GeneLinks(
   log2Norm = TRUE,
   predictionCutoff = 0.4,
   addEmpiricalPval = FALSE,
+  addPermutedPval = FALSE,
+  nperm = 100,
   seed = 1,
   threads = max(floor(getArchRThreads()/2), 1),
   verbose = TRUE,
@@ -65,6 +67,11 @@ from the \code{peakSet} of the \code{ArchRProject} and normalized to the total d
 \item{predictionCutoff}{A numeric describing the cutoff for RNA integration to use when picking cells for groupings.}
 
 \item{addEmpiricalPval}{Add empirical p-values based on randomly correlating peaks and genes not on the same seqname.}
+
+\item{addPermutedPval}{Add permuted p-values based on shuffle sample correlating peaks and genes. This approach was adapted from
+Regner et al 2021 "A multi-omic single-cell landscape of human gynecologic malignancies".}
+
+\item{nperm}{An integer representing the number of permutations to run for Regner et al 2021 approach.}
 
 \item{seed}{A number to be used as the seed for random number generation required in knn determination. It is recommended
 to keep track of the seed used so that you can reproduce results downstream.}

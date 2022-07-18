@@ -21,6 +21,8 @@ plotBrowserTrack(
   tileSize = 250,
   minCells = 25,
   normMethod = "ReadsInTSS",
+  highlight = NULL,
+  highlightFill = "firebrick3",
   threads = getArchRThreads(),
   ylim = NULL,
   pal = NULL,
@@ -87,6 +89,10 @@ used to exclude pseudo-bulk replicates generated from low numbers of cells.}
 \item{normMethod}{The name of the column in \code{cellColData} by which normalization should be performed. The recommended and default value
 is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
 
+\item{highlight}{A \code{GRanges} object containing regions to highlight.}
+
+\item{highlightFill}{A \code{character} color for filling highlihgted regions.}
+
 \item{threads}{The number of threads to use for parallel execution.}
 
 \item{ylim}{The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. This should be expressed as \verb{c(lower limit, upper limit)} such as \code{c(0,0.99)}. If not provided, the y-axis limit will be c(0, 0.999).}
@@ -123,8 +129,12 @@ which enables direct comparison across samples. Note that the genes displayed in
 #Get Test ArchR Project
 proj <- getTestProject()
 
+#Highlight
+genes <- getGenes()
+genes <- genes[which(genes$symbol \%in\% c("CD3D", "MS4A1"))]
+
 #Plot Track
-p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType")
+p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType", highlight = genes)
 
 #Plot PDF
 plotPDF(p, name = "Track-CD3D-MS4A1", ArchRProj = proj)
