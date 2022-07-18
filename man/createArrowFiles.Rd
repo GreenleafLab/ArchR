@@ -13,7 +13,7 @@ createArrowFiles(
   genomeAnnotation = getGenomeAnnotation(),
   minTSS = 4,
   minFrags = 1000,
-  maxFrags = 1e+05,
+  maxFrags = 100000,
   minFragSize = 10,
   maxFragSize = 2000,
   QCDir = "QualityControl",

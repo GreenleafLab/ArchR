@@ -707,7 +707,7 @@ ArchRBrowserTrack <- function(...){
 #' genes <- genes[which(genes$symbol %in% c("CD3D", "MS4A1"))]
 #' 
 #' #Plot Track
-#' p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType", highlight = genes)
+#' p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType", highlight = genes, highlightFill = "dodgerblue3")
 #' 
 #' #Plot PDF
 #' plotPDF(p, name = "Track-CD3D-MS4A1", ArchRProj = proj)
@@ -924,6 +924,7 @@ plotBrowserTrack <- function(
         facetbaseSize = facetbaseSize,
         title = "Genes",
         highlight = highlight,
+        highlightFill = highlightFill,
         logFile = logFile) + theme(plot.margin = unit(c(0.1, 0.75, 0.1, 0.75), "cm"))
     }
 

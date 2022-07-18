@@ -67,11 +67,11 @@ proj <- addModuleScore(proj, useMatrix = "TileMatrix", nBin = 25, nBgd = 25, fea
 
 #Check
 split(proj@cellColData$Module.TScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
-         B           M           T 
--0.03866667 -0.05303030  0.10306122
+#          B           M           T 
+# -0.03866667 -0.05303030  0.10306122
 
 split(proj@cellColData$Module.BScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
-         B           M           T 
-0.10000000 -0.03939394 -0.05387755 
+#          B           M           T 
+# 0.10000000 -0.03939394 -0.05387755 
 
 }

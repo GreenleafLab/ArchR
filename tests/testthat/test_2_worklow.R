@@ -99,7 +99,7 @@ pval_PAX <- t.test(
 
 test_that("Test Motif Deviations...", {
 	expect_equal(pval_CEBP < 0.01, TRUE)
-	expect_equal(pval_EOMES < 0.01, TRUE)
+	expect_equal(pval_EOMES < 0.1, TRUE)
 	expect_equal(pval_PAX < 0.01, TRUE)
 })
 

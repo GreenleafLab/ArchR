@@ -41,12 +41,12 @@
 #'
 #' #Check
 #' split(proj@cellColData$Module.TScore, proj@cellColData$CellType) %>% lapply(mean) %>% unlist
-#'          B           M           T 
-#' -0.03866667 -0.05303030  0.10306122
+#' #          B           M           T 
+#' # -0.03866667 -0.05303030  0.10306122
 #'
 #' split(proj@cellColData$Module.BScore, proj@cellColData$CellType) %>% lapply(mean) %>% unlist
-#'          B           M           T 
-#' 0.10000000 -0.03939394 -0.05387755 
+#' #          B           M           T 
+#' # 0.10000000 -0.03939394 -0.05387755 
 #'
 #' @export
 addModuleScore <- function(
@@ -134,7 +134,7 @@ addModuleScore <- function(
 
   if(type == "name"){
 
-    if(!is(features[[1]], "GRanges")){
+    if(is(features[[1]], "GRanges")){
       stop("Feature Input is Not A character of names!")
     }
 
@@ -208,8 +208,12 @@ addModuleScore <- function(
   #so that the features can be binned into nBins
   rS <- ArchR:::.getRowSums(ArrowFiles = getArrowFiles(ArchRProj), useMatrix = useMatrix)
   rS <- rS[order(rS[,3]), ]
-  rS$Match <- match(paste0(rS$seqnames, ":", rS$idx), featureData$name)
-
+  if(is(featureData, "GRanges")){
+    rS$Match <- match(paste0(rS$seqnames, ":", rS$idx), paste0(seqnames(featureData), ":", featureData$idx))
+  }else{
+    rS$Match <- match(paste0(rS$seqnames, ":", rS$idx), paste0(featureData$seqnames, ":", featureData$idx))
+  }
+  
   #Determine Bins
   rS$Bins <- 0
   idx <- which(rS$rowSums > 0)

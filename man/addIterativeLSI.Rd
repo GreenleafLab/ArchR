@@ -26,7 +26,7 @@ addIterativeLSI(
   sampleCellsFinal = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
-  totalFeatures = 5e+05,
+  totalFeatures = 500000,
   filterQuantile = 0.995,
   excludeChr = c(),
   keep0lsi = FALSE,

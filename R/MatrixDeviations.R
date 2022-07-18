@@ -123,7 +123,12 @@ addDeviationsMatrix <- function(
   rS$GC <- ArchRProj@peakSet$GC
   rownames(rS) <- paste0(rS$seqnames, "_", rS$start, "_", rS$end)
 
+  #Check Anno Matrix
   annotationsMatrix <- annotationsMatrix[rownames(rS), , drop = FALSE]
+
+  #Check Bgd Peaks
+  rownames(bgdPeaks) <- paste0(seqnames(bgdPeaks), "_", start(bgdPeaks), "_", end(bgdPeaks))
+  bgdPeaks <- bgdPeaks[rownames(rS), , drop=FALSE]
 
   #Create args list
   args <- mget(names(formals()),sys.frame(sys.nframe()))
@@ -133,6 +138,7 @@ addDeviationsMatrix <- function(
   rm(peakAnnotation)
 
   args$annotationsMatrix <- annotationsMatrix
+  args$bgdPeaks <- bgdPeaks
   args$featureDF <- rS
   args$useMatrix <- useMatrix
   args$ArrowFiles <- ArrowFiles
@@ -833,7 +839,7 @@ getBgdPeaks <- function(
   rr1 <- paste0(getPeakSet(ArchRProj))
   rr2 <- paste0(rowRanges(bgdPeaks)) 
   if(!all(rr1 %in% rr2)){
-    stop("Background Peaks Do Not Match Current ArchRPeakSet! Re-run `addBgdPeaks`!")
+    stop("Background Peaks Do Not Match Current ArchRPeakSet! Re-run `addBgdPeaks` with force = TRUE!")
   }
   rownames(bgdPeaks) <- rr2
   bgdPeaks <- bgdPeaks[rr1, , drop=FALSE]

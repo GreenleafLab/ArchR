@@ -134,7 +134,7 @@ genes <- getGenes()
 genes <- genes[which(genes$symbol \%in\% c("CD3D", "MS4A1"))]
 
 #Plot Track
-p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType", highlight = genes)
+p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType", highlight = genes, highlightFill = "dodgerblue3")
 
 #Plot PDF
 plotPDF(p, name = "Track-CD3D-MS4A1", ArchRProj = proj)

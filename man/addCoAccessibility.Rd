@@ -15,7 +15,7 @@ addCoAccessibility(
   k = 100,
   knnIteration = 500,
   overlapCutoff = 0.8,
-  maxDist = 1e+05,
+  maxDist = 100000,
   scaleTo = 10^4,
   log2Norm = TRUE,
   seed = 1,

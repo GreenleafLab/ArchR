@@ -30,6 +30,17 @@ fn <- c(
 	fn[!grepl("createArrow", fn)]
 )
 for(i in seq_along(fn)){
+	context(paste0(basename(fn[i])))
 	test_example(path = fn[i], basename(fn[i]))
 	clear_test_dir()
+	gc()
 }
+
+################################################
+# Remove
+################################################
+
+if(dir.exists("../../data/Annotations")){
+	system("rm -r ../../data/Annotations")
+}
+
