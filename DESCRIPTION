@@ -1,8 +1,8 @@
 Package: ArchR
 Type: Package
-Date: 2022-04-03
+Date: 2022-07-17
 Title: Analyzing single-cell regulatory chromatin in R.
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: c(
     person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
