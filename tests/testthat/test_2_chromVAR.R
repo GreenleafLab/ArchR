@@ -29,7 +29,7 @@ matches <- getMatches(proj)
 stopifnot(all(paste0(rowRanges(se))==paste0(rowRanges(matches))))
 
 #Background Peaks
-se2 <- SummarizedExperiment(assays=SimpleList(counts=cbind(rowSums(assay(se)), 1)))
+se2 <- SummarizedExperiment(assays=SimpleList(counts=cbind(Matrix::rowSums(assay(se)), 1)))
 rowRanges(se2) <- rowRanges(se)
 bgdPeaks <- getBackgroundPeaks(se2)
 
@@ -91,3 +91,16 @@ test_that("Testing ArchR ChromVAR", {
   expect_equal(all(corZ_23 > 0.99), TRUE)
 })
 
+################################################
+# Clear
+################################################
+
+files <- list.files()
+files <- files[!grepl("\\.R", files)]
+for(i in seq_along(files)){
+  if(dir.exists(files[i])){
+    unlink(files[i], recursive=TRUE)
+  }else if(file.exists(files[i])){
+    file.remove(files[i])
+  }
+}

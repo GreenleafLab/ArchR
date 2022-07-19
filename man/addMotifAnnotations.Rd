@@ -11,7 +11,7 @@ addMotifAnnotations(
   species = NULL,
   collection = "CORE",
   motifPWMs = NULL,
-  cutOff = 0.00005,
+  cutOff = 5e-05,
   width = 7,
   version = 2,
   force = FALSE,
