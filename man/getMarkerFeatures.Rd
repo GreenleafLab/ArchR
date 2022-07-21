@@ -20,6 +20,7 @@ getMarkerFeatures(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
+  closest = FALSE,
   verbose = TRUE,
   logFile = createLogFile("getMarkerFeatures")
 )
@@ -68,6 +69,9 @@ the stringency of also maintaining the group proportions from \code{bgdGroups}.}
 \code{seqnames} that are not listed will be ignored. In the context of a \code{Sparse.Assays.Matrix}, such as a matrix containing chromVAR
 deviations, the \code{seqnames} do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
 raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.}
+
+\item{closest}{A boolean value that indicated whether to use closest cells from foreground and background instead of random sampling
+of the foreground cells.}
 
 \item{verbose}{A boolean value that determines whether standard output is printed.}
 

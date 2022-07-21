@@ -173,6 +173,7 @@
 .groupMeans <- function(mat = NULL, groups=NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
+  sparse <- is(mat, "sparseMatrix")
   gm <- lapply(unique(groups), function(x){
     if(sparse){
       Matrix::rowMeans(mat[,which(groups==x),drop=F], na.rm=na.rm)
@@ -187,6 +188,7 @@
 .groupSums <- function(mat = NULL, groups=NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
+  sparse <- is(mat, "sparseMatrix")
   gm <- lapply(unique(groups), function(x){
     if(sparse){
       Matrix::rowSums(mat[,which(groups==x),drop=F], na.rm=na.rm)
@@ -201,9 +203,10 @@
 .groupSds <- function(mat = NULL, groups = NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
+  sparse <- is(mat, "sparseMatrix")
   gs <- lapply(unique(groups), function(x){
-    if (sparse){
-      matrixStats::rowSds(as.matrix(mat[, which(groups == x), drop = F]), na.rm = na.rm)
+    if(sparse){
+      .sparesRowSds(mat[, which(groups == x), drop = F], na.rm = na.rm)
     }else{
       matrixStats::rowSds(mat[, which(groups == x), drop = F], na.rm = na.rm)
     }

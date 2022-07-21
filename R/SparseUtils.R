@@ -72,6 +72,10 @@
   }
 }
 
+.sparesRowSds <- function(m){
+  sqrt(.sparseRowVars(m=m))
+}
+
 ###################
 # Geo
 ###################

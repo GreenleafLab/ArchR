@@ -140,6 +140,95 @@ getGroupSE <- function(
 
 }
 
+#' Export PseudoBulk Group Summarized Experiment 
+#' 
+#' This function will determine cell groups for pseudobulk, summarize and export a summarized experiment for a assay in a ArchRProject.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix The name of the matrix in the ArrowFiles. See getAvailableMatrices to see options
+#' @param groupBy The name of the column in `cellColData` to use for grouping cells together for summarizing.
+#' @param divideN A boolean describing whether to divide by the number of cells.
+#' @param scaleTo Depth normalize to this value if not NULL.
+#' @param useLabels A boolean value indicating whether to use sample labels to create sample-aware subgroupings during as pseudo-bulk replicate generation.
+#' @param sampleLabels The name of a column in `cellColData` to use to identify samples. In most cases, this parameter should be left as `NULL` and you
+#' should only use this parameter if you do not want to use the default sample labels stored in `cellColData$Sample`. However, if your individual Arrow
+#' files do not map to individual samples, then you should set this parameter to accurately identify your samples. This is the case in (for example)
+#' multiplexing applications where cells from different biological samples are mixed into the same reaction and demultiplexed based on a lipid barcode or genotype.
+#' @param minCells The minimum number of cells required in a given cell group to permit insertion coverage file generation.
+#' @param maxCells The maximum number of cells to use during insertion coverage file generation.
+#' @param minReplicates The minimum number of pseudo-bulk replicates to be generated.
+#' @param maxReplicates The maximum number of pseudo-bulk replicates to be generated.
+#' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
+#' @param verbose A boolean specifying to print messages during computation.
+#' @param threads An integer specifying the number of threads for parallel.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Group SE
+#' se <- getPBGroupSE(proj, useMatrix = "PeakMatrix", groupBy = "Clusters")
+#'
+#' @export
+getPBGroupSE <- function(
+  ArchRProj = NULL,
+  useMatrix = "GeneScoreMatrix",
+  groupBy = "Clusters",
+  divideN = TRUE,
+  scaleTo = 10000,
+  useLabels = TRUE,
+  sampleLabels = "Sample",
+  minCells = 40,
+  maxCells = 500,
+  minReplicates = 2,
+  maxReplicates = 5,
+  sampleRatio = 0.8,
+  verbose = TRUE,
+  threads = getArchRThreads(),
+  logFile = createLogFile("getPBGroupSE")
+  ){
+
+  #Get PB
+  cellGroups <- suppressMessages(addGroupCoverages(
+    ArchRProj = ArchRProj,
+    groupBy = groupBy,
+    useLabels = useLabels,
+    sampleLabels = sampleLabels,
+    minCells = minCells,
+    maxCells = maxCells,
+    maxFragments = 10^9,
+    minReplicates = minReplicates,
+    maxReplicates = maxReplicates,
+    sampleRatio = sampleRatio,
+    returnGroups = TRUE,
+    force = TRUE,
+    logFile = logFile
+  ))
+  labeledCells <- unlist(unlist(cellGroups,use.names=TRUE), use.names=TRUE)
+  labeledGroups <- names(labeledCells)
+  names(labeledGroups) <- labeledCells
+  ArchRProj@cellColData$TMP_PB_12312412312312312 <- paste0(as.vector(labeledGroups[rownames(ArchRProj@cellColData)]))
+
+  #Matrix
+  sePB <- getGroupSE(
+    ArchRProj = ArchRProj,
+    useMatrix = useMatrix,
+    groupBy = "TMP_PB_12312412312312312",
+    divideN = divideN,
+    scaleTo = scaleTo,
+    threads = threads,
+    verbose = verbose,
+    logFile = logFile
+  )
+  sePB <- sePB[,colnames(sePB) != "NA"]
+  colData(sePB)$Group <- stringr::str_split(colnames(sePB), pattern="\\.Rep", simplify=TRUE)[,1]
+
+  sePB
+
+}
+
 #' Export Group BigWigs
 #' 
 #' This function will group, summarize and export a bigwig for each group in an ArchRProject.
