@@ -7,7 +7,7 @@
 plotPeak2GeneHeatmap(
   ArchRProj = NULL,
   corCutOff = 0.45,
-  FDRCutOff = 1e-04,
+  FDRCutOff = 0.0001,
   varCutOffATAC = 0.25,
   varCutOffRNA = 0.25,
   k = 25,

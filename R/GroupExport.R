@@ -510,11 +510,11 @@ getGroupBW <- function(
 #' frags <- exportGroupFragments(proj, groupBy = "Clusters")
 #'
 #' @export
-exportGroupFragments <- function(
+getGroupFragments <- function(
   ArchRProj = NULL,
   groupBy = "Clusters",
   threads = getArchRThreads(),
-  logFile = createLogFile("exportGroupFragments")
+  logFile = createLogFile("getGroupFragments")
   ){
 
   #Cell Col Data
