@@ -20,7 +20,8 @@
 #' @param depthCol A column in the `ArchRProject` that represents the coverage (scATAC = unique fragments, scRNA = unique molecular identifiers) per cell.
 #' These values are used to minimize the related biases in the reduction related. For scATAC we recommend "nFrags" and for scRNA we recommend "Gex_nUMI".
 #' @param varFeatures The number of N variable features to use for LSI. The top N features will be used based on the `selectionMethod`.
-#' @param dimsToUse A vector containing the dimensions from the `reducedDims` object to use in clustering.
+#' @param dimsToUse A vector containing the dimensions to use in LSI. The total dimensions used in LSI will be `max(dimsToUse)`. If you set this too high,
+#' it could impact downstream functionalities including increasing the time required to run `addClusters()`.
 #' @param LSIMethod A number or string indicating the order of operations in the TF-IDF normalization.
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
 #' @param scaleDims A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
