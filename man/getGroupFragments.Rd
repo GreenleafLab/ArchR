@@ -31,6 +31,6 @@ This function will group export fragment files for each group in an ArchRProject
 proj <- getTestProject()
 
 # Get Group BW
-frags <- exportGroupFragments(proj, groupBy = "Clusters")
+frags <- getGroupFragments(proj, groupBy = "Clusters")
 
 }

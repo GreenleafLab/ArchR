@@ -507,7 +507,7 @@ getGroupBW <- function(
 #' proj <- getTestProject()
 #'
 #' # Get Group BW
-#' frags <- exportGroupFragments(proj, groupBy = "Clusters")
+#' frags <- getGroupFragments(proj, groupBy = "Clusters")
 #'
 #' @export
 getGroupFragments <- function(
