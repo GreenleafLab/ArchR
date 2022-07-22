@@ -19,3 +19,9 @@ This function is not meant to be run with both \code{geneAnnotation} and \code{g
 This function will retrieve the genome that is currently in use by ArchR. Alternatively, this function can return either the \code{geneAnnotation}
 or the \code{genomeAnnotation} associated with the globally defined genome if desired.
 }
+\examples{
+
+# Get ArchR Genome to use globally
+getArchRGenome()
+
+}

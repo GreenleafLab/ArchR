@@ -30,3 +30,12 @@ saveArchRProject(
 \description{
 This function will organize arrows and project output into a directory and save the ArchRProject for later usage.
 }
+\examples{
+
+# Get Small Test Project
+proj <- getTestProject()
+
+# Save
+saveArchRProject(proj)
+
+}

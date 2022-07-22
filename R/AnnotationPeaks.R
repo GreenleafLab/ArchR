@@ -8,6 +8,15 @@
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Peak Annotations
+#' peakAnno <- getPeakAnnotation(proj)
+#'
 #' @export
 getPeakAnnotation <- function(ArchRProj = NULL, name = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -29,6 +38,15 @@ getPeakAnnotation <- function(ArchRProj = NULL, name = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param annoName The name of a specific annotation to subset within the `peakAnnotation`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Annotation Positions
+#' positions <- getPositions(proj)
+#'
 #' @export
 getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -65,6 +83,15 @@ getPositions <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the `peakAnnotation` object (i.e. Motifs) to retrieve from the designated `ArchRProject`.
 #' @param annoName The name of a specific annotation to subset within the `peakAnnotation`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Annotation Matches
+#' matches <- getMatches(proj)
+#'
 #' @export
 getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -90,7 +117,17 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
     }
     matches <- matches[, idx, drop=FALSE]
   }
+  #Check
+  rr1 <- paste0(rowRanges(matches))
+  rr2 <- paste0(getPeakSet(ArchRProj))
+  if(!all(rr1 %in% rr2)){
+    stop("Not all matches in PeakSet")
+  }
+  rownames(matches) <- rr1
+  matches <- matches[rr2,]
+  rownames(matches) <- NULL
   matches
+
 }
 
 #' Add peak annotations to an ArchRProject
@@ -104,6 +141,18 @@ getMatches <- function(ArchRProj = NULL, name = NULL, annoName = NULL){
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be overwritten
 #' if it already exists in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Motif Positions Can Be Any Interval GRanges List
+#' positions <- getPositions(proj)
+#'
+#' # Add Peak Annotations
+#' proj <- addPeakAnnotations(proj, regions = positions)
+#'
 #' @export
 addPeakAnnotations <- function(
   ArchRProj = NULL,
@@ -292,6 +341,15 @@ addPeakAnnotations <- function(
 #' it already exists in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to be passed to `TFBSTools::getMatrixSet` for getting a JASPAR PWM object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Motif Annotations
+#' proj <- addMotifAnnotations(proj, motifSet = "cisbptest", annoName = "test")
+#'
 #' @export
 addMotifAnnotations <- function(
   ArchRProj = NULL,
@@ -391,41 +449,57 @@ addMotifAnnotations <- function(
     motifs <- obj$motifs
     motifSummary <- obj$motifSummary
 
-  }else if(tolower(motifSet)=="cisbp"){
+  }else if(tolower(motifSet) %in% c("cisbp", "cisbptest")){
 
     .requirePackage("chromVARmotifs",installInfo='devtools::install_github("GreenleafLab/chromVARmotifs")')
-    if(tolower(species) == "mus musculus"){
-      if(version == 1){
-        message("Using version 1 motifs!")
-        data("mouse_pwms_v1")
-        motifs <- mouse_pwms_v1        
-      }else if(version == 2){
-        message("Using version 2 motifs!")
-        data("mouse_pwms_v2")
-        motifs <- mouse_pwms_v2
-      }else{
-        stop("Only versions 1 and 2 exist!")
-      }
-      obj <- .summarizeChromVARMotifs(motifs)
-      motifs <- obj$motifs
-      motifSummary <- obj$motifSummary
-    }else if(tolower(species) == "homo sapiens"){
-      if(version == 1){
-        message("Using version 1 motifs!")
-        data("human_pwms_v1")
-        motifs <- human_pwms_v1        
-      }else if(version == 2){
+
+    if(tolower(motifSet) == "cisbptest"){
+        
         message("Using version 2 motifs!")
         data("human_pwms_v2")
         motifs <- human_pwms_v2
-      }else{
-        stop("Only versions 1 and 2 exist!")
-      }
-      obj <- .summarizeChromVARMotifs(motifs)
-      motifs <- obj$motifs
-      motifSummary <- obj$motifSummary
+        subset <- grep("PAX5|CEBPA|CEBPB|IRF4|ETS1|EOMES", names(motifs), value=TRUE)
+        motifs <- motifs[subset]
+        obj <- .summarizeChromVARMotifs(motifs)
+        motifs <- obj$motifs
+        motifSummary <- obj$motifSummary
+
     }else{
-      stop("Species not recognized homo sapiens, mus musculus supported by CisBP!")
+
+      if(tolower(species) == "mus musculus"){
+        if(version == 1){
+          message("Using version 1 motifs!")
+          data("mouse_pwms_v1")
+          motifs <- mouse_pwms_v1        
+        }else if(version == 2){
+          message("Using version 2 motifs!")
+          data("mouse_pwms_v2")
+          motifs <- mouse_pwms_v2
+        }else{
+          stop("Only versions 1 and 2 exist!")
+        }
+        obj <- .summarizeChromVARMotifs(motifs)
+        motifs <- obj$motifs
+        motifSummary <- obj$motifSummary
+      }else if(tolower(species) == "homo sapiens"){
+        if(version == 1){
+          message("Using version 1 motifs!")
+          data("human_pwms_v1")
+          motifs <- human_pwms_v1        
+        }else if(version == 2){
+          message("Using version 2 motifs!")
+          data("human_pwms_v2")
+          motifs <- human_pwms_v2
+        }else{
+          stop("Only versions 1 and 2 exist!")
+        }
+        obj <- .summarizeChromVARMotifs(motifs)
+        motifs <- obj$motifs
+        motifSummary <- obj$motifSummary
+      }else{
+        stop("Species not recognized homo sapiens, mus musculus supported by CisBP!")
+      }
+
     }
 
   }else if(tolower(motifSet)=="encode"){
@@ -496,7 +570,11 @@ addMotifAnnotations <- function(
   # Get BSgenome Information!
   #############################################################
   genome <- ArchRProj@genomeAnnotation$genome
-  BSgenome <- eval(parse(text = genome))
+  BSgenome <- tryCatch({
+    eval(parse(text = paste0(genome)))
+  }, error = function(e){
+    eval(parse(text = paste0(genome,"::",genome)))
+  })
   BSgenome <- validBSgenome(BSgenome)
 
   #############################################################
@@ -675,6 +753,15 @@ addMotifAnnotations <- function(
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be
 #' overwritten if it already exists in the given `ArchRProject`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Motif Annotations
+#' proj <- addArchRAnnotations(proj, name = "test")
+#'
 #' @export
 addArchRAnnotations <- function(
   ArchRProj = NULL,
@@ -962,6 +1049,101 @@ addArchRAnnotations <- function(
 
 }
 
+#' Hypergeometric Enrichment in input peak ranges.
+#' 
+#' This function will perform hypergeometric enrichment of a given peak matches object and ranges.
+#' 
+#' @param ranges  A `GenomicRanges` object of peaks/regions to overlap with peaks.
+#' @param matches A custom `peakAnnotation` matches object used as input for the hypergeometric test. See
+#' `motifmatchr::matchmotifs()` for additional information.
+#' @param bgdPeaks A `SummarizedExperiment` of background peaks from `getBgdPeaks` can be NULL for using all peaks.
+#' 
+#' @examples
+#' #Project
+#' proj <- getTestProject()
+#' 
+#' #Get Peaks
+#' peaks <- getPeakSet(proj)
+#' 
+#' #Custom C1 Mono
+#' peaks1 <- peaks[names(peaks)=="C1"]
+#' 
+#' #All Peaks
+#' customEnrichment(
+#'   ranges = peaks1, 
+#'   matches = getMatches(proj)
+#' )
+#' #         feature CompareFrequency nCompare CompareProportion BackgroundFrequency
+#' # CEBPB_1 CEBPB_1               70      635        0.11023622                 122
+#' # CEBPA_2 CEBPA_2               81      635        0.12755906                 156
+#' # IRF4_4   IRF4_4              103      635        0.16220472                 276
+#' # EOMES_6 EOMES_6               36      635        0.05669291                 120
+#' # ETS1_3   ETS1_3               38      635        0.05984252                 149
+#' # PAX5_5   PAX5_5               23      635        0.03622047                 124
+#' #         nBackground BackgroundProporition Enrichment mlog10p mlog10Padj
+#' # CEBPB_1        2142            0.05695612  1.9354589 10.3279   9.373657
+#' # CEBPA_2        2142            0.07282913  1.7514839  8.9394   7.985157
+#' # IRF4_4         2142            0.12885154  1.2588497  2.6938   1.739557
+#' # EOMES_6        2142            0.05602241  1.0119685  0.3001   0.000000
+#' # ETS1_3         2142            0.06956116  0.8602864  0.0487   0.000000
+#' # PAX5_5         2142            0.05788982  0.6256795  0.0006   0.000000
+#' 
+#' #Background Peaks
+#' customEnrichment(
+#'  ranges = peaks1, 
+#'   matches = getMatches(proj), 
+#'  bgdPeaks = getBgdPeaks(proj, force=TRUE)
+#' )
+#' #         feature CompareFrequency nCompare CompareProportion BackgroundFrequency
+#' # CEBPB_1 CEBPB_1               70      635        0.11023622                2459
+#' # CEBPA_2 CEBPA_2               81      635        0.12755906                3154
+#' # IRF4_4   IRF4_4              103      635        0.16220472                4836
+#' # ETS1_3   ETS1_3               38      635        0.05984252                1781
+#' # EOMES_6 EOMES_6               36      635        0.05669291                1975
+#' # PAX5_5   PAX5_5               23      635        0.03622047                1495
+#' #         nBackground BackgroundProporition Enrichment mlog10p mlog10Padj
+#' # CEBPB_1       32385            0.07593021  1.4518097  2.9544   2.000157
+#' # CEBPA_2       32385            0.09739077  1.3097654  2.1341   1.179857
+#' # IRF4_4        32385            0.14932839  1.0862283  0.7142   0.000000
+#' # ETS1_3        32385            0.05499460  1.0881527  0.4975   0.000000
+#' # EOMES_6       32385            0.06098502  0.9296203  0.1551   0.000000
+#' # PAX5_5        32385            0.04616335  0.7846154  0.0422   0.000000
+#' #
+#' @export
+customEnrichment <- function(
+  ranges = NULL,
+  matches = NULL,
+  bgdPeaks = NULL
+  ){
+
+  if(is.null(matches)){
+    stop("Please supply matches! Try `matches` = getMatches(ArchRProj)!")
+  }
+
+  .validInput(input = ranges, name = "ranges", valid = c("granges"))
+  .validInput(input = matches, name = "matches", valid = c("SummarizedExperiment"))
+  .validInput(input = bgdPeaks, name = "bgdPeaks", valid = c("SummarizedExperiment", "null"))
+
+  if(!is.null(bgdPeaks)){
+    
+    rownames(matches) <- paste0(rowRanges(matches))
+    rownames(bgdPeaks) <- paste0(rowRanges(bgdPeaks))
+    
+    bgdPeaks <- bgdPeaks[rownames(matches), ]
+    idx <- unique(queryHits(findOverlaps(matches, ranges, ignore.strand=TRUE)))
+    
+    .computeEnrichment(matches, idx, c(idx, as.vector(assay(bgdPeaks)[idx,])))
+  
+  }else{
+   
+    idx <- unique(queryHits(findOverlaps(matches, ranges, ignore.strand=TRUE)))
+    
+    .computeEnrichment(matches, idx, seq_len(nrow(matches)))
+  
+  }
+
+}
+
 #' Peak Annotation Hypergeometric Enrichment in Marker Peaks.
 #' 
 #' This function will perform hypergeometric enrichment of a given peak annotation within the defined marker peaks.
@@ -975,6 +1157,27 @@ addArchRAnnotations <- function(
 #' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param background A string that indicates whether to use a background set of matched peaks to compare against ("bgdPeaks") or all peaks ("all").
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#'
+#' # Get Peak Annotation Enrichment
+#' annoEnrich <- peakAnnoEnrichment(
+#'   seMarker = seMarker, 
+#'   ArchRProj = proj,
+#'   cutOff = "FDR <= 0.1 & Log2FC >= 0"
+#' )
+#'
 #' @export
 peakAnnoEnrichment <- function(
   seMarker = NULL,
@@ -1150,6 +1353,36 @@ enrichHeatmap <- function(...){
 #' @param transpose A boolean determining whether to transpose the heatmap in the plot.
 #' @param returnMatrix A boolean determining whether to return the matrix corresponding to the heatmap rather than generate a plot.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#'
+#' # Get Peak Annotation Enrichment
+#' annoEnrich <- peakAnnoEnrichment(
+#'   seMarker = seMarker, 
+#'   ArchRProj = proj,
+#'   cutOff = "FDR <= 0.1 & Log2FC >= 0"
+#' )
+#' 
+#' # Multiply by 50 since this is a super small test sample
+#' assay(annoEnrich) <- assay(annoEnrich) * 50
+#' 
+#' #Plot
+#' p <- plotEnrichHeatmap(annoEnrich)
+#' 
+#' #PDF
+#' plotPDF(p, name = "PeakAnnoEnrich", ArchRProj = proj)
+#' 
 #' @export
 plotEnrichHeatmap <- function(
   seEnrich = NULL,

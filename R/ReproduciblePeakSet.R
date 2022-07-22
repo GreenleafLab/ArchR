@@ -45,6 +45,18 @@
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to be pass to `addGroupCoverages()` to get sample-guided pseudobulk cell-groupings. Only used for TileMatrix-based
 #' peak calling (not for MACS2). See `addGroupCoverages()` for more info.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Peak Matrix Tiles
+#' proj <- addReproduciblePeakSet(proj, peakMethod = "tiles")
+#'
+#' # Add Peak Matrix Macs2 (Preferred)
+#' proj <- addReproduciblePeakSet(proj, peakMethod = "macs2")
+#'
 #' @export
 addReproduciblePeakSet <- function(
 	ArchRProj = NULL,
@@ -66,7 +78,7 @@ addReproduciblePeakSet <- function(
 	promoterRegion = c(2000, 100),
 	genomeAnnotation = getGenomeAnnotation(ArchRProj),
 	geneAnnotation = getGeneAnnotation(ArchRProj),
-  plot = TRUE,
+    plot = TRUE,
 	threads = getArchRThreads(),
 	parallelParam = NULL,
 	force = FALSE,
@@ -103,7 +115,7 @@ addReproduciblePeakSet <- function(
 	geneAnnotation <- .validGeneAnnotation(geneAnnotation)
 	genomeAnnotation <- .validGenomeAnnotation(genomeAnnotation)
 	geneAnnotation <- .validGeneAnnoByGenomeAnno(geneAnnotation = geneAnnotation, genomeAnnotation = genomeAnnotation)
-  .validInput(input = plot, name = "plot", valid = c("boolean"))
+    .validInput(input = plot, name = "plot", valid = c("boolean"))
 	.validInput(input = threads, name = "threads", valid = c("integer"))
 	.validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
 	.validInput(input = force, name = "force", valid = c("boolean"))
@@ -112,7 +124,19 @@ addReproduciblePeakSet <- function(
 
 	tstart <- Sys.time()
 	.startLogging(logFile = logFile)
-  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "ReproduciblePeakSet Args", logFile=logFile)
+    .logThis(mget(names(formals()),sys.frame(sys.nframe())), "ReproduciblePeakSet Args", logFile=logFile)
+
+	#####################################################
+	# Create Output Directory
+	#####################################################
+	outDir0 <- file.path(getOutputDirectory(ArchRProj), "PeakCalls")
+	outDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", groupBy)
+	outSubDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", groupBy, "ReplicateCalls")
+	outBedDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", groupBy, "InsertionBeds")
+	dir.create(outDir0, showWarnings = FALSE)
+	dir.create(outDir, showWarnings = FALSE)
+	dir.create(outSubDir, showWarnings = FALSE)
+	dir.create(outBedDir, showWarnings = FALSE)
 
 	if(tolower(peakMethod) == "macs2"){
 
@@ -147,16 +171,6 @@ addReproduciblePeakSet <- function(
 		.logDiffTime("Peak Calling Parameters!", tstart, verbose = verbose, logFile = logFile)
 		.logThis(groupSummary, "PeakCallSummary", logFile = logFile)
 		if(verbose) print(groupSummary)
-
-		#####################################################
-		# Create Output Directory
-		#####################################################
-		outDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls")
-		outSubDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", "ReplicateCalls")
-		outBedDir <- file.path(getOutputDirectory(ArchRProj), "PeakCalls", "InsertionBeds")
-		dir.create(outDir, showWarnings = FALSE)
-		dir.create(outSubDir, showWarnings = FALSE)
-		dir.create(outBedDir, showWarnings = FALSE)
 
 		#####################################################
 		# Genome Size Presets
@@ -228,10 +242,10 @@ addReproduciblePeakSet <- function(
 				summitFiles = outSummitList[[i]],
 				summitNames = summitNamesList[[i]],
 				reproducibility = reproducibility,
-	    	extendSummits = extendSummits,
-	    	blacklist = genomeAnnotation$blacklist,
-	    	prefix = prefix,
-	    	logFile = logFile
+		    	extendSummits = extendSummits,
+		    	blacklist = genomeAnnotation$blacklist,
+		    	prefix = prefix,
+		    	logFile = logFile
 			))
 			.logDiffTime(sprintf("%s Annotating and Filtering Peaks", prefix), tstart, verbose = FALSE, logFile = logFile)
 			peaks <- sort(sortSeqlevels(peaks))
@@ -813,6 +827,11 @@ addReproduciblePeakSet <- function(
 #' Find the installed location of the MACS2 executable
 #' 
 #' This function attempts to find the path to the MACS2 executable by serting the path and python's pip.
+#' 
+#' @examples
+#'
+#' # Get Macs2
+#' findMacs2()
 #'
 #' @export
 findMacs2 <- function(){

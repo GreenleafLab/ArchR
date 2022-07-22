@@ -36,3 +36,15 @@ instead of plotting the fragment size distribution.}
 \description{
 This function will plot a fragment size distribution for each sample. Only cells in the \code{ArchRProject} are used when making this plot.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Plot Frag Sizes
+p <- plotFragmentSizes(proj, groupBy = "Clusters")
+
+# PDF
+plotPDF(p, name = "Frag-Sizes", ArchRProj = proj)
+
+}

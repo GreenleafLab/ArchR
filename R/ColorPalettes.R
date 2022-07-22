@@ -101,6 +101,15 @@ ArchRPalettes <- list(
 #' given a unique color from the designated palette set.
 #' @param set The name of a color palette provided in the `ArchRPalettes` list object.
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
+#' 
+#' @examples
+#'
+#' # Vector
+#' v <- c("A", "B")
+#'
+#' # Color Palette
+#' pal <- paletteDiscrete(values = v)
+#'
 #' @export
 paletteDiscrete <- function(
   values = NULL,
@@ -140,6 +149,12 @@ paletteDiscrete <- function(
 #' @param set The name of a color palette provided in the `ArchRPalettes` list object.
 #' @param n The number of unique colors to generate as part of this continuous color palette.
 #' @param reverse A boolean variable that indicates whether to return the palette colors in reverse order.
+#' 
+#' @examples
+#'
+#' # Color Palette
+#' pal <- paletteContinuous()
+#'
 #' @export
 paletteContinuous <- function(
   set = "solarExtra", 

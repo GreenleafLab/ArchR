@@ -10,6 +10,21 @@
 #' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
 #' If no manual removal is desired, `filterChr` should be set to `NULL`. If `filter` is set to `TRUE` but `filterChr` is set to `NULL`,
 #' non-standard chromosomes will still be removed as defined in `filterChrGR()`.
+#' 
+#' @examples
+#'
+#' if (!require("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+#' library(BSgenome.Hsapiens.UCSC.hg19)
+#'
+#' # Get Genome
+#' genome <- BSgenome.Hsapiens.UCSC.hg19
+#'
+#' # Create Genome Annotation
+#' genomeAnno <- createGenomeAnnotation(genome)
+#' 
+#' # Also can create from a string if BSgenome exists
+#' genomeAnno <- createGenomeAnnotation("hg19")
+#'
 #' @export
 createGenomeAnnotation <- function(
   genome = NULL,
@@ -78,6 +93,27 @@ createGenomeAnnotation <- function(
 #' @param exons A `GRanges` object containing gene exon coordinates. Must have a symbols column matching the symbols column of `genes`.
 #' @param TSS A `GRanges` object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.
 #' @param annoStyle annotation style to map between gene names and various gene identifiers e.g. "ENTREZID", "ENSEMBL".
+#' @param singleStrand A boolean for GenomicFeatures::genes(`single.strand.genes.only`) parameter
+#' 
+#' @examples
+#'
+#' if (!require("TxDb.Hsapiens.UCSC.hg19.knownGene", quietly = TRUE)) BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene")
+#' if (!require("org.Hs.eg.db", quietly = TRUE)) BiocManager::install("org.Hs.eg.db")
+#' library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+#' library(org.Hs.eg.db)
+#'
+#' # Get Txdb
+#' TxDb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+#'
+#' # Get OrgDb
+#' OrgDb <- org.Hs.eg.db
+#'
+#' # Create Genome Annotation
+#' geneAnno <- createGeneAnnotation(TxDb=TxDb, OrgDb=OrgDb)
+#' 
+#' # Also can create from a string if BSgenome exists
+#' geneAnno <- createGeneAnnotation("hg19")
+#'
 #' @export
 createGeneAnnotation <- function(
   genome = NULL,
@@ -86,7 +122,8 @@ createGeneAnnotation <- function(
   genes = NULL,
   exons = NULL,
   TSS = NULL,
-  annoStyle = NULL
+  annoStyle = NULL,
+  singleStrand = FALSE
   ){
 
   .validInput(input = genome, name = "genome", valid = c("character", "null"))
@@ -118,7 +155,11 @@ createGeneAnnotation <- function(
 
     ###########################
     message("Getting Genes..")
-    genes <- GenomicFeatures::genes(TxDb)
+    genes <- tryCatch({ #Legacy Catch In Case
+      GenomicFeatures::genes(TxDb, single.strand.genes.only = singleStrand)
+    }, error = function(e){
+      GenomicFeatures::genes(TxDb)
+    })
 
     if(is.null(annoStyle)){
       isEntrez <- mcols(genes)$symbol <- tryCatch({

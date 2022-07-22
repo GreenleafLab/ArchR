@@ -51,6 +51,15 @@
 #' exists as a column name in `cellColData`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Peak Annotations
+#' proj <- addClusters(proj, force = TRUE)
+#'
 #' @export
 #'
 addClusters <- function(

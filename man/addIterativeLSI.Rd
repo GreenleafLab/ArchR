@@ -26,9 +26,10 @@ addIterativeLSI(
   sampleCellsFinal = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
-  totalFeatures = 5e+05,
+  totalFeatures = 500000,
   filterQuantile = 0.995,
   excludeChr = c(),
+  keep0lsi = FALSE,
   saveIterations = TRUE,
   UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
     FALSE, fast_sgd = TRUE),
@@ -108,6 +109,8 @@ insertion counts will be ignored for the first LSI iteration.}
 
 \item{excludeChr}{A string of chromosomes to exclude for iterativeLSI procedure.}
 
+\item{keep0lsi}{A boolean whether to keep cells with no reads in features used for LSI.}
+
 \item{saveIterations}{A boolean value indicating whether the results of each LSI iterations should be saved as compressed \code{.rds} files in
 the designated \code{outDir}.}
 
@@ -130,4 +133,13 @@ reproduce results downstream.}
 }
 \description{
 This function will compute an iterative LSI dimensionality reduction on an ArchRProject.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Iterative LSI
+proj <- addIterativeLSI(proj, dimsToUse = 1:5, varFeatures=1000, iterations = 2, force=TRUE)
+
 }

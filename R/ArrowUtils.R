@@ -65,6 +65,20 @@
   return(seqnames)
 }
 
+#check if an ArrowFile lacks fragment info on a set a seqnames and return a vector of empty seqnames
+#returns NULL if all seqnames are ok
+.validateSeqNotEmpty <- function(ArrowFile = NULL, seqnames = NULL, threads = getArchRThreads()) {
+  failed_chr <- .safelapply(seq_along(seqnames), function(x){
+    tryCatch({
+      .h5read(ArrowFile, paste0("Fragments/", seqnames[x], "/RGLengths"), method = "fast")
+      return(NULL)
+    },error=function(e){
+      return(seqnames[x])
+    })
+  }, threads = threads)
+  return(unlist(failed_chr))
+}
+
 .availableCells <- function(ArrowFile = NULL, subGroup = NULL, passQC = TRUE){
   if(is.null(subGroup)){
     o <- h5closeAll()
@@ -162,11 +176,26 @@
   threads <- min(threads, length(ArrowFiles))
   
   .helpFeatureDF <- function(ArrowFile = NULL, subGroup = NULL){
+   
     o <- h5closeAll()
+    
+    #Read
     featureDF <- DataFrame(h5read(ArrowFile, paste0(subGroup,"/Info/FeatureDF")))
+
+    #Make Sure this is not an array
+    for(i in seq_len(ncol(featureDF))){
+      if(is(featureDF[,i], "array")){
+        featureDF[,i] <- as.vector(featureDF[,i])
+      }
+    }
+    
+    #Seqnames
     featureDF$seqnames <- Rle(as.character(featureDF$seqnames))
+    
     o <- h5closeAll()
+    
     return(featureDF)
+  
   }
 
   fdf <- .helpFeatureDF(ArrowFiles[1], subGroup = subGroup)
@@ -231,7 +260,7 @@
 .dropGroupsFromArrow <- function(
   ArrowFile = NULL, 
   dropGroups = NULL,
-  level = 0,
+  level = getArchRH5Level(),
   verbose = FALSE,
   logFile = NULL
   ){
@@ -328,7 +357,7 @@
   inArrows = NULL,
   outArrows = NULL,
   cellsKeep = NULL,
-  level = 0,
+  level = getArchRH5Level(),
   verbose = FALSE,
   logFile = NULL,
   threads = 1
@@ -353,7 +382,7 @@
   inArrow = NULL,
   outArrow = NULL,
   cellsKeep = NULL,
-  level = 0,
+  level = getArchRH5Level(),
   verbose = FALSE,
   logFile = NULL
   ){
@@ -425,6 +454,11 @@
     #Read In Fragments
     RGLengths <- .h5read(inArrow, paste0(groupJ, "/RGLengths"))
     RGValues <- .h5read(inArrow, paste0(groupJ, "/RGValues"))
+
+    #Check Cells Exist
+    if(length(RGLengths) == 0 | length(RGValues) == 0){
+      next
+    }
     RGRle <- Rle(paste0(sampleName, "#", RGValues), RGLengths)
     
     #Determine Which to Keep

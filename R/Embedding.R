@@ -33,6 +33,15 @@
 #' `name` already exists.
 #' @param threads The number of threads to be used for parallel computing. Default set to 1 because if set to high can cause C stack usage errors.
 #' @param ... Additional parameters to pass to `uwot::umap()`
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add UMAP for Small Project
+#' proj <- addUMAP(proj, force = TRUE)
+#'
 #' @export
 addUMAP <- function(
   ArchRProj = NULL,
@@ -346,6 +355,15 @@ addUMAP <- function(
 #' `name` already exists.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param ... Additional parameters for computing the TSNE embedding to pass to `Rtsne::Rtsne()` (when `method = "RTSNE"`) or to `Seurat::RunTSNE()` (when method = "FFRTSNE"). 
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add UMAP for Small Project
+#' proj <- addTSNE(proj, force = TRUE)
+#'
 #' @export
 addTSNE <- function(
   ArchRProj = NULL,

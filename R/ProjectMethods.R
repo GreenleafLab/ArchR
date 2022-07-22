@@ -7,6 +7,15 @@
 #' This function gets the outputDirectory from a given ArchRProject. If null this returns "QualityControl" directory.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Output Directory
+#' getOutputDirectory(proj)
+#'
 #' @export
 getOutputDirectory <- function(
   ArchRProj = NULL
@@ -33,6 +42,15 @@ getOutputDirectory <- function(
 #' This function gets the names of all ArrowFiles associated with a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Arrow Files
+#' getArrowFiles(proj)
+#'
 #' @export
 getArrowFiles <- function(
   ArchRProj = NULL
@@ -63,6 +81,15 @@ getArrowFiles <- function(
 #' This function gets the names of all samples from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Sample Names
+#' getSampleNames(proj)
+#'
 #' @export
 getSampleNames <- function(
   ArchRProj = NULL
@@ -81,6 +108,15 @@ getSampleNames <- function(
 #' This function gets number of cells from an ArchRProject or ArrowFile
 #' 
 #' @param input An `ArchRProject` object or the path to an ArrowFile.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Number of Cells
+#' nCells(proj)
+#'
 #' @export
 nCells <- function(
   input = NULL
@@ -111,6 +147,15 @@ nCells <- function(
 #' @param select A character vector containing the column names to select from `cellColData`.
 #' @param summary A character vector describing which method for summarizing across group. Options include "median", "mean", or "sum".
 #' @param removeNA Remove NA's from summary method.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Group Summary
+#' getGroupSummary(proj, groupBy = "Clusters", select = "TSSEnrichment", summary = "mean")
+#'
 #' @export
 getGroupSummary <- function(
   ArchRProj = NULL,
@@ -163,6 +208,15 @@ getGroupSummary <- function(
 #' @param ArchRProj An `ArchRProject` object.
 #' @param select A character vector containing the column names to select from `sampleColData`.
 #' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Sample Column Data
+#' getSampleColData(proj)
+#'
 #' @export
 getSampleColData <- function(
   ArchRProj = NULL, 
@@ -200,6 +254,15 @@ getSampleColData <- function(
 #' use this argument to only add data to a subset of samples. Samples where `data` is not added are set to `NA`.
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name`
 #' already exists as a column name in `sampleColData`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Sample Column Data
+#' addSampleColData(proj, data = 1, name = "Test", samples = "PBSmall")
+#'
 #' @export
 addSampleColData <- function(ArchRProj = NULL, data = NULL, name = NULL, samples = NULL, force = FALSE){
   
@@ -246,6 +309,15 @@ addSampleColData <- function(ArchRProj = NULL, data = NULL, name = NULL, samples
 #' This function gets the cellNames from a given ArchRProject object.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Cell Names
+#' getCellNames(proj)
+#'
 #' @export
 getCellNames <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -260,6 +332,15 @@ getCellNames <- function(ArchRProj = NULL){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param select A character vector of column names to select from `cellColData` if you would like to subset the returned data.
 #' @param drop A boolean value that indicates whether to drop the `dataframe` structure and convert to a vector if selecting only one column.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Cell Column Data
+#' getCellColData(proj)
+#'
 #' @export
 getCellColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE){
   
@@ -299,6 +380,15 @@ getCellColData <- function(ArchRProj = NULL, select = NULL, drop = FALSE){
 #' argument to only add data to a subset of cells. Cells where `data` is not added are set to `NA`.
 #' @param force A boolean value indicating whether or not to overwrite data in a given column when the value passed to `name`
 #' already exists as a column name in `cellColData`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Cell Column Data
+#' addCellColData(proj, data = proj$TSSEnrichment, name = "TSS2", cells = getCellNames(proj))
+#'
 #' @export
 addCellColData <- function(ArchRProj = NULL, data = NULL, name = NULL, cells =  NULL, force = FALSE){
 
@@ -351,6 +441,15 @@ addCellColData <- function(ArchRProj = NULL, data = NULL, name = NULL, cells =  
 #' This function gets the peak set as a GRanges object from an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get PeakSet
+#' getPeakSet(proj)
+#'
 #' @export
 getPeakSet <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -367,6 +466,15 @@ getPeakSet <- function(ArchRProj = NULL){
 #' information (GC content) or chromosome sizes.
 #' @param force If a `peakSet` object has already been added to the given `ArchRProject`, the value of `force` determines
 #' whether or not to overwrite this `peakSet`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add PeakSet
+#' addPeakSet(proj, peakSet = getPeakSet(proj), force = TRUE)
+#'
 #' @export
 addPeakSet <- function(
   ArchRProj = NULL, 
@@ -391,7 +499,11 @@ addPeakSet <- function(
     #Get NucleoTide Content
     peakSet <- tryCatch({
       .requirePackage("Biostrings",source="bioc")
-      BSgenome <- eval(parse(text = genomeAnnotation$genome))
+      BSgenome <- tryCatch({
+        eval(parse(text = paste0(genomeAnnotation$genome)))
+      }, error = function(e){
+        eval(parse(text = paste0(genomeAnnotation$genome,"::",genomeAnnotation$genome)))
+      })
       BSgenome <- validBSgenome(BSgenome)
       nucFreq <- BSgenome::alphabetFrequency(getSeq(BSgenome, peakSet))
       mcols(peakSet)$GC <- round(rowSums(nucFreq[,c("G","C")]) / rowSums(nucFreq),4)
@@ -423,6 +535,18 @@ addPeakSet <- function(
 #' This function gets the genomeAnnotation from a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Genome Annotation in ArchRProj
+#' getGenomeAnnotation(proj)
+#'
+#' # Get Genome Annotation loaded globally
+#' getGenomeAnnotation()
+#'
 #' @export
 getGenomeAnnotation <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
@@ -442,6 +566,18 @@ getGenomeAnnotation <- function(ArchRProj = NULL){
 #' This function gets the blacklist (the regions to be excluded from analysis) as a GRanges object from the genomeAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Blacklist in ArchRProj
+#' getBlacklist(proj)
+#'
+#' # Get Blacklist loaded globally
+#' getBlacklist()
+#'
 #' @export
 getBlacklist <- function(ArchRProj = NULL){
   if(is.character(ArchRProj)){
@@ -464,6 +600,18 @@ getBlacklist <- function(ArchRProj = NULL){
 #' This function gets the name of the genome from the genomeAnnotation used by a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Genome in ArchRProj
+#' getGenome(proj)
+#'
+#' # Get Genome loaded globally
+#' getGenome()
+#'
 #' @export
 getGenome <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
@@ -483,6 +631,18 @@ getGenome <- function(ArchRProj = NULL){
 #' This function gets the chromosome lengths as a GRanges object from the genomeAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get chromSizes in ArchRProj
+#' getChromSizes(proj)
+#'
+#' # Get chromSizes loaded globally
+#' getChromSizes()
+#'
 #' @export
 getChromSizes <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
@@ -502,6 +662,18 @@ getChromSizes <- function(ArchRProj = NULL){
 #' This function gets the chromosome lengths as a vector from the genomeAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get chromLengths in ArchRProj
+#' getChromLengths(proj)
+#'
+#' # Get chromLengths loaded globally
+#' getChromLengths()
+#'
 #' @export
 getChromLengths <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
@@ -538,6 +710,18 @@ getChromLengths <- function(ArchRProj = NULL){
 #' This function gets the geneAnnotation from a given ArchRProject
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Gene Annotation in ArchRProj
+#' getGeneAnnotation(proj)
+#'
+#' # Get Gene Annotation loaded globally
+#' getGeneAnnotation()
+#'
 #' @export
 getGeneAnnotation <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
@@ -557,6 +741,18 @@ getGeneAnnotation <- function(ArchRProj = NULL){
 #' This function gets the transcription start sites (TSSs) as a GRanges object of all genes from the geneAnnotation of a given ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get TSS in ArchRProj
+#' getTSS(proj)
+#'
+#' # Get TSS loaded globally
+#' getTSS()
+#'
 #' @export
 getTSS <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
@@ -577,6 +773,18 @@ getTSS <- function(ArchRProj = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param symbols A character vector containing the gene symbols to subset from the `geneAnnotation`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Genes in ArchRProj
+#' getGenes(proj)
+#'
+#' # Get Genes globally
+#' getGenes()
+#'
 #' @export
 getGenes <- function(ArchRProj = NULL, symbols = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
@@ -616,6 +824,18 @@ getGenes <- function(ArchRProj = NULL, symbols = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param symbols A character vector containing the gene symbols for the genes where exons should be extracted.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Exons in ArchRProj
+#' getExons(proj)
+#'
+#' # Get Exons globally
+#' getExons()
+#'
 #' @export
 getExons <- function(ArchRProj = NULL, symbols = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProject","null"))
@@ -669,6 +889,15 @@ getExons <- function(ArchRProj = NULL, symbols = NULL){
 #' `reducedDims` were created by the dimensionality reduction method. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation
 #' to sequencing depth that is greater than the `corCutOff`, it will be excluded.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Iterative LSI
+#' getReducedDims(proj, reducedDims = "IterativeLSI")
+#'
 #' @export
 getReducedDims <- function(
   ArchRProj = NULL, 
@@ -722,7 +951,7 @@ getReducedDims <- function(
     
     #Determine PCs to Keep
     if(!is.null(dimsToUse)){
-      corToUse <- dimsToUse
+      corToUse <- intersect(dimsToUse, seq_along(corToDepth))
     }else{
       corToUse <- seq_along(corToDepth)
     }
@@ -774,6 +1003,15 @@ getReducedDims <- function(
 #' retrieve from the designated `ArchRProject`.
 #' @param returnDF A boolean value indicating whether to return the embedding object as a `data.frame`. Otherwise, it will return
 #' the full embedding object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get UMAP
+#' getEmbedding(proj, embedding = "UMAP")
+#'
 #' @export
 getEmbedding <- function(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE){
 
@@ -805,6 +1043,15 @@ getEmbedding <- function(ArchRProj = NULL, embedding = "UMAP", returnDF = TRUE){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param returnSummary A boolean value indicating whether to return a summary of the `ArchRProject` or to just print the summary.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Project Summary
+#' getProjectSummary(proj)
+#'
 #' @export
 getProjectSummary <- function(ArchRProj = NULL, returnSummary = FALSE){
 
@@ -835,6 +1082,15 @@ getProjectSummary <- function(ArchRProj = NULL, returnSummary = FALSE){
 #' @param ArchRProj An `ArchRProject` object.
 #' @param name The name of the summary information to add to the `ArchRProject` object.
 #' @param summary A vector to add as summary information to the `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Project Summary
+#' addProjectSummary(proj, name = "test", summary = "test successful")
+#'
 #' @export
 addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
 
@@ -864,37 +1120,82 @@ addProjectSummary <- function(ArchRProj = NULL, name = NULL, summary = NULL){
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
-#' @param select A string specifying a specific feature name (or rowname) to be found with `grep`.
+#' @param select A string specifying a specific feature name (or rowname) to be found with `grep` or granges to overlap.
 #' @param ignoreCase A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to `select`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Features
+#' getFeatures(proj, useMatrix = "GeneScoreMatrix", select = 'CD3')
+#'
 #' @export
 getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select = NULL, ignoreCase = TRUE){
 
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = useMatrix, name = "useMatrix", valid = "character")
-  .validInput(input = select, name = "select", valid = c("character", "null"))
+  .validInput(input = select, name = "select", valid = c("character", "null", "granges"))
   .validInput(input = ignoreCase, name = "ignoreCase", valid = "boolean")
   #########
 
   fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
   matrixClass <- h5read(getArrowFiles(ArchRProj)[1], paste0(useMatrix, "/Info/Class"))
-  if(is.null(select)){
-    if(any(duplicated(paste0(fdf$name))) | matrixClass == "Sparse.Assays.Matrix"){
-      paste0(fdf$seqnames,":",fdf$name)
+
+  if("name" %in% colnames(fdf)){
+
+    if(is.null(select)){
+      if(any(duplicated(paste0(fdf$name))) | matrixClass == "Sparse.Assays.Matrix"){
+        return(paste0(fdf$seqnames,":",fdf$name))
+      }else{
+        return(fdf$name)
+      }
     }else{
-      fdf$name
+      grepNames <- grep(select, fdf$name, value = TRUE, ignore.case = ignoreCase)
+      if(any(duplicated(grepNames))){
+        grepIdx <- grep(select, fdf$name, ignore.case = ignoreCase)
+        grepNames <- paste0(fdf$seqnames[grepIdx],":",fdf$name[grepIdx])
+      }
+      if(all(c("deviations", "z") %in% unique(paste0(fdf$seqnames)))){
+        grepNames <- rev(grepNames)
+      }
+      return(grepNames)
     }
+
   }else{
-    grepNames <- grep(select, fdf$name, value = TRUE, ignore.case = ignoreCase)
-    if(any(duplicated(grepNames))){
-      grepIdx <- grep(select, fdf$name, ignore.case = ignoreCase)
-      grepNames <- paste0(fdf$seqnames[grepIdx],":",fdf$name[grepIdx])
+
+    if(all(c("start", "end") %in% colnames(fdf))){
+      featureData <- GRanges(
+        seqnames = fdf$seqnames,
+        ranges = IRanges(
+          start = fdf$start,
+          end = fdf$end
+        )
+      )
+      mcols(featureData)$idx <- fdf$idx
+      if(!is.null(select)){
+        featureData <- featureData[overlapsAny(featureData, select, ignore.strand=TRUE)]
+      }
+      return(featureData)
+    }else if(c("start") %in% colnames(fdf)){
+      featureData <- GRanges(
+        seqnames = fdf$seqnames,
+        ranges = IRanges(
+          start = fdf$start,
+          width = diff(fdf$start)[1]
+        )
+      )
+      mcols(featureData)$idx <- fdf$idx
+      if(!is.null(select)){
+        featureData <- featureData[overlapsAny(featureData, select, ignore.strand=TRUE)]
+      }
+      return(featureData)
     }
-    if(all(c("deviations", "z") %in% unique(paste0(fdf$seqnames)))){
-      grepNames <- rev(grepNames)
-    }
-    grepNames
+
   }
+
 }
 
 #' Get the seqnames that could be selected from a given data matrix within an ArchRProject
@@ -903,15 +1204,29 @@ getFeatures <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix", select 
 #' them for downstream plotting utilities.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param useMatrix The name of the data matrix as stored in the ArrowFiles of the `ArchRProject`. Options include "TileMatrix", "GeneScoreMatrix", etc.
+#' @param useMatrix The name of the data matrix or "Fragments" as stored in the ArrowFiles of the `ArchRProject`. 
+#' Options include "TileMatrix", "GeneScoreMatrix", etc.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Seqnames in Matrix
+#' getSeqnames(proj, useMatrix = "GeneScoreMatrix")
+#'
 #' @export
 getSeqnames <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix"){
   #Validate
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
   .validInput(input = useMatrix, name = "useMatrix", valid = "character")
   #########
-  fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
-  unique(paste0(fdf$seqnames))
+  if(useMatrix=="Fragments"){
+    unique(.availableSeqnames(getArrowFiles(ArchRProj)))
+  }else{
+    fdf <- .getFeatureDF(getArrowFiles(ArchRProj), useMatrix)
+    unique(paste0(fdf$seqnames))      
+  }
 }
 
 #' Get a list available matrices in the ArrowFiles storted in an ArchRProject
@@ -919,6 +1234,15 @@ getSeqnames <- function(ArchRProj = NULL, useMatrix = "GeneScoreMatrix"){
 #' This function gets the available matrices from the ArrowFiles in a given ArchRProject object.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Available Matrices in ArchR Project
+#' getAvailableMatrices(proj)
+#'
 #' @export
 getAvailableMatrices <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProject")
@@ -935,6 +1259,15 @@ getAvailableMatrices <- function(ArchRProj = NULL){
 #' @param addRatio A boolean indicating whether to add the "`name`Ratio" to the `ArchRProject`.
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Feature Counts
+#' proj <- addFeatureCounts(proj, features = getPeakSet(proj), name = 'ReadsInPeaks')
+#'
 #' @export
 addFeatureCounts <- function(
   ArchRProj = NULL,
@@ -956,8 +1289,19 @@ addFeatureCounts <- function(
   ArrowFiles <- getArrowFiles(ArchRProj)
   cellNames <- ArchRProj$cellNames
   featuresList <- split(features, seqnames(features))
-
-  h5disableFileLocking()
+  
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(threads > 1){
+      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      threads <- 1
+    }
+  }else{
+    if(threads > 1){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
+  }
 
   countsDF <- .safelapply(seq_along(featuresList), function(i){
 
@@ -1015,19 +1359,3 @@ addFeatureCounts <- function(
   ArchRProj
 
 }
-
-
-# addColorPalette <- function(
-#   ArchRProj = NULL,
-#   pal = NULL
-#   ){
-
-# }
-
-# getColorPalette <- function(
-#   ArchRProj = NULL,
-#   name = NULL
-#   ){
-
-# }
-

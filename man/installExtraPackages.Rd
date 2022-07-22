@@ -12,3 +12,9 @@ installExtraPackages(force = FALSE)
 \description{
 This function will install extra packages used in ArchR that are not installed by default.
 }
+\examples{
+
+# Install
+installExtraPackages()
+
+}

@@ -9,13 +9,13 @@ addGeneScoreMatrix(
   genes = getGenes(input),
   geneModel = "exp(-abs(x)/5000) + exp(-1)",
   matrixName = "GeneScoreMatrix",
-  extendUpstream = c(1000, 1e+05),
-  extendDownstream = c(1000, 1e+05),
+  extendUpstream = c(1000, 100000),
+  extendDownstream = c(1000, 100000),
   geneUpstream = 5000,
   geneDownstream = 0,
   useGeneBoundaries = TRUE,
   useTSS = FALSE,
-  extendTSS = FALSE,
+  extendTSS = TRUE,
   tileSize = 500,
   ceiling = 4,
   geneScaleFactor = 5,
@@ -43,7 +43,7 @@ should be a function of \code{x}, where \code{x} is the stranded distance from t
 activity score calculation.}
 
 \item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site or transcription termination site
-(based on 'useTSS') to consider for gene activity score calculation.}
+(based on 'useTSS' and 'extendTSS') to consider for gene activity score calculation.}
 
 \item{geneUpstream}{An integer describing the number of bp upstream the gene to extend the gene body. This effectively makes the gene body larger as there
 are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}
@@ -88,4 +88,13 @@ biasing the geneScores for genes nearby that locus.}
 \description{
 This function, for each sample, will independently compute counts for each tile
 per cell and then infer gene activity scores.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Gene Score Matrix With New Model
+proj <- addGeneScoreMatrix(proj, matrixName = "GeneScoreMatrix2", geneModel = "exp(-abs(x)/10000) + exp(-1)")
+
 }

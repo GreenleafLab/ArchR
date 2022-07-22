@@ -20,6 +20,7 @@ getMarkerFeatures(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
+  closest = FALSE,
   verbose = TRUE,
   logFile = createLogFile("getMarkerFeatures")
 )
@@ -69,10 +70,27 @@ the stringency of also maintaining the group proportions from \code{bgdGroups}.}
 deviations, the \code{seqnames} do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
 raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.}
 
+\item{closest}{A boolean value that indicated whether to use closest cells from foreground and background instead of random sampling
+of the foreground cells.}
+
 \item{verbose}{A boolean value that determines whether standard output is printed.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
 This function will identify features that are definitional of each provided cell grouping where possible
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
 }

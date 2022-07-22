@@ -12,6 +12,7 @@ addPeak2GeneLinks(
   scaleDims = NULL,
   corCutOff = 0.75,
   cellsToUse = NULL,
+  excludeChr = NULL,
   k = 100,
   knnIteration = 500,
   overlapCutoff = 0.8,
@@ -20,6 +21,8 @@ addPeak2GeneLinks(
   log2Norm = TRUE,
   predictionCutoff = 0.4,
   addEmpiricalPval = FALSE,
+  addPermutedPval = FALSE,
+  nperm = 100,
   seed = 1,
   threads = max(floor(getArchRThreads()/2), 1),
   verbose = TRUE,
@@ -45,6 +48,8 @@ correlation to sequencing depth that is greater than the \code{corCutOff}, it wi
 
 \item{cellsToUse}{A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.}
 
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
+
 \item{k}{The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.}
 
 \item{knnIteration}{The number of k-nearest neighbor groupings to test for passing the supplied \code{overlapCutoff}.}
@@ -63,6 +68,11 @@ from the \code{peakSet} of the \code{ArchRProject} and normalized to the total d
 
 \item{addEmpiricalPval}{Add empirical p-values based on randomly correlating peaks and genes not on the same seqname.}
 
+\item{addPermutedPval}{Add permuted p-values based on shuffle sample correlating peaks and genes. This approach was adapted from
+Regner et al 2021 "A multi-omic single-cell landscape of human gynecologic malignancies".}
+
+\item{nperm}{An integer representing the number of permutations to run for Regner et al 2021 approach.}
+
 \item{seed}{A number to be used as the seed for random number generation required in knn determination. It is recommended
 to keep track of the seed used so that you can reproduce results downstream.}
 
@@ -74,4 +84,16 @@ to keep track of the seed used so that you can reproduce results downstream.}
 }
 \description{
 This function will add peak-to-gene links to a given ArchRProject
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add P2G Links
+proj <- addPeak2GeneLinks(proj, k = 20)
+
+# Get P2G Links
+p2g <- getPeak2GeneLinks(proj)
+
 }

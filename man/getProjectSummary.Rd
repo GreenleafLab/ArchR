@@ -14,3 +14,12 @@ getProjectSummary(ArchRProj = NULL, returnSummary = FALSE)
 \description{
 This function prints the projectSummary from an ArchRProject
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Project Summary
+getProjectSummary(proj)
+
+}

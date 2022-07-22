@@ -8,6 +8,15 @@
 #' 
 #' @param ArchRProj An `ArchRProject` object.
 #' @param cellNames A character vector of `cellNames` that will be subsetted of the current `ArchRProject`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Peak Annotations
+#' proj <- subsetCells(proj, getCellNames(proj)[1:50])
+#'
 #' @export
 subsetCells <- function(
   ArchRProj = NULL, 
@@ -41,6 +50,18 @@ subsetCells <- function(
 #' This `filterRatio` allows you to apply a consistent filter across multiple different samples that may have different
 #' percentages of doublets because they were run with different cell loading concentrations.
 #' The higher the `filterRatio`, the greater the number of cells potentially removed as doublets.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Doublet Scores for Small Project
+#' proj <- addDoubletScores(proj, dimsToUse = 1:5, LSIParams = list(dimsToUse = 1:5, varFeatures=1000, iterations = 2))
+#'
+#' # Filter Doublets (Since Low Cells filterRatio has to be high before removing 1 cell!)
+#' proj <- filterDoublets(proj, filterRatio=10)
+#'
 #' @export
 filterDoublets <- function(ArchRProj = NULL, cutEnrich = 1, cutScore = -Inf, filterRatio = 1){
 

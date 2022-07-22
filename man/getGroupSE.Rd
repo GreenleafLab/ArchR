@@ -35,3 +35,12 @@ getGroupSE(
 \description{
 This function will group, summarize and export a summarized experiment for a assay in a ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Group SE
+se <- getGroupSE(proj, useMatrix = "PeakMatrix", groupBy = "Clusters")
+
+}

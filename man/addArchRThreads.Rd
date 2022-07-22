@@ -17,3 +17,9 @@ To bypass this, setting \code{force = TRUE} will use the number provided to \cod
 \description{
 This function will set the number of threads to be used for parallel computing across all ArchR functions.
 }
+\examples{
+
+# Add ArchR Threads
+addArchRThreads()
+
+}

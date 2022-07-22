@@ -38,3 +38,15 @@ object (ggplot2, plot, heatmap, etc).}
 \description{
 This function will save a plot or set of plots as a PDF file in the outputDirectory of a given ArchRProject.
 }
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Plot UMAP
+p <- plotEmbedding(proj, name = "Clusters")
+
+#PDF
+plotPDF(p, name = "UMAP-Clusters", ArchRProj = proj)
+
+}

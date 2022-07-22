@@ -12,3 +12,12 @@ getArrowFiles(ArchRProj = NULL)
 \description{
 This function gets the names of all ArrowFiles associated with a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Arrow Files
+getArrowFiles(proj)
+
+}

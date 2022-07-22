@@ -29,3 +29,12 @@ already exists as a column name in \code{cellColData}.}
 \description{
 This function adds new data to cellColData in a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Cell Column Data
+addCellColData(proj, data = proj$TSSEnrichment, name = "TSS2", cells = getCellNames(proj))
+
+}
