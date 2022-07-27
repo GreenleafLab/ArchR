@@ -681,8 +681,10 @@ ArchRBrowserTrack <- function(...){
 #' used to exclude pseudo-bulk replicates generated from low numbers of cells.
 #' @param normMethod The name of the column in `cellColData` by which normalization should be performed. The recommended and default value
 #' is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
-#' @param highlight A `GRanges` object containing regions to highlight.
-#' @param highlightFill A `character` color for filling highlihgted regions.
+#' @param highlight A `GRanges` object containing a region or regions on the plot to highlight. Multiple highlighted regions within the GRanges object are allowed
+#' Any highlight region that does not overlap the displayed region will be ignored.
+#' @param highlightFill The color to be used for the highlighted region designated by `highlight`. This can be a valid R color (i.e. "lightblue1")
+#' or a hex color (i.e. "#bfefff")
 #' @param threads The number of threads to use for parallel execution.
 #' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. This should be expressed as `c(lower limit, upper limit)` such as `c(0,0.99)`. If not provided, the y-axis limit will be c(0, 0.999).
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override coloring for groups.
