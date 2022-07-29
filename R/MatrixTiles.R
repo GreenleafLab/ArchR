@@ -233,6 +233,7 @@ addTileMatrix <- function(
         print("Bad2 (End greater than chromsome length): ")
         .logThis(fragmentsBad2, "fragmentsBad2", logFile = logFile)
         print(fragmentsBad2)
+        #update matchID now that we've removed some fragments
         matchID <- S4Vectors::match(mcols(fragments)$RG, cellNames)
       }
 
