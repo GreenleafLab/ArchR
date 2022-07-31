@@ -303,6 +303,7 @@ getTestProject <- function(version = 2){
 #' Get Input Files from paths to create arrows
 #' 
 #' This function will look for fragment files and bam files in the input paths and return the full path and sample names.
+#' Only files that match ".fragments.tsv.gz" and ".bam" will be captured.
 #' 
 #' @param paths A character vector of paths to search for usable input files.
 #' @export
