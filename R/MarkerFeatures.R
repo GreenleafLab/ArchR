@@ -913,9 +913,14 @@ markerHeatmap <- function(...){
 #' in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values in
 #' `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like "DeviationsMatrix").
+#' This only applies if `plotLog2FC = FALSE`.
 #' @param scaleTo Each column in the assay Mean from `seMarker` will be normalized to a column sum designated by `scaleTo`
-#' prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
+#' prior to log2 normalization. If `log2Norm = FALSE` this option has no effect.
 #' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
+#' @param plotLog2FC A boolean value that indicates whether the `log2(fold change)` values should be plotted on the heatmap or not.
+#' If `TRUE`, the `log2(fold change)` value (stored in the assay of `seMarker` labeled "Log2FC") is plotted.
+#' If `FALSE`, the mean value (stored in the assay of `seMarker` labeled "Mean") is plotted instead, with optional log normalization
+#' based on the `log2Norm` parameter.
 #' @param limits A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.
 #' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies
 #' rownames from `seMarker` to be excluded from the heatmap.
