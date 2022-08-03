@@ -428,7 +428,6 @@ addReproduciblePeakSet <- function(
 		#####################################################
 		# BSgenome for Add Nucleotide Frequencies!
 		#####################################################
-		.requirePackage(genomeAnnotation$genome)
 		.requirePackage("Biostrings",source="bioc")
 		BSgenome <- eval(parse(text = genomeAnnotation$genome))
 		BSgenome <- validBSgenome(BSgenome)
