@@ -921,7 +921,7 @@ getReducedDims <- function(
     
     #check if the dimsToUse are all present in the available dims
     #if not, provide a warning
-    dimsAvailable <- 1:length(ArchRProj@reducedDims[[reducedDims]]$corToDepth$none)
+    dimsAvailable <- 1:ncol(ArchRProj@reducedDims[[reducedDims]][[1]])
     if(!length(which(dimsToUse %in% dimsAvailable)) == length(dimsToUse)) {
       message("Warning! Not all requested dimsToUse are available! The follow dims were not found in ", reducedDims,":\n",
               paste(which(dimsToUse %ni% dimsAvailable), collapse = ", "),"\nUnavailable dims will be automatically excluded...")
