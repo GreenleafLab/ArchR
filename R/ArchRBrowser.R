@@ -1105,7 +1105,9 @@ plotBrowserTrack <- function(
           .gg_guides(fill = FALSE, colour = FALSE) + ggtitle(title)
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
@@ -1462,7 +1464,9 @@ plotBrowserTrack <- function(
   }
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
@@ -1595,7 +1599,9 @@ plotBrowserTrack <- function(
   }
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
@@ -1746,7 +1752,9 @@ plotBrowserTrack <- function(
   }
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
@@ -1929,7 +1937,9 @@ plotBrowserTrack <- function(
             .gg_guides(fill = FALSE, colour = FALSE) + ggtitle(title)
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
