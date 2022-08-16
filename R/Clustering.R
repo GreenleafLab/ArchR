@@ -51,7 +51,9 @@
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already
 #' exists as a column name in `cellColData`.
 #' @param logFile The path to a file to be used for logging ArchR output.
-#' @param ... Additional arguments to be provided to `Seurat::FindClusters()` or `scran::buildSNNGraph()` (for example, knn = 50, jaccard = TRUE)
+#' @param ... Additional arguments to be provided to `Seurat::FindClusters()` or `scran::buildSNNGraph()` (for example, knn = 50, jaccard = TRUE). Note
+#' that to pass values to the `method` parameter of `Seurat::FindClusters()` you should use the `FCmethod` parameter in `addClusters()` because `addClusters()`
+#' already has a `method` parameter.
 #' 
 #' @examples
 #'
