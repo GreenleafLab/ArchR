@@ -96,7 +96,7 @@ addClusters <- function(
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj", "null"))
   if(is(ArchRProj, "ArchRProject")){
-    message("When running addClusters 'input' param should be used for 'ArchRProj'. Replacing 'input' param with user 'ArchRPRoj'...")
+    message("When running addClusters 'input' param should be used for 'ArchRProj'. Replacing 'input' param with user 'ArchRProj'...")
     input <- ArchRProj
     rm(ArchRProj)
     gc()
