@@ -187,11 +187,11 @@ import10xFeatureMatrix <- function(
   type10x = NULL, 
   name = NULL,
   ranges = NULL
-  ){
- 
+){
+  
   #Shape
   shape <- h5read(h5, "/matrix/shape")
-
+  
   #Read features10x
   features10x <- h5read(h5, "/matrix/features")
   features10x <- lapply(seq_along(features10x), function(x){
@@ -208,7 +208,7 @@ import10xFeatureMatrix <- function(
     }
   })
   features10x <- Reduce("cbind",features10x[!unlist(lapply(features10x,is.null))])
-
+  
   #Determine Idx
   if(!is.null(type10x)){
     idx <- which(paste0(features10x$feature_type) %in% type10x)
@@ -224,54 +224,56 @@ import10xFeatureMatrix <- function(
       )
     )
   }
-
+  
   #Subset
   features10x <- features10x[idx, , drop=FALSE]
-
+  
   #Interval
   if("interval" %in% colnames(features10x)){
-
+    
     idxNA <- which(features10x$interval=="NA")
-
+    
     if(length(idxNA) > 0){
-
-      #Fix ranges
-      idx1 <- paste0(seqnames(ranges)) %in% c(1:22, "X", "Y", "MT")
-      if(length(idx1) > 0){
-        ranges2 <- GRanges(
-          seqnames = ifelse(idx1, paste0("chr",seqnames(ranges)), paste0(seqnames(ranges))),
-          ranges = GenomicRanges::ranges(ranges)
-        )
-        mcols(ranges2) <- mcols(ranges)
+      
+      if(!is.null(ranges)) {
+        #Fix ranges
+        idx1 <- paste0(seqnames(ranges)) %in% c(1:22, "X", "Y", "MT")
+        if(length(idx1) > 0){
+          ranges2 <- GRanges(
+            seqnames = ifelse(idx1, paste0("chr",seqnames(ranges)), paste0(seqnames(ranges))),
+            ranges = GenomicRanges::ranges(ranges)
+          )
+          mcols(ranges2) <- mcols(ranges)
+        }
+        
+        #Try To Use Ranges To Match
+        features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
+        namesNA <- features10xNA$name
+        idxFix <- match(namesNA, mcols(ranges2)[, grep("name", colnames(mcols(ranges)), ignore.case=TRUE)])
+        if(length(idxFix[!is.na(idxFix)]) > 0){
+          message("Correcting missing intervals...")
+          idx2 <- which(!is.na(idxFix))
+          rangesFix <- ranges2[idxFix[idx2]]
+          strand(rangesFix) <- "*"
+          features10xNA$interval[idx2] <- paste0(rangesFix)
+          features10x[which(features10x$interval=="NA"), ] <- features10xNA
+        }
+        
+        #NA add Fake Chromosome
+        features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
+        if(nrow(features10xNA) > 0){
+          features10xNA$interval <- paste0("chrUNK:1-1")
+          features10x[which(features10x$interval=="NA"), ] <- features10xNA
+        }
       }
-
-      #Try To Use Ranges To Match
-      features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
-      namesNA <- features10xNA$name
-      idxFix <- match(namesNA, mcols(ranges2)[, grep("name", colnames(mcols(ranges)), ignore.case=TRUE)])
-      if(length(idxFix[!is.na(idxFix)]) > 0){
-        message("Correcting missing intervals...")
-        idx2 <- which(!is.na(idxFix))
-        rangesFix <- ranges2[idxFix[idx2]]
-        strand(rangesFix) <- "*"
-        features10xNA$interval[idx2] <- paste0(rangesFix)
-        features10x[which(features10x$interval=="NA"), ] <- features10xNA
-      }
-
-      #NA add Fake Chromosome
-      features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
-      if(nrow(features10xNA) > 0){
-        features10xNA$interval <- paste0("chrUNK:1-1")
-        features10x[which(features10x$interval=="NA"), ] <- features10xNA
-      }
-
+      
     }
-
+    
     features10x$ranges <- GRanges(paste0(features10x$interval))
     features10x$interval <- NULL
-
+    
   }
-
+  
   #Read Matrix
   mat <- sparseMatrix(
     i = h5read(h5, "/matrix/indices"), 
@@ -286,11 +288,11 @@ import10xFeatureMatrix <- function(
   }else{
     colnames(mat) <- barcodes
   }
-
+  
   #Subset
   mat <- mat[idx, , drop = FALSE]
   gc()
-
+  
   #Summarized Experiment
   if("ranges" %in% colnames(features10x)){
     mat <- SummarizedExperiment(
@@ -309,10 +311,10 @@ import10xFeatureMatrix <- function(
       rowData = features10x
     )    
   }
-
+  
   rownames(mat) <- rowData(mat)$name
   .sortRSE(mat)
-
+  
 }
 
 .sortRSE <- function(rse){
