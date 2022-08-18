@@ -235,6 +235,7 @@ import10xFeatureMatrix <- function(
     
     if(length(idxNA) > 0){
       
+      #if ranges = NULL, then interval is ignored(?)
       if(!is.null(ranges)) {
         #Fix ranges
         idx1 <- paste0(seqnames(ranges)) %in% c(1:22, "X", "Y", "MT")
@@ -265,12 +266,15 @@ import10xFeatureMatrix <- function(
           features10xNA$interval <- paste0("chrUNK:1-1")
           features10x[which(features10x$interval=="NA"), ] <- features10xNA
         }
+        
+        features10x$ranges <- GRanges(paste0(features10x$interval))
+        features10x$interval <- NULL
       }
       
+    } else {
+      features10x$ranges <- GRanges(paste0(features10x$interval))
+      features10x$interval <- NULL
     }
-    
-    features10x$ranges <- GRanges(paste0(features10x$interval))
-    features10x$interval <- NULL
     
   }
   
