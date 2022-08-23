@@ -106,9 +106,12 @@ import10xFeatureMatrix <- function(
           finalNotI <- which(rownames(rse_final) %ni% rownames(rse_i))
           rowsToRemove <- unique(c(rowsToRemove, finalNotI))
           geneMismatch <- unique(c(geneMismatch, rownames(rse_final)[finalNotI]))
-          #add dummy rows to rse_i with these gene names. this allows for proper alignment but these rows will eventually be removed
-          rse_i[rownames(rse_final)[finalNotI],] <- 0
-          rse_i <- .sortRSE(rse_i)
+          #add dummy rows to rse_i with these gene names and rowData. this allows for proper alignment but these rows will eventually be removed
+          dummySE <- rse_i[1:length(finalNotI)]
+          rowData(dummySE) <- rowData(rse_final[rownames(rse_final)[finalNotI],])
+          rownames(dummySE) <- rownames(rse_final)[finalNotI]
+          rse_i <- SummarizedExperiment::rbind(rse_i, dummySE)
+          rse_i <- ArchR:::.sortRSE(rse_i)
           
           #check to ensure that the rownames now exactly match. if not something is wrong
           if(!identical(rownames(rse_final), rownames(rse_i))) {
