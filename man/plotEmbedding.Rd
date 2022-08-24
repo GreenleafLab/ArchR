@@ -10,8 +10,7 @@ plotEmbedding(
   colorBy = "cellColData",
   name = "Sample",
   log2Norm = NULL,
-  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-    getImputeWeights(ArchRProj),
+  imputeWeights = if (!grepl("coldata", tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   pal = NULL,
   size = 0.1,
   sampleCells = NULL,

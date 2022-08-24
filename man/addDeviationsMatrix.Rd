@@ -12,6 +12,7 @@ addDeviationsMatrix(
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,
+  version = 2,
   threads = getArchRThreads(),
   verbose = TRUE,
   parallelParam = NULL,
@@ -37,6 +38,8 @@ z-scores ("z"), or both (c("deviations","z")).}
 
 \item{binarize}{A boolean value indicating whether the input matrix should be binarized before calculating deviations.
 This is often desired when working with insertion counts.}
+
+\item{version}{An integer for which deviations algorithm to use (1 = R native or 2 = C++ native).}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

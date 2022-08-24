@@ -9,8 +9,8 @@ addIterativeLSI(
   useMatrix = "TileMatrix",
   name = "IterativeLSI",
   iterations = 2,
-  clusterParams = list(resolution = c(2), sampleCells = 10000, maxClusters = 6, n.start
-    = 10),
+  clusterParams = list(resolution = c(2), sampleCells = 10000, maxClusters = 6, n.start =
+    10),
   firstSelection = "top",
   depthCol = "nFrags",
   varFeatures = 25000,
@@ -26,13 +26,13 @@ addIterativeLSI(
   sampleCellsFinal = NULL,
   selectionMethod = "var",
   scaleTo = 10000,
-  totalFeatures = 500000,
+  totalFeatures = 5e+05,
   filterQuantile = 0.995,
   excludeChr = c(),
   keep0lsi = FALSE,
   saveIterations = TRUE,
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
-    FALSE, fast_sgd = TRUE),
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose = FALSE,
+    fast_sgd = TRUE),
   nPlot = 10000,
   outDir = getOutputDirectory(ArchRProj),
   threads = getArchRThreads(),
@@ -64,7 +64,8 @@ These values are used to minimize the related biases in the reduction related. F
 
 \item{varFeatures}{The number of N variable features to use for LSI. The top N features will be used based on the \code{selectionMethod}.}
 
-\item{dimsToUse}{A vector containing the dimensions from the \code{reducedDims} object to use in clustering.}
+\item{dimsToUse}{A vector containing the dimensions to use in LSI. The total dimensions used in LSI will be \code{max(dimsToUse)}. If you set this too high,
+it could impact downstream functionalities including increasing the time required to run \code{addClusters()}.}
 
 \item{LSIMethod}{A number or string indicating the order of operations in the TF-IDF normalization.
 Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".}

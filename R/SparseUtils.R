@@ -72,8 +72,12 @@
   }
 }
 
-.sparesRowSds <- function(m){
-  sqrt(.sparseRowVars(m=m))
+.sparesRowSds <- function(m, na.rm=FALSE){
+  if(na.rm){
+    sparseMatrixStats::rowSds(m, na.rm=na.rm)
+  }else{
+    sqrt(.sparseRowVars(m=m))
+  }
 }
 
 ###################

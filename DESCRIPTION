@@ -9,9 +9,9 @@ Authors@R: c(
 Description: This package is designed to streamline scATAC analyses in R.
 Roxygen: list(markdown = TRUE)
 License: GPL (>= 2)
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppArmadillo
 LazyData: TRUE
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Encoding: UTF-8
 Imports:
     devtools,
@@ -24,7 +24,9 @@ Imports:
     S4Vectors (>= 0.9.25),
     BiocGenerics,
     Rcpp (>= 0.12.16),
+    RcppArmadillo,
     matrixStats,
+    sparseMatrixStats,
     plyr,
     nabor,
     motifmatchr,

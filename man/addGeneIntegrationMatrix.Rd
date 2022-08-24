@@ -21,8 +21,7 @@ addGeneIntegrationMatrix(
   scaleDims = NULL,
   corCutOff = 0.75,
   plotUMAP = TRUE,
-  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose =
-    FALSE),
+  UMAPParams = list(n_neighbors = 40, min_dist = 0.4, metric = "cosine", verbose = FALSE),
   nGenes = 2000,
   useImputation = TRUE,
   reduction = "cca",

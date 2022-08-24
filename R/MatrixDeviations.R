@@ -17,6 +17,7 @@
 #' z-scores ("z"), or both (c("deviations","z")).
 #' @param binarize A boolean value indicating whether the input matrix should be binarized before calculating deviations.
 #' This is often desired when working with insertion counts.
+#' @param version An integer for which deviations algorithm to use (1 = R native or 2 = C++ native).
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
@@ -48,6 +49,7 @@ addDeviationsMatrix <- function(
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,
+  version = 2,
   threads = getArchRThreads(),
   verbose = TRUE,
   parallelParam = NULL,
@@ -147,6 +149,7 @@ addDeviationsMatrix <- function(
   args$X <- seq_along(ArrowFiles)
   args$FUN <- .addDeviationsMatrix
   args$logFile <- logFile
+  args$version <- version
   args$registryDir <- file.path(getOutputDirectory(ArchRProj), paste0(matrixName,"DeviationsRegistry"))
 
   #Remove Project from Args
@@ -178,6 +181,7 @@ addDeviationsMatrix <- function(
   binarize = FALSE,
   useMatrix = "PeakMatrix",
   matrixName = "Motif", 
+  version = 2,
   force = FALSE,
   verbose = TRUE,
   tstart = NULL,
@@ -200,23 +204,6 @@ addDeviationsMatrix <- function(
     cellNames <- cellNames[cellNames %in% allCells]
   }
 
-  #Check
-  # completed <- tryCatch({
-  #     h5read(ArrowFile, paste0(matrixName,"/Info/Completed")) #Check if completed
-  #     return(TRUE)
-  #   },error = function(y){
-  #     return(FALSE)
-  # })
-  # if(completed){
-  #   if(!force){
-  #     .logMessage(paste0("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations."), logFile = logFile)
-  #     message("Previous Run Completed Successfully, to overwrite set force = TRUE! Skipping ", sampleName, " Deviations.")
-  #     return(0)
-  #   }else{
-  #     .logMessage("Previous Run Completed Successfully, continuing since force = TRUE!", logFile = logFile)
-  #     message("Previous Run Completed Successfully, continuing since force = TRUE!")
-  #   }
-  # }
   o <- h5closeAll()
   o <- .createArrowGroup(ArrowFile = ArrowFile, group = matrixName, force = force, logFile = logFile)
 
@@ -224,14 +211,25 @@ addDeviationsMatrix <- function(
   .logDiffTime(sprintf("chromVAR deviations %s Schep (2017)", prefix), tstart, addHeader = FALSE, logFile = logFile)
   dev <- tryCatch({
     
-    .getMatFromArrow(
-      ArrowFile, 
+    #Get Matrix
+    mat <- .getMatFromArrow(
+      ArrowFile = ArrowFile, 
       featureDF = featureDF, 
       binarize = binarize, 
       useMatrix = useMatrix,
       cellNames = cellNames
-      ) %>% {.customDeviations(
-        countsMatrix = .,
+    ) 
+
+    .logThis(mat, paste0(prefix, " : CountsMatrix"), logFile = logFile)
+    .logThis(annotationsMatrix, paste0(prefix, " : annotationsMatrix"), logFile = logFile)
+    .logThis(SummarizedExperiment::assay(bgdPeaks), paste0(prefix, " : backgroudPeaks"), logFile = logFile)
+    .logThis(featureDF$rowSums, paste0(prefix, " : expectation"), logFile = logFile)
+
+    #Deviations
+    if(version == 1){
+      
+      .customDeviations(
+        countsMatrix = mat,
         annotationsMatrix = annotationsMatrix,
         prefix = prefix,
         backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
@@ -240,8 +238,26 @@ addDeviationsMatrix <- function(
         verbose = verbose,
         threads = subThreads,
         logFile = logFile
-      )}
-  
+      )
+
+    }else if(version == 2){
+
+      .customDeviationsCpp(
+        countsMatrix = mat,
+        annotationsMatrix = annotationsMatrix,
+        prefix = prefix,
+        backgroudPeaks = SummarizedExperiment::assay(bgdPeaks),
+        expectation = featureDF$rowSums/sum(featureDF$rowSums),
+        out = out,
+        verbose = verbose
+      )
+
+    }else{
+      
+      stop("Only 2 versions (1 or 2)!")
+    
+    }
+
   }, error = function(e){
 
     errorList <- list(
@@ -360,11 +376,6 @@ addDeviationsMatrix <- function(
   colData <- DataFrame(seq_len(ncol(countsMatrix)), row.names = colnames(countsMatrix))[,FALSE]
   norm_expectation <- expectation / sum(expectation) #Double check this sums to 1!
   countsPerSample <- Matrix::colSums(countsMatrix)
-
-  .logThis(countsMatrix, paste0(prefix, " : CountsMatrix"))
-  .logThis(annotationsMatrix, paste0(prefix, " : annotationsMatrix"))
-  .logThis(backgroudPeaks, paste0(prefix, " : backgroudPeaks"))
-  .logThis(expectation, paste0(prefix, " : expectation"))
 
   d <- max(floor(ncol(annotationsMatrix)/20), 1)
   m <- 0
@@ -570,6 +581,60 @@ addDeviationsMatrix <- function(
   })
 
   return(outList)
+
+}
+
+.customDeviationsCpp <- function(
+  countsMatrix = NULL,
+  annotationsMatrix = NULL,
+  backgroudPeaks = NULL,
+  expectation = NULL,
+  prefix = "",
+  out = c("deviations", "z"),
+  verbose = TRUE
+  ){
+
+  #lets not do this check because we are running on partial matrix
+  #if (min(getFragmentsPerPeak(countsMatrix)) <= 0)
+  #  stop("All peaks must have at least one fragment in one sample")
+  stopifnot(nrow(countsMatrix) == nrow(backgroudPeaks))
+  stopifnot(length(expectation) == nrow(countsMatrix))
+
+  #Pre Compute
+  norm_expectation <- expectation / sum(expectation) #Double check this sums to 1!
+  countsPerSample <- Matrix::colSums(countsMatrix)
+
+  #Print Every 10%
+  pe <- max(floor(ncol(annotationsMatrix)/10), 1)
+
+  #Run
+  results <- deviations_cpp(
+    X = Matrix::t(countsMatrix), 
+    B = backgroudPeaks, 
+    anno_mat = annotationsMatrix, 
+    expect = matrix(norm_expectation, ncol=1), 
+    CpS = matrix(countsPerSample, ncol=1),
+    prefix = prefix,
+    print_every = pe,
+    verbose = verbose
+  )
+  results[[1]][is.nan(results[[1]])] <- NA
+  results[[2]][is.nan(results[[2]])] <- NA
+
+  #Create SE
+  results <- SummarizedExperiment::SummarizedExperiment(
+    assays = SimpleList(
+      lapply(results, function(x) as.matrix(Matrix::t(x)))
+    )
+  )
+  colnames(results) <- colnames(countsMatrix)
+  rownames(results) <- colnames(annotationsMatrix)
+  names(assays(results)) <- c("deviations", "z")
+
+  #Subset
+    SummarizedExperiment::assays(results) <- SummarizedExperiment::assays(results)[tolower(out)]
+
+  return(results)
 
 }
 

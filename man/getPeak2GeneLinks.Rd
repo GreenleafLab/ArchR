@@ -7,7 +7,7 @@
 getPeak2GeneLinks(
   ArchRProj = NULL,
   corCutOff = 0.45,
-  FDRCutOff = 0.0001,
+  FDRCutOff = 1e-04,
   varCutOffATAC = 0.25,
   varCutOffRNA = 0.25,
   resolution = 1,

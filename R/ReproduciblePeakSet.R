@@ -653,8 +653,8 @@ addReproduciblePeakSet <- function(
 }
 
 .identifyReproduciblePeaks <- function(
-	summitFiles = NULL,
-	summitNames = NULL,
+  summitFiles = NULL,
+  summitNames = NULL,
   reproducibility = 0.51,
   extendSummits = 250,
   blacklist = NULL,
@@ -666,7 +666,7 @@ addReproduciblePeakSet <- function(
 
 	nonOverlapPassES <- tryCatch({
 
-		.logMessage(paste0(prefix, " Getting Summits"), logFile = logFile)
+	  .logMessage(paste0(prefix, " Getting Summits"), logFile = logFile)
 	  summits <- lapply(seq_along(summitFiles), function(x){
 	  	grx <- readRDS(summitFiles[x])
 	  	grx <- subsetByOverlaps(grx, blacklist, invert = TRUE) #Not Overlapping Blacklist!
@@ -800,7 +800,14 @@ addReproduciblePeakSet <- function(
 
 	.logMessage(paste0("Running Macs2 with Params : macs2 ", cmd), logFile = logFile)
 
-	run <- system2(pathToMacs2, cmd, wait=TRUE, stdout=NULL, stderr=NULL)
+	#run <- system2(pathToMacs2, cmd, wait=TRUE, stdout=NULL, stderr=NULL)
+	#If summitsFile doesnt exists print error message from terminal
+	run <- suppressWarnings(system2(pathToMacs2, cmd, wait=TRUE, stdout=NULL, stderr=TRUE))
+	if(!file.exists(summitsFile)){
+		err <- paste0(run, collapse="\n")
+		.message2(err)
+		stop()	
+	}
 
 	#Read Summits!
 	out <- data.table::fread(summitsFile, select = c(1,2,3,5))

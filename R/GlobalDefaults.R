@@ -26,11 +26,13 @@ ArchRDependency <- c(
   "stringr",
   "data.table",
   "matrixStats",
+  "sparseMatrixStats",
   "S4Vectors",
   "GenomicRanges",
   "BiocGenerics",
   "Matrix",
   "Rcpp",
+  "RcppArmadillo",
   "SummarizedExperiment",
   "rhdf5"
 )

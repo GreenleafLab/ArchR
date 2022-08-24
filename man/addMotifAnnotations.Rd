@@ -11,7 +11,7 @@ addMotifAnnotations(
   species = NULL,
   collection = "CORE",
   motifPWMs = NULL,
-  cutOff = 0.00005,
+  cutOff = 5e-05,
   width = 7,
   version = 2,
   force = FALSE,
@@ -29,8 +29,9 @@ created by Jeff Vierstra (https://github.com/jvierstra/motif-clustering).}
 
 \item{annoName}{The name of the \code{peakAnnotation} object to be stored in the provided \code{ArchRProject}}
 
-\item{species}{The name of the species relevant to the supplied \code{ArchRProject}. This is used for identifying which motif to be
-used from CisBP/JASPAR. By default, this function will attempt to guess the species based on the value from \code{getGenome()}.}
+\item{species}{The latin name of the species relevant to the supplied \code{ArchRProject}. This is used for identifying which motif to be
+used from CisBP/JASPAR. For JASPAR, \code{species} is passed to \code{TFBS::getMatrixSet} and some species names are not recognized. In these cases
+it is possible to use the NCBI taxonomy ID. By default, this function will attempt to guess the species based on the value from \code{getGenome()}.}
 
 \item{collection}{If one of the JASPAR motif sets is used via \code{motifSet}, this parameter allows you to indicate the JASPAR
 collection to be used. See \code{getMatrixSet()} from \code{TFBSTools} for all options to supply for collection. If \code{motifSet} is

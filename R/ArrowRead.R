@@ -166,7 +166,8 @@ getFragmentsFromArrow <- function(
   chr = NULL, 
   out = "GRanges", 
   cellNames = NULL, 
-  method = "fast"
+  method = "fast",
+  maxFragSize = Inf
   ){
 
   if(is.null(chr)){
@@ -239,7 +240,8 @@ getFragmentsFromArrow <- function(
 
   if(tolower(out)=="granges"){
     if(length(output) > 0){
-      output <- GRanges(seqnames = chr, ranges(output), RG = mcols(output)$RG)    
+      output <- GRanges(seqnames = chr, ranges(output), RG = mcols(output)$RG)
+      output <- output[width(output) <= maxFragSize]
     }else{
       output <- IRanges(start = 1, end = 1)
       mcols(output)$RG <- c("tmp")
@@ -614,6 +616,7 @@ getMatrixFromArrow <- function(
   seqnames <- unique(featureDF$seqnames)
 
   h5df <- h5ls(ArrowFile)
+  h5df <- h5df[dirname(h5df[,1])==paste0("/", useMatrix),]
   if(all(c("indptr", "indices", "data") %in% h5df[,2])){
     version <- 2
   }else if(all(c("i", "jValues", "jLengths") %in% h5df[,2])){

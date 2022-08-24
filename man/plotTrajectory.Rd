@@ -11,8 +11,7 @@ plotTrajectory(
   colorBy = "colData",
   name = "Trajectory",
   log2Norm = NULL,
-  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-    getImputeWeights(ArchRProj),
+  imputeWeights = if (!grepl("coldata", tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   pal = NULL,
   size = 0.2,
   rastr = TRUE,
