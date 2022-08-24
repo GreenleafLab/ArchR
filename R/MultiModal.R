@@ -239,7 +239,7 @@ import10xFeatureMatrix <- function(
     if(length(idxNA) > 0){
       
       #if ranges = NULL, then interval is ignored(?)
-      if(!is.null(ranges)) {
+      if(!is.null(ranges) & is(ranges, "GRanges")){
         #Fix ranges
         idx1 <- paste0(seqnames(ranges)) %in% c(1:22, "X", "Y", "MT")
         if(length(idx1) > 0){
@@ -272,9 +272,22 @@ import10xFeatureMatrix <- function(
         
         features10x$ranges <- GRanges(paste0(features10x$interval))
         features10x$interval <- NULL
+
+      }else{
+
+        #NA add Fake Chromosome
+        features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
+        if(nrow(features10xNA) > 0){
+          features10xNA$interval <- paste0("chrUNK:1-1")
+          features10x[which(features10x$interval=="NA"), ] <- features10xNA
+        }
+
+        features10x$ranges <- GRanges(paste0(features10x$interval))
+        features10x$interval <- NULL
+
       }
       
-    } else {
+    }else {
       features10x$ranges <- GRanges(paste0(features10x$interval))
       features10x$interval <- NULL
     }
