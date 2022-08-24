@@ -266,7 +266,7 @@ import10xFeatureMatrix <- function(
         #NA add Fake Chromosome
         features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
         if(nrow(features10xNA) > 0){
-          features10xNA$interval <- paste0("chrUNK:1-1")
+          features10xNA$interval <- paste0("chrNA:1-1")
           features10x[which(features10x$interval=="NA"), ] <- features10xNA
         }
         
@@ -278,7 +278,7 @@ import10xFeatureMatrix <- function(
         #NA add Fake Chromosome
         features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
         if(nrow(features10xNA) > 0){
-          features10xNA$interval <- paste0("chrUNK:1-1")
+          features10xNA$interval <- paste0("chrNA:1-1")
           features10x[which(features10x$interval=="NA"), ] <- features10xNA
         }
 
