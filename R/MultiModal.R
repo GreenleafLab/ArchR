@@ -183,7 +183,7 @@ import10xFeatureMatrix <- function(
   }
 
   if("rowRanges" %in% slotNames(rse_final)){
-    idxNA <- which(seqnames(rse_final)=="chrNA")
+    idxNA <- which(as.character(seqnames(rse_final)) =="chrNA")
     if(length(idxNA) > 0){
       namesNA <- paste0(rowRanges(rse_final)$name[idxNA], collapse=",")
       warning(
