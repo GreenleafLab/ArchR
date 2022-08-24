@@ -181,6 +181,18 @@ import10xFeatureMatrix <- function(
     rse_final <- rse_final[-rowsToRemove,]
   }
 
+  if("rowRanges" %in% slotNames(rse_final)){
+    idxNA <- which(seqnames(rse_final)=="chrNA")
+    if(length(idxNA) > 0){
+      namesNA <- paste0(rowRanges(rse_final)$name[idxNA], collapse=",")
+      warning(
+        "These features had no interval present and were given a fake GRanges location on `chrNA`:\n\n",
+        namesNA,
+        "\n\nEither modify the output SE or see `features` input to use a reference GRanges to add to these features!"
+      )
+    }
+  }
+
   rse_final
   
 }
