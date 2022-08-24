@@ -109,6 +109,7 @@ import10xFeatureMatrix <- function(
           #add dummy rows to rse_i with these gene names and rowData. this allows for proper alignment but these rows will eventually be removed
           dummySE <- rse_i[1:length(finalNotI)]
           rowData(dummySE) <- rowData(rse_final[rownames(rse_final)[finalNotI],])
+          rowRanges(dummySE) <- rowRanges(rse_final[rownames(rse_final)[finalNotI],])
           rownames(dummySE) <- rownames(rse_final)[finalNotI]
           rse_i <- SummarizedExperiment::rbind(rse_i, dummySE)
           rse_i <- ArchR:::.sortRSE(rse_i)
