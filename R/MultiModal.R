@@ -16,8 +16,10 @@
 #' @param verbose Only relevant when multiple input files are used. A boolean that indicates whether messaging about mismatches should be verbose (`TRUE`) or minimal (`FALSE`)
 #' @param featureType The name of the feature to extract from the 10x feature file. 
 #' See https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/h5_matrices for more information.
-#' @param features A genomic ranges object containing a "name" column to help fill missing 10x intervals for RSE.
-#' For example, in hg38 features provided could be using Bioconductors `genes(EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86)`.
+#' @param features A genomic ranges object containing a "name" column to help fill missing 10x intervals for RSE. With the default CellRanger output, mitochondrial
+#' genes are not given genomic ranges. If you wish to recover these transcripts, for example for QC-based filtering, you must provide ranges for these genes. The same
+#' applies for any genes in the provided `h5` files that are missing ranges. As an example, in hg38 you could use Bioconductors
+#' `features = genes(EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86)`. Note that you must load the corresponding Bioconductor package to have access to the `genes` function.
 #' @param genesToExclude A character vector of gene names to be excluded from the returned `SummarizedExperiment` object. This can be useful when dealing with very large
 #' datasets because R has an upper limit for how large a given object can be. If you have >1.5 million cells, you cannot create a matrix in R with all ~30,000 genes so you
 #' can use this parameter to remove genes upfront.
