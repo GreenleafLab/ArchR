@@ -1023,6 +1023,9 @@ getBgdPeaks <- function(
   rowData(bgdPeaks)$bgdLengthMean <- round(rowMeans(matrix(biasDF[assay(bgdPeaks),3], nrow = nrow(bgdPeaks))),3)
   rowData(bgdPeaks)$bgdLengthSd <- round(matrixStats::rowSds(matrix(biasDF[assay(bgdPeaks),3], nrow = nrow(bgdPeaks))),3)
 
+  #sort the bgdPeaks object based on seqlevel so that it matches the peakSet
+  bgdPeaks <- sort.GenomicRanges(sortSeqlevels(bgdPeaks))
+  
   #Save Background Peaks
   if(!is.null(outFile)){
     saveRDS(bgdPeaks, outFile, compress = FALSE)

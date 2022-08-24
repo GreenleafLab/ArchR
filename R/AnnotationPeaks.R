@@ -320,8 +320,8 @@ addPeakAnnotations <- function(
 #' is stored indicating whether each motif is observed within the peak region.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param motifSet The motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020"
-#' which gives the 2016, 2018 or 2020 version of JASPAR motifs, (ii) one of "cisbp", "encode", or "homer" which gives the
+#' @param motifSet The name of a curated motif set to be used for annotation. Options include: (i) "JASPAR2016", "JASPAR2018", "JASPAR2020"
+#' which gives the 2016, 2018, or 2020 version of JASPAR motifs, (ii) one of "cisbp", "encode", or "homer" which gives the
 #' corresponding motif sets from the `chromVAR` package, or (iii) "vierstra" which gives the clustered archetype motifs
 #' created by Jeff Vierstra (https://github.com/jvierstra/motif-clustering). 
 #' @param annoName The name of the `peakAnnotation` object to be stored in the provided `ArchRProject`
@@ -332,7 +332,8 @@ addPeakAnnotations <- function(
 #' collection to be used. See `getMatrixSet()` from `TFBSTools` for all options to supply for collection. If `motifSet` is
 #' "vierstra", then this must either be "archetype" (for the v2.1 clustered models) or "individual" (for the original v1 individual motif models). 
 #' NOTE: vierstra archetype motifs are currently in beta and have not been finalized by Jeff Vierstra.
-#' @param motifPWMs A custom set of motif PWMs as a PWMList for adding motif annotations.
+#' @param motifPWMs A custom set of motif PWMs as a PWMatrixList to be used instead of `motifSet` for adding motif annotations.
+#' If `motifPWMs` is used, `motifSet` will be ignored.
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
 #' (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.

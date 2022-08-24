@@ -43,6 +43,7 @@
 #' @param biasPval A numeric value between 0 and 1 that specifies the p-value to use when testing for bias-enriched clusters.
 #' @param nPerm An integer specifying the number of permutations to perform for testing bias-enriched clusters.
 #' @param prefix A character string to be added before each cluster identity. For example, if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.
+#' @param FCmethod A character string that will be passed as the method parameter of `Seurat::FindClusters()`.
 #' @param ArchRProj An `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims`. This argument can also be supplied as `input`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param tstart A timestamp that is typically passed internally from another function (for ex. "IterativeLSI") to measure how long the clustering analysis
@@ -50,7 +51,9 @@
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already
 #' exists as a column name in `cellColData`.
 #' @param logFile The path to a file to be used for logging ArchR output.
-#' @param ... Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)
+#' @param ... Additional arguments to be provided to `Seurat::FindClusters()` or `scran::buildSNNGraph()` (for example, knn = 50, jaccard = TRUE). Note
+#' that to pass values to the `method` parameter of `Seurat::FindClusters()` you should use the `FCmethod` parameter in `addClusters()` because `addClusters()`
+#' already has a `method` parameter.
 #' 
 #' @examples
 #'
@@ -86,6 +89,7 @@ addClusters <- function(
   biasPval = 0.05,
   nPerm = 500,
   prefix = "C",
+  FCmethod = NULL,
   ArchRProj = NULL,
   verbose = TRUE,
   tstart = NULL,
@@ -96,7 +100,7 @@ addClusters <- function(
 
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj", "null"))
   if(is(ArchRProj, "ArchRProject")){
-    message("When running addClusters 'input' param should be used for 'ArchRProj'. Replacing 'input' param with user 'ArchRPRoj'...")
+    message("When running addClusters 'input' param should be used for 'ArchRProj'. Replacing 'input' param with user 'ArchRProj'...")
     input <- ArchRProj
     rm(ArchRProj)
     gc()
@@ -122,6 +126,7 @@ addClusters <- function(
   .validInput(input = biasPval, name = "biasPval", valid = c("numeric"))
   .validInput(input = nPerm, name = "nPerm", valid = c("integer"))
   .validInput(input = prefix, name = "prefix", valid = c("character"))
+  .validInput(input = FCmethod, name = "FCmethod", valid = c("character","null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = tstart, name = "tstart", valid = c("timestamp","null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
@@ -194,6 +199,12 @@ addClusters <- function(
     if(grepl("seurat",tolower(method))){
 
       clustParams <- list(...)
+      
+      #optionally, if user has specified the FCmethod param, pass this through to FindClusters
+      if(!is.null(FCmethod)) {
+        clustParams$method <- FCmethod
+      }
+      
       clustParams$verbose <- verbose
       clustParams$tstart <- tstart
       clust <- .clustSeurat(mat = matDR, clustParams = clustParams, logFile = logFile)

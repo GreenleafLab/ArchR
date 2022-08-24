@@ -677,12 +677,16 @@ ArchRBrowserTrack <- function(...){
 #' @param downstream The number of basepairs downstream of the transcription start site of `geneSymbol` to extend the plotting window.
 #' If `region` is supplied, this argument is ignored.
 #' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.
+#' @param maxCells The maximum number of cells to use for obtaining data to plot as a bulk track. Using more cells can increase the resolution of your plots
+#' at the expense of increased processing time.
 #' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be
 #' used to exclude pseudo-bulk replicates generated from low numbers of cells.
 #' @param normMethod The name of the column in `cellColData` by which normalization should be performed. The recommended and default value
 #' is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.
-#' @param highlight A `GRanges` object containing regions to highlight.
-#' @param highlightFill A `character` color for filling highlihgted regions.
+#' @param highlight A `GRanges` object containing a region or regions on the plot to highlight. Multiple highlighted regions within the GRanges object are allowed
+#' Any highlight region that does not overlap the displayed region will be ignored.
+#' @param highlightFill The color to be used for the highlighted region designated by `highlight`. This can be a valid R color (i.e. "lightblue1")
+#' or a hex color (i.e. "#bfefff")
 #' @param threads The number of threads to use for parallel execution.
 #' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. This should be expressed as `c(lower limit, upper limit)` such as `c(0,0.99)`. If not provided, the y-axis limit will be c(0, 0.999).
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override coloring for groups.
@@ -727,7 +731,8 @@ plotBrowserTrack <- function(
   log2Norm = TRUE,
   upstream = 50000,
   downstream = 50000,
-  tileSize = 250, 
+  tileSize = 250,
+  maxCells = 500,
   minCells = 25,
   normMethod = "ReadsInTSS",
   highlight = NULL,
@@ -761,6 +766,7 @@ plotBrowserTrack <- function(
   .validInput(input = upstream, name = "upstream", valid = c("integer"))
   .validInput(input = downstream, name = "downstream", valid = c("integer"))
   .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
+  .validInput(input = maxCells, name = "maxCells", valid = c("integer"))
   .validInput(input = minCells, name = "minCells", valid = c("integer"))
   .validInput(input = normMethod, name = "normMethod", valid = c("character"))
   .validInput(input = highlight, name = "highlight", valid = c("granges", "null"))
@@ -830,7 +836,8 @@ plotBrowserTrack <- function(
         region = region[x], 
         tileSize = tileSize, 
         groupBy = groupBy,
-        threads = threads, 
+        threads = threads,
+        maxCells = maxCells,
         minCells = minCells,
         pal = pal,
         ylim = ylim,
@@ -1003,7 +1010,8 @@ plotBrowserTrack <- function(
 .bulkTracks <- function(
   ArchRProj = NULL, 
   region = NULL, 
-  tileSize = 100, 
+  tileSize = 100,
+  maxCells = 500,
   minCells = 25,
   groupBy = "Clusters",
   useGroups = NULL,
@@ -1035,6 +1043,7 @@ plotBrowserTrack <- function(
     groupBy = groupBy, 
     normMethod = normMethod,
     useGroups = useGroups,
+    maxCells = maxCells,
     minCells = minCells,
     region = region, 
     tileSize = tileSize, 
@@ -1096,7 +1105,9 @@ plotBrowserTrack <- function(
           .gg_guides(fill = FALSE, colour = FALSE) + ggtitle(title)
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
@@ -1453,7 +1464,9 @@ plotBrowserTrack <- function(
   }
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
@@ -1586,7 +1599,9 @@ plotBrowserTrack <- function(
   }
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
@@ -1737,7 +1752,9 @@ plotBrowserTrack <- function(
   }
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
@@ -1920,7 +1937,9 @@ plotBrowserTrack <- function(
             .gg_guides(fill = FALSE, colour = FALSE) + ggtitle(title)
 
   #Determine Whether To Highlight
-  highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  if(!is.null(highlight)) {
+    highlight <- subsetByOverlaps(highlight, region, ignore.strand=TRUE)
+  }
   if(length(highlight) > 0){
 
     #Data Frame
