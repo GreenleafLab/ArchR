@@ -1373,9 +1373,13 @@ exportPeakMatrixForSTREAM <- function(
   peaksDF <- data.frame(rowRanges(mat))[,1:3]
   cellsDF <- data.frame(colnames(mat))
 
-  data.table::fwrite(countsDF, file = "STREAM_Counts.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
-  data.table::fwrite(peaksDF, file = "STREAM_Regions.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
-  data.table::fwrite(cellsDF, file = "STREAM_Sample.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(countsDF, file = "STREAM_Counts.tsv", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(peaksDF, file = "STREAM_Regions.tsv", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(cellsDF, file = "STREAM_Sample.tsv", sep = "\t", row.names = FALSE, col.names = FALSE)
+
+  R.utils::gzip("STREAM_Counts.tsv")
+  R.utils::gzip("STREAM_Regions.tsv")
+  R.utils::gzip("STREAM_Sample.tsv")
 
   return(0)
 

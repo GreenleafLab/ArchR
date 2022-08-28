@@ -34,12 +34,18 @@ plotMarkerHeatmap(
 in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values in
-\code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like "DeviationsMatrix").}
+\code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like "DeviationsMatrix").
+This only applies if \code{plotLog2FC = FALSE}.}
 
 \item{scaleTo}{Each column in the assay Mean from \code{seMarker} will be normalized to a column sum designated by \code{scaleTo}
-prior to log2 normalization. If log2Norm is \code{FALSE} this option has no effect.}
+prior to log2 normalization. If \code{log2Norm = FALSE} this option has no effect.}
 
 \item{scaleRows}{A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.}
+
+\item{plotLog2FC}{A boolean value that indicates whether the \verb{log2(fold change)} values should be plotted on the heatmap or not.
+If \code{TRUE}, the \verb{log2(fold change)} value (stored in the assay of \code{seMarker} labeled "Log2FC") is plotted.
+If \code{FALSE}, the mean value (stored in the assay of \code{seMarker} labeled "Mean") is plotted instead, with optional log normalization
+based on the \code{log2Norm} parameter.}
 
 \item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
 

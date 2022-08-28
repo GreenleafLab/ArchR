@@ -19,6 +19,7 @@ plotBrowserTrack(
   upstream = 50000,
   downstream = 50000,
   tileSize = 250,
+  maxCells = 500,
   minCells = 25,
   normMethod = "ReadsInTSS",
   highlight = NULL,
@@ -83,15 +84,20 @@ If \code{region} is supplied, this argument is ignored.}
 
 \item{tileSize}{The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.}
 
+\item{maxCells}{The maximum number of cells to use for obtaining data to plot as a bulk track. Using more cells can increase the resolution of your plots
+at the expense of increased processing time.}
+
 \item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be
 used to exclude pseudo-bulk replicates generated from low numbers of cells.}
 
 \item{normMethod}{The name of the column in \code{cellColData} by which normalization should be performed. The recommended and default value
 is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
 
-\item{highlight}{A \code{GRanges} object containing regions to highlight.}
+\item{highlight}{A \code{GRanges} object containing a region or regions on the plot to highlight. Multiple highlighted regions within the GRanges object are allowed
+Any highlight region that does not overlap the displayed region will be ignored.}
 
-\item{highlightFill}{A \code{character} color for filling highlihgted regions.}
+\item{highlightFill}{The color to be used for the highlighted region designated by \code{highlight}. This can be a valid R color (i.e. "lightblue1")
+or a hex color (i.e. "#bfefff")}
 
 \item{threads}{The number of threads to use for parallel execution.}
 
