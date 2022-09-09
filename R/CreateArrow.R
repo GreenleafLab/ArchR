@@ -18,9 +18,9 @@
 #' in downstream analyses. Cells with a TSS enrichment score greater than or equal to `minTSS` will be retained. TSS enrichment score
 #' is a measurement of signal-to-background in ATAC-seq.
 #' @param minFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-#' Cells containing greater than or equal to `minFrags` total fragments wll be retained.
+#' Cells containing greater than or equal to `minFrags` total fragments will be retained.
 #' @param maxFrags The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-#' Cells containing greater than or equal to `maxFrags` total fragments wll be retained.
+#' Cells containing greater than or equal to `maxFrags` total fragments will be retained.
 #' @param minFragSize The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.
 #' @param maxFragSize The maximum fragment size to be included into Arrow File. Fragments above than this number are discarded. Must be greater than maxFragSize.
 #' @param QCDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
