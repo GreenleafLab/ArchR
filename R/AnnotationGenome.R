@@ -5,11 +5,12 @@
 #' @param genome Either (i) a string that is a valid `BSgenome` or (ii) a `BSgenome` object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").
 #' @param chromSizes A `GRanges` object containing chromosome start and end coordinates.
 #' @param blacklist A `GRanges` object containing regions that should be excluded from analyses due to unwanted biases.
-#' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded.
-#' These "non-standard" chromosomes are defined by `filterChrGR()` and by manual annotation using the `filterChr` parameter.
+#' @param filter A boolean value indicating whether any chromosomes should be filtered based on the values passed to `standard` and `filterChr`.
+#' @param standard A boolean value indicating whether non-standard chromosome scaffolds should be excluded.
+#' These "non-standard" chromosomes are defined by `filterChrGR()`.
 #' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
 #' If no manual removal is desired, `filterChr` should be set to `NULL`. If `filter` is set to `TRUE` but `filterChr` is set to `NULL`,
-#' non-standard chromosomes will still be removed as defined in `filterChrGR()`.
+#' non-standard chromosomes can still be removed if `standard = TRUE`.
 #' 
 #' @examples
 #'
@@ -31,6 +32,7 @@ createGenomeAnnotation <- function(
   chromSizes = NULL,
   blacklist = NULL,
   filter = TRUE,
+  standard = TRUE,
   filterChr = c("chrM")
   ){
 
@@ -38,6 +40,7 @@ createGenomeAnnotation <- function(
   .validInput(input = chromSizes, name = "chromSizes", valid = c("granges", "null"))
   .validInput(input = blacklist, name = "blacklist", valid = c("granges", "null"))
   .validInput(input = filter, name = "filter", valid = c("boolean"))
+  .validInput(input = standard, name = "standard", valid = c("boolean"))
   .validInput(input = filterChr, name = "filterChr", valid = c("character", "null"))
 
   ##################
@@ -50,7 +53,7 @@ createGenomeAnnotation <- function(
     message("Attempting to infer chromSizes..")
     chromSizes <- GRanges(names(seqlengths(bsg)), IRanges(1, seqlengths(bsg)))
     if(filter){
-      chromSizes <- filterChrGR(chromSizes, remove = filterChr)
+      chromSizes <- filterChrGR(chromSizes, remove = filterChr, standard = standard)
     }
     seqlengths(chromSizes) <- end(chromSizes)
   } else {
