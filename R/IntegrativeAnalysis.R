@@ -1018,7 +1018,7 @@ getCoAccessibility <- function(
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
 #' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
-#' @param cellsToUse A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.
+#' @param cellsToUse A character vector of cellNames to compute peak-to-gene links on if desired to run on a subset of the total cells.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
