@@ -76,6 +76,10 @@ addModuleScore <- function(
   }
   
   if(!is.null(seed)) set.seed(seed)
+  
+  tstart <- Sys.time()
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addModuleScore Input-Parameters", logFile=logFile)
 
   #Get Feature DF
   featureDF <- ArchR:::.getFeatureDF(head(getArrowFiles(ArchRProj),2), subGroup=useMatrix)
@@ -264,6 +268,8 @@ addModuleScore <- function(
     ArchRProj <- addCellColData(ArchRProj, data = dfM[,x], name=names(featureList)[x], cells=rownames(dfM), force = TRUE)
   }
 
+                     
+  .logDiffTime("Finished Running addModuleScore", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
   ArchRProj
 
 }
