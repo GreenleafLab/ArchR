@@ -16,6 +16,7 @@
 #' @param seed A number to be used as the seed for random number generation required when sampling cells for the background set. It is recommended
 #' to keep track of the seed used so that you can reproduce results downstream.
 #' @param threads The number of threads to be used for parallel computing.
+#' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' 
 #' @examples
@@ -58,6 +59,7 @@ addModuleScore <- function(
   nBgd = 100,
   seed = 1,
   threads = getArchRThreads(),
+  verbose = TRUE,
   logFile = createLogFile("addModuleScore")
   ){
 
@@ -69,6 +71,7 @@ addModuleScore <- function(
   .validInput(input = nBgd, name = "nBgd", valid = c("integer"))
   .validInput(input = seed, name = "seed", valid = c("integer","null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
   
   if(useMatrix %ni% getAvailableMatrices(ArchRProj)){
