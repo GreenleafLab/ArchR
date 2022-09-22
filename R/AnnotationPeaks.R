@@ -421,7 +421,7 @@ addMotifAnnotations <- function(
   # Get PWM List adapted from chromVAR!
   #############################################################
 
-  .logDiffTime(paste0("Gettting Motif Set, Species : ", species), t1 = tstart, verbose = TRUE, logFile = logFile)
+  .logDiffTime(paste0("Getting Motif Set, Species : ", species), t1 = tstart, verbose = TRUE, logFile = logFile)
 
   if(tolower(motifSet)=="jaspar2020"){
     
