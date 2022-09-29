@@ -178,7 +178,7 @@ getFootprints <- function(
     rowData = rowData
   )
 
-  metadata(se)$Params <- SimpleList(kmerLength=kmerLength,flank=flank,date=Sys.Date())
+  S4Vectors::metadata(se)$Params <- SimpleList(kmerLength=kmerLength,flank=flank,date=Sys.Date())
 
   return(se)
 

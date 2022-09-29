@@ -1202,7 +1202,7 @@ peakAnnoEnrichment <- function(
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "peakAnnoEnrichment Input-Parameters", logFile = logFile)
 
-  if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+  if(S4Vectors::metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
     stop("Only markers identified from PeakMatrix can be used!")
   }
 

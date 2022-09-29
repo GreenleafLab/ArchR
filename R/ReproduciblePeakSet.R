@@ -273,7 +273,7 @@ addReproduciblePeakSet <- function(
 		peakDF$Group <- paste0(peakDF$Group, "(n = ", tableGroups[peakDF$Group],")")
 		peakDF <- rbind(data.frame(Group = "UnionPeaks", table(unionPeaks$peakType)), peakDF)
 		peakDF$Freq <- peakDF$Freq / 1000
-		metadata(unionPeaks)$PeakCallSummary <- peakDF
+		S4Vectors::metadata(unionPeaks)$PeakCallSummary <- peakDF
 
 	}else if(tolower(peakMethod) == "tiles"){
 
@@ -532,7 +532,7 @@ addReproduciblePeakSet <- function(
 		peakDF$Group <- paste0(peakDF$Group, "(n = ", tableGroups[peakDF$Group],")")
 		peakDF <- rbind(data.frame(Group = "UnionPeaks", table(unionPeaks$peakType)), peakDF)
 		peakDF$Freq <- peakDF$Freq / 1000
-		metadata(unionPeaks)$PeakCallSummary <- peakDF
+		S4Vectors::metadata(unionPeaks)$PeakCallSummary <- peakDF
 
 
 	}else{
@@ -558,7 +558,7 @@ addReproduciblePeakSet <- function(
 	pal = NULL
 	){
 
-  peakDF <- metadata(ArchRProj@peakSet)$PeakCallSummary
+  peakDF <- S4Vectors::metadata(ArchRProj@peakSet)$PeakCallSummary
   
   if(is.null(peakDF)){
     stop("Error no Peak Call Summary available are you sure these peaks were called with CreateReproduciblePeakSet?")

@@ -326,7 +326,7 @@ recoverArchRProject <- function(ArchRProj){
     })
 
     names(mdata) <- names(attr(DFO, "metadata"))
-    metadata(DF) <- mdata
+    S4Vectors::metadata(DF) <- mdata
 
   }
 
@@ -361,7 +361,7 @@ recoverArchRProject <- function(ArchRProj){
   })
 
   GR <- GRanges(seqnames = GRO@seqnames, ranges = GRO@ranges, strand = GRO@strand)
-  metadata(GR) <- GRO@metadata
+  S4Vectors::metadata(GR) <- GRO@metadata
   if(nrow(GRO@elementMetadata) > 0){
     mcols(GR) <- GRO@elementMetadata
   }
@@ -478,22 +478,22 @@ loadArchRProject <- function(
   #3. Background Peaks Paths
   if(!is.null(getPeakSet(ArchRProj))){
 
-    if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+    if(!is.null(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
 
-      bgdPeaksNew <- gsub(outputDir, outputDirNew, metadata(getPeakSet(ArchRProj))$bgdPeaks)
+      bgdPeaksNew <- gsub(outputDir, outputDirNew, S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)
 
       if(!all(file.exists(bgdPeaksNew))){
         
         if(force){
           message("BackgroundPeaks do not exist in saved ArchRProject!")
-          metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
+          S4Vectors::metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
         }else{
           stop("BackgroundPeaks do not exist in saved ArchRProject!")
         }
 
       }else{
 
-        metadata(ArchRProj@peakSet)$bgdPeaks <- bgdPeaksNew
+        S4Vectors::metadata(ArchRProj@peakSet)$bgdPeaks <- bgdPeaksNew
 
       }    
 
