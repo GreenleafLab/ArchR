@@ -1265,7 +1265,7 @@ addPeak2GeneLinks <- function(
   )
 
   #Get Distance from Fixed point A B 
-  o$distance <- distance(rowRanges(seRNA)[o[,1]] , rowRanges(seATAC)[o[,2]] )
+  o$distance <- GenomicRanges::distance(rowRanges(seRNA)[o[,1]] , rowRanges(seATAC)[o[,2]] )
   colnames(o) <- c("B", "A", "distance")
 
   #Compute PVal Stats
