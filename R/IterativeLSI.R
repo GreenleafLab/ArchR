@@ -967,7 +967,7 @@ addIterativeLSI <- function(
     nClust <- length(unique(clusters))  
     
     df <- DataFrame(cellNames = rownames(outLSI$matSVD), clusters = clusters)
-    metadata(df)$parClust <- parClust
+    S4Vectors::metadata(df)$parClust <- parClust
     df
 
   }, error = function(e){
@@ -1015,7 +1015,7 @@ addIterativeLSI <- function(
     }else{
 
       #Random Sampling for Quick Estimation of Variance
-      parClust <- metadata(clusterDF)$parClust
+      parClust <- S4Vectors::metadata(clusterDF)$parClust
       if(!is.null(parClust$sampleCells)){
         if(is.numeric(parClust$sampleCells)){
           if(floor(parClust$sampleCells) < nrow(outLSI$matSVD)){

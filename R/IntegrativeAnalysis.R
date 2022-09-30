@@ -881,7 +881,7 @@ addCoAccessibility <- function(
   mcols(peakSet) <- NULL
   o@metadata$peakSet <- peakSet
 
-  metadata(ArchRProj@peakSet)$CoAccessibility <- o
+  S4Vectors::metadata(ArchRProj@peakSet)$CoAccessibility <- o
   
   .endLogging(logFile = logFile)
 
@@ -930,18 +930,18 @@ getCoAccessibility <- function(
   }
 
   
-  if(is.null(metadata(ArchRProj@peakSet)$CoAccessibility)){
+  if(is.null(S4Vectors::metadata(ArchRProj@peakSet)$CoAccessibility)){
   
     return(NULL)
   
   }else{
    
-    coA <- metadata(ArchRProj@peakSet)$CoAccessibility
+    coA <- S4Vectors::metadata(ArchRProj@peakSet)$CoAccessibility
     coA <- coA[coA$correlation >= corCutOff,,drop=FALSE]
 
     if(returnLoops){
       
-      peakSummits <- resize(metadata(coA)$peakSet, 1, "center")
+      peakSummits <- resize(S4Vectors::metadata(coA)$peakSet, 1, "center")
 
       if(!is.null(resolution)){
         summitTiles <- floor(start(peakSummits) / resolution) * resolution + floor(resolution / 2)
@@ -954,7 +954,7 @@ getCoAccessibility <- function(
         start = summitTiles[coA[,1]],
         end = summitTiles[coA[,2]]
       )
-      metadata(coA) <- list()
+      S4Vectors::metadata(coA) <- list()
       mcols(loops) <- coA[,-c(1:3)]
       mcols(loops)$value <- coA$correlation
 
@@ -1239,7 +1239,7 @@ addPeak2GeneLinks <- function(
     assays = SimpleList(RNA = groupMatRNA, RawRNA = rawMatRNA), 
     rowRanges = geneStart
   )
-  metadata(seRNA)$KNNList <- knnObj
+  S4Vectors::metadata(seRNA)$KNNList <- knnObj
   .logThis(seRNA, "seRNA", logFile = logFile)
 
   names(peakSet) <- NULL
@@ -1248,7 +1248,7 @@ addPeak2GeneLinks <- function(
     assays = SimpleList(ATAC = groupMatATAC, RawATAC = rawMatATAC), 
     rowRanges = peakSet
   )
-  metadata(seATAC)$KNNList <- knnObj
+  S4Vectors::metadata(seATAC)$KNNList <- knnObj
   .logThis(seATAC, "seATAC", logFile = logFile)
 
   rm(groupMatRNA, groupMatATAC)
@@ -1265,7 +1265,7 @@ addPeak2GeneLinks <- function(
   )
 
   #Get Distance from Fixed point A B 
-  o$distance <- distance(rowRanges(seRNA)[o[,1]] , rowRanges(seATAC)[o[,2]] )
+  o$distance <- GenomicRanges::distance(rowRanges(seRNA)[o[,1]] , rowRanges(seATAC)[o[,2]] )
   colnames(o) <- c("B", "A", "distance")
 
   #Compute PVal Stats
@@ -1280,8 +1280,8 @@ addPeak2GeneLinks <- function(
   colnames(out) <- c("idxATAC", "idxRNA", "Correlation", "FDR", "VarQATAC", "VarQRNA")  
   mcols(peakSet) <- NULL
   names(peakSet) <- NULL
-  metadata(out)$peakSet <- peakSet
-  metadata(out)$geneSet <- geneStart
+  S4Vectors::metadata(out)$peakSet <- peakSet
+  S4Vectors::metadata(out)$geneSet <- geneStart
 
   #Null Correlations
   if(addEmpiricalPval){
@@ -1316,10 +1316,10 @@ addPeak2GeneLinks <- function(
   .safeSaveRDS(seATAC, outATAC, compress = FALSE)
   outRNA <- file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks", "seRNA-Group-KNN.rds")
   .safeSaveRDS(seRNA, outRNA, compress = FALSE)
-  metadata(out)$seATAC <- outATAC
-  metadata(out)$seRNA <- outRNA
+  S4Vectors::metadata(out)$seATAC <- outATAC
+  S4Vectors::metadata(out)$seRNA <- outRNA
 
-  metadata(ArchRProj@peakSet)$Peak2GeneLinks <- out
+  S4Vectors::metadata(ArchRProj@peakSet)$Peak2GeneLinks <- out
 
   .logDiffTime(main="Completed Peak2Gene Correlations!", t1=tstart, verbose=verbose, logFile=logFile)
   .endLogging(logFile = logFile)
@@ -1422,13 +1422,13 @@ getPeak2GeneLinks <- function(
     return(NULL)
   }
 
-  if(is.null(metadata(ArchRProj@peakSet)$Peak2GeneLinks)){
+  if(is.null(S4Vectors::metadata(ArchRProj@peakSet)$Peak2GeneLinks)){
   
     return(NULL)
   
   }else{
    
-    p2g <- metadata(ArchRProj@peakSet)$Peak2GeneLinks
+    p2g <- S4Vectors::metadata(ArchRProj@peakSet)$Peak2GeneLinks
     p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
 
     if(!is.null(varCutOffATAC)){
@@ -1441,8 +1441,8 @@ getPeak2GeneLinks <- function(
 
     if(returnLoops){
       
-      peakSummits <- resize(metadata(p2g)$peakSet, 1, "center")
-      geneStarts <- resize(metadata(p2g)$geneSet, 1, "start")
+      peakSummits <- resize(S4Vectors::metadata(p2g)$peakSet, 1, "center")
+      geneStarts <- resize(S4Vectors::metadata(p2g)$geneSet, 1, "start")
 
       if(!is.null(resolution)){
         summitTiles <- floor(start(peakSummits) / resolution) * resolution + floor(resolution / 2)
@@ -1566,7 +1566,7 @@ plotPeak2GeneHeatmap <- function(
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "peak2GeneHeatmap Input-Parameters", logFile = logFile)
   
-  if(is.null(metadata(ArchRProj@peakSet)$Peak2GeneLinks)){
+  if(is.null(S4Vectors::metadata(ArchRProj@peakSet)$Peak2GeneLinks)){
     stop("No Peak2GeneLinks Found! Try addPeak2GeneLinks!")
   }
   
@@ -1574,7 +1574,7 @@ plotPeak2GeneHeatmap <- function(
   # Get Inputs
   #########################################
   ccd <- getCellColData(ArchRProj, select = groupBy)
-  p2g <- metadata(ArchRProj@peakSet)$Peak2GeneLinks
+  p2g <- S4Vectors::metadata(ArchRProj@peakSet)$Peak2GeneLinks
   p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
 
   if(!is.null(varCutOffATAC)){
@@ -1589,14 +1589,14 @@ plotPeak2GeneHeatmap <- function(
     stop("No peak2genelinks found with your cutoffs!")
   }
 
-  if(!file.exists(metadata(p2g)$seATAC)){
+  if(!file.exists(S4Vectors::metadata(p2g)$seATAC)){
     stop("seATAC does not exist! Did you change paths? If this does not work, please try re-running addPeak2GeneLinks!")
   }
-  if(!file.exists(metadata(p2g)$seRNA)){
+  if(!file.exists(S4Vectors::metadata(p2g)$seRNA)){
     stop("seRNA does not exist! Did you change paths? If this does not work, please try re-running addPeak2GeneLinks!")
   }
-  mATAC <- readRDS(metadata(p2g)$seATAC)[p2g$idxATAC, ]
-  mRNA <- readRDS(metadata(p2g)$seRNA)[p2g$idxRNA, ]
+  mATAC <- readRDS(S4Vectors::metadata(p2g)$seATAC)[p2g$idxATAC, ]
+  mRNA <- readRDS(S4Vectors::metadata(p2g)$seRNA)[p2g$idxRNA, ]
   p2g$peak <- paste0(rowRanges(mATAC))
   p2g$gene <- rowData(mRNA)$name
   gc()
@@ -1608,7 +1608,7 @@ plotPeak2GeneHeatmap <- function(
   # Determine Groups from KNN
   #########################################
   .logDiffTime(main="Determining KNN Groups!", t1=tstart, verbose=verbose, logFile=logFile)
-  KNNList <- as(metadata(readRDS(metadata(p2g)$seRNA))$KNNList, "list")
+  KNNList <- as(S4Vectors::metadata(readRDS(S4Vectors::metadata(p2g)$seRNA))$KNNList, "list")
   KNNGroups <- lapply(seq_along(KNNList), function(x){
     KNNx <- KNNList[[x]]
     names(sort(table(ccd[KNNx, 1, drop = TRUE]), decreasing = TRUE))[1]

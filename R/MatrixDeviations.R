@@ -736,9 +736,9 @@ addBgdPeaks <- function(
     stop("PeakMatrix does not exist in the provided ArchRProject. Add a peak matrix using addPeakMatrix(). See available matrix names from getAvailableMatrices()!")
   }
   
-  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
+  if(!is.null(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
     
-    if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+    if(file.exists(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
       
       stop("Background Peaks Already Exist! set force = TRUE to addBgdPeaks!")
 
@@ -749,15 +749,15 @@ addBgdPeaks <- function(
         message("Previous Background Peaks file does not exist! Identifying Background Peaks!")
 
         #Force
-        if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
-          if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
-            file.remove(metadata(getPeakSet(ArchRProj))$bgdPeaks)
+        if(!is.null(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+          if(file.exists(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+            file.remove(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)
           }
         }
         if(file.exists(outFile)){
           file.remove(outFile)
         }
-        metadata(getPeakSet(ArchRProj))$bgdPeaks <- NULL
+        S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks <- NULL
 
         bgdPeaks <- .computeBgdPeaks(
           ArchRProj = ArchRProj, 
@@ -780,9 +780,9 @@ addBgdPeaks <- function(
   }else{
     
     #Force
-    if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
-      if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
-        file.remove(metadata(getPeakSet(ArchRProj))$bgdPeaks)
+    if(!is.null(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+      if(file.exists(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+        file.remove(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)
       }
     }
     if(file.exists(outFile)){
@@ -806,7 +806,7 @@ addBgdPeaks <- function(
     stop("Number of rows in Background Peaks does not match peakSet!")
   }
 
-  metadata(ArchRProj@peakSet)$bgdPeaks <- outFile
+  S4Vectors::metadata(ArchRProj@peakSet)$bgdPeaks <- outFile
   ArchRProj
 
 }
@@ -851,12 +851,12 @@ getBgdPeaks <- function(
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
 
-  if(!is.null(metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
+  if(!is.null(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks) & !force){
     
-    if(file.exists(metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+    if(file.exists(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
       
       message("Using Previous Background Peaks!")
-      bgdPeaks <- readRDS(metadata(getPeakSet(ArchRProj))$bgdPeaks)
+      bgdPeaks <- readRDS(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)
 
     }else{
 

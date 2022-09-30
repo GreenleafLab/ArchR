@@ -395,7 +395,7 @@ getTrajectory <- function(
 
   }
 
-  metadata(seTrajectory)$Params <- list(
+  S4Vectors::metadata(seTrajectory)$Params <- list(
     useMatrix = useMatrix, 
     matrixClass = matrixClass,
     scaleTo = scaleTo, 
@@ -497,7 +497,7 @@ plotTrajectoryHeatmap <- function(
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotTrajectoryHeatmap Input-Parameters", logFile = logFile)
 
-  if(metadata(seTrajectory)$Params$matrixClass == "Sparse.Assays.Matrix"){
+  if(S4Vectors::metadata(seTrajectory)$Params$matrixClass == "Sparse.Assays.Matrix"){
     if(is.null(useSeqnames) || length(useSeqnames) > 1){
       .logMessage("useSeqnames is NULL or greater than 1 with a Sparse.Assays.Matrix trajectory input.", verbose = TRUE, logFile = logFile)
       if(force){
@@ -589,9 +589,9 @@ plotTrajectoryHeatmap <- function(
   }
 
   if(is.null(pal)){
-    if(is.null(metadata(seTrajectory)$Params$useMatrix)){
+    if(is.null(S4Vectors::metadata(seTrajectory)$Params$useMatrix)){
       pal <- paletteContinuous(set = "solarExtra", n = 100)
-    }else if(tolower(metadata(seTrajectory)$Params$useMatrix)=="genescorematrix"){
+    }else if(tolower(S4Vectors::metadata(seTrajectory)$Params$useMatrix)=="genescorematrix"){
       pal <- paletteContinuous(set = "blueYellow", n = 100)
     }else{
       pal <- paletteContinuous(set = "solarExtra", n = 100)
@@ -618,7 +618,7 @@ plotTrajectoryHeatmap <- function(
       labelCols = FALSE,
       customRowLabel = match(idxLabel, rownames(mat[idx,])),
       showColDendrogram = TRUE,
-      name = metadata(seTrajectory)$Params$useMatrix,
+      name = S4Vectors::metadata(seTrajectory)$Params$useMatrix,
       draw = FALSE
     )
   
@@ -635,7 +635,7 @@ plotTrajectoryHeatmap <- function(
       labelCols = FALSE,
       customRowLabel = match(idxLabel, rownames(mat[idx,])),
       showColDendrogram = TRUE,
-      name = metadata(seTrajectory)$Params$useMatrix,
+      name = S4Vectors::metadata(seTrajectory)$Params$useMatrix,
       draw = FALSE
     )
   
@@ -1059,12 +1059,12 @@ getMonocleTrajectories <- function(
     int_elementMetadata = int_elementMetadata(sce), 
       int_colData = int_colData(sce), 
       int_metadata = int_metadata(sce), 
-      metadata = metadata(sce), 
+      metadata = S4Vectors::metadata(sce), 
       NAMES = NULL, 
       elementMetadata = elementMetadata(sce)[, 0], 
       rowRanges = rowRanges(sce)
   )
-  metadata(cds)$cds_version <- Biobase::package.version("monocle3")
+  S4Vectors::metadata(cds)$cds_version <- Biobase::package.version("monocle3")
 
   rm(sce)
 
