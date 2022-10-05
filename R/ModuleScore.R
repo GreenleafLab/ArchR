@@ -242,7 +242,7 @@ addModuleScore <- function(
   moduleList <- split(featuresUse$Bins, featuresUse$Module) #bins for each feature per module
   binList <- split(rS$Match, rS$Bins) #list of all indicies for each bin
 
-  .logThis(nBgd, name = paste0("Feature List - ",x), logFile = logFile)
+  .logThis(nBgd, name = paste0("nBgd"), logFile = logFile)
 
 
   #calculate the module score by normalizing to a background set of features
