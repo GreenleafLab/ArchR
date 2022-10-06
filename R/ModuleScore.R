@@ -225,7 +225,7 @@ addModuleScore <- function(
   rS$Bins <- 0
   idx <- which(rS$rowSums > 0)
   rS$Bins[idx] <- ceiling(seq_along(idx) / ceiling(length(idx)/nBin))
-  rS$Bins <- Rle(rS$Bins + 1)
+  rS$Bins <- Rle(rS$Bins)
   #rS$Bins <- Rle(ggplot2::cut_number(x = rS[,3] + rnorm(length(rS[,3]))/1e30, n = nBin, labels = FALSE, right = FALSE))
 
   #check that the number of selected background features isnt bigger than the size of each bin
