@@ -249,7 +249,6 @@ addModuleScore <- function(
 
   #calculate the module score by normalizing to a background set of features
   dfM <- lapply(seq_along(featureList), function(x){
-    message("Computing Module ",x, " of ", length(featureList))
     .logDiffTime(paste0("Computing Module ",x, " of ", length(featureList)), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     binx <- binList[moduleList[[x]]]
     idxFgd <- featureList[[x]]
