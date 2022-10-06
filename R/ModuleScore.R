@@ -250,10 +250,8 @@ addModuleScore <- function(
   #calculate the module score by normalizing to a background set of features
   dfM <- lapply(seq_along(featureList), function(x){
     message("Computing Module ",x, " of ", length(featureList))
-    .logThis(featureList[[x]], name = paste0("Feature List - ",x), logFile = logFile)
-    .logThis(moduleList[[x]], name = paste0("Module List - ",x), logFile = logFile)
+    .logDiffTime(paste0("Computing Module ",x, " of ", length(featureList)), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     binx <- binList[moduleList[[x]]]
-    .logThis(binx, name = paste0("binx"), logFile = logFile)
     idxFgd <- featureList[[x]]
     idxBgd <- unlist(lapply(binx, function(x) sample(x, nBgd)), use.names=FALSE)
     m <- ArchR:::.getPartialMatrix(
