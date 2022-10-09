@@ -50,7 +50,7 @@ projectBulkATAC <- function(
   if("end" %in% colnames(rDFeatures)){
     rDGR <- GRanges(seqnames=rDFeatures$seqnames,IRanges(start=rDFeatures$start, end=rDFeatures$end))
   }else{
-    rDGR <- GRanges(seqnames=rDFeatures$seqnames,IRanges(start=rDFeatures$start, width = (rDFeatures$start) / (rDFeatures$idx - 1)))
+    rDGR <- GRanges(seqnames=rDFeatures$seqnames,IRanges(start=rDFeatures$start, width = (rDFeatures$start) / (rDFeatures$idx)))
   }
   .logThis(rDGR, "reducedDimsGRanges", logFile = logFile)
   subATAC <- subsetByOverlaps(seATAC, rDGR, ignore.strand = TRUE)
