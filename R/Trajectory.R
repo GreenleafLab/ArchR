@@ -258,6 +258,7 @@ addTrajectory <- function(
       error = function(e){
         .logMessage("Unable to write to file designated by saveDF. Skipping trajectory DataFrame output.", logFile = logFile, verbose = TRUE)
       }
+    )
   }
   .endLogging(logFile = logFile)
 
