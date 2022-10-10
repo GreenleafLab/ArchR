@@ -253,6 +253,7 @@ addTrajectory <- function(
   if(!is.null(saveDF)){
     tryCatch(
       expr = {
+        .logMessage(paste0("Writing trajectory data frame object to ",saveDF), logFile = logFile, verbose = TRUE)
         saveRDS(object = dfTrajectory3, file = saveDF)
       },
       error = function(e){
