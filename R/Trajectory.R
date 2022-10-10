@@ -67,7 +67,7 @@ addTrajectory <- function(
   .validInput(input = useAll, name = "useAll", valid = c("boolean"))
   .validInput(input = dof, name = "dof", valid = c("integer"))
   .validInput(input = spar, name = "spar", valid = c("numeric"))
-  .validInput(input = saveDF, name = "saveDF", valid = c("character"))
+  .validInput(input = saveDF, name = "saveDF", valid = c("character", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
