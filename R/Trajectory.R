@@ -256,7 +256,7 @@ addTrajectory <- function(
         saveRDS(object = dfTrajectory3, file = saveDF)
       },
       error = function(e){
-        .logMessage("Unable to write to file designated by saveDF. Skipping trajectory DataFrame output.", logFile = logFile, verbose = TRUE)
+        .logMessage("Warning! Unable to write to file designated by saveDF. Skipping trajectory DataFrame output.", logFile = logFile, verbose = TRUE)
       }
     )
   }
