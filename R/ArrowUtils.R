@@ -207,7 +207,7 @@
         identical(fdfx, fdf)
     }, threads = threads) %>% unlist %>% all
     if(!checkIdentical){
-      stop("Error not all FeatureDF for asssay is the same!")
+      stop("Error not all FeatureDF for assay is the same!")
     }
   }
 
