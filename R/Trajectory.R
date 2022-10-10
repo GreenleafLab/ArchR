@@ -24,7 +24,7 @@
 #' @param dof The number of degrees of freedom to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param spar The sparsity to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param saveDF A full or relative path to use for creating a `.RDS` R object file containing a DataFrame with additional information about the trajectory.
-#' This includes the distance of each cell to the trajectory.
+#' This includes the distance of each cell to the splines of the trajectory and the corresponding indicies returned by `nabor::knn`.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
 #' @param seed A number to be used as the seed for random number generation for trajectory creation.
 #' @param logFile The path to a file to be used for logging ArchR output.
