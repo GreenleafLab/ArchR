@@ -23,6 +23,8 @@
 #' @param useAll A boolean describing whether to use cells outside of trajectory groups for post-fitting procedure.
 #' @param dof The number of degrees of freedom to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param spar The sparsity to be used in the spline fit. See `stats::smooth.spline()` for more information.
+#' @param saveDF A full or relative path to use for creating a `.RDS` R object file containing a DataFrame with additional information about the trajectory.
+#' This includes the distance of each cell to the splines of the trajectory and the corresponding indicies returned by `nabor::knn`.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
 #' @param seed A number to be used as the seed for random number generation for trajectory creation.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -48,6 +50,7 @@ addTrajectory <- function(
   useAll = FALSE, 
   dof = 250,
   spar = 1,
+  saveDF = NULL,
   force = FALSE,
   seed = 1,
   logFile = createLogFile("addTrajectory")
@@ -64,6 +67,7 @@ addTrajectory <- function(
   .validInput(input = useAll, name = "useAll", valid = c("boolean"))
   .validInput(input = dof, name = "dof", valid = c("integer"))
   .validInput(input = spar, name = "spar", valid = c("numeric"))
+  .validInput(input = saveDF, name = "saveDF", valid = c("character", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
@@ -246,6 +250,17 @@ addTrajectory <- function(
       force = force
   )
 
+  if(!is.null(saveDF)){
+    tryCatch(
+      expr = {
+        .logMessage(paste0("Writing trajectory data frame object to ",saveDF), logFile = logFile, verbose = TRUE)
+        saveRDS(object = dfTrajectory3, file = saveDF)
+      },
+      error = function(e){
+        .logMessage("Warning! Unable to write to file designated by saveDF. Skipping trajectory DataFrame output.", logFile = logFile, verbose = TRUE)
+      }
+    )
+  }
   .endLogging(logFile = logFile)
 
   ArchRProj
