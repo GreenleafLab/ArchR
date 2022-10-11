@@ -688,6 +688,7 @@ plotTrajectoryHeatmap <- function(
       labelRows = labelRows,
       labelCols = FALSE,
       colorMap = columnPal,
+      colAnnoPerRow = length(columnPal[[1]]),
       customRowLabel = match(idxLabel, rownames(mat[idx,])),
       showColDendrogram = TRUE,
       name = S4Vectors::metadata(seTrajectory)$Params$useMatrix,
