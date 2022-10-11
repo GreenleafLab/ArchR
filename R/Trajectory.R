@@ -668,8 +668,6 @@ plotTrajectoryHeatmap <- function(
     }
     columnData <- colData(seTrajectory)
     #create colorMap for ArchRHeatmap
-    columnPal <- as.vector(columnPal[match(colData(seTrajectory)$label, names(columnPal))])
-    names(columnPal) <- rownames(columnData)
     columnPal <- list(label = columnPal)
     attr(columnPal[[1]], "discrete") <- TRUE
   } else {
