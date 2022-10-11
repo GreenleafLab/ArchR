@@ -655,7 +655,6 @@ plotTrajectoryHeatmap <- function(
   .logThis(idx, "idx", logFile = logFile)
 
   if(colorColumns){
-    columnData <- colData(seTrajectory)
     if(!is.null(columnPal)){
       #check that all trajectory labels are present in the palette
       if(all(unique(colData(seTrajectory)$label) %in% names(columnPal))){
@@ -667,6 +666,12 @@ plotTrajectoryHeatmap <- function(
     } else {
       columnPal <- paletteDiscrete(values = unique(colData(seTrajectory)$label), set = "stallion")
     }
+    columnData <- colData(seTrajectory)
+    #create colorMap for ArchRHeatmap
+    columnPal <- as.vector(columnPal[match(colData(seTrajectory)$label, names(columnPal))])
+    names(columnPal) <- rownames(columnData)
+    columnPal <- list(label = columnPal)
+    attr(columnPal[[1]], "discrete") <- TRUE
   } else {
     columnPal <- NULL
     columnData <- NULL
