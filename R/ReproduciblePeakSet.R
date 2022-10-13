@@ -263,6 +263,7 @@ addReproduciblePeakSet <- function(
 
 		#Construct Union Peak Set
 		.logDiffTime("Creating Union Peak Set!", tstart, verbose = verbose, logFile = logFile)
+		.logThis(groupPeaks, "groupPeaks", logFile = logFile)
 		unionPeaks <- unlist(groupPeaks)
 		unionPeaks <- nonOverlappingGR(unionPeaks, by = "groupScoreQuantile", decreasing = TRUE)
 
