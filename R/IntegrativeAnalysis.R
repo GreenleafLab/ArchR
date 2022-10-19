@@ -1380,7 +1380,10 @@ addPeak2GeneLinks <- function(
 #' This function obtains peak-to-gene links from an ArchRProject.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
-#' @param corCutOff A numeric describing the minimum numeric peak-to-gene correlation to return.
+#' @param corCutOff A numeric describing the minimum numeric peak-to-gene correlation to return. If this value
+#' is positive, then only positive correlations greater than or equal to `corCutOff` will be returned. If this value is
+#' negative, then only negative correlations less than or equal to `corCutOff` will be returned. If `corCutOff = 0`, only
+#' positive correlations will be returned.
 #' @param FDRCutOff A numeric describing the maximum numeric peak-to-gene false discovery rate to return.
 #' @param varCutOffATAC A numeric describing the minimum variance quantile of the ATAC peak accessibility when selecting links.
 #' @param varCutOffRNA A numeric describing the minimum variance quantile of the RNA gene expression when selecting links.
@@ -1429,7 +1432,12 @@ getPeak2GeneLinks <- function(
   }else{
    
     p2g <- S4Vectors::metadata(ArchRProj@peakSet)$Peak2GeneLinks
-    p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
+    if(corCutOff >= 0) {
+      p2g <- p2g[which(p2g$Correlation >= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
+    } else {
+      p2g <- p2g[which(p2g$Correlation <= corCutOff & p2g$FDR <= FDRCutOff), ,drop=FALSE]
+    }
+    
 
     if(!is.null(varCutOffATAC)){
       p2g <- p2g[which(p2g$VarQATAC > varCutOffATAC),]
