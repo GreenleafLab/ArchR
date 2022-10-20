@@ -648,6 +648,7 @@ ArchRBrowserTrack <- function(...){
 #' (i.e. the `BSgenome` object you used) so they may not match other online genome browsers that use different gene annotations.
 #'
 #' @param ArchRProj An `ArchRProject` object.
+#' @param ShinyArchR Boolean indicating whether to use coverage RLEs or arrow files. Default = FALSE.
 #' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object,
 #' all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the
 #' transcription start site of the supplied gene.
@@ -719,6 +720,7 @@ ArchRBrowserTrack <- function(...){
 #' @export
 plotBrowserTrack <- function(
   ArchRProj = NULL, 
+  ShinyArchR = FALSE,
   region = NULL, 
   groupBy = "Clusters",
   useGroups = NULL, 
@@ -1038,6 +1040,7 @@ plotBrowserTrack <- function(
     tstart <- Sys.time()
   }
   
+  if(!ShinyArchR){
   df <- .groupRegionSumArrows(
     ArchRProj = ArchRProj, 
     groupBy = groupBy, 
@@ -1051,6 +1054,20 @@ plotBrowserTrack <- function(
     verbose = verbose,
     logFile = logFile
   )
+  } else {
+    df <- .groupRegionSumCvg(
+    ArchRProj = ArchRProj, 
+    groupBy = groupBy, 
+    normMethod = normMethod,
+    useGroups = useGroups,
+    minCells = minCells,
+    region = region, 
+    tileSize = tileSize, 
+    threads = threads,
+    verbose = verbose,
+    logFile = logFile
+  )
+  }
   .logThis(split(df, df[,3]), ".bulkTracks df", logFile = logFile)
 
   ######################################################
@@ -1327,6 +1344,154 @@ plotBrowserTrack <- function(
 
   return(groupMat)
 
+}
+
+##############################################################################
+# Create Average Tracks from Coverage objects 
+##############################################################################
+.groupRegionSumCvg <- function(
+  ArchRProj = NULL,
+  useGroups = NULL,
+  groupBy = NULL,
+  region = NULL,
+  tileSize = NULL,
+  normMethod = NULL,
+  verbose = FALSE,
+  minCells = 25,
+  maxCells = 500,
+  threads = NULL,
+  logFile = NULL
+){
+  
+  # Group Info
+  cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  tabGroups <- table(cellGroups)
+  
+  
+  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
+  uniqueGroups <- gtools::mixedsort(unique(cellGroups)) 
+  
+  # Tile Region
+  regionTiles <- (seq(trunc(start(region) / tileSize), 
+                      trunc(end(region) / tileSize) + 1) * tileSize) + 1
+  allRegionTilesGR <- GRanges(
+    seqnames = seqnames(region),
+    ranges = IRanges(start = regionTiles, width=100)
+  )
+  
+  cvgObjs = list.files(path = "./coverage", full.names = TRUE)
+  allCvgGR = c()
+  for(i in seq_along(cvgObjs)) {
+    cvgrds <- readRDS(cvgObjs[[i]]) 
+    gr <- GRanges(cvgrds) 
+    allCvgGR = c(allCvgGR, gr)
+  }
+  
+  groupMat <- .safelapply(seq_along(allCvgGR), function(i){
+    .logMessage(sprintf("Getting Region From Coverage Objects %s of %s", i, length(allCvgGR)), logFile = logFile)
+    tryCatch({
+      .regionSumCvg(
+        cvgObj = allCvgGR[[i]], 
+        region = region, 
+        regionTiles = regionTiles,
+        allRegionTilesGR = allRegionTilesGR,
+        tileSize = tileSize,
+      )
+    }, error = function(e){
+      errorList <- list(
+        cvgObj = allCvgGR[[i]], 
+        region = region, 
+        regionTiles = regionTiles,
+        allRegionTilesGR = allRegionTilesGR,
+        tileSize = tileSize,
+      )
+    })
+  }, threads = threads) %>% do.call(cbind, .)
+  
+  # Plot DF ------------------------------------------------------------------
+  df <- data.frame(which(groupMat > 0, arr.ind=TRUE))
+  # df$y stores the non-zero scores. 
+  df$y <- groupMat[cbind(df[,1], df[,2])]
+  
+  #Minus 1 Tile Size
+  dfm1 <- df
+  dfm1$row <- dfm1$row - 1
+  dfm1$y <- 0
+  
+  #Plus 1 Size
+  dfp1 <- df
+  dfp1$row <- dfp1$row + 1
+  dfp1$y <- 0
+  
+  #Create plot DF
+  df <- rbind(df, dfm1, dfp1)
+  df <- df[!duplicated(df[,1:2]),]
+  df <- df[df$row > 0,]
+  # df$x are the regionTiles that have a non-zero score. 
+  df$x <- regionTiles[df$row]
+  #NA from below
+  df$group <- uniqueGroups[df$col]
+  
+  #Add In Ends
+  dfs <- data.frame(
+    col = seq_along(uniqueGroups), 
+    row = 1, 
+    y = 0,
+    x = start(region),
+    group = uniqueGroups
+  )
+  
+  dfe <- data.frame(
+    col = seq_along(uniqueGroups),
+    row = length(regionTiles),
+    y = 0,
+    x = end(region),
+    group = uniqueGroups
+  )
+  
+  # Final output
+  plotDF <- rbind(df,dfs,dfe)
+  plotDF <- df[order(df$group,df$x),]
+  plotDF <- df[,c("x", "y", "group")]
+  
+  # Normalization 
+  g <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  
+  if(tolower(normMethod) %in% c("readsintss","readsinpromoter", "nfrags")) {
+    v <- getCellColData(ArchRProj, normMethod, drop = TRUE)
+    groupNormFactors <- unlist(lapply(split(v, g), sum))
+  }else if(tolower(normMethod) == "ncells"){
+    groupNormFactors <- table(g)
+  }else if(tolower(normMethod) == "none"){
+    groupNormFactors <- rep(10^4, length(g))
+    names(groupNormFactors) <- g
+  }else{
+    stop("Norm Method Not Recognized : ", normMethod)
+  }
+  
+  # Scale with Norm Factors
+  scaleFactors <- 10^4 / groupNormFactors
+  matchGroup <- match(paste0(plotDF$group), names(scaleFactors))
+  plotDF$y <- plotDF$y * as.vector(scaleFactors[matchGroup])
+  
+  return(plotDF)
+  
+}
+
+.regionSumCvg <- function(
+  cvgObj = NULL,
+  region = NULL,
+  regionTiles = NULL,
+  allRegionTilesGR = NULL, 
+  tileSize = NULL,
+  logFile = NULL
+){
+  
+  hits <- findOverlaps(query = allRegionTilesGR, subject = cvgObj)
+  clusterVector <- cvgObj$score[subjectHits(hits)]
+  
+  return(clusterVector)
+  
 }
 
 #######################################################

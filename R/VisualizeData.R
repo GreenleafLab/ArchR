@@ -527,6 +527,332 @@ plotEmbedding <- function(
 
 }
 
+#' Visualize an Embedding from ArchR Project without Arrow Files. 
+#' 
+#' This function will plot an embedding stored in an ArchRProject without Arrow Files. 
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param embedding The name of the embedding stored in the `ArchRProject` to be plotted. See `computeEmbedding()` for more information.
+#' @param colorBy A string indicating whether points in the plot should be colored by a column in `cellColData` ("cellColData") or by
+#' a data matrix in the corresponding ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").
+#' @param name The name of the column in `cellColData` or the featureName/rowname of the data matrix to be used for plotting. 
+#' For example if colorBy is "cellColData" then `name` refers to a column name in the `cellcoldata` (see `getCellcoldata()`). If `colorBy`
+#' is "GeneScoreMatrix" then `name` refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
+#' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values (if continuous) in plotting.
+#' @param imputeWeights The weights to be used for imputing numerical values for each cell as a linear combination of other cells values.
+#' See `addImputationWeights()` and `getImutationWeights()` for more information.
+#' @param pal A custom palette used to override discreteSet/continuousSet for coloring cells. Typically created using `paletteDiscrete()` or `paletteContinuous()`.
+#' To make a custom palette, you must construct this following strict specifications. If the coloring is for discrete data (i.e. "Clusters"),
+#' then this palette must be a named vector of colors where each color is named for the corresponding group (e.g. `"C1" = "#F97070"`). If the coloring
+#' for continuous data, then it just needs to be a vector of colors. If you are using `pal` in conjuction with `highlightCells`, your palette
+#' must be a named vector with two entries, one named for the value of the cells in the `name` column of `cellColData` and the other named
+#' "Non.Highlighted". For example, `pal=c("Mono" = "green", "Non.Highlighted" = "lightgrey")` would be used to change the color of cells with the value
+#' "Mono" in the `cellColData` column indicated by `name`. Because of this, the cells indicated by `highlightCells` must also match this value in the `name` column.
+#' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
+#' @param sampleCells A numeric describing number of cells to use for plot. If using impute weights, this will occur after imputation.
+#' @param highlightCells A character vector of cellNames describing which cells to hightlight if using `plotAs = "points"` (default if discrete). 
+#' The remainder of cells will be colored light gray.
+#' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the
+#' internal portions of the plot.
+#' @param quantCut If this is not `NULL`, a quantile cut is performed to threshold the top and bottom of the distribution of numerical values. 
+#' This prevents skewed color scales caused by strong outliers. The format of this should be c(x,y) where x is the lower threshold and y is 
+#' the upper threshold. For example, quantileCut = c(0.025,0.975) will take the 2.5th percentile and 97.5 percentile of values and set
+#' values below/above to the value of the 2.5th and 97.5th percentile values respectively.
+#' @param discreteSet The name of a discrete palette from `ArchRPalettes` for visualizing `colorBy` in the embedding if a discrete color set is desired.
+#' @param continuousSet The name of a continuous palette from `ArchRPalettes` for visualizing `colorBy` in the embedding if a continuous color set is desired.
+#' @param randomize A boolean value that indicates whether to randomize points prior to plotting to prevent cells from one cluster being
+#' uniformly present at the front of the plot.
+#' @param keepAxis A boolean value that indicates whether the x- and y-axis ticks and labels should be plotted.
+#' @param baseSize The base font size to use in the plot.
+#' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
+#' if `colorBy` is numeric, then `plotAs` is set to "hex".
+#' @param threads The number of threads to be used for parallel computing.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Plot UMAP
+#' p <- plotEmbedding(proj, name = "Clusters")
+#' 
+#' #PDF
+#' plotPDF(p, name = "UMAP-Clusters", ArchRProj = proj)
+#'
+#' @export
+plotEmbeddingShiny <- function(
+  ArchRProj = NULL,
+  embedding = "UMAP",
+  embeddingDF = NULL,
+  colorBy = "GeneScoreMatrix",
+  name = "Sample",
+  log2Norm = NULL,
+  imputeWeights = if(!grepl("coldata",tolower(colorBy[1]))) getImputeWeights(ArchRProj),
+  pal = NULL,
+  size = 0.1,
+  sampleCells = NULL,
+  highlightCells = NULL,
+  rastr = TRUE,
+  quantCut = c(0.01, 0.99),
+  discreteSet = NULL,
+  continuousSet = NULL,
+  randomize = TRUE,
+  keepAxis = FALSE,
+  baseSize = 10,
+  plotAs = NULL,
+  threads = getArchRThreads(),
+  plotParamsx = NULL,
+  logFile = createLogFile("plotEmbedding")
+){
+  
+  ArchR:::.validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  ArchR:::.validInput(input = embedding, name = "reducedDims", valid = c("character"))
+  ArchR:::.validInput(input = colorBy, name = "colorBy", valid = c("character"))
+  ArchR:::.validInput(input = name, name = "name", valid = c("character"))
+  ArchR:::.validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
+  ArchR:::.validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
+  ArchR:::.validInput(input = pal, name = "pal", valid = c("palette", "null"))
+  ArchR:::.validInput(input = size, name = "size", valid = c("numeric"))
+  ArchR:::.validInput(input = sampleCells, name = "sampleCells", valid = c("numeric", "null"))
+  ArchR:::.validInput(input = highlightCells, name = "highlightCells", valid = c("character", "null"))
+  ArchR:::.validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  ArchR:::.validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
+  ArchR:::.validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
+  ArchR:::.validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
+  ArchR:::.validInput(input = randomize, name = "randomize", valid = c("boolean"))
+  ArchR:::.validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
+  ArchR:::.validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  ArchR:::.validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
+  ArchR:::.validInput(input = threads, name = "threads", valid = c("integer"))
+  ArchR:::.validInput(input = logFile, name = "logFile", valid = c("character"))
+  
+  ArchR:::.requirePackage("ggplot2", source = "cran")
+  
+  ArchR:::.startLogging(logFile = logFile)
+  ArchR:::.logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
+  
+
+  # Get Embedding ------------------------------------------------------------------
+  ArchR:::.logMessage("Getting UMAP Embedding", logFile = logFile)
+  df <- embeddingDF
+  
+  if(!all(rownames(df) %in% ArchRProj$cellNames)){
+    stop("Not all cells in embedding are present in ArchRProject!")
+  }
+  
+  ArchR:::.logThis(df, name = "Embedding data.frame", logFile = logFile)
+  if(!is.null(sampleCells)){
+    if(sampleCells < nrow(df)){
+      if(!is.null(imputeWeights)){
+        stop("Cannot sampleCells with imputeWeights not equalt to NULL at this time!")
+      }
+      df <- df[sort(sample(seq_len(nrow(df)), sampleCells)), , drop = FALSE]
+    }
+  }
+  
+  #Parameters
+  plotParams <- list()
+  plotParams$x <- df[,1]
+  plotParams$y <- df[,2]
+  plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,1])
+  plotParams$baseSize <- baseSize
+  
+  #Additional Params
+  plotParams$xlabel <- gsub("_", " ",stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,2])
+  plotParams$ylabel <- gsub("_", " ",stringr::str_split(colnames(df)[2],pattern="#",simplify=TRUE)[,2])
+  plotParams$rastr <- rastr
+  plotParams$size <- size
+  plotParams$randomize <- randomize
+  
+  #Check if Cells To Be Highlighted
+  if(!is.null(highlightCells)){
+    highlightPoints <- match(highlightCells, rownames(df), nomatch = 0)
+    if(any(highlightPoints==0)){
+      stop("highlightCells contain cells not in Embedding cellNames! Please make sure that these match!")
+    }
+  }
+  
+  #Make Sure ColorBy is valid
+  if(length(colorBy) > 1){
+    stop("colorBy must be of length 1!")
+  }
+  
+  allColorBy <-  matrices$allColorBy
+  
+  if(tolower(colorBy) %ni% tolower(allColorBy)){
+    stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
+  }
+  colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
+  
+  ArchR:::.logMessage(paste0("ColorBy = ", colorBy), logFile = logFile)
+  
+  suppressMessages(message(logFile))
+  
+  units <- ArchRProj@projectMetadata[["units"]]
+  
+  if(is.null(log2Norm) & tolower(colorBy) == "genescorematrix"){
+    log2Norm <- TRUE
+  }
+  
+  if(is.null(log2Norm)){
+    log2Norm <- FALSE
+  }
+  
+  #get values from pre-saved list
+  colorMat = tryCatch({
+    t(as.matrix(matrices[[colorBy]][name,]))
+  }, warning = function(warning_condition) {
+    message(paste("name not seem to exist:", name))
+    message(warning_condition)
+    # Choose a return value in case of warning
+    return(NULL)    
+  }, error = function(error_condition) {
+    message(paste("name not seem to exist:", name))
+    message(error_condition)
+    return(NA)
+  }, finally={
+    
+  })
+  
+  rownames(colorMat)=name
+  
+  if(!all(rownames(df) %in% colnames(colorMat))){
+    ArchR:::.logMessage("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.", logFile = logFile)
+    stop("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.")
+  }
+  
+  colorMat <- colorMat[,rownames(df), drop=FALSE]
+  
+  ArchR:::.logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
+  
+  if(!is.null(imputeWeights)){
+    if(getArchRVerbose()) message("Imputing Matrix")
+    colorMat <- imputeMatricesList[[colorBy]][name,]
+    if(!inherits(colorMat, "matrix")){
+      colorMat <- matrix(colorMat, ncol = nrow(df))
+      colnames(colorMat) <- rownames(df)
+    }
+  }
+  
+  ArchR:::.logThis(colorMat, "colorMat-After-Impute", logFile = logFile)
+  
+  colorList <- lapply(seq_len(nrow(colorMat)), function(x){
+    colorParams <- list()
+    colorParams$color <- colorMat[x, ]
+    colorParams$discrete <- FALSE
+    colorParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name[x])
+    if(tolower(colorBy) == "genescorematrix"){
+      colorParams$continuousSet <- "horizonExtra"
+    }else{
+      colorParams$continuousSet <- "solarExtra"
+    }
+    if(!is.null(continuousSet)){
+      colorParams$continuousSet <- continuousSet
+    }
+    if(!is.null(discreteSet)){
+      colorParams$discreteSet <- discreteSet
+    }
+    if(x == 1){
+      ArchR:::.logThis(colorParams, name = "ColorParams 1", logFile = logFile)
+    }
+    colorParams
+  })
+  
+  if(getArchRVerbose()) {message("Plotting Embedding")}
+  
+  for(x in 1:length(colorList)){
+    
+    plotParamsx = ArchR:::.mergeParams(colorList[[x]], plotParams)
+    
+    
+    if(getArchRVerbose()) {message(x, " ", appendLF = FALSE)}
+    
+    if(plotParamsx$discrete){
+      plotParamsx$color <- .myQuantileCut(plotParamsx$color, min(quantCut), max(quantCut), na.rm = TRUE)
+    }
+    
+    if(!plotParamsx$discrete){
+      
+      plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
+      
+      plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
+      
+      if(!is.null(pal)){
+        
+        plotParamsx$pal <- pal
+        
+      }
+      
+      if(is.null(plotAs)){
+        plotAs <- "hexplot"
+      }
+      
+      if(!is.null(log2Norm)){
+        if(log2Norm){
+          plotParamsx$color <- log2(plotParamsx$color + 1)
+          plotParamsx$colorTitle <- paste0("Log2(",units," + 1)")
+        }else{
+          plotParamsx$colorTitle <- units
+        }
+      }
+      
+      if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
+        
+        plotParamsx$discrete <- NULL
+        plotParamsx$continuousSet <- NULL
+        plotParamsx$rastr <- NULL
+        plotParamsx$size <- NULL
+        plotParamsx$randomize <- NULL
+        
+        ArchR:::.logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
+        gg <- do.call(ggHex, plotParamsx)
+        
+      }else{
+        
+        if(!is.null(highlightCells)){
+          plotParamsx$highlightPoints <- highlightPoints
+        }
+        
+        ArchR:::.logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
+        gg <- do.call(ggPoint, plotParamsx)
+        
+      }
+      
+    }else{
+      
+      if(!is.null(pal)){
+        plotParamsx$pal <- pal
+      }
+      
+      if(!is.null(highlightCells)){
+        plotParamsx$highlightPoints <- highlightPoints
+      }
+      
+      ArchR:::.logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
+      gg <- do.call(ggPoint, plotParamsx)
+      
+    }
+    
+    if(!keepAxis){
+      gg <- gg + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+    }
+    
+    gg
+    
+  }
+  
+  if(getArchRVerbose()) message("")
+  
+  if(length(gg) == 1){
+    gg <- gg
+  }
+  
+  ArchR:::.endLogging(logFile = logFile)
+  
+  return(list(gg, plotParamsx$pal))
+}
 
 #' Visualize Groups from ArchR Project
 #' 

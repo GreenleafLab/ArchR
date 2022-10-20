@@ -402,12 +402,13 @@ loadArchRProject <- function(
   path = "./", 
   force = FALSE, 
   showLogo = TRUE
+  Shiny = FALSE
   ){
 
   .validInput(input = path, name = "path", valid = "character")
   .validInput(input = force, name = "force", valid = "boolean")
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
-
+  .validInput(input = Shiny, name = "Shiny", valid = "boolean")
   path2Proj <- file.path(path, "Save-ArchR-Project.rds")
   
   if(!file.exists(path2Proj)){
@@ -418,6 +419,7 @@ loadArchRProject <- function(
   outputDir <- getOutputDirectory(ArchRProj)
   outputDirNew <- normalizePath(path)
 
+if (Shiny == FALSE) {
   #1. Arrows Paths
   ArrowFilesNew <- file.path(outputDirNew, "ArrowFiles", basename(ArchRProj@sampleColData$ArrowFiles))
   if(!all(file.exists(ArrowFilesNew))){
@@ -500,7 +502,7 @@ loadArchRProject <- function(
     }
 
   }
-
+}
   #4. Set Output Directory 
 
   ArchRProj@projectMetadata$outputDirectory <- outputDirNew

@@ -159,7 +159,7 @@
 }
 
 .quantileCut <- function(x = NULL, lo = 0.025, hi = 0.975, maxIf0 = TRUE){
-  q <- quantile(x, probs = c(lo,hi))
+  q <- quantile(x, probs = c(lo,hi), na.rm = TRUE)
   if(q[2] == 0){
     if(maxIf0){
       q[2] <- max(x)
