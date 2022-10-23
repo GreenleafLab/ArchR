@@ -640,7 +640,9 @@ saveArchRProject <- function(
         zdata <- newProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata
         zfiles <- gsub(outDirOld, outputDirectory, zdata$File)
         newProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata$File <- zfiles
-        stopifnot(all(file.exists(zfiles)))
+        if(!all(file.exists(zfiles))){
+          stop("Coverage files missing from new project's directory. Missing files:\n",paste(zfiles[which(!file.exists(zfiles))], collapse = "\n"))
+        }
       }
     }
 
