@@ -498,7 +498,7 @@ addMotifAnnotations <- function(
         motifs <- obj$motifs
         motifSummary <- obj$motifSummary
       }else{
-        stop("Species not recognized homo sapiens, mus musculus supported by CisBP!")
+        stop(paste0("Species ",species," not available in CisBP! Currently, only homo sapiens and mus musculus are supported. Please use a different motifSet."))
       }
 
     }
