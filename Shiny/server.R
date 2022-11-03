@@ -192,7 +192,7 @@ shinyServer <- function(input,output, session){
         
         
         if((input$matrix_UMAP1_forComparison)=="Unconstrained"){
-          legend('bottom', legend=umap_legend_names$Unconstrained, 
+          legend('bottom', legend=umap_legend_names$unconstrained, 
                  pch=15, col = color_umaps$unconstrained,
                  horiz = FALSE, x.intersp = 1, text.width=0.35,
                  cex = 0.5, bty="n", ncol = 5)
@@ -206,7 +206,12 @@ shinyServer <- function(input,output, session){
                  cex = 0.7, bty="n", ncol = 4)
         }
         
-        p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP1_forComparison)
+        # p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP1_forComparison)
+        
+        if(input$matrix_UMAP1_forComparison == "Unconstrained"){p <- h5read("./inputData/mainUMAPs.h5", "unconstrained")}else{
+          p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP1_forComparison)
+        }
+        
         temp_jpg <- t(matrix(decode_native(p), nrow = 216))
         
         last_plot <- ggdraw() + draw_image(temp_jpg, x = 0, y = 0, scale = 0.7) + 
@@ -414,7 +419,7 @@ shinyServer <- function(input,output, session){
         
         
         if((input$matrix_UMAP2_forComparison)=="Unconstrained"){
-          legend('bottom', legend=umap_legend_names$Unconstrained, 
+          legend('bottom', legend=umap_legend_names$unconstrained, 
                  pch=15, col = color_umaps$unconstrained,
                  horiz = FALSE, x.intersp = 1, text.width=0.35,
                  cex = 0.5, bty="n", ncol = 5)
@@ -428,7 +433,12 @@ shinyServer <- function(input,output, session){
                  cex = 0.7, bty="n", ncol = 4)
         }
         
-        p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP2_forComparison)
+        # p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP2_forComparison)
+        
+        if(input$matrix_UMAP2_forComparison == "Unconstrained"){p <- h5read("./inputData/mainUMAPs.h5", "unconstrained")}else{
+          p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP2_forComparison)
+        }
+        
         temp_jpg <- t(matrix(decode_native(p), nrow = 216))
         
         last_plot <- ggdraw() + draw_image(temp_jpg, x = 0, y = 0, scale = 0.7) + 
@@ -633,7 +643,7 @@ shinyServer <- function(input,output, session){
       
       
       if((input$matrix_UMAP1_forComparison)=="Unconstrained"){
-        legend('bottom', legend=umap_legend_names$Unconstrained, 
+        legend('bottom', legend=umap_legend_names$unconstrained, 
                pch=15, col = color_umaps$unconstrained,
                horiz = FALSE, x.intersp = 1, text.width=0.35,
                cex = 0.5, bty="n", ncol = 5)
@@ -647,7 +657,10 @@ shinyServer <- function(input,output, session){
                cex = 0.7, bty="n", ncol = 4)
       }
       
-      p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP1_forComparison)# input$UMAP1_forComparison))
+      if(input$matrix_UMAP1_forComparison == "Unconstrained"){p <- h5read("./inputData/mainUMAPs.h5", "unconstrained")}else{
+      p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP1_forComparison)
+      }
+      
       temp_jpg <- t(matrix(decode_native(p), nrow = 216))
       
       last_plot <- ggdraw() + draw_image(temp_jpg, x = 0, y = 0, scale = 0.7) + 
@@ -842,7 +855,7 @@ shinyServer <- function(input,output, session){
       
       
       if((input$matrix_UMAP2_forComparison)=="Unconstrained"){
-        legend('bottom', legend=umap_legend_names$Unconstrained, 
+        legend('bottom', legend=umap_legend_names$unconstrained, 
                pch=15, col = color_umaps$unconstrained,
                horiz = FALSE, x.intersp = 1, text.width=0.35,
                cex = 0.5, bty="n", ncol = 5)
@@ -856,7 +869,12 @@ shinyServer <- function(input,output, session){
                cex = 0.7, bty="n", ncol = 4)
       }
       
-      p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP2_forComparison)
+      # p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP2_forComparison)
+      
+      if(input$matrix_UMAP2_forComparison == "Unconstrained"){p <- h5read("./inputData/mainUMAPs.h5", "unconstrained")}else{
+        p <- h5read("./inputData/mainUMAPs.h5", input$matrix_UMAP2_forComparison)
+      }
+      
       temp_jpg <- t(matrix(decode_native(p), nrow = 216))
       
       last_plot <- ggdraw() + draw_image(temp_jpg, x = 0, y = 0, scale = 0.7) + 
@@ -960,9 +978,8 @@ shinyServer <- function(input,output, session){
       
       if(isolate(input$browserContent)=="Unconstrained")
       {
-        p_browser_atacClusters<- plotBrowserTrack(
+        p_browser_atacClusters<- plotBrowserTrack_Test(
           ArchRProj = ArchRProj,
-          ShinyArchR = TRUE,
           plotSummary = c("bulkTrack", input$selectPlotSummary),
           baseSize = 11,
           facetbaseSize = 11,
@@ -979,9 +996,8 @@ shinyServer <- function(input,output, session){
       else
       {
         
-        p_browser_atacClusters <- plotBrowserTrack(
+        p_browser_atacClusters <- plotBrowserTrack_Test(
           ArchRProj = ArchRProj,
-          ShinyArchR = TRUE,
           plotSummary = c("bulkTrack", input$selectPlotSummary),
           groupBy = "Clusters",
           baseSize = 11,
@@ -1020,9 +1036,8 @@ shinyServer <- function(input,output, session){
         
         if(isolate(input$browserContent)=="Unconstrained")
         {
-          p_browser_atacClusters<- plotBrowserTrack(
+          p_browser_atacClusters<- plotBrowserTrack_Test(
             ArchRProj = ArchRProj,
-            ShinyArchR = TRUE,
             plotSummary = c("bulkTrack", input$selectPlotSummary),
             baseSize = 11,
             facetbaseSize = 11,
@@ -1038,9 +1053,8 @@ shinyServer <- function(input,output, session){
         }
         else
         {
-          p_browser_atacClusters <- plotBrowserTrack(
+          p_browser_atacClusters <- plotBrowserTrack_Test(
             ArchRProj = ArchRProj,
-            ShinyArchR = TRUE,
             plotSummary = c("bulkTrack", input$selectPlotSummary),
             groupBy = "Clusters",
             baseSize = 11,

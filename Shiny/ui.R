@@ -1,6 +1,6 @@
 library(shinybusy)
 
-# This file contains UI widgets. 
+# This file contain UI widgets. 
 
 # Umap plotting ----------------------------------------------------------------------
 umap_panel <- tabPanel(id="umap_panel",
