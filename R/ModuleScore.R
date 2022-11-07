@@ -225,7 +225,7 @@ addModuleScore <- function(
   rS$Bins <- 0
   idx <- which(rS$rowSums > 0)
   rS$Bins[idx] <- ceiling(seq_along(idx) / ceiling(length(idx)/nBin))
-  rS$Bins <- Rle(rS$Bins + 1)
+  rS$Bins <- Rle(rS$Bins)
   #rS$Bins <- Rle(ggplot2::cut_number(x = rS[,3] + rnorm(length(rS[,3]))/1e30, n = nBin, labels = FALSE, right = FALSE))
 
   #check that the number of selected background features isnt bigger than the size of each bin
@@ -242,9 +242,14 @@ addModuleScore <- function(
   moduleList <- split(featuresUse$Bins, featuresUse$Module) #bins for each feature per module
   binList <- split(rS$Match, rS$Bins) #list of all indicies for each bin
 
+  .logThis(nBgd, name = paste0("nBgd"), logFile = logFile)
+  .logThis(featureList, name = paste0("Feature List"), logFile = logFile)
+  .logThis(moduleList, name = paste0("Module List"), logFile = logFile)
+  .logThis(binList, name = paste0("Bin List"), logFile = logFile)
+
   #calculate the module score by normalizing to a background set of features
   dfM <- lapply(seq_along(featureList), function(x){
-    message("Computing Module ",x, " of ", length(featureList))
+    .logDiffTime(paste0("Computing Module ",x, " of ", length(featureList)), tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     binx <- binList[moduleList[[x]]]
     idxFgd <- featureList[[x]]
     idxBgd <- unlist(lapply(binx, function(x) sample(x, nBgd)), use.names=FALSE)
