@@ -379,7 +379,9 @@ recoverArchRProject <- function(ArchRProj){
 #' background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject`
 #' will fail unless all components can be found.
 #' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
-#' 
+#' @param Shiny A boolean value indicating whether an ArchR project will be used for deploying on Shiny Apps. `TRUE` if the project
+#' won't have any arrow files.                                      
+#'                                      
 #' @examples
 #'
 #' # Get Small PBMC Project Location
