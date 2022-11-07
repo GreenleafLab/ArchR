@@ -648,7 +648,8 @@ ArchRBrowserTrack <- function(...){
 #' (i.e. the `BSgenome` object you used) so they may not match other online genome browsers that use different gene annotations.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ShinyArchR Boolean indicating whether to use coverage RLEs or arrow files. Default = FALSE.
+#' @param ShinyArchR A boolean value indicating whether to use coverage RLEs or Arrow Files for browser track plotting. 
+#'                      This parameter is not meant to be controlled by the end user and is only meant to be used as part of an exported ShinyArchR app.
 #' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object,
 #' all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the
 #' transcription start site of the supplied gene.
