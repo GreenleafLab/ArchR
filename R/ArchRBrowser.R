@@ -783,6 +783,7 @@ plotBrowserTrack <- function(
   .validInput(input = borderWidth, name = "borderWidth", valid = "numeric")
   .validInput(input = tickWidth, name = "tickWidth", valid = "numeric")
   .validInput(input = facetbaseSize, name = "facetbaseSize", valid = "numeric")
+  .validInput(input = ShinyArchR, name = "ShinyArchR", valid = c("boolean"))
   geneAnnotation <- .validGeneAnnotation(geneAnnotation)
   .validInput(input = title, name = "title", valid = "character")
 
