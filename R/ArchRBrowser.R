@@ -1381,7 +1381,7 @@ plotBrowserTrack <- function(
     ranges = IRanges(start = regionTiles, width=100)
   )
   
-  cvgObjs = list.files(path = "./coverage", full.names = TRUE)
+  cvgObjs = list.files(path = "./coverage", pattern = "*_cvg.rds", full.names = TRUE)
   allCvgGR = c()
   for(i in seq_along(cvgObjs)) {
     cvgrds <- readRDS(cvgObjs[[i]]) 
