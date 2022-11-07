@@ -1457,7 +1457,7 @@ plotBrowserTrack <- function(
   plotDF <- df[,c("x", "y", "group")]
   
   # Normalization 
-  g <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  g <- cellGroups
   
   if(tolower(normMethod) %in% c("readsintss","readsinpromoter", "nfrags")) {
     v <- getCellColData(ArchRProj, normMethod, drop = TRUE)
