@@ -1,0 +1,7 @@
+IP=$(curl --silent https://ipinfo.io/ip)
+
+curl --silent -X POST https://plausible.io/api/event \
+  -H "X-Forwarded-For: $IP" \
+  -H 'Content-Type: application/json' \
+  --data '{"name":"pageview","url":"https://corceslab.com/archr-configure","domain":"corceslab.com"}' > /dev/null
+  
