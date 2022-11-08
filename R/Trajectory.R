@@ -287,6 +287,9 @@ addTrajectory <- function(
 #' (for ex. if you are using a "MotifMatrix").
 #' @param smoothWindow An integer value indicating the smoothing window in size (relaive to `groupEvery`) for the sequential 
 #' trajectory matrix to better reveal temporal dynamics.
+#' @param trajectoryLabel The name of a column in `cellColData` to be used for labeling the quantile bins of the trajectory.
+#' This is used in `plotTrajectoryHeatmap()` when you want to create a color label for the columns across the top
+#' of the heatmap. Typically, this should be the same column used in `groupBy` in the `addTrajectory()` function.
 #' @param threads The number of threads to be used for parallel computing.
 #' 
 #' @examples
@@ -309,6 +312,7 @@ getTrajectory <- function(
   log2Norm = TRUE,
   scaleTo = 10000,
   smoothWindow = 11,
+  trajectoryLabel = NULL,
   threads = getArchRThreads()
   ){
 
@@ -319,13 +323,14 @@ getTrajectory <- function(
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric", "null"))
   .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  .validInput(input = trajectoryLabel, name = "trajectoryLabel", valid = c("character","null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
   trajectory <- getCellColData(ArchRProj, name)
   trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
   breaks <- seq(0, 100, groupEvery)
   if(!all(is.numeric(trajectory[,1]))){
-    stop("Trajectory must be a numeric. Did you add the trajectory with addTrajectory?")
+    stop("Trajectory must be a numeric. Did you add the trajectory with addTrajectory()?")
   }
   if(!all(trajectory[,1] >= 0 & trajectory[,1] <= 100)){
     stop("Trajectory values must be between 0 and 100. Did you add the trajectory with addTrajectory?")
@@ -416,8 +421,27 @@ getTrajectory <- function(
     scaleTo = scaleTo, 
     log2Norm = log2Norm, 
     smoothWindow = smoothWindow, 
-    date = Sys.Date()
+    date = Sys.Date(),
+    name = name
   )
+
+  #add labels for each trajectory bin in colData
+  if(!is.null(trajectoryLabel)) {
+    message(paste0("Attempting to add labels to the trajectory based on the trajectoryLabel parameter."))
+    #check if a column exists in cellColData for the trajectoryLabel
+    if(trajectoryLabel %in% colnames(getCellColData(ArchRProj))) {
+      #create an entry in colData to store the labels
+      colData(seTrajectory)$label <- rep(NA, ncol(seTrajectory))
+      #for each group of cells in groupList, take a majority vote to get the most common label
+      for (i in seq_along(groupList)) {
+        cellLabels <- getCellColData(ArchRProj = ArchRProj)[groupList[[i]],trajectoryLabel, drop = TRUE]
+        colData(seTrajectory)$label[i] <- names(sort(table(cellLabels), decreasing = TRUE))[1]
+      }
+      
+    } else {
+      message(paste0("Warning! trajectoryLabel \"",trajectoryLabel,"\" does not exist as a column in cellColData. Skipping label generation."))
+    }
+  }
 
   seTrajectory
 
@@ -443,6 +467,12 @@ trajectoryHeatmap <- function(...){
 #' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies
 #' rownames from `seTrajectory` to be excluded from the heatmap.
 #' @param pal A custom continuous palette (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
+#' @param colorColumns A boolean value that indicates whether a color bar should be added to label the columns. The color for each column
+#' will represent the most common label observed in the corresponding trajectory quantile as the heatmap is divided into quantile bins
+#' and thus does not display information for each cell. `colorColumns` can only be set to `TRUE` if the `trajectoryLabel` parameter was used
+#' in `getTrajectory()`. 
+#' @param columnPal A discrete palette (see `paletteDiscrete()`) that maps the different labels of the trajectory to a unique color. This
+#' parameter is ignored unless `colorColumns = TRUE`. All labels shown in `unique(colData(seTrajectory)$label)` must be represented.
 #' @param labelMarkers A character vector listing the `rownames` of `seTrajectory` that should be labeled on the side of the heatmap.
 #' @param labelTop A number indicating how many of the top N features, based on variance, in `seTrajectory` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
@@ -483,6 +513,8 @@ plotTrajectoryHeatmap <- function(
   limits = c(-1.5, 1.5),
   grepExclude = NULL,
   pal = NULL,
+  colorColumns = FALSE,
+  columnPal = NULL,
   labelMarkers = NULL,
   labelTop = 50,
   labelRows = FALSE,
@@ -500,6 +532,8 @@ plotTrajectoryHeatmap <- function(
   .validInput(input = limits, name = "limits", valid = c("numeric"))
   .validInput(input = grepExclude, name = "grepExclude", valid = c("character", "null"))
   .validInput(input = pal, name = "pal", valid = c("palette", "null"))
+  .validInput(input = colorColumns, name = "colorColumns", valid = c("boolean"))
+  .validInput(input = columnPal, name = "columnPal", valid = c("palette", "null"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
   .validInput(input = labelTop, name = "labelTop", valid = c("integer"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
@@ -620,17 +654,41 @@ plotTrajectoryHeatmap <- function(
   }
   .logThis(idx, "idx", logFile = logFile)
 
+  if(colorColumns){
+    if(!is.null(columnPal)){
+      #check that all trajectory labels are present in the palette
+      if(all(unique(colData(seTrajectory)$label) %in% names(columnPal))){
+        columnPal <- columnPal[unique(colData(seTrajectory)$label)]
+      } else {
+        .logMessage("Warning! Not all trajectory labels are represented in columnPal. Creating default palette instead.", verbose = TRUE, logFile = logFile)
+        columnPal <- paletteDiscrete(values = unique(colData(seTrajectory)$label), set = "stallion")
+      }
+    } else {
+      columnPal <- paletteDiscrete(values = unique(colData(seTrajectory)$label), set = "stallion")
+    }
+    columnData <- colData(seTrajectory)
+    #create colorMap for ArchRHeatmap
+    columnPal <- list(label = columnPal)
+    attr(columnPal[[1]], "discrete") <- TRUE
+  } else {
+    columnPal <- NULL
+    columnData <- NULL
+  }
+
   ht <- tryCatch({
     
     .ArchRHeatmap(
       mat = mat[idx, ],
       scale = FALSE,
       limits = c(min(mat), max(mat)),
-      color = pal, 
-      clusterCols = FALSE, 
+      colData = columnData,
+      color = pal,
+      clusterCols = FALSE,
       clusterRows = FALSE,
       labelRows = labelRows,
       labelCols = FALSE,
+      colorMap = columnPal,
+      colAnnoPerRow = length(columnPal[[1]]),
       customRowLabel = match(idxLabel, rownames(mat[idx,])),
       showColDendrogram = TRUE,
       name = S4Vectors::metadata(seTrajectory)$Params$useMatrix,
@@ -643,11 +701,13 @@ plotTrajectoryHeatmap <- function(
       mat = mat[idx, ],
       scale = FALSE,
       limits = c(min(mat), max(mat)),
+      colData = columnData,
       color = pal, 
       clusterCols = FALSE, 
       clusterRows = FALSE,
       labelRows = labelRows,
       labelCols = FALSE,
+      colorMap = columnPal,
       customRowLabel = match(idxLabel, rownames(mat[idx,])),
       showColDendrogram = TRUE,
       name = S4Vectors::metadata(seTrajectory)$Params$useMatrix,
