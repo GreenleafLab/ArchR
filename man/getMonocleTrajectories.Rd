@@ -2,7 +2,7 @@
 % Please edit documentation in R/Trajectory.R
 \name{getMonocleTrajectories}
 \alias{getMonocleTrajectories}
-\title{Get a Monocle CDS of Trajectories that can be added to an ArchRProject #NEW}
+\title{Get a Monocle CDS of Trajectories that can be added to an ArchRProject}
 \usage{
 getMonocleTrajectories(
   ArchRProj = NULL,
