@@ -1219,7 +1219,7 @@ getMonocleTrajectories <- function(
 
 }
 
-#' Add a Monocle Trajectory to an ArchR Project #NEW
+#' Add a Monocle Trajectory to an ArchR Project
 #' 
 #' This function will add a trajectory from a monocle CDS created from `getMonocleTrajectories` to an
 #' ArchRProject.
@@ -1300,7 +1300,7 @@ addMonocleTrajectory <- function(
 ###################################################################
 
 
-#' Add a Slingshot Trajectories to an ArchR Project #NEW
+#' Add a Slingshot Trajectories to an ArchR Project
 #' 
 #' This function will fit a supervised trajectory in a lower dimensional space that 
 #' can then be used for downstream analyses.
