@@ -12,6 +12,8 @@ plotTrajectoryHeatmap(
   limits = c(-1.5, 1.5),
   grepExclude = NULL,
   pal = NULL,
+  colorColumns = FALSE,
+  columnPal = NULL,
   labelMarkers = NULL,
   labelTop = 50,
   labelRows = FALSE,
@@ -39,6 +41,14 @@ This prevents smoothing a large number number of features which can be very time
 rownames from \code{seTrajectory} to be excluded from the heatmap.}
 
 \item{pal}{A custom continuous palette (see \code{paletteContinuous()}) used to override the default continuous palette for the heatmap.}
+
+\item{colorColumns}{A boolean value that indicates whether a color bar should be added to label the columns. The color for each column
+will represent the most common label observed in the corresponding trajectory quantile as the heatmap is divided into quantile bins
+and thus does not display information for each cell. \code{colorColumns} can only be set to \code{TRUE} if the \code{trajectoryLabel} parameter was used
+in \code{getTrajectory()}.}
+
+\item{columnPal}{A discrete palette (see \code{paletteDiscrete()}) that maps the different labels of the trajectory to a unique color. This
+parameter is ignored unless \code{colorColumns = TRUE}. All labels shown in \code{unique(colData(seTrajectory)$label)} must be represented.}
 
 \item{labelMarkers}{A character vector listing the \code{rownames} of \code{seTrajectory} that should be labeled on the side of the heatmap.}
 

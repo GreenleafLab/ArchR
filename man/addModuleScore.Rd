@@ -13,6 +13,7 @@ addModuleScore(
   nBgd = 100,
   seed = 1,
   threads = getArchRThreads(),
+  verbose = TRUE,
   logFile = createLogFile("addModuleScore")
 )
 }
@@ -35,6 +36,8 @@ If the elements of this list are not named, they will be numbered in order, i.e.
 to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
+
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }

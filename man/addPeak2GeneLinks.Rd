@@ -46,7 +46,7 @@ biases since it is over-weighting latent PCs. If set to \code{NULL} this will sc
 \item{corCutOff}{A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
 correlation to sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
-\item{cellsToUse}{A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.}
+\item{cellsToUse}{A character vector of cellNames to compute peak-to-gene links on if desired to run on a subset of the total cells.}
 
 \item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
