@@ -2,7 +2,7 @@
 % Please edit documentation in R/Trajectory.R
 \name{addSlingShotTrajectories}
 \alias{addSlingShotTrajectories}
-\title{Add a Slingshot Trajectories to an ArchR Project #NEW}
+\title{Add a Slingshot Trajectories to an ArchR Project}
 \usage{
 addSlingShotTrajectories(
   ArchRProj = NULL,

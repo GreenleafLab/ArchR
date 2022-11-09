@@ -2,7 +2,7 @@
 % Please edit documentation in R/Trajectory.R
 \name{addMonocleTrajectory}
 \alias{addMonocleTrajectory}
-\title{Add a Monocle Trajectory to an ArchR Project #NEW}
+\title{Add a Monocle Trajectory to an ArchR Project}
 \usage{
 addMonocleTrajectory(
   ArchRProj = NULL,
