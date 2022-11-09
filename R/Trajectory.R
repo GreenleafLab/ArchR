@@ -1059,7 +1059,7 @@ plotTrajectory <- function(
 # Monocle3
 ###################################################################
 
-#' Get a Monocle CDS of Trajectories that can be added to an ArchRProject #NEW
+#' Get a Monocle CDS of Trajectories that can be added to an ArchRProject
 #' 
 #' This function will use monocle3 to find trajectories and then returns a monocle CDS object that can be used as
 #' input for `addMonocleTrajectory`.
