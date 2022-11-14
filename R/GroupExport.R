@@ -594,21 +594,21 @@ getGroupFragments <- function(
   cells <- ArchRProj$cellNames
   cellGroups <- split(cells, cellGroups)
   
-  # outputs unique cell groups/clusters.
-  clusters <- names(cellGroups)
+  # outputs unique cell groups (e.g. cluster).
+  groupIDs <- names(cellGroups)
   
   
-   .safelapply(seq_along(clusters), function(x){
-    cat("Making fragment file for cluster:", clusters[x], "\n")
+   .safelapply(seq_along(groupIDs), function(x){
+    cat("Making fragment file for cluster:", groupIDs[x], "\n")
     # get GRanges with all fragments for that cluster
-    cellNames = cellGroups[[clusters[x]]]
+    cellNames = cellGroups[[groupIDs[x]]]
     fragments <-
       getFragmentsFromProject(ArchRProj = ArchRProj, cellNames = cellNames)
     fragments <- unlist(fragments, use.names = FALSE)
     # filter Fragments
     fragments <-
       GenomeInfoDb::keepStandardChromosomes(fragments, pruning.mode = "coarse")
-    saveRDS(fragments, file.path(outDir, paste0(clusters[x], "_cvg.rds")))
+    saveRDS(fragments, file.path(outDir, paste0(groupIDs[x], "_cvg.rds")))
   }
 }
 
@@ -635,12 +635,12 @@ getGroupFragments <- function(
   dir.create(outDir, showWarnings = FALSE)
   
   # find barcodes of cells in that groupBy.
-  groups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
+  cellGroups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
   cells <- ArchRProj$cellNames
   cellGroups <- split(cells, groups)
   
   # outputs unique cell groups/clusters.
-  clusters <- names(cellGroups)
+  groupIDs <- names(cellGroups)
   
   chrRegions <- getChromSizes(ArchRProj)
   genome <- getGenome(ArchRProj)
@@ -651,18 +651,16 @@ getGroupFragments <- function(
                     ranges = IRanges(start(fragments), width = 1))
     right <- GRanges(seqnames = seqnames(fragments),
                      ranges = IRanges(end(fragments), width = 1))
-    # call sort() after sortSeqlevels() to sort also the ranges in addition
-    # to the chromosomes.
-    insertions <- c(left, right) %>% sortSeqlevels() %>%
-      sort()
+    # call sort() after sortSeqlevels() to sort also the ranges in addition to the chromosomes.
+    insertions <- c(left, right) %>% sortSeqlevels() %>% sort()
     
-    cluster <- file %>% basename() %>% gsub("_.*", "", .)
+    groupID <- file %>% basename() %>% gsub("_.*", "", .)
     # binnedCoverage
-    message("Creating bins for cluster ",clusters[clusteridx], "...")
+    message("Creating bins for group ", groupID, "...")
     bins <-
       unlist(slidingWindows(chrRegions, width = tileSize, step = tileSize))
     
-    message("Counting overlaps for cluster ",clusters[clusteridx], "...")
+    message("Counting overlaps for group ", groupID, "...")
     bins$reads <-
       countOverlaps(
         bins,
@@ -673,11 +671,11 @@ getGroupFragments <- function(
       )
     addSeqLengths(bins, genome)
     
-    clusterReadsInTSS <-
-      ArchRProj@cellColData$ReadsInTSS[cells %in% cellGroups$cluster]
+    groupReadsInTSS <-
+      ArchRProj@cellColData$ReadsInTSS[cells %in% cellGroups$groupID]
 
-    binnedCoverage <- coverage(bins, weight = bins$reads *scaleFactor )
-    saveRDS(binnedCoverage, file.path(outDir, paste0(cluster, "_cvg.rds")))
+    binnedCoverage <- coverage(bins, weight = bins$reads * scaleFactor )
+    saveRDS(binnedCoverage, file.path(outDir, paste0(groupID, "_cvg.rds")))
   }
   
 }
