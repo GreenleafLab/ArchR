@@ -598,7 +598,7 @@ getGroupFragments <- function(
   groupIDs <- names(cellGroups)
   
   
-   .safelapply(seq_along(groupIDs), function(x){
+   .safelapply(seq_along(groupIDs), function(x)){
     cat("Making fragment file for cluster:", groupIDs[x], "\n")
     # get GRanges with all fragments for that cluster
     cellNames = cellGroups[[groupIDs[x]]]
@@ -654,7 +654,7 @@ getGroupFragments <- function(
     # call sort() after sortSeqlevels() to sort also the ranges in addition to the chromosomes.
     insertions <- c(left, right) %>% sortSeqlevels() %>% sort()
     
-    groupID <- file %>% basename() %>% gsub("_.*", "", .)
+    groupID <- file %>% basename() %>% gsub(".{4}$", "", .)
     # binnedCoverage
     message("Creating bins for group ", groupID, "...")
     bins <-
