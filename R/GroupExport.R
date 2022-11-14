@@ -581,10 +581,9 @@ getGroupFragments <- function(
 #' # Get Test ArchR Project
 #' proj <- getTestProject()
 #'
-#' # Get Group BW
-#' frags <- getGroupFragmentsFromProj(proj, groupBy = "Clusters", outDir = "./Shiny/Fragments")
+#' # Create directory for fragments
+#' getGroupFragmentsFromProj(proj, groupBy = "Clusters", outDir = "./Shiny/Fragments")
 #'
-#' @export
 .getGroupFragsFromProj <- function(ArchRProj = NULL,
                                    groupBy = NULL,
                                    outDir = file.path("Shiny", "fragments")) {
@@ -599,17 +598,17 @@ getGroupFragments <- function(
   clusters <- names(cellGroups)
   
   
-  for (cluster in clusters) {
-    cat("Making fragment file for cluster:", cluster, "\n")
+   .safelapply(seq_along(clusters), function(x){
+    cat("Making fragment file for cluster:", clusters[x], "\n")
     # get GRanges with all fragments for that cluster
-    cellNames = cellGroups[[cluster]]
+    cellNames = cellGroups[[clusters[x]]]
     fragments <-
       getFragmentsFromProject(ArchRProj = ArchRProj, cellNames = cellNames)
     fragments <- unlist(fragments, use.names = FALSE)
     # filter Fragments
     fragments <-
       GenomeInfoDb::keepStandardChromosomes(fragments, pruning.mode = "coarse")
-    saveRDS(fragments, file.path(outDir, paste0(cluster, "_cvg.rds")))
+    saveRDS(fragments, file.path(outDir, paste0(clusters[x], "_cvg.rds")))
   }
 }
 
@@ -627,7 +626,6 @@ getGroupFragments <- function(
 #' column will be grouped together and the average signal will be plotted.
 #' @param outDir the directory to output the group fragment files.
 #'
-#' @export
 .getClusterCoverage <- function(ArchRProj = NULL,
                                 tileSize = 100,
                                 scaleFactor = 1,
