@@ -10,15 +10,18 @@
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #'
-shinyRasterUMAPs <- function(
+ShinyRasterUMAPs <- function(
   ArchRProj = NULL,
   outputDirUmaps = "Shiny/inputData",
   threads = getArchRThreads(),
   verbose = TRUE,
-  logFile = createLogFile("shinyRasterUMAPs")
+  logFile = createLogFile("ShinyRasterUMAPs")
 ){
-  
-  ArchR:::.validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = outputDirUmaps, name = "outputDirUmaps", valid = c("character"))
+  .validInput(input = threads, name = "threads", valid = c("numeric"))
+  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
   
   if (file.exists(file.path(outputDirUmaps, "plotBlank72.h5"))){
     
