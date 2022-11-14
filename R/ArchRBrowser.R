@@ -1369,7 +1369,6 @@ plotBrowserTrack <- function(
   cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
   tabGroups <- table(cellGroups)
   
-  
   groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
   uniqueGroups <- gtools::mixedsort(unique(cellGroups)) 
   
@@ -1381,6 +1380,7 @@ plotBrowserTrack <- function(
     ranges = IRanges(start = regionTiles, width=100)
   )
   
+  dir.create("coverage")
   cvgObjs = list.files(path = "./coverage", pattern = "*_cvg.rds", full.names = TRUE)
   allCvgGR = c()
   for(i in seq_along(cvgObjs)) {
