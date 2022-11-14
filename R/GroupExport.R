@@ -630,8 +630,8 @@ getGroupFragments <- function(
                                 tileSize = 100,
                                 scaleFactor = 1,
                                 groupBy = "Clusters",
-                                outDir = file.path("Shiny", "coverage")) {
-  fragFiles = list.files(path = file.path("Shiny", "fragments"), full.names = TRUE)
+                                outDir = file.path(getOutputDirectory(ArchRProj), "Shiny", "coverage")) {
+  fragFiles = list.files(path = file.path(getOutputDirectory(ArchRProj), "Shiny", "fragments"), full.names = TRUE)
   dir.create(outDir, showWarnings = FALSE)
   
   # find barcodes of cells in that groupBy.
@@ -676,30 +676,5 @@ getGroupFragments <- function(
 
     binnedCoverage <- coverage(bins, weight = bins$reads * scaleFactor )
     saveRDS(binnedCoverage, file.path(outDir, paste0(groupID, "_cvg.rds")))
-  }
-  
-}
-
-if(!file.exists(file.path("Shiny"))){
-  dir.create("Shiny", showWarnings = FALSE)
-  message("Shiny folder is created...")
-}
-
-if(!file.exists(file.path("Shiny/inputData"))){
-  message("Shiny/inputData folder is created...")
-  dir.create("Shiny/inputData", showWarnings = FALSE)
-}
-
-set.seed(1)
-
-if (!file.exists(file.path(
-  "Save-ArchRProjShiny/Save-ArchRProjShiny-Arrows/"
-))) {
-  stop(
-    "Please add Save-ArchRProjShiny/Save-ArchRProjShiny-Arrows/ folder into the Shiny/inputData/ path!"
-  )
-} else{
-  ArchRProj <-
-    ArchR::loadArchRProject("Save-ArchRProjShiny/Save-ArchRProjShiny-Arrows/")
-  ArchRProj <- addImputeWeights(ArchRProj = ArchRProj)
+  }  
 }
