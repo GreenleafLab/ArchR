@@ -631,7 +631,7 @@ getGroupFragments <- function(
                                 scaleFactor = 1,
                                 groupBy = "Clusters",
                                 outDir = file.path("Shiny", "coverage")) {
-  fragfiles = list.files(path = file.path("Shiny", "fragments"), full.names = TRUE)
+  fragFiles = list.files(path = file.path("Shiny", "fragments"), full.names = TRUE)
   dir.create(outDir, showWarnings = FALSE)
   
   # find barcodes of cells in that groupBy.
@@ -645,7 +645,7 @@ getGroupFragments <- function(
   chrRegions <- getChromSizes(ArchRProj)
   genome <- getGenome(ArchRProj)
   
-  for (file in fragfiles) {
+  for (file in fragFiles) {
     fragments <- readRDS(file)
     left <- GRanges(seqnames = seqnames(fragments),
                     ranges = IRanges(start(fragments), width = 1))
