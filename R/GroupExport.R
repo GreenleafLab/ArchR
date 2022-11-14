@@ -590,9 +590,9 @@ getGroupFragments <- function(
   dir.create(outDir, showWarnings = FALSE)
   
   # find barcodes of cells in that groupBy.
-  groups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
+  cellGroups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
   cells <- ArchRProj$cellNames
-  cellGroups <- split(cells, groups)
+  cellGroups <- split(cells, cellGroups)
   
   # outputs unique cell groups/clusters.
   clusters <- names(cellGroups)
