@@ -17,7 +17,10 @@ getPeak2GeneLinks(
 \arguments{
 \item{ArchRProj}{An \code{ArchRProject} object.}
 
-\item{corCutOff}{A numeric describing the minimum numeric peak-to-gene correlation to return.}
+\item{corCutOff}{A numeric describing the minimum numeric peak-to-gene correlation to return. If this value
+is positive, then only positive correlations greater than or equal to \code{corCutOff} will be returned. If this value is
+negative, then only negative correlations less than or equal to \code{corCutOff} will be returned. If \code{corCutOff = 0}, only
+positive correlations will be returned.}
 
 \item{FDRCutOff}{A numeric describing the maximum numeric peak-to-gene false discovery rate to return.}
 

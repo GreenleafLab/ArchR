@@ -66,10 +66,10 @@ in downstream analyses. Cells with a TSS enrichment score greater than or equal 
 is a measurement of signal-to-background in ATAC-seq.}
 
 \item{minFrags}{The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-Cells containing greater than or equal to \code{minFrags} total fragments wll be retained.}
+Cells containing greater than or equal to \code{minFrags} total fragments will be retained.}
 
 \item{maxFrags}{The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-Cells containing greater than or equal to \code{maxFrags} total fragments wll be retained.}
+Cells containing greater than or equal to \code{maxFrags} total fragments will be retained.}
 
 \item{minFragSize}{The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.}
 

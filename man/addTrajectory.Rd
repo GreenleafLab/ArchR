@@ -16,6 +16,7 @@ addTrajectory(
   useAll = FALSE,
   dof = 250,
   spar = 1,
+  saveDF = NULL,
   force = FALSE,
   seed = 1,
   logFile = createLogFile("addTrajectory")
@@ -48,6 +49,9 @@ is above the provided quantile will be excluded.}
 \item{dof}{The number of degrees of freedom to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
 \item{spar}{The sparsity to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
+
+\item{saveDF}{A full or relative path to use for creating a \code{.RDS} R object file containing a DataFrame with additional information about the trajectory.
+This includes the distance of each cell to the splines of the trajectory and the corresponding indicies returned by \code{nabor::knn}.}
 
 \item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exists in the given \code{ArchRProject}.}
 

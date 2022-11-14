@@ -462,7 +462,7 @@ addArchRLocking <- function(locking=FALSE){
   
   .validInput(input = locking, name = "locking", valid = "boolean")
 
-  #Check if Lockign is Valid
+  #Check if Locking is Valid
   h5test <- h5testFileLocking(".")
   if(!h5test){
     message(
