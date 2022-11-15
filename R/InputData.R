@@ -20,8 +20,8 @@ getTutorialData <- function(
   ){
   
   #Validate
-  ArchR:::.validInput(input = tutorial, name = "tutorial", valid = "character")
-  ArchR:::.validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = tutorial, name = "tutorial", valid = "character")
+  .validInput(input = threads, name = "threads", valid = c("integer"))
   #########
   
   #Make Sure URL doesnt timeout
@@ -367,7 +367,7 @@ getValidBarcodes <- function(
   }
 
   barcodeList <- lapply(seq_along(csvFiles), function(x){
-    df <- ArchR:::.suppressAll(data.frame(readr::read_csv(csvFiles[x])))
+    df <- .suppressAll(data.frame(readr::read_csv(csvFiles[x])))
     if("cell_id" %in% colnames(df)){
       as.character(df[which(paste0(df$cell_id) != "None"),]$barcode)
     }else if("is__cell_barcode" %in% colnames(df)){

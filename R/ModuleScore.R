@@ -85,7 +85,7 @@ addModuleScore <- function(
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addModuleScore Input-Parameters", logFile=logFile)
 
   #Get Feature DF
-  featureDF <- ArchR:::.getFeatureDF(head(getArrowFiles(ArchRProj),2), subGroup=useMatrix)
+  featureDF <- .getFeatureDF(head(getArrowFiles(ArchRProj),2), subGroup=useMatrix)
   featureDF$Match <- seq_len(nrow(featureDF))
 
   if("name" %in% colnames(featureDF)){
@@ -253,7 +253,7 @@ addModuleScore <- function(
     binx <- binList[moduleList[[x]]]
     idxFgd <- featureList[[x]]
     idxBgd <- unlist(lapply(binx, function(x) sample(x, nBgd)), use.names=FALSE)
-    m <- ArchR:::.getPartialMatrix(
+    m <- .getPartialMatrix(
       ArrowFiles = getArrowFiles(ArchRProj),
       featureDF = featureDF[c(idxFgd, idxBgd), ],
       useMatrix = useMatrix,

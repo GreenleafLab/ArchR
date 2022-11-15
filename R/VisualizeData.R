@@ -607,42 +607,42 @@ plotEmbeddingShiny <- function(
   logFile = createLogFile("plotEmbedding")
 ){
   
-  ArchR:::.validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  ArchR:::.validInput(input = embedding, name = "reducedDims", valid = c("character"))
-  ArchR:::.validInput(input = colorBy, name = "colorBy", valid = c("character"))
-  ArchR:::.validInput(input = name, name = "name", valid = c("character"))
-  ArchR:::.validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
-  ArchR:::.validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
-  ArchR:::.validInput(input = pal, name = "pal", valid = c("palette", "null"))
-  ArchR:::.validInput(input = size, name = "size", valid = c("numeric"))
-  ArchR:::.validInput(input = sampleCells, name = "sampleCells", valid = c("numeric", "null"))
-  ArchR:::.validInput(input = highlightCells, name = "highlightCells", valid = c("character", "null"))
-  ArchR:::.validInput(input = rastr, name = "rastr", valid = c("boolean"))
-  ArchR:::.validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
-  ArchR:::.validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
-  ArchR:::.validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
-  ArchR:::.validInput(input = randomize, name = "randomize", valid = c("boolean"))
-  ArchR:::.validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
-  ArchR:::.validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
-  ArchR:::.validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
-  ArchR:::.validInput(input = threads, name = "threads", valid = c("integer"))
-  ArchR:::.validInput(input = logFile, name = "logFile", valid = c("character"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  .validInput(input = embedding, name = "reducedDims", valid = c("character"))
+  .validInput(input = colorBy, name = "colorBy", valid = c("character"))
+  .validInput(input = name, name = "name", valid = c("character"))
+  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
+  .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
+  .validInput(input = pal, name = "pal", valid = c("palette", "null"))
+  .validInput(input = size, name = "size", valid = c("numeric"))
+  .validInput(input = sampleCells, name = "sampleCells", valid = c("numeric", "null"))
+  .validInput(input = highlightCells, name = "highlightCells", valid = c("character", "null"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+  .validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
+  .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
+  .validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
+  .validInput(input = randomize, name = "randomize", valid = c("boolean"))
+  .validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
+  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+  .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
+  .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = logFile, name = "logFile", valid = c("character"))
   
-  ArchR:::.requirePackage("ggplot2", source = "cran")
+  .requirePackage("ggplot2", source = "cran")
   
-  ArchR:::.startLogging(logFile = logFile)
-  ArchR:::.logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
+  .startLogging(logFile = logFile)
+  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
   
 
   # Get Embedding ------------------------------------------------------------------
-  ArchR:::.logMessage("Getting UMAP Embedding", logFile = logFile)
+  .logMessage("Getting UMAP Embedding", logFile = logFile)
   df <- embeddingDF
   
   if(!all(rownames(df) %in% ArchRProj$cellNames)){
     stop("Not all cells in embedding are present in ArchRProject!")
   }
   
-  ArchR:::.logThis(df, name = "Embedding data.frame", logFile = logFile)
+  .logThis(df, name = "Embedding data.frame", logFile = logFile)
   if(!is.null(sampleCells)){
     if(sampleCells < nrow(df)){
       if(!is.null(imputeWeights)){
@@ -686,7 +686,7 @@ plotEmbeddingShiny <- function(
   }
   colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
   
-  ArchR:::.logMessage(paste0("ColorBy = ", colorBy), logFile = logFile)
+  .logMessage(paste0("ColorBy = ", colorBy), logFile = logFile)
   
   suppressMessages(message(logFile))
   
@@ -719,13 +719,13 @@ plotEmbeddingShiny <- function(
   rownames(colorMat)=name
   
   if(!all(rownames(df) %in% colnames(colorMat))){
-    ArchR:::.logMessage("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.", logFile = logFile)
+    .logMessage("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.", logFile = logFile)
     stop("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.")
   }
   
   colorMat <- colorMat[,rownames(df), drop=FALSE]
   
-  ArchR:::.logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
+  .logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
   
   if(!is.null(imputeWeights)){
     if(getArchRVerbose()) message("Imputing Matrix")
@@ -736,7 +736,7 @@ plotEmbeddingShiny <- function(
     }
   }
   
-  ArchR:::.logThis(colorMat, "colorMat-After-Impute", logFile = logFile)
+  .logThis(colorMat, "colorMat-After-Impute", logFile = logFile)
   
   colorList <- lapply(seq_len(nrow(colorMat)), function(x){
     colorParams <- list()
@@ -755,7 +755,7 @@ plotEmbeddingShiny <- function(
       colorParams$discreteSet <- discreteSet
     }
     if(x == 1){
-      ArchR:::.logThis(colorParams, name = "ColorParams 1", logFile = logFile)
+      .logThis(colorParams, name = "ColorParams 1", logFile = logFile)
     }
     colorParams
   })
@@ -764,7 +764,7 @@ plotEmbeddingShiny <- function(
   
   for(x in 1:length(colorList)){
     
-    plotParamsx = ArchR:::.mergeParams(colorList[[x]], plotParams)
+    plotParamsx = .mergeParams(colorList[[x]], plotParams)
     
     
     if(getArchRVerbose()) {message(x, " ", appendLF = FALSE)}
@@ -806,7 +806,7 @@ plotEmbeddingShiny <- function(
         plotParamsx$size <- NULL
         plotParamsx$randomize <- NULL
         
-        ArchR:::.logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
+        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
         gg <- do.call(ggHex, plotParamsx)
         
       }else{
@@ -815,7 +815,7 @@ plotEmbeddingShiny <- function(
           plotParamsx$highlightPoints <- highlightPoints
         }
         
-        ArchR:::.logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
+        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
         gg <- do.call(ggPoint, plotParamsx)
         
       }
@@ -830,7 +830,7 @@ plotEmbeddingShiny <- function(
         plotParamsx$highlightPoints <- highlightPoints
       }
       
-      ArchR:::.logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
+      .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
       gg <- do.call(ggPoint, plotParamsx)
       
     }

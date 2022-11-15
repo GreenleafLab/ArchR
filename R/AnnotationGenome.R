@@ -387,7 +387,7 @@ createGeneAnnotation <- function(
 #'
 #' @export
 addSeqLengths <- function (gr, genome) {
-  gr <- ArchR:::.validGRanges(gr)
+  gr <- .validGRanges(gr)
   genome <- validBSgenome(genome)
   stopifnot(all(as.character(seqnames(gr)) %in% as.character(seqnames(genome))))
   seqlengths(gr) <-
