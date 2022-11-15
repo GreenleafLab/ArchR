@@ -88,7 +88,7 @@ exportShinyArchR <- function(ArchRProj = NULL,
   
   ArchRProjShiny@projectMetadata[["units"]] <- units
   
-  #need arrowFiles to getFeatures so need to save genes as RDS
+  # need arrowFiles to getFeatures so need to save genes as RDS
   gene_names <- getFeatures(ArchRProj = ArchRProj)
   saveRDS(gene_names, "./inputData/gene_names.rds")
   
@@ -158,7 +158,7 @@ exportShinyArchR <- function(ArchRProj = NULL,
   
   ## colorMats without Impute Weights----------------------------------------------------------------
   
-  #Get gene and motif names and save as RDS
+  # Get gene and motif names and save as RDS
   gene_names_GSM <- getFeatures(ArchRProj = ArchRProj, useMatrix = "GeneScoreMatrix")
   saveRDS(gene_names_GSM, file="./inputData/geneNamesGSM.rds")
   
@@ -193,7 +193,6 @@ exportShinyArchR <- function(ArchRProj = NULL,
   #colorMatMM has 1740 rows because in name = getFeatures() returns the 870 z: + the 870 deviations:
   colorMatMM <- Matrix(.getMatrixValues(
     ArchRProj = ArchRProj,
-    #name = getFeatures(ArchRProj, "MotifMatrix")
     name = paste0("deviations:", markerListMM), #used deviations:
     matrixName = "MotifMatrix",
     log2Norm = FALSE,
@@ -201,11 +200,8 @@ exportShinyArchR <- function(ArchRProj = NULL,
   ), sparse = TRUE)
   matrices$"MotifMatrix" <- colorMatMM
   
-  #TODO modify this so it only has the matrices we are actually supporting
+  # TODO modify this so it only has the matrices we are actually supporting
   matrices$allColorBy=c("colData", "cellColData", .availableArrays(head(getArrowFiles(ArchRProj), 2)))
-  # shouldn't save rds because it's too hefty for ShinyApps
-  saveRDS(matrices,"~/tests/raster/inputData/matrices.rds")
-  matrices <- readRDS("matrices.rds")
   
   ## Impute Weights ------------------------------------------------------------
   imputeWeights <- getImputeWeights(ArchRProj = ArchRProj)

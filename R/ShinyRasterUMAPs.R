@@ -10,7 +10,7 @@
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #'
-ShinyRasterUMAPs <- function(
+shinyRasterUMAPs <- function(
   ArchRProj = NULL,
   outputDirUmaps = "Shiny/inputData",
   threads = getArchRThreads(),
@@ -23,71 +23,65 @@ ShinyRasterUMAPs <- function(
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
   
-  if (file.exists(file.path(outputDirUmaps, "plotBlank72.h5"))){
-    
+  if (file.exists(file.path(outputDirUmaps, "plotBlank72.h5"))){   
     file.remove(file.path(outputDirUmaps, "plotBlank72.h5"))
-    
   }
   
   h5closeAll()
-  points <- H5Fcreate(name = file.path(outputDirUmaps,"plotBlank72.h5"))
-  h5createGroup(file.path(outputDirUmaps, "plotBlank72.h5"),"GSM")
-  h5createGroup(file.path(outputDirUmaps, "plotBlank72.h5"),"GIM")
-  h5createGroup(file.path(outputDirUmaps, "plotBlank72.h5"),"MM")
-  
 
-  if(!exists("GSM_umaps_points")){ 
-  
-    GSM_umaps_points <- ArchR:::.safelapply(1:length(gene_names_GSM), function(x){
+  shinyMatrices <- getAvailableMatrices(ArchRProj)
+
+  # create an HDF5 to store the native raster vectors 
+  points <- H5Fcreate(name = file.path(outputDirUmaps,"plotBlank72.h5"))
+  # create groups for each of the available matrices
+  for (matrix in shinyMatrices) {
+    h5createGroup(file.path(outputDirUmaps, "plotBlank72.h5"), matrix)
+
+    c(matrix, "points") <- .safelapply(1:length(gene_names_GSM), function(x){
+    
+    gene_plot <- plotEmbeddingShiny(
+      ArchRProj = ArchRProj,
+      colorBy = "GeneScoreMatrix",
+      name = gene_names_GSM[x],
+      embedding = "UMAP",
+      embeddingDF = df,
+      quantCut = c(0.01, 0.95),
+      imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
+      plotAs = "points",
+      rastr = TRUE
+    )
+    
+    if(!is.null(gene_plot)){
       
-      print(paste0("Creating plots for GSM_umaps_points: ",x,": ",round((x/length(gene_names_GSM))*100,3), "%"))
+      gene_plot_blank <- gene_plot[[1]] + theme(axis.title.x = element_blank()) +
+        theme(axis.title.y = element_blank()) +
+        theme(axis.title = element_blank()) +
+        theme(legend.position = "none") +
+        theme(
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          title=element_blank()
+        )
       
-      gene_plot <- plotEmbeddingShiny(
-        ArchRProj = ArchRProj,
-        colorBy = "GeneScoreMatrix",
-        name = gene_names_GSM[x],
-        embedding = "UMAP",
-        embeddingDF = df,
-        quantCut = c(0.01, 0.95),
-        imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
-        plotAs = "points",
-        rastr = TRUE
-      )
+      #save plot without axes etc as a jpg.
+      ggsave(filename = file.path(outputDirUmaps, "GSM_umaps", paste0(gene_names_GSM[x],"_blank72.jpg")),
+              plot = gene_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
       
-      if(!is.null(gene_plot)){
-        
-        gene_plot_blank <- gene_plot[[1]] + theme(axis.title.x = element_blank()) +
-          theme(axis.title.y = element_blank()) +
-          theme(axis.title = element_blank()) +
-          theme(legend.position = "none") +
-          theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.border = element_blank(),
-            title=element_blank()
-          )
-        
-        #save plot without axes etc as a jpg.
-        ggsave(filename = file.path(outputDirUmaps, "GSM_umaps", paste0(gene_names_GSM[x],"_blank72.jpg")),
-               plot = gene_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
-        
-        #read back in that jpg because we need vector in native format
-        blank_jpg72 <- readJPEG(source = file.path(outputDirUmaps, "GSM_umaps",
-                                                   paste0(gene_names_GSM[x],"_blank72.jpg")), native = TRUE)
-        
-        res = list(list(plot=as.vector(blank_jpg72), min = round(min(gene_plot[[1]]$data$color),1),
-                   max = round(max(gene_plot[[1]]$data$color),1), pal = gene_plot[[2]]))
-        
-        return(res)
-      }
-    }, threads = threads) 
-    names(GSM_umaps_points) <- gene_names_GSM
-  }else{
-    message("GSM_umaps_points already exists. Skipping the loop...")
-  }
+      #read back in that jpg because we need vector in native format
+      blank_jpg72 <- readJPEG(source = file.path(outputDirUmaps, "GSM_umaps",
+                                                  paste0(gene_names_GSM[x],"_blank72.jpg")), native = TRUE)
+      
+      res = list(list(plot=as.vector(blank_jpg72), min = round(min(gene_plot[[1]]$data$color),1),
+                  max = round(max(gene_plot[[1]]$data$color),1), pal = gene_plot[[2]]))
+      
+      return(res)
+    }
+  }, threads = threads) 
+  names(GSM_umaps_points) <- gene_names_GSM
   
   if(!exists("GIM_umaps_points")){ 
-    GIM_umaps_points <- ArchR:::.safelapply(1:length(gene_names_GIM), function(x){ 
+    GIM_umaps_points <- .safelapply(1:length(gene_names_GIM), function(x){ 
       
       print(paste0("Creating plots for GIM_umaps_points: ",x,": ",round((x/length(gene_names_GIM))*100,3), "%"))
       
@@ -137,7 +131,7 @@ ShinyRasterUMAPs <- function(
   
   if(!exists("MM_umaps_points")){ 
 
-    MM_umaps_points <- ArchR:::.safelapply(1:length(motif_names), function(x){
+    MM_umaps_points <- .safelapply(1:length(motif_names), function(x){
       
       print(paste0("Creating plots for MM_umaps_points: ",x,": ",round((x/length(motif_names))*100,3), "%"))
       
