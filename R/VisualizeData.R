@@ -849,7 +849,7 @@ plotEmbeddingShiny <- function(
     gg <- gg
   }
   
-  ArchR:::.endLogging(logFile = logFile)
+  .endLogging(logFile = logFile)
   
   return(list(gg, plotParamsx$pal))
 }

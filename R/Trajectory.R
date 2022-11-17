@@ -1181,7 +1181,7 @@ getMonocleTrajectories <- function(
   cds <- order_cells(cds, root_pr_nodes = rootNodes)
 
   #Get Pseudotime
-  cds@principal_graph_aux[[1]]$pseudotime <- ArchR:::.getQuantiles(cds@principal_graph_aux[[1]]$pseudotime) * 100
+  cds@principal_graph_aux[[1]]$pseudotime <- .getQuantiles(cds@principal_graph_aux[[1]]$pseudotime) * 100
 
   #Plot Results
   canRaster <- requireNamespace("ggrastr", quietly = TRUE)
@@ -1211,8 +1211,8 @@ getMonocleTrajectories <- function(
 
   message("Plotting Results - ", path)
   pdf(path, width = 6, height = 6, useDingbats = FALSE)
-  ArchR:::.fixPlotSize(p1)
-  ArchR:::.fixPlotSize(p2, newPage = TRUE)
+  .fixPlotSize(p1)
+  .fixPlotSize(p2, newPage = TRUE)
   dev.off()
 
   cds
@@ -1280,7 +1280,7 @@ addMonocleTrajectory <- function(
 
   monoclePT <- pseudotime(monocleCDS)
   monoclePT <- monoclePT[rownames(groupDF)]
-  monoclePT <- ArchR:::.getQuantiles(monoclePT) * 100
+  monoclePT <- .getQuantiles(monoclePT) * 100
 
   #Add To ArchR Project
   ArchRProj <- addCellColData(
@@ -1384,7 +1384,7 @@ addSlingShotTrajectories <- function(
   colnames(pt) <- paste0(name, ".Curve", seq_len(ncol(pt)))
 
   #Scale
-  ptn <- apply(pt, 2, ArchR:::.getQuantiles) * 100
+  ptn <- apply(pt, 2, .getQuantiles) * 100
 
   for(i in seq_len(ncol(ptn))){
 

@@ -19,7 +19,7 @@ m2 <- m1[rev(1:10), rev(1:10)]
 ################################################
 
 #Correlations
-c1 <- ArchR:::rowCorCpp(1:10, 1:10, m1, m2)
+c1 <- rowCorCpp(1:10, 1:10, m1, m2)
 c2 <- lapply(1:10, function(x){
 	cor(m1[x, ], m2[x, ])
 }) %>% unlist
@@ -34,10 +34,10 @@ test_that("Row-wise Correlation is working...", {
 ################################################
 
 #KNN
-knnObj <- ArchR:::.computeKNN(m1, m2, k = 5)
+knnObj <- .computeKNN(m1, m2, k = 5)
 
 #Check Knn Overlap Cpp
-overlapCpp <- ArchR:::determineOverlapCpp(knnObj, 3)
+overlapCpp <- determineOverlapCpp(knnObj, 3)
 
 #Check Knn Overlap R
 overlapR <- lapply(seq_len(nrow(knnObj)), function(x){
@@ -61,7 +61,7 @@ test_that("KNN Utils is working...", {
 ################################################
 
 #tabulate2dCpp
-tab2d <- as.matrix(ArchR:::tabulate2dCpp(
+tab2d <- as.matrix(tabulate2dCpp(
 	x = c(0,0,2,2,3),
 	xmin = 0,
 	xmax = 3,
@@ -85,7 +85,7 @@ test_that("Tabulate Utils is working...", {
 sm1 <- as(m1, "dgCMatrix")
 
 #Variances
-var1 <- ArchR:::computeSparseRowVariances(
+var1 <- computeSparseRowVariances(
 	sm1@i + 1, sm1@x, Matrix::rowMeans(sm1), ncol(sm1))
 
 var2 <- apply(m1, 1, var)
