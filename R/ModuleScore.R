@@ -213,7 +213,7 @@ addModuleScore <- function(
 
   #Get average values for all features and then order the features based on their average values
   #so that the features can be binned into nBins
-  rS <- ArchR:::.getRowSums(ArrowFiles = getArrowFiles(ArchRProj), useMatrix = useMatrix)
+  rS <- .getRowSums(ArrowFiles = getArrowFiles(ArchRProj), useMatrix = useMatrix)
   rS <- rS[order(rS[,3]), ]
   if(is(featureData, "GRanges")){
     rS$Match <- match(paste0(rS$seqnames, ":", rS$idx), paste0(seqnames(featureData), ":", featureData$idx))

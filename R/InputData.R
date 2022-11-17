@@ -139,7 +139,7 @@ getTutorialData <- function(
 
   message(paste0("Downloading files to ",pathDownload,"..."))
  
-  downloadFiles <- ArchR:::.safelapply(seq_along(filesUrl$fileUrl), function(x){
+  downloadFiles <- .safelapply(seq_along(filesUrl$fileUrl), function(x){
     
     if(file.exists(file.path(pathDownload, basename(filesUrl$fileUrl[x])))){
       if(tools::md5sum(file.path(pathDownload, basename(filesUrl$fileUrl[x]))) != filesUrl$md5sum[x]) {
