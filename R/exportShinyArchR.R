@@ -1,28 +1,3 @@
-library(Matrix)
-library(plyr)
-library(dplyr)
-library(rhandsontable)
-library(parallel)
-library(jpeg)
-library(rhdf5)
-library(ArchR)
-library(rstudioapi)
-library(BSgenome.Hsapiens.UCSC.hg19)
-source("rasterUMAPs.R")
-source("plotEmbeddingShiny.r")
-
-setwd(dirname(getActiveDocumentContext()$path))
-dir.create("Shiny", showWarnings = FALSE) 
-dir.create("Shiny/inputData", showWarnings = FALSE) 
-
-set.seed(1)
-ArchRProj <- loadArchRProject("~/tests/ArchR/Save-ArchRProjShiny-Arrows/")
-ArchRProj <- addImputeWeights(ArchRProj = ArchRProj)
-ArchRProj_noArrows <- myLoadArchRProject("~/tests/colors/inputData")
-ArchRProj_noArrows <- addImputeWeights(ArchRProj = ArchRProj)
-
-
-
 # exportShiny function -----------------------------------------------------------
 #' Export a Shiny App based on ArchRProj
 #' 
@@ -31,18 +6,17 @@ ArchRProj_noArrows <- addImputeWeights(ArchRProj = ArchRProj)
 #' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
 #' @param outputDir The name of the directory for the Shiny App files. 
 #' @param groupBy The name of the column in cellColData to use for grouping cells together for generating sequencing tracks. Only one cell grouping is allowed.
+#'        defaults to "Clusters".
 #' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 exportShinyArchR <- function(
   ArchRProj = NULL,
-  FDR = 0.01,
-  Log2FC = 1.25,
   outputDir = "Shiny",
   groupBy = "Clusters",
+  embedding = "UMAP",
   tileSize = 100,
-  markerList = NULL,
   threads = getArchRThreads(),
   logFile = createLogFile("exportShinyArchR")
 ){
@@ -50,11 +24,9 @@ exportShinyArchR <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = outputDir, name = "outputDir", valid = c("character"))
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = embedding, name = "embedding", valid = c("character"))
   .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = logFile, name = "logFile", valid = c("character"))
-  .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
   
   .startLogging(logFile=logFile)
@@ -101,6 +73,11 @@ exportShinyArchR <- function(
     ArchRProjShiny@projectMetadata[["groupBy"]] <- groupBy
   }
   ArchRProjShiny@projectMetadata[["tileSize"]] <- tileSize
+   units <- tryCatch({
+    .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
+  },error=function(e){
+    "values"
+  })
   ArchrProjShiny <- saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = "Save-ArchRProjShiny", dropCells = TRUE, overwrite = FALSE)
   
   # Create fragment files 
@@ -120,11 +97,7 @@ exportShinyArchR <- function(
   }
   ## main umaps -----------------------------------------------------------------
 
-  units <- tryCatch({
-    .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
-  },error=function(e){
-    "values"
-  })
+  dir.create(file.path(getOutputDirectory(ArchRProj), outputDir, "inputData")"showWarnings = FALSE")
   
   ArchRProjShiny@projectMetadata[["units"]] <- units
   
