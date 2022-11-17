@@ -70,10 +70,10 @@ exportShinyArchR <- function(
     
     filesUrl <- data.frame(
       fileUrl = c(
-      "https://raw.githubusercontent.com/paupaiz/ArchR/Shiny_export/R/Shiny/app.R",
-      "https://raw.githubusercontent.com/paupaiz/ArchR/Shiny_export/R/Shiny/global.R",
-      "https://raw.githubusercontent.com/paupaiz/ArchR/Shiny_export/R/Shiny/server.R",
-      "https://raw.githubusercontent.com/paupaiz/ArchR/Shiny_export/R/Shiny/ui.R"
+      https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/app.R 
+      https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/global.R 
+      https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/server.R 
+      https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/ui.R
     ),
      md5sum = c(
         "77502e1f195e21d2f7a4e8ac9c96e65e",
@@ -84,7 +84,7 @@ exportShinyArchR <- function(
     )
     
     .downloadFiles(filesUrl = filesUrl, pathDownload = outputDir, threads = threads)
-    
+
   }else{
     message("Using existing Shiny files...")
   }
@@ -92,41 +92,34 @@ exportShinyArchR <- function(
   # Create a copy of the ArchRProj object
   ArchRProjShiny <- ArchRProj
   # Add metadata to ArchRProjShiny
-  if (is.na(paste0("ArchRProj$", groupBy))) {
+  if (groupBy %ni% colnames(ArchRProjShiny@cellColData)) {
     stop("groupBy is not part of cellColData")
   } else if ((any(is.na(paste0("ArchRProj$", groupBy))))) {
-    stop("incomplete data. some NA observations for groupBy")
+    stop("Some entries in the column indicated by groupBy have NA values. 
+          This is not allowed. Please subset your project using subsetArchRProject() to only contain cells with values for groupBy")
   } else {
     ArchRProjShiny@projectMetadata[["groupBy"]] <- groupBy
   }
   ArchRProjShiny@projectMetadata[["tileSize"]] <- tileSize
-  # saveArchRProject(ArchRProj = ArchRProj, outputDirectory = "Save-ArchRProjShiny", dropCells = TRUE)
-  # file = "/Users/selcukkorkmaz/Documents/upwork/Paulina Paiz/Shiny/Save-ArchRProjShiny/ArrowFiles/scATAC_BMMC_R1.arrow"
+  ArchrProjShiny <- saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = "Save-ArchRProjShiny", dropCells = TRUE, overwrite = FALSE)
+  
   # Create fragment files 
-  
-  
-  
   if(length(list.files(file.path(outputDir, "fragments"))) == 0){
-    .getGroupFragsFromProj(ArchRProj = ArchRProjShiny, groupBy = groupBy, outDir = file.path(outputDir, "fragments"))
-  }else{
-    
+    .getGroupFragsFromProj(ArchRProj = ArchRProj, groupBy = groupBy, outDir = file.path(outputDir, "fragments"))
+  }else{ 
     message("Fragment files already exist...")
-    
   }
-  
-  
   
   # Create coverage objects
   if(length(list.files(file.path(outputDir, "coverage"))) == 0){
-    .getClusterCoverage(ArchRProj = ArchRProjShiny, tileSize = tileSize, groupBy = groupBy, outDir = file.path(outputDir, "coverage"))
+    .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, outDir = file.path(outputDir, "coverage"))
   }else{
     
     message("Coverage files already exist...")
     
   }
   ## main umaps -----------------------------------------------------------------
-  # dir.create("UMAPs") 
-  
+
   units <- tryCatch({
     .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
   },error=function(e){
@@ -135,8 +128,9 @@ exportShinyArchR <- function(
   
   ArchRProjShiny@projectMetadata[["units"]] <- units
   
-  #need arrowFiles to getFeatures so need to save genes as RDS
-  if(!file.exists("./Shiny/data/inputData/gene_names.rds")){
+  # need arrowFiles to getFeatures so need to save genes as RDS
+  # TODO change hardcoding of these paths: Should be file.path(getOutputDirectory(ArchRProj), outputDir, "inputData", "features.rds"
+  if(!file.exists(file.path(getOutputDirectory(ArchRProj), outputDir, "inputData", "features.rds"))){
     gene_names <- getFeatures(ArchRProj = ArchRProj)
     saveRDS(gene_names, "./Shiny/data/inputData/gene_names.rds")
   }else{
@@ -155,11 +149,9 @@ exportShinyArchR <- function(
       embedding = "UMAP",
       rastr = FALSE,
       size=0.5,
-      file="/Users/selcukkorkmaz/Documents/upwork/Paulina Paiz/Shiny/Save-ArchRProjShiny/ArrowFiles/scATAC_BMMC_R1.arrow"
     )+ggtitle("Colored by scATAC-seq clusters")+theme(text=element_text(size=12),
                                                       legend.title = element_text(size = 12),legend.text = element_text(size = 6))
     umaps[["Clusters"]] <- cluster_umap
-    # saveRDS(cluster_umap, "./UMAPs/cluster_umap.rds")
     
     sample_umap <- plotEmbedding(
       ArchRProj = ArchRProj,
@@ -172,7 +164,6 @@ exportShinyArchR <- function(
     )+ ggtitle("Colored by original identity")+theme(text=element_text(size=12),
                                                      legend.title = element_text( size = 12),legend.text = element_text(size = 6))
     umaps[["Sample"]] <- sample_umap
-    # saveRDS(sample_umap, "./UMAPs/sample_umap.rds")
     
     constrained_umap <- plotEmbedding(
       ArchRProj = ArchRProjShiny,
@@ -183,7 +174,6 @@ exportShinyArchR <- function(
       size=0.5
     )+ggtitle("UMAP: constrained integration")+theme(text=element_text(size=12),
                                                      legend.title = element_text( size = 12),legend.text = element_text(size = 6))
-    # saveRDS(constrained_umap, "./UMAPs/constrained_umap.rds")
     umaps[["Constrained"]] <- constrained_umap
     
     unconstrained_umap <- plotEmbedding(
