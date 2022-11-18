@@ -35,6 +35,17 @@ exportShinyArchR <- function(
   .requirePackage("shiny", installInfo = 'install.packages("shiny")')
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
   
+  # Check that all columns exist in cellColData 
+  if(is.null(groupBy)){
+    stop("groupBy must be provided")
+  } else if(name %ni% colnames(getCellColData(ArchRProj))){
+    stop("groupBy must be a column in cellColData")
+  }
+  # Check that the embedding exists in ArchRProj@embeddings
+  if(name %in% names(ArchRProj@embeddings)){
+    stop("embedding doesn't exist in ArchRProj@embeddings")
+  }
+
   # Make directory for Shiny App 
   if(!dir.exists(outputDir)) {
     
@@ -78,6 +89,7 @@ exportShinyArchR <- function(
   },error=function(e){
     "values"
   })
+  ArchRProjShiny@projectMetadata[["units"]] <- units
   ArchrProjShiny <- saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = "Save-ArchRProjShiny", dropCells = TRUE, overwrite = FALSE)
   
   # Create fragment files 
@@ -98,9 +110,7 @@ exportShinyArchR <- function(
   ## main umaps -----------------------------------------------------------------
 
   dir.create(file.path(getOutputDirectory(ArchRProj), outputDir, "inputData")"showWarnings = FALSE")
-  
-  ArchRProjShiny@projectMetadata[["units"]] <- units
-  
+
   # need arrowFiles to getFeatures so need to save genes as RDS
   # TODO change hardcoding of these paths: Should be file.path(getOutputDirectory(ArchRProj), outputDir, "inputData", "features.rds"
   if(!file.exists(file.path(getOutputDirectory(ArchRProj), outputDir, "inputData", "features.rds"))){
@@ -117,9 +127,9 @@ exportShinyArchR <- function(
     cluster_umap <- plotEmbedding(
       ArchRProj = ArchRProjShiny,
       baseSize=12,
-      colorBy = "cellColData",
+      colorBy = groupBy,
       name = "Clusters",
-      embedding = "UMAP",
+      embedding = embedding,
       rastr = FALSE,
       size=0.5,
     )+ggtitle("Colored by scATAC-seq clusters")+theme(text=element_text(size=12),
