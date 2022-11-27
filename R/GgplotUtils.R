@@ -582,7 +582,7 @@ ggHex <- function(
     .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
     .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
     .validInput(input = FUN, name = "FUN", valid = c("character"))
-    .validInput(input = hexCut, name = "quantCut", valid = c("numeric", "null"))
+    .validInput(input = hexCut, name = "hexCut", valid = c("numeric", "null"))
     .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
      #require hexbin to be installed. otherwise, this section wont work properly

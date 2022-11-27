@@ -540,7 +540,7 @@ getMatrixFromArrow <- function(
 
   if(!is.null(ArchRProj)){
     projColData <- getCellColData(ArchRProj)[rownames(colData), ]
-    colData <- cbind(colData, projColData[ ,colnames(projColData) %ni% colnames(colData)])
+    colData <- cbind(colData, projColData[ ,colnames(projColData) %ni% colnames(colData), drop = FALSE])
   }
 
   rowData <- tryCatch({
