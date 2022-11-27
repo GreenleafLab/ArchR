@@ -188,11 +188,18 @@ exportShinyArchR <- function(
   
   ## colorMats without Impute Weights----------------------------------------------------------------
   
+  #TODO check with matrices are available
+  allMatrices <- getAvailableMatrices(ArchRProj)
+
   #Get gene and motif names and save as RDS
   if(!file.exists("./Shiny/data/inputData/gene_names_GSM.rds")){
     # TODO check if ArchRProj has GSM
-    gene_names_GSM <- getFeatures(ArchRProj = ArchRProj, useMatrix = "GeneScoreMatrix")
-    saveRDS(gene_names_GSM, file="./Shiny/data/inputData/gene_names_GSM.rds")
+    if ("GeneScoreMatrix" %in% allMatrices){
+      gene_names_GSM <- getFeatures(ArchRProj = ArchRProj, matrix = "GeneScoreMatrix")
+      saveRDS(gene_names_GSM, "./Shiny/data/inputData/gene_names_GSM.rds")
+    {
+      # else skip to checking if next matrix exists and output message saying no GSM
+    }
   }else{
     message("gene_names_GSM already exists...")
     gene_names_GSM <- readRDS("./Shiny/data/inputData/gene_names_GSM.rds")
