@@ -190,6 +190,7 @@ exportShinyArchR <- function(
   
   #Get gene and motif names and save as RDS
   if(!file.exists("./Shiny/data/inputData/gene_names_GSM.rds")){
+    # TODO check if ArchRProj has GSM
     gene_names_GSM <- getFeatures(ArchRProj = ArchRProj, useMatrix = "GeneScoreMatrix")
     saveRDS(gene_names_GSM, file="./Shiny/data/inputData/gene_names_GSM.rds")
   }else{
@@ -198,6 +199,7 @@ exportShinyArchR <- function(
   }
   
   if(!file.exists("./Shiny/data/inputData/gene_names_GIM.rds")){
+     # TODO check if ArchRProj has GIM
     gene_names_GIM <- getFeatures(ArchRProj = ArchRProj, useMatrix = "GeneIntegrationMatrix")
     saveRDS(gene_names_GIM, "./Shiny/data/inputData/gene_names_GIM.rds")
   }else{
@@ -206,6 +208,7 @@ exportShinyArchR <- function(
   }
   
   if(!file.exists("./Shiny/data/inputData/motif_names.rds")){
+     # TODO check if ArchRProj has MM
     motif_names <- getFeatures(ArchRProj = ArchRProj, useMatrix = "MotifMatrix") %>% 
       gsub(".*:", "", .) %>% unique(.)
     saveRDS(motif_names, "./Shiny/data/inputData/motif_names.rds")

@@ -1,4 +1,4 @@
-# mainEmbeds function -----------------------------------------------------------
+# mainEmbed function -----------------------------------------------------------
 #' 
 #' Create an HDF5, mainEmbeds.h5, containing the nativeRaster vectors for the 5 main embeddings. 
 #' This function will be called by exportShinyArchR()
@@ -10,14 +10,14 @@
 #' @param names A list of the names of the columns in `cellColData` or the featureName/rowname of the data matrix to be used for plotting. 
 #' For example if colorBy is "cellColData" then `names` refers to a column names in the `cellcoldata` (see `getCellcoldata()`). If `colorBy`
 #' is "GeneScoreMatrix" then `name` refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
-#' @param embedding The embedding to use. Default is "UMAP"
+#' @param embedding The embedding to use. Default is "UMAP".
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-mainEmbeds <- function(
+mainEmbed <- function(
   ArchRProj = NULL,
   outDirEmbed = "Shiny/inputData",
-  colorBy = "cellColData"
+  colorBy = "cellColData" 
   names = list("Clusters", "Sample", "unconstrained")
   embedding = "UMAP"
   threads = getArchRThreads(),
@@ -35,8 +35,24 @@ mainEmbeds <- function(
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportShinyArchR Input-Parameters", logFile = logFile)
 
+# check to see if the matrix exists using getAvailableMatrices()
+# Check if colorBy is cellColData or Matrix (e.g. GSM, GIM, or MM)
+# Check if embedding exists in ArchRProj@embeddings
+# Check all names exist
+
   if(!file.exists(file.path(outDirEmbed, "embeds.rds"))){  
     
+     # check all names exist in ArchRProj
+      ccd <- getCellColData(ArchRProj)
+      discreteCols <- lapply(seq_len(ncol(ccd)), function(x){
+        .isDiscrete(ccd[, x])
+      }) %>% unlist %>% {colnames(ccd)[.]}
+      if("Clusters" %in% discreteCols){
+        selectCols <- "Clusters"
+      }else{
+        selectCols <- "Sample"
+      }
+
     embeds <- .safelapply(seq_along(names), function(x)){
   
     name <- names[[x]]
