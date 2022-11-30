@@ -144,7 +144,7 @@ createGeneAnnotation <- function(
 
     if(is.null(genome)) {
       if (is.null(TxDb) | is.null(OrgDb)) {
-          stop("If no provided genome then you need TxDb and OrgDb!")
+          stop("If you have not provided a value to the genome parameter then you need to supply values to both TxDb and OrgDb!")
       }
     }
 
