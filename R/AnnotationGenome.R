@@ -123,7 +123,7 @@ createGeneAnnotation <- function(
   exons = NULL,
   TSS = NULL,
   annoStyle = NULL,
-  singleStrand = FALSE
+  singleStrand = TRUE
   ){
 
   .validInput(input = genome, name = "genome", valid = c("character", "null"))
@@ -133,6 +133,7 @@ createGeneAnnotation <- function(
   .validInput(input = exons, name = "exons", valid = c("GRanges", "null"))
   .validInput(input = TSS, name = "TSS", valid = c("GRanges", "null"))
   .validInput(input = annoStyle, name = "annoStyle", valid = c("character", "null"))
+  .validInput(input = singleStrand, name = "singleStrand", valid = c("boolean"))
 
   if(is.null(genes) | is.null(exons) | is.null(TSS)){
 
@@ -156,7 +157,14 @@ createGeneAnnotation <- function(
     ###########################
     message("Getting Genes..")
     genes <- tryCatch({ #Legacy Catch In Case
-      GenomicFeatures::genes(TxDb, single.strand.genes.only = singleStrand)
+      if(singleStrand){
+        GenomicFeatures::genes(TxDb, single.strand.genes.only = singleStrand)
+      } else{
+        #if singleStrand = FALSE, GenomicFeatures::genes returns a CompressedGRangesList so we tidy this up to maintain consistency.
+        tempGenes <- unlist(GenomicFeatures::genes(TxDb, single.strand.genes.only = singleStrand))
+        mcols(tempGenes)$gene_id <- names(tempGenes)
+        tempGenes
+      }      
     }, error = function(e){
       GenomicFeatures::genes(TxDb)
     })
