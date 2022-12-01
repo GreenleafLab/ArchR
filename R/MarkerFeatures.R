@@ -468,7 +468,7 @@ getMarkerFeatures <- function(
   n2 <- ncol(mat2)
   stopifnot(n1==n2)
 
-  .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
+  .requirePackage("presto", source = "cran")
   df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
   df <- df[which(df$group=="Top"),]
 
