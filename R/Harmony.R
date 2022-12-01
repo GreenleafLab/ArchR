@@ -62,7 +62,7 @@ addHarmony <- function(
     }
   }
 
-  .requirePackage("harmony", installInfo = 'devtools::install_github("immunogenomics/harmony")')
+  .requirePackage("harmony", source = "cran")
   harmonyParams <- list(...)
   harmonyParams$data_mat <- getReducedDims(
     ArchRProj = ArchRProj, 
