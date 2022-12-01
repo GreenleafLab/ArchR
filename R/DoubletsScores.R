@@ -564,6 +564,7 @@ addDoubletScores <- function(
   #simulated LSI are first so lets remove
   corLSI <- allLSI[-seq_len(nSimLSI), , drop = FALSE]
   corUMAP <- umapProject[-seq_len(nSimLSI), , drop = FALSE]
+  rownames(corUMAP) <- rownames(corLSI)
   idx <- intersect(rownames(corLSI), rownames(LSI$matSVD))  
   corProjection <- list(
     LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(corLSI[idx, x, drop=FALSE], LSI$matSVD[idx, x, drop=FALSE]) )),
