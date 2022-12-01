@@ -173,7 +173,7 @@ installExtraPackages <- function(force = FALSE){
   if(!requireNamespace("harmony", quietly = TRUE) || force){
     o <- tryCatch({
       message("Installing harmony..")
-      devtools::install_github('immunogenomics/harmony', repos = BiocManager::repositories())
+      install.packages("harmony")
       if(!requireNamespace("harmony", quietly = TRUE)){
         stop()
       }
@@ -182,7 +182,7 @@ installExtraPackages <- function(force = FALSE){
       f <- f + 1
       fp <- c(fp, "harmony")
       message("Error With harmony Installation")
-      message("Try devtools::install_github('immunogenomics/harmony', repos = BiocManager::repositories())")
+      message("Try install.packages('harmony')")
     })
   }
 
@@ -190,7 +190,7 @@ installExtraPackages <- function(force = FALSE){
   if(!requireNamespace("presto", quietly = TRUE) || force){
     o <- tryCatch({
       message("Installing presto..")
-      devtools::install_github('immunogenomics/presto', repos = BiocManager::repositories())
+      install.packages("presto")
       if(!requireNamespace("presto", quietly = TRUE)){
         stop()
       }
@@ -199,7 +199,7 @@ installExtraPackages <- function(force = FALSE){
       f <- f + 1
       fp <- c(fp, "presto")
       message("Error With presto Installation")
-      message("Try devtools::install_github('immunogenomics/presto', repos = BiocManager::repositories())")
+      message("Try install.packages('presto')")
     })
   }
 
