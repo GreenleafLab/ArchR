@@ -124,7 +124,8 @@ ArchRBrowser <- function(
   ui <- fluidPage(
     theme = theme,
     titlePanel(
-        h1(div(HTML(paste0("<b>ArchR Browser v1 : nCells = ", formatC(nCells(ArchRProj), format="f", big.mark = ",", digits=0), "</b>"))), align = "left")
+      title = h1(div(HTML(paste0("<b>ArchR Browser v1 : nCells = ", formatC(nCells(ArchRProj), format="f", big.mark = ",", digits=0), "</b>"))), align = "left")
+      windowTitle = "ArchRBrowser v1"
     ),
     sidebarLayout(
       sidebarPanel(
