@@ -12,7 +12,7 @@
 #'
 shinyRasterUMAPs <- function(
   ArchRProj = NULL,
-  outputDirUmaps = "Shiny/inputData",
+  outputDirUmaps = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
   logFile = createLogFile("ShinyRasterUMAPs")
@@ -241,4 +241,4 @@ shinyRasterUMAPs <- function(
   if(exists("MM_umaps_points")){ rm(MM_umaps_points) }
   
 }
-
+}
