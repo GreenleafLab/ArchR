@@ -16,15 +16,15 @@
 #' @export
 mainEmbed <- function(
   ArchRProj = NULL,
-  outDirEmbed = "Shiny/inputData",
-  colorBy = "cellColData" 
-  names = list("Clusters", "Sample", "unconstrained")
-  embedding = "UMAP"
+  outDirEmbed = NULL,
+  colorBy = "cellColData", 
+  names = list("Clusters", "Sample", "unconstrained"),
+  embedding = "UMAP",
   threads = getArchRThreads(),
   logFile = createLogFile("mainEmbeds")
 ){
   
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("list","null"))
+  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = outDirEmbed, name = "outDirEmbed", valid = c("character"))
   .validInput(input = colorBy, name = "colorBy", valid = c("character"))
   .validInput(input = names, name = "names", valid = c("list"))
@@ -40,6 +40,8 @@ mainEmbed <- function(
 # Check if embedding exists in ArchRProj@embeddings
 # Check all names exist
 
+  
+  
   if(!file.exists(file.path(outDirEmbed, "embeds.rds"))){  
     
      # check all names exist in ArchRProj
@@ -53,22 +55,23 @@ mainEmbed <- function(
         selectCols <- "Sample"
       }
 
-    embeds <- .safelapply(seq_along(names), function(x)){
-  
-    name <- names[[x]]
-    
-    named_embed <- plotEmbedding(
-      ArchRProj = ArchRProj,
-      baseSize = 12,
-      colorBy = colorBy,
-      name = name,
-      embedding = embedding,
-      rastr = FALSE,
-      size = 0.5,
-    )+ggtitle(paste0("Colored by", name))+theme(text = element_text(size=12), 
-                                                      legend.title = element_text(size = 12),legend.text = element_text(size = 6))
-    embeds[[named_embed]] <- named_embed
-    }
+    embeds <- .safelapply(1:seq_along(names), function(x){
+       name <- names[[x]]
+       print(name)
+       
+        named_embed <- plotEmbedding(
+          ArchRProj = ArchRProj,
+          baseSize = 12,
+          colorBy = colorBy,
+          name = name,
+          embedding = embedding,
+          rastr = FALSE,
+          size = 0.5,
+        )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
+                                                          legend.title = element_text(size = 12),legend.text = element_text(size = 6))
+        
+        return(named_embed)
+    })
 
     saveRDS(embeds, file.path(outDirEmbed, "embeds.rds"))
  
