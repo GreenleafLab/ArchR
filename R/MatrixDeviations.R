@@ -87,7 +87,6 @@ addDeviationsMatrix <- function(
   ##############################################################
   #Annotations Matrix!
   ##############################################################
-  print(matches)
   if(is.null(matches)){
     anno <- getPeakAnnotation(ArchRProj, peakAnnotation)
     matches <- readRDS(anno$Matches)
