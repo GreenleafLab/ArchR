@@ -1304,7 +1304,7 @@ addPeak2GeneLinks <- function(
       p$TStat <- (p$Correlation / sqrt((1-p$Correlation^2)/(ncol(seATAC)-2))) #T-statistic P-value
       p$Pval <- 2*pt(-abs(p$TStat), ncol(seATAC) - 2)
       cdf <- ecdf(p$Pval)
-      o$PermPval <- o$PvalPerm + p$Pval
+      o$PermPval <- o$PermPval + p$Pval
     }
     o$PermPval <- (o$PermPval / nperm) #Average
     o$PermFDR <- pmin(ecdf(o$PermPval)(o$Pval) / ecdf(o$Pval)(o$Pval), 1)
