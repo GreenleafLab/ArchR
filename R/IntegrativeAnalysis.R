@@ -1306,8 +1306,8 @@ addPeak2GeneLinks <- function(
       cdf <- ecdf(p$Pval)
       o$PermPval <- o$PermPval + p$Pval
     }
-    o$PermPval <- (o$PermPval / nperm) #Average
-    o$PermFDR <- pmin(ecdf(o$PermPval)(o$Pval) / ecdf(o$Pval)(o$Pval), 1)
+    out$PermPval <- (o$PermPval / nperm) #Average
+    out$PermFDR <- pmin(ecdf(o$PermPval)(o$Pval) / ecdf(o$Pval)(o$Pval), 1)
   }
 
   #Save Group Matrices
