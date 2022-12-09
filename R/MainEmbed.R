@@ -39,8 +39,6 @@ mainEmbed <- function(
 # Check if colorBy is cellColData or Matrix (e.g. GSM, GIM, or MM)
 # Check if embedding exists in ArchRProj@embeddings
 # Check all names exist
-
-  
   
   if(!file.exists(file.path(outDirEmbed, "embeds.rds"))){  
     

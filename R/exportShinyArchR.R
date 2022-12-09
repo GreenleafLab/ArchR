@@ -339,12 +339,12 @@ exportShinyArchR <- function(
   # need arrowFiles to getFeatures so need to save genes as RDS
   # TODO change hardcoding of these paths: Should be file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir, "features.rds"
   if(!file.exists(file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir, "gene_names.rds"))){
+    # TODO probably need to add param to get specific features based on matrix?
     gene_names <- getFeatures(ArchRProj = ArchRProj)
     saveRDS(gene_names, paste0("./", outputDir, "/", subOutputDir,"/gene_names.rds"))
   }else{
     message("gene_names already exists...")
     gene_names <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/gene_names.rds"))
-    
   }
   
   if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))){  
