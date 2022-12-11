@@ -306,7 +306,7 @@ plotEmbedding <- function(
   }
   
   #Parameters
-  plotParams <- list(...)
+  plotParams <- list()
   plotParams$x <- df[,1]
   plotParams$y <- df[,2]
   plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,1])
