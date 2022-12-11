@@ -198,13 +198,15 @@ addSeqLengths <- function (gr, genome) {
 fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
 for (i in seq_along(fn)) {
   tryCatch({
-    eval(parse(text = paste0(fn[i], "<-", fn[i])))
+    # eval(parse(text = paste0(fn[i], "<-", fn[i])))
+    eval(parse(text=paste0(fn[i], '<-ArchR:::', fn[i])))
   }, error = function(x) {
   })
 }
 
-# UMAP Visualization ------------------------------------------------------------
 
+outputDir = "Shiny"
+subOutputDir = "inputData"
 
 
 
@@ -253,8 +255,7 @@ exportShinyArchR <- function(
   # TODO: Check that all columns exist in cellColData 
   if(is.null(groupBy)){
     stop("groupBy must be provided")
-  } 
-  else if(groupBy %ni% colnames(getCellColData(ArchRProj))){
+  } else if(groupBy %ni% colnames(getCellColData(ArchRProj))){
     stop("groupBy must be a column in cellColData")
   }else{
     print(paste0("groupBy:", groupBy))
@@ -298,8 +299,7 @@ exportShinyArchR <- function(
   # Add metadata to ArchRProjShiny
   if (groupBy %ni% colnames(ArchRProjShiny@cellColData)) {
     stop("groupBy is not part of cellColData")
-  } 
-  else if ((any(is.na(paste0("ArchRProj$", groupBy))))) {
+  } else if ((any(is.na(paste0("ArchRProj$", groupBy))))) {
     stop("Some entries in the column indicated by groupBy have NA values. 
           This is not allowed. Please subset your project using subsetArchRProject() to only contain cells with values for groupBy")
   } else {
@@ -334,7 +334,7 @@ exportShinyArchR <- function(
   }
   ## main umaps -----------------------------------------------------------------
 
-  dir.create(file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir),showWarnings = FALSE)
+  dir.create(file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir),showWarnings = TRUE)
 
   # need arrowFiles to getFeatures so need to save genes as RDS
   # TODO change hardcoding of these paths: Should be file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir, "features.rds"
@@ -352,6 +352,9 @@ exportShinyArchR <- function(
     umapNames <- colnames(ArchRProjShiny@cellColData)
     
     for(x in 1:length(umapNames)){
+      
+      print(umapNames[x])
+      
       tryCatch(
         umap <- plotEmbedding(
           ArchRProj = ArchRProjShiny,
@@ -378,65 +381,7 @@ exportShinyArchR <- function(
       umaps <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))
     }
     
-    # cluster_umap <- plotEmbedding(
-    #   ArchRProj = ArchRProjShiny,
-    #   baseSize=12,
-    #   colorBy = "cellColData",
-    #   name = "TSSEnrichment",
-    #   embedding = embedding,
-    #   rastr = FALSE,
-    #   size=0.5,
-    # )+ggtitle("Colored by scATAC-seq clusters")+theme(text=element_text(size=12),
-    #                                                   legend.title = element_text(size = 12),legend.text = element_text(size = 6))
-    # umaps[["Clusters"]] <- cluster_umap
-    # 
-    # sample_umap <- plotEmbedding(
-    #   ArchRProj = ArchRProj,
-    #   baseSize=12,
-    #   colorBy = "cellColData",
-    #   name = "Sample",
-    #   embedding = "UMAP",
-    #   rastr = FALSE,
-    #   size=0.5
-    # )+ ggtitle("Colored by original identity")+theme(text=element_text(size=12),
-    #                                                  legend.title = element_text( size = 12),legend.text = element_text(size = 6))
-    # umaps[["Sample"]] <- sample_umap
-    # 
-    # constrained_umap <- plotEmbedding(
-    #   ArchRProj = ArchRProjShiny,
-    #   colorBy = "cellColData",
-    #   name = "predictedGroup_Co",
-    #   rastr = FALSE,
-    #   baseSize=12,
-    #   size=0.5
-    # )+ggtitle("UMAP: constrained integration")+theme(text=element_text(size=12),
-    #                                                  legend.title = element_text( size = 12),legend.text = element_text(size = 6))
-    # umaps[["Constrained"]] <- constrained_umap
-    # 
-    # unconstrained_umap <- plotEmbedding(
-    #   ArchRProj = ArchRProjShiny,
-    #   embedding = "UMAP",
-    #   colorBy = "cellColData",
-    #   name = "predictedGroup_Un",
-    #   baseSize=12,
-    #   rastr = FALSE,
-    #   size=0.5
-    # )+ggtitle("UMAP: unconstrained integration")+theme(text=element_text(size=12),
-    #                                                    legend.title = element_text(size = 12),legend.text = element_text(size = 6))
-    # # saveRDS(unconstrained_umap, "./UMAPs/unconstrained_umap.rds")
-    # umaps[["Unconstrained"]] <- unconstrained_umap
-    # 
-    # constrained_remapped_umap <- plotEmbedding(
-    #   ArchRProj = ArchRProjShiny,
-    #   colorBy = "cellColData",
-    #   name = "Clusters2",
-    #   rastr = FALSE,
-    # )+ggtitle("UMAP: Constrained remapped clusters")+theme(text=element_text(size=12), legend.title = element_text( size = 12),legend.text = element_text(size = 6))
-    # # saveRDS(constrained_remapped_umap, "./UMAPs/constrained_remapped_umap.rds")
-    # umaps[["Constrained remap"]] <- constrained_remapped_umap
-    # 
-   
-  
+    
   ## colorMats without Impute Weights----------------------------------------------------------------
   
   #TODO check with matrices are available
@@ -603,13 +548,16 @@ if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/gene_names_GIM.rds")
       message("imputeMatricesList already exists...")
       imputeMatricesList <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
     }
-
+  }
     # Create an HDF5 containing the nativeRaster vectors for the main matrices
     if (!file.exists(file.path(outputDir, subOutputDir, "mainEmbeds.h5"))) {
       
       mainEmbed(ArchRProj = ArchRProj,
                 outDirEmbed = file.path(outputDir, subOutputDir),
-                names = as.list(colnames(ArchRProjShiny@cellColData))
+                names = colnames(ArchRProjShiny@cellColData),
+                matrices =  matrices,
+                imputeMatricesList = imputeMatricesList,
+                Shiny = ShinyArchR
                 )
     } else{
       message("H5 for main embeds already exists...")
@@ -619,7 +567,7 @@ if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/gene_names_GIM.rds")
     if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/plotBlank72.h5"))){
       
       shinyRasterUMAPs(
-        ArchRProj = NULL,
+        ArchRProj = ArchRProj,
         outputDirUmaps = paste0(outputDir,"/", subOutputDir),
         threads = getArchRThreads(),
         verbose = TRUE,
@@ -637,10 +585,10 @@ if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/gene_names_GIM.rds")
     
     ## ready to launch ---------------------------------------------------------------
     message("App created! To launch, 
-          ArchRProj <- loadArchRProject('",getwd(),"') and 
+          ArchRProj <- loadArchRProject('",getOutputDirectory(ArchRProj),"') and 
           run shiny::runApp('", outputDir, "') from parent directory")
     #  runApp("myappdir")
-  }  
+    
 
 }
 
