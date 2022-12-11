@@ -11,6 +11,9 @@
 #' For example if colorBy is "cellColData" then `names` refers to a column names in the `cellcoldata` (see `getCellcoldata()`). If `colorBy`
 #' is "GeneScoreMatrix" then `name` refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
 #' @param embedding The embedding to use. Default is "UMAP".
+#' @param Shiny A boolean value that tells the function is calling for Shiny or not.
+#' @param matrices A list that contains color matrices for genes.
+#' @param imputeMatricesList A list that contains color matrices for genes after imputation.   
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
@@ -18,8 +21,11 @@ mainEmbed <- function(
   ArchRProj = NULL,
   outDirEmbed = NULL,
   colorBy = "cellColData", 
-  names = list("Clusters", "Sample", "unconstrained"),
+  names = NULL,
   embedding = "UMAP",
+  Shiny = FALSE,
+  matrices = matrices,
+  imputeMatricesList = imputeMatricesList,
   threads = getArchRThreads(),
   logFile = createLogFile("mainEmbeds")
 ){
@@ -27,8 +33,11 @@ mainEmbed <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = outDirEmbed, name = "outDirEmbed", valid = c("character"))
   .validInput(input = colorBy, name = "colorBy", valid = c("character"))
-  .validInput(input = names, name = "names", valid = c("list"))
+  .validInput(input = names, name = "names", valid = c("character"))
   .validInput(input = embedding, name = "embedding", valid = c("character"))
+  .validInput(input = Shiny, name = "Shiny", valid = c("boolean"))
+  .validInput(input = matrices, name = "matrices", valid = c("list"))
+  .validInput(input = imputeMatricesList, name = "imputeMatricesList", valid = c("list"))
   .validInput(input = threads, name = "threads", valid = c("numeric"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
@@ -53,20 +62,27 @@ mainEmbed <- function(
         selectCols <- "Sample"
       }
 
-    embeds <- .safelapply(1:seq_along(names), function(x){
+    embeds <- .safelapply(1:length(names), function(x){
        name <- names[[x]]
        print(name)
        
-        named_embed <- plotEmbedding(
-          ArchRProj = ArchRProj,
-          baseSize = 12,
-          colorBy = colorBy,
-          name = name,
-          embedding = embedding,
-          rastr = FALSE,
-          size = 0.5,
-        )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
-                                                          legend.title = element_text(size = 12),legend.text = element_text(size = 6))
+       tryCatch({
+         named_embed <- plotEmbedding(
+           ArchRProj = ArchRProj,
+           baseSize = 12,
+           colorBy = colorBy,
+           name = name,
+           embedding = embedding,
+           rastr = FALSE,
+           size = 0.5,
+           matrices = matrices,
+           imputeMatricesList = imputeMatricesList,
+           Shiny = ShinyArchR
+         )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
+                                                      legend.title = element_text(size = 12),legend.text = element_text(size = 6))
+       }, error = function(x) {
+       })
+       
         
         return(named_embed)
     })
@@ -109,7 +125,7 @@ mainEmbed <- function(
     blank_jpg72 <- readJPEG(source = file.path(outDirEmbed, paste0(names(embeds)[[i]],"_blank72.jpg")), native = TRUE)
     
     h5createDataset(file = points, dataset = names(embeds)[i], dims = c(46656,1), storage.mode = "integer")
-    h5writeDataset(obj = as.vector(blank_jpg72), h5loc = points, name= names(embeds)[i])
+    h5writeDataset(obj = as.vector(blank_jpg72), h5loc = points, name= names[i])
     
     embed_legend[[i]] <- levels(embed_plot[[1]]$data$color)
     names(embed_legend)[[i]] <- names(embed_plot)
