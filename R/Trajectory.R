@@ -550,7 +550,7 @@ plotTrajectoryHeatmap <- function(
     if(is.null(useSeqnames) || length(useSeqnames) > 1){
       .logMessage("useSeqnames is NULL or greater than 1 with a Sparse.Assays.Matrix trajectory input.", verbose = TRUE, logFile = logFile)
       if(force){
-        .logMessage("force=TRUE thus continuing", verbose = verbose, logFile = logFile)
+        .logMessage("force=TRUE thus continuing", verbose = TRUE, logFile = logFile)
       }else{
         useSeqnames <- rev(unique(rowData(seTrajectory)$seqnames))[1]
         .logMessage(paste0("force=FALSE thus continuing with subsetting useSeqnames = ", useSeqnames) , verbose = TRUE, logFile = logFile)
