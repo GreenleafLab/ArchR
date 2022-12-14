@@ -222,13 +222,13 @@ createArrowFiles <- function(
   h5lock <- setArchRLocking()
   if(h5lock){
     if(subThreading){
-      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      message("subThreading Disabled since ArchRLocking is TRUE see `addArchRLocking`")
       subThreading <- FALSE
     }
     args$threads <- min(length(inputFiles), threads)
   }else{
     if(subThreading){
-      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+      message("subThreading Enabled since ArchRLocking is FALSE see `addArchRLocking`")
     }    
   }
 
