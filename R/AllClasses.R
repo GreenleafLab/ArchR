@@ -500,8 +500,21 @@ loadArchRProject <- function(
     }
 
   }
+  
+  #4. Group Coverages
 
-  #4. Set Output Directory 
+  #update paths for group coverage files in project metadata
+  if(length(ArchRProj@projectMetadata$GroupCoverages) > 0) {
+    groupC <- length(ArchRProj@projectMetadata$GroupCoverages)
+    for(z in seq_len(groupC)){
+      zdata <- ArchRProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata
+      zfiles <- gsub(outputDir, outputDirNew, zdata$File)
+      ArchRProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata$File <- zfiles
+      stopifnot(all(file.exists(zfiles)))
+    }
+  }
+
+  #5. Set Output Directory 
 
   ArchRProj@projectMetadata$outputDirectory <- outputDirNew
 
