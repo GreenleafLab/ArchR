@@ -198,7 +198,33 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
 }
 
-
+#' This function allows you to suppress specific warnings and was originally
+#' created by Antoine Fabri ("Moody_Mudskipper"): see https://stackoverflow.com/a/55182432/697473
+#' Sometimes R throws warning messages that we don't want to see. The base
+#' \code{suppressWarnings()} function permits one to suppress warnings, but 
+#' it is tricky to selectively suppress only certain warnings on the basis 
+#' of a regular expression or another condition. This function allows one 
+#' to do that.
+#'
+#' @param .expr Expression to be evaluated. 
+#' @param .f String or function. If a string (possibly representing a 
+#'   regular expression), any warning message generated when \code{.expr} is 
+#'   evaluated will be suppressed if \code{grepl{}} finds that the string
+#'   matches the warning message.\cr
+#'     \indent If a function, the warning message will be passed to the 
+#'   function, and the function must return \code{TRUE} or \code{FALSE}. See
+#'   the examples for details.
+.suppressSpecificWarnings <- function(.expr, .f, ...) {
+  eval.parent(
+    substitute(
+      withCallingHandlers( .expr, warning = function (w) {
+        cm   <- conditionMessage(w)
+        cond <- if (is.character(.f)) grepl(.f, cm) else rlang::as_function(.f)(cm, ...)
+        if (cond) invokeRestart("muffleWarning")   
+      })
+    )
+  )
+}
 
 
 
