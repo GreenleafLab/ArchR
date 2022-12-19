@@ -212,8 +212,6 @@ exportShinyArchR <- function(
   saveRDS(matrices,paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))
   saveRDS(imputeMatricesList,paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
 
-  matrices <- readRDS("Shiny/inputData/matrices.rds")
-  imputeMatricesList <- readRDS("Shiny/inputData/imputeMatricesList.rds")
   
 # Create an HDF5 containing the nativeRaster vectors for the main matrices
 if (!file.exists(file.path(outputDir, subOutputDir, "mainEmbeds.h5"))) {
