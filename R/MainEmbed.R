@@ -80,7 +80,8 @@ mainEmbed <- function(
            Shiny = ShinyArchR
          )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
                                                       legend.title = element_text(size = 12),legend.text = element_text(size = 6))
-       }, error = function(x) {
+       }, error = function(x){
+         print(x)
        })
        
         
