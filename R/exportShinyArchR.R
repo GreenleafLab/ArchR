@@ -130,26 +130,26 @@ exportShinyArchR <- function(
   
   if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))){  
     umaps <- list()
-    umapNames <- colnames(ArchRProjShiny@cellColData)
+    embedNames <- colnames(ArchRProjShiny@cellColData)
     
-    for(x in 1:length(umapNames)){
+    for(x in 1:length(embedNames)){
       
-      print(umapNames[x])
+      print(embedNames[x])
       
       tryCatch({
-        umap <- plotEmbedding(
+        embed <- plotEmbedding(
           
           ArchRProj = ArchRProjShiny,
           baseSize=12,
           colorBy = "cellColData",
-          name = umapNames[x],
+          name = embedNames[x],
           embedding = embedding,
           rastr = FALSE,
           size=0.5,
         )+ggtitle("Colored by scATAC-seq clusters")+theme(text=element_text(size=12),
                                                           legend.title = element_text(size = 12),legend.text = element_text(size = 6))
         
-        umaps[[umapNames[[x]]]] <- umap
+        umaps[[embedNames[[x]]]] <- embed
       },
         error = function(e){
           print(e)
@@ -169,7 +169,7 @@ exportShinyArchR <- function(
   matrices <- list()
   imputeMatricesList <- list()
   imputeWeights <- getImputeWeights(ArchRProj = ArchRProj)
-  df <- getEmbedding(ArchRProj, embedding = "UMAP", returnDF = TRUE)
+  df <- getEmbedding(ArchRProj, embedding = "embed", returnDF = TRUE)
   
   for(allmatrices in allMatrices){
     print(allmatrices)
@@ -212,6 +212,8 @@ exportShinyArchR <- function(
   saveRDS(matrices,paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))
   saveRDS(imputeMatricesList,paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
 
+  matrices <- readRDS("Shiny/inputData/matrices.rds")
+  imputeMatricesList <- readRDS("Shiny/inputData/imputeMatricesList.rds")
   
 # Create an HDF5 containing the nativeRaster vectors for the main matrices
 if (!file.exists(file.path(outputDir, subOutputDir, "mainEmbeds.h5"))) {
