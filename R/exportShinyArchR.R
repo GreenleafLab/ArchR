@@ -35,7 +35,8 @@ exportShinyArchR <- function(
   
   .requirePackage("shiny", installInfo = 'install.packages("shiny")')
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
-
+  
+  
   if(is.null(groupBy)){
     stop("groupBy must be provided")
   } else if(groupBy %ni% colnames(getCellColData(ArchRProj))){
@@ -49,21 +50,21 @@ exportShinyArchR <- function(
   }else{
     print(paste0("embedding:", embedding))
   }
-
+  
   # Make directory for Shiny App 
   if(!dir.exists(outputDir)) {
     
     dir.create(outputDir)
-
+    
     ## Check the links for the files
     filesUrl <- data.frame(
       fileUrl = c(
-      "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/app.R",
-      "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/global.R", 
-      "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/server.R", 
-      "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/ui.R"
-    ),
-     md5sum = c(
+        "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/app.R",
+        "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/global.R", 
+        "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/server.R", 
+        "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/ui.R"
+      ),
+      md5sum = c(
         "77502e1f195e21d2f7a4e8ac9c96e65e",
         "618613b486e4f8c0101f4c05c69723b0",
         "a8d5ae747841055ef230ba496bcfe937"
@@ -72,7 +73,7 @@ exportShinyArchR <- function(
     )
     
     .downloadFiles(filesUrl = filesUrl, pathDownload = outputDir, threads = threads)
-
+    
   }else{
     message("Using existing Shiny files...")
   }
@@ -89,7 +90,7 @@ exportShinyArchR <- function(
     ArchRProjShiny@projectMetadata[["groupBy"]] <- groupBy
   }
   ArchRProjShiny@projectMetadata[["tileSize"]] <- tileSize
-   units <- tryCatch({
+  units <- tryCatch({
     .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
   },error=function(e){
     "values"
@@ -116,209 +117,144 @@ exportShinyArchR <- function(
     
   }
 
-  dir.create(file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir),showWarnings = TRUE)
-
-  ## colorMats without Impute Weights----------------------------------------------------------------
+  dir.create(file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir), showWarnings = TRUE)
   
-  # check which matrices are available
+ 
+  if(!file.exists(file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir, "features.rds"))){
+    gene_names <- getFeatures(ArchRProj = ArchRProj)
+    saveRDS(gene_names, paste0("./", outputDir, "/", subOutputDir,"/features.rds"))
+  }else{
+    message("gene_names already exists...")
+    gene_names <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/features.rds"))
+  }
+  
+  if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))){  
+    umaps <- list()
+    umapNames <- colnames(ArchRProjShiny@cellColData)
+    
+    for(x in 1:length(umapNames)){
+      
+      print(umapNames[x])
+      
+      tryCatch({
+        umap <- plotEmbedding(
+          
+          ArchRProj = ArchRProjShiny,
+          baseSize=12,
+          colorBy = "cellColData",
+          name = umapNames[x],
+          embedding = embedding,
+          rastr = FALSE,
+          size=0.5,
+        )+ggtitle("Colored by scATAC-seq clusters")+theme(text=element_text(size=12),
+                                                          legend.title = element_text(size = 12),legend.text = element_text(size = 6))
+        
+        umaps[[umapNames[[x]]]] <- umap
+      },
+        error = function(e){
+          print(e)
+        })
+    }
+    
+    saveRDS(umaps, paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))
+    
+    
+  }else{
+    message("umaps already exists...")
+    umaps <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))
+  }
+  
+
   allMatrices <- getAvailableMatrices(ArchRProj)
-
-  # Get gene and motif names and save as RDS
-  if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/gene_names_GSM.rds"))){
-    if ("GeneScoreMatrix" %in% allMatrices){
-      gene_names_GSM <- getFeatures(ArchRProj = ArchRProj, useMatrix = "GeneScoreMatrix")
-      saveRDS(gene_names_GSM, paste0("./", outputDir, "/", subOutputDir,"/gene_names_GSM.rds"))
-    }else{
-      message("GeneScoreMatrix does not exist...")
-    }
-  }else{
-    message("gene_names_GSM already exists...")
-    gene_names_GSM <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/gene_names_GSM.rds"))
-  }
-  
-  
-if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/gene_names_GIM.rds"))){
-  if ("GeneIntegrationMatrix" %in% allMatrices){
-    gene_names_GIM <- getFeatures(ArchRProj = ArchRProj, useMatrix = "GeneIntegrationMatrix")
-    saveRDS(gene_names_GSM, paste0("./", outputDir, "/", subOutputDir,"/gene_names_GIM.rds"))
-  }else{
-    
-    message("GeneIntegrationMatrix does not exist...")
-  }
-}else{
-    message("gene_names_GIM already exists...")
-    gene_names_GIM <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/gene_names_GIM.rds"))
-  }
-  
-
-  if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/motif_names.rds"))){
-    if ("MotifMatrix" %in% allMatrices){
-    motif_names <- getFeatures(ArchRProj = ArchRProj, useMatrix = "MotifMatrix") %>% 
-      gsub(".*:", "", .) %>% unique(.)
-    saveRDS(motif_names, paste0("./", outputDir, "/", subOutputDir,"/motif_names.rds"))
-    }else{
-      
-      message("MotifMatrix does not exist...")
-      
-    }
-  }else{
-    
-    message("motif_names already exists...")
-    motif_names <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/motif_names.rds"))
-  }
-  
-  if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))){
-    matrices <- list()
-    #GSM colorMat
-    colorMatGSM <- Matrix(.getMatrixValues(
-      ArchRProj = ArchRProj, 
-      name = gene_names_GSM,
-      matrixName = "GeneScoreMatrix",
-      log2Norm = FALSE,
-      threads = threads,
-    ), sparse = TRUE)
-    matrices$"GeneScoreMatrix" <- colorMatGSM 
-    
-    #GIM
-    colorMatGIM <- Matrix(.getMatrixValues(
-      ArchRProj = ArchRProj,
-      name = gene_names_GIM,
-      matrixName = "GeneIntegrationMatrix",
-      log2Norm = FALSE,
-      threads = threads
-    ),sparse = TRUE)
-    matrices$"GeneIntegrationMatrix" <- colorMatGIM
-    
-    colorMatMM <- Matrix(.getMatrixValues(
-      ArchRProj = ArchRProj,
-      #name = getFeatures(ArchRProj, "MotifMatrix")
-      name =  paste0("deviations:", motif_names), #used deviations:
-      matrixName = "MotifMatrix",
-      log2Norm = FALSE,
-      threads = threads
-    ), sparse = TRUE)
-    matrices$"MotifMatrix" <- colorMatMM
-    
-    matrices$allColorBy=c(.availableArrays(head(getArrowFiles(ArchRProj), 2)))
-    saveRDS(matrices, paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))
-    
-  }else{
-    message("matrices already exist...")
-    matrices <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))
-  }
-  ## Impute Weights ------------------------------------------------------------
+  matrices <- list()
+  imputeMatricesList <- list()
   imputeWeights <- getImputeWeights(ArchRProj = ArchRProj)
-  if(!is.null(imputeWeights)) {
-    df <- getEmbedding(ArchRProj, embedding = "UMAP", returnDF = TRUE)
+  df <- getEmbedding(ArchRProj, embedding = "UMAP", returnDF = TRUE)
+  
+  for(allmatrices in allMatrices){
+    print(allmatrices)
+    name <- paste0(allmatrices, "_names")
+    result = assign(name, getFeatures(ArchRProj = ArchRProj, useMatrix = allmatrices))
+    saveRDS(result, paste0("./", outputDir, "/", subOutputDir, "/", allmatrices,"_names.rds"))
     
-    if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))){
-      imputeMatricesList <- list()
-      # colorMats for each colorBy
+    if(!is.null(result)){
+      # nameColor <- paste0("colorMat", allmatrices)
+      matrix = Matrix(.getMatrixValues(
+        ArchRProj = ArchRProj, 
+        name = result,
+        matrixName = allmatrices,
+        log2Norm = FALSE,
+        threads = threads), sparse = TRUE)
       
-      # GSM
-      # colorMatGSM <- matrices$"GeneScoreMatrix"
-      # colorMatGSM <- colorMatGSM[,rownames(df), drop=FALSE]
-      colorMatGSM <- matrices[["GeneScoreMatrix"]][,rownames(df), drop=FALSE]
+      matrices[[allmatrices]] = matrix
       
+      matList = matrix[,rownames(df), drop=FALSE]
       
-      
-      .logThis(colorMatGSM, "colorMatGSM-Before-Impute", logFile = logFile)
-      
+      # assign(nameColor, matList)
+      .logThis(matList, paste0(allmatrices,"-Before-Impute"), logFile = logFile)
       if(getArchRVerbose()) message("Imputing Matrix")
-      colorMatGSM_Impute <- imputeMatrix(mat = as.matrix(colorMatGSM), imputeWeights = imputeWeights, logFile = logFile)
-      if(!inherits(colorMatGSM_Impute, "matrix")){
-        colorMatGSM_Impute <- matrix(colorMatGSM_Impute, ncol = nrow(df))
-        colnames(colorMatGSM_Impute) <- rownames(df)
+      
+      colorImputeMat <- imputeMatrix(mat = as.matrix(matList), imputeWeights = imputeWeights, logFile = logFile)
+      # assign(paste0(nameColor, "_Impute"), imputeMat)
+      
+      if(!inherits(colorImputeMat, "matrix")){
+        colorImputeMat <- matrix(colorImputeMat, ncol = nrow(df))
+        colnames(colorImputeMat) <- rownames(df)
       }
-      
-      # .logThis(colorMat_Impute, "colorMatGSM-After-Impute", logFile = logFile)
-      
-      imputeMatricesList$"GeneScoreMatrix" <- colorMatGSM_Impute
-      
-      # GIM
-      # colorMatGIM <- matrices$"GeneIntegrationMatrix"
-      # colorMatGIM <- colorMatGIM[,rownames(df), drop=FALSE]
-      colorMatGIM <- matrices[["GeneIntegrationMatrix"]][,rownames(df), drop=FALSE]
+      imputeMatricesList[[allmatrices]] <- colorImputeMat
       
       
-      .logThis(colorMatGIM, "colorMatGIM-Before-Impute", logFile = logFile)
-      
-      if(getArchRVerbose()) message("Imputing Matrix")
-      colorMatGIM_Impute <- imputeMatrix(mat = as.matrix(colorMatGIM), imputeWeights = imputeWeights, logFile = logFile)
-      if(!inherits(colorMatGIM_Impute, "matrix")){
-        colorMatGIM_Impute <- matrix(colorMatGIM_Impute, ncol = nrow(df))
-        colnames(colorMatGIM_Impute) <- rownames(df)
-      }
-      
-      .logThis(colorMatGIM_Impute, "colorMatGIM-After-Impute", logFile = logFile)
-      
-      imputeMatricesList$"GeneIntegrationMatrix" <- colorMatGIM_Impute
-      
-      # Motif Matrix
-      # colorMatMM <- matrices$"MotifMatrix"
-      # colorMatMM <- colorMatMM[,rownames(df), drop=FALSE]
-      colorMatMM <- matrices[["MotifMatrix"]][,rownames(df), drop=FALSE]
-      
-      
-      .logThis(colorMatMM, "colorMatMM-Before-Impute", logFile = logFile)
-      
-      if(getArchRVerbose()) message("Imputing Matrix")
-      colorMatMM_Impute <- imputeMatrix(mat = as.matrix(colorMatMM), imputeWeights = imputeWeights, logFile = logFile)
-      if(!inherits(colorMatMM_Impute, "matrix")){
-        colorMatMM_Impute <- matrix(colorMatMM_Impute, ncol = nrow(df))
-        colnames(colorMatMM_Impute) <- rownames(df)
-      }
-      
-      .logThis(colorMatMM_Impute, "colorMatMM-After-Impute", logFile = logFile)
-      
-      imputeMatricesList$"MotifMatrix" <- colorMatMM_Impute
-      
-      saveRDS(imputeMatricesList,paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
     }else{
-      message("imputeMatricesList already exists...")
-      imputeMatricesList <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
+      message(allmatrices, " is NULL.")
     }
   }
-    # Create an HDF5 containing the nativeRaster vectors for the main matrices
-    if (!file.exists(file.path(outputDir, subOutputDir, "mainEmbeds.h5"))) {
-      
-      mainEmbed(ArchRProj = ArchRProj,
-                outDirEmbed = file.path(outputDir, subOutputDir),
-                names = colnames(ArchRProjShiny@cellColData),
-                matrices =  matrices,
-                imputeMatricesList = imputeMatricesList,
-                Shiny = ShinyArchR
-                )
-    } else{
-      message("H5 for main embeds already exists...")
-    }
-    
-    
-    if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/plotBlank72.h5"))){
-      
-      shinyRasterUMAPs(
-        ArchRProj = ArchRProj,
-        outputDirUmaps = paste0(outputDir,"/", subOutputDir),
-        threads = getArchRThreads(),
-        verbose = TRUE,
-        logFile = createLogFile("ShinyRasterUMAPs")
-      )
-      
-    }else{
-      
-      message("H5 file already exists...")
-      
-    }  
-    ## delete unnecessary files -----------------------------------------------------------------
-    unlink("./fragments", recursive = TRUE) 
-    unlink("./ArchRLogs", recursive = TRUE) 
-    
-    ## ready to launch ---------------------------------------------------------------
-    message("App created! To launch, 
+  
+  saveRDS(matrices,paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))
+  saveRDS(imputeMatricesList,paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
+
+  matrices <- readRDS("Shiny/inputData/matrices.rds")
+  imputeMatricesList <- readRDS("Shiny/inputData/imputeMatricesList.rds")
+  
+# Create an HDF5 containing the nativeRaster vectors for the main matrices
+if (!file.exists(file.path(outputDir, subOutputDir, "mainEmbeds.h5"))) {
+  
+  mainEmbed(ArchRProj = ArchRProj,
+            outDirEmbed = file.path(outputDir, subOutputDir),
+            names = colnames(ArchRProjShiny@cellColData),
+            matrices =  matrices,
+            imputeMatricesList = imputeMatricesList,
+            Shiny = ShinyArchR
+  )
+} else{
+  message("H5 for main embeds already exists...")
+}
+
+
+if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/plotBlank72.h5"))){
+  
+  shinyRasterUMAPs(
+    ArchRProj = ArchRProj,
+    outputDirUmaps = paste0(outputDir,"/", subOutputDir),
+    threads = getArchRThreads(),
+    verbose = TRUE,
+    logFile = createLogFile("ShinyRasterUMAPs")
+  )
+  
+}else{
+  
+  message("H5 file already exists...")
+  
+}  
+## delete unnecessary files -----------------------------------------------------------------
+unlink("./fragments", recursive = TRUE) 
+unlink("./ArchRLogs", recursive = TRUE) 
+
+## ready to launch ---------------------------------------------------------------
+message("App created! To launch, 
           ArchRProj <- loadArchRProject('",getOutputDirectory(ArchRProj),"') and 
           run shiny::runApp('", outputDir, "') from parent directory")
-    #  runApp("myappdir")
-    
+#  runApp("myappdir")
+
 
 }
 
