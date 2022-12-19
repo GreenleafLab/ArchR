@@ -288,7 +288,7 @@ plotEmbedding <- function(
   ##############################
   # Get Embedding
   ##############################
-  .logMessage("Getting UMAP Embedding", logFile = logFile)
+  .logMessage("Getting Embedding", logFile = logFile)
   df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
   
   if(!all(rownames(df) %in% ArchRProj$cellNames)){
