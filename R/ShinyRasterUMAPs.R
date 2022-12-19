@@ -5,48 +5,50 @@
 #' This function will be called by exportShinyArchR()
 #' 
 #' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
-#' @param outputDirUmaps Where the HDF5 and the jpgs will be saved.  
+#' @param outputDirEmbeds Where the HDF5 and the jpgs will be saved.  
 #' @param threads The number of threads to use for parallel execution.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #'
 shinyRasterUMAPs <- function(
   ArchRProj = NULL,
-  outputDirUmaps = NULL,
+  outputDirEmbeds = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
   logFile = createLogFile("ShinyRasterUMAPs")
 ){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = outputDirUmaps, name = "outputDirUmaps", valid = c("character"))
+  .validInput(input = outputDirEmbeds, name = "outputDirEmbeds", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("numeric"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
   
   
-  if (file.exists(file.path(outputDirUmaps, "plotBlank72.h5"))){
+  if (file.exists(file.path(outputDirEmbeds, "plotBlank72.h5"))){
     
-    file.remove(file.path(outputDirUmaps, "plotBlank72.h5"))
+    file.remove(file.path(outputDirEmbeds, "plotBlank72.h5"))
     
   }
   
-  umaps_min_max_list = list()
-  umaps_pal_list = list()
+  embeds_min_max_list = list()
+  embeds_pal_list = list()
   
   shinyMatrices <- getAvailableMatrices(ArchRProj)
   
   for(shinymatrices in shinyMatrices){
     
+    # shinymatrices = shinyMatrices[3]
+    
       print(shinymatrices)
       matrixName = paste0(shinymatrices,"_names")
     
-      if(file.exists(paste0(outputDirUmaps, "/", matrixName, ".rds"))){
+      if(file.exists(paste0(outputDirEmbeds, "/", matrixName, ".rds"))){
         
-        geneMatrixNames <- readRDS(paste0(outputDirUmaps, "/", matrixName, ".rds"))
+        geneMatrixNames <- readRDS(paste0(outputDirEmbeds, "/", matrixName, ".rds"))
         
         if(!is.null(geneMatrixNames)){
           
-        umaps_points <- .safelapply(1:10, function(x){
+        embeds_points <- .safelapply(1:10, function(x){
             
             print(paste0("Creating plots for ",shinymatrices,": ",x,": ",round((x/length(geneMatrixNames))*100,3), "%"))
             
@@ -54,7 +56,7 @@ shinyRasterUMAPs <- function(
               ArchRProj = ArchRProj,
               colorBy = shinymatrices,
               name = geneMatrixNames[x],
-              embedding = "UMAP",
+              embedding = "embed",
               quantCut = c(0.01, 0.95),
               imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
               plotAs = "points",
@@ -77,11 +79,11 @@ shinyRasterUMAPs <- function(
                 )
               
               #save plot without axes etc as a jpg.
-              ggsave(filename = file.path(outputDirUmaps, paste0(shinymatrices,"_umaps"), paste0(geneMatrixNames[x],"_blank72.jpg")),
+              ggsave(filename = file.path(outputDirEmbeds, paste0(shinymatrices,"_embeds"), paste0(geneMatrixNames[x],"_blank72.jpg")),
                      plot = gene_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
               
               #read back in that jpg because we need vector in native format
-              blank_jpg72 <- readJPEG(source = file.path(outputDirUmaps, paste0(shinymatrices,"_umaps"),
+              blank_jpg72 <- readJPEG(source = file.path(outputDirEmbeds, paste0(shinymatrices,"_embeds"),
                                                          paste0(geneMatrixNames[x],"_blank72.jpg")), native = TRUE)
               
               g <- ggplot_build(gene_plot)
@@ -92,7 +94,7 @@ shinyRasterUMAPs <- function(
               return(res)
             }
           }, threads = threads) 
-          names(umaps_points) <- geneMatrixNames[1:10]
+          names(embeds_points) <- geneMatrixNames[1:10]
           
         }else{
           
@@ -105,41 +107,41 @@ shinyRasterUMAPs <- function(
         message(matrixName,".rds file does not exist")
       }
       
-      umaps_points = umaps_points[!unlist(lapply(umaps_points, is.null))]
+      embeds_points = embeds_points[!unlist(lapply(embeds_points, is.null))]
       
-      umaps_min_max <- data.frame(matrix(NA, 2, length(umaps_points)))
-      colnames(umaps_min_max) <- names(umaps_points)[which(!unlist(lapply(umaps_points, is.null)))]
-      rownames(umaps_min_max) <- c("min","max")
+      embeds_min_max <- data.frame(matrix(NA, 2, length(embeds_points)))
+      colnames(embeds_min_max) <- names(embeds_points)[which(!unlist(lapply(embeds_points, is.null)))]
+      rownames(embeds_min_max) <- c("min","max")
       
       h5closeAll()
-      points <- H5Fcreate(name = file.path(outputDirUmaps,"plotBlank72.h5"))
-      h5createGroup(file.path(outputDirUmaps, "plotBlank72.h5"), shinymatrices)
+      points <- H5Fcreate(name = file.path(outputDirEmbeds,"plotBlank72.h5"))
+      h5createGroup(file.path(outputDirEmbeds, "plotBlank72.h5"), shinymatrices)
       
-      for(i in 1:length(umaps_points)){
+      for(i in 1:length(embeds_points)){
         
-        print(paste0("Getting H5 files for umaps_points: ",i,": ",round((i/length(umaps_points))*100,3), "%"))
+        print(paste0("Getting H5 files for embeds_points: ",i,": ",round((i/length(embeds_points))*100,3), "%"))
         
         h5createDataset(file = points, dataset = paste0(shinymatrices,"/",geneMatrixNames[i]), dims = c(46656,1), storage.mode = "integer")
-        h5writeDataset(obj = umaps_points[[i]][[1]]$plot, h5loc = points, name=paste0(shinymatrices,"/",geneMatrixNames[i]))
+        h5writeDataset(obj = embeds_points[[i]][[1]]$plot, h5loc = points, name=paste0(shinymatrices,"/",geneMatrixNames[i]))
         
-        umaps_min_max[1,i] = umaps_points[[i]][[1]]$min
-        umaps_min_max[2,i] = umaps_points[[i]][[1]]$max
+        embeds_min_max[1,i] = embeds_points[[i]][[1]]$min
+        embeds_min_max[2,i] = embeds_points[[i]][[1]]$max
         
       }
       
-      umaps_min_max_list[[shinymatrices]] =  umaps_min_max
-      umaps_pal_list[[shinymatrices]] = umaps_points[[1]][[1]]$pal
+      embeds_min_max_list[[shinymatrices]] =  embeds_min_max
+      embeds_pal_list[[shinymatrices]] = embeds_points[[1]][[1]]$pal
     }
   
-  scale <- umaps_min_max_list
-  pal <- umaps_pal_list
+  scale <- embeds_min_max_list
+  pal <- embeds_pal_list
   
-  saveRDS(scale, file.path(outputDirUmaps, "scale.rds"))
-  saveRDS(pal, file.path(outputDirUmaps, "pal.rds"))
+  saveRDS(scale, file.path(outputDirEmbeds, "scale.rds"))
+  saveRDS(pal, file.path(outputDirEmbeds, "pal.rds"))
   
-  # if(exists("umaps_points")){ rm(umaps_points) }
-  # if(exists("GIM_umaps_points")){ rm(GIM_umaps_points) }
-  # if(exists("MM_umaps_points")){ rm(MM_umaps_points) }
+  # if(exists("embeds_points")){ rm(embeds_points) }
+  # if(exists("GIM_embeds_points")){ rm(GIM_embeds_points) }
+  # if(exists("MM_embeds_points")){ rm(MM_embeds_points) }
   
 }
 
