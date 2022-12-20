@@ -12,6 +12,7 @@ Roxygen: list(markdown = TRUE)
 License: GPL (>= 2)
 LinkingTo: Rcpp, RcppArmadillo
 LazyData: TRUE
+URL: https://www.ArchRProject.com
 RoxygenNote: 7.2.1
 Encoding: UTF-8
 Imports:
