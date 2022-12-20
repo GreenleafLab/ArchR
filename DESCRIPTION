@@ -4,7 +4,7 @@ Date: 2022-07-17
 Title: Analyzing single-cell regulatory chromatin in R.
 Version: 1.0.3
 Authors@R: c(
-    person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
+    person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = "aut"),
     person("Ryan", "Corces", role = c("aut","cre")),
     person("Paulina","Paiz", role = "ctb"))
 Description: This package is designed to streamline scATAC analyses in R.
