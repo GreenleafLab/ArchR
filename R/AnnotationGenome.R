@@ -97,8 +97,8 @@ createGenomeAnnotation <- function(
 #' 
 #' @examples
 #'
-#' if (!require("TxDb.Hsapiens.UCSC.hg19.knownGene", quietly = TRUE)) BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene")
-#' if (!require("org.Hs.eg.db", quietly = TRUE)) BiocManager::install("org.Hs.eg.db")
+#' if (!require("TxDb.Hsapiens.UCSC.hg19.knownGene", quietly = TRUE)) BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene", update = FALSE)
+#' if (!require("org.Hs.eg.db", quietly = TRUE)) BiocManager::install("org.Hs.eg.db", update = FALSE)
 #' library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' library(org.Hs.eg.db)
 #'
