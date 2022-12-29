@@ -1,7 +1,7 @@
 # exportShiny function -----------------------------------------------------------
 #' Export a Shiny App based on ArchRProj
 #' 
-#' Generate all files required for an autonomous Shiny app to display browser tracks and UMAPs.
+#' Generate all files required for an autonomous Shiny app to display browser tracks and embeds.
 #'
 #' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
 #' @param outputDir The name of the directory for the Shiny App files. 
@@ -35,6 +35,63 @@ exportShinyArchR <- function(
   
   .requirePackage("shiny", installInfo = 'install.packages("shiny")')
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
+  
+  
+  allMatrices <- getAvailableMatrices(ArchRProj)
+  matrices <- list()
+  imputeMatricesList <- list()
+  imputeWeights <- getImputeWeights(ArchRProj = ArchRProj)
+  df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+  
+  if(!file.exists(file.path(outputDir, subOutputDir, "matrices.rds")) && !file.exists(file.path(outputDir, subOutputDir, "imputeMatricesList.rds"))){
+    for(allmatrices in allMatrices){
+      print(allmatrices)
+      name <- paste0(allmatrices, "_names")
+      result = assign(name, getFeatures(ArchRProj = ArchRProj, useMatrix = allmatrices))
+      saveRDS(result, paste0("./", outputDir, "/", subOutputDir, "/", allmatrices,"_names.rds"))
+    
+      if(!is.null(result)){
+        # nameColor <- paste0("colorMat", allmatrices)
+        matrix = Matrix(.getMatrixValues(
+          ArchRProj = ArchRProj, 
+          name = result,
+          matrixName = allmatrices,
+          log2Norm = FALSE,
+          threads = threads), sparse = TRUE)
+        
+        matrices[[allmatrices]] = matrix
+        
+        matList = matrix[,rownames(df), drop=FALSE]
+        
+        # assign(nameColor, matList)
+        .logThis(matList, paste0(allmatrices,"-Before-Impute"), logFile = logFile)
+        if(getArchRVerbose()) message("Imputing Matrix")
+        
+        colorImputeMat <- imputeMatrix(mat = as.matrix(matList), imputeWeights = imputeWeights, logFile = logFile)
+        # assign(paste0(nameColor, "_Impute"), imputeMat)
+        
+        if(!inherits(colorImputeMat, "matrix")){
+          colorImputeMat <- matrix(colorImputeMat, ncol = nrow(df))
+          colnames(colorImputeMat) <- rownames(df)
+        }
+        imputeMatricesList[[allmatrices]] <- colorImputeMat
+        
+        
+      }else{
+        message(allmatrices, " is NULL.")
+      }
+    }
+    
+    saveRDS(matrices,paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))
+    saveRDS(imputeMatricesList,paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
+  }else{
+    
+    message("matrices and imputeMatricesList already exist. reading from local files...")
+    
+    matrices <- readRDS(paste0(outputDir, "/", subOutputDir,"/matrices.rds"))
+    imputeMatricesList <- readRDS(paste0(outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
+  }
+  
   
   
   if(is.null(groupBy)){
@@ -128,17 +185,14 @@ exportShinyArchR <- function(
     gene_names <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/features.rds"))
   }
   
-  if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))){  
-    umaps <- list()
-    embedNames <- colnames(ArchRProjShiny@cellColData)
+  if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/embeddingMaps.rds"))){  
+    embeddingMaps <- list()
+    embedNames <- colnames(ArchRProjShiny@cellColData)[][colnames(ArchRProjShiny@cellColData) %in% groupBy]
     
-    for(x in 1:length(embedNames)){
-      
+    embeddingMaps <- .safelapply(1:length(embedNames), function(x){
       print(embedNames[x])
-      
       tryCatch({
         embed <- plotEmbedding(
-          
           ArchRProj = ArchRProjShiny,
           baseSize=12,
           colorBy = "cellColData",
@@ -146,85 +200,45 @@ exportShinyArchR <- function(
           embedding = embedding,
           rastr = FALSE,
           size=0.5,
+          matrices = matrices,
+          imputeMatricesList = imputeMatricesList,
         )+ggtitle("Colored by scATAC-seq clusters")+theme(text=element_text(size=12),
                                                           legend.title = element_text(size = 12),legend.text = element_text(size = 6))
         
-        umaps[[embedNames[[x]]]] <- embed
+        embeddingMaps[[embedNames[[x]]]] <- embed
       },
-        error = function(e){
-          print(e)
-        })
-    }
+      error = function(e){
+        print(e)
+      })
+    })
     
-    saveRDS(umaps, paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))
+    saveRDS(embeddingMaps, paste0("./", outputDir, "/", subOutputDir,"/embeddingMaps.rds"))
     
     
   }else{
-    message("umaps already exists...")
-    umaps <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/umaps.rds"))
+    message("embeddingMaps already exists...")
+    embeddingMaps <- readRDS(paste0(outputDir, "/", subOutputDir,"/embeddingMaps.rds"))
   }
   
 
-  allMatrices <- getAvailableMatrices(ArchRProj)
-  matrices <- list()
-  imputeMatricesList <- list()
-  imputeWeights <- getImputeWeights(ArchRProj = ArchRProj)
-  df <- getEmbedding(ArchRProj, embedding = "embed", returnDF = TRUE)
-  
-  for(allmatrices in allMatrices){
-    print(allmatrices)
-    name <- paste0(allmatrices, "_names")
-    result = assign(name, getFeatures(ArchRProj = ArchRProj, useMatrix = allmatrices))
-    saveRDS(result, paste0("./", outputDir, "/", subOutputDir, "/", allmatrices,"_names.rds"))
-    
-    if(!is.null(result)){
-      # nameColor <- paste0("colorMat", allmatrices)
-      matrix = Matrix(.getMatrixValues(
-        ArchRProj = ArchRProj, 
-        name = result,
-        matrixName = allmatrices,
-        log2Norm = FALSE,
-        threads = threads), sparse = TRUE)
-      
-      matrices[[allmatrices]] = matrix
-      
-      matList = matrix[,rownames(df), drop=FALSE]
-      
-      # assign(nameColor, matList)
-      .logThis(matList, paste0(allmatrices,"-Before-Impute"), logFile = logFile)
-      if(getArchRVerbose()) message("Imputing Matrix")
-      
-      colorImputeMat <- imputeMatrix(mat = as.matrix(matList), imputeWeights = imputeWeights, logFile = logFile)
-      # assign(paste0(nameColor, "_Impute"), imputeMat)
-      
-      if(!inherits(colorImputeMat, "matrix")){
-        colorImputeMat <- matrix(colorImputeMat, ncol = nrow(df))
-        colnames(colorImputeMat) <- rownames(df)
-      }
-      imputeMatricesList[[allmatrices]] <- colorImputeMat
-      
-      
-    }else{
-      message(allmatrices, " is NULL.")
-    }
-  }
-  
-  saveRDS(matrices,paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))
-  saveRDS(imputeMatricesList,paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
-
-  matrices <- readRDS("Shiny/inputData/matrices.rds")
-  imputeMatricesList <- readRDS("Shiny/inputData/imputeMatricesList.rds")
-  
 # Create an HDF5 containing the nativeRaster vectors for the main matrices
 if (!file.exists(file.path(outputDir, subOutputDir, "mainEmbeds.h5"))) {
   
+  if(groupBy %in% colnames(ArchRProjShiny@cellColData)){
+  
   mainEmbed(ArchRProj = ArchRProj,
             outDirEmbed = file.path(outputDir, subOutputDir),
-            names = colnames(ArchRProjShiny@cellColData),
+            names = groupBy,
             matrices =  matrices,
             imputeMatricesList = imputeMatricesList,
             Shiny = ShinyArchR
-  )
+          )          
+  }else{
+    
+    message(groupBy, "is not defined in ArchRProj...")
+    
+  }
+  
 } else{
   message("H5 for main embeds already exists...")
 }
@@ -232,12 +246,15 @@ if (!file.exists(file.path(outputDir, subOutputDir, "mainEmbeds.h5"))) {
 
 if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/plotBlank72.h5"))){
   
-  shinyRasterUMAPs(
+  matrixEmbeds(
     ArchRProj = ArchRProj,
-    outputDirUmaps = paste0(outputDir,"/", subOutputDir),
+    outputDirEmbeds = paste0(outputDir,"/", subOutputDir),
+    embedding = embedding,
+    matrices = matrices,
+    imputeMatricesList = imputeMatricesList,
     threads = getArchRThreads(),
     verbose = TRUE,
-    logFile = createLogFile("ShinyRasterUMAPs")
+    logFile = createLogFile("matrixEmbeds")
   )
   
 }else{
