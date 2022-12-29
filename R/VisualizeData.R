@@ -332,10 +332,10 @@ plotEmbedding <- function(
     stop("colorBy must be of length 1!")
   }
   allColorBy <-  .availableArrays(head(getArrowFiles(ArchRProj), 2))
-  if(tolower(colorBy) %ni% tolower(allColorBy)){
-    stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
-  }
-  colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
+  # if(tolower(colorBy) %ni% tolower(allColorBy)){
+  #   stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
+  # }
+  # colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
   
   .logMessage(paste0("ColorBy = ", colorBy), logFile = logFile)
   
