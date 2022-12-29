@@ -1,4 +1,4 @@
-# shinyRasterUmaps function -----------------------------------------------------------
+# matrixEmbeds function -----------------------------------------------------------
 #' 
 #' 
 #' Create an HDF5 containing the nativeRaster vectors for all features for all feature matrices. 
@@ -10,12 +10,15 @@
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #'
-shinyRasterUMAPs <- function(
+matrixEmbeds <- function(
   ArchRProj = NULL,
   outputDirEmbeds = NULL,
+  embedding = "UMAP",
+  matrices = NULL,
+  imputeMatricesList = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
-  logFile = createLogFile("ShinyRasterUMAPs")
+  logFile = createLogFile("matrixEmbeds")
 ){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = outputDirEmbeds, name = "outputDirEmbeds", valid = c("character"))
@@ -37,7 +40,7 @@ shinyRasterUMAPs <- function(
   
   for(shinymatrices in shinyMatrices){
     
-    # shinymatrices = shinyMatrices[3]
+    # shinymatrices = shinyMatrices[2]
     
       print(shinymatrices)
       matrixName = paste0(shinymatrices,"_names")
@@ -48,7 +51,7 @@ shinyRasterUMAPs <- function(
         
         if(!is.null(geneMatrixNames)){
           
-        embeds_points <- .safelapply(1:10, function(x){
+        embeds_points <- .safelapply(1:length(geneMatrixNames), function(x){ 
             
             print(paste0("Creating plots for ",shinymatrices,": ",x,": ",round((x/length(geneMatrixNames))*100,3), "%"))
             
@@ -56,7 +59,7 @@ shinyRasterUMAPs <- function(
               ArchRProj = ArchRProj,
               colorBy = shinymatrices,
               name = geneMatrixNames[x],
-              embedding = "embed",
+              embedding = embedding,
               quantCut = c(0.01, 0.95),
               imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
               plotAs = "points",
@@ -94,43 +97,49 @@ shinyRasterUMAPs <- function(
               return(res)
             }
           }, threads = threads) 
-          names(embeds_points) <- geneMatrixNames[1:10]
+          
+          names(embeds_points) <- geneMatrixNames
+          
+          embeds_points = embeds_points[!unlist(lapply(embeds_points, is.null))]
+          
+          embeds_min_max <- data.frame(matrix(NA, 2, length(embeds_points)))
+          colnames(embeds_min_max) <- names(embeds_points)[which(!unlist(lapply(embeds_points, is.null)))]
+          rownames(embeds_min_max) <- c("min","max")
+          
+          h5closeAll()
+          points =  H5Fcreate(name = file.path(outputDirEmbeds, paste0(shinymatrices,"_plotBlank72.h5")))
+          h5createGroup(file.path(outputDirEmbeds, paste0(shinymatrices,"_plotBlank72.h5")), shinymatrices)
+          
+          for(i in 1:length(embeds_points)){
+            
+            print(paste0("Getting H5 files for embeds_points: ",i,": ",round((i/length(embeds_points))*100,3), "%"))
+            
+            h5createDataset(file = points, dataset = paste0(shinymatrices,"/",geneMatrixNames[i]), dims = c(46656,1), storage.mode = "integer")
+            h5writeDataset(obj = embeds_points[[i]][[1]]$plot, h5loc = points, name=paste0(shinymatrices,"/",geneMatrixNames[i]))
+            
+            embeds_min_max[1,i] = embeds_points[[i]][[1]]$min
+            embeds_min_max[2,i] = embeds_points[[i]][[1]]$max
+            
+          }
+          
+          embeds_min_max_list[[shinymatrices]] =  embeds_min_max
+          embeds_pal_list[[shinymatrices]] = embeds_points[[length(embeds_points)]][[1]]$pal
+          
           
         }else{
           
           message(matrixName,".rds file is NULL")
           
         }
+        
+        
       
       }else{
         
         message(matrixName,".rds file does not exist")
       }
       
-      embeds_points = embeds_points[!unlist(lapply(embeds_points, is.null))]
-      
-      embeds_min_max <- data.frame(matrix(NA, 2, length(embeds_points)))
-      colnames(embeds_min_max) <- names(embeds_points)[which(!unlist(lapply(embeds_points, is.null)))]
-      rownames(embeds_min_max) <- c("min","max")
-      
-      h5closeAll()
-      points <- H5Fcreate(name = file.path(outputDirEmbeds,"plotBlank72.h5"))
-      h5createGroup(file.path(outputDirEmbeds, "plotBlank72.h5"), shinymatrices)
-      
-      for(i in 1:length(embeds_points)){
-        
-        print(paste0("Getting H5 files for embeds_points: ",i,": ",round((i/length(embeds_points))*100,3), "%"))
-        
-        h5createDataset(file = points, dataset = paste0(shinymatrices,"/",geneMatrixNames[i]), dims = c(46656,1), storage.mode = "integer")
-        h5writeDataset(obj = embeds_points[[i]][[1]]$plot, h5loc = points, name=paste0(shinymatrices,"/",geneMatrixNames[i]))
-        
-        embeds_min_max[1,i] = embeds_points[[i]][[1]]$min
-        embeds_min_max[2,i] = embeds_points[[i]][[1]]$max
-        
-      }
-      
-      embeds_min_max_list[[shinymatrices]] =  embeds_min_max
-      embeds_pal_list[[shinymatrices]] = embeds_points[[1]][[1]]$pal
+    
     }
   
   scale <- embeds_min_max_list
