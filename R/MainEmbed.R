@@ -75,6 +75,7 @@ mainEmbed <- function(
            embedding = embedding,
            rastr = FALSE,
            size = 0.5,
+           imputeWeights = NULL,
            matrices = matrices,
            imputeMatricesList = imputeMatricesList,
            Shiny = ShinyArchR
@@ -88,6 +89,7 @@ mainEmbed <- function(
         return(named_embed)
     })
 
+    names(embeds) <- names
     saveRDS(embeds, file.path(outDirEmbed, "embeds.rds"))
  
   } else {
