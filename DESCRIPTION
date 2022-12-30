@@ -4,13 +4,15 @@ Date: 2022-07-17
 Title: Analyzing single-cell regulatory chromatin in R.
 Version: 1.0.3
 Authors@R: c(
-    person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
-    person("Ryan", "Corces", role = "aut"))
+    person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = "aut"),
+    person("Ryan", "Corces", email = "ryan.corces@gladstone.ucsf.edu", role = c("aut","cre")),
+    person("Paulina","Paiz", role = "ctb"))
 Description: This package is designed to streamline scATAC analyses in R.
 Roxygen: list(markdown = TRUE)
 License: GPL (>= 2)
 LinkingTo: Rcpp, RcppArmadillo
 LazyData: TRUE
+URL: https://www.ArchRProject.com
 RoxygenNote: 7.2.1
 Encoding: UTF-8
 Imports:

@@ -259,7 +259,7 @@ addGroupCoverages <- function(
     args$threads <- 1
   }else{
     if(threads > 1){
-      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+      message("subThreading Enabled since ArchRLocking is FALSE see `addArchRLocking`")
     }
     args$threads <- threads
   }

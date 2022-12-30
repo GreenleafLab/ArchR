@@ -81,15 +81,21 @@ addGeneScoreMatrix <- function(
   .validInput(input = matrixName, name = "matrixName", valid = c("character"))
   .validInput(input = extendUpstream, name = "extendUpstream", valid = c("integer"))
   .validInput(input = extendDownstream, name = "extendDownstream", valid = c("integer"))
+  .validInput(input = geneUpstream, name = "geneUpstream", valid = c("integer"))
+  .validInput(input = geneDownstream, name = "geneDownstream", valid = c("integer"))
+  .validInput(input = useGeneBoundaries, name = "useGeneBoundaries", valid = c("boolean"))
+  .validInput(input = useTSS, name = "useTSS", valid = c("boolean"))
+  .validInput(input = extendTSS, name = "extendTSS", valid = c("boolean"))
   .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
   .validInput(input = ceiling, name = "ceiling", valid = c("integer"))
-  .validInput(input = useGeneBoundaries, name = "useGeneBoundaries", valid = c("boolean"))
+  .validInput(input = geneScaleFactor, name = "geneScaleFactor", valid = c("integer"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = blacklist, name = "blacklist", valid = c("GRanges", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
+  .validInput(input = subThreading, name = "subThreading", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   matrixName <- .isProtectedArray(matrixName, exclude = "GeneScoreMatrix")
@@ -140,13 +146,13 @@ addGeneScoreMatrix <- function(
   h5lock <- setArchRLocking()
   if(h5lock){
     if(subThreading){
-      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      message("subThreading Disabled since ArchRLocking is TRUE see `addArchRLocking`")
       subThreading <- FALSE
     }
     args$threads <- min(length(ArrowFiles), threads)
   }else{
     if(subThreading){
-      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+      message("subThreading Enabled since ArchRLocking is FALSE and subThreading is TRUE see `addArchRLocking`")
     }    
   }
 

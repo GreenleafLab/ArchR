@@ -1294,12 +1294,12 @@ addFeatureCounts <- function(
   h5lock <- setArchRLocking()
   if(h5lock){
     if(threads > 1){
-      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      message("subThreading Disabled since ArchRLocking is TRUE see `addArchRLocking`")
       threads <- 1
     }
   }else{
     if(threads > 1){
-      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+      message("subThreading Enabled since ArchRLocking is FALSE see `addArchRLocking`")
     }    
   }
 

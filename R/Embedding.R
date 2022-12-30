@@ -261,7 +261,12 @@ addUMAP <- function(
   eval(parse(text=strUWOT))
 
   tryCatch({
-    uwot::save_uwot(model = model, file = file, verbose = TRUE)
+    #the below call to save_uwot involves a call to utils::tar() within the uwot code. For unix systems,
+    #if the user has a user ID greater than a specific integer, it will throw an annoying warning that 
+    #otherwise cannot be controlled without supressing all warnings. Rather than do that, this helper
+    #function only suppresses warnings that contain the word "nobody". The actual warning message is:
+    #"invalid uid value replaced by that for user 'nobody'"
+    .suppressSpecificWarnings(.expr = uwot::save_uwot(model = model, file = file, verbose = TRUE), .f = "nobody")
   }, error = function(e){
     .saveUWOT_Deprecated(model = model, file = file) #backwards to previous version
   })
