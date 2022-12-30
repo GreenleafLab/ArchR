@@ -105,10 +105,6 @@ addTrajectory <- function(
       
       #Subset
       groupsx <- rownames(groupDF)[groupDF[,1]==trajectory[x]]
-      .logThis(groupsx, paste0("groupsx-",x), logFile = logFile)
-      if(!(length(groupsx) > 0)) {
-        .logStop(paste0("Some trajectory points do not have any cells in group ",trajectory[x]," based on the groupBy column in cellColData. Please check your inputs to trajectory and groupBy."), logFile = logFile)
-      }
       matx <- mat[groupsx,,drop = FALSE]
 
       #Filter Distance
