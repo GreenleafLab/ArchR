@@ -390,12 +390,12 @@ addGeneScoreMatrix <- function(
 
         idx1 <- which(pminGene - pReverseMin < start(extendedGeneRegion))
         if(length(idx1) > 0){
-          stop("Error in gene boundaries minError")
+          stop(sprintf("Error in gene boundaries - minError. The following gene ranges are causing problems and should be removed:\n%s\n", paste0(geneRegionz[idx1], collapse = ", ")))
         }
 
         idx2 <- which(pmaxGene + pForwardMin > end(extendedGeneRegion))
         if(length(idx2) > 0){
-          stop("Error in gene boundaries maxError")
+          stop(sprintf("Error in gene boundaries - maxError The following gene ranges are causing problems and should be removed:\n%s\n", paste0(geneRegionz[idx2], collapse = ", ")))
         }
        
        rm(s, e, pReverse, pReverseMin, pForward, pForwardMin, geneStartz, geneEndz, pminGene, pmaxGene)
