@@ -35,6 +35,7 @@
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param blacklist A `GRanges` object containing genomic regions to blacklist that may be extremeley over-represented and thus
 #' biasing the geneScores for genes nearby that locus.
+#' saveGeneRegions The full path to a `.rds` file to save the `GRanges` object containing the regions used for calculating gene scores for each gene.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param subThreading A boolean determining whether possible use threads within each multi-threaded subprocess if greater than the number of input samples.
@@ -68,6 +69,7 @@ addGeneScoreMatrix <- function(
   scaleTo = 10000,
   excludeChr = c("chrY", "chrM"),
   blacklist = getBlacklist(input),
+  saveGeneRegions = NULL,
   threads = getArchRThreads(),
   parallelParam = NULL,
   subThreading = TRUE,
@@ -92,6 +94,7 @@ addGeneScoreMatrix <- function(
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = blacklist, name = "blacklist", valid = c("GRanges", "null"))
+  .validInput(input = saveGeneRegions, name = "saveGeneRegions", valid = c("character", "null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = parallelParam, name = "parallelParam", valid = c("parallelparam", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
@@ -199,6 +202,7 @@ addGeneScoreMatrix <- function(
   scaleTo = 10000,
   excludeChr = c("chrY","chrM"),
   blacklist = NULL,
+  saveGeneRegions = NULL,
   cellNames = NULL,
   allCells = NULL,
   force = FALSE,
@@ -221,6 +225,7 @@ addGeneScoreMatrix <- function(
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = blacklist, name = "blacklist", valid = c("GRanges", "null"))
+  .validInput(input = saveGeneRegions, name = "saveGeneRegions", valid = c("character", "null"))
   .validInput(input = cellNames, name = "cellNames", valid = c("character", "null"))
   .validInput(input = allCells, name = "allCells", valid = c("character", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
@@ -271,6 +276,9 @@ addGeneScoreMatrix <- function(
   #Add Gene Index For ArrowFile
   geneRegions <- sort(sortSeqlevels(geneRegions), ignore.strand = TRUE)
   .logThis(geneRegions, paste0(sampleName, " .addGeneScoreMat geneRegions"), logFile = logFile)
+  if(!is.null(saveGeneRegions)) {
+    saveRDS(object = geneRegions, file = saveGeneRegions)
+  }
   
   geneRegions <- split(geneRegions, seqnames(geneRegions))
   geneRegions <- lapply(geneRegions, function(x){
