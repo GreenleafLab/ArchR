@@ -1968,7 +1968,7 @@ createArrowFiles <- function(
           #Order RG RLE based on bcPass
           fragments <- fragments[BiocGenerics::which(paste0(mcols(fragments)$RG) %bcin% bcPass)]
           if(length(fragments) > 0){
-            fragments <- fragments[order(S4Vectors::match(paste0(mcols(fragments)$RG), bcPass))]
+            fragments <- fragments[order(S4Vectors::match(paste0(mcols(fragments)$RG), as.character(bcPass)))]
           }
           
           #Check if Fragments are greater than minFragSize and smaller than maxFragSize
@@ -2062,7 +2062,7 @@ createArrowFiles <- function(
           #Order RG RLE based on bcPass
           fragments <- fragments[BiocGenerics::which(paste0(mcols(fragments)$RG) %bcin% bcPass)]
           if(length(fragments) > 0){
-            fragments <- fragments[order(S4Vectors::match(paste0(mcols(fragments)$RG), bcPass))]
+            fragments <- fragments[order(S4Vectors::match(paste0(mcols(fragments)$RG), as.character(bcPass)))]
           }
 
           #Check if Fragments are greater than minFragSize and smaller than maxFragSize
