@@ -19,7 +19,7 @@ library(ArchR)
 
 # specify desired number of threads 
 addArchRThreads(threads = 1) 
-# specify genome version. Default hg19 set
+# specify genome version. 
 # addArchRGenome("hg19")
 set.seed(1)
 
@@ -31,52 +31,6 @@ for (i in seq_along(fn)) {
   }, error = function(x) {
   })
 }
-
-#' Load Previous ArchRProject into R
-#' 
-#' This function will load a previously saved ArchRProject and re-normalize paths for usage.
-#' 
-#' @param path A character path to an `ArchRProject` directory that was previously saved using `saveArchRProject()`.
-#' @param force A boolean value indicating whether missing optional `ArchRProject` components (i.e. peak annotations /
-#' background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject`
-#' will fail unless all components can be found.
-#' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
-#' @export
-myLoadArchRProject <- function(
-  path = "./", 
-  force = FALSE, 
-  showLogo = TRUE
-){
-  
-  .validInput(input = path, name = "path", valid = "character")
-  .validInput(input = force, name = "force", valid = "boolean")
-  .validInput(input = showLogo, name = "showLogo", valid = "boolean")
-  
-  path2Proj <- file.path(path, "Save-ArchR-Project.rds")
-  
-  if(!file.exists(path2Proj)){
-    stop("Could not find previously saved ArchRProject in the path specified!,
-         Please ")
-  }
-  
-  ArchRProj <- recoverArchRProject(readRDS(path2Proj))
-  outputDir <- getOutputDirectory(ArchRProj)
-  outputDirNew <- normalizePath(path)
-  
-  
-  ArchRProj@projectMetadata$outputDirectory <- outputDirNew
-  
-  message("Successfully loaded ArchRProject!")
-  if(showLogo){
-    .ArchRLogo(ascii = "Logo")
-  }  
-  
-  ArchRProj
-  
-}
-print("start")
-ArchRProj=myLoadArchRProject("./inputData/")
-print("load")
 
 # UMAP Visualization ------------------------------------------------------------
 
