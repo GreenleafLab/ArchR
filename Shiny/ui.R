@@ -1,37 +1,38 @@
 library(shinybusy)
 
-# This file contain UI widgets. 
+# This file contains UI widgets. 
 
-# Umap plotting ----------------------------------------------------------------------
-umap_panel <- tabPanel(id="umap_panel",
+# EMBEDING plotting ----------------------------------------------------------------------
+EMBED_panel <- tabPanel(id="EMBED_panel",
                        
                        titlePanel(h5("scClusters")),
                        sidebarPanel(
-                         titlePanel(h3('UMAP 1', align = 'center')),
+                         titlePanel(h3('EMBEDDING 1', align = 'center')),
                          width = 3,
                          h4(''),
                          hr(style = "border-color: grey"),
                          
                          selectizeInput(
-                           'matrix_UMAP1_forComparison',
-                           label = 'UMAP type',
-                           choices =  c("Clusters","Constrained","Constrained remap","Sample","Unconstrained","Gene Score Matrix","Gene Integration Matrix","Motif Matrix"),
-                           selected ="Clusters"
+                           'matrix_EMBED1_forComparison',
+                           label = 'EMBEDDING type',
+                           choices =  c(EMBEDs_dropdown, matrices_dropdown),
+                           selected = NULL
                          ),
                          
-                         conditionalPanel(condition = "input.matrix_UMAP1_forComparison=='Gene Score Matrix' ||input.matrix_UMAP1_forComparison=='Gene Integration Matrix' ||  input.matrix_UMAP1_forComparison=='Motif Matrix'",
+                         conditionalPanel(
+                           condition = '!(input.matrix_EMBED1_forComparison %in% EMBEDs_dropdown)',
                                           selectizeInput(
-                                            'UMAP1_forComparison',
-                                            label = 'UMAP 1',
+                                            'EMBED1_forComparison',
+                                            label = 'EMBEDDING 1',
                                             choices = "",
                                             selected = NULL
                                           )),
                          
                          splitLayout(cellWidths = c("30%","30%","40%"),
-                                     numericInput("UMAP1_plot_width", "Width", min = 0, max = 250, value = 8),
-                                     numericInput("UMAP1_plot_height", "Height", min = 0, max = 250, value = 12),
+                                     numericInput("EMBED1_plot_width", "Width", min = 0, max = 250, value = 8),
+                                     numericInput("EMBED1_plot_height", "Height", min = 0, max = 250, value = 12),
                                      selectizeInput(
-                                       'plot_choice_download_UMAP1',
+                                       'plot_choice_download_EMBED1',
                                        label = "Format",
                                        choices = c(".pdf",".png",".tiff"),
                                        selected = ".pdf"),
@@ -40,31 +41,31 @@ umap_panel <- tabPanel(id="umap_panel",
                                 overflow: visible;}")))
                          ),
                          
-                         downloadButton(outputId = "download_UMAP1", label = "Download UMAP 1"),
+                         downloadButton(outputId = "download_EMBED1", label = "Download EMBEDDING 1"),
                          
-                         titlePanel(h3('UMAP 2', align = 'center')),
+                         titlePanel(h3('EMBEDDING 2', align = 'center')),
                          hr(style = "border-color: grey"),
                          selectizeInput(
-                           'matrix_UMAP2_forComparison',
-                           label = 'UMAP type',
-                           choices = c("Clusters","Constrained","Constrained remap","Sample","Unconstrained","Gene Score Matrix","Gene Integration Matrix","Motif Matrix"),
-                           selected ="Clusters"
+                           'matrix_EMBED2_forComparison',
+                           label = 'EMBEDDING type',
+                           choices = c(EMBEDs_dropdown, matrices_dropdown),
+                           selected =NULL
                          ),
                          
-                         conditionalPanel(condition = "input.matrix_UMAP2_forComparison=='Gene Score Matrix' ||input.matrix_UMAP2_forComparison=='Gene Integration Matrix' ||  input.matrix_UMAP2_forComparison=='Motif Matrix'",
+                         conditionalPanel(condition = '!(input.matrix_EMBED2_forComparison %in% EMBEDs_dropdown)',
                                           selectizeInput(
-                                            'UMAP2_forComparison',
-                                            label = 'UMAP 2',
+                                            'EMBED2_forComparison',
+                                            label = 'EMBEDDING 2',
                                             choices ="",
                                             selected = NULL
                                           )),
                          
                          
                          splitLayout(cellWidths = c("30%","30%","40%"),
-                                     numericInput("UMAP2_plot_width", "Width", min = 0, max = 250, value = 8),
-                                     numericInput("UMAP2_plot_height", "Height", min = 0, max = 250, value = 12),
+                                     numericInput("EMBED2_plot_width", "Width", min = 0, max = 250, value = 8),
+                                     numericInput("EMBED2_plot_height", "Height", min = 0, max = 250, value = 12),
                                      selectizeInput(
-                                       'plot_choice_download_UMAP2',
+                                       'plot_choice_download_EMBED2',
                                        label = "Format",
                                        choices = c(".pdf",".png",".tiff"),
                                        selected = ".pdf"),
@@ -72,20 +73,21 @@ umap_panel <- tabPanel(id="umap_panel",
                               .shiny-split-layout > div {
                                 overflow: visible;}")))
                          ),
-                         downloadButton(outputId = "download_UMAP2", label = "Download UMAP 2"),
+                         downloadButton(outputId = "download_EMBED2", label = "Download EMBEDDING 2"),
                          
                        ),
                        
                        mainPanel(
+                         verbatimTextOutput("feat"),
                          verbatimTextOutput("text"),
-                         fluidRow(h5("Dimension Reduction scClusters UMAPs"
+                         fluidRow(h5("Dimension Reduction scClusters EMBEDs"
                          )),
-                         fluidRow(helpText("Users can view and compare side-by-side UMAPs' representing identified scATAC-seq clusters,
+                         fluidRow(helpText("Users can view and compare side-by-side EMBEDs' representing identified scATAC-seq clusters,
                             origin of sample, unconstrained and constrained integration with scRNA-seq datasets, and integrated remapped clusters.", style = "font-family: 'Helvetica Now Display Bold'; font-si20pt"),
                          ),
                          fluidRow(
-                           column(6,plotOutput("UMAP_plot_1")),  ##%>% withSpinner(color="#0dc5c1")
-                           column(6,plotOutput("UMAP_plot_2"))
+                           column(6,plotOutput("EMBED_plot_1")),  ##%>% withSpinner(color="#0dc5c1")
+                           column(6,plotOutput("EMBED_plot_2"))
                          )
                        )
 )
@@ -113,8 +115,8 @@ scATACbrowser_panel <- tabPanel(
     selectizeInput(
       'browserContent',
       label = 'Type',
-      choices = c("Unconstrained","Constrained"),
-      selected = "Unconstrained"
+      choices = EMBEDs_dropdown,
+      selected = EMBEDs_dropdown[1]
     ),
     
     selectizeInput(
@@ -162,7 +164,7 @@ ui <- shinyUI(fluidPage(
   add_busy_spinner(spin = "radar", color = "#CCCCCC", onstart = TRUE, height = "55px", width = "55px"),
   
   navbarPage( 
-    umap_panel,
+    EMBED_panel,
     scATACbrowser_panel,
     title ="ShinyArchR Export",
     tags$head(tags$style(".shiny-output-error{color: grey;}"))
