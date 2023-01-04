@@ -100,7 +100,7 @@ addDeviationsMatrix <- function(
   }
   annotationsMatrix <- SummarizedExperiment::assay(matches)
   rownames(annotationsMatrix) <- paste0(seqnames(matches), "_", start(matches), "_", end(matches))
-  annotationsMatrix <- as(annotationsMatrix, "dgCMatrix")
+  annotationsMatrix <- as(annotationsMatrix, "dMatrix")
   #rm(matches)
   gc()
 
