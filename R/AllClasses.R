@@ -379,8 +379,8 @@ recoverArchRProject <- function(ArchRProj){
 #' background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject`
 #' will fail unless all components can be found.
 #' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
-#' @param Shiny A boolean value indicating whether an ArchR project will be used for deploying on Shiny Apps. `TRUE` if the project
-#' won't have any arrow files.                                      
+#' @param shiny A boolean value indicating whether an ArchR project will be used for deploying on Shiny Apps. This option should not really
+#' be used by end-users and is only meant to enable loading of a project lacking Arrow Files as part of the ShinyArchR process.                                      
 #'                                      
 #' @examples
 #'
@@ -404,13 +404,13 @@ loadArchRProject <- function(
   path = "./", 
   force = FALSE, 
   showLogo = TRUE
-  Shiny = FALSE
+  shiny = FALSE
   ){
 
   .validInput(input = path, name = "path", valid = "character")
   .validInput(input = force, name = "force", valid = "boolean")
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
-  .validInput(input = Shiny, name = "Shiny", valid = "boolean")
+  .validInput(input = shiny, name = "shiny", valid = "boolean")
   path2Proj <- file.path(path, "Save-ArchR-Project.rds")
   
   if(!file.exists(path2Proj)){
@@ -421,7 +421,7 @@ loadArchRProject <- function(
   outputDir <- getOutputDirectory(ArchRProj)
   outputDirNew <- normalizePath(path)
 
-if (Shiny == FALSE) {
+if (!shiny) {
   #1. Arrows Paths
   ArrowFilesNew <- file.path(outputDirNew, "ArrowFiles", basename(ArchRProj@sampleColData$ArrowFiles))
   if(!all(file.exists(ArrowFilesNew))){
