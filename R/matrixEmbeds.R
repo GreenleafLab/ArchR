@@ -40,7 +40,7 @@ matrixEmbeds <- function(
   
   for(shinymatrices in shinyMatrices){
     
-    # shinymatrices = shinyMatrices[2]
+    # shinymatrices = shinyMatrices[3]
     
       print(shinymatrices)
       matrixName = paste0(shinymatrices,"_names")
@@ -55,47 +55,55 @@ matrixEmbeds <- function(
             
             print(paste0("Creating plots for ",shinymatrices,": ",x,": ",round((x/length(geneMatrixNames))*100,3), "%"))
             
-            gene_plot <- plotEmbedding(
-              ArchRProj = ArchRProj,
-              colorBy = shinymatrices,
-              name = geneMatrixNames[x],
-              embedding = embedding,
-              quantCut = c(0.01, 0.95),
-              imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
-              plotAs = "points",
-              matrices = matrices,
-              imputeMatricesList = imputeMatricesList,
-              rastr = TRUE
-            )
+          if(!is.na(matrices[[shinymatrices]][x])){
+          
+              gene_plot <- plotEmbedding(
+                ArchRProj = ArchRProj,
+                colorBy = shinymatrices,
+                name = geneMatrixNames[x],
+                embedding = embedding,
+                quantCut = c(0.01, 0.95),
+                imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
+                plotAs = "points",
+                matrices = matrices,
+                imputeMatricesList = imputeMatricesList,
+                rastr = TRUE
+              )
+          }else{
             
-            if(!is.null(gene_plot)){
+            gene_plot = NULL
+          }
               
-              gene_plot_blank <- gene_plot + theme(axis.title.x = element_blank()) +
-                theme(axis.title.y = element_blank()) +
-                theme(axis.title = element_blank()) +
-                theme(legend.position = "none") +
-                theme(
-                  panel.grid.major = element_blank(),
-                  panel.grid.minor = element_blank(),
-                  panel.border = element_blank(),
-                  title=element_blank()
-                )
+              if(!is.null(gene_plot)){
+                
+                gene_plot_blank <- gene_plot + theme(axis.title.x = element_blank()) +
+                  theme(axis.title.y = element_blank()) +
+                  theme(axis.title = element_blank()) +
+                  theme(legend.position = "none") +
+                  theme(
+                    panel.grid.major = element_blank(),
+                    panel.grid.minor = element_blank(),
+                    panel.border = element_blank(),
+                    title=element_blank()
+                  )
+                
+                #save plot without axes etc as a jpg.
+                ggsave(filename = file.path(outputDirEmbeds, paste0(shinymatrices,"_embeds"), paste0(geneMatrixNames[x],"_blank72.jpg")),
+                       plot = gene_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
+                
+                #read back in that jpg because we need vector in native format
+                blank_jpg72 <- readJPEG(source = file.path(outputDirEmbeds, paste0(shinymatrices,"_embeds"),
+                                                           paste0(geneMatrixNames[x],"_blank72.jpg")), native = TRUE)
+                
+                g <- ggplot_build(gene_plot)
+                
+                res = list(list(plot=as.vector(blank_jpg72), min = round(min(gene_plot$data$color),1),
+                                max = round(max(gene_plot$data$color),1), pal = unique(g$data[[1]][,"colour"])))
+                
+                return(res)
+              }
               
-              #save plot without axes etc as a jpg.
-              ggsave(filename = file.path(outputDirEmbeds, paste0(shinymatrices,"_embeds"), paste0(geneMatrixNames[x],"_blank72.jpg")),
-                     plot = gene_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
-              
-              #read back in that jpg because we need vector in native format
-              blank_jpg72 <- readJPEG(source = file.path(outputDirEmbeds, paste0(shinymatrices,"_embeds"),
-                                                         paste0(geneMatrixNames[x],"_blank72.jpg")), native = TRUE)
-              
-              g <- ggplot_build(gene_plot)
-              
-              res = list(list(plot=as.vector(blank_jpg72), min = round(min(gene_plot$data$color),1),
-                              max = round(max(gene_plot$data$color),1), pal = unique(g$data[[1]][,"colour"])))
-              
-              return(res)
-            }
+            
           }, threads = threads) 
           
           names(embeds_points) <- geneMatrixNames
@@ -113,10 +121,8 @@ matrixEmbeds <- function(
           for(i in 1:length(embeds_points)){
             
             print(paste0("Getting H5 files for embeds_points: ",i,": ",round((i/length(embeds_points))*100,3), "%"))
-            
             h5createDataset(file = points, dataset = paste0(shinymatrices,"/",geneMatrixNames[i]), dims = c(46656,1), storage.mode = "integer")
             h5writeDataset(obj = embeds_points[[i]][[1]]$plot, h5loc = points, name=paste0(shinymatrices,"/",geneMatrixNames[i]))
-            
             embeds_min_max[1,i] = embeds_points[[i]][[1]]$min
             embeds_min_max[2,i] = embeds_points[[i]][[1]]$max
             
@@ -147,10 +153,6 @@ matrixEmbeds <- function(
   
   saveRDS(scale, file.path(outputDirEmbeds, "scale.rds"))
   saveRDS(pal, file.path(outputDirEmbeds, "pal.rds"))
-  
-  # if(exists("embeds_points")){ rm(embeds_points) }
-  # if(exists("GIM_embeds_points")){ rm(GIM_embeds_points) }
-  # if(exists("MM_embeds_points")){ rm(MM_embeds_points) }
   
 }
 
