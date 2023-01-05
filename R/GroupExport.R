@@ -586,7 +586,7 @@ getGroupFragments <- function(
 #'
 .getGroupFragsFromProj <- function(ArchRProj = NULL,
                                    groupBy = NULL,
-                                   outDir = file.path("Shiny", "fragments")) {
+                                   outDir = file.path(getOutputDirectory(ArchRProj), "fragments")) {
   dir.create(outDir, showWarnings = FALSE)
   
   # find barcodes of cells in that groupBy.
@@ -630,7 +630,7 @@ getGroupFragments <- function(
                                 tileSize = 100,
                                 scaleFactor = 1,
                                 groupBy = "Clusters",
-                                outDir = file.path(getOutputDirectory(ArchRProj), "Shiny", "coverage")) {
+                                outDir = file.path(getOutputDirectory(ArchRProj), "coverage")) {
   fragFiles = list.files(path = file.path(getOutputDirectory(ArchRProj), "Shiny", "fragments"), full.names = TRUE)
   dir.create(outDir, showWarnings = FALSE)
   
