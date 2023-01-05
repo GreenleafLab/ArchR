@@ -39,7 +39,6 @@ Imports:
     gtable,
     gtools,
     stringr,
-    grid,
     gridExtra,
     Biostrings,
     ComplexHeatmap,
@@ -47,6 +46,13 @@ Imports:
     presto,
     harmony
 Depends:
+Suggests:
+    pheatmap,
+    slingshot,
+    GenomicFeatures,
+    testthat,
+    pdftools,
+    ggseqlogo
 Collate: 
     'AllClasses.R'
     'AnnotationGenome.R'
