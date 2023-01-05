@@ -582,7 +582,7 @@ getGroupFragments <- function(
 #' proj <- getTestProject()
 #'
 #' # Create directory for fragments
-#' getGroupFragmentsFromProj(proj, groupBy = "Clusters", outDir = "./Shiny/Fragments")
+#' ArchR:::.getGroupFragmentsFromProj(proj, groupBy = "Clusters", outDir = "./Shiny/Fragments")
 #'
 .getGroupFragsFromProj <- function(ArchRProj = NULL,
                                    groupBy = NULL,
