@@ -584,9 +584,11 @@ getGroupFragments <- function(
 #' # Create directory for fragments
 #' ArchR:::.getGroupFragmentsFromProj(proj, groupBy = "Clusters", outDir = "./Shiny/Fragments")
 #'
-.getGroupFragsFromProj <- function(ArchRProj = NULL,
-                                   groupBy = NULL,
-                                   outDir = file.path(getOutputDirectory(ArchRProj), "fragments")) {
+.getGroupFragsFromProj <- function(
+  ArchRProj = NULL,
+  groupBy = NULL,
+  outDir = file.path(getOutputDirectory(ArchRProj), "fragments")
+){
   dir.create(outDir, showWarnings = FALSE)
   
   # find barcodes of cells in that groupBy.
@@ -608,7 +610,7 @@ getGroupFragments <- function(
     # filter Fragments
     fragments <-
       GenomeInfoDb::keepStandardChromosomes(fragments, pruning.mode = "coarse")
-    saveRDS(fragments, file.path(outDir, paste0(groupIDs[x], "_cvg.rds")))
+    saveRDS(fragments, file.path(outDir, paste0(groupIDs[x], "_frags.rds")))
   }
 }
 
@@ -624,14 +626,21 @@ getGroupFragments <- function(
 #' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or
 #' user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata
 #' column will be grouped together and the average signal will be plotted.
-#' @param outDir the directory to output the group fragment files.
+#' @param fragDir The path to the directory containing fragment files.
+#' @param outDir The path to the desired output directory for storage of coverage files.
 #'
-.getClusterCoverage <- function(ArchRProj = NULL,
-                                tileSize = 100,
-                                scaleFactor = 1,
-                                groupBy = "Clusters",
-                                outDir = file.path(getOutputDirectory(ArchRProj), "coverage")) {
-  fragFiles = list.files(path = file.path(getOutputDirectory(ArchRProj), "Shiny", "fragments"), full.names = TRUE)
+.getClusterCoverage <- function(
+  ArchRProj = NULL,
+  tileSize = 100,
+  scaleFactor = 1,
+  groupBy = "Clusters",
+  fragDir = file.path(getOutputDirectory(ArchRProj), "fragments"))
+  outDir = file.path(getOutputDirectory(ArchRProj), "coverage")
+){
+  fragFiles = list.files(path = fragDir, pattern = "_frags.rds", full.names = TRUE)
+  if(length(fragFiles) < 1){
+    stop(paste0("No fragment files found in fragDir - ", fragDir))
+  }
   dir.create(outDir, showWarnings = FALSE)
   
   # find barcodes of cells in that groupBy.
