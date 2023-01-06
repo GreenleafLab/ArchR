@@ -66,6 +66,10 @@ Suggests:
     scran,
     slingshot,
     testthat,
+Remotes:
+    cole-trapnell-lab/monocle3
+    immunogenomics/presto
+    GreenleafLab/chromVARmotifs
 Collate: 
     'AllClasses.R'
     'AnnotationGenome.R'
