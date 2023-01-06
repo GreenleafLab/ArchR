@@ -43,11 +43,11 @@ Imports:
     Rsamtools,
     S4Vectors (>= 0.9.25),
     Seurat,
-    SeuratObject
+    SeuratObject,
     sparseMatrixStats,
     stringr,
     SummarizedExperiment,
-    uwot,
+    uwot
 Depends:
 Suggests:
     Cairo,
@@ -65,7 +65,7 @@ Suggests:
     rhandsontable,
     scran,
     slingshot,
-    testthat,
+    testthat
 Remotes:
     cole-trapnell-lab/monocle3
     immunogenomics/presto
