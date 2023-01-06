@@ -59,6 +59,7 @@ Suggests:
     hexbin,
     leiden,
     limma,
+    monocle3,
     pdftools,
     pheatmap,
     rhandsontable,
