@@ -64,6 +64,8 @@ Suggests:
     pheatmap,
     rhandsontable,
     scran,
+    shiny,
+    shinythemes,
     slingshot,
     testthat
 Remotes:
