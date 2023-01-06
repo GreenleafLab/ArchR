@@ -67,9 +67,9 @@ Suggests:
     slingshot,
     testthat
 Remotes:
-    cole-trapnell-lab/monocle3
-    immunogenomics/presto
-    GreenleafLab/chromVARmotifs
+    GreenleafLab/chromVARmotifs,
+    cole-trapnell-lab/monocle3,
+    immunogenomics/presto    
 Collate: 
     'AllClasses.R'
     'AnnotationGenome.R'
