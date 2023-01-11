@@ -29,14 +29,15 @@ exportShinyArchR <- function(
   .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
-  
+
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportShinyArchR Input-Parameters", logFile = logFile)
   
   .requirePackage("shiny", installInfo = 'install.packages("shiny")')
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
   
-  
+  mainDir <- getOutputDirectory(ArchRProj)
+
   allMatrices <- getAvailableMatrices(ArchRProj)
   matrices <- list()
   imputeMatricesList <- list()
@@ -81,18 +82,15 @@ exportShinyArchR <- function(
         message(allmatrices, " is NULL.")
       }
     }
-    
-    saveRDS(matrices,paste0("./", outputDir, "/", subOutputDir,"/matrices.rds"))
-    saveRDS(imputeMatricesList,paste0("./", outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
+    saveRDS(matrices, paste0(file.path(mainDir, outputDir, subOutputDir, "matrices.rds")))
+    saveRDS(imputeMatricesList, paste0(file.path(mainDir, outputDir, subOutputDir, "/imputeMatricesList.rds")))
   }else{
     
     message("matrices and imputeMatricesList already exist. reading from local files...")
     
-    matrices <- readRDS(paste0(outputDir, "/", subOutputDir,"/matrices.rds"))
-    imputeMatricesList <- readRDS(paste0(outputDir, "/", subOutputDir,"/imputeMatricesList.rds"))
+    matrices <- readRDS(file.path(mainDir, outputDir, subOutputDir, "matrices.rds"))
+    imputeMatricesList <- readRDS(file.path(mainDir, outputDir, subOutputDir, "/imputeMatricesList.rds"))
   }
-  
-  
   
   if(is.null(groupBy)){
     stop("groupBy must be provided")
@@ -101,6 +99,7 @@ exportShinyArchR <- function(
   }else{
     print(paste0("groupBy:", groupBy))
   }
+
   # Check that the embedding exists in ArchRProj@embeddings
   if(embedding %ni% names(ArchRProj@embeddings)){
     stop("embedding doesn't exist in ArchRProj@embeddings")
@@ -111,7 +110,7 @@ exportShinyArchR <- function(
   # Make directory for Shiny App 
   if(!dir.exists(outputDir)) {
     
-    dir.create(outputDir)
+    dir.create(file.path(mainDir, outputDir), showWarnings = TRUE)
     
     ## Check the links for the files
     filesUrl <- data.frame(
@@ -129,20 +128,20 @@ exportShinyArchR <- function(
       stringsAsFactors = FALSE
     )
     
-    .downloadFiles(filesUrl = filesUrl, pathDownload = outputDir, threads = threads)
+    .downloadFiles(filesUrl = filesUrl, pathDownload = file.path(mainDir, outputDir), threads = threads)
     
   }else{
     message("Using existing Shiny files...")
   }
   
-  # Create a copy of the ArchRProj object
+  # Create a copy of the ArchRProj 
   ArchRProjShiny <- ArchRProj
+
   # Add metadata to ArchRProjShiny
   if (groupBy %ni% colnames(ArchRProjShiny@cellColData)) {
     stop("groupBy is not part of cellColData")
   } else if ((any(is.na(paste0("ArchRProj$", groupBy))))) {
-    stop("Some entries in the column indicated by groupBy have NA values. 
-          This is not allowed. Please subset your project using subsetArchRProject() to only contain cells with values for groupBy")
+    stop("Some entries in the column indicated by groupBy have NA values. Please subset your project using subsetArchRProject() to only contain cells with values for groupBy")
   } else {
     ArchRProjShiny@projectMetadata[["groupBy"]] <- groupBy
   }
@@ -153,10 +152,8 @@ exportShinyArchR <- function(
     "values"
   })
   ArchRProjShiny@projectMetadata[["units"]] <- units
-  
-  # The following gives error: Error in file.copy(oldPath, outputDirectory, recursive = TRUE, overwrite = overwrite) : 
-  # attempt to copy a directory to itself (That is why I commented it out)
-  # ArchrProjShiny <- saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = "Save-ArchRProjShiny", dropCells = TRUE, overwrite = TRUE)
+  ArchrProjShiny <- saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = 
+  file.path(mainDir, outputDir, "Save-ArchRProjShiny"), dropCells = TRUE, overwrite = TRUE)
   
   # Create fragment files 
   if(length(list.files(file.path(outputDir, "fragments"))) == 0){
@@ -169,23 +166,21 @@ exportShinyArchR <- function(
   if(length(list.files(file.path(outputDir, "coverage"))) == 0){
     .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, outDir = file.path(outputDir, "coverage"))
   }else{
-    
     message("Coverage files already exist...")
-    
   }
 
-  dir.create(file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir), showWarnings = TRUE)
-  
+  # Create directory to save everything that will be preprocessed 
+  dir.create(file.path(mainDir, outputDir, subOutputDir), showWarnings = TRUE)
  
-  if(!file.exists(file.path(getOutputDirectory(ArchRProj), outputDir, subOutputDir, "features.rds"))){
+  if(!file.exists(file.path(mainDir, outputDir, subOutputDir, "features.rds"))){
     gene_names <- getFeatures(ArchRProj = ArchRProj)
-    saveRDS(gene_names, paste0("./", outputDir, "/", subOutputDir,"/features.rds"))
+    saveRDS(gene_names, file.path(mainDir, outputDir, subOutputDir, "features.rds"))
   }else{
     message("gene_names already exists...")
-    gene_names <- readRDS(paste0("./", outputDir, "/", subOutputDir,"/features.rds"))
+    gene_names <- readRDS(file.path(mainDir, outputDir, subOutputDir, "features.rds"))
   }
   
-  if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/embeddingMaps.rds"))){  
+  if(!file.exists(file.path(mainDir, outputDir, subOutputDir, "/embeddingMaps.rds"))){  
     embeddingMaps <- list()
     embedNames <- colnames(ArchRProjShiny@cellColData)[][colnames(ArchRProjShiny@cellColData) %in% groupBy]
     
