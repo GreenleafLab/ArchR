@@ -12,7 +12,7 @@
 #' is "GeneScoreMatrix" then `name` refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
 #' @param embedding The embedding to use. Default is "UMAP".
 #' @param Shiny A boolean value that tells the function is calling for Shiny or not.
-#' @param matrices A list that contains color matrices for genes.
+#' @param matrices A list that contains color matrices for features.
 #' @param imputeMatricesList A list that contains color matrices for genes after imputation.   
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -44,27 +44,17 @@ mainEmbed <- function(
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportShinyArchR Input-Parameters", logFile = logFile)
 
-# check to see if the matrix exists using getAvailableMatrices() ---- This is done in exportShinyArchR()
 # Check if colorBy is cellColData or Matrix (e.g. GSM, GIM, or MM)
-# Check if embedding exists in ArchRProj@embeddings ---- This is done in exportShinyArchR()
-# Check all names exist --- DONE
   
   if(!file.exists(file.path(outDirEmbed, "embeds.rds"))){  
     
      # check all names exist in ArchRProj
-      ccd <- getCellColData(ArchRProj)
-      discreteCols <- lapply(seq_len(ncol(ccd)), function(x){
-        .isDiscrete(ccd[, x])
-      }) %>% unlist %>% {colnames(ccd)[.]}
-      if("Clusters" %in% discreteCols){
-        selectCols <- "Clusters"
-      }else{
-        selectCols <- "Sample"
+      if(names %ni% colnames(ArchRProjShiny@cellColData)){
+        stop("All columns should be presented in cellColData")
       }
 
     embeds <- .safelapply(1:length(names), function(x){
        name <- names[[x]]
-       print(name)
        
        tryCatch({
          named_embed <- plotEmbedding(
@@ -72,12 +62,14 @@ mainEmbed <- function(
            baseSize = 12,
            colorBy = colorBy,
            name = name,
+           allNames = names,
            embedding = embedding,
+           embeddingDF = df,
            rastr = FALSE,
            size = 0.5,
            imputeWeights = NULL,
            matrices = matrices,
-           imputeMatricesList = imputeMatricesList,
+           imputeMatrices = imputeMatrices,
            Shiny = TRUE
          )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
                                                       legend.title = element_text(size = 12),legend.text = element_text(size = 6))
@@ -96,7 +88,6 @@ mainEmbed <- function(
   }
   
   h5closeAll()
-  
   points <- H5Fcreate(name = file.path(outDirEmbed, "mainEmbeds.h5"))
   
   embed_legend <- list()
