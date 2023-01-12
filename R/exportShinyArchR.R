@@ -49,10 +49,10 @@ exportShinyArchR <- function(
       print(allmatrices)
       name <- paste0(allmatrices, "_names")
       result = assign(name, getFeatures(ArchRProj = ArchRProj, useMatrix = allmatrices))
-      saveRDS(result, paste0("./", outputDir, "/", subOutputDir, "/", allmatrices,"_names.rds"))
+      saveRDS(result, file.path(outputDir, subOutputDir, allmatrices, "_names.rds"))
     
       if(!is.null(result)){
-        # nameColor <- paste0("colorMat", allmatrices)
+        
         matrix = Matrix(.getMatrixValues(
           ArchRProj = ArchRProj, 
           name = result,
@@ -63,13 +63,11 @@ exportShinyArchR <- function(
         matrices[[allmatrices]] = matrix
         
         matList = matrix[,rownames(df), drop=FALSE]
-        
-        # assign(nameColor, matList)
         .logThis(matList, paste0(allmatrices,"-Before-Impute"), logFile = logFile)
+
         if(getArchRVerbose()) message("Imputing Matrix")
         
         colorImputeMat <- imputeMatrix(mat = as.matrix(matList), imputeWeights = imputeWeights, logFile = logFile)
-        # assign(paste0(nameColor, "_Impute"), imputeMat)
         
         if(!inherits(colorImputeMat, "matrix")){
           colorImputeMat <- matrix(colorImputeMat, ncol = nrow(df))
@@ -82,8 +80,8 @@ exportShinyArchR <- function(
         message(allmatrices, " is NULL.")
       }
     }
-    saveRDS(matrices, paste0(file.path(mainDir, outputDir, subOutputDir, "matrices.rds")))
-    saveRDS(imputeMatricesList, paste0(file.path(mainDir, outputDir, subOutputDir, "/imputeMatricesList.rds")))
+    saveRDS(matrices, file.path(outputDir, subOutputDir, "matrices.rds"))
+    saveRDS(imputeMatricesList, file.path(outputDir, subOutputDir, "imputeMatricesList.rds"))
   }else{
     
     message("matrices and imputeMatricesList already exist. reading from local files...")
@@ -163,8 +161,8 @@ exportShinyArchR <- function(
   }
   
   # Create coverage objects
-  if(length(list.files(file.path(outputDir, "coverage"))) == 0){
-    .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, outDir = file.path(outputDir, "coverage"))
+  if(length(list.files(file.path(mainDir, outputDir, "coverage"))) == 0){
+    .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, outDir = file.path(mainDir, outputDir, "coverage"))
   }else{
     message("Coverage files already exist...")
   }
@@ -179,67 +177,26 @@ exportShinyArchR <- function(
     message("gene_names already exists...")
     gene_names <- readRDS(file.path(mainDir, outputDir, subOutputDir, "features.rds"))
   }
-  
-  if(!file.exists(file.path(mainDir, outputDir, subOutputDir, "/embeddingMaps.rds"))){  
-    embeddingMaps <- list()
-    embedNames <- colnames(ArchRProjShiny@cellColData)[][colnames(ArchRProjShiny@cellColData) %in% groupBy]
-    
-    embeddingMaps <- .safelapply(1:length(embedNames), function(x){
-      print(embedNames[x])
-      tryCatch({
-        embed <- plotEmbedding(
-          ArchRProj = ArchRProjShiny,
-          baseSize=12,
-          colorBy = "cellColData",
-          name = embedNames[x],
-          embedding = embedding,
-          rastr = FALSE,
-          size=0.5,
-          matrices = matrices,
-          imputeMatricesList = imputeMatricesList,
-        )+ggtitle("Colored by scATAC-seq clusters")+theme(text=element_text(size=12),
-                                                          legend.title = element_text(size = 12),legend.text = element_text(size = 6))
-        
-        embeddingMaps[[embedNames[[x]]]] <- embed
-      },
-      error = function(e){
-        print(e)
-      })
-    })
-    
-    saveRDS(embeddingMaps, paste0("./", outputDir, "/", subOutputDir,"/embeddingMaps.rds"))
-    
-    
-  }else{
-    message("embeddingMaps already exists...")
-    embeddingMaps <- readRDS(paste0(outputDir, "/", subOutputDir,"/embeddingMaps.rds"))
-  }
-  
 
-# Create an HDF5 containing the nativeRaster vectors for the main matrices
-if (!file.exists(file.path(outputDir, subOutputDir, "mainEmbeds.h5"))) {
-  
+# mainEmbed will create an HDF5 containing the nativeRaster vectors for the main matrices
+if (!file.exists(file.path(mainDir, outputDir, subOutputDir, "mainEmbeds.h5"))) {
   if(groupBy %in% colnames(ArchRProjShiny@cellColData)){
-  
   mainEmbed(ArchRProj = ArchRProj,
-            outDirEmbed = file.path(outputDir, subOutputDir),
+            outDirEmbed = file.path(mainDir, outputDir, subOutputDir),
+            colorBy = "cellColData",
             names = groupBy,
             matrices =  matrices,
             imputeMatricesList = imputeMatricesList,
-            Shiny = ShinyArchR
+            Shiny = TRUE
           )          
   }else{
-    
     message(groupBy, "is not defined in ArchRProj...")
-    
   }
-  
 } else{
-  message("H5 for main embeds already exists...")
+  message("H5 for main embeddings already exists...")
 }
 
-
-if(!file.exists(paste0("./", outputDir, "/", subOutputDir,"/plotBlank72.h5"))){
+if(!file.exists(file.path(outputDir, subOutputDir, "plotBlank72.h5"))){
   
   matrixEmbeds(
     ArchRProj = ArchRProj,
@@ -263,10 +220,9 @@ unlink("./ArchRLogs", recursive = TRUE)
 
 ## ready to launch ---------------------------------------------------------------
 message("App created! To launch, 
-          ArchRProj <- loadArchRProject('",getOutputDirectory(ArchRProj),"') and 
+          ArchRProj <- loadArchRProject('", mainDir,"') and 
           run shiny::runApp('", outputDir, "') from parent directory")
 #  runApp("myappdir")
-
 
 }
 

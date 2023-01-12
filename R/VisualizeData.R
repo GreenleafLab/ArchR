@@ -210,9 +210,7 @@ plotPDF <- function(
 #' @param baseSize The base font size to use in the plot.
 #' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 #' if `colorBy` is numeric, then `plotAs` is set to "hex".
-#' @param Shiny A boolean value that tells the function is calling for Shiny or not.
-#' @param matrices A list that contains color matrices for genes.
-#' @param imputeMatricesList A list that contains color matrices for genes after imputation.                                 
+#' @param Shiny A boolean value that tells the function is calling for Shiny or not.                              
 #' @param threads The number of threads to be used for parallel computing.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
@@ -249,8 +247,6 @@ plotEmbedding <- function(
   baseSize = 10,
   plotAs = NULL,
   Shiny = FALSE,
-  matrices = NULL,
-  imputeMatricesList = NULL,
   threads = getArchRThreads(),
   logFile = createLogFile("plotEmbedding"),
   ...
@@ -275,8 +271,6 @@ plotEmbedding <- function(
   .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
   .validInput(input = Shiny, name = "Shiny", valid = c("boolean"))
-  .validInput(input = matrices, name = "matrices", valid = c("list"))
-  .validInput(input = imputeMatricesList, name = "imputeMatricesList", valid = c("list"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
   

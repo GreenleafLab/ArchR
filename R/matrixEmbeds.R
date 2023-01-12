@@ -155,4 +155,3 @@ matrixEmbeds <- function(
   saveRDS(pal, file.path(outputDirEmbeds, "pal.rds"))
   
 }
-

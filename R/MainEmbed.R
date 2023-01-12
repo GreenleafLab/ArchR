@@ -44,10 +44,10 @@ mainEmbed <- function(
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportShinyArchR Input-Parameters", logFile = logFile)
 
-# check to see if the matrix exists using getAvailableMatrices()
+# check to see if the matrix exists using getAvailableMatrices() ---- This is done in exportShinyArchR()
 # Check if colorBy is cellColData or Matrix (e.g. GSM, GIM, or MM)
-# Check if embedding exists in ArchRProj@embeddings
-# Check all names exist
+# Check if embedding exists in ArchRProj@embeddings ---- This is done in exportShinyArchR()
+# Check all names exist --- DONE
   
   if(!file.exists(file.path(outDirEmbed, "embeds.rds"))){  
     
@@ -78,14 +78,12 @@ mainEmbed <- function(
            imputeWeights = NULL,
            matrices = matrices,
            imputeMatricesList = imputeMatricesList,
-           Shiny = ShinyArchR
+           Shiny = TRUE
          )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
                                                       legend.title = element_text(size = 12),legend.text = element_text(size = 6))
        }, error = function(x){
          print(x)
        })
-       
-        
         return(named_embed)
     })
 
