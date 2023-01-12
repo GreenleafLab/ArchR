@@ -38,12 +38,9 @@ matrixEmbeds <- function(
   
   shinyMatrices <- getAvailableMatrices(ArchRProj)
   
-  for(shinymatrices in shinyMatrices){
+  for(matrix in shinyMatrices){
     
-    # shinymatrices = shinyMatrices[3]
-    
-      print(shinymatrices)
-      matrixName = paste0(shinymatrices,"_names")
+      matrixName = paste0(matrix,"_names")
     
       if(file.exists(paste0(outputDirEmbeds, "/", matrixName, ".rds"))){
         
@@ -53,13 +50,13 @@ matrixEmbeds <- function(
           
         embeds_points <- .safelapply(1:length(geneMatrixNames), function(x){ 
             
-            print(paste0("Creating plots for ",shinymatrices,": ",x,": ",round((x/length(geneMatrixNames))*100,3), "%"))
+            print(paste0("Creating plots for ", matrix,": ",x,": ",round((x/length(geneMatrixNames))*100,3), "%"))
             
-          if(!is.na(matrices[[shinymatrices]][x])){
+          if(!is.na(matrices[[matrix]][x])){
           
               gene_plot <- plotEmbedding(
                 ArchRProj = ArchRProj,
-                colorBy = shinymatrices,
+                colorBy = matrix,
                 name = geneMatrixNames[x],
                 embedding = embedding,
                 quantCut = c(0.01, 0.95),

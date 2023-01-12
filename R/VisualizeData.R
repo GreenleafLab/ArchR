@@ -247,6 +247,7 @@ plotEmbedding <- function(
   baseSize = 10,
   plotAs = NULL,
   Shiny = FALSE,
+  embeddingDF = NULL,
   threads = getArchRThreads(),
   logFile = createLogFile("plotEmbedding"),
   ...
@@ -283,8 +284,12 @@ plotEmbedding <- function(
   # Get Embedding
   ##############################
   .logMessage("Getting Embedding", logFile = logFile)
-  df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
-  
+  if(Shiny){
+     df <- embeddingDF
+  } else{
+    df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+  }
+
   if(!all(rownames(df) %in% ArchRProj$cellNames)){
     stop("Not all cells in embedding are present in ArchRProject!")
   }
@@ -293,7 +298,7 @@ plotEmbedding <- function(
   if(!is.null(sampleCells)){
     if(sampleCells < nrow(df)){
       if(!is.null(imputeWeights)){
-        stop("Cannot sampleCells with imputeWeights not equalt to NULL at this time!")
+        stop("Cannot sampleCells with imputeWeights not equal to NULL at this time!")
       }
       df <- df[sort(sample(seq_len(nrow(df)), sampleCells)), , drop = FALSE]
     }
@@ -313,7 +318,7 @@ plotEmbedding <- function(
   plotParams$size <- size
   plotParams$randomize <- randomize
   
-  #Check if Cells To Be Highlighed
+  #Check if Cells To Be Highlighted
   if(!is.null(highlightCells)){
     highlightPoints <- match(highlightCells, rownames(df), nomatch = 0)
     if(any(highlightPoints==0)){
@@ -324,6 +329,9 @@ plotEmbedding <- function(
   #Make Sure ColorBy is valid!
   if(length(colorBy) > 1){
     stop("colorBy must be of length 1!")
+  }
+  if(Shiny){
+    allColorBy <-  matrices$allColorBy
   }
   allColorBy <-  .availableArrays(head(getArrowFiles(ArchRProj), 2))
   # if(tolower(colorBy) %ni% tolower(allColorBy)){
