@@ -37,74 +37,6 @@ exportShinyArchR <- function(
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
   
   mainDir <- getOutputDirectory(ArchRProj)
-
-  allMatrices <- getAvailableMatrices(ArchRProj)
-  matrices <- list()
-  imputeMatricesList <- list()
-  imputeWeights <- getImputeWeights(ArchRProj = ArchRProj)
-  df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
-  
-  if(!file.exists(file.path(outputDir, subOutputDir, "matrices.rds")) && !file.exists(file.path(outputDir, subOutputDir, "imputeMatricesList.rds"))){
-    for(allmatrices in allMatrices){
-      print(allmatrices)
-      name <- paste0(allmatrices, "_names")
-      result = assign(name, getFeatures(ArchRProj = ArchRProj, useMatrix = allmatrices))
-      saveRDS(result, file.path(outputDir, subOutputDir, allmatrices, "_names.rds"))
-    
-      if(!is.null(result)){
-        
-        matrix = Matrix(.getMatrixValues(
-          ArchRProj = ArchRProj, 
-          name = result,
-          matrixName = allmatrices,
-          log2Norm = FALSE,
-          threads = threads), sparse = TRUE)
-        
-        matrices[[allmatrices]] = matrix
-        
-        matList = matrix[,rownames(df), drop=FALSE]
-        .logThis(matList, paste0(allmatrices,"-Before-Impute"), logFile = logFile)
-
-        if(getArchRVerbose()) message("Imputing Matrix")
-        
-        colorImputeMat <- imputeMatrix(mat = as.matrix(matList), imputeWeights = imputeWeights, logFile = logFile)
-        
-        if(!inherits(colorImputeMat, "matrix")){
-          colorImputeMat <- matrix(colorImputeMat, ncol = nrow(df))
-          colnames(colorImputeMat) <- rownames(df)
-        }
-        imputeMatricesList[[allmatrices]] <- colorImputeMat
-        
-        
-      }else{
-        message(allmatrices, " is NULL.")
-      }
-    }
-    saveRDS(matrices, file.path(outputDir, subOutputDir, "matrices.rds"))
-    saveRDS(imputeMatricesList, file.path(outputDir, subOutputDir, "imputeMatricesList.rds"))
-  }else{
-    
-    message("matrices and imputeMatricesList already exist. reading from local files...")
-    
-    matrices <- readRDS(file.path(mainDir, outputDir, subOutputDir, "matrices.rds"))
-    imputeMatricesList <- readRDS(file.path(mainDir, outputDir, subOutputDir, "/imputeMatricesList.rds"))
-  }
-  
-  if(is.null(groupBy)){
-    stop("groupBy must be provided")
-  } else if(groupBy %ni% colnames(getCellColData(ArchRProj))){
-    stop("groupBy must be a column in cellColData")
-  }else{
-    print(paste0("groupBy:", groupBy))
-  }
-
-  # Check that the embedding exists in ArchRProj@embeddings
-  if(embedding %ni% names(ArchRProj@embeddings)){
-    stop("embedding doesn't exist in ArchRProj@embeddings")
-  }else{
-    print(paste0("embedding:", embedding))
-  }
-  
   # Make directory for Shiny App 
   if(!dir.exists(outputDir)) {
     
@@ -167,31 +99,93 @@ exportShinyArchR <- function(
     message("Coverage files already exist...")
   }
 
-  # Create directory to save everything that will be preprocessed 
+  # Create directory to save input data to Shinyapps.io (everything that will be preprocessed)
   dir.create(file.path(mainDir, outputDir, subOutputDir), showWarnings = TRUE)
  
-  if(!file.exists(file.path(mainDir, outputDir, subOutputDir, "features.rds"))){
-    gene_names <- getFeatures(ArchRProj = ArchRProj)
-    saveRDS(gene_names, file.path(mainDir, outputDir, subOutputDir, "features.rds"))
+  # if(!file.exists(file.path(mainDir, outputDir, subOutputDir, "features.rds"))){
+  #   gene_names <- getFeatures(ArchRProj = ArchRProj)
+  #   saveRDS(gene_names, file.path(mainDir, outputDir, subOutputDir, "features.rds"))
+  # }else{
+  #   message("gene_names already exists...")
+  #   gene_names <- readRDS(file.path(mainDir, outputDir, subOutputDir, "features.rds"))
+  # }
+
+  allMatrices <- getAvailableMatrices(ArchRProj)
+  matrices <- list()
+  imputeMatrices <- list()
+  imputeWeights <- getImputeWeights(ArchRProj = ArchRProj)
+  df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+  
+  if(!file.exists(file.path(outputDir, subOutputDir, "matrices.rds")) && !file.exists(file.path(outputDir, subOutputDir, "imputeMatrices.rds"))){
+    for(matName in allMatrices){
+      matFeaturesNames <- paste0(matName, "_names")
+      result = assign(matFeaturesNames, getFeatures(ArchRProj = ArchRProj, useMatrix = matName))
+      saveRDS(result, file.path(outputDir, subOutputDir, matName, "_names.rds"))
+    
+      if(!is.null(result)){
+        
+         mat = Matrix(.getMatrixValues(
+          ArchRProj = ArchRProj, 
+          name = result,
+          matrixName = mat,
+          log2Norm = FALSE,
+          threads = threads), sparse = TRUE)
+        
+        matrices[[matName]] = mat
+        matList = mat[,rownames(df), drop=FALSE]
+        .logThis(matList, paste0(matName,"-Before-Impute"), logFile = logFile)
+
+        if(getArchRVerbose()) message("Imputing Matrix")
+        imputeMat <- imputeMatrix(mat = as.matrix(matList), imputeWeights = imputeWeights, logFile = logFile)
+
+        if(!inherits(imputeMat, "matrix")){
+          imputeMat <- mat(imputeMat, ncol = nrow(df))
+          colnames(imputeMat) <- rownames(df)
+        }
+        imputeMatrices[[matName]] <- imputeMat
+        
+        
+      }else{
+        message(matName, " is NULL.")
+      }
+    }
+    matrices$allColorBy= .availableArrays(head(getArrowFiles(ArchRProj), 2))
+    saveRDS(matrices, file.path(outputDir, subOutputDir, "matrices.rds"))
+    saveRDS(imputeMatrices, file.path(outputDir, subOutputDir, "imputeMatrices.rds"))
   }else{
-    message("gene_names already exists...")
-    gene_names <- readRDS(file.path(mainDir, outputDir, subOutputDir, "features.rds"))
+    
+    message("matrices and imputeMatrices already exist. reading from local files...")
+    
+    matrices <- readRDS(file.path(mainDir, outputDir, subOutputDir, "matrices.rds"))
+    imputeMatrices <- readRDS(file.path(mainDir, outputDir, subOutputDir, "imputeMatrices.rds"))
+  }
+  
+  if(is.null(groupBy)){
+    stop("groupBy must be provided")
+  } else if(groupBy %ni% colnames(getCellColData(ArchRProj))){
+    stop("groupBy must be a column in cellColData")
+  }else{
+    print(paste0("groupBy:", groupBy))
   }
 
+  # Check that the embedding exists in ArchRProj@embeddings
+  if(embedding %ni% names(ArchRProj@embeddings)){
+    stop("embedding doesn't exist in ArchRProj@embeddings")
+  }else{
+    print(paste0("embedding:", embedding))
+  }
+  
 # mainEmbed will create an HDF5 containing the nativeRaster vectors for the main matrices
 if (!file.exists(file.path(mainDir, outputDir, subOutputDir, "mainEmbeds.h5"))) {
-  if(groupBy %in% colnames(ArchRProjShiny@cellColData)){
   mainEmbed(ArchRProj = ArchRProj,
             outDirEmbed = file.path(mainDir, outputDir, subOutputDir),
             colorBy = "cellColData",
             names = groupBy,
+            embeddingDF = df,
             matrices =  matrices,
-            imputeMatricesList = imputeMatricesList,
+            imputeMatrices = imputeMatrices,
             Shiny = TRUE
           )          
-  }else{
-    message(groupBy, "is not defined in ArchRProj...")
-  }
 } else{
   message("H5 for main embeddings already exists...")
 }
@@ -200,10 +194,10 @@ if(!file.exists(file.path(outputDir, subOutputDir, "plotBlank72.h5"))){
   
   matrixEmbeds(
     ArchRProj = ArchRProj,
-    outputDirEmbeds = paste0(outputDir,"/", subOutputDir),
+    outputDirEmbed = file.path(mainDir, outputDir, subOutputDir),
     embedding = embedding,
     matrices = matrices,
-    imputeMatricesList = imputeMatricesList,
+    imputeMatrices = imputeMatrices,
     threads = getArchRThreads(),
     verbose = TRUE,
     logFile = createLogFile("matrixEmbeds")
