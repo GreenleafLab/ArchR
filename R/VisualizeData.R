@@ -202,7 +202,7 @@ plotEmbedding <- function(
       }
       colorParams
     }) 
-  }else{
+  }else{# plotting embedding for matrix instead of col in cellcoldata
     suppressMessages(message(logFile))
     
     if(!Shiny){
@@ -232,7 +232,7 @@ plotEmbedding <- function(
       threads = threads,
       logFile = logFile
     )
-    }else{ #plotting embedding for matrix instead of col in cellcoldata
+    }else{ 
       #get values from pre-saved list
       colorMat = tryCatch({
       t(as.matrix(matrices[[colorBy]][name,]))
@@ -263,7 +263,7 @@ plotEmbedding <- function(
         if(!Shiny){
           colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights, logFile = logFile)
         }else{
-          colorMat <- imputeMatricesList[[colorBy]][name,]
+          colorMat <- imputeMatrices[[colorBy]][name,]
         }
         if(!inherits(colorMat, "matrix")){
           colorMat <- matrix(colorMat, ncol = nrow(df))

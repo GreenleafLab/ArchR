@@ -5,15 +5,12 @@
 #' 
 #' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
 #' @param outDirEmbed Where the HDF5 and the jpgs will be saved.
-#' @param colorBy A string indicating whether points in the plot should be colored by a column in `cellColData` ("cellColData") or by
-#' a data matrix in the corresponding ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").
+#' @param colorBy `cellColData` ("cellColData") only.
 #' @param names A list of the names of the columns in `cellColData` or the featureName/rowname of the data matrix to be used for plotting. 
 #' For example if colorBy is "cellColData" then `names` refers to a column names in the `cellcoldata` (see `getCellcoldata()`). If `colorBy`
 #' is "GeneScoreMatrix" then `name` refers to a gene name which can be listed by `getFeatures(ArchRProj, useMatrix = "GeneScoreMatrix")`.
 #' @param embedding The embedding to use. Default is "UMAP".
-#' @param Shiny A boolean value that tells the function is calling for Shiny or not.
-#' @param matrices A list that contains color matrices for features.
-#' @param imputeMatricesList A list that contains color matrices for genes after imputation.   
+#' @param Shiny A boolean value that tells the function is calling for Shiny or not. 
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
@@ -24,8 +21,6 @@ mainEmbed <- function(
   names = NULL,
   embedding = "UMAP",
   Shiny = FALSE,
-  matrices = matrices,
-  imputeMatricesList = imputeMatricesList,
   threads = getArchRThreads(),
   logFile = createLogFile("mainEmbeds")
 ){
@@ -36,8 +31,6 @@ mainEmbed <- function(
   .validInput(input = names, name = "names", valid = c("character"))
   .validInput(input = embedding, name = "embedding", valid = c("character"))
   .validInput(input = Shiny, name = "Shiny", valid = c("boolean"))
-  .validInput(input = matrices, name = "matrices", valid = c("list"))
-  .validInput(input = imputeMatricesList, name = "imputeMatricesList", valid = c("list"))
   .validInput(input = threads, name = "threads", valid = c("numeric"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
@@ -68,8 +61,6 @@ mainEmbed <- function(
            rastr = FALSE,
            size = 0.5,
            imputeWeights = NULL,
-           matrices = matrices,
-           imputeMatrices = imputeMatrices,
            Shiny = TRUE
          )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
                                                       legend.title = element_text(size = 12),legend.text = element_text(size = 6))
@@ -109,7 +100,7 @@ mainEmbed <- function(
         title=element_blank()
       )
     
-    #save plot without axes etc as a jpg.
+    #save plot without axes etc as a jpg
     ggsave(filename = file.path(outDirEmbed, paste0(names(embeds)[i],"_blank72.jpg")),
            plot = embed_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
     

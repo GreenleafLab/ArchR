@@ -175,7 +175,7 @@ exportShinyArchR <- function(
     print(paste0("embedding:", embedding))
   }
   
-# mainEmbed will create an HDF5 containing the nativeRaster vectors for the main matrices
+# mainEmbed will create an HDF5 containing the nativeRaster vectors for cellColData
 if (!file.exists(file.path(mainDir, outputDir, subOutputDir, "mainEmbeds.h5"))) {
   mainEmbed(ArchRProj = ArchRProj,
             outDirEmbed = file.path(mainDir, outputDir, subOutputDir),
