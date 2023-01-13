@@ -5,6 +5,8 @@
 #' This function will be called by exportShinyArchR()
 #' 
 #' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
+#' @param colorBy A string indicating whether points in the plot should be colored by a column in `cellColData` ("cellColData") or by
+#' a data matrix in the corresponding ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix").
 #' @param outputDirEmbeds Where the HDF5 and the jpgs will be saved.  
 #' @param threads The number of threads to use for parallel execution.
 #' @param verbose A boolean value that determines whether standard output should be printed.
@@ -63,7 +65,8 @@ matrixEmbeds <- function(
                 imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
                 plotAs = "points",
                 matrices = matrices,
-                imputeMatricesList = imputeMatricesList,
+                embeddingDF = df,
+                imputeMatrices = imputeMatrices,
                 rastr = TRUE
               )
           }else{
