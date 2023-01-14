@@ -15,6 +15,7 @@
 matrixEmbeds <- function(
   ArchRProj = NULL,
   outputDirEmbeds = NULL,
+  colorBy = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
   embedding = "UMAP",
   matrices = NULL,
   imputeMatricesList = NULL,
@@ -30,24 +31,24 @@ matrixEmbeds <- function(
   
   
   if (file.exists(file.path(outputDirEmbeds, "plotBlank72.h5"))){
-    
     file.remove(file.path(outputDirEmbeds, "plotBlank72.h5"))
-    
   }
   
   embeds_min_max_list = list()
   embeds_pal_list = list()
   
   shinyMatrices <- getAvailableMatrices(ArchRProj)
-  
-  for(matrix in shinyMatrices){
-    
+
+  for(matrix in colorBy){
+      if(matrix %ni% shinyMatrices){
+        stop(matrix,"not in ArchRProj")
+      }
       matrixName = paste0(matrix,"_names")
     
       if(file.exists(paste0(outputDirEmbeds, "/", matrixName, ".rds"))){
         
-        geneMatrixNames <- readRDS(paste0(outputDirEmbeds, "/", matrixName, ".rds"))
-        
+        geneMatrixNames <- readRDS(file.path(outputDir, subOutputDir, matName, "_names.rds"))
+     
         if(!is.null(geneMatrixNames)){
           
         embeds_points <- .safelapply(1:length(geneMatrixNames), function(x){ 

@@ -36,8 +36,6 @@ mainEmbed <- function(
 
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportShinyArchR Input-Parameters", logFile = logFile)
-
-# Check if colorBy is cellColData or Matrix (e.g. GSM, GIM, or MM)
   
   if(!file.exists(file.path(outDirEmbed, "embeds.rds"))){  
     

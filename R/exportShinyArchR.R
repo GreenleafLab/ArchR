@@ -195,6 +195,7 @@ if(!file.exists(file.path(outputDir, subOutputDir, "plotBlank72.h5"))){
   matrixEmbeds(
     ArchRProj = ArchRProj,
     outputDirEmbed = file.path(mainDir, outputDir, subOutputDir),
+    colorBy = "GeneScoreMatrix",
     embedding = embedding,
     matrices = matrices,
     imputeMatrices = imputeMatrices,
