@@ -15,6 +15,10 @@
 #' This `GRanges` object start represents the center position of one loop anchor and the end represents the center position of another loop anchor. 
 #' A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used 
 #' to display chromosome conformation capture data or co-accessibility links obtained using `getCoAccessibility()`. 
+#' @param sampleLabels The name of a column in `cellColData` to use to identify samples. In most cases, this parameter should be left as `NULL` and you
+#' should only use this parameter if you do not want to use the default sample labels stored in `cellColData$Sample`. However, if your individual Arrow
+#' files do not map to individual samples, then you should set this parameter to accurately identify your samples. This is the case in (for example)
+#' multiplexing applications where cells from different biological samples are mixed into the same reaction and demultiplexed based on a lipid barcode or genotype.
 #' @param minCells The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument
 #' can be used to exclude pseudo-bulk replicates generated from low numbers of cells.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
@@ -40,6 +44,7 @@ ArchRBrowser <- function(
   ArchRProj = NULL,
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
+  sampleLabels = "Sample",
   minCells = 25,
   baseSize = 10,
   borderWidth = 0.5,
@@ -55,6 +60,7 @@ ArchRBrowser <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
   .validInput(input = loops, name = "loops", valid = c("granges", "grangeslist", "null"))
+  .validInput(input = sampleLabels, name = "sampleLabels", valid = c("character"))
   .validInput(input = minCells, name = "minCells", valid = c("integer"))
   .validInput(input = baseSize, name = "baseSize", valid = c("integer"))
   .validInput(input = borderWidth, name = "borderWidth", valid = c("numeric"))
@@ -71,6 +77,10 @@ ArchRBrowser <- function(
 
   .requirePackage("shiny", installInfo = 'install.packages("shiny")')
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
+
+  if(sampleLabels %ni% colnames(ArchRProj@cellColData)) {
+    stop("sampleLabels not present as a column in cellColData. Check inputs.")
+  }
 
   #Determine Grouping Methods
   ccd <- getCellColData(ArchRProj)
@@ -386,6 +396,7 @@ ArchRBrowser <- function(
                 tileSize = tileSize, 
                 useGroups = useGroups,
                 groupBy = groupBy,
+                sampleLabels = sampleLabels,
                 threads = threads, 
                 minCells = minCells,
                 ylim = ylim,
@@ -528,6 +539,7 @@ ArchRBrowser <- function(
                 tileSize = tileSize, 
                 useGroups = useGroups,
                 groupBy = groupBy,
+                sampleLabels = sampleLabels,
                 threads = threads, 
                 minCells = minCells,
                 ylim = ylim,
@@ -657,6 +669,10 @@ ArchRBrowserTrack <- function(...){
 #' column will be grouped together and the average signal will be plotted.
 #' @param useGroups A character vector that is used to select a subset of groups by name from the designated `groupBy` column in
 #' `cellColData`. This limits the groups to be plotted.
+#' @param sampleLabels The name of a column in `cellColData` to use to identify samples. In most cases, this parameter should be left as `NULL` and you
+#' should only use this parameter if you do not want to use the default sample labels stored in `cellColData$Sample`. However, if your individual Arrow
+#' files do not map to individual samples, then you should set this parameter to accurately identify your samples. This is the case in (for example)
+#' multiplexing applications where cells from different biological samples are mixed into the same reaction and demultiplexed based on a lipid barcode or genotype.
 #' @param plotSummary A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
 #' "scTrack" (scATAC-seq signal), "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown. 
 #' Blue-colored genes are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).
@@ -722,7 +738,8 @@ plotBrowserTrack <- function(
   ArchRProj = NULL, 
   region = NULL, 
   groupBy = "Clusters",
-  useGroups = NULL, 
+  useGroups = NULL,
+  sampleLabels = "Sample",
   plotSummary = c("bulkTrack", "featureTrack", "loopTrack", "geneTrack"),
   sizes = c(10, 1.5, 3, 4),
   features = getPeakSet(ArchRProj),
@@ -757,6 +774,7 @@ plotBrowserTrack <- function(
   .validInput(input = region, name = "region", valid = c("granges","null"))
   .validInput(input = groupBy, name = "groupBy", valid = "character")
   .validInput(input = useGroups, name = "useGroups", valid = c("character", "null"))
+  .validInput(input = sampleLabels, name = "sampleLabels", valid = c("character"))
   .validInput(input = plotSummary, name = "plotSummary", valid = "character")
   .validInput(input = sizes, name = "sizes", valid = "numeric")
   .validInput(input = features, name = "features", valid = c("granges", "grangeslist", "null"))
@@ -787,6 +805,10 @@ plotBrowserTrack <- function(
   tstart <- Sys.time()
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotBrowserTrack Input-Parameters", logFile = logFile)
+
+  if(sampleLabels %ni% colnames(ArchRProj@cellColData)) {
+    stop("sampleLabels not present as a column in cellColData. Check inputs.")
+  }
 
   ##########################################################
   # Get Region Where Plot Will Occur (GenomicRanges)
@@ -837,6 +859,7 @@ plotBrowserTrack <- function(
         region = region[x], 
         tileSize = tileSize, 
         groupBy = groupBy,
+        sampleLabels = sampleLabels,
         threads = threads,
         maxCells = maxCells,
         minCells = minCells,
@@ -866,6 +889,7 @@ plotBrowserTrack <- function(
         region = region[x], 
         tileSize = tileSize, 
         groupBy = groupBy,
+        sampleLabels = sampleLabels,
         threads = threads, 
         minCells = 5,
         maxCells = scCellsMax,
@@ -1015,6 +1039,7 @@ plotBrowserTrack <- function(
   maxCells = 500,
   minCells = 25,
   groupBy = "Clusters",
+  sampleLabels = "Sample",
   useGroups = NULL,
   normMethod = "ReadsInTSS",
   threads = 1, 
@@ -1044,6 +1069,7 @@ plotBrowserTrack <- function(
     groupBy = groupBy, 
     normMethod = normMethod,
     useGroups = useGroups,
+    sampleLabels = sampleLabels,
     maxCells = maxCells,
     minCells = minCells,
     region = region, 
@@ -1134,6 +1160,7 @@ plotBrowserTrack <- function(
   ArchRProj = NULL,
   useGroups = NULL,
   groupBy = NULL,
+  sampleLabels = "Sample",
   region = NULL,
   tileSize = NULL,
   normMethod = NULL,
@@ -1171,8 +1198,8 @@ plotBrowserTrack <- function(
     tabGroups <- table(cellGroups)
   }
 
-  cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, "Sample", drop = TRUE))
-  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
+  cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, sampleLabels, drop = TRUE))
+  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, sampleLabels, drop = TRUE))
   uniqueGroups <- gtools::mixedsort(unique(cellGroups))
   
   #Tile Region
@@ -1797,6 +1824,7 @@ plotBrowserTrack <- function(
   minCells = 5,
   maxCells = 100,
   groupBy = "Clusters",
+  sampleLabels = sampleLabels,
   useGroups = NULL,
   threads = 1,
   baseSize = 7,
@@ -1847,8 +1875,8 @@ plotBrowserTrack <- function(
     tabGroups <- table(cellGroups)
   }
 
-  cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, "Sample", drop = TRUE))
-  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
+  cellsBySample <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj, sampleLabels, drop = TRUE))
+  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, sampleLabels, drop = TRUE))
   uniqueGroups <- gtools::mixedsort(unique(cellGroups))
   
   #Tile Region
