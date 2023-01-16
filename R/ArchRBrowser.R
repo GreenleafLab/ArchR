@@ -649,8 +649,6 @@ ArchRBrowserTrack <- function(...){
 #' (i.e. the `BSgenome` object you used) so they may not match other online genome browsers that use different gene annotations.
 #'
 #' @param ArchRProj An `ArchRProject` object.
-#' @param ShinyArchR A boolean value indicating whether to use coverage RLEs or Arrow Files for browser track plotting. 
-#'                      This parameter is not meant to be controlled by the end user and is only meant to be used as part of an exported ShinyArchR app.
 #' @param region A `GRanges` region that indicates the region to be plotted. If more than one region exists in the `GRanges` object,
 #' all will be plotted. If no region is supplied, then the `geneSymbol` argument can be used to center the plot window at the
 #' transcription start site of the supplied gene.
@@ -700,6 +698,8 @@ ArchRBrowserTrack <- function(...){
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
+#' @param ShinyArchR A boolean value indicating whether to use coverage RLEs or Arrow Files for browser track plotting. 
+#' This parameter is not meant to be controlled by the end user and is only meant to be used as part of an exported ShinyArchR app.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -722,7 +722,6 @@ ArchRBrowserTrack <- function(...){
 #' @export
 plotBrowserTrack <- function(
   ArchRProj = NULL, 
-  ShinyArchR = FALSE,
   region = NULL, 
   groupBy = "Clusters",
   useGroups = NULL, 
@@ -751,6 +750,7 @@ plotBrowserTrack <- function(
   tickWidth = 0.4,
   facetbaseSize = 7,
   geneAnnotation = getGeneAnnotation(ArchRProj),
+  ShinyArchR = FALSE,
   title = "",
   verbose = TRUE,
   logFile = createLogFile("plotBrowserTrack")
@@ -1063,6 +1063,7 @@ plotBrowserTrack <- function(
     groupBy = groupBy, 
     normMethod = normMethod,
     useGroups = useGroups,
+    sampleLabels = sampleLabels,
     minCells = minCells,
     region = region, 
     tileSize = tileSize, 
@@ -1356,6 +1357,7 @@ plotBrowserTrack <- function(
   ArchRProj = NULL,
   useGroups = NULL,
   groupBy = NULL,
+  sampleLabels = "Sample",
   region = NULL,
   tileSize = NULL,
   normMethod = NULL,
@@ -1370,7 +1372,7 @@ plotBrowserTrack <- function(
   cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
   tabGroups <- table(cellGroups)
   
-  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, "Sample", drop = TRUE))
+  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, sampleLabels, drop = TRUE))
   uniqueGroups <- gtools::mixedsort(unique(cellGroups)) 
   
   # Tile Region
@@ -1381,8 +1383,10 @@ plotBrowserTrack <- function(
     ranges = IRanges(start = regionTiles, width=100)
   )
   
-  dir.create("coverage")
-  cvgObjs = list.files(path = "./coverage", pattern = "*_cvg.rds", full.names = TRUE)
+  cvgObjs = list.files(path = file.path(getOutputDirectory(ArchRProj),"ShinyCoverage",groupBy), pattern = "*_cvg.rds", full.names = TRUE)
+  if(length(cvgObjs == 0)) {
+    stop(paste0("No coverage files detected. You may not have created them via exportShinyArchR(). Please ensure that *_cvg.rds files exist within ", file.path(getOutputDirectory(ArchRProj),"ShinyCoverage",groupBy)))
+  }
   allCvgGR = c()
   for(i in seq_along(cvgObjs)) {
     cvgrds <- readRDS(cvgObjs[[i]]) 
