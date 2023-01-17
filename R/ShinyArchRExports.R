@@ -2,7 +2,7 @@
 #'
 #' Export a Shiny App based on ArchRProj
 #' 
-#' Generate all files required for an autonomous Shiny app to display browser tracks and embeds.
+#' Generate all files required for an autonomous Shiny app to display browser tracks and embeddings.
 #'
 #' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
 #' @param outputDir The name of the directory for the Shiny App files. 
@@ -194,16 +194,17 @@ exportShinyArchR <- function(
     print(paste0("embedding:", embedding))
   }
   
-# mainEmbed will create an HDF5 containing the nativeRaster vectors for cellColData
+# mainEmbeds will create an HDF5 containing the nativeRaster vectors for cellColData
 if (!file.exists(file.path(mainDir, outputDir, subOutputDir, "mainEmbeds.h5"))) {
-  mainEmbed(ArchRProj = ArchRProj,
+  .mainEmbeds(ArchRProj = ArchRProj,
             outDirEmbed = file.path(mainDir, outputDir, subOutputDir),
             colorBy = "cellColData",
             names = groupBy,
             embeddingDF = df,
             matrices =  matrices,
             imputeMatrices = imputeMatrices,
-            Shiny = TRUE
+            Shiny = TRUE,
+            logFile = createLogFile("mainEmbeds")
           )          
 } else{
   message("H5 for main embeddings already exists...")
@@ -211,7 +212,7 @@ if (!file.exists(file.path(mainDir, outputDir, subOutputDir, "mainEmbeds.h5"))) 
 
 if(!file.exists(file.path(outputDir, subOutputDir, "plotBlank72.h5"))){
   
-  matrixEmbeds(
+  .matrixEmbeds(
     ArchRProj = ArchRProj,
     outputDirEmbed = file.path(mainDir, outputDir, subOutputDir),
     colorBy = "GeneScoreMatrix",
@@ -254,7 +255,7 @@ message("App created! To launch,
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #'
-.mainEmbed <- function(
+.mainEmbeds <- function(
   ArchRProj = NULL,
   outDirEmbed = NULL,
   colorBy = "cellColData", 
