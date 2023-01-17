@@ -20,7 +20,7 @@ getTutorialData <- function(
   ){
   
   #Validate
-  .validInput(input = tutorial, name = "tutorial", valid = "character")
+  .validInput(input = tutorial, name = "tutorial", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   #########
   
