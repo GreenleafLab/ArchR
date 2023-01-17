@@ -600,16 +600,14 @@ getGroupFragments <- function(
   groupIDs <- names(cellGroups)
   
   
-   .safelapply(seq_along(groupIDs), function(x)){
+  .safelapply(seq_along(groupIDs), function(x)){
     cat("Making fragment file for cluster:", groupIDs[x], "\n")
     # get GRanges with all fragments for that cluster
-    cellNames = cellGroups[[groupIDs[x]]]
-    fragments <-
-      getFragmentsFromProject(ArchRProj = ArchRProj, cellNames = cellNames)
+    cellNames <- cellGroups[[groupIDs[x]]]
+    fragments <- getFragmentsFromProject(ArchRProj = ArchRProj, cellNames = cellNames)
     fragments <- unlist(fragments, use.names = FALSE)
     # filter Fragments
-    fragments <-
-      GenomeInfoDb::keepStandardChromosomes(fragments, pruning.mode = "coarse")
+    fragments <- GenomeInfoDb::keepStandardChromosomes(fragments, pruning.mode = "coarse")
     saveRDS(fragments, file.path(outDir, paste0(groupIDs[x], "_frags.rds")))
   }
 }
