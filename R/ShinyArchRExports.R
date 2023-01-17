@@ -1,13 +1,16 @@
-# Functions for exporting a ArchR-based Shiny app -----------------------------------------------------------
+# Functions for exporting an ArchR-based Shiny app -----------------------------------------------------------
 #'
-#' Export a Shiny App based on ArchRProj
+#' Export a Shiny App based on an ArchRProj
 #' 
 #' Generate all files required for an autonomous Shiny app to display browser tracks and embeddings.
 #'
-#' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
-#' @param outputDir The name of the directory for the Shiny App files. 
-#' @param groupBy The name of the column in cellColData to use for grouping cells together for generating sequencing tracks. Only one cell grouping is allowed.
-#'        defaults to "Clusters".
+#' @param ArchRProj An `ArchRProject` object.
+#' @param outputDir The name (not the path!) of the directory for the Shiny App files. This will become a sub-directory of the ArchRProj output directory
+#' given by `getOutputDirectory(ArchRProj)`.
+#' @param groupBy The name of the column in `cellColData` to use for grouping cells together for generating BigWig-style sequencing tracks. 
+#' Only one cell grouping is allowed.
+#' @param cellColEmbeddings A character vector of columns in `cellColData` to plot as part of the Shiny app. No default is provided so this must be set.
+#' For ex. `c("Sample","Clusters","TSSEnrichment","nFrags")`.
 #' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.
 #' @param force A boolean value that indicates whether to overwrite any relevant files during the `exportShinyArchR()` process.
 #' @param threads The number of threads to use for parallel execution.
@@ -16,8 +19,8 @@
 exportShinyArchR <- function(
   ArchRProj = NULL,
   outputDir = "Shiny",
-  subOutputDir = "inputData",
   groupBy = "Clusters",
+  cellColEmbeddings = NULL,
   embedding = "UMAP",
   tileSize = 100,
   force = FALSE,
@@ -29,6 +32,7 @@ exportShinyArchR <- function(
   .validInput(input = outputDir, name = "outputDir", valid = c("character"))
   .validInput(input = outputDir, name = "subOutputDir", valid = c("character"))
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
+  .validInput(input = cellColEmbeddings, name = "groupBy", valid = c("character", "null"))
   .validInput(input = embedding, name = "embedding", valid = c("character"))
   .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
@@ -41,6 +45,31 @@ exportShinyArchR <- function(
   .requirePackage("shiny", installInfo = 'install.packages("shiny")')
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
   
+  if(length(groupBy) > 1){
+    stop("Only one value is allowed for groupBy".)
+  }
+  
+  if(is.null(cellColEmbeddings)){
+    stop("The cellColEmbeddings parameter must be defined! Please see function input definitions.")
+  } else if(!all(cellColEmbeddings %in% colnames(ArchRProj@cellColData)){
+    stop("Not all entries in cellColEmbeddings exist in the cellColData of your ArchRProj. Please check provided inputs.")
+  }
+  
+  # Check that the embedding exists in ArchRProj@embeddings
+  if(embedding %ni% names(ArchRProj@embeddings)){
+    stop("embedding doesn't exist in ArchRProj@embeddings")
+  }else{
+    print(paste0("embedding:", embedding))
+  }
+  
+  #check that groupBy column exists and doesnt have NA values
+  if (groupBy %ni% colnames(ArchRProjShiny@cellColData)) {
+    stop("groupBy is not part of cellColData")
+  } else if ((any(is.na(paste0("ArchRProj$", groupBy))))) {
+    stop("Some entries in the column indicated by groupBy have NA values. Please subset your project using subsetArchRProject() to only contain cells with values for groupBy")
+  }
+  
+  subOutputDir <- "inputData" #hardcoded
   mainDir <- getOutputDirectory(ArchRProj)
   # Make directory for Shiny App 
   if(!dir.exists(outputDir)) {
@@ -73,49 +102,45 @@ exportShinyArchR <- function(
   ArchRProjShiny <- ArchRProj
 
   # Add metadata to ArchRProjShiny
-  if (groupBy %ni% colnames(ArchRProjShiny@cellColData)) {
-    stop("groupBy is not part of cellColData")
-  } else if ((any(is.na(paste0("ArchRProj$", groupBy))))) {
-    stop("Some entries in the column indicated by groupBy have NA values. Please subset your project using subsetArchRProject() to only contain cells with values for groupBy")
-  } else {
-    ArchRProjShiny@projectMetadata[["groupBy"]] <- groupBy
-  }
+  ArchRProjShiny@projectMetadata[["groupBy"]] <- groupBy
   ArchRProjShiny@projectMetadata[["tileSize"]] <- tileSize
-  units <- tryCatch({
-    .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
-  },error=function(e){
-    "values"
-  })
-  ArchRProjShiny@projectMetadata[["units"]] <- units
-  ArchrProjShiny <- saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = 
-  file.path(mainDir, outputDir, "Save-ArchRProjShiny"), dropCells = TRUE, overwrite = TRUE)
+  #units <- tryCatch({
+  #  .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
+  #},error=function(e){
+  #  "values"
+  #})
+  #ArchRProjShiny@projectMetadata[["units"]] <- units
+  ArchRProjShiny <- saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = 
+  file.path(mainDir, outputDir, "Save-ArchRProjShiny"), dropCells = TRUE, overwrite = TRUE, load = TRUE)
   
-  # Create fragment files
-  fragDir <- file.path(mainDir, "ShinyFragments", groupBy)
+  projDir <- getOutputDirectory(ArchRProj = ArchRProjShiny)
+  
+  # Create fragment files - should be saved within a dir called ShinyFragments within the ArchRProjShiny output directory
+  fragDir <- file.path(projDir, "ShinyFragments", groupBy)
   fragFiles <- list.files(path = file.path(fragDir, pattern = "\\_frags.rds$")
   #this is still a slightly dangerous comparison, better would be to compare for explicitly the file names that are expected
   if(length(fragFiles) == length(unique(ArchRProjShiny@cellColData[,groupBy]))){
     if(force){
-      .getGroupFragsFromProj(ArchRProj = ArchRProj, groupBy = groupBy, outDir = fragDir)
+      .getGroupFragsFromProj(ArchRProj = ArchRProjShiny, groupBy = groupBy, outDir = fragDir)
     } else{
       message("Fragment files already exist. Skipping fragment file generation...")
     }    
   }else 
-    .getGroupFragsFromProj(ArchRProj = ArchRProj, groupBy = groupBy, outDir = fragDir)
+    .getGroupFragsFromProj(ArchRProj = ArchRProjShiny, groupBy = groupBy, outDir = fragDir)
   }
   
-  # Create coverage objects
-  covDir <- file.path(mainDir, "ShinyCoverage", groupBy)
+  # Create coverage objects - should be saved within a dir called ShinyCoverage within the ArchRProjShiny output directory
+  covDir <- file.path(projDir, "ShinyCoverage", groupBy)
   covFiles <- list.files(path = covDir, pattern = "\\_cvg.rds$")
   #this is still a slightly dangerous comparison, better would be to compare for explicitly the file names that are expected
   if(length(covFiles) == length(unique(ArchRProjShiny@cellColData[,groupBy]))){
     if(force){
-      .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, outDir = covDir)
+      .getClusterCoverage(ArchRProj = ArchRProjShiny, tileSize = tileSize, groupBy = groupBy, outDir = covDir)
     } else{
       message("Coverage files already exist. Skipping fragment file generation...")
     }
   }else{
-    .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, outDir = covDir)
+    .getClusterCoverage(ArchRProj = ArchRProjShiny, tileSize = tileSize, groupBy = groupBy, outDir = covDir)
   }
 
   # Create directory to save input data to Shinyapps.io (everything that will be preprocessed)
@@ -129,22 +154,22 @@ exportShinyArchR <- function(
   #   gene_names <- readRDS(file.path(mainDir, outputDir, subOutputDir, "features.rds"))
   # }
 
-  allMatrices <- getAvailableMatrices(ArchRProj)
+  allMatrices <- getAvailableMatrices(ArchRProjShiny)
   matrices <- list()
   imputeMatrices <- list()
-  imputeWeights <- getImputeWeights(ArchRProj = ArchRProj)
-  df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+  imputeWeights <- getImputeWeights(ArchRProj = ArchRProjShiny)
+  df <- getEmbedding(ArchRProjShiny, embedding = embedding, returnDF = TRUE)
   
   if(!file.exists(file.path(outputDir, subOutputDir, "matrices.rds")) && !file.exists(file.path(outputDir, subOutputDir, "imputeMatrices.rds"))){
     for(matName in allMatrices){
       matFeaturesNames <- paste0(matName, "_names")
-      result = assign(matFeaturesNames, getFeatures(ArchRProj = ArchRProj, useMatrix = matName))
+      result = assign(matFeaturesNames, getFeatures(ArchRProj = ArchRProjShiny, useMatrix = matName))
       saveRDS(result, file.path(outputDir, subOutputDir, matName, "_names.rds"))
     
       if(!is.null(result)){
         
          mat = Matrix(.getMatrixValues(
-          ArchRProj = ArchRProj, 
+          ArchRProj = ArchRProjShiny, 
           name = result,
           matrixName = mat,
           log2Norm = FALSE,
@@ -168,7 +193,7 @@ exportShinyArchR <- function(
         message(matName, " is NULL.")
       }
     }
-    matrices$allColorBy= .availableArrays(head(getArrowFiles(ArchRProj), 2))
+    matrices$allColorBy= .availableArrays(head(getArrowFiles(ArchRProjShiny), 2))
     saveRDS(matrices, file.path(outputDir, subOutputDir, "matrices.rds"))
     saveRDS(imputeMatrices, file.path(outputDir, subOutputDir, "imputeMatrices.rds"))
   }else{
@@ -178,70 +203,57 @@ exportShinyArchR <- function(
     matrices <- readRDS(file.path(mainDir, outputDir, subOutputDir, "matrices.rds"))
     imputeMatrices <- readRDS(file.path(mainDir, outputDir, subOutputDir, "imputeMatrices.rds"))
   }
-  
-  if(is.null(groupBy)){
-    stop("groupBy must be provided")
-  } else if(groupBy %ni% colnames(getCellColData(ArchRProj))){
-    stop("groupBy must be a column in cellColData")
-  }else{
-    print(paste0("groupBy:", groupBy))
+   
+  # mainEmbeds will create an HDF5 file containing the nativeRaster vectors for data stored in cellColData
+  if (!file.exists(file.path(mainDir, outputDir, subOutputDir, "mainEmbeds.h5"))) {
+    .mainEmbeds(ArchRProj = ArchRProjShiny,
+              outDirEmbed = file.path(mainDir, outputDir, subOutputDir),
+              colorBy = "cellColData",
+              names = cellColEmbeddings,
+              embeddingDF = df,
+              matrices =  matrices,
+              imputeMatrices = imputeMatrices,
+              Shiny = TRUE,
+              logFile = createLogFile("mainEmbeds")
+            )          
+  } else{
+    message("H5 for main embeddings already exists...")
   }
 
-  # Check that the embedding exists in ArchRProj@embeddings
-  if(embedding %ni% names(ArchRProj@embeddings)){
-    stop("embedding doesn't exist in ArchRProj@embeddings")
+  # matrixEmbeds will create an HDF5 file containing
+  supportedMatrices <- c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix") #only these matrices are currently supported for ShinyArchR
+  if(!file.exists(file.path(outputDir, subOutputDir, "plotBlank72.h5"))){
+
+    .matrixEmbeds(
+      ArchRProj = ArchRProj,
+      outputDirEmbed = file.path(mainDir, outputDir, subOutputDir),
+      colorBy = intersect(supportedMatrices, allMatrices),
+      embedding = embedding,
+      matrices = matrices,
+      imputeMatrices = imputeMatrices,
+      threads = getArchRThreads(),
+      verbose = TRUE,
+      logFile = createLogFile("matrixEmbeds")
+    )
+
   }else{
-    print(paste0("embedding:", embedding))
-  }
-  
-# mainEmbeds will create an HDF5 containing the nativeRaster vectors for cellColData
-if (!file.exists(file.path(mainDir, outputDir, subOutputDir, "mainEmbeds.h5"))) {
-  .mainEmbeds(ArchRProj = ArchRProj,
-            outDirEmbed = file.path(mainDir, outputDir, subOutputDir),
-            colorBy = "cellColData",
-            names = groupBy,
-            embeddingDF = df,
-            matrices =  matrices,
-            imputeMatrices = imputeMatrices,
-            Shiny = TRUE,
-            logFile = createLogFile("mainEmbeds")
-          )          
-} else{
-  message("H5 for main embeddings already exists...")
-}
 
-if(!file.exists(file.path(outputDir, subOutputDir, "plotBlank72.h5"))){
-  
-  .matrixEmbeds(
-    ArchRProj = ArchRProj,
-    outputDirEmbed = file.path(mainDir, outputDir, subOutputDir),
-    colorBy = "GeneScoreMatrix",
-    embedding = embedding,
-    matrices = matrices,
-    imputeMatrices = imputeMatrices,
-    threads = getArchRThreads(),
-    verbose = TRUE,
-    logFile = createLogFile("matrixEmbeds")
-  )
-  
-}else{
-  
-  message("H5 file already exists...")
-  
-}  
-## delete unnecessary files -----------------------------------------------------------------
-unlink("./fragments", recursive = TRUE) 
-unlink("./ArchRLogs", recursive = TRUE) 
+    message("H5 file already exists...")
 
-## ready to launch ---------------------------------------------------------------
-message("App created! To launch, 
-          ArchRProj <- loadArchRProject('", mainDir,"') and 
-          run shiny::runApp('", outputDir, "') from parent directory")
-#  runApp("myappdir")
+  }  
+  ## delete unnecessary files -----------------------------------------------------------------
+  unlink(file.path(projDir, "ShinyFragments"), recursive = TRUE) 
+  #unlink("./ArchRLogs", recursive = TRUE) #this seems like a bad idea. ArchRLogs arent specific to an individual project so this would wipe all logs
+
+  ## ready to launch ---------------------------------------------------------------
+  message("App created! To launch, 
+            ArchRProj <- loadArchRProject('", projDir,"') and 
+            run shiny::runApp('", outputDir, "') from parent directory")
+  #  runApp("myappdir")
 
 }
 
-#' Create an HDF5, mainEmbeds.h5, containing the nativeRaster vectors for the 5 main embeddings. 
+#' Create an HDF5 file, mainEmbeds.h5, containing the nativeRaster vectors for the 5 main embeddings. 
 #' This function will be called by exportShinyArchR()
 #' 
 #' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
