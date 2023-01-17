@@ -64,7 +64,7 @@ exportShinyArchR <- function(
   }
   
   #check that groupBy column exists and doesnt have NA values
-  if (groupBy %ni% colnames(ArchRProjShiny@cellColData)) {
+  if (groupBy %ni% colnames(ArchRProj@cellColData)) {
     stop("groupBy is not part of cellColData")
   } else if ((any(is.na(paste0("ArchRProj$", groupBy))))) {
     stop("Some entries in the column indicated by groupBy have NA values. Please subset your project using subsetArchRProject() to only contain cells with values for groupBy")
@@ -226,7 +226,7 @@ exportShinyArchR <- function(
   if(!file.exists(file.path(outputDir, subOutputDir, "plotBlank72.h5"))){
 
     .matrixEmbeds(
-      ArchRProj = ArchRProj,
+      ArchRProj = ArchRProjShiny,
       outputDirEmbed = file.path(mainDir, outputDir, subOutputDir),
       colorBy = intersect(supportedMatrices, allMatrices),
       embedding = embedding,
