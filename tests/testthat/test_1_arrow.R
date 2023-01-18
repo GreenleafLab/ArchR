@@ -45,42 +45,42 @@ arrowFiles <- createArrowFiles(
 test_that("Checking Arrow Contents...", {
 
 	expect_equal(
-		.validArrow(arrowFiles),
+		ArchR:::.validArrow(arrowFiles),
 		arrowFiles
 	)
 
 	expect_equal(
-		.availableArrays(arrowFiles),
+		ArchR:::.availableArrays(arrowFiles),
 		c("GeneScoreMatrix", "TileMatrix")
 	)
 
 	expect_equal(
-		nrow(.getFeatureDF(arrowFiles, "TileMatrix")),
+		nrow(ArchR:::.getFeatureDF(arrowFiles, "TileMatrix")),
 		31593
 	)
 
 	expect_equal(
-		nrow(.getFeatureDF(arrowFiles, "GeneScoreMatrix")),
+		nrow(ArchR:::.getFeatureDF(arrowFiles, "GeneScoreMatrix")),
 		2454
 	)
 
 	expect_equal(
-		.availableSeqnames(arrowFiles),
+		ArchR:::.availableSeqnames(arrowFiles),
 		c("chr11", "chr5")
 	)
 
 	expect_equal(
-		.availableChr(arrowFiles),
+		ArchR:::.availableChr(arrowFiles),
 		c("chr11", "chr5")
 	)
 
 	expect_equal(
-		as.vector(table(substr(.availableCells(arrowFiles), 9, 9))[c("B", "M", "T")]),
+		as.vector(table(substr(ArchR:::.availableCells(arrowFiles), 9, 9))[c("B", "M", "T")]),
 		c(45, 33, 49)
 	)
 
 	expect_equal(
-		paste0(.sampleName(arrowFiles)),
+		paste0(ArchR:::.sampleName(arrowFiles)),
 		"PBSmall"
 	)
 
@@ -90,7 +90,7 @@ test_that("Checking Arrow Contents...", {
 # Testing Dropping Matrices
 ################################################
 
-arrowFiles <- .dropGroupsFromArrow(
+arrowFiles <- ArchR:::.dropGroupsFromArrow(
 	ArrowFile = arrowFiles,
 	dropGroups = c("GeneScoreMatrix", "TileMatrix")
 )
@@ -99,32 +99,32 @@ arrowFiles <- .dropGroupsFromArrow(
 test_that("Checking Arrow Contents After Drop...", {
 
 	expect_equal(
-		.validArrow(arrowFiles),
+		ArchR:::.validArrow(arrowFiles),
 		arrowFiles
 	)
 
 	expect_equal(
-		paste0(.availableArrays(arrowFiles)),
+		paste0(ArchR:::.availableArrays(arrowFiles)),
 		c("")[-1]
 	)
 
 	expect_equal(
-		.availableSeqnames(arrowFiles),
+		ArchR:::.availableSeqnames(arrowFiles),
 		c("chr11", "chr5")
 	)
 
 	expect_equal(
-		.availableChr(arrowFiles),
+		ArchR:::.availableChr(arrowFiles),
 		c("chr11", "chr5")
 	)
 
 	expect_equal(
-		as.vector(table(substr(.availableCells(arrowFiles), 9, 9))[c("B", "M", "T")]),
+		as.vector(table(substr(ArchR:::.availableCells(arrowFiles), 9, 9))[c("B", "M", "T")]),
 		c(45, 33, 49)
 	)
 
 	expect_equal(
-		paste0(.sampleName(arrowFiles)),
+		paste0(ArchR:::.sampleName(arrowFiles)),
 		"PBSmall"
 	)
 
@@ -145,37 +145,37 @@ arrowFiles <- addTileMatrix(
 test_that("Checking Arrow Contents after addTileMatrix", {
 
 	expect_equal(
-		.validArrow(arrowFiles),
+		ArchR:::.validArrow(arrowFiles),
 		arrowFiles
 	)
 
 	expect_equal(
-		paste0(.availableArrays(arrowFiles)),
+		paste0(ArchR:::.availableArrays(arrowFiles)),
 		"TileMatrix"
 	)
 
 	expect_equal(
-		nrow(.getFeatureDF(arrowFiles, "TileMatrix")),
+		nrow(ArchR:::.getFeatureDF(arrowFiles, "TileMatrix")),
 		12638
 	)
 
 	expect_equal(
-		.availableSeqnames(arrowFiles),
+		ArchR:::.availableSeqnames(arrowFiles),
 		c("chr11", "chr5")
 	)
 
 	expect_equal(
-		.availableChr(arrowFiles),
+		ArchR:::.availableChr(arrowFiles),
 		c("chr11", "chr5")
 	)
 
 	expect_equal(
-		as.vector(table(substr(.availableCells(arrowFiles), 9, 9))[c("B", "M", "T")]),
+		as.vector(table(substr(ArchR:::.availableCells(arrowFiles), 9, 9))[c("B", "M", "T")]),
 		c(45, 33, 49)
 	)
 
 	expect_equal(
-		paste0(.sampleName(arrowFiles)),
+		paste0(ArchR:::.sampleName(arrowFiles)),
 		"PBSmall"
 	)
 
@@ -195,42 +195,42 @@ arrowFiles <- addGeneScoreMatrix(
 test_that("Checking Arrow Contents after addGeneScoreMatrix...", {
 
 	expect_equal(
-		.validArrow(arrowFiles),
+		ArchR:::.validArrow(arrowFiles),
 		arrowFiles
 	)
 
 	expect_equal(
-		.availableArrays(arrowFiles),
+		ArchR:::.availableArrays(arrowFiles),
 		c("GeneScoreMatrix", "TileMatrix")
 	)
 
 	expect_equal(
-		nrow(.getFeatureDF(arrowFiles, "TileMatrix")),
+		nrow(ArchR:::.getFeatureDF(arrowFiles, "TileMatrix")),
 		12638
 	)
 
 	expect_equal(
-		nrow(.getFeatureDF(arrowFiles, "GeneScoreMatrix")),
+		nrow(ArchR:::.getFeatureDF(arrowFiles, "GeneScoreMatrix")),
 		2454
 	)
 
 	expect_equal(
-		.availableSeqnames(arrowFiles),
+		ArchR:::.availableSeqnames(arrowFiles),
 		c("chr11", "chr5")
 	)
 
 	expect_equal(
-		.availableChr(arrowFiles),
+		ArchR:::.availableChr(arrowFiles),
 		c("chr11", "chr5")
 	)
 
 	expect_equal(
-		as.vector(table(substr(.availableCells(arrowFiles), 9, 9))[c("B", "M", "T")]),
+		as.vector(table(substr(ArchR:::.availableCells(arrowFiles), 9, 9))[c("B", "M", "T")]),
 		c(45, 33, 49)
 	)
 
 	expect_equal(
-		paste0(.sampleName(arrowFiles)),
+		paste0(ArchR:::.sampleName(arrowFiles)),
 		"PBSmall"
 	)
 
@@ -272,7 +272,6 @@ for(i in seq_along(files)){
 		file.remove(files[i])
 	}
 }
-
 
 
 
