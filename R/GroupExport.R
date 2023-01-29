@@ -600,7 +600,7 @@ getGroupFragments <- function(
   groupIDs <- names(cellGroups)
   
   
-  .safelapply(seq_along(groupIDs), function(x)){
+  .safelapply(seq_along(groupIDs), function(x){
     cat("Making fragment file for cluster:", groupIDs[x], "\n")
     # get GRanges with all fragments for that cluster
     cellNames <- cellGroups[[groupIDs[x]]]
@@ -609,7 +609,7 @@ getGroupFragments <- function(
     # filter Fragments
     fragments <- GenomeInfoDb::keepStandardChromosomes(fragments, pruning.mode = "coarse")
     saveRDS(fragments, file.path(outDir, paste0(groupIDs[x], "_frags.rds")))
-  }
+  })
 }
 
 #' Export Cluster Coverage from an ArchRProject
@@ -632,7 +632,7 @@ getGroupFragments <- function(
   tileSize = 100,
   scaleFactor = 1,
   groupBy = "Clusters",
-  fragDir = file.path(getOutputDirectory(ArchRProj), "fragments"))
+  fragDir = file.path(getOutputDirectory(ArchRProj), "fragments"),
   outDir = file.path(getOutputDirectory(ArchRProj), "coverage")
 ){
   fragFiles = list.files(path = fragDir, pattern = "_frags.rds", full.names = TRUE)
@@ -652,7 +652,7 @@ getGroupFragments <- function(
   chrRegions <- getChromSizes(ArchRProj)
   genome <- getGenome(ArchRProj)
   
-  for (file in fragFiles) {
+  for (file in fragFiles){
     fragments <- readRDS(file)
     left <- GRanges(seqnames = seqnames(fragments),
                     ranges = IRanges(start(fragments), width = 1))
