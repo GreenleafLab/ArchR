@@ -78,27 +78,27 @@ exportShinyArchR <- function(
   subOutDir <- file.path(projDir, mainDir, subOutDir)
   
   # Make directory for Shiny App 
-  if(!dir.exists(outDir)) {
+  if(!dir.exists(mainDir)) {
     
     dir.create(mainDir, showWarnings = TRUE)
     
     ## Check the links for the files
-    filesUrl <- data.frame(
-      fileUrl = c(
-        "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/app.R",
-        "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/global.R", 
-        "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/server.R", 
-        "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/ui.R"
-      ),
-      md5sum = c(
-        "77502e1f195e21d2f7a4e8ac9c96e65e",
-        "618613b486e4f8c0101f4c05c69723b0",
-        "a8d5ae747841055ef230ba496bcfe937"
-      ),
-      stringsAsFactors = FALSE
-    )
+    # filesUrl <- data.frame(
+    #   fileUrl = c(
+    #     "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/app.R",
+    #     "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/global.R", 
+    #     "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/server.R", 
+    #     "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/ui.R"
+    #   ),
+    #   md5sum = c(
+    #     "77502e1f195e21d2f7a4e8ac9c96e65e",
+    #     "618613b486e4f8c0101f4c05c69723b0",
+    #     "a8d5ae747841055ef230ba496bcfe937"
+    #   ),
+    #   stringsAsFactors = FALSE
+    # )
     
-    .downloadFiles(filesUrl = filesUrl, pathDownload = mainDir, threads = threads)
+    # .downloadFiles(filesUrl = filesUrl, pathDownload = mainDir, threads = threads)
     
   }else{
     message("Using existing Shiny files...")
