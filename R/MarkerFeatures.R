@@ -868,7 +868,7 @@ getMarkerFeatures <- function(
 }
 
 # from @anastasiya-pendragon
-# 
+# create a sorted list of closest cells between foreground and background
 .computeClosestCellsList <- function(
     data = NULL,
     query = NULL,
