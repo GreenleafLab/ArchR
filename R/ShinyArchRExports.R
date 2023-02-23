@@ -384,14 +384,16 @@ exportShinyArchR <- function(
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #'
+
 .matrixEmbeds <- function(
   ArchRProj = NULL,
   outDirEmbed = NULL,
   colorBy = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
+  supportedMatrices = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
   embedding = "UMAP",
+  embeddingDF = NULL,
   matrices = NULL,
   imputeMatrices = NULL,
-  embeddingDF = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
   logFile = createLogFile("matrixEmbeds")
@@ -399,6 +401,7 @@ exportShinyArchR <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = outDirEmbed, name = "outDirEmbed", valid = c("character"))
   .validInput(input = colorBy, name = "colorBy", valid = c("character"))
+  .validInput(input = supportedMatrices, name = "supportedMatrices", valid = c("character"))
   .validInput(input = embedding, name = "embedding", valid = c("character"))
   .validInput(input = matrices, name = "matrices", valid = c("list"))
   .validInput(input = imputeMatrices, name = "imputeMatrices", valid = c("list"))
@@ -408,45 +411,56 @@ exportShinyArchR <- function(
   
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "matrixEmbeds Input-Parameters", logFile = logFile)
-
+  
   if (file.exists(file.path(outDirEmbed, "plotBlank72.h5"))){
     file.remove(file.path(outDirEmbed, "plotBlank72.h5"))
   }
-
+  
   # save the scale
   embeds_min_max_list = list()
   # save the palette
   embeds_pal_list = list()
-
+  
+  allMatrices <- getAvailableMatrices(ArchRProj)
+  
   for(mat in colorBy){
-    if(file.exists(paste0(outDirEmbed, "/", matrices, ".rds"))){
-      featureNames <- readRDS(file.path(outputDir, subOutputDir, mat, "_names.rds"))
+    if(mat %in% supportedMatrices){
+      message(mat,"not in ArchRProj") ## NOTE: should we stop or just give a warning
+    }
+    
+    if(file.exists(paste0(outDirEmbed, "/",mat, "/", mat, "_names.rds"))){
+      
+      dir.create(paste0(outDirEmbed, "/",mat, "/embeds"), showWarnings = FALSE)
+      
+      featureNames <- readRDS(file.path(outDirEmbed, mat, paste0(mat,"_names.rds")))
+    
       if(!is.null(featureNames)){
+        
+        embeds_points <- .safelapply(1:10, function(x){ # length(featureNames)
+          
+          print(paste0("Creating plots for ", mat,": ",x,": ",round((x/length(featureNames))*100,3), "%"))
 
-      embeds_points <- .safelapply(1:length(featureNames), function(x){ 
-        print(paste0("Creating plots for ", mat,": ",x,": ",round((x/length(featureNames))*100,3), "%"))
-
-          if(!is.na(matrices[[mat]][x])){
-
-              gene_plot <- plotEmbedding(
-                ArchRProj = ArchRProj,
-                colorBy = mat,
-                name = featureNames[x],
-                embedding = embedding,
-                quantCut = c(0.01, 0.95),
-                imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
-                plotAs = "points",
-                matrices = matrices,
-                imputeMatrices = imputeMatrices,
-                embeddingDF = embeddingDF,
-                rastr = TRUE
-              )
+          if(!is.na(featureNames[x])){
+            
+            gene_plot <- plotEmbedding(
+              ArchRProj = ArchRProj,
+              colorBy = mat,
+              name = featureNames[x],
+              embedding = embedding,
+              quantCut = c(0.01, 0.95),
+              imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
+              plotAs = "points",
+              matrices = mat,
+              embeddingDF = embeddingDF,
+              imputeMatrices = imputeMatrices,
+              rastr = TRUE
+            )
           }else{
             gene_plot = NULL
           }
-
+          
           if(!is.null(gene_plot)){
-
+            
             gene_plot_blank <- gene_plot + theme(axis.title.x = element_blank()) +
               theme(axis.title.y = element_blank()) +
               theme(axis.title = element_blank()) +
@@ -457,68 +471,73 @@ exportShinyArchR <- function(
                 panel.border = element_blank(),
                 title=element_blank()
               )
-
-                #save plot without axes etc as a jpg.
-                ggsave(filename = file.path(outDirEmbed, paste0(mat,"_embeds"), paste0(featureNames[x],"_blank72.jpg")),
-                       plot = gene_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
-
-                #read back in that jpg because we need vector in native format
-                blank_jpg72 <- readJPEG(source = file.path(outDirEmbed, paste0(mat,"_embeds"),
-                                                           paste0(featureNames[x],"_blank72.jpg")), native = TRUE)
-
+            
+            #save plot without axes etc as a jpg.
+            ggsave(filename = file.path(outDirEmbed, mat, "embeds", paste0(featureNames[x],"_blank72.jpg")),
+                   plot = gene_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
+            
+            #read back in that jpg because we need vector in native format
+            blank_jpg72 <- readJPEG(source = file.path(outDirEmbed, mat, "embeds", paste0(featureNames[x],"_blank72.jpg")),
+                                                        native = TRUE)
+            
             g <- ggplot_build(gene_plot)
-
+            
             res = list(list(plot=as.vector(blank_jpg72), min = round(min(gene_plot$data$color),1),
                             max = round(max(gene_plot$data$color),1), pal = unique(g$data[[1]][,"colour"])))
-
+            
             return(res)
           }
-
-
+          
+          
         }, threads = threads) 
-
-        names(embeds_points) <- featureNames
-
+        
+        names(embeds_points) <- featureNames[1:10]
         embeds_points = embeds_points[!unlist(lapply(embeds_points, is.null))]
+        
         embeds_min_max <- data.frame(matrix(NA, 2, length(embeds_points)))
         colnames(embeds_min_max) <- names(embeds_points)[which(!unlist(lapply(embeds_points, is.null)))]
         rownames(embeds_min_max) <- c("min","max")
-
+        
         h5closeAll()
-        points =  H5Fcreate(name = file.path(outDirEmbed, paste0("shinymatrices_plotBlank72.h5")))
-        h5createGroup(file.path(outDirEmbed, paste0("shinymatrices_plotBlank72.h5")), shinymatrices)
-
+        points =  H5Fcreate(name = file.path(outDirEmbed, paste0(mat,"_plotBlank72.h5")))
+        h5createGroup(file.path(outDirEmbed, paste0(mat,"_plotBlank72.h5")), mat)
+        
         for(i in 1:length(embeds_points)){
-
+          
           print(paste0("Getting H5 files for embeds_points: ",i,": ",round((i/length(embeds_points))*100,3), "%"))
-          h5createDataset(file = points, dataset = paste0(shinymatrices,"/",featureNames[i]), dims = c(46656,1), storage.mode = "integer")
-          h5writeDataset(obj = embeds_points[[i]][[1]]$plot, h5loc = points, name=paste0(shinymatrices,"/",featureNames[i]))
+          h5createDataset(file = points, dataset = paste0(mat,"/",featureNames[i]), dims = c(46656,1), storage.mode = "integer")
+          h5writeDataset(obj = embeds_points[[i]][[1]]$plot, h5loc = points, name=paste0(mat,"/",featureNames[i]))
           embeds_min_max[1,i] = embeds_points[[i]][[1]]$min
           embeds_min_max[2,i] = embeds_points[[i]][[1]]$max
-
+          
         }
-
-          embeds_min_max_list[[shinymatrices]] =  embeds_min_max
-          embeds_pal_list[[shinymatrices]] = embeds_points[[length(embeds_points)]][[1]]$pal
-
-
-        }else{
-
-          message(mat,".rds file is NULL")
-
-        }
-
+        
         embeds_min_max_list[[mat]] =  embeds_min_max
         embeds_pal_list[[mat]] = embeds_points[[length(embeds_points)]][[1]]$pal
+        
+        
+      
+      
+      embeds_min_max_list[[mat]] =  embeds_min_max
+      embeds_pal_list[[mat]] = embeds_points[[length(embeds_points)]][[1]]$pal
+      
     }else{
-      stop(matrices,".rds file does not exist. This file should have been created previously by exportShinyArchR().")
+      
+      message(mat,".rds file does not exist")
     }
+      
+  }else{
+    message(mat,".rds file does not exist. This file should have been created previously be exportShinyArchR. Skipping...")
   }
+  
+  
+}
 
-  scale <- embeds_min_max_list
-  pal <- embeds_pal_list
+scale <- embeds_min_max_list
+pal <- embeds_pal_list
 
-  saveRDS(scale, file.path(outDirEmbed, "scale.rds"))
-  saveRDS(pal, file.path(outDirEmbed, "pal.rds"))
+saveRDS(scale, file.path(outDirEmbed, "scale.rds"))
+saveRDS(pal, file.path(outDirEmbed, "pal.rds"))
 
 }
+
