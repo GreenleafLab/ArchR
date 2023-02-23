@@ -935,7 +935,7 @@ plotTrajectory <- function(
   if(!is.null(continuousSet)){
     plotParams$continuousSet <- continuousSet
   }
-  if(!is.null(continuousSet)){
+  if(!is.null(discreteSet)){
     plotParams$discreteSet <- discreteSet
   }
   plotParams$rastr <- rastr
