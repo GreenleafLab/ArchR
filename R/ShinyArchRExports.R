@@ -54,7 +54,7 @@ exportShinyArchR <- function(
   
   if(is.null(cellColEmbeddings)){
     stop("The cellColEmbeddings parameter must be defined! Please see function input definitions.")
-  } else if(!all(cellColEmbeddings %in% colnames(ArchRProj@cellColData)){
+  } else if(!all(cellColEmbeddings %in% colnames(ArchRProj@cellColData))){
     stop("Not all entries in cellColEmbeddings exist in the cellColData of your ArchRProj. Please check provided inputs.")
   }
   
