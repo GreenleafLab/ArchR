@@ -16,41 +16,64 @@ library(raster)
 library(jpeg)
 library(sparseMatrixStats)
 library(BiocManager)
-library(AnnotationDbi)
-library(BSgenome)
-library(Biobase)
-library(BiocGenerics)
-library(BiocParallel)
-library(Biostrings)
-library(CNEr)
 library(ComplexHeatmap)
 library(ArchR)
+
+
+############# NEW ADDITIONS (start) ###############################
+
+# Adjusting ArchR functions
+fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
+for (i in seq_along(fn)) {
+  tryCatch({
+    eval(parse(text = paste0(fn[i], "<-ArchR:::", fn[i])))
+  }, error = function(x) {
+  })
+}
+
+source("AllClasses.R")
+
+
+# Calling ArchRProj
+ArchRProj=loadArchRProject(path = ".", shiny = TRUE)
+ArchRProj <- addImputeWeights(ArchRProj = ArchRProj)
+mainDir = 'Shiny'
+subOutDir = 'inputData'
+groupBy = 'Clusters'
+cellColEmbeddings = 'Clusters'
+embedding = 'UMAP'
+availableMatrices = c("GeneScoreMatrix", "MotifMatrix", "PeakMatrix", "TileMatrix")
+
+
+
+
+############# NEW ADDITIONS (end) ###############################
 
 # EMBED Visualization ------------------------------------------------------------
 
 # create a list of dropdown options for EMBED tab
 EMBEDs_dropdown=colnames(ArchRProj@cellColData)[colnames(ArchRProj@cellColData) %in% groupBy]
-matrices_dropdown = names(readRDS(paste0("./", subOutputDir, "/scale.rds")))
+matrices_dropdown = names(readRDS(file.path(subOutDir, "scale.rds")))
 
 for(i in 1:length(matrices_dropdown)){
   
-  if(file.exists(paste0(outputDir, "/", subOutputDir, "/", paste0(matrices_dropdown[i],"_names"), ".rds"))){
+  if(file.exists(paste0(subOutDir, "/", paste0(matrices_dropdown[i], "/", matrices_dropdown[i],"_names"), ".rds"))){
     
-    assign(paste0(matrices_dropdown[i], "_dropdown"), readRDS(paste0(outputDir, "/", subOutputDir, "/", paste0(matrices_dropdown[i],"_names"), ".rds")))
+    assign(paste0(matrices_dropdown[i], "_dropdown"), readRDS(paste0(subOutDir, "/", paste0(matrices_dropdown[i], "/", matrices_dropdown[i],"_names"), ".rds")))
     
   }
   
 }
 
-embed_legend = readRDS(paste0(getOutputDirectory(ArchRProj),"/",outputDir, "/", subOutputDir, "/embed_legend_names.rds"))
-color_embeddings = readRDS(paste0(getOutputDirectory(ArchRProj),"/",outputDir, "/", subOutputDir, "/embeddings.rds"))
+embed_legend = readRDS(paste0(subOutDir, "/embed_legend_names.rds"))
+color_embeddings = readRDS(paste0(subOutDir, "/embed_color.rds"))
 
 # define a function to get the EMBED for a feature/gene
 getEMBEDplotWithCol<-function(gene,EMBEDList,scaffoldName,matrixType)
 {
   gene_plot=EMBEDList[[gene]]
 
-  p_template1=readRDS(paste0(getOutputDirectory(ArchRProj),"/",outputDir, "/", subOutputDir, "/" ,scaffoldName,".rds"))
+  p_template1=readRDS(paste0(subOutDir, "/" ,scaffoldName,".rds"))
   
   p_template1$scales$scales <- gene_plot$scale
   
@@ -70,7 +93,7 @@ getEMBED<-function(gene,fileIndexer,folderName,scaffoldName,matrixType)
   {
     if(gene %in% fileIndexer[[file]])
     {
-      EMBEDs_data_subset=readRDS(paste(paste0(getOutputDirectory(ArchRProj),"/",outputDir, "/", subOutputDir, "/" ,folderName),file,sep="/"))
+      EMBEDs_data_subset=readRDS(paste(paste0(subOutDir, "/" ,folderName),file,sep="/"))
       
       return(getEMBEDplotWithCol(gene,EMBEDs_data_subset,scaffoldName,matrixType))
     }
@@ -80,6 +103,6 @@ getEMBED<-function(gene,fileIndexer,folderName,scaffoldName,matrixType)
 # PlotBrowser ------------------------------------------------------------------
 
 # create a list of dropdown options for plotbroswer tab
-gene_names=readRDS(paste0(getOutputDirectory(ArchRProj),"/",outputDir, "/", subOutputDir, "/features.rds"))
+gene_names=readRDS(paste0(subOutDir, "/GeneScoreMatrix/GeneScoreMatrix_names.rds"))
 
 

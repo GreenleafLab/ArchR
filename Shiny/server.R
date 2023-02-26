@@ -6,7 +6,7 @@ shinyServer <- function(input,output, session){
   
   plot1 <- reactive({
     
-    availableMatrices <- getAvailableMatrices(ArchRProj)
+    # availableMatrices <- getAvailableMatrices(ArchRProj)
     
     if(input$matrix_EMBED1_forComparison %in% availableMatrices){
       mat <- availableMatrices[ availableMatrices  %in% input$matrix_EMBED1_forComparison]
@@ -29,7 +29,7 @@ shinyServer <- function(input,output, session){
                                     color = color()[[mat]], pos=.5, side=1)
       
       
-      p <- h5read(paste0("./",subOutputDir,"/",mat,"_plotBlank72.h5"),  paste0(mat, "/", input$EMBED1_forComparison))
+      p <- h5read(paste0(subOutDir,"/",mat,"_plotBlank72.h5"),  paste0(mat, "/", input$EMBED1_forComparison))
       temp_jpg <- t(matrix(decode_native(p), nrow = 216))
       
       last_plot <- ggdraw() + draw_image(temp_jpg, x = 0, y = 0, scale = 0.85) + 
@@ -58,7 +58,7 @@ shinyServer <- function(input,output, session){
              horiz = FALSE, x.intersp = 1, text.width=0.35,
              cex = 0.7, bty="n", ncol = 4)
       
-      p <- h5read(paste0("./",subOutputDir,"/mainEmbeds.h5"), input$matrix_EMBED1_forComparison)# input$EMBED1_forComparison))
+      p <- h5read(paste0(subOutDir,"/mainEmbeds.h5"), input$matrix_EMBED1_forComparison)# input$EMBED1_forComparison))
       temp_jpg <- t(matrix(decode_native(p), nrow = 216))
       
       last_plot <- ggdraw() + draw_image(temp_jpg, x = 0, y = 0, scale = 0.7) +
@@ -72,7 +72,7 @@ shinyServer <- function(input,output, session){
   
   plot2 <- reactive({
     
-    availableMatrices <- getAvailableMatrices(ArchRProj)
+    # availableMatrices <- getAvailableMatrices(ArchRProj)
     
     if(input$matrix_EMBED2_forComparison %in% availableMatrices){
       mat <- availableMatrices[ availableMatrices  %in% input$matrix_EMBED2_forComparison]
@@ -94,7 +94,7 @@ shinyServer <- function(input,output, session){
       legend_plot <- gradientLegend(valRange=c(scale()[[mat]][,input$EMBED2_forComparison][1],scale()[[mat]][,input$EMBED2_forComparison][2]), 
                                     color = color()[[mat]], pos=.5, side=1)
       
-      p <- h5read(paste0("./",subOutputDir,"/",mat,"_plotBlank72.h5"),  paste0(mat, "/", input$EMBED2_forComparison))
+      p <- h5read(paste0(subOutDir,"/",mat,"_plotBlank72.h5"),  paste0(mat, "/", input$EMBED2_forComparison))
       temp_jpg <- t(matrix(decode_native(p), nrow = 216))
       last_plot <- ggdraw() + draw_image(temp_jpg, x = 0, y = 0, scale = 0.85) + 
         draw_plot(p_empty, scale = 0.8) +
@@ -124,7 +124,7 @@ shinyServer <- function(input,output, session){
              horiz = FALSE, x.intersp = 1, text.width=0.35,
              cex = 0.7, bty="n", ncol = 4)
       
-      p <- h5read(paste0("./",subOutputDir,"/mainEmbeds.h5"), input$matrix_EMBED2_forComparison)# input$EMBED2_forComparison))
+      p <- h5read(paste0(subOutDir,"/mainEmbeds.h5"), input$matrix_EMBED2_forComparison)# input$EMBED2_forComparison))
       temp_jpg <- t(matrix(decode_native(p), nrow = 216))
       
       last_plot <- ggdraw() + draw_image(temp_jpg, x = 0, y = 0, scale = 0.7) +
@@ -187,8 +187,8 @@ shinyServer <- function(input,output, session){
   output$EMBED_plot_1 <- DT::renderDT(NULL)
   output$EMBED_plot_2 <- DT::renderDT(NULL)
   
-  color <- reactive({readRDS(paste0("./",subOutputDir,"/pal.rds"))})
-  scale <- reactive({readRDS(paste0("./",subOutputDir,"/scale.rds"))})
+  color <- reactive({readRDS(paste0(subOutDir,"/pal.rds"))})
+  scale <- reactive({readRDS(paste0(subOutDir,"/scale.rds"))})
   
   #plot EMBED1
   output$EMBED_plot_1<- renderPlot({
@@ -210,9 +210,9 @@ shinyServer <- function(input,output, session){
   featureNames1 <- reactive({
     
     if(!(input$matrix_EMBED1_forComparison %in% groupBy)){
-      availableMatrices <- getAvailableMatrices(ArchRProj)
+      # availableMatrices <- getAvailableMatrices(ArchRProj)
       matName <- availableMatrices[ availableMatrices  %in% input$matrix_EMBED1_forComparison]
-      featureNames <- h5read(file = paste0(getOutputDirectory(ArchRProj), "/",outputDir, "/", subOutputDir, "/", matName, "_plotBlank72.h5"),
+      featureNames <- h5read(file = paste0(subOutDir, "/", matName, "_plotBlank72.h5"),
                              name = matName)
       Feature_dropdown1 = names(featureNames)
       return(Feature_dropdown1)
@@ -236,9 +236,9 @@ shinyServer <- function(input,output, session){
     
     if(!(input$matrix_EMBED2_forComparison %in% groupBy)){
           
-        availableMatrices <- getAvailableMatrices(ArchRProj)
+        # availableMatrices <- getAvailableMatrices(ArchRProj)
         matName <- availableMatrices[ availableMatrices  %in% input$matrix_EMBED2_forComparison]
-        featureNames <- h5read(file = paste0(getOutputDirectory(ArchRProj), "/",outputDir, "/", subOutputDir, "/", matName, "_plotBlank72.h5"),
+        featureNames <- h5read(file = paste0(subOutDir, "/", matName, "_plotBlank72.h5"),
                name = matName)
                              
         Feature_dropdown2 = names(featureNames)
