@@ -403,7 +403,7 @@ recoverArchRProject <- function(ArchRProj){
 loadArchRProject <- function(
   path = "./", 
   force = FALSE, 
-  showLogo = TRUE
+  showLogo = TRUE,
   shiny = FALSE
   ){
 
