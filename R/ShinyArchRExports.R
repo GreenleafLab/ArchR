@@ -49,7 +49,7 @@ exportShinyArchR <- function(
   .requirePackage("rhandsontable", installInfo = 'install.packages("rhandsontable")')
   
   if(length(groupBy) > 1){
-    stop("Only one value is allowed for groupBy".)
+    stop("Only one value is allowed for groupBy.")
   }
   
   if(is.null(cellColEmbeddings)){
