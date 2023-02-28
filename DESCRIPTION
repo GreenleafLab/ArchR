@@ -71,7 +71,8 @@ Suggests:
 Remotes:
     GreenleafLab/chromVARmotifs,
     cole-trapnell-lab/monocle3,
-    immunogenomics/presto    
+    immunogenomics/presto
+biocViews:
 Collate: 
     'AllClasses.R'
     'AnnotationGenome.R'
