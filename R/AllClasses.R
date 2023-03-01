@@ -800,9 +800,4 @@ setMethod(
     rownames(x@cellColData)
   }
 )
-
-
-
-
-
-
+                                      
