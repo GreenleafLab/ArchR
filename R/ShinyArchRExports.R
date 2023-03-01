@@ -248,6 +248,7 @@ exportShinyArchR <- function(
       outDirEmbed = file.path(projDir, mainDir, subOutDir),
       colorBy = intersect(supportedMatrices, allMatrices),
       embedding = embedding,
+      embeddingDF = df,
       matrices = matrices,
       imputeMatrices = imputeMatrices,
       threads = getArchRThreads(),
