@@ -485,7 +485,7 @@ exportShinyArchR <- function(
               embeddingDF = df,
               matrices = matrices,
               imputeMatrices = imputeMatrices,
-              Shiny = TRUE,
+              Shiny = FALSE,
               rastr = TRUE
             )
           }else{
