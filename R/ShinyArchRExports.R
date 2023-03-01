@@ -1,6 +1,6 @@
 # Functions for exporting an ArchR-based Shiny app -----------------------------------------------------------
 #'
-#' Export a Shiny App based on an ArchRProj 
+#' Export a Shiny App based on an ArchRProj
 #' 
 #' Generate all files required for an autonomous Shiny app to display browser tracks and embeddings.
 #'
