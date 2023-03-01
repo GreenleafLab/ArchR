@@ -3,7 +3,7 @@
 #' @importClassesFrom GenomicRanges GRanges
 #' @importFrom GenomicRanges GRanges
 #' @import data.table
-
+NULL
 
 setClassUnion("characterOrNull", c("character", "NULL"))
 setClassUnion("GRangesOrNull", c("GRanges", "NULL"))
