@@ -249,282 +249,255 @@ plotEmbedding <- function(
   logFile = createLogFile("plotEmbedding"),
   ...
   ){
-
-  .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = embedding, name = "reducedDims", valid = c("character"))
-  .validInput(input = colorBy, name = "colorBy", valid = c("character"))
-  .validInput(input = name, name = "name", valid = c("character"))
-  .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", "null"))
-  .validInput(input = imputeWeights, name = "imputeWeights", valid = c("list", "null"))
-  .validInput(input = pal, name = "pal", valid = c("palette", "null"))
-  .validInput(input = size, name = "size", valid = c("numeric"))
-  .validInput(input = sampleCells, name = "sampleCells", valid = c("numeric", "null"))
-  .validInput(input = highlightCells, name = "highlightCells", valid = c("character", "null"))
-  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
-  .validInput(input = quantCut, name = "quantCut", valid = c("numeric", "null"))
-  .validInput(input = discreteSet, name = "discreteSet", valid = c("character", "null"))
-  .validInput(input = continuousSet, name = "continuousSet", valid = c("character", "null"))
-  .validInput(input = randomize, name = "randomize", valid = c("boolean"))
-  .validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
-  .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
-  .validInput(input = plotAs, name = "plotAs", valid = c("character", "null"))
-  .validInput(input = threads, name = "threads", valid = c("integer"))
-  .validInput(input = logFile, name = "logFile", valid = c("character"))
-
-  .requirePackage("ggplot2", source = "cran")
-
-  .startLogging(logFile = logFile)
-  .logThis(mget(names(formals()),sys.frame(sys.nframe())), "Input-Parameters", logFile=logFile)
-
-  ##############################
-  # Get Embedding
-  ##############################
-  .logMessage("Getting UMAP Embedding", logFile = logFile)
-  df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
-
-  if(!all(rownames(df) %in% ArchRProj$cellNames)){
-    stop("Not all cells in embedding are present in ArchRProject!")
-  }
-
-  .logThis(df, name = "Embedding data.frame", logFile = logFile)
-  if(!is.null(sampleCells)){
-    if(sampleCells < nrow(df)){
-      if(!is.null(imputeWeights)){
-        stop("Cannot sampleCells with imputeWeights not equalt to NULL at this time!")
-      }
-      df <- df[sort(sample(seq_len(nrow(df)), sampleCells)), , drop = FALSE]
+    .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+    .validInput(input = embedding, name = "reducedDims", valid = c("character"))
+    .validInput(input = colorBy, name = "colorBy", valid = c("character"))
+    .validInput(input = name, name = "name", valid = c("character"))
+    .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean", 
+        "null"))
+    .validInput(input = imputeWeights, name = "imputeWeights", 
+        valid = c("list", "null"))
+    .validInput(input = pal, name = "pal", valid = c("palette", 
+        "null"))
+    .validInput(input = size, name = "size", valid = c("numeric"))
+    .validInput(input = sampleCells, name = "sampleCells", valid = c("numeric", 
+        "null"))
+    .validInput(input = highlightCells, name = "highlightCells", 
+        valid = c("character", "null"))
+    .validInput(input = rastr, name = "rastr", valid = c("boolean"))
+    .validInput(input = quantCut, name = "quantCut", valid = c("numeric", 
+        "null"))
+    .validInput(input = discreteSet, name = "discreteSet", valid = c("character", 
+        "null"))
+    .validInput(input = continuousSet, name = "continuousSet", 
+        valid = c("character", "null"))
+    .validInput(input = randomize, name = "randomize", valid = c("boolean"))
+    .validInput(input = keepAxis, name = "keepAxis", valid = c("boolean"))
+    .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
+    .validInput(input = plotAs, name = "plotAs", valid = c("character", 
+        "null"))
+    .validInput(input = threads, name = "threads", valid = c("integer"))
+    .validInput(input = logFile, name = "logFile", valid = c("character"))
+    .requirePackage("ggplot2", source = "cran")
+    .startLogging(logFile = logFile)
+    .logThis(mget(names(formals()), sys.frame(sys.nframe())), 
+        "Input-Parameters", logFile = logFile)
+    .logMessage("Getting UMAP Embedding", logFile = logFile)
+    df <- getEmbedding(ArchRProj, embedding = embedding, returnDF = TRUE)
+    if (!all(rownames(df) %in% ArchRProj$cellNames)) {
+        stop("Not all cells in embedding are present in ArchRProject!")
     }
-  }
-
-  #Parameters
-  plotParams <- list(...)
-  plotParams$x <- df[,1]
-  plotParams$y <- df[,2]
-  plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,1])
-  plotParams$baseSize <- baseSize
-  
-  #Additional Params!
-  plotParams$xlabel <- gsub("_", " ",stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,2])
-  plotParams$ylabel <- gsub("_", " ",stringr::str_split(colnames(df)[2],pattern="#",simplify=TRUE)[,2])
-  plotParams$rastr <- rastr
-  plotParams$size <- size
-  plotParams$randomize <- randomize
-
-  #Check if Cells To Be Highlighed
-  if(!is.null(highlightCells)){
-    highlightPoints <- match(highlightCells, rownames(df), nomatch = 0)
-    if(any(highlightPoints==0)){
-      stop("highlightCells contain cells not in Embedding cellNames! Please make sure that these match!")
-    }
-  }
-
-  #Make Sure ColorBy is valid!
-  if(length(colorBy) > 1){
-    stop("colorBy must be of length 1!")
-  }
-  allColorBy <-  c("colData", "cellColData", .availableArrays(head(getArrowFiles(ArchRProj), 2)))
-  if(tolower(colorBy) %ni% tolower(allColorBy)){
-    stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
-  }
-  colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
-
-  .logMessage(paste0("ColorBy = ", colorBy), logFile = logFile)
-
-  if(tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata"){
-      
-    colorList <- lapply(seq_along(name), function(x){
-      colorParams <- list()
-      colorParams$color <- as.vector(getCellColData(ArchRProj, select = name[x], drop = FALSE)[rownames(df), 1])
-      colorParams$discrete <- .isDiscrete(colorParams$color)
-      colorParams$continuousSet <- "solarExtra"
-      colorParams$discreteSet <- "stallion"
-      colorParams$title <- paste(plotParams$title, " colored by\ncolData : ", name[x])
-      if(!is.null(continuousSet)){
-        colorParams$continuousSet <- continuousSet
-      }
-      if(!is.null(discreteSet)){
-        colorParams$discreteSet <- discreteSet
-      }
-      if(x == 1){
-        .logThis(colorParams, name = "ColorParams 1", logFile = logFile)
-      }
-
-      if(!is.null(imputeWeights)){
-        if(getArchRVerbose()) message("Imputing Matrix")
-        colorMat <- matrix(colorParams$color, nrow=1)
-        colnames(colorMat) <- rownames(df)
-        colorMat <- imputeMatrix(mat = colorMat, imputeWeights = imputeWeights, logFile = logFile)
-        colorParams$color <- as.vector(colorMat)
-      }
-      colorParams
-    })
-
-
-  }else{
-
-    suppressMessages(message(logFile))
-
-    units <- tryCatch({
-        .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
-      },error=function(e){
-        "values"
-    })
-    
-    if(is.null(log2Norm) & tolower(colorBy) == "genescorematrix"){
-      log2Norm <- TRUE
-    }
-
-    if(is.null(log2Norm)){
-      log2Norm <- FALSE
-    }
-
-    colorMat <- .getMatrixValues(
-      ArchRProj = ArchRProj, 
-      name = name, 
-      matrixName = colorBy, 
-      log2Norm = FALSE, 
-      threads = threads,
-      logFile = logFile
-    )
-
-    if(!all(rownames(df) %in% colnames(colorMat))){
-      .logMessage("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.", logFile = logFile)
-      stop("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.")
-    }
-
-    colorMat <- colorMat[,rownames(df), drop=FALSE]
-
-    .logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
-
-    if(!is.null(imputeWeights)){
-      if(getArchRVerbose()) message("Imputing Matrix")
-      colorMat <- imputeMatrix(mat = as.matrix(colorMat), imputeWeights = imputeWeights, logFile = logFile)
-      if(!inherits(colorMat, "matrix")){
-        colorMat <- matrix(colorMat, ncol = nrow(df))
-        colnames(colorMat) <- rownames(df)
-      }
-    }
-
-    .logThis(colorMat, "colorMat-After-Impute", logFile = logFile)
-
-    colorList <- lapply(seq_len(nrow(colorMat)), function(x){
-      colorParams <- list()
-      colorParams$color <- colorMat[x, ]
-      colorParams$discrete <- FALSE
-      colorParams$title <- sprintf("%s colored by\n%s : %s", plotParams$title, colorBy, name[x])
-      if(tolower(colorBy) == "genescorematrix"){
-        colorParams$continuousSet <- "horizonExtra"
-      }else{
-        colorParams$continuousSet <- "solarExtra"
-      }
-      if(!is.null(continuousSet)){
-        colorParams$continuousSet <- continuousSet
-      }
-      if(!is.null(discreteSet)){
-        colorParams$discreteSet <- discreteSet
-      }
-      if(x == 1){
-        .logThis(colorParams, name = "ColorParams 1", logFile = logFile)
-      }
-      colorParams
-    })
-
-  }
-
-  if(getArchRVerbose()) message("Plotting Embedding")
-
-  ggList <- lapply(seq_along(colorList), function(x){
-
-    if(getArchRVerbose()) message(x, " ", appendLF = FALSE)
-
-    plotParamsx <- .mergeParams(colorList[[x]], plotParams)
-
-    if(plotParamsx$discrete){
-      plotParamsx$color <- paste0(plotParamsx$color)
-    }
-
-    if(!plotParamsx$discrete){
-
-      if(!is.null(quantCut)){
-        plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
-      }
-
-      plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
-
-      if(!is.null(pal)){
-
-        plotParamsx$pal <- pal
-        
-      }
-
-      if(is.null(plotAs)){
-        plotAs <- "hexplot"
-      }
-
-      if(!is.null(log2Norm)){
-        if(log2Norm){
-          plotParamsx$color <- log2(plotParamsx$color + 1)
-          plotParamsx$colorTitle <- paste0("Log2(",units," + 1)")
-        }else{
-          plotParamsx$colorTitle <- units
+    .logThis(df, name = "Embedding data.frame", logFile = logFile)
+    if (!is.null(sampleCells)) {
+        if (sampleCells < nrow(df)) {
+            if (!is.null(imputeWeights)) {
+                stop("Cannot sampleCells with imputeWeights not equalt to NULL at this time!")
+            }
+            df <- df[sort(sample(seq_len(nrow(df)), sampleCells)), 
+                , drop = FALSE]
         }
-      }
-
-      if(tolower(plotAs) == "hex" | tolower(plotAs) == "hexplot"){
-
-        plotParamsx$discrete <- NULL
-        plotParamsx$continuousSet <- NULL
-        plotParamsx$rastr <- NULL
-        plotParamsx$size <- NULL
-        plotParamsx$randomize <- NULL
-
-        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
-        gg <- do.call(ggHex, plotParamsx)
-
-      }else{
-
-        if(!is.null(highlightCells)){
-          plotParamsx$highlightPoints <- highlightPoints
+    }
+    plotParams <- list(...)
+    plotParams$x <- df[, 1]
+    plotParams$y <- df[, 2]
+    plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1], 
+        pattern = "#", simplify = TRUE)[, 1])
+    plotParams$baseSize <- baseSize
+    plotParams$xlabel <- gsub("_", " ", stringr::str_split(colnames(df)[1], 
+        pattern = "#", simplify = TRUE)[, 2])
+    plotParams$ylabel <- gsub("_", " ", stringr::str_split(colnames(df)[2], 
+        pattern = "#", simplify = TRUE)[, 2])
+    plotParams$rastr <- rastr
+    plotParams$size <- size
+    plotParams$randomize <- randomize
+    if (!is.null(highlightCells)) {
+        highlightPoints <- match(highlightCells, rownames(df), 
+            nomatch = 0)
+        if (any(highlightPoints == 0)) {
+            stop("highlightCells contain cells not in Embedding cellNames! Please make sure that these match!")
         }
-
-        .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
-        gg <- do.call(ggPoint, plotParamsx)
-
-      }
-
-    }else{
-      
-      if(!is.null(pal)){
-        plotParamsx$pal <- pal
-      }
-
-      if(!is.null(highlightCells)){
-        plotParamsx$highlightPoints <- highlightPoints
-      }
-
-      .logThis(plotParamsx, name = paste0("PlotParams-", x), logFile = logFile)
-      gg <- do.call(ggPoint, plotParamsx)
-
     }
-
-    if(!keepAxis){
-      gg <- gg + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+    if (length(colorBy) > 1) {
+        stop("colorBy must be of length 1!")
     }
-
-    gg
-
-  })
-  names(ggList) <- name
-  if(getArchRVerbose()) message("")
-
-  if(length(ggList) == 1){
-    ggList <- ggList[[1]]
-  }
-
-  .endLogging(logFile = logFile)
-
-  ggList
-
+    allColorBy <- c("colData", "cellColData", .availableArrays(head(getArrowFiles(ArchRProj), 
+        2)))
+    if (tolower(colorBy) %ni% tolower(allColorBy)) {
+        stop("colorBy must be one of the following :\n", paste0(allColorBy, 
+            sep = ", "))
+    }
+    colorBy <- allColorBy[match(tolower(colorBy), tolower(allColorBy))]
+    .logMessage(paste0("ColorBy = ", colorBy), logFile = logFile)
+    if (tolower(colorBy) == "coldata" | tolower(colorBy) == "cellcoldata") {
+        colorList <- lapply(seq_along(name), function(x) {
+            colorParams <- list()
+            colorParams$color <- as.vector(getCellColData(ArchRProj, 
+                select = name[x], drop = FALSE)[rownames(df), 
+                1])
+            colorParams$discrete <- .isDiscrete(colorParams$color)
+            colorParams$continuousSet <- "solarExtra"
+            colorParams$discreteSet <- "stallion"
+            colorParams$title <- paste(plotParams$title, " colored by\ncolData : ", 
+                name[x])
+            if (!is.null(continuousSet)) {
+                colorParams$continuousSet <- continuousSet
+            }
+            if (!is.null(discreteSet)) {
+                colorParams$discreteSet <- discreteSet
+            }
+            if (x == 1) {
+                .logThis(colorParams, name = "ColorParams 1", 
+                  logFile = logFile)
+            }
+            if (!is.null(imputeWeights)) {
+                if (getArchRVerbose()) 
+                  message("Imputing Matrix")
+                colorMat <- matrix(colorParams$color, nrow = 1)
+                colnames(colorMat) <- rownames(df)
+                colorMat <- imputeMatrix(mat = colorMat, imputeWeights = imputeWeights, 
+                  logFile = logFile)
+                colorParams$color <- as.vector(colorMat)
+            }
+            colorParams
+        })
+    }
+    else {
+        suppressMessages(message(logFile))
+        units <- tryCatch({
+            .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, 
+                "/Info/Units"))[1]
+        }, error = function(e) {
+            "values"
+        })
+        if (is.null(log2Norm) & tolower(colorBy) == "genescorematrix") {
+            log2Norm <- TRUE
+        }
+        if (is.null(log2Norm)) {
+            log2Norm <- FALSE
+        }
+        colorMat <- .getMatrixValues(ArchRProj = ArchRProj, name = name, 
+            matrixName = colorBy, log2Norm = FALSE, threads = threads, 
+            logFile = logFile)
+        if (!all(rownames(df) %in% colnames(colorMat))) {
+            .logMessage("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.", 
+                logFile = logFile)
+            stop("Not all cells in embedding are present in feature matrix. This may be due to using a custom embedding.")
+        }
+        colorMat <- colorMat[, rownames(df), drop = FALSE]
+        .logThis(colorMat, "colorMat-Before-Impute", logFile = logFile)
+        if (!is.null(imputeWeights)) {
+            if (getArchRVerbose()) 
+                message("Imputing Matrix")
+            colorMat <- imputeMatrix(mat = as.matrix(colorMat), 
+                imputeWeights = imputeWeights, logFile = logFile)
+            if (!inherits(colorMat, "matrix")) {
+                colorMat <- matrix(colorMat, ncol = nrow(df))
+                colnames(colorMat) <- rownames(df)
+            }
+        }
+        .logThis(colorMat, "colorMat-After-Impute", logFile = logFile)
+        colorList <- lapply(seq_len(nrow(colorMat)), function(x) {
+            colorParams <- list()
+            colorParams$color <- colorMat[x, ]
+            colorParams$discrete <- FALSE
+            colorParams$title <- sprintf("%s colored by\n%s : %s", 
+                plotParams$title, colorBy, name[x])
+            if (tolower(colorBy) == "genescorematrix") {
+                colorParams$continuousSet <- "horizonExtra"
+            }
+            else {
+                colorParams$continuousSet <- "solarExtra"
+            }
+            if (!is.null(continuousSet)) {
+                colorParams$continuousSet <- continuousSet
+            }
+            if (!is.null(discreteSet)) {
+                colorParams$discreteSet <- discreteSet
+            }
+            if (x == 1) {
+                .logThis(colorParams, name = "ColorParams 1", 
+                  logFile = logFile)
+            }
+            colorParams
+        })
+    }
+    if (getArchRVerbose()) 
+        message("Plotting Embedding")
+    ggList <- lapply(seq_along(colorList), function(x) {
+        if (getArchRVerbose()) 
+            message(x, " ", appendLF = FALSE)
+        plotParamsx <- .mergeParams(colorList[[x]], plotParams)
+        if (plotParamsx$discrete) {
+            plotParamsx$color <- paste0(plotParamsx$color)
+        }
+        if (!plotParamsx$discrete) {
+            if (!is.null(quantCut)) {
+                plotParamsx$color <- .quantileCut(plotParamsx$color, 
+                  min(quantCut), max(quantCut))
+            }
+            plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
+            if (!is.null(pal)) {
+                plotParamsx$pal <- pal
+            }
+            if (is.null(plotAs)) {
+                plotAs <- "hexplot"
+            }
+            if (!is.null(log2Norm)) {
+                if (log2Norm) {
+                  plotParamsx$color <- log2(plotParamsx$color + 
+                    1)
+                  plotParamsx$colorTitle <- paste0("Log2(", units, 
+                    " + 1)")
+                }
+                else {
+                  plotParamsx$colorTitle <- units
+                }
+            }
+            if (tolower(plotAs) == "hex" | tolower(plotAs) == 
+                "hexplot") {
+                plotParamsx$discrete <- NULL
+                plotParamsx$continuousSet <- NULL
+                plotParamsx$rastr <- NULL
+                plotParamsx$size <- NULL
+                plotParamsx$randomize <- NULL
+                .logThis(plotParamsx, name = paste0("PlotParams-", 
+                  x), logFile = logFile)
+                gg <- do.call(ggHex, plotParamsx)
+            }
+            else {
+                if (!is.null(highlightCells)) {
+                  plotParamsx$highlightPoints <- highlightPoints
+                }
+                .logThis(plotParamsx, name = paste0("PlotParams-", 
+                  x), logFile = logFile)
+                gg <- do.call(ggPoint, plotParamsx)
+            }
+        }
+        else {
+            if (!is.null(pal)) {
+                plotParamsx$pal <- pal
+            }
+            if (!is.null(highlightCells)) {
+                plotParamsx$highlightPoints <- highlightPoints
+            }
+            .logThis(plotParamsx, name = paste0("PlotParams-", 
+                x), logFile = logFile)
+            gg <- do.call(ggPoint, plotParamsx)
+        }
+        if (!keepAxis) {
+            gg <- gg + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+                axis.text.y = element_blank(), axis.ticks.y = element_blank())
+        }
+        gg
+    })
+    names(ggList) <- name
+    if (getArchRVerbose()) 
+        message("")
+    if (length(ggList) == 1) {
+        ggList <- ggList[[1]]
+    }
+    .endLogging(logFile = logFile)
+    ggList
 }
 
 

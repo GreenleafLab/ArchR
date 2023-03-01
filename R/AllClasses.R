@@ -3,27 +3,27 @@
 #' @importClassesFrom GenomicRanges GRanges
 #' @importFrom GenomicRanges GRanges
 #' @import data.table
-NULL
+
 
 setClassUnion("characterOrNull", c("character", "NULL"))
 setClassUnion("GRangesOrNull", c("GRanges", "NULL"))
 
 setClass("ArchRProject", 
-  representation(
-    projectMetadata = "SimpleList",
-    projectSummary = "SimpleList",
-    sampleColData = "DataFrame",
-    sampleMetadata = "SimpleList",
-    cellColData = "DataFrame", 
-    cellMetadata = "SimpleList", 
-    reducedDims = "SimpleList",
-    embeddings = "SimpleList",
-    peakSet = "GRangesOrNull",
-    peakAnnotation = "SimpleList",
-    geneAnnotation = "SimpleList",
-    genomeAnnotation = "SimpleList",
-    imputeWeights = "SimpleList"
-  )
+         representation(
+           projectMetadata = "SimpleList",
+           projectSummary = "SimpleList",
+           sampleColData = "DataFrame",
+           sampleMetadata = "SimpleList",
+           cellColData = "DataFrame", 
+           cellMetadata = "SimpleList", 
+           reducedDims = "SimpleList",
+           embeddings = "SimpleList",
+           peakSet = "GRangesOrNull",
+           peakAnnotation = "SimpleList",
+           geneAnnotation = "SimpleList",
+           genomeAnnotation = "SimpleList",
+           imputeWeights = "SimpleList"
+         )
 )
 
 .validArrowFiles <- function(object){
@@ -39,40 +39,40 @@ setClass("ArchRProject",
 setValidity("ArchRProject", .validArrowFiles)
 
 setMethod("show", "ArchRProject",
-  
-  function(object) {
-    scat <- function(fmt, vals=character(), exdent=2, n = 5, ...){
-            vals <- ifelse(nzchar(vals), vals, "''")
-            lbls <- paste(S4Vectors:::selectSome(vals, maxToShow = n), collapse=" ")
-            txt <- sprintf(fmt, length(vals), lbls)
-            cat(strwrap(txt, exdent=exdent, ...), sep="\n")
-    }
-    .ArchRLogo(ascii = "Package")
-    cat("class:", class(object), "\n")
-    cat("outputDirectory:", object@projectMetadata$outputDirectory, "\n")
-
-    o <- tryCatch({
-      object@cellColData$Sample
-    }, error = function(x){
-      stop(paste0("\nError accessing sample info from ArchRProject.",
-        "\nThis is most likely the issue with saving the ArchRProject as an RDS",
-        "\nand not with save/loadArchRProject. This bug has mostly been attributed",
-        "\nto bioconductors DataFrame saving cross-compatability. We added a fix to this.",
-        "\nPlease Try:",
-        "\n\trecoverArchRProject(ArchRProj)",
-        "\n\nIf that does not work please report to Github: https://github.com/GreenleafLab/ArchR/issues"
-      ))
-    })
-
-    scat("samples(%d): %s\n", rownames(object@sampleColData))
-    scat("sampleColData names(%d): %s\n", names(object@sampleColData))
-    scat("cellColData names(%d): %s\n", names(object@cellColData))
-    scat("numberOfCells(%d): %s\n", nrow(object@cellColData))
-    scat("medianTSS(%d): %s\n", median(object@cellColData$TSSEnrichment))
-    scat("medianFrags(%d): %s\n", median(object@cellColData$nFrags))
-
-  }
-
+          
+          function(object) {
+            scat <- function(fmt, vals=character(), exdent=2, n = 5, ...){
+              vals <- ifelse(nzchar(vals), vals, "''")
+              lbls <- paste(S4Vectors:::selectSome(vals, maxToShow = n), collapse=" ")
+              txt <- sprintf(fmt, length(vals), lbls)
+              cat(strwrap(txt, exdent=exdent, ...), sep="\n")
+            }
+            .ArchRLogo(ascii = "Package")
+            cat("class:", class(object), "\n")
+            cat("outputDirectory:", object@projectMetadata$outputDirectory, "\n")
+            
+            o <- tryCatch({
+              object@cellColData$Sample
+            }, error = function(x){
+              stop(paste0("\nError accessing sample info from ArchRProject.",
+                          "\nThis is most likely the issue with saving the ArchRProject as an RDS",
+                          "\nand not with save/loadArchRProject. This bug has mostly been attributed",
+                          "\nto bioconductors DataFrame saving cross-compatability. We added a fix to this.",
+                          "\nPlease Try:",
+                          "\n\trecoverArchRProject(ArchRProj)",
+                          "\n\nIf that does not work please report to Github: https://github.com/GreenleafLab/ArchR/issues"
+              ))
+            })
+            
+            scat("samples(%d): %s\n", rownames(object@sampleColData))
+            scat("sampleColData names(%d): %s\n", names(object@sampleColData))
+            scat("cellColData names(%d): %s\n", names(object@cellColData))
+            scat("numberOfCells(%d): %s\n", nrow(object@cellColData))
+            scat("medianTSS(%d): %s\n", median(object@cellColData$TSSEnrichment))
+            scat("medianFrags(%d): %s\n", median(object@cellColData$nFrags))
+            
+          }
+          
 )
 
 #' Create ArchRProject from ArrowFiles
@@ -106,8 +106,8 @@ ArchRProject <- function(
   genomeAnnotation = getGenomeAnnotation(),
   showLogo = TRUE,
   threads = getArchRThreads()
-  ){
-
+){
+  
   .validInput(input = ArrowFiles, name = "ArrowFiles", valid = "character")
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
   .validInput(input = copyArrows, name = "copyArrows", valid = "boolean")
@@ -116,7 +116,7 @@ ArchRProject <- function(
   geneAnnotation <- .validGeneAnnoByGenomeAnno(geneAnnotation = geneAnnotation, genomeAnnotation = genomeAnnotation)
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
   .validInput(input = threads, name = "threads", valid = c("integer"))
-
+  
   if(grepl(" ", outputDirectory)){
     stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
   }
@@ -126,33 +126,33 @@ ArchRProject <- function(
   }
   sampleDirectory <- file.path(normalizePath(outputDirectory), "ArrowFiles")
   dir.create(sampleDirectory,showWarnings=FALSE)
-
+  
   if(is.null(ArrowFiles)){
     stop("Need to Provide Arrow Files!")
   }
-
+  
   threads <- min(threads, length(ArrowFiles))
-
+  
   #Validate
   message("Validating Arrows...")
   if(any(!file.exists(ArrowFiles))){
     stop(paste0("Could not find ArrowFiles :\n", paste0(ArrowFiles[!file.exists(ArrowFiles)], collapse="\n")))
   }
   ArrowFiles <- unlist(lapply(ArrowFiles, .validArrow))
-
+  
   message("Getting SampleNames...")
   sampleNames <- unlist(.safelapply(seq_along(ArrowFiles), function(x){
     if(getArchRVerbose()) message(x, " ", appendLF = FALSE)
     .sampleName(ArrowFiles[x])
   }, threads = threads))
   message("")
-
+  
   if(any(duplicated(sampleNames))){
     stop("Error cannot have duplicate sampleNames, please add sampleNames that will overwrite the current sample name in Arrow file!")
   }
-
+  
   if(length(sampleNames) != length(ArrowFiles)) stop("Samples is not equal to input ArrowFiles!")
-
+  
   if(copyArrows){
     message("Copying ArrowFiles to Ouptut Directory! If you want to save disk space set copyArrows = FALSE")
     for(i in seq_along(ArrowFiles)){
@@ -162,12 +162,12 @@ ArchRProject <- function(
     message("")
     ArrowFiles <- file.path(sampleDirectory, paste0(sampleNames, ".arrow"))
   }
-
+  
   #Sample Information
   sampleColData <- DataFrame(row.names = sampleNames, ArrowFiles = ArrowFiles)
   sampleMetadata <- SimpleList(lapply(sampleNames, function(x) SimpleList()))
   names(sampleMetadata) <- sampleNames
-
+  
   #Cell Information
   message("Getting Cell Metadata...")
   metadataList <- .safelapply(seq_along(ArrowFiles), function(x){
@@ -187,31 +187,31 @@ ArchRProject <- function(
     }
     mdx[, allCols, drop = FALSE]
   }) %>% Reduce("rbind", .) %>% DataFrame
-
+  
   message("Initializing ArchRProject...")
   AProj <- new("ArchRProject", 
-    projectMetadata = SimpleList(outputDirectory = normalizePath(outputDirectory)),
-    projectSummary = SimpleList(),
-    sampleColData = sampleColData,
-    sampleMetadata = sampleMetadata,
-    cellColData = cellColData,
-    cellMetadata = SimpleList(),
-    reducedDims = SimpleList(),
-    embeddings = SimpleList(),
-    peakSet = NULL,
-    peakAnnotation = SimpleList(),
-    geneAnnotation = .validGeneAnnotation(geneAnnotation),
-    genomeAnnotation = .validGenomeAnnotation(genomeAnnotation)
+               projectMetadata = SimpleList(outputDirectory = normalizePath(outputDirectory)),
+               projectSummary = SimpleList(),
+               sampleColData = sampleColData,
+               sampleMetadata = sampleMetadata,
+               cellColData = cellColData,
+               cellMetadata = SimpleList(),
+               reducedDims = SimpleList(),
+               embeddings = SimpleList(),
+               peakSet = NULL,
+               peakAnnotation = SimpleList(),
+               geneAnnotation = .validGeneAnnotation(geneAnnotation),
+               genomeAnnotation = .validGenomeAnnotation(genomeAnnotation)
   )
   
   if(showLogo){
     .ArchRLogo(ascii = "Logo") 
   }
-
+  
   AProj <- addProjectSummary(AProj, name = "DateOfCreation", summary = c("Date" = Sys.time()))
-
+  
   AProj
-
+  
 }
 
 #' Recover ArchRProject if broken sampleColData/cellColData
@@ -230,9 +230,9 @@ ArchRProject <- function(
 #'
 #' @export
 recoverArchRProject <- function(ArchRProj){
-
+  
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
-
+  
   if(!inherits(ArchRProj@cellColData, "DataFrame")){
     if(inherits(ArchRProj@cellColData, "DFrame")){
       ArchRProj@cellColData <- .recoverDataFrame(ArchRProj@cellColData)
@@ -240,7 +240,7 @@ recoverArchRProject <- function(ArchRProj){
       stop("Unrecognized object for DataFrame in cellColData")
     }
   }
-
+  
   if(!inherits(ArchRProj@sampleColData, "DataFrame")){
     if(inherits(ArchRProj@sampleColData, "DFrame")){
       ArchRProj@sampleColData <- .recoverDataFrame(ArchRProj@sampleColData)
@@ -248,18 +248,18 @@ recoverArchRProject <- function(ArchRProj){
       stop("Unrecognized object for DataFrame in sampleColData")
     }
   }
-
+  
   #Try to make sure that DataFrame matches currently loaded
   #S4Vectors Package
   ArchRProj@cellColData <- DataFrame(ArchRProj@cellColData)
   ArchRProj@sampleColData <- DataFrame(ArchRProj@sampleColData)
-
+  
   if(inherits(ArchRProj@peakSet, "GRanges")){
-
+    
     peakSet <- tryCatch({
-   
+      
       ArchRProj@peakSet
-   
+      
     }, error = function(x){
       
       pSet <- ArchRProj@peakSet
@@ -275,21 +275,21 @@ recoverArchRProject <- function(ArchRProj){
       names(mdata) <- names(pSet@metadata)
       pSet@metadata <- mdata
       pSet
-
+      
     })
-
+    
     ArchRProj@peakSet <- peakSet
-
+    
   }
-
+  
   ArchRProj
-
+  
 }
 
 .recoverDataFrame <- function(DF){
   
   DFO <- DF
-
+  
   rnNull <- (attr(DF, "rownames") == "\001NULL\001")[1]
   
   if(!rnNull){
@@ -302,7 +302,7 @@ recoverArchRProject <- function(ArchRProj){
   if(length(attr(DFO, "metadata")) != 0){
     
     mdata <- attr(DFO, "metadata")
-
+    
     mdata <- lapply(seq_along(mdata), function(x){
       
       mx <- mdata[[x]]
@@ -316,34 +316,34 @@ recoverArchRProject <- function(ArchRProj){
           mx <- DataFrame(attr(mx,"listData"))
         }
       }
-
+      
       if(inherits(mx, "GRanges")){
         mx <- .recoverGRanges(mx)
       }
-
+      
       mx
-
+      
     })
-
+    
     names(mdata) <- names(attr(DFO, "metadata"))
     S4Vectors::metadata(DF) <- mdata
-
+    
   }
-
+  
   DF
-
+  
 }
 
 .recoverGRanges <- function(GR){
-
+  
   GRO <- tryCatch({
-  
+    
     GR[1]
-
+    
     GR
-  
+    
   }, error = function(x){
-
+    
     GR@elementMetadata <- .recoverDataFrame(GR@elementMetadata)
     mdata <- GR@metadata
     mdata <- lapply(seq_along(mdata), function(x){
@@ -355,11 +355,11 @@ recoverArchRProject <- function(ArchRProj){
     })
     names(mdata) <- names(GR@metadata)
     GR@metadata <- mdata    
-
+    
     GR
-
+    
   })
-
+  
   GR <- GRanges(seqnames = GRO@seqnames, ranges = GRO@ranges, strand = GRO@strand)
   S4Vectors::metadata(GR) <- GRO@metadata
   if(nrow(GRO@elementMetadata) > 0){
@@ -367,7 +367,7 @@ recoverArchRProject <- function(ArchRProj){
   }
   
   GR
-
+  
 }
 
 #' Load Previous ArchRProject into R
@@ -405,8 +405,8 @@ loadArchRProject <- function(
   force = FALSE, 
   showLogo = TRUE,
   shiny = FALSE
-  ){
-
+){
+  
   .validInput(input = path, name = "path", valid = "character")
   .validInput(input = force, name = "force", valid = "boolean")
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
@@ -416,119 +416,122 @@ loadArchRProject <- function(
   if(!file.exists(path2Proj)){
     stop("Could not find previously saved ArchRProject in the path specified!")
   }
-
+  
   ArchRProj <- recoverArchRProject(readRDS(path2Proj))
   outputDir <- getOutputDirectory(ArchRProj)
   outputDirNew <- normalizePath(path)
-
-if (!shiny) {
-  #1. Arrows Paths
-  ArrowFilesNew <- file.path(outputDirNew, "ArrowFiles", basename(ArchRProj@sampleColData$ArrowFiles))
-  if(!all(file.exists(ArrowFilesNew))){
-    stop("ArrowFiles do not exist in saved ArchRProject!")
-  }
-  ArchRProj@sampleColData$ArrowFiles <- ArrowFilesNew
-
-  #2. Annotations Paths
-
-  if(length(ArchRProj@peakAnnotation) > 0){
+  ArchRProj@projectMetadata$outputDirectory <- outputDirNew
+  
+  
+  if (!shiny) {
+    #1. Arrows Paths
+    ArrowFilesNew <- file.path(outputDirNew, "ArrowFiles", basename(ArchRProj@sampleColData$ArrowFiles))
+    if(!all(file.exists(ArrowFilesNew))){
+      stop("ArrowFiles do not exist in saved ArchRProject!")
+    }
+    ArchRProj@sampleColData$ArrowFiles <- ArrowFilesNew
     
-    keepAnno <- rep(TRUE, length(ArchRProj@peakAnnotation))
-
-    for(i in seq_along(ArchRProj@peakAnnotation)){
-      #Postions
-      if(!is.null(ArchRProj@peakAnnotation[[i]]$Positions)){
-
-        if(tolower(ArchRProj@peakAnnotation[[i]]$Positions) != "none"){
-
-          PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Positions)
-          if(!all(file.exists(PositionsNew))){
+    #2. Annotations Paths
+    
+    if(length(ArchRProj@peakAnnotation) > 0){
+      
+      keepAnno <- rep(TRUE, length(ArchRProj@peakAnnotation))
+      
+      for(i in seq_along(ArchRProj@peakAnnotation)){
+        #Postions
+        if(!is.null(ArchRProj@peakAnnotation[[i]]$Positions)){
+          
+          if(tolower(ArchRProj@peakAnnotation[[i]]$Positions) != "none"){
+            
+            PositionsNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Positions)
+            if(!all(file.exists(PositionsNew))){
+              if(force){
+                keepAnno[i] <- FALSE
+                message("Positions for peakAnnotation do not exist in saved ArchRProject!")
+              }else{
+                stop("Positions for peakAnnotation do not exist in saved ArchRProject!")
+              }
+            }
+            ArchRProj@peakAnnotation[[i]]$Positions <- PositionsNew
+            
+          }
+          
+        }
+        
+        #Matches
+        if(!is.null(ArchRProj@peakAnnotation[[i]]$Matches)){
+          
+          MatchesNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Matches)
+          if(!all(file.exists(MatchesNew))){
             if(force){
+              message("Matches for peakAnnotation do not exist in saved ArchRProject!")
               keepAnno[i] <- FALSE
-              message("Positions for peakAnnotation do not exist in saved ArchRProject!")
             }else{
-              stop("Positions for peakAnnotation do not exist in saved ArchRProject!")
+              stop("Matches for peakAnnotation do not exist in saved ArchRProject!")
             }
           }
-          ArchRProj@peakAnnotation[[i]]$Positions <- PositionsNew
-
+          ArchRProj@peakAnnotation[[i]]$Matches <- MatchesNew
+          
         }
-
-      }
-
-      #Matches
-      if(!is.null(ArchRProj@peakAnnotation[[i]]$Matches)){
-
-        MatchesNew <- gsub(outputDir, outputDirNew, ArchRProj@peakAnnotation[[i]]$Matches)
-        if(!all(file.exists(MatchesNew))){
-          if(force){
-            message("Matches for peakAnnotation do not exist in saved ArchRProject!")
-            keepAnno[i] <- FALSE
-          }else{
-            stop("Matches for peakAnnotation do not exist in saved ArchRProject!")
-          }
-        }
-        ArchRProj@peakAnnotation[[i]]$Matches <- MatchesNew
-
-      }
-
-    }
-
-    ArchRProj@peakAnnotation <- ArchRProj@peakAnnotation[keepAnno]
-
-  }
-
-
-  #3. Background Peaks Paths
-  if(!is.null(getPeakSet(ArchRProj))){
-
-    if(!is.null(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
-
-      bgdPeaksNew <- gsub(outputDir, outputDirNew, S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)
-
-      if(!all(file.exists(bgdPeaksNew))){
         
-        if(force){
-          message("BackgroundPeaks do not exist in saved ArchRProject!")
-          S4Vectors::metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
+      }
+      
+      ArchRProj@peakAnnotation <- ArchRProj@peakAnnotation[keepAnno]
+      
+    }
+    
+    
+    #3. Background Peaks Paths
+    if(!is.null(getPeakSet(ArchRProj))){
+      
+      if(!is.null(S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)){
+        
+        bgdPeaksNew <- gsub(outputDir, outputDirNew, S4Vectors::metadata(getPeakSet(ArchRProj))$bgdPeaks)
+        
+        if(!all(file.exists(bgdPeaksNew))){
+          
+          if(force){
+            message("BackgroundPeaks do not exist in saved ArchRProject!")
+            S4Vectors::metadata(ArchRProj@peakSet)$bgdPeaks <- NULL
+          }else{
+            stop("BackgroundPeaks do not exist in saved ArchRProject!")
+          }
+          
         }else{
-          stop("BackgroundPeaks do not exist in saved ArchRProject!")
-        }
-
-      }else{
-
-        S4Vectors::metadata(ArchRProj@peakSet)$bgdPeaks <- bgdPeaksNew
-
-      }    
-
+          
+          S4Vectors::metadata(ArchRProj@peakSet)$bgdPeaks <- bgdPeaksNew
+          
+        }    
+        
+      }
+      
     }
-
-  }
-
-  #4. Group Coverages
-
-  #update paths for group coverage files in project metadata
-  if(length(ArchRProj@projectMetadata$GroupCoverages) > 0) {
-    groupC <- length(ArchRProj@projectMetadata$GroupCoverages)
-    for(z in seq_len(groupC)){
-      zdata <- ArchRProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata
-      zfiles <- gsub(outputDir, outputDirNew, zdata$File)
-      ArchRProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata$File <- zfiles
-      stopifnot(all(file.exists(zfiles)))
+    
+    #4. Group Coverages
+    
+    #update paths for group coverage files in project metadata
+    if(length(ArchRProj@projectMetadata$GroupCoverages) > 0) {
+      groupC <- length(ArchRProj@projectMetadata$GroupCoverages)
+      for(z in seq_len(groupC)){
+        zdata <- ArchRProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata
+        zfiles <- gsub(outputDir, outputDirNew, zdata$File)
+        ArchRProj@projectMetadata$GroupCoverages[[z]]$coverageMetadata$File <- zfiles
+        stopifnot(all(file.exists(zfiles)))
+      }
     }
+    
   }
   #5. Set Output Directory
   
   ArchRProj@projectMetadata$outputDirectory <- outputDirNew
-
+  
   message("Successfully loaded ArchRProject!")
   if(showLogo){
-      .ArchRLogo(ascii = "Logo")
+    .ArchRLogo(ascii = "Logo")
   }  
-
   ArchRProj
-
 }
+
 
 #' Save ArchRProject for Later Usage
 #' 
@@ -557,17 +560,17 @@ saveArchRProject <- function(
   dropCells = FALSE,
   logFile = createLogFile("saveArchRProject"),
   threads = getArchRThreads()
-  ){
-
+){
+  
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
   .validInput(input = overwrite, name = "overwrite", valid = "boolean")
   .validInput(input = load, name = "load", valid = "boolean")
-
+  
   if(grepl(" ", outputDirectory)){
     stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
   }
-
+  
   dir.create(outputDirectory, showWarnings=FALSE)
   outputDirectory <- normalizePath(outputDirectory)
   outDirOld <- normalizePath(getOutputDirectory(ArchRProj))
@@ -575,20 +578,20 @@ saveArchRProject <- function(
   newProj <- ArchRProj
   ArrowFiles <- getArrowFiles(ArchRProj)
   ArrowFiles <- ArrowFiles[names(ArrowFiles) %in% unique(newProj$Sample)]
-
+  
   oldFiles <- list.files(outDirOld)
   oldFiles <- oldFiles[oldFiles %ni% c("ArrowFiles", "ImputeWeights", "Save-ArchR-Project.rds")]
-
+  
   dir.create(file.path(outputDirectory, "ArrowFiles"), showWarnings=FALSE)
   ArrowFilesNew <- file.path(outputDirectory, "ArrowFiles", basename(ArrowFiles))
   names(ArrowFilesNew) <- names(ArrowFiles)
-
+  
   if(outputDirectory != outDirOld){
     message("Copying ArchRProject to new outputDirectory : ", normalizePath(outputDirectory))
   }
-
+  
   if(!identical(paste0(ArrowFiles), paste0(ArrowFilesNew))){
-
+    
     #Copy Arrow Files
     message("Copying Arrow Files...")
     if(dropCells){
@@ -605,9 +608,9 @@ saveArchRProject <- function(
         cf <- file.copy(ArrowFiles[i], ArrowFilesNew[i], overwrite = overwrite)
       }
     }
-
+    
   }else{
-
+    
     if(dropCells){
       for(i in seq_along(ArrowFiles)){
         message(sprintf("Moving Arrow Files (%s of %s)", i, length(ArrowFiles)))
@@ -626,17 +629,17 @@ saveArchRProject <- function(
         rmf <- file.remove(paste0(ArrowFiles, "-old"))
       }
     }
-
+    
   }
-
+  
   if(outputDirectory != outDirOld){
-
+    
     #Empty Impute Weights If Changing Directory Because This Could Be A Different Set of Cells
     if(!is.null(getImputeWeights(newProj))){
       message("Dropping ImputeWeights...")
       newProj@imputeWeights <- SimpleList()
     }
-
+    
     #Copy Recursively
     message("Copying Other Files...")
     for(i in seq_along(oldFiles)){
@@ -644,11 +647,11 @@ saveArchRProject <- function(
       oldPath <- file.path(outDirOld, oldFiles[i])
       file.copy(oldPath, outputDirectory, recursive=TRUE, overwrite=overwrite)
     }
-
+    
     #Set New Info
     newProj@sampleColData <- newProj@sampleColData[names(ArrowFilesNew), , drop = FALSE]
     newProj@sampleColData$ArrowFiles <- ArrowFilesNew[rownames(newProj@sampleColData)]
-  
+    
     #Check for Group Coverages Copied
     groupC <- length(newProj@projectMetadata$GroupCoverages)
     if(length(groupC) > 0){
@@ -659,9 +662,9 @@ saveArchRProject <- function(
         stopifnot(all(file.exists(zfiles)))
       }
     }
-
+    
   }
-
+  
   message("Saving ArchRProject...")
   .safeSaveRDS(newProj, file.path(outputDirectory, "Save-ArchR-Project.rds"))
   
@@ -669,7 +672,7 @@ saveArchRProject <- function(
     message("Loading ArchRProject...")
     loadArchRProject(path = outputDirectory)
   }
-
+  
 }
 
 #' Subset an ArchRProject for downstream analysis
@@ -701,24 +704,24 @@ subsetArchRProject <- function(
   logFile = NULL,
   threads = getArchRThreads(),
   force = FALSE
-  ){
-
+){
+  
   .validInput(input = ArchRProj, name = "ArchRProj", valid = "ArchRProj")
   .validInput(input = cells, name = "cells", valid = "character")
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
-
+  
   outDirOld <- getOutputDirectory(ArchRProj)
-
+  
   if(dir.exists(outputDirectory)){
     if(!force){
       stop("outputDirectory exists! Please set force = TRUE to overwrite existing directory!")
     }
   }
-
+  
   if(outputDirectory == outDirOld){
     stop("outputDirectory must be different than ArchRProj outputDirectory to properly subset!")
   }
-
+  
   saveArchRProject(
     ArchRProj = ArchRProj[cells, ], 
     outputDirectory = outputDirectory,
@@ -727,7 +730,7 @@ subsetArchRProject <- function(
     logFile = logFile,
     threads = threads
   )
-
+  
 }
 
 #Accessor methods adapted from Seurat 
@@ -801,7 +804,7 @@ subsetArchRProject <- function(
   if(missing(i)){
     return(x)
   }
-
+  
   if(!missing(j)){
     message("Subsetting columns not supported this way to remove columns set them to NULL.\nEx. ArchRProj$Clusters <- NULL\nContinuing just with cell subsetting.")
   }
@@ -816,25 +819,25 @@ subsetArchRProject <- function(
   if (is.numeric(i)) {
     i <- rownames(cD)[i]
   }
-
+  
   if(length(i) == 1){
     stop("Length of subsetting cells must be greater than 1!")
   }
-
+  
   i <- unique(i)
-
+  
   #First Subset CellColData
   x@cellColData <- cD[i, , drop=FALSE]
   cellsKeep <- rownames(x@cellColData)
-
+  
   #Second Remove Impute Weights
   if(length(i) != nrow(cD)){
     if(length(x@imputeWeights) != 0){
-    message("Dropping ImputeWeights Since You Are Subsetting Cells! ImputeWeights is a cell-x-cell Matrix!")
+      message("Dropping ImputeWeights Since You Are Subsetting Cells! ImputeWeights is a cell-x-cell Matrix!")
     }
     x@imputeWeights <- SimpleList()
   }
-
+  
   #Third Subset ReducedDims
   rD <- x@reducedDims
   rD2 <- lapply(seq_along(rD), function(x){
@@ -844,7 +847,7 @@ subsetArchRProject <- function(
   names(rD2) <- names(rD)
   rD <- x@reducedDims
   rm(rD, rD2)
-
+  
   #Fourth Subset Embeddings
   eD <- x@embeddings
   eD2 <- lapply(seq_along(eD), function(x){
@@ -854,9 +857,9 @@ subsetArchRProject <- function(
   names(eD2) <- names(eD)
   x@embeddings <- eD2
   rm(eD, eD2)
-
+  
   return(x)
-
+  
 }
 
 setMethod(
@@ -874,9 +877,3 @@ setMethod(
     rownames(x@cellColData)
   }
 )
-
-
-
-
-
-

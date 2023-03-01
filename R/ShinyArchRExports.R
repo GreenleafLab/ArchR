@@ -22,8 +22,9 @@ exportShinyArchR <- function(
   ArchRProj = NULL,
   mainDir = "Shiny",
   subOutDir = "inputData",
+  savedArchRProjFile = "Save-ArchR-Project.rds",
   groupBy = "Clusters",
-  cellColEmbeddings = NULL,
+  cellColEmbeddings = "Clusters",
   embedding = "UMAP",
   tileSize = 100,
   force = FALSE,
@@ -31,17 +32,20 @@ exportShinyArchR <- function(
   logFile = createLogFile("exportShinyArchR")
 ){
   
+  options(warn=-1)
+  
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
-  .validInput(input = outputDir, name = "outputDir", valid = c("character"))
-  .validInput(input =  subOutput, name = "subOutputDir", valid = c("character"))
+  .validInput(input = mainDir, name = "mainDir", valid = c("character"))
+  .validInput(input =  subOutDir, name = "subOutDir", valid = c("character"))
+  .validInput(input = savedArchRProjFile, name = "savedArchRProjFile", valid = c("character"))
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
-  .validInput(input = cellColEmbeddings, name = "groupBy", valid = c("character", "null"))
+  .validInput(input = cellColEmbeddings, name = "cellColEmbeddings", valid = c("character", "null"))
   .validInput(input = embedding, name = "embedding", valid = c("character"))
   .validInput(input = tileSize, name = "tileSize", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
-
+  
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportShinyArchR Input-Parameters", logFile = logFile)
   
@@ -54,7 +58,8 @@ exportShinyArchR <- function(
   
   if(is.null(cellColEmbeddings)){
     stop("The cellColEmbeddings parameter must be defined! Please see function input definitions.")
-  } else if(!all(cellColEmbeddings %in% colnames(ArchRProj@cellColData))){
+  } 
+  if(!all(cellColEmbeddings %in% colnames(ArchRProj@cellColData))){
     stop("Not all entries in cellColEmbeddings exist in the cellColData of your ArchRProj. Please check provided inputs.")
   }
   
@@ -74,13 +79,14 @@ exportShinyArchR <- function(
   
   # get directories paths
   projDir <- getOutputDirectory(ArchRProj)
-  mainDir <- file.path(projDir, mainDir)
-  subOutDir <- file.path(projDir, mainDir, subOutDir)
+  mainOutputDir <- file.path(projDir, mainDir)
+  subOutputDir <- file.path(projDir, mainDir, subOutDir)
+  
   
   # Make directory for Shiny App 
-  if(!dir.exists(mainDir)) {
+  if(!dir.exists(mainOutputDir)) {
     
-    dir.create(mainDir, showWarnings = TRUE)
+    dir.create(mainOutputDir, showWarnings = TRUE)
     
     ## Check the links for the files
     # filesUrl <- data.frame(
@@ -98,44 +104,48 @@ exportShinyArchR <- function(
     #   stringsAsFactors = FALSE
     # )
     
-    # .downloadFiles(filesUrl = filesUrl, pathDownload = mainDir, threads = threads)
+    # .downloadFiles(filesUrl = filesUrl, pathDownload = mainOutputDir, threads = threads)
     
   }else{
     message("Using existing Shiny files...")
   }
   
-  # Create a copy of the ArchRProj 
+  dir.create(subOutputDir, showWarnings = FALSE)
+  
+  # Create a copy of the ArchRProj
+  # ArchRProjShiny will be only a .rds 
   ArchRProjShiny <- ArchRProj
   # Add metadata to ArchRProjShiny
   ArchRProjShiny@projectMetadata[["groupBy"]] <- groupBy
   ArchRProjShiny@projectMetadata[["tileSize"]] <- tileSize
   units <- tryCatch({
-   .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
+    .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
   },error=function(e){
-   "values"
+    "values"
   })
   ArchRProjShiny@projectMetadata[["units"]] <- units
-  ArchRProjShiny <- saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = 
-  file.path(mainDir, "Save-ArchRProjShiny"), dropCells = TRUE, overwrite = TRUE, load = TRUE)
+  
+  file.copy(file.path(getOutputDirectory(ArchRProjShiny), savedArchRProjFile), file.path(mainOutputDir), recursive=FALSE)
   
   # Create fragment files - should be saved within a dir called ShinyFragments within the ArchRProjShiny output directory
-  fragDir <- file.path(projDir, "ShinyFragments", groupBy)
+  fragDir <- file.path(projDir, mainDir, "ShinyFragments", groupBy)
   fragFiles <- list.files(path = file.path(fragDir, pattern = "\\_frags.rds$"))
+  
   #this is still a slightly dangerous comparison, better would be to compare for explicitly the file names that are expected
   if(length(fragFiles) == length(unique(ArchRProj@cellColData[,groupBy]))){
     if(force){
-      .getGroupFragsFromProj(ArchRProj = ArchRProj, groupBy = groupBy, outDir = fragDir)
+      .getGroupFragsFromProj(ArchRProj = ArchRProjShiny, groupBy = groupBy, outDir = fragDir)
     } else{
       message("Fragment files already exist. Skipping fragment file generation...")
     }    
   }else{ 
-    dir.create(file.path(projDir, "ShinyFragments"))
-    dir.create(fragDir, showWarnings = TRUE)
+    dir.create(file.path(mainOutputDir, "ShinyFragments"), showWarnings = FALSE)
+    dir.create(fragDir, showWarnings = FALSE)
     .getGroupFragsFromProj(ArchRProj = ArchRProj, groupBy = groupBy, outDir = fragDir)
   }
   
   # Create coverage objects - should be saved within a dir called ShinyCoverage within the ArchRProjShiny output directory
-  covDir <- file.path(projDir, "ShinyCoverage", groupBy)
+  covDir <- file.path(projDir, mainDir, "ShinyCoverage", groupBy)
   covFiles <- list.files(path = covDir, pattern = "\\_cvg.rds$")
   #this is still a slightly dangerous comparison, better would be to compare for explicitly the file names that are expected
   if(length(covFiles) == length(unique(ArchRProjShiny@cellColData[,groupBy]))){
@@ -145,41 +155,43 @@ exportShinyArchR <- function(
       message("Coverage files already exist. Skipping fragment file generation...")
     }
   }else{
-    dir.create(file.path(projDir, "ShinyCoverage"))
+    dir.create(file.path(mainOutputDir, "ShinyCoverage"))
     dir.create(covDir, showWarnings = TRUE)
-    .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, outDir = covDir)
+    .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, fragDir = fragDir, outDir = covDir)
   }
-
+  
   # Create directory to save input data to Shinyapps.io (everything that will be preprocessed)
-  dir.create(file.path(projDir, outputDir, subOutputDir), showWarnings = TRUE)
- 
+  # dir.create(file.path(projDir, mainDir, subOutDir), showWarnings = TRUE)
+  supportedMatrices <- c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix") #only these matrices are currently supported for ShinyArchR
   allMatrices <- getAvailableMatrices(ArchRProjShiny)
+  supportedMatrices <- intersect(supportedMatrices, allMatrices)
   matrices <- list()
   imputeMatrices <- list()
   imputeWeights <- getImputeWeights(ArchRProj = ArchRProjShiny)
   df <- getEmbedding(ArchRProjShiny, embedding = embedding, returnDF = TRUE)
   
-  if(!file.exists(file.path(outputDir, subOutputDir, "matrices.rds")) && !file.exists(file.path(outputDir, subOutputDir, "imputeMatrices.rds"))){
-    for(matName in allMatrices){
+  if(!file.exists(file.path(mainDir, subOutDir, "matrices.rds")) && !file.exists(file.path(mainDir, subOutDir, "imputeMatrices.rds"))){
+    for(matName in supportedMatrices){
       featuresNames <- getFeatures(ArchRProj = ArchRProj, useMatrix = matName)
-      saveRDS(featuresNames, file.path(outputDir, subOutputDir, matName, "_names.rds"))
-    
+      dir.create(file.path(mainOutputDir, subOutDir, matName), showWarnings = FALSE)
+      saveRDS(featuresNames, file.path(mainOutputDir, subOutDir, matName, paste0(matName, "_names.rds")))
+      
       if(!is.null(featuresNames)){
         
-         mat = Matrix(.getMatrixValues(
+        mat <- .getMatrixValues(
           ArchRProj = ArchRProjShiny, 
           name = featuresNames,
           matrixName = matName,
           log2Norm = FALSE,
-          threads = threads), sparse = TRUE)
+          threads = threads)
         
         matrices[[matName]] = mat
         matList = mat[,rownames(df), drop=FALSE]
         .logThis(matList, paste0(matName,"-Before-Impute"), logFile = logFile)
-
+        
         if(getArchRVerbose()) message("Imputing Matrix")
         imputeMat <- imputeMatrix(mat = as.matrix(matList), imputeWeights = imputeWeights, logFile = logFile)
-
+        
         if(!inherits(imputeMat, "matrix")){
           imputeMat <- mat(imputeMat, ncol = nrow(df))
           colnames(imputeMat) <- rownames(df)
@@ -190,40 +202,39 @@ exportShinyArchR <- function(
         message(matName, " is NULL.")
       }
     }
-    matrices$allColorBy= .availableArrays(head(getArrowFiles(ArchRProj), 2))
-    saveRDS(matrices, file.path(outputDir, subOutputDir, "matrices.rds"))
-    saveRDS(imputeMatrices, file.path(outputDir, subOutputDir, "imputeMatrices.rds"))
+    matrices$allColorBy <- supportedMatrices
+    saveRDS(matrices, file.path(mainOutputDir, subOutDir, "matrices.rds"))
+    saveRDS(imputeMatrices, file.path(mainOutputDir, subOutDir, "imputeMatrices.rds"))
   }else{
     
     message("matrices and imputeMatrices already exist. reading from local files...")
     
-    matrices <- readRDS(file.path(projDir, outputDir, subOutputDir, "matrices.rds"))
-    imputeMatrices <- readRDS(file.path(projDir, outputDir, subOutputDir, "imputeMatrices.rds"))
+    matrices <- readRDS(file.path(projDir, mainDir, subOutDir, "matrices.rds"))
+    imputeMatrices <- readRDS(file.path(projDir, mainDir, subOutDir, "imputeMatrices.rds"))
   }
-   
-  # mainEmbeds will create an HDF5 file containing the nativeRaster vectors for data stored in cellColData
-  if (!file.exists(file.path(projDir, outputDir, subOutputDir, "mainEmbeds.h5"))) {
+  
+  
+  if (!file.exists(file.path(projDir, mainDir, subOutDir, "mainEmbeds.h5"))) {
+    # mainEmbeds will create an HDF5 file containing the nativeRaster vectors for data stored in cellColData
     .mainEmbeds(ArchRProj = ArchRProjShiny,
-              outDirEmbed = file.path(projDir, outputDir, subOutputDir),
-              colorBy = "cellColData",
-              cellColEmbeddings = cellColEmbeddings,
-              embeddingDF = df,
-              matrices =  matrices,
-              imputeMatrices = imputeMatrices,
-              logFile = createLogFile("mainEmbeds")
-            )          
+                outDirEmbed = file.path(projDir, mainDir, subOutDir),
+                colorBy = "cellColData",
+                cellColEmbeddings = cellColEmbeddings,
+                # embeddingDF = df,
+                matrices =  matrices,
+                imputeMatrices = imputeMatrices,
+                logFile = createLogFile("mainEmbeds")
+    )          
   } else{
     message("H5 for main embeddings already exists...")
   }
-
-  # matrixEmbeds will create an HDF5 file containing he nativeRaster vectors for data stored in matrices
-  supportedMatrices <- c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix") #only these matrices are currently supported for ShinyArchR
-  if(!file.exists(file.path(outputDir, subOutputDir, "plotBlank72.h5"))){
-
+  
+  if(!file.exists(file.path(mainDir, subOutDir, "plotBlank72.h5"))){
+    # matrixEmbeds will create an HDF5 file containing the nativeRaster vectors for data stored in matrices
     .matrixEmbeds(
       ArchRProj = ArchRProj,
-      outDirEmbed = file.path(projDir, outputDir, subOutputDir),
-      colorBy = intersect(supportedMatrices, allMatrices),
+      outDirEmbed = file.path(projDir, mainDir, subOutDir),
+      colorBy = supportedMatrices,
       embedding = embedding,
       matrices = matrices,
       imputeMatrices = imputeMatrices,
@@ -231,19 +242,30 @@ exportShinyArchR <- function(
       verbose = TRUE,
       logFile = createLogFile("matrixEmbeds")
     )
-
+    
   }else{
     message("H5 file already exists...")
   }  
+  
+  
   ## delete unnecessary files -----------------------------------------------------------------
   unlink(file.path(projDir, "ShinyFragments"), recursive = TRUE) 
-
+  
   ## ready to launch ---------------------------------------------------------------
-  message("App created! To launch, 
-            ArchRProj <- loadArchRProject('", projDir,"') and 
-            run shiny::runApp('", outputDir, "') from parent directory")
-  #  runApp("myappdir")
-
+  message("App is created!", '\n',
+          "Please run the following code chunk to launch the app:",'\n\n',
+          
+          "ArchRProj <- loadArchRProject('", projDir,"')\n", 
+          "mainDir = ", "'", mainDir, "'" ,'\n',
+          "subOutDir = ", "'",subOutDir,"'",'\n',
+          "savedArchRProjFile = ", "'",savedArchRProjFile,"'",'\n',
+          "groupBy = ", "'",groupBy,"'",'\n',
+          "cellColEmbeddings = ", "'",cellColEmbeddings,"'",'\n',
+          "embedding = ", "'",embedding,"'",'\n', 
+          "availableMatrices = ", "c(",paste(shQuote(allMatrices, type = "cmd"), collapse=", "),")",'\n',
+          "shiny::runApp('", mainDir, "')"
+          
+  )
 }
 
 #' Create an HDF5 file, mainEmbeds.h5, containing the nativeRaster vectors for the 5 main embeddings. 
@@ -255,8 +277,7 @@ exportShinyArchR <- function(
 #' @param cellColEmbeddings A character vector of columns in `cellColData` to plot as part of the Shiny app. No default is provided so this must be set.
 #' For ex. `c("Sample","Clusters","TSSEnrichment","nFrags")`.
 #' @param embedding The embedding to use. Default is "UMAP".
-#' @param embeddingDF The pre-processed/stored embedding data.frame to use so plotEmbedding() runs faster.
-#' @param matrices List of stored matrices to use for plotEmbedding() so that it runs faster. 
+#' @param matrices List of stored matrices to use for plotEmbedding so that it runs faster. 
 #' @param imputeMatrices List of stored imputed matrices to use for plotEmbedding so that it runs faster. 
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -267,7 +288,6 @@ exportShinyArchR <- function(
   colorBy = "cellColData", 
   cellColEmbeddings = NULL,
   embedding = "UMAP",
-  embeddingDF = NULL,
   matrices = NULL,
   imputeMatrices = NULL,
   threads = getArchRThreads(),
@@ -280,60 +300,59 @@ exportShinyArchR <- function(
   .validInput(input = embedding, name = "embedding", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("numeric"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
-
+  
   .startLogging(logFile=logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "mainEmbeds Input-Parameters", logFile = logFile)
-
+  
   if(!file.exists(file.path(outDirEmbed, "embeds.rds"))){  
-
-     # check all names exist in ArchRProj
-      if(cellColEmbeddings %ni% colnames(ArchRProj@cellColData)){
-        stop("All columns should be present in cellColData")
-      }
-
-    embeds <- .safelapply(1:length(cellColEmbeddings), function(x){
-       name <- cellColEmbeddings[[x]]
-
-       tryCatch({
-         named_embed <- plotEmbedding(
-           ArchRProj = ArchRProj,
-           baseSize = 12,
-           colorBy = colorBy,
-           name = name,
-           allNames = names,
-           embedding = embedding,
-           embeddingDF = embeddingDF,
-           rastr = FALSE,
-           size = 0.5,
-           # imputeWeights = NULL, # unsure if inputWeights needed for cellColData
-           Shiny = TRUE
-         )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
-                                                      legend.title = element_text(size = 12),legend.text = element_text(size = 6))
-       }, error = function(x){
-         print(x)
-       })
-        return(named_embed) 
+    
+    # check all names exist in ArchRProj
+    if(cellColEmbeddings %ni% colnames(ArchRProj@cellColData)){
+      stop("All columns should be present in cellColData")
+    }
+    
+    embeds <- .safelapply(length(cellColEmbeddings), function(x){ 
+      name <- cellColEmbeddings[x]
+      
+      tryCatch({
+        named_embed <- plotEmbedding(
+          ArchRProj = ArchRProj,
+          baseSize = 12,
+          colorBy = colorBy,
+          name = name,
+          embedding = embedding,
+          embeddingDF = df,
+          rastr = FALSE,
+          size = 0.5,
+          imputeWeights = NULL, 
+          Shiny = TRUE
+        )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
+                                                     legend.title = element_text(size = 12),legend.text = element_text(size = 6))
+      }, error = function(x){
+        print(x)
+      })
+      return(named_embed) 
     })
-
-    names(embeds) <- names
+    
+    names(embeds) <- cellColEmbeddings[1:length(cellColEmbeddings)]
     saveRDS(embeds, file.path(outDirEmbed, "embeds.rds"))
-
+    
   } else {
     message("Main embeddings already exist. Skipping generation and reading in embeds.rds file...")
     embeds <- readRDS(file.path(outDirEmbed, "embeds.rds"))
   }
-
+  
   h5closeAll()
   points <- H5Fcreate(name = file.path(outDirEmbed, "mainEmbeds.h5"))
-
+  
   embed_legend <- list()
   embed_color <- list()
-
-
+  
+  
   for(i in 1:length(embeds)){
-
+    
     embed_plot <- embeds[i]
-
+    
     embed_plot[[1]]$labels$title <- NULL
     embed_plot_blank <- embed_plot[[1]] + theme(axis.title.x = element_blank()) +
       theme(axis.title.y = element_blank()) +
@@ -345,27 +364,27 @@ exportShinyArchR <- function(
         panel.border = element_blank(),
         title=element_blank()
       )
-
+    
     #save plot without axes etc as a jpg
     ggsave(filename = file.path(outDirEmbed, paste0(names(embeds)[i],"_blank72.jpg")),
-           plot = embed_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
-
+           plot = embed_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 300)
+    
     #read back in that jpg because we need vector in native format
     blank_jpg72 <- readJPEG(source = file.path(outDirEmbed, paste0(names(embeds)[[i]],"_blank72.jpg")), native = TRUE)
-
+    
     # save the native raster vectors 
     h5createDataset(file = points, dataset = names(embeds)[i], dims = c(46656,1), storage.mode = "integer")
-    h5writeDataset(obj = as.vector(blank_jpg72), h5loc = points, name= names[i])
-
+    h5writeDataset(obj = as.vector(blank_jpg72), h5loc = points, name= names(embeds)[i])
+    
     # save legend and color scale
     embed_legend[[i]] <- levels(embed_plot[[1]]$data$color)
     names(embed_legend)[[i]] <- names(embed_plot)
-
+    
     embed_color[[i]] <- unique(ggplot_build(embed_plot[[1]])$data[[1]][,"colour"])
     names(embed_color)[[i]] <- names(embed_plot)
-
+    
   }
-
+  
   saveRDS(embed_color, file.path(outDirEmbed, "embed_color.rds"))
   saveRDS(embed_legend, file.path(outDirEmbed, "embed_legend_names.rds"))
 }
@@ -374,24 +393,22 @@ exportShinyArchR <- function(
 #' This function will be called by exportShinyArchR()
 #' 
 #' @param ArchRProj An `ArchRProject` object loaded in the environment. Can do this using: loadArchRProject("path to ArchRProject/")
+#' @param outDirEmbed Where the HDF5 and the jpgs will be saved.
 #' @param colorBy A string indicating whether points in the plot should be colored by a column in `cellColData` ("cellColData") or by
 #' a data matrix in the corresponding ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix"). 
 #' @param embedding The embedding to use. Default is "UMAP".
-#' @param matrices List of stored/pre-processed matrices to use for plotEmbedding() so that it runs faster. 
-#' @param imputeMatrices List of stored imputed matrices to use for plotEmbedding() so that it runs faster.
-#' @param embeddingDF The pre-processed/stored embedding data.frame to use so plotEmbedding() runs faster. 
+#' @param matrices List of stored matrices to use for plotEmbedding so that it runs faster. 
+#' @param imputeMatrices List of stored imputed matrices to use for plotEmbedding so that it runs faster. 
 #' @param threads The number of threads to use for parallel execution.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #'
-
 .matrixEmbeds <- function(
   ArchRProj = NULL,
   outDirEmbed = NULL,
   colorBy = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
   supportedMatrices = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
   embedding = "UMAP",
-  embeddingDF = NULL,
   matrices = NULL,
   imputeMatrices = NULL,
   threads = getArchRThreads(),
@@ -424,7 +441,7 @@ exportShinyArchR <- function(
   allMatrices <- getAvailableMatrices(ArchRProj)
   
   for(mat in colorBy){
-    if(mat %in% supportedMatrices){
+    if(mat %ni% intersect(supportedMatrices, allMatrices)){
       message(mat,"not in ArchRProj") ## NOTE: should we stop or just give a warning
     }
     
@@ -433,13 +450,13 @@ exportShinyArchR <- function(
       dir.create(paste0(outDirEmbed, "/",mat, "/embeds"), showWarnings = FALSE)
       
       featureNames <- readRDS(file.path(outDirEmbed, mat, paste0(mat,"_names.rds")))
-    
+      
       if(!is.null(featureNames)){
         
-        embeds_points <- .safelapply(1:10, function(x){ # length(featureNames)
+        embeds_points <- .safelapply(1:length(featureNames), function(x){ 
           
           print(paste0("Creating plots for ", mat,": ",x,": ",round((x/length(featureNames))*100,3), "%"))
-
+          
           if(!is.na(featureNames[x])){
             
             gene_plot <- plotEmbedding(
@@ -451,7 +468,7 @@ exportShinyArchR <- function(
               imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
               plotAs = "points",
               matrices = mat,
-              embeddingDF = embeddingDF,
+              embeddingDF = df,
               imputeMatrices = imputeMatrices,
               rastr = TRUE
             )
@@ -478,7 +495,7 @@ exportShinyArchR <- function(
             
             #read back in that jpg because we need vector in native format
             blank_jpg72 <- readJPEG(source = file.path(outDirEmbed, mat, "embeds", paste0(featureNames[x],"_blank72.jpg")),
-                                                        native = TRUE)
+                                    native = TRUE)
             
             g <- ggplot_build(gene_plot)
             
@@ -491,7 +508,7 @@ exportShinyArchR <- function(
           
         }, threads = threads) 
         
-        names(embeds_points) <- featureNames[1:10]
+        names(embeds_points) <- featureNames[1:length(featureNames)]
         embeds_points = embeds_points[!unlist(lapply(embeds_points, is.null))]
         
         embeds_min_max <- data.frame(matrix(NA, 2, length(embeds_points)))
@@ -515,29 +532,25 @@ exportShinyArchR <- function(
         embeds_min_max_list[[mat]] =  embeds_min_max
         embeds_pal_list[[mat]] = embeds_points[[length(embeds_points)]][[1]]$pal
         
+        #       embeds_min_max_list[[mat]] =  embeds_min_max
+        #       embeds_pal_list[[mat]] = embeds_points[[length(embeds_points)]][[1]]$pal
         
-      
-      
-      embeds_min_max_list[[mat]] =  embeds_min_max
-      embeds_pal_list[[mat]] = embeds_points[[length(embeds_points)]][[1]]$pal
+      }else{
+        
+        message(mat,".rds file does not exist")
+      }
       
     }else{
-      
-      message(mat,".rds file does not exist")
+      message(mat,".rds file does not exist. This file should have been created previously be exportShinyArchR. Skipping...")
     }
-      
-  }else{
-    message(mat,".rds file does not exist. This file should have been created previously be exportShinyArchR. Skipping...")
+    
+    
   }
   
+  scale <- embeds_min_max_list
+  pal <- embeds_pal_list
+  
+  saveRDS(scale, file.path(outDirEmbed, "scale.rds"))
+  saveRDS(pal, file.path(outDirEmbed, "pal.rds"))
   
 }
-
-scale <- embeds_min_max_list
-pal <- embeds_pal_list
-
-saveRDS(scale, file.path(outDirEmbed, "scale.rds"))
-saveRDS(pal, file.path(outDirEmbed, "pal.rds"))
-
-}
-

@@ -4,92 +4,92 @@ library(shinybusy)
 
 # EMBEDING plotting ----------------------------------------------------------------------
 EMBED_panel <- tabPanel(id="EMBED_panel",
-                       
-                       titlePanel(h5("scClusters")),
-                       sidebarPanel(
-                         titlePanel(h3('EMBEDDING 1', align = 'center')),
-                         width = 3,
-                         h4(''),
-                         hr(style = "border-color: grey"),
-                         
-                         selectizeInput(
-                           'matrix_EMBED1_forComparison',
-                           label = 'EMBEDDING type',
-                           choices =  c(EMBEDs_dropdown, matrices_dropdown),
-                           selected = NULL
-                         ),
-                         
-                         conditionalPanel(
-                           condition = '!(input.matrix_EMBED1_forComparison %in% EMBEDs_dropdown)',
-                                          selectizeInput(
-                                            'EMBED1_forComparison',
-                                            label = 'EMBEDDING 1',
-                                            choices = "",
-                                            selected = NULL
-                                          )),
-                         
-                         splitLayout(cellWidths = c("30%","30%","40%"),
-                                     numericInput("EMBED1_plot_width", "Width", min = 0, max = 250, value = 8),
-                                     numericInput("EMBED1_plot_height", "Height", min = 0, max = 250, value = 12),
-                                     selectizeInput(
-                                       'plot_choice_download_EMBED1',
-                                       label = "Format",
-                                       choices = c(".pdf",".png",".tiff"),
-                                       selected = ".pdf"),
-                                     tags$head(tags$style(HTML("
+                        
+                        titlePanel(h5("scClusters")),
+                        sidebarPanel(
+                          titlePanel(h3('EMBEDDING 1', align = 'center')),
+                          width = 3,
+                          h4(''),
+                          hr(style = "border-color: grey"),
+                          
+                          selectizeInput(
+                            'matrix_EMBED1_forComparison',
+                            label = 'EMBEDDING type',
+                            choices =  c(EMBEDs_dropdown, matrices_dropdown),
+                            selected = NULL
+                          ),
+                          
+                          conditionalPanel(
+                            condition = '!(input.matrix_EMBED1_forComparison %in% EMBEDs_dropdown)',
+                            selectizeInput(
+                              'EMBED1_forComparison',
+                              label = 'EMBEDDING 1',
+                              choices = "",
+                              selected = NULL
+                            )),
+                          
+                          splitLayout(cellWidths = c("30%","30%","40%"),
+                                      numericInput("EMBED1_plot_width", "Width", min = 0, max = 250, value = 8),
+                                      numericInput("EMBED1_plot_height", "Height", min = 0, max = 250, value = 12),
+                                      selectizeInput(
+                                        'plot_choice_download_EMBED1',
+                                        label = "Format",
+                                        choices = c(".pdf",".png",".tiff"),
+                                        selected = ".pdf"),
+                                      tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
                                 overflow: visible;}")))
-                         ),
-                         
-                         downloadButton(outputId = "download_EMBED1", label = "Download EMBEDDING 1"),
-                         
-                         titlePanel(h3('EMBEDDING 2', align = 'center')),
-                         hr(style = "border-color: grey"),
-                         selectizeInput(
-                           'matrix_EMBED2_forComparison',
-                           label = 'EMBEDDING type',
-                           choices = c(EMBEDs_dropdown, matrices_dropdown),
-                           selected =NULL
-                         ),
-                         
-                         conditionalPanel(condition = '!(input.matrix_EMBED2_forComparison %in% EMBEDs_dropdown)',
-                                          selectizeInput(
-                                            'EMBED2_forComparison',
-                                            label = 'EMBEDDING 2',
-                                            choices ="",
-                                            selected = NULL
-                                          )),
-                         
-                         
-                         splitLayout(cellWidths = c("30%","30%","40%"),
-                                     numericInput("EMBED2_plot_width", "Width", min = 0, max = 250, value = 8),
-                                     numericInput("EMBED2_plot_height", "Height", min = 0, max = 250, value = 12),
-                                     selectizeInput(
-                                       'plot_choice_download_EMBED2',
-                                       label = "Format",
-                                       choices = c(".pdf",".png",".tiff"),
-                                       selected = ".pdf"),
-                                     tags$head(tags$style(HTML("
+                          ),
+                          
+                          downloadButton(outputId = "download_EMBED1", label = "Download EMBEDDING 1"),
+                          
+                          titlePanel(h3('EMBEDDING 2', align = 'center')),
+                          hr(style = "border-color: grey"),
+                          selectizeInput(
+                            'matrix_EMBED2_forComparison',
+                            label = 'EMBEDDING type',
+                            choices = c(EMBEDs_dropdown, matrices_dropdown),
+                            selected =NULL
+                          ),
+                          
+                          conditionalPanel(condition = '!(input.matrix_EMBED2_forComparison %in% EMBEDs_dropdown)',
+                                           selectizeInput(
+                                             'EMBED2_forComparison',
+                                             label = 'EMBEDDING 2',
+                                             choices ="",
+                                             selected = NULL
+                                           )),
+                          
+                          
+                          splitLayout(cellWidths = c("30%","30%","40%"),
+                                      numericInput("EMBED2_plot_width", "Width", min = 0, max = 250, value = 8),
+                                      numericInput("EMBED2_plot_height", "Height", min = 0, max = 250, value = 12),
+                                      selectizeInput(
+                                        'plot_choice_download_EMBED2',
+                                        label = "Format",
+                                        choices = c(".pdf",".png",".tiff"),
+                                        selected = ".pdf"),
+                                      tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
                                 overflow: visible;}")))
-                         ),
-                         downloadButton(outputId = "download_EMBED2", label = "Download EMBEDDING 2"),
-                         
-                       ),
-                       
-                       mainPanel(
-                         verbatimTextOutput("feat"),
-                         verbatimTextOutput("text"),
-                         fluidRow(h5("Dimension Reduction scClusters EMBEDs"
-                         )),
-                         fluidRow(helpText("Users can view and compare side-by-side EMBEDs' representing identified scATAC-seq clusters,
+                          ),
+                          downloadButton(outputId = "download_EMBED2", label = "Download EMBEDDING 2"),
+                          
+                        ),
+                        
+                        mainPanel(
+                          verbatimTextOutput("feat"),
+                          verbatimTextOutput("text"),
+                          fluidRow(h5("Dimension Reduction scClusters EMBEDs"
+                          )),
+                          fluidRow(helpText("Users can view and compare side-by-side EMBEDs' representing identified scATAC-seq clusters,
                             origin of sample, unconstrained and constrained integration with scRNA-seq datasets, and integrated remapped clusters.", style = "font-family: 'Helvetica Now Display Bold'; font-si20pt"),
-                         ),
-                         fluidRow(
-                           column(6,plotOutput("EMBED_plot_1")),  ##%>% withSpinner(color="#0dc5c1")
-                           column(6,plotOutput("EMBED_plot_2"))
-                         )
-                       )
+                          ),
+                          fluidRow(
+                            column(6,plotOutput("EMBED_plot_1")),  ##%>% withSpinner(color="#0dc5c1")
+                            column(6,plotOutput("EMBED_plot_2"))
+                          )
+                        )
 )
 
 # Plot Browser:scATAC Clusters --------------------------------------------------------
@@ -125,7 +125,7 @@ scATACbrowser_panel <- tabPanel(
       choices = sort(gene_names),
       selected = sort(sort(gene_names))[1]
     ),
- 
+    
     sliderInput("range", "Distance From Center (kb):", min = -250, max = 250, value = c(-50,50)),
     splitLayout(cellWidths = c("50%","50%"),
                 numericInput("range_min", "Distance (-kb):", min = -250, max = 250, value = -50),

@@ -38,6 +38,7 @@
 #' @export
 ArchRBrowser <- function(
   ArchRProj = NULL,
+  ShinyArchR = FALSE,
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
   minCells = 25,
@@ -382,6 +383,7 @@ ArchRBrowser <- function(
 
             p <- .bulkTracks(
                 ArchRProj = ArchRProj, 
+                ShinyArchR = ShinyArchR,
                 region = region, 
                 tileSize = tileSize, 
                 useGroups = useGroups,
@@ -524,6 +526,7 @@ ArchRBrowser <- function(
 
             p <- .bulkTracks(
                 ArchRProj = ArchRProj, 
+                ShinyArchR = ShinyArchR,
                 region = tmpArchRRegion, 
                 tileSize = tileSize, 
                 useGroups = useGroups,
@@ -837,7 +840,8 @@ plotBrowserTrack <- function(
     if("bulktrack" %in% tolower(plotSummary)){
       .logDiffTime(sprintf("Adding Bulk Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
       plotList$bulktrack <- .bulkTracks(
-        ArchRProj = ArchRProj, 
+        ArchRProj = ArchRProj,
+        ShinyArchR = ShinyArchR,
         region = region[x], 
         tileSize = tileSize, 
         groupBy = groupBy,
@@ -1014,6 +1018,7 @@ plotBrowserTrack <- function(
 #######################################################
 .bulkTracks <- function(
   ArchRProj = NULL, 
+  ShinyArchR = FALSE,
   region = NULL, 
   tileSize = 100,
   maxCells = 500,
@@ -1039,6 +1044,7 @@ plotBrowserTrack <- function(
 
   .requirePackage("ggplot2", source = "cran")
 
+  
   if(is.null(tstart)){
     tstart <- Sys.time()
   }
@@ -1384,7 +1390,8 @@ plotBrowserTrack <- function(
   )
   
   cvgObjs = list.files(path = file.path(getOutputDirectory(ArchRProj),"ShinyCoverage",groupBy), pattern = "*_cvg.rds", full.names = TRUE)
-  if(length(cvgObjs == 0)) {
+  
+  if(length(cvgObjs) == 0) {
     stop(paste0("No coverage files detected. You may not have created them via exportShinyArchR(). Please ensure that *_cvg.rds files exist within ", file.path(getOutputDirectory(ArchRProj),"ShinyCoverage",groupBy)))
   }
   allCvgGR = c()
@@ -2275,10 +2282,3 @@ plotBrowserTrack <- function(
   p
 
 }
-
-
-
-
-
-
-

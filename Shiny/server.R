@@ -318,10 +318,10 @@ shinyServer <- function(input,output, session){
       else
       {tiff(file = file, width = input$plot_width, height = input$plot_height,units="in",res=1000)}
       
-
+      
         p_browser_atacClusters<- plotBrowserTrack(
           ArchRProj = ArchRProj,
-          # ShinyArchR = ShinyArchR,
+          ShinyArchR = TRUE,
           plotSummary = c("bulkTrack", input$selectPlotSummary),
           baseSize = 11,
           facetbaseSize = 11,
@@ -361,7 +361,7 @@ shinyServer <- function(input,output, session){
 
           p_browser_atacClusters<- plotBrowserTrack(
             ArchRProj = ArchRProj,
-            # ShinyArchR = ShinyArchR,
+            ShinyArchR = TRUE,
             plotSummary = c("bulkTrack", input$selectPlotSummary),
             baseSize = 11,
             facetbaseSize = 11,
@@ -383,3 +383,4 @@ shinyServer <- function(input,output, session){
     }
   })
 }
+z

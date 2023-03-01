@@ -32,6 +32,8 @@ for (i in seq_along(fn)) {
 }
 
 source("AllClasses.R")
+source("ArchRBrowser.R")
+source("GgplotUtils.R")
 
 
 # Calling ArchRProj
@@ -43,7 +45,8 @@ groupBy = 'Clusters'
 cellColEmbeddings = 'Clusters'
 embedding = 'UMAP'
 availableMatrices = c("GeneScoreMatrix", "MotifMatrix", "PeakMatrix", "TileMatrix")
-
+ShinyArchR = TRUE
+sampleLabels = 'Clusters'
 
 
 
@@ -72,7 +75,7 @@ color_embeddings = readRDS(paste0(subOutDir, "/embed_color.rds"))
 getEMBEDplotWithCol<-function(gene,EMBEDList,scaffoldName,matrixType)
 {
   gene_plot=EMBEDList[[gene]]
-
+  
   p_template1=readRDS(paste0(subOutDir, "/" ,scaffoldName,".rds"))
   
   p_template1$scales$scales <- gene_plot$scale
