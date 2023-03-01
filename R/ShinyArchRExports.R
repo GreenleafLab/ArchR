@@ -337,6 +337,8 @@ exportShinyArchR <- function(
           embeddingDF = df,
           rastr = FALSE,
           size = 0.5,
+          matrices = matrices,
+          imputeMatrices = imputeMatrices,
           # imputeWeights = NULL, # unsure if inputWeights needed for cellColData
           Shiny = TRUE
         )+ggtitle(paste0("Colored by ", name))+theme(text = element_text(size=12), 
@@ -419,7 +421,7 @@ exportShinyArchR <- function(
 .matrixEmbeds <- function(
   ArchRProj = NULL,
   outDirEmbed = NULL,
-  colorBy = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
+  colorBy = "cellColData",
   supportedMatrices = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
   embedding = "UMAP",
   matrices = NULL,
@@ -480,8 +482,8 @@ exportShinyArchR <- function(
               quantCut = c(0.01, 0.95),
               imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
               plotAs = "points",
-              matrices = mat,
               embeddingDF = df,
+              matrices = matrices,
               imputeMatrices = imputeMatrices,
               rastr = TRUE
             )
@@ -544,6 +546,12 @@ exportShinyArchR <- function(
         
         embeds_min_max_list[[mat]] =  embeds_min_max
         embeds_pal_list[[mat]] = embeds_points[[length(embeds_points)]][[1]]$pal
+        
+        
+# 
+# 
+#       embeds_min_max_list[[mat]] =  embeds_min_max
+#       embeds_pal_list[[mat]] = embeds_points[[length(embeds_points)]][[1]]$pal
       
     }else{
       
@@ -556,6 +564,8 @@ exportShinyArchR <- function(
   
   
 }
+
+# nms = names(embeds_pal_list)  
   
 for(i in 1:length(embeds_pal_list)){
  
