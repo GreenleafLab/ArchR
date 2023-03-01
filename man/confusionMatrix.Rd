@@ -14,3 +14,15 @@ confusionMatrix(i = NULL, j = NULL)
 \description{
 This function creates a confusion matrix based on two value vectors.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Overlap of Clusters and CellType
+confusionMatrix(proj$Clusters, proj$CellType)
+
+# Overlap of Cell Type and RNA Predict
+confusionMatrix(proj$CellType, proj$predictedGroup_Un)
+
+}

@@ -13,6 +13,7 @@ addModuleScore(
   nBgd = 100,
   seed = 1,
   threads = getArchRThreads(),
+  verbose = TRUE,
   logFile = createLogFile("addModuleScore")
 )
 }
@@ -36,6 +37,8 @@ to keep track of the seed used so that you can reproduce results downstream.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
+\item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
+
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
@@ -43,4 +46,35 @@ This function calculates a module score from a set of features across all cells.
 grouping of multiple features together into a single quantitative measurement. Currently, this
 function only works for modules derived from the \code{GeneScoreMatrix}. Each module is added as a
 new column in \code{cellColData}
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Module Score
+proj <- addModuleScore(proj, useMatrix = "GeneScoreMatrix", nBin = 25, nBgd = 25, features = list(TScore = c('CD3D', 'CD3E')))
+
+#Check
+split(proj@cellColData$Module.TScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
+#        B         M         T 
+# -4.352769 -8.438259  9.942678 
+
+#Get T cell Features
+features <- getGenes()
+T <- features[features$symbol \%in\% c("CD3D", "CD3E")]
+B <- features[features$symbol \%in\% c("MS4A1")]
+
+# Add Module Score
+proj <- addModuleScore(proj, useMatrix = "TileMatrix", nBin = 25, nBgd = 25, features = list(TScore = T, BScore = B))
+
+#Check
+split(proj@cellColData$Module.TScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
+#          B           M           T 
+# -0.03866667 -0.05303030  0.10306122
+
+split(proj@cellColData$Module.BScore, proj@cellColData$CellType) \%>\% lapply(mean) \%>\% unlist
+#          B           M           T 
+# 0.10000000 -0.03939394 -0.05387755 
+
 }

@@ -12,6 +12,7 @@ getTrajectory(
   log2Norm = TRUE,
   scaleTo = 10000,
   smoothWindow = 11,
+  trajectoryLabel = NULL,
   threads = getArchRThreads()
 )
 }
@@ -37,9 +38,25 @@ indicated by \code{scaleTo}. Setting this to \code{NULL} will prevent any normal
 \item{smoothWindow}{An integer value indicating the smoothing window in size (relaive to \code{groupEvery}) for the sequential
 trajectory matrix to better reveal temporal dynamics.}
 
+\item{trajectoryLabel}{The name of a column in \code{cellColData} to be used for labeling the quantile bins of the trajectory.
+This is used in \code{plotTrajectoryHeatmap()} when you want to create a color label for the columns across the top
+of the heatmap. Typically, this should be the same column used in \code{groupBy} in the \code{addTrajectory()} function.}
+
 \item{threads}{The number of threads to be used for parallel computing.}
 }
 \description{
 This function will get a supervised trajectory from an \code{ArchRProject} (see \code{addTrajectory}), get data
 from a desired matrix, and smooth each value across the input trajectory.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Add Trajectory
+proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+
+#Get Trajectory
+seTraj <- getTrajectory(proj)
+
 }

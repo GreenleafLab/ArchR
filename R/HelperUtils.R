@@ -8,6 +8,12 @@
 #'
 #' @param x The value to search for in `table`.
 #' @param table The set of values to serve as the base for the match function.
+#' 
+#' @examples
+#'
+#' #Test
+#' c("A", "B", "C") %ni% c("A", "C")
+#'
 #' @export
 "%ni%" <- function(x, table) !(match(x, table, nomatch = 0) > 0)
 
@@ -17,6 +23,12 @@
 #'
 #' @param x An `S4Vector` object to search for in `table`.
 #' @param table The set of `S4Vector` objects to serve as the base for the match function.
+#' 
+#' @examples
+#'
+#' #Test
+#' Rle(c("A", "B", "C")) %bcin% Rle(c("A", "C"))
+#'
 #' @export
 '%bcin%' <- function(x, table) S4Vectors::match(x, table, nomatch = 0) > 0
 
@@ -26,6 +38,12 @@
 #'
 #' @param x An `S4Vector` object to search for in `table`.
 #' @param table The set of `S4Vector` objects to serve as the base for the match function.
+#' 
+#' @examples
+#'
+#' #Test
+#' Rle(c("A", "B", "C")) %bcni% Rle(c("A", "C"))
+#'
 #' @export
 '%bcni%' <- function(x, table) !(S4Vectors::match(x, table, nomatch = 0) > 0)
 
@@ -41,6 +59,15 @@
 #' @param fragmentFiles A character vector the paths to fragment files to be reformatted
 #' @param checkChrPrefix A boolean value that determines whether seqnames should be checked to contain
 #' "chr". IF set to `TRUE`, any seqnames that do not contain "chr" will be removed from the fragment files.
+#' 
+#' @examples
+#'
+#' # Get Test Fragments
+#' fragments <- getTestFragments()
+#'
+#' # Get Peak Annotations
+#' fragments2 <- reformatFragmentFiles(fragments)
+#'
 #' @export
 reformatFragmentFiles <- function(
   fragmentFiles = NULL,
@@ -97,10 +124,22 @@ reformatFragmentFiles <- function(
 #'
 #' @param i A character/numeric value vector to see concordance with j.
 #' @param j A character/numeric value vector to see concordance with i.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Overlap of Clusters and CellType
+#' confusionMatrix(proj$Clusters, proj$CellType)
+#'
+#' # Overlap of Cell Type and RNA Predict
+#' confusionMatrix(proj$CellType, proj$predictedGroup_Un)
+#'
 #' @export
 confusionMatrix <- function(
-  i = NULL, 
-  j = NULL
+    i = NULL, 
+    j = NULL
   ){
   ui <- unique(i)
   uj <- unique(j)
@@ -124,6 +163,15 @@ confusionMatrix <- function(
 #' @param labels A character vector containing lables to map.
 #' @param newLabels A character vector (same length as oldLabels) to map labels to from oldLabels.
 #' @param oldLabels A character vector (same length as newLabels) to map labels from to newLabels
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Peak Annotations
+#' proj$ClusterLabels <- mapLabels(proj$Clusters, c("T", "B", "M"), c("C1", "C2", "C3"))
+#'
 #' @export
 mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabels)){
 
@@ -150,7 +198,33 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 
 }
 
-
+#' This function allows you to suppress specific warnings and was originally
+#' created by Antoine Fabri ("Moody_Mudskipper"): see https://stackoverflow.com/a/55182432/697473
+#' Sometimes R throws warning messages that we don't want to see. The base
+#' \code{suppressWarnings()} function permits one to suppress warnings, but 
+#' it is tricky to selectively suppress only certain warnings on the basis 
+#' of a regular expression or another condition. This function allows one 
+#' to do that.
+#'
+#' @param .expr Expression to be evaluated. 
+#' @param .f String or function. If a string (possibly representing a 
+#'   regular expression), any warning message generated when \code{.expr} is 
+#'   evaluated will be suppressed if \code{grepl{}} finds that the string
+#'   matches the warning message.\cr
+#'     \indent If a function, the warning message will be passed to the 
+#'   function, and the function must return \code{TRUE} or \code{FALSE}. See
+#'   the examples for details.
+.suppressSpecificWarnings <- function(.expr, .f, ...) {
+  eval.parent(
+    substitute(
+      withCallingHandlers( .expr, warning = function (w) {
+        cm   <- conditionMessage(w)
+        cond <- if (is.character(.f)) grepl(.f, cm) else rlang::as_function(.f)(cm, ...)
+        if (cond) invokeRestart("muffleWarning")   
+      })
+    )
+  )
+}
 
 
 

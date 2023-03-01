@@ -33,6 +33,15 @@
 #' `name` already exists.
 #' @param threads The number of threads to be used for parallel computing. Default set to 1 because if set to high can cause C stack usage errors.
 #' @param ... Additional parameters to pass to `uwot::umap()`
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add UMAP for Small Project
+#' proj <- addUMAP(proj, force = TRUE)
+#'
 #' @export
 addUMAP <- function(
   ArchRProj = NULL,
@@ -252,7 +261,12 @@ addUMAP <- function(
   eval(parse(text=strUWOT))
 
   tryCatch({
-    uwot::save_uwot(model = model, file = file, verbose = TRUE)
+    #the below call to save_uwot involves a call to utils::tar() within the uwot code. For unix systems,
+    #if the user has a user ID greater than a specific integer, it will throw an annoying warning that 
+    #otherwise cannot be controlled without supressing all warnings. Rather than do that, this helper
+    #function only suppresses warnings that contain the word "nobody". The actual warning message is:
+    #"invalid uid value replaced by that for user 'nobody'"
+    .suppressSpecificWarnings(.expr = uwot::save_uwot(model = model, file = file, verbose = TRUE), .f = "nobody")
   }, error = function(e){
     .saveUWOT_Deprecated(model = model, file = file) #backwards to previous version
   })
@@ -346,6 +360,15 @@ addUMAP <- function(
 #' `name` already exists.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param ... Additional parameters for computing the TSNE embedding to pass to `Rtsne::Rtsne()` (when `method = "RTSNE"`) or to `Seurat::RunTSNE()` (when method = "FFRTSNE"). 
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add UMAP for Small Project
+#' proj <- addTSNE(proj, force = TRUE)
+#'
 #' @export
 addTSNE <- function(
   ArchRProj = NULL,

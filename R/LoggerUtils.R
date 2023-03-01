@@ -7,6 +7,12 @@
 #' This function will set ArchR logging
 #'
 #' @param useLogs A boolean describing whether to use logging with ArchR.
+#' 
+#' @examples
+#'
+#' # Add ArchR Logging
+#' addArchRLogging()
+#'
 #' @export
 addArchRLogging <- function(useLogs = TRUE){
   .validInput(input = useLogs, name = "useLogs", valid = "boolean")
@@ -18,6 +24,11 @@ addArchRLogging <- function(useLogs = TRUE){
 #' Get ArchR Logging
 #' 
 #' This function will get ArchR logging
+#' 
+#' @examples
+#'
+#' # Get ArchR Logging
+#' getArchRLogging()
 #'
 #' @export
 getArchRLogging <- function(){
@@ -34,6 +45,12 @@ getArchRLogging <- function(){
 #' This function will set ArchR Debugging which will save an RDS if an error is encountered.
 #'
 #' @param debug A boolean describing whether to use logging with ArchR.
+#' 
+#' @examples
+#'
+#' # Add ArchR Debugging
+#' addArchRDebugging()
+#'
 #' @export
 addArchRDebugging <- function(debug = FALSE){
   .validInput(input = debug, name = "debug", valid = "boolean")
@@ -45,6 +62,11 @@ addArchRDebugging <- function(debug = FALSE){
 #' Get ArchR Debugging
 #' 
 #' This function will get ArchR Debugging which will save an RDS if an error is encountered.
+#' 
+#' @examples
+#'
+#' # Get ArchR Debugging
+#' getArchRDebugging()
 #'
 #' @export
 getArchRDebugging <- function(){
@@ -61,6 +83,12 @@ getArchRDebugging <- function(){
 #' This function will set ArchR logging verbosity.
 #'
 #' @param verbose A boolean describing whether to printMessages in addition to logging with ArchR.
+#' 
+#' @examples
+#'
+#' # Add ArchR Verbose
+#' addArchRVerbose()
+#'
 #' @export
 addArchRVerbose <- function(verbose = TRUE){
   .validInput(input = verbose, name = "verbose", valid = "boolean")
@@ -72,6 +100,11 @@ addArchRVerbose <- function(verbose = TRUE){
 #' Set ArchR Verbosity for Log Messaging
 #' 
 #' This function will get ArchR logging verbosity.
+#' 
+#' @examples
+#'
+#' # Get ArchR Verbose
+#' addArchRVerbose()
 #'
 #' @export
 getArchRVerbose <- function(){
@@ -90,6 +123,12 @@ getArchRVerbose <- function(){
 #'
 #' @param name A character string to add a more descriptive name in log file.
 #' @param logDir The path to a directory where log files should be written.
+#' 
+#' @examples
+#'
+#' # Create Log File
+#' createLogFile(name = "test")
+#'
 #' @export
 createLogFile <- function(
     name = NULL,

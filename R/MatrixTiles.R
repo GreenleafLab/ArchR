@@ -18,6 +18,15 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param force A boolean value indicating whether to force the "TileMatrix' to be overwritten if it already exist in the given `input`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Tile Matrix
+#' proj <- addTileMatrix(proj, force = TRUE, tileSize = 25000)
+#'
 #' @export
 addTileMatrix <- function(
   input = NULL,
@@ -172,7 +181,7 @@ addTileMatrix <- function(
     cellNames = cellNames,
     params = dfParams,
     featureDF = featureDF,
-    force = force
+    force = TRUE
   )
 
   ######################################
@@ -224,6 +233,8 @@ addTileMatrix <- function(
         print("Bad2 (End greater than chromsome length): ")
         .logThis(fragmentsBad2, "fragmentsBad2", logFile = logFile)
         print(fragmentsBad2)
+        #update matchID now that we've removed some fragments
+        matchID <- S4Vectors::match(mcols(fragments)$RG, cellNames)
       }
 
       #Create Sparse Matrix
@@ -247,8 +258,11 @@ addTileMatrix <- function(
         if(length(blacklist) > 0){
           blacklistz <- blacklist[[chr]]
           if(length(blacklistz) > 0){
-            tile2 <- floor(tileSize/2)
-            blacklistIdx <- unique(trunc(start(unlist(GenomicRanges::slidingWindows(blacklistz,tile2,tile2)))/tileSize) + 1)
+            # Convert blacklistz into "tile" coordinates (where each base represents a tile)
+            start(blacklistz) <- (start(blacklistz) %/% tileSize) + 1
+            end(blacklistz) <- (end(blacklistz) %/% tileSize) + 1
+            # Compute list of tiles within each blacklist region
+            blacklistIdx <- unlist(start(GenomicRanges::slidingWindows(blacklistz, 1, 1)))
             blacklistIdx <- sort(blacklistIdx)
             idxToZero <- which((mat@i + 1) %bcin% blacklistIdx)
             if(length(idxToZero) > 0){

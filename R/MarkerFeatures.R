@@ -41,8 +41,24 @@ markerFeatures <- function(...){
 #' `seqnames` that are not listed will be ignored. In the context of a `Sparse.Assays.Matrix`, such as a matrix containing chromVAR
 #' deviations, the `seqnames` do not correspond to chromosomes, rather they correspond to the sub-portions of the matrix, for example
 #' raw deviations ("deviations") or deviation z-scores ("z") for a chromVAR deviations matrix.
+#' @param closest A boolean value that indicated whether to use closest cells from foreground and background instead of random sampling
+#' of the foreground cells.
 #' @param verbose A boolean value that determines whether standard output is printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#'
 #' @export
 getMarkerFeatures <- function(
   ArchRProj = NULL,
@@ -60,6 +76,7 @@ getMarkerFeatures <- function(
   bufferRatio = 0.8,
   binarize = FALSE,
   useSeqnames = NULL,
+  closest = FALSE,
   verbose = TRUE,
   logFile = createLogFile("getMarkerFeatures")
   ){
@@ -79,6 +96,7 @@ getMarkerFeatures <- function(
   .validInput(input = bufferRatio, name = "bufferRatio", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character", "null"))
+  .validInput(input = closest, name = "closest", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character", "null"))
 
@@ -87,7 +105,7 @@ getMarkerFeatures <- function(
   .logThis(append(args, mget(names(formals()),sys.frame(sys.nframe()))), "Input-Parameters", logFile=logFile)
   out <- do.call(.MarkersSC, args)
   .endLogging(logFile = logFile)
-  metadata(out)$Params <- args
+  S4Vectors::metadata(out)$Params <- args
 
   return(out)
 
@@ -110,6 +128,7 @@ getMarkerFeatures <- function(
   threads = 1,
   binarize = FALSE,
   useSeqnames = NULL,
+  closest = FALSE,
   testMethod = "wilcoxon",
   useMatrix = "GeneScoreMatrix",
   markerParams = list(),
@@ -184,6 +203,7 @@ getMarkerFeatures <- function(
       bias = bias,
       k = k,
       n = maxCells,
+      closest = closest,
       bufferRatio = bufferRatio,
       logFile = logFile
     )
@@ -302,7 +322,7 @@ getMarkerFeatures <- function(
     }
     colnames(pse) <- names(matchObj[[1]])
 
-    metadata(pse)$MatchInfo <- matchObj
+    S4Vectors::metadata(pse)$MatchInfo <- matchObj
 
     if(isDeviations){
       assays(pse)[["Log2FC"]] <- NULL #This measure does not make sense with deviations matrices better to just remove
@@ -448,7 +468,7 @@ getMarkerFeatures <- function(
   n2 <- ncol(mat2)
   stopifnot(n1==n2)
 
-  .requirePackage("presto", installInfo = 'devtools::install_github("immunogenomics/presto")')
+  .requirePackage("presto", source = "cran")
   df <- wilcoxauc(cbind(mat1,mat2), c(rep("Top", ncol(mat1)),rep("Bot", ncol(mat2))))
   df <- df[which(df$group=="Top"),]
 
@@ -576,6 +596,7 @@ getMarkerFeatures <- function(
   n = 500,
   seed = 1,
   bufferRatio = 0.8,
+  closest = FALSE,
   logFile = NULL
   ){
 
@@ -670,71 +691,119 @@ getMarkerFeatures <- function(
     }else{
       k2 <- k
     }
-
-    knnx <- .computeKNN(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
-    sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
-
-    minTotal <- min(n, length(sx) * bufferRatio)
-    nx <- sort(floor(minTotal * bgdProbx))
     
-    ###############
-    # ID Matching
-    ###############
-    idX <- c()
-    idY <- c()
-    it <- 0
-    
-    if(any(nx <= 0)){
-      nx[which(nx <= 0)] <- Inf
-      nx <- sort(nx)
-    }
+    if (closest){
 
-    while(it < length(sx) & length(idX) < minTotal){
+      .logMessage("Using the closest cells identified by KKN between the foreground and background", verbose = TRUE, logFile = logFile)
+      sortedCells <- .computeClosestCellsList(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
+      idX <- c()
+      inspected_cells <- c()
+      idY <- c()
+      i <- 1
+      df_counter <- 1
       
-      it <- it + 1
-      knnit <- knnx[sx[it],]
-      groupit <- match(groups[idB][knnit],names(nx))
-      selectUnique <- FALSE
-      selectit <- 0
-      oit <- order(groupit)
+      sx <- idF
+      minTotal <- min(n, length(sx) * bufferRatio)
+      nx <- sort(floor(minTotal * bgdProbx))
       
-      while(!selectUnique){
-        selectit <- selectit + 1
-        itx <- which(oit==selectit)
-        cellx <- knnit[itx]
-        groupitx <- groupit[itx]
-        if(is.infinite(nx[groupitx])){
-          if(selectit == k2){
-            itx <- NA
-            cellx <- NA
-            selectUnique <- TRUE
+      if (length(bgdGroups)==1){
+
+        upper_border <- min(length(idB), length(idF))
+        while (i <= upper_border & df_counter <= nrow(sortedCells)){
+          inspected_cells <- append(inspected_cells, sortedCells$Cells[df_counter])
+          if (sortedCells$Cells[df_counter] %ni% idX && sortedCells$Bgd[df_counter] %ni% idY){
+            idX <- append(idX, sortedCells$Cells[df_counter])
+            idY <- append(idY, sortedCells$Bgd[df_counter])
+            i <- i + 1
           }
-        }else{
-          if(cellx %ni% idY){
-            selectUnique <- TRUE
-          }
-          if(selectit == k2){
-            itx <- NA
-            cellx <- NA
-            selectUnique <- TRUE
-          }
+          df_counter <- df_counter + 1 
         }
-      }
-      
-      if(!is.na(itx)){
-        idX <- c(idX, sx[it])
-        idY <- c(idY, cellx)
-        nx[groupitx] <- nx[groupitx] - 1
-        if(any(nx <= 0)){
-          nx[which(nx <= 0)] <- Inf
-          nx <- sort(nx)
+
+      }else{
+
+        while (i <= floor(minTotal) & df_counter <= nrow(sortedCells)){
+          inspected_cells <- append(inspected_cells, sortedCells$Cells[df_counter])
+          if (sortedCells$Cells[df_counter] %ni% idX && sortedCells$Bgd[df_counter] %ni% idY){
+            groupitx <- match(groups[idB][sortedCells$Bgd[df_counter]],names(nx))
+            if (nx[groupitx] > 0){
+              idX <- append(idX, sortedCells$Cells[df_counter])
+              idY <- append(idY, sortedCells$Bgd[df_counter])
+              i <- i + 1
+              nx[groupitx] <- nx[groupitx]-1
+            }
+          }
+          df_counter <- df_counter + 1 
         }
       }
 
-      if(all(is.infinite(nx))){
-        it <- length(sx)
+      it <- length(unique(inspected_cells))
+      
+    } else{
+  
+      knnx <- .computeKNN(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
+      sx <- sample(seq_len(nrow(knnx)), nrow(knnx))
+  
+      minTotal <- min(n, length(sx) * bufferRatio)
+      nx <- sort(floor(minTotal * bgdProbx))
+      
+      ###############
+      # ID Matching
+      ###############
+      idX <- c()
+      idY <- c()
+      it <- 0
+      
+      if(any(nx <= 0)){
+        nx[which(nx <= 0)] <- Inf
+        nx <- sort(nx)
       }
-
+  
+      while(it < length(sx) & length(idX) < minTotal){
+        
+        it <- it + 1
+        knnit <- knnx[sx[it],]
+        groupit <- match(groups[idB][knnit],names(nx))
+        selectUnique <- FALSE
+        selectit <- 0
+        
+        while(!selectUnique){
+          selectit <- selectit + 1
+          itx <- selectit
+          cellx <- knnit[itx]
+          groupitx <- groupit[itx]
+          if(is.infinite(nx[groupitx])){
+            if(selectit == k2){
+              itx <- NA
+              cellx <- NA
+              selectUnique <- TRUE
+            }
+          }else{
+            if(cellx %ni% idY){
+              selectUnique <- TRUE
+            }
+            if(selectit == k2){
+              itx <- NA
+              cellx <- NA
+              selectUnique <- TRUE
+            }
+          }
+        }
+        
+        if(!is.na(itx)){
+          idX <- c(idX, sx[it])
+          idY <- c(idY, cellx)
+          nx[groupitx] <- nx[groupitx] - 1
+          if(any(nx <= 0)){
+            nx[which(nx <= 0)] <- Inf
+            nx <- sort(nx)
+          }
+        }
+  
+        if(all(is.infinite(nx))){
+          it <- length(sx)
+        }
+  
+      }
     }
 
     #####################
@@ -767,14 +836,18 @@ getMarkerFeatures <- function(
         summaryBgd = bgdBias, 
         bgdGroups = rbind(estbgd, obsbgd),
         bgdGroupsProbs = rbind(estbgdP, obsbgdP),
-        corbgdGroups = suppressWarnings(cor(estbgdP, obsbgdP)),
         n = length(sx), 
         p = it / length(sx),
         group = groupx,
         k = k2
       )
 
-    .logThis(out, paste0("MatchSummary ", useGroups[x]), logFile = logFile)
+    .logThis(out, paste0("MatchSummary : Pre", useGroups[x]), logFile = logFile)
+
+    out$corbgdGroups <- suppressWarnings(cor(estbgdP, obsbgdP))
+
+    .logThis(out, paste0("MatchSummary : Post", useGroups[x]), logFile = logFile)
+
     return(out)
 
   }) %>% SimpleList
@@ -794,6 +867,33 @@ getMarkerFeatures <- function(
 
 }
 
+# from @anastasiya-pendragon
+# create a sorted list of closest cells between foreground and background
+.computeClosestCellsList <- function(
+    data = NULL,
+    query = NULL,
+    k = 50,
+    ...
+){
+  .validInput(input = data, name = "data", valid = c("dataframe", "matrix"))
+  .validInput(input = query, name = "query", valid = c("dataframe", "matrix"))
+  .validInput(input = k, name = "k", valid = c("integer"))
+  .requirePackage("nabor", source = "cran")
+
+  nn1 <- nabor::knn(data = data, query = query, k = k, ...)
+  dists <- nn1$nn.dists
+  indxs <- nn1$nn.idx
+  data <- c()
+  elements_len <- dim(indxs)[2]
+  for (i in seq_len(dim(indxs)[1])){
+    new_part <- cbind(rep(i, elements_len), indxs[i,], dists[i,])
+    data <- rbind(data, new_part)
+  }
+  pairs_dist_df <- as.data.frame(data)
+  colnames(pairs_dist_df) <- c("Cells", "Bgd", "Dist")
+  pairs_dist_df <- pairs_dist_df[order(pairs_dist_df$Dist),,drop=FALSE]
+  pairs_dist_df
+}
 
 ####################################################################################################
 # Applications of Markers!
@@ -814,9 +914,14 @@ markerHeatmap <- function(...){
 #' in the heatmap. `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values in
 #' `seMarker` prior to plotting. Should be set to `TRUE` for counts-based assays (but not assays like "DeviationsMatrix").
+#' This only applies if `plotLog2FC = FALSE`.
 #' @param scaleTo Each column in the assay Mean from `seMarker` will be normalized to a column sum designated by `scaleTo`
-#' prior to log2 normalization. If log2Norm is `FALSE` this option has no effect.
+#' prior to log2 normalization. If `log2Norm = FALSE` this option has no effect.
 #' @param scaleRows A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.
+#' @param plotLog2FC A boolean value that indicates whether the `log2(fold change)` values should be plotted on the heatmap or not.
+#' If `TRUE`, the `log2(fold change)` value (stored in the assay of `seMarker` labeled "Log2FC") is plotted.
+#' If `FALSE`, the mean value (stored in the assay of `seMarker` labeled "Mean") is plotted instead, with optional log normalization
+#' based on the `log2Norm` parameter.
 #' @param limits A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.
 #' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies
 #' rownames from `seMarker` to be excluded from the heatmap.
@@ -838,6 +943,26 @@ markerHeatmap <- function(...){
 #' group compared to all other cell groups. Additionally, the color palette is inverted for visualization. This is useful when
 #' looking for down-regulated markers (`log2(fold change) < 0`) instead of up-regulated markers (`log2(fold change) > 0`). 
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#' 
+#' #Plot Markers
+#' p <- plotMarkerHeatmap(seMarker)
+#' 
+#' #PDF
+#' plotPDF(p, name = "Marker-Heatmap", ArchRProj = proj)
+#'
 #' @export
 plotMarkerHeatmap <- function(
   seMarker = NULL,
@@ -969,7 +1094,7 @@ plotMarkerHeatmap <- function(
   spmat <- passMat / rowSums(passMat)
   #only print out identified marker genes if subsetMarkers is NULL
   if(is.null(subsetMarkers)) {
-    if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
+    if(S4Vectors::metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
       message("Printing Top Marker Genes:")
       for(x in seq_len(ncol(spmat))){
         genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
@@ -1014,9 +1139,9 @@ plotMarkerHeatmap <- function(
   message(sprintf("Identified %s markers!", nrow(mat)))
 
   if(is.null(pal)){
-    if(is.null(metadata(seMarker)$Params$useMatrix)){
+    if(is.null(S4Vectors::metadata(seMarker)$Params$useMatrix)){
       pal <- paletteContinuous(set = "solarExtra", n = 100)
-    }else if(tolower(metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
+    }else if(tolower(S4Vectors::metadata(seMarker)$Params$useMatrix)=="genescorematrix"){
       pal <- paletteContinuous(set = "blueYellow", n = 100)
     }else{
       pal <- paletteContinuous(set = "solarExtra", n = 100)
@@ -1065,7 +1190,7 @@ plotMarkerHeatmap <- function(
         customColLabel = mn,
         showRowDendrogram = TRUE,
         draw = FALSE,
-        name = paste0("Column Z-Scores\n", ncol(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+        name = paste0("Column Z-Scores\n", ncol(mat), " features\n", S4Vectors::metadata(seMarker)$Params$useMatrix)
       )
 
     }, error = function(e){
@@ -1082,7 +1207,7 @@ plotMarkerHeatmap <- function(
         customColLabel = mn,
         showRowDendrogram = TRUE,
         draw = FALSE,
-        name = paste0("Column Z-Scores\n", ncol(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+        name = paste0("Column Z-Scores\n", ncol(mat), " features\n", S4Vectors::metadata(seMarker)$Params$useMatrix)
       )
 
     })
@@ -1115,7 +1240,7 @@ plotMarkerHeatmap <- function(
         customRowLabel = mn,
         showColDendrogram = TRUE,
         draw = FALSE,
-        name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+        name = paste0("Row Z-Scores\n", nrow(mat), " features\n", S4Vectors::metadata(seMarker)$Params$useMatrix)
       )
 
     }, error = function(e){
@@ -1132,7 +1257,7 @@ plotMarkerHeatmap <- function(
         customRowLabel = mn,
         showColDendrogram = TRUE,
         draw = FALSE,
-        name = paste0("Row Z-Scores\n", nrow(mat), " features\n", metadata(seMarker)$Params$useMatrix)
+        name = paste0("Row Z-Scores\n", nrow(mat), " features\n", S4Vectors::metadata(seMarker)$Params$useMatrix)
       )
 
       .logError(e, fn = ".ArchRHeatmap", info = "", errorList = errorList, logFile = logFile)
@@ -1156,6 +1281,23 @@ plotMarkerHeatmap <- function(
 #' of the `assayNames` from `seMarker`.
 #' @param n An integer that indicates the maximum number of features to return per group.
 #' @param returnGR A boolean indicating whether to return as a `GRanges` object. Only valid when `seMarker` is computed for a PeakMatrix.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#' 
+#' #Get Markers
+#' getMarkers(seMarker)
+#' 
 #' @export
 getMarkers <- function(
   seMarker = NULL,
@@ -1181,7 +1323,7 @@ getMarkers <- function(
 
   if(returnGR){
 
-    if(metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
+    if(S4Vectors::metadata(seMarker)$Params$useMatrix != "PeakMatrix"){
       stop("Only markers can be returned as GRanges when PeakMatrix!")
     }
 
@@ -1255,6 +1397,26 @@ markerPlot <- function(...){
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
 #' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
 #' lines and labels, just the internal portions of the plot.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Get Markers
+#' seMarker <- getMarkerFeatures(
+#'   ArchRProj = proj, 
+#'   useMatrix = "PeakMatrix", 
+#'   testMethod = "binomial", 
+#'   binarize = TRUE
+#' )
+#' 
+#' #Plot Markers
+#' p <- plotMarkers(seMarker, name = "C1")
+#' 
+#' #PDF
+#' plotPDF(p, name = "Marker-Plot", ArchRProj = proj)
+#'
 #' @export
 plotMarkers <- function(
   seMarker = NULL,
@@ -1372,5 +1534,3 @@ plotMarkers <- function(
   }
 
 }
-
-

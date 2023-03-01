@@ -159,7 +159,7 @@
 }
 
 .quantileCut <- function(x = NULL, lo = 0.025, hi = 0.975, maxIf0 = TRUE){
-  q <- quantile(x, probs = c(lo,hi))
+  q <- quantile(x, probs = c(lo,hi), na.rm = TRUE)
   if(q[2] == 0){
     if(maxIf0){
       q[2] <- max(x)
@@ -170,49 +170,10 @@
   return(x)
 }
 
-.normalizeCols <- function(mat = NULL, colSm = NULL, scaleTo = NULL){
-    if(is.null(colSm)){
-        colSm <- Matrix::colSums(mat)
-    }
-    if(!is.null(scaleTo)){
-        mat@x <- scaleTo * mat@x / rep.int(colSm, Matrix::diff(mat@p))
-    }else{
-        mat@x <- mat@x / rep.int(colSm, Matrix::diff(mat@p))
-    }
-    return(mat)
-}
-
-.safeSubset <- function(mat = NULL, subsetRows = NULL, subsetCols = NULL){
-  
-  if(!is.null(subsetRows)){
-    idxNotIn <- which(subsetRows %ni% rownames(mat))
-    if(length(idxNotIn) > 0){
-      subsetNamesNotIn <- subsetRows[idxNotIn]
-      matNotIn <- Matrix::sparseMatrix(i=1,j=1,x=0,dims=c(length(idxNotIn), ncol = ncol(mat)))
-      rownames(matNotIn) <- subsetNamesNotIn
-      mat <- rbind(mat, matNotIn)
-    }
-    mat <- mat[subsetRows,]
-  }
-
-  if(!is.null(subsetCols)){
-    idxNotIn <- which(subsetCols %ni% colnames(mat))
-    if(length(idxNotIn) > 0){
-      subsetNamesNotIn <- subsetCols[idxNotIn]
-      matNotIn <- Matrix::sparseMatrix(i=1,j=1,x=0,dims=c(nrow(mat), ncol = length(idxNotIn)))
-      colnames(matNotIn) <- subsetNamesNotIn
-      mat <- cbind(mat, matNotIn)
-    }
-    mat <- mat[,subsetCols]
-  }
-
-  mat
-
-}
-
 .groupMeans <- function(mat = NULL, groups=NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
+  sparse <- is(mat, "sparseMatrix")
   gm <- lapply(unique(groups), function(x){
     if(sparse){
       Matrix::rowMeans(mat[,which(groups==x),drop=F], na.rm=na.rm)
@@ -227,6 +188,7 @@
 .groupSums <- function(mat = NULL, groups=NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
+  sparse <- is(mat, "sparseMatrix")
   gm <- lapply(unique(groups), function(x){
     if(sparse){
       Matrix::rowSums(mat[,which(groups==x),drop=F], na.rm=na.rm)
@@ -241,9 +203,10 @@
 .groupSds <- function(mat = NULL, groups = NULL, na.rm = TRUE, sparse = FALSE){
   stopifnot(!is.null(groups))
   stopifnot(length(groups)==ncol(mat))
+  sparse <- is(mat, "sparseMatrix")
   gs <- lapply(unique(groups), function(x){
-    if (sparse){
-      matrixStats::rowSds(as.matrix(mat[, which(groups == x), drop = F]), na.rm = na.rm)
+    if(sparse){
+      .sparesRowSds(mat[, which(groups == x), drop = F], na.rm = na.rm)
     }else{
       matrixStats::rowSds(mat[, which(groups == x), drop = F], na.rm = na.rm)
     }
@@ -548,6 +511,9 @@
 
 }
 
+.message2 <- function(...){
+  system(sprintf('echo "\n%s\n"', paste0(..., collapse="")))
+}
 
 ##########################################################################################
 # Developer Utils
@@ -565,7 +531,7 @@
   fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
   for(i in seq_along(fn)){
     tryCatch({
-      eval(parse(text=paste0(fn[i], '<-ArchR:::', fn[i])))
+      eval(parse(text=paste0(fn[i], '<- ArchR:::', fn[i])))
     }, error = function(x){
     })
   }
@@ -576,7 +542,8 @@
   paths = c("QualityControl"),
   recursive = TRUE,
   outDir = "Figures",
-  command = "mv"
+  command = "mv",
+  pdfFiles = NULL
   ){
 
   #If error try
@@ -584,26 +551,29 @@
 
   .requirePackage("pdftools", source = "cran")
 
-  if(!is.null(ArchRProj)){
-    paths <- c(paths, file.path(getOutputDirectory(ArchRProj), "Plots"))
-  }
+  if(is.null(pdfFiles)) {
   
-  pdfFiles <- lapply(seq_along(paths), function(i){
-    if(recursive){
-      dirs <- list.dirs(paths[i], recursive = FALSE, full.names = FALSE)
-      if(length(dirs) > 0){
-        pdfs <- lapply(seq_along(dirs), function(j){
-          list.files(file.path(paths[i], dirs[j]), full.names = TRUE, pattern = "\\.pdf")
-        }) %>% unlist
-      }else{
-        pdfs <- c()
-      }
-      pdfs <- c(list.files(paths[i], full.names = TRUE, pattern = "\\.pdf"), pdfs)
-    }else{
-      pdfs <- list.files(paths[i], full.names = TRUE, pattern = "\\.pdf")
+    if(!is.null(ArchRProj)){
+      paths <- c(paths, file.path(getOutputDirectory(ArchRProj), "Plots"))
     }
-    pdfs
-  }) %>% unlist
+
+    pdfFiles <- lapply(seq_along(paths), function(i){
+      if(recursive){
+        dirs <- list.dirs(paths[i], recursive = FALSE, full.names = FALSE)
+        if(length(dirs) > 0){
+          pdfs <- lapply(seq_along(dirs), function(j){
+            list.files(file.path(paths[i], dirs[j]), full.names = TRUE, pattern = "\\.pdf")
+          }) %>% unlist
+        }else{
+          pdfs <- c()
+        }
+        pdfs <- c(list.files(paths[i], full.names = TRUE, pattern = "\\.pdf"), pdfs)
+      }else{
+        pdfs <- list.files(paths[i], full.names = TRUE, pattern = "\\.pdf")
+      }
+      pdfs
+    }) %>% unlist
+  }
 
   dir.create(outDir, showWarnings = FALSE)
 

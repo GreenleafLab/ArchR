@@ -60,3 +60,18 @@ values of \code{x} in the desired order.}
 \description{
 This function is a wrapper around ggplot geom_density_ridges or geom_violin to allow for plotting group distribution plots in ArchR.
 }
+\examples{
+
+# Create Random Data
+m <- data.frame(x=matrix(rnorm(10, 2),ncol=1))
+m$color <- sample(c("A", "B"), 10, replace = TRUE)
+
+# Plot
+p <- ggGroup(x = m$color, y = m$x)
+
+# To PDF
+pdf("test.pdf", width = 4, height = 4)
+p
+dev.off()
+
+}

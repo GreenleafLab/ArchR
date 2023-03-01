@@ -16,6 +16,7 @@ addTrajectory(
   useAll = FALSE,
   dof = 250,
   spar = 1,
+  saveDF = NULL,
   force = FALSE,
   seed = 1,
   logFile = createLogFile("addTrajectory")
@@ -49,6 +50,9 @@ is above the provided quantile will be excluded.}
 
 \item{spar}{The sparsity to be used in the spline fit. See \code{stats::smooth.spline()} for more information.}
 
+\item{saveDF}{A full or relative path to use for creating a \code{.RDS} R object file containing a DataFrame with additional information about the trajectory.
+This includes the distance of each cell to the splines of the trajectory and the corresponding indicies returned by \code{nabor::knn}.}
+
 \item{force}{A boolean value indicating whether to force the trajactory indicated by \code{name} to be overwritten if it already exists in the given \code{ArchRProject}.}
 
 \item{seed}{A number to be used as the seed for random number generation for trajectory creation.}
@@ -58,4 +62,13 @@ is above the provided quantile will be excluded.}
 \description{
 This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Add Trajectory
+proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+
 }

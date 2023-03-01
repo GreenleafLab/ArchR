@@ -31,6 +31,15 @@
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
 #' @param verbose A boolean value that determines whether standard output is printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Doublet Scores for Small Project
+#' proj <- addDoubletScores(proj, dimsToUse = 1:5, LSIParams = list(dimsToUse = 1:5, varFeatures=1000, iterations = 2))
+#'
 #' @export
 addDoubletScores <- function(
   input = NULL,
@@ -378,50 +387,13 @@ addDoubletScores <- function(
         scale_colour_gradientn(colors = pal) + 
         xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
         labs(color = "Simulated Doublet Density") +
-        guides(fill = "none") + theme_ArchR(baseSize = 10) +
+        .gg_guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
         ggtitle("Simulated and LSI-Projected Density Overlayed") + theme(legend.direction = "horizontal", 
         legend.box.background = element_rect(color = NA))
     
-    # if(!requireNamespace("ggrastr", quietly = TRUE)){
-      
-    #   message("ggrastr is not available for rastr of points, continuing without rastr!")
-    #   message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
-
-    #   pdensity <- ggplot() + 
-    #     geom_point(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
-    #     geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
-    #       scale_colour_gradientn(colors = pal) + 
-    #       xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-    #       guides(fill = "none") + theme_ArchR(baseSize = 10) +
-    #       labs(color = "Simulated Doublet Density") +
-    #       theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-    #             axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-    #       coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
-    #       ggtitle("Simulated and LSI-Projected Doublet Density Overlayed") + theme(legend.direction = "horizontal", 
-    #       legend.box.background = element_rect(color = NA))
-
-    # }else{
-
-    #   #.requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
-
-    #   pdensity <- ggplot() + 
-    #     .geom_point_rast2(data = df, aes(x=X1,y=X2),color="lightgrey", size = 0.5) + 
-    #     .geom_point_rast2(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
-    #       scale_colour_gradientn(colors = pal) + 
-    #       xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-    #       labs(color = "Simulated Doublet Density") +
-    #       guides(fill = "none") + theme_ArchR(baseSize = 10) +
-    #       theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
-    #             axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-    #       coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
-    #       ggtitle("Simulated and LSI-Projected Density Overlayed") + theme(legend.direction = "horizontal", 
-    #       legend.box.background = element_rect(color = NA))
-
-    # }
-
     #Plot Doublet Score
     pscore <- ggPoint(
       x = df[,1],
@@ -588,14 +560,22 @@ addDoubletScores <- function(
     .logError(e, fn = "uwot::umap_transform", info = prefix, errorList = errorList, logFile = logFile)    
   })
 
+  #make sure rownames are the same here
+  #simulated LSI are first so lets remove
+  corLSI <- allLSI[-seq_len(nSimLSI), , drop = FALSE]
+  corUMAP <- umapProject[-seq_len(nSimLSI), , drop = FALSE]
+  rownames(corUMAP) <- rownames(corLSI)
+  idx <- intersect(rownames(corLSI), rownames(LSI$matSVD))  
   corProjection <- list(
-    LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(allLSI[-seq_len(nSimLSI), x], LSI$matSVD[, x]) )),
+    LSI = unlist(lapply(seq_len(ncol(allLSI)), function(x) cor(corLSI[idx, x, drop=FALSE], LSI$matSVD[idx, x, drop=FALSE]) )),
     UMAP =  c(
-        dim1 = cor(uwotUmap[[1]][,1], umapProject[-seq_len(nSimLSI), 1]),
-        dim2 = cor(uwotUmap[[1]][,2], umapProject[-seq_len(nSimLSI), 2])
+        dim1 = cor(uwotUmap[[1]][,1], corUMAP[idx, 1]),
+        dim2 = cor(uwotUmap[[1]][,2], corUMAP[idx, 2])
       )
   )
   names(corProjection[[1]]) <- paste0("SVD", LSI$dimsKept)
+  rm(corLSI)
+  rm(corUMAP)
 
   .logThis(uwotUmap[[1]], name = paste0(prefix, "OriginalUMAP"), logFile = logFile)
   .logThis(umapProject[-seq_len(nSimLSI), ], name = paste0(prefix, "OriginalReProjectedUMAP"), logFile = logFile)

@@ -14,3 +14,15 @@ getGenes(ArchRProj = NULL, symbols = NULL)
 \description{
 This function gets the genes start and end coordinates as a GRanges object from the geneAnnotation of a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Genes in ArchRProj
+getGenes(proj)
+
+# Get Genes globally
+getGenes()
+
+}

@@ -14,3 +14,15 @@ getExons(ArchRProj = NULL, symbols = NULL)
 \description{
 This function gets the exons coordinates as a GRanges object from the geneAnnotation of a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Exons in ArchRProj
+getExons(proj)
+
+# Get Exons globally
+getExons()
+
+}

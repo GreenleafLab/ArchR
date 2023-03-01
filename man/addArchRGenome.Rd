@@ -19,3 +19,9 @@ automatically installed if it is not currently installed. This is useful for hel
 \description{
 This function will set the genome across all ArchR functions.
 }
+\examples{
+
+# Add ArchR Genome to use globally
+addArchRGenome("hg19test2")
+
+}

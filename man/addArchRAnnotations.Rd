@@ -35,3 +35,12 @@ overwritten if it already exists in the given \code{ArchRProject}.}
 This function adds information about which peaks in the ArchR database contain input regions to a given ArchRProject.
 For each peak, a binary value is stored indicating whether each region is observed within the peak region.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Motif Annotations
+proj <- addArchRAnnotations(proj, name = "test")
+
+}

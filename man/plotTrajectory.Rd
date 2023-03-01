@@ -11,8 +11,7 @@ plotTrajectory(
   colorBy = "colData",
   name = "Trajectory",
   log2Norm = NULL,
-  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-    getImputeWeights(ArchRProj),
+  imputeWeights = if (!grepl("coldata", tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   pal = NULL,
   size = 0.2,
   rastr = TRUE,
@@ -88,4 +87,19 @@ if \code{colorBy} is numeric, then \code{plotAs} is set to "hex".}
 }
 \description{
 This function will plot a trajectory that was created onto an embedding.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Add Trajectory
+proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+
+#Plot Trajectory
+p <- plotTrajectory(proj, smoothWindow = 20)
+
+#PDF
+plotPDF(p, name = "Trajcetory", ArchRProj = proj)
+
 }

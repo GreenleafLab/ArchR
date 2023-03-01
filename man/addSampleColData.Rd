@@ -29,3 +29,12 @@ already exists as a column name in \code{sampleColData}.}
 \description{
 This function adds new data to sampleColData in an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Sample Column Data
+addSampleColData(proj, data = 1, name = "Test", samples = "PBSmall")
+
+}

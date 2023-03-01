@@ -9,7 +9,10 @@ import10xFeatureMatrix(
   names = NULL,
   strictMatch = TRUE,
   verbose = TRUE,
-  featureType = "Gene Expression"
+  featureType = "Gene Expression",
+  features = NULL,
+  genesToExclude = NULL,
+  force = FALSE
 )
 }
 \arguments{
@@ -18,15 +21,24 @@ import10xFeatureMatrix(
 \item{names}{A character of sample names associated with each input file.}
 
 \item{strictMatch}{Only relevant when multiple input files are used. A boolean that indictes whether rows (genes) that do not match perfectly in the matrices
-should be removed (\code{strictMatch = TRUE}) or coerced (\code{strictMatch = FALSE}). CellRanger seems to occassionally use different ensembl ids for the same gene across
+should be removed (\code{strictMatch = TRUE}) or coerced (\code{strictMatch = FALSE}). Cell Ranger seems to occassionally use different ensembl ids for the same gene across
 different samples. If you are comfortable tolerating such mismatches, you can coerce all matrices to fit together, in which case the gene metadata present in
-the first listed sample will be applied to all matrices for that particular gene entry. Regardless of what value is used for \code{strictMatch}, this function
-cannot tolerate mismatched gene names, only mismatched metadata for the same gene.}
+the first listed sample will be applied to all matrices for that particular gene entry. Sometimes, the h5 files from Cell Ranger have mismatches in the actual gene names.
+See the \code{force} paramter for handling mismatched gene names.}
 
 \item{verbose}{Only relevant when multiple input files are used. A boolean that indicates whether messaging about mismatches should be verbose (\code{TRUE}) or minimal (\code{FALSE})}
 
 \item{featureType}{The name of the feature to extract from the 10x feature file.
 See https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/h5_matrices for more information.}
+
+\item{features}{A genomic ranges object containing a "name" column to help fill missing 10x intervals for RSE. With the default CellRanger output, mitochondrial
+genes are not given genomic ranges. If you wish to recover these transcripts, for example for QC-based filtering, you must provide ranges for these genes. The same
+applies for any genes in the provided \code{h5} files that are missing ranges. As an example, in hg38 you could use Bioconductors
+\code{features = genes(EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86)}. Note that you must load the corresponding Bioconductor package to have access to the \code{genes} function.}
+
+\item{genesToExclude}{A character vector of gene names to be excluded from the returned \code{SummarizedExperiment} object. This can be useful when dealing with very large
+datasets because R has an upper limit for how large a given object can be. If you have >1.5 million cells, you cannot create a matrix in R with all ~30,000 genes so you
+can use this parameter to remove genes upfront.}
 }
 \description{
 This function will import the feature matrix from a 10x feature hdf5 file.

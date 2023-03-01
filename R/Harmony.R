@@ -20,7 +20,19 @@
 #' exists as a column name in `cellColData`.
 #' @param ... Additional arguments to be provided to harmony::HarmonyMatrix
 #' @export
+#' 
+#' @examples
 #'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Confounder
+#' proj <- addCellColData(proj, data = proj$TSSEnrichment > 10, name = "TSSQC", cells = getCellNames(proj))
+#'
+#' # Run Harmony
+#' proj <- addHarmony(proj, groupBy = "TSSQC")
+#'
+#' @export
 addHarmony <- function(
   ArchRProj = NULL,
   reducedDims = "IterativeLSI",
@@ -50,7 +62,7 @@ addHarmony <- function(
     }
   }
 
-  .requirePackage("harmony", installInfo = 'devtools::install_github("immunogenomics/harmony")')
+  .requirePackage("harmony", source = "cran")
   harmonyParams <- list(...)
   harmonyParams$data_mat <- getReducedDims(
     ArchRProj = ArchRProj, 

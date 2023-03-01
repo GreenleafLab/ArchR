@@ -12,3 +12,12 @@ recoverArchRProject(ArchRProj)
 \description{
 This function will recover an ArchRProject if it has broken sampleColData or cellColData due to different versions of bioconductor s4vectors.
 }
+\examples{
+
+# Get Test Project
+proj <- getTestProject()
+
+# Try to Recover ArchR Project
+proj <- recoverArchRProject(proj)
+
+}

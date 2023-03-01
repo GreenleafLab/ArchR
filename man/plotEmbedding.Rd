@@ -10,8 +10,7 @@ plotEmbedding(
   colorBy = "cellColData",
   name = "Sample",
   log2Norm = NULL,
-  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-    getImputeWeights(ArchRProj),
+  imputeWeights = if (!grepl("coldata", tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   pal = NULL,
   size = 0.1,
   sampleCells = NULL,
@@ -91,4 +90,16 @@ if \code{colorBy} is numeric, then \code{plotAs} is set to "hex".}
 }
 \description{
 This function will plot an embedding stored in an ArchRProject
+}
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Plot UMAP
+p <- plotEmbedding(proj, name = "Clusters")
+
+#PDF
+plotPDF(p, name = "UMAP-Clusters", ArchRProj = proj)
+
 }

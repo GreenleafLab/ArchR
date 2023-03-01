@@ -12,3 +12,12 @@ getAvailableMatrices(ArchRProj = NULL)
 \description{
 This function gets the available matrices from the ArrowFiles in a given ArchRProject object.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Available Matrices in ArchR Project
+getAvailableMatrices(proj)
+
+}

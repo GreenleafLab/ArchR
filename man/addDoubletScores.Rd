@@ -71,3 +71,12 @@ For each sample in the ArrowFiles or ArchRProject provided, this function will i
 to each cell. This allows for removing strong heterotypic doublet-based clusters downstream. A doublet results from a droplet that
 contained two cells, causing the ATAC-seq data to be a mixture of the signal from each cell.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Doublet Scores for Small Project
+proj <- addDoubletScores(proj, dimsToUse = 1:5, LSIParams = list(dimsToUse = 1:5, varFeatures=1000, iterations = 2))
+
+}

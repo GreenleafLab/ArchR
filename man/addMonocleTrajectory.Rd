@@ -2,7 +2,7 @@
 % Please edit documentation in R/Trajectory.R
 \name{addMonocleTrajectory}
 \alias{addMonocleTrajectory}
-\title{Add a Monocle Trajectory to an ArchR Project #NEW}
+\title{Add a Monocle Trajectory to an ArchR Project}
 \usage{
 addMonocleTrajectory(
   ArchRProj = NULL,
@@ -30,4 +30,27 @@ addMonocleTrajectory(
 \description{
 This function will add a trajectory from a monocle CDS created from \code{getMonocleTrajectories} to an
 ArchRProject.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Create Monocole Trajectory
+cds <- getMonocleTrajectories(
+  ArchRProj = proj, 
+  useGroups = c("C1", "C2", "C3"), 
+  principalGroup = "C1", 
+  groupBy = "Clusters", 
+  embedding = "UMAP"
+)
+
+# Add Monocole Trajectory
+proj <- addMonocleTrajectory(
+  ArchRProj = proj, 
+  name = "Trajectory_Monocole",
+  useGroups = c("C1", "C2", "C3"),
+  monocleCDS = cds
+)
+
 }

@@ -34,3 +34,24 @@ peakAnnoEnrichment(
 \description{
 This function will perform hypergeometric enrichment of a given peak annotation within the defined marker peaks.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
+# Get Peak Annotation Enrichment
+annoEnrich <- peakAnnoEnrichment(
+  seMarker = seMarker, 
+  ArchRProj = proj,
+  cutOff = "FDR <= 0.1 & Log2FC >= 0"
+)
+
+}

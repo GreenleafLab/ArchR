@@ -42,3 +42,12 @@ downstream analyses when working with insertion counts.}
 \description{
 This function for each sample will independently compute counts for each feature per cell in the provided ArchRProject or set of ArrowFiles.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Custom Matrix Which Is Just Peak Set
+proj <- addFeatureMatrix(proj, features = getPeakSet(proj))
+
+}

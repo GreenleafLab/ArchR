@@ -17,16 +17,26 @@
 #' @param minReplicates The minimum number of pseudo-bulk replicates to be generated.
 #' @param maxReplicates The maximum number of pseudo-bulk replicates to be generated.
 #' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param kmerLength The length of the k-mer used for estimating Tn5 bias.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param returnGroups A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
 #' This is used mainly in `addReproduciblePeakSet()` when MACS2 is not being used to call peaks but rather peaks are called from a
 #' TileMatrix (`peakMethod = "Tiles"`).
 #' @param parallelParam A list of parameters to be passed for biocparallel/batchtools parallel computing.
-#' @param force A boolean value that indicates whether or not to overwrite the relevant data in the `ArchRProject` object if
+#' @param force A boolean value that indicates whether or not to skip validation and overwrite the relevant data in the `ArchRProject` object if
 #' insertion coverage / pseudo-bulk replicate information already exists.
 #' @param verbose A boolean value that determines whether standard output includes verbose sections.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Group Coverages
+#' proj <- addGroupCoverages(proj, force = TRUE)
+#'
 #' @export
 addGroupCoverages <- function(
   ArchRProj = NULL,
@@ -39,6 +49,7 @@ addGroupCoverages <- function(
   minReplicates = 2,
   maxReplicates = 5,
   sampleRatio = 0.8,
+  excludeChr = NULL,
   kmerLength = 6,
   threads = getArchRThreads(),
   returnGroups = FALSE,
@@ -58,6 +69,7 @@ addGroupCoverages <- function(
   .validInput(input = minReplicates, name = "minReplicates", valid = c("integer"))
   .validInput(input = maxReplicates, name = "maxReplicates", valid = c("integer"))
   .validInput(input = sampleRatio, name = "sampleRatio", valid = c("numeric"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = kmerLength, name = "kmerLength", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = returnGroups, name = "returnGroups", valid = c("boolean"))
@@ -104,6 +116,26 @@ addGroupCoverages <- function(
         return(ArchRProj@projectMetadata$GroupCoverages[[groupBy]])
       }
     }      
+  }
+
+  #I'm 99% sure ArchR Should handle Empty Seqnames but lets leave this here since it cant hurt
+  if(!force){
+    #Check that the seqnames that will be used actually exist in the ArrowFiles
+    seqnames <- getSeqnames(ArchRProj, "Fragments")
+    if(!is.null(excludeChr)){
+      seqnames <- seqnames[paste0(seqnames) %ni% excludeChr]
+    }
+    ArrowFiles <- getArrowFiles(ArchRProj)
+    missSeqAll <- .safelapply(seq_along(ArrowFiles), function(x){
+       .validateSeqNotEmpty(ArrowFile = ArrowFiles[x], seqnames = seqnames)
+    }, threads = threads) %>% unlist %>% unique
+    if(!is.null(missSeqAll)) {
+      stop("The following seqnames do not have fragment information in one or more ArrowFiles:\n",
+        paste(missSeqAll, collapse = ","),
+        "\nYou can proceed with the analysis by ignoring these seqnames by passing them to the 'excludeChr' parameter.")
+    } 
+  }else{
+    message("Skipping validation of empty chromosomes since `force` = TRUE!")
   }
 
   #####################################################
@@ -204,6 +236,10 @@ addGroupCoverages <- function(
   args$kmerLength <- kmerLength
   args$ArrowFiles <- getArrowFiles(ArchRProj)
   args$availableChr <- .availableSeqnames(getArrowFiles(ArchRProj))
+  #Filter Chromosomes
+  if(!is.null(excludeChr)){
+    args$availableChr <- args$availableChr[BiocGenerics::which(paste0(args$availableChr) %ni% excludeChr)]
+  }
   args$chromLengths <- getChromLengths(ArchRProj)
   #args$cellsInArrow <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
   args$cellsInArrow <-   cellsInArrow <- split(
@@ -212,18 +248,25 @@ addGroupCoverages <- function(
   )
   args$covDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", groupBy)
   args$parallelParam <- parallelParam
-  args$threads <- threads
   args$verbose <- verbose
   args$tstart <- tstart
   args$logFile <- logFile
   args$registryDir <- file.path(getOutputDirectory(ArchRProj), "GroupCoverages", "batchRegistry")
 
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    args$threads <- 1
+  }else{
+    if(threads > 1){
+      message("subThreading Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }
+    args$threads <- threads
+  }
+
   #####################################################
   # Batch Apply to Create Insertion Coverage Files
   #####################################################
-
-  #Disable Hdf5 File Locking
-  h5disableFileLocking()
 
   #Batch Apply
   .logDiffTime(sprintf("Creating Coverage Files!"), tstart, addHeader = FALSE)
@@ -255,9 +298,6 @@ addGroupCoverages <- function(
   )
 
   ArchRProj@projectMetadata$GroupCoverages[[groupBy]] <- SimpleList(Params = Params, coverageMetadata = coverageMetadata)
-
-  #Enable Hdf5 File Locking
-  h5enableFileLocking()
 
   .logDiffTime(sprintf("Finished Creation of Coverage Files!"), tstart, addHeader = FALSE)
   .endLogging(logFile = logFile)
@@ -388,8 +428,8 @@ addGroupCoverages <- function(
     chrValues <- paste0("Coverage/",availableChr[k],"/Values")
     lengthRle <- length(covk@lengths)
     o <- h5createGroup(covFile, paste0("Coverage/",availableChr[k]))
-    o <- .suppressAll(h5createDataset(covFile, chrLengths, storage.mode = "integer", dims = c(lengthRle, 1), level = 0))
-    o <- .suppressAll(h5createDataset(covFile, chrValues, storage.mode = "integer", dims = c(lengthRle, 1), level = 0))
+    o <- .suppressAll(h5createDataset(covFile, chrLengths, storage.mode = "integer", dims = c(lengthRle, 1), level = getArchRH5Level()))
+    o <- .suppressAll(h5createDataset(covFile, chrValues, storage.mode = "integer", dims = c(lengthRle, 1), level = getArchRH5Level()))
     o <- h5write(obj = covk@lengths, file = covFile, name = chrLengths)
     o <- h5write(obj = covk@values, file = covFile, name = chrValues)
 

@@ -29,3 +29,12 @@ addFeatureCounts(
 \description{
 This function will add total counts of scATAC cells in provided features into ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Feature Counts
+proj <- addFeatureCounts(proj, features = getPeakSet(proj), name = 'ReadsInPeaks')
+
+}

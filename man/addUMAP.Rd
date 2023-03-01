@@ -72,3 +72,12 @@ reproduce results downstream.}
 \description{
 This function will compute a UMAP embedding and add it to an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add UMAP for Small Project
+proj <- addUMAP(proj, force = TRUE)
+
+}

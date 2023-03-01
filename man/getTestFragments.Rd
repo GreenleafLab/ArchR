@@ -4,8 +4,18 @@
 \alias{getTestFragments}
 \title{Get PBMC Small Test Fragments}
 \usage{
-getTestFragments(x)
+getTestFragments(version = 2)
+}
+\arguments{
+\item{version}{version of test fragments to return}
 }
 \description{
-This function will download fragments for a small PBMC test dataset (2k Cells) spanning chr1 and 2 (~20MB).
+V1 : This function will download fragments for a small PBMC test dataset.
+V2 : This function will return test fragments for a small PBMC test dataset in your cwd.
+}
+\examples{
+
+# Get Test Fragments
+fragments <- getTestFragments()
+
 }
