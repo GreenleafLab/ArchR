@@ -131,7 +131,7 @@ exportShinyArchR <- function(
   #                                      file.path(ArchRProjOutputDir), dropCells = TRUE, overwrite = F, load = TRUE)
 
   # file.copy(file.path(getOutputDirectory(ArchRProjShiny), ArchRProjFile), mainOutputDir, recursive=TRUE)
-  # file.copy(file.path(getOutputDirectory(ArchRProjShiny), savedArchRProjFile), file.path(mainOutputDir), recursive=FALSE)
+  file.copy(file.path(getOutputDirectory(ArchRProjShiny), savedArchRProjFile), file.path(mainOutputDir), recursive=FALSE)
 
   # saveArchRProject(ArchRProj = ArchRProjShiny, outputDirectory = file.path(mainOutputDir),  load =  FALSE)
 
