@@ -334,10 +334,11 @@ plotEmbedding <- function(
   }
 
   if(!Shiny){
-    allColorBy <- .availableArrays(head(getArrowFiles(ArchRProj), 2))
+    allColorBy <- c("colData", "cellColData", .availableArrays(head(getArrowFiles(ArchRProj), 2)))
   } else {
-    allColorBy <-  matrices$allColorBy
+    allColorBy <-  c("colData", "cellColData", matrices$allColorBy)
   }
+  
   if(tolower(colorBy) %ni% tolower(allColorBy)){
     stop("colorBy must be one of the following :\n", paste0(allColorBy, sep=", "))
   }
