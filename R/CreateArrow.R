@@ -1966,7 +1966,7 @@ createArrowFiles <- function(
           mcols(fragments)$RG@values <- stringr::str_split(mcols(fragments)$RG@values, pattern = "#", simplify=TRUE)[,2]
 
           #Order RG RLE based on bcPass
-          fragments <- fragments[BiocGenerics::which(paste0(mcols(fragments)$RG) %bcin% bcPass)]
+          fragments <- fragments[BiocGenerics::which(paste0(mcols(fragments)$RG) %bcin% as.character(bcPass))]
           if(length(fragments) > 0){
             fragments <- fragments[order(S4Vectors::match(paste0(mcols(fragments)$RG), as.character(bcPass)))]
           }
@@ -2060,7 +2060,7 @@ createArrowFiles <- function(
           }
 
           #Order RG RLE based on bcPass
-          fragments <- fragments[BiocGenerics::which(paste0(mcols(fragments)$RG) %bcin% bcPass)]
+          fragments <- fragments[BiocGenerics::which(paste0(mcols(fragments)$RG) %bcin% as.character(bcPass))]
           if(length(fragments) > 0){
             fragments <- fragments[order(S4Vectors::match(paste0(mcols(fragments)$RG), as.character(bcPass)))]
           }
