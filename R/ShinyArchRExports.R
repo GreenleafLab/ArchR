@@ -225,13 +225,15 @@ exportShinyArchR <- function(
     imputeMatrices <- readRDS(file.path(projDir, mainDir, subOutDir, "imputeMatrices.rds"))
   }
   
+  print("Mainembeds started...")
+  
   # mainEmbeds will create an HDF5 file containing the nativeRaster vectors for data stored in cellColData
   if (!file.exists(file.path(projDir, mainDir, subOutDir, "mainEmbeds.h5"))) {
     .mainEmbeds(ArchRProj = ArchRProjShiny,
                 outDirEmbed = file.path(projDir, mainDir, subOutDir),
                 colorBy = "cellColData",
                 cellColEmbeddings = cellColEmbeddings,
-                # embeddingDF = df,
+                embeddingDF = df,
                 matrices =  matrices,
                 imputeMatrices = imputeMatrices,
                 logFile = createLogFile("mainEmbeds")
@@ -240,9 +242,11 @@ exportShinyArchR <- function(
     message("H5 for main embeddings already exists...")
   }
   
+  print("MatrixEmbeds started...")
+  
   # matrixEmbeds will create an HDF5 file containing he nativeRaster vectors for data stored in matrices
   if(!file.exists(file.path(mainDir, subOutDir, "plotBlank72.h5"))){
-    df <- getEmbedding(ArchRProjShiny, embedding = embedding, returnDF = TRUE)
+    embeddingDF = df
     
     .matrixEmbeds(
       ArchRProj = ArchRProj,
@@ -261,6 +265,7 @@ exportShinyArchR <- function(
     message("H5 file already exists...")
   }  
   
+  print("MatrixEmbeds finished...")
 
   ## delete unnecessary files -----------------------------------------------------------------
   unlink(file.path(projDir, "ShinyFragments"), recursive = TRUE) 
@@ -303,6 +308,7 @@ exportShinyArchR <- function(
   colorBy = "cellColData", 
   cellColEmbeddings = NULL,
   embedding = "UMAP",
+  embeddingDF = NULL,
   matrices = NULL,
   imputeMatrices = NULL,
   threads = getArchRThreads(),
@@ -313,6 +319,7 @@ exportShinyArchR <- function(
   .validInput(input = colorBy, name = "colorBy", valid = c("character"))
   .validInput(input = cellColEmbeddings, name = "cellColEmbeddings", valid = c("character"))
   .validInput(input = embedding, name = "embedding", valid = c("character"))
+  .validInput(input = embeddingDF, name = "embeddingDF", valid = c("data.frame"))
   .validInput(input = threads, name = "threads", valid = c("numeric"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
   
@@ -336,7 +343,7 @@ exportShinyArchR <- function(
           name = name,
           # allNames = names,
           embedding = embedding,
-          embeddingDF = df,
+          embeddingDF = embeddingDF,
           rastr = FALSE,
           size = 0.5,
           matrices = matrices,
@@ -438,6 +445,7 @@ exportShinyArchR <- function(
   .validInput(input = colorBy, name = "colorBy", valid = c("character"))
   .validInput(input = supportedMatrices, name = "supportedMatrices", valid = c("character"))
   .validInput(input = embedding, name = "embedding", valid = c("character"))
+  .validInput(input = embeddingDF, name = "embeddingDF", valid = c("data.frame"))
   .validInput(input = matrices, name = "matrices", valid = c("list"))
   .validInput(input = imputeMatrices, name = "imputeMatrices", valid = c("list"))
   .validInput(input = threads, name = "threads", valid = c("numeric"))
@@ -468,11 +476,10 @@ exportShinyArchR <- function(
       dir.create(paste0(outDirEmbed, "/",mat, "/embeds"), showWarnings = FALSE)
       
       featureNames <- readRDS(file.path(outDirEmbed, mat, paste0(mat,"_names.rds")))
-      featureNames = gsub(".*:","",featureNames)
-    
+
       if(!is.null(featureNames)){
         
-        embeds_points <- .safelapply(1:10, function(x){ #length(featureNames) 
+        embeds_points <- .safelapply(1:length(featureNames), function(x){ #length(featureNames) 
           
           print(paste0("Creating plots for ", mat,": ",x,": ",round((x/length(featureNames))*100,3), "%"))
 
@@ -486,10 +493,9 @@ exportShinyArchR <- function(
               quantCut = c(0.01, 0.95),
               imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
               plotAs = "points",
-              embeddingDF = df,
+              embeddingDF = embeddingDF,
               matrices = matrices,
               imputeMatrices = imputeMatrices,
-              Shiny = TRUE,
               rastr = TRUE
             )
             
@@ -530,7 +536,7 @@ exportShinyArchR <- function(
           
         }, threads = threads) 
         
-        names(embeds_points) <- featureNames[1:10]
+        names(embeds_points) <- featureNames
         embeds_points = embeds_points[!unlist(lapply(embeds_points, is.null))]
         
         embeds_min_max <- data.frame(matrix(NA, 2, length(embeds_points)))
