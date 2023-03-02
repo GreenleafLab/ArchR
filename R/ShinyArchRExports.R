@@ -242,6 +242,7 @@ exportShinyArchR <- function(
   
   # matrixEmbeds will create an HDF5 file containing he nativeRaster vectors for data stored in matrices
   if(!file.exists(file.path(mainDir, subOutDir, "plotBlank72.h5"))){
+    df <- getEmbedding(ArchRProjShiny, embedding = embedding, returnDF = TRUE)
     
     .matrixEmbeds(
       ArchRProj = ArchRProj,
@@ -425,6 +426,7 @@ exportShinyArchR <- function(
   colorBy = "cellColData",
   supportedMatrices = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
   embedding = "UMAP",
+  embeddingDF = NULL,
   matrices = NULL,
   imputeMatrices = NULL,
   threads = getArchRThreads(),
@@ -466,6 +468,7 @@ exportShinyArchR <- function(
       dir.create(paste0(outDirEmbed, "/",mat, "/embeds"), showWarnings = FALSE)
       
       featureNames <- readRDS(file.path(outDirEmbed, mat, paste0(mat,"_names.rds")))
+      featureNames = gsub(".*:","",featureNames)
     
       if(!is.null(featureNames)){
         
@@ -489,6 +492,8 @@ exportShinyArchR <- function(
               Shiny = TRUE,
               rastr = TRUE
             )
+            
+            
           }else{
             gene_plot = NULL
           }
