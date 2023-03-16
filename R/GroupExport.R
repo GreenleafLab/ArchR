@@ -587,6 +587,7 @@ getGroupFragments <- function(
 .getGroupFragsFromProj <- function(
   ArchRProj = NULL,
   groupBy = NULL,
+  threads = getArchRThreads(),
   outDir = file.path(getOutputDirectory(ArchRProj), "fragments")
 ){
   dir.create(outDir, showWarnings = FALSE)
@@ -609,7 +610,7 @@ getGroupFragments <- function(
     # filter Fragments
     fragments <- GenomeInfoDb::keepStandardChromosomes(fragments, pruning.mode = "coarse")
     saveRDS(fragments, file.path(outDir, paste0(groupIDs[x], "_frags.rds")))
-  })
+  }, threads = threads)
 }
 
 #' Export Cluster Coverage from an ArchRProject
