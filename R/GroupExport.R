@@ -565,10 +565,11 @@ getGroupFragments <- function(
 
 }
 
-#' Export Group Fragment Files from a Project
+#' Export Group Fragment Files from a Project in .RDS format
 #' 
 #' This function will group export fragment files for each user-specified
-#' group in an ArchRProject and output them under a directory. 
+#' group in an ArchRProject and output them as .RDS files containing a GRanges
+#' object into a specified directory. 
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or
@@ -582,9 +583,9 @@ getGroupFragments <- function(
 #' proj <- getTestProject()
 #'
 #' # Create directory for fragments
-#' ArchR:::.getGroupFragmentsFromProj(proj, groupBy = "Clusters", outDir = "./Shiny/Fragments")
+#' ArchR:::.exportGroupFragmentsRDS(proj, groupBy = "Clusters", outDir = "./Shiny/Fragments")
 #'
-.getGroupFragsFromProj <- function(
+.exportGroupFragmentsRDS <- function(
   ArchRProj = NULL,
   groupBy = NULL,
   threads = getArchRThreads(),

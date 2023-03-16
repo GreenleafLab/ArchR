@@ -142,14 +142,14 @@ exportShinyArchR <- function(
   #this is still a slightly dangerous comparison, better would be to compare for explicitly the file names that are expected
   if(length(fragFiles) == length(unique(ArchRProj@cellColData[,groupBy]))){
     if(force){
-      .getGroupFragsFromProj(ArchRProj = ArchRProjShiny, groupBy = groupBy, outDir = fragDir, threads = threads)
+      .exportGroupFragmentsRDS(ArchRProj = ArchRProjShiny, groupBy = groupBy, outDir = fragDir, threads = threads)
     } else{
       message("Fragment files already exist. Skipping fragment file generation...")
     }    
   }else{ 
     dir.create(file.path(mainOutputDir, "ShinyFragments"), showWarnings = FALSE)
     dir.create(fragDir, showWarnings = FALSE)
-    .getGroupFragsFromProj(ArchRProj = ArchRProj, groupBy = groupBy, outDir = fragDir, threads = threads)
+    .exportGroupFragmentsRDS(ArchRProj = ArchRProj, groupBy = groupBy, outDir = fragDir, threads = threads)
   }
   
   # Create coverage objects - should be saved within a dir called ShinyCoverage within the ArchRProjShiny output directory
