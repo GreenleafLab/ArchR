@@ -159,14 +159,14 @@ exportShinyArchR <- function(
   # this is still a slightly dangerous comparison, better would be to compare for explicitly the file names that are expected
   if(length(covFiles) == length(unique(ArchRProjShiny@cellColData[,groupBy]))){
     if(force){
-      .getClusterCoverage(ArchRProj = ArchRProjShiny, tileSize = tileSize, groupBy = groupBy, outDir = covDir)
+      .exportClusterCoverageRDS(ArchRProj = ArchRProjShiny, tileSize = tileSize, groupBy = groupBy, outDir = covDir)
     } else{
       message("Coverage files already exist. Skipping fragment file generation...")
     }
   }else{
     dir.create(file.path(mainOutputDir, "ShinyCoverage"))
     dir.create(covDir, showWarnings = TRUE)
-    .getClusterCoverage(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, fragDir = fragDir, outDir = covDir)
+    .exportClusterCoverageRDS(ArchRProj = ArchRProj, tileSize = tileSize, groupBy = groupBy, fragDir = fragDir, outDir = covDir)
   }
   
   # Create directory to save input data to Shinyapps.io (everything that will be preprocessed)

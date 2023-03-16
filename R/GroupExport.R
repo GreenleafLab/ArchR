@@ -616,8 +616,9 @@ getGroupFragments <- function(
 
 #' Export Cluster Coverage from an ArchRProject
 #' 
-#' This function will group export fragment files for each user-specified
-#' group in an ArchRProject and output them under a directory. 
+#' This function will create "coverage" files in the form of RLE objects
+#' for each user-specified group in an ArchRProject and output them to a
+#' specified directory. 
 #'
 #' @param ArchRProj An `ArchRProject` object.
 #' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. 
@@ -629,7 +630,7 @@ getGroupFragments <- function(
 #' @param fragDir The path to the directory containing fragment files.
 #' @param outDir The path to the desired output directory for storage of coverage files.
 #'
-.getClusterCoverage <- function(
+.exportClusterCoverageRDS <- function(
   ArchRProj = NULL,
   tileSize = 100,
   scaleFactor = 1,
