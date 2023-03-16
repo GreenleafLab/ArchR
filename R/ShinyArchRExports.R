@@ -37,7 +37,7 @@ exportShinyArchR <- function(
   
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = mainDir, name = "mainDir", valid = c("character"))
-  .validInput(input =  subOutDir, name = "subOutDir", valid = c("character"))
+  .validInput(input = subOutDir, name = "subOutDir", valid = c("character"))
   .validInput(input = savedArchRProjFile, name = "savedArchRProjFile", valid = c("character"))
   .validInput(input = groupBy, name = "groupBy", valid = c("character"))
   .validInput(input = cellColEmbeddings, name = "cellColEmbeddings", valid = c("character", "null"))
@@ -67,8 +67,6 @@ exportShinyArchR <- function(
   # Check that the embedding exists in ArchRProj@embeddings
   if(embedding %ni% names(ArchRProj@embeddings)){
     stop("embedding doesn't exist in ArchRProj@embeddings")
-  }else{
-    print(paste0("embedding:", embedding))
   }
   
   #check that groupBy column exists and doesn't have NA values
@@ -178,13 +176,13 @@ exportShinyArchR <- function(
   imputeWeights <- getImputeWeights(ArchRProj = ArchRProjShiny)
   df <- getEmbedding(ArchRProjShiny, embedding = embedding, returnDF = TRUE)
   
-  if(!file.exists(file.path(mainDir, subOutDir, "matrices.rds")) && !file.exists(file.path(mainDir, subOutDir, "imputeMatrices.rds"))){
+  if(!file.exists(file.path(projDir,mainDir, subOutDir, "matrices.rds")) && !file.exists(file.path(projDir,mainDir, subOutDir, "imputeMatrices.rds"))){
     for(matName in allMatrices){
       if(matName %in% supportedMatrices){
         
           featuresNames <- getFeatures(ArchRProj = ArchRProj, useMatrix = matName)
-          dir.create(file.path(mainDir, subOutDir, matName), showWarnings = FALSE)
-          saveRDS(featuresNames, file.path(mainDir, subOutDir, matName, paste0(matName, "_names.rds")))
+          dir.create(file.path(projDir,mainDir, subOutDir, matName), showWarnings = FALSE)
+          saveRDS(featuresNames, file.path(projDir,mainDir, subOutDir, matName, paste0(matName, "_names.rds")))
           
           if(!is.null(featuresNames)){
             
@@ -215,8 +213,8 @@ exportShinyArchR <- function(
     }
     
     matrices$allColorBy= .availableArrays(head(getArrowFiles(ArchRProj), 2))
-    saveRDS(matrices, file.path(mainDir, subOutDir, "matrices.rds"))
-    saveRDS(imputeMatrices, file.path(mainDir, subOutDir, "imputeMatrices.rds"))
+    saveRDS(matrices, file.path(projDir,mainDir, subOutDir, "matrices.rds"))
+    saveRDS(imputeMatrices, file.path(projDir,mainDir, subOutDir, "imputeMatrices.rds"))
   }else{
     
     message("matrices and imputeMatrices already exist. reading from local files...")
@@ -245,7 +243,7 @@ exportShinyArchR <- function(
   print("MatrixEmbeds started...")
   
   # matrixEmbeds will create an HDF5 file containing he nativeRaster vectors for data stored in matrices
-  if(!file.exists(file.path(mainDir, subOutDir, "plotBlank72.h5"))){
+  if(!file.exists(file.path(projDir,mainDir, subOutDir, "plotBlank72.h5"))){
     embeddingDF = df
     
     .matrixEmbeds(

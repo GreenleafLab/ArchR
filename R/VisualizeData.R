@@ -210,7 +210,8 @@ plotPDF <- function(
 #' @param baseSize The base font size to use in the plot.
 #' @param plotAs A string that indicates whether points ("points") should be plotted or a hexplot ("hex") should be plotted. By default
 #' if `colorBy` is numeric, then `plotAs` is set to "hex".
-#' @param Shiny A boolean value that tells the function is calling for Shiny or not.                              
+#' @param Shiny A boolean value that tells whether the function is being called from exportShinyArchR() or not.
+#' This parameter is not meant to be used by the end user.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
@@ -307,7 +308,7 @@ plotEmbedding <- function(
   }
   
   #Parameters
-  plotParams <- list()
+  plotParams <- list(...)
   plotParams$x <- df[,1]
   plotParams$y <- df[,2]
   plotParams$title <- paste0(embedding, " of ", stringr::str_split(colnames(df)[1],pattern="#",simplify=TRUE)[,1])
