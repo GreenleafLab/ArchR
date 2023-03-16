@@ -44,7 +44,7 @@ getFragmentsFromProject <- function(
     chr <- NULL
   }
 
-  ArchR:::.startLogging(logFile = logFile)
+  .startLogging(logFile = logFile)
 
   FragmentsList <- lapply(seq_along(ArrowFiles), function(x){
     message(sprintf("Reading ArrowFile %s of %s", x, length(ArrowFiles)))

@@ -117,6 +117,7 @@ Collate:
     'RcppExports.R'
     'ReproduciblePeakSet.R'
     'SparseUtils.R'
+    'ShinyArchRExports.R'
     'Trajectory.R'
     'ValidationUtils.R'
     'VisualizeData.R'

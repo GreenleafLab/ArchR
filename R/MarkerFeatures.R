@@ -695,7 +695,7 @@ getMarkerFeatures <- function(
     if (closest){
 
       .logMessage("Using the closest cells identified by KKN between the foreground and background", verbose = TRUE, logFile = logFile)
-      sortedCells <- .computeClostestCellsList(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
+      sortedCells <- .computeClosestCellsList(inputNormQ[idB, ,drop=FALSE], inputNormQ[idF, ,drop=FALSE], k = k2)
       idX <- c()
       inspected_cells <- c()
       idY <- c()
@@ -867,8 +867,9 @@ getMarkerFeatures <- function(
 
 }
 
-#from @anastasiya-pendragon
-.computeClostestCellsList <- function(
+# from @anastasiya-pendragon
+# create a sorted list of closest cells between foreground and background
+.computeClosestCellsList <- function(
     data = NULL,
     query = NULL,
     k = 50,

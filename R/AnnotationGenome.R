@@ -384,7 +384,24 @@ createGeneAnnotation <- function(
 
 }
 
-
+#' Add sequencing lengths to a genomic ranges. 
+#' 
+#' This function will group export fragment files for each user-specified
+#' group in an ArchRProject and output them under a directory. 
+#'
+#' @param gr A GRanges object.
+#' @param genome See the genome parameter for validBSgenome(). This option must be one of the following: (i) the name of a valid ArchR-supported genome ("hg38", "hg19", or "mm10"),
+#' (ii) the name of a BSgenome package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a BSgenome object.
+#'
+#' @export
+addSeqLengths <- function (gr, genome) {
+  gr <- .validGRanges(gr)
+  genome <- validBSgenome(genome)
+  stopifnot(all(as.character(seqnames(gr)) %in% as.character(seqnames(genome))))
+  seqlengths(gr) <-
+    seqlengths(genome)[as.character(names(seqlengths(gr)))]
+  return(gr)
+}
 
 
 

@@ -85,7 +85,7 @@ addModuleScore <- function(
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addModuleScore Input-Parameters", logFile=logFile)
 
   #Get Feature DF
-  featureDF <- ArchR:::.getFeatureDF(head(getArrowFiles(ArchRProj),2), subGroup=useMatrix)
+  featureDF <- .getFeatureDF(head(getArrowFiles(ArchRProj),2), subGroup=useMatrix)
   featureDF$Match <- seq_len(nrow(featureDF))
 
   if("name" %in% colnames(featureDF)){
@@ -213,7 +213,7 @@ addModuleScore <- function(
 
   #Get average values for all features and then order the features based on their average values
   #so that the features can be binned into nBins
-  rS <- ArchR:::.getRowSums(ArrowFiles = getArrowFiles(ArchRProj), useMatrix = useMatrix)
+  rS <- .getRowSums(ArrowFiles = getArrowFiles(ArchRProj), useMatrix = useMatrix)
   rS <- rS[order(rS[,3]), ]
   if(is(featureData, "GRanges")){
     rS$Match <- match(paste0(rS$seqnames, ":", rS$idx), paste0(seqnames(featureData), ":", featureData$idx))
@@ -253,7 +253,7 @@ addModuleScore <- function(
     binx <- binList[moduleList[[x]]]
     idxFgd <- featureList[[x]]
     idxBgd <- unlist(lapply(binx, function(x) sample(x, nBgd)), use.names=FALSE)
-    m <- ArchR:::.getPartialMatrix(
+    m <- .getPartialMatrix(
       ArrowFiles = getArrowFiles(ArchRProj),
       featureDF = featureDF[c(idxFgd, idxBgd), ],
       useMatrix = useMatrix,

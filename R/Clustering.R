@@ -374,7 +374,7 @@ addClusters <- function(
   if(!is.null(maxClusters)){
     if(length(unique(clust)) > maxClusters){
       .logDiffTime(sprintf("Identified more clusters than maxClusters allowed (n = %s). Merging clusters to maxClusters (n = %s).\nIf this is not desired set maxClusters = NULL!", length(clustAssign), maxClusters), tstart, verbose = verbose, logFile = logFile)
-      meanDR <- t(ArchR:::.groupMeans(t(matDR), clust))
+      meanDR <- t(.groupMeans(t(matDR), clust))
       hc <- hclust(dist(as.matrix(meanDR)))
       ct <- cutree(hc, maxClusters)
       clust <- mapLabels(

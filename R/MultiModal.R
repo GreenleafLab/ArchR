@@ -114,7 +114,7 @@ import10xFeatureMatrix <- function(
           rowRanges(dummySE) <- rowRanges(rse_final[rownames(rse_final)[finalNotI],])
           rownames(dummySE) <- rownames(rse_final)[finalNotI]
           rse_i <- SummarizedExperiment::rbind(rse_i, dummySE)
-          rse_i <- ArchR:::.sortRSE(rse_i)
+          rse_i <- .sortRSE(rse_i)
           
           #check to ensure that the rownames now exactly match. if not something is wrong
           if(!identical(rownames(rse_final), rownames(rse_i))) {

@@ -564,3 +564,127 @@ getGroupFragments <- function(
   unlist(outList)
 
 }
+
+#' Export Group Fragment Files from a Project in .RDS format
+#' 
+#' This function will group export fragment files for each user-specified
+#' group in an ArchRProject and output them as .RDS files containing a GRanges
+#' object into a specified directory. 
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or
+#' user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata
+#' column will be grouped together and their fragments exported to `outputDirectory`/GroupFragments.
+#' @param outDir the directory to output the group fragment files.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Create directory for fragments
+#' ArchR:::.exportGroupFragmentsRDS(proj, groupBy = "Clusters", outDir = "./Shiny/Fragments")
+#'
+.exportGroupFragmentsRDS <- function(
+  ArchRProj = NULL,
+  groupBy = NULL,
+  threads = getArchRThreads(),
+  outDir = file.path(getOutputDirectory(ArchRProj), "fragments")
+){
+  dir.create(outDir, showWarnings = FALSE)
+  
+  # find barcodes of cells in that groupBy.
+  cellGroups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
+  cells <- ArchRProj$cellNames
+  cellGroups <- split(cells, cellGroups)
+  
+  # outputs unique cell groups (e.g. cluster).
+  groupIDs <- names(cellGroups)
+  
+  
+  .safelapply(seq_along(groupIDs), function(x){
+    cat("Making fragment file for cluster:", groupIDs[x], "\n")
+    # get GRanges with all fragments for that cluster
+    cellNames <- cellGroups[[groupIDs[x]]]
+    fragments <- getFragmentsFromProject(ArchRProj = ArchRProj, cellNames = cellNames)
+    fragments <- unlist(fragments, use.names = FALSE)
+    # filter Fragments
+    fragments <- GenomeInfoDb::keepStandardChromosomes(fragments, pruning.mode = "coarse")
+    saveRDS(fragments, file.path(outDir, paste0(groupIDs[x], "_frags.rds")))
+  }, threads = threads)
+}
+
+#' Export Cluster Coverage from an ArchRProject
+#' 
+#' This function will create "coverage" files in the form of RLE objects
+#' for each user-specified group in an ArchRProject and output them to a
+#' specified directory. 
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param tileSize The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. 
+#'        All insertions in a single bin will be summed.
+#' @param scaleFactor A numeric scaling factor to weight genes based on the inverse of there length
+#' @param groupBy A string that indicates how cells should be grouped. This string corresponds to one of the standard or
+#' user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata
+#' column will be grouped together and the average signal will be plotted.
+#' @param fragDir The path to the directory containing fragment files.
+#' @param outDir The path to the desired output directory for storage of coverage files.
+#'
+.exportClusterCoverageRDS <- function(
+  ArchRProj = NULL,
+  tileSize = 100,
+  scaleFactor = 1,
+  groupBy = "Clusters",
+  fragDir = file.path(getOutputDirectory(ArchRProj), "fragments"),
+  outDir = file.path(getOutputDirectory(ArchRProj), "coverage")
+){
+  fragFiles = list.files(path = fragDir, pattern = "_frags.rds", full.names = TRUE)
+  if(length(fragFiles) < 1){
+    stop(paste0("No fragment files found in fragDir - ", fragDir))
+  }
+  dir.create(outDir, showWarnings = FALSE)
+  
+  # find barcodes of cells in that groupBy.
+  cellGroups <- getCellColData(ArchRProj, select = groupBy, drop = TRUE)
+  cells <- ArchRProj$cellNames
+  cellGroups <- split(cells, cellGroups)
+  
+  # outputs unique cell groups/clusters.
+  groupIDs <- names(cellGroups)
+  
+  chrRegions <- getChromSizes(ArchRProj)
+  genome <- getGenome(ArchRProj)
+  
+  for (file in fragFiles){
+    fragments <- readRDS(file)
+    left <- GRanges(seqnames = seqnames(fragments),
+                    ranges = IRanges(start(fragments), width = 1))
+    right <- GRanges(seqnames = seqnames(fragments),
+                     ranges = IRanges(end(fragments), width = 1))
+    # call sort() after sortSeqlevels() to sort also the ranges in addition to the chromosomes.
+    insertions <- c(left, right) %>% sortSeqlevels() %>% sort()
+    
+    groupID <- file %>% basename() %>% gsub(".{4}$", "", .)
+    # binnedCoverage
+    message("Creating bins for group ", groupID, "...")
+    bins <-
+      unlist(slidingWindows(chrRegions, width = tileSize, step = tileSize))
+    
+    message("Counting overlaps for group ", groupID, "...")
+    bins$reads <-
+      countOverlaps(
+        bins,
+        insertions,
+        maxgap = -1L,
+        minoverlap = 0L,
+        type = "any"
+      )
+    addSeqLengths(bins, genome)
+    
+    groupReadsInTSS <-
+      ArchRProj@cellColData$ReadsInTSS[cells %in% cellGroups$groupID]
+
+    binnedCoverage <- coverage(bins, weight = bins$reads * scaleFactor )
+    saveRDS(binnedCoverage, file.path(outDir, paste0(groupID, "_cvg.rds")))
+  }  
+}

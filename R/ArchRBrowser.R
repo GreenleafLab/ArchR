@@ -54,6 +54,7 @@ ArchRBrowser <- function(
   browserTheme = "cosmo",
   threads = getArchRThreads(),
   verbose = TRUE,
+  ShinyArchR = FALSE,
   logFile = createLogFile("ArchRBrowser")
   ){
 
@@ -70,6 +71,7 @@ ArchRBrowser <- function(
   .validInput(input = browserTheme, name = "browserTheme", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = ShinyArchR, name = "ShinyArchR", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .startLogging(logFile=logFile)
@@ -392,6 +394,7 @@ ArchRBrowser <- function(
 
             p <- .bulkTracks(
                 ArchRProj = ArchRProj, 
+                ShinyArchR = ShinyArchR,
                 region = region, 
                 tileSize = tileSize, 
                 useGroups = useGroups,
@@ -535,6 +538,7 @@ ArchRBrowser <- function(
 
             p <- .bulkTracks(
                 ArchRProj = ArchRProj, 
+                ShinyArchR = ShinyArchR,
                 region = tmpArchRRegion, 
                 tileSize = tileSize, 
                 useGroups = useGroups,
@@ -714,6 +718,8 @@ ArchRBrowserTrack <- function(...){
 #' @param tickWidth The numeric line width to be used for axis tick marks.
 #' @param facetbaseSize The numeric font size to be used in the facets (gray boxes used to provide track labels) of the plot.
 #' @param geneAnnotation The `geneAnnotation` object to be used for plotting the "geneTrack" object. See `createGeneAnnotation()` for more info.
+#' @param ShinyArchR A boolean value indicating whether to use coverage RLEs or Arrow Files for browser track plotting. 
+#' This parameter is not meant to be controlled by the end user and is only meant to be used as part of an exported ShinyArchR app.
 #' @param title The title to add at the top of the plot next to the plot's genomic coordinates.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
@@ -765,6 +771,7 @@ plotBrowserTrack <- function(
   tickWidth = 0.4,
   facetbaseSize = 7,
   geneAnnotation = getGeneAnnotation(ArchRProj),
+  ShinyArchR = FALSE,
   title = "",
   verbose = TRUE,
   logFile = createLogFile("plotBrowserTrack")
@@ -799,6 +806,7 @@ plotBrowserTrack <- function(
   .validInput(input = borderWidth, name = "borderWidth", valid = "numeric")
   .validInput(input = tickWidth, name = "tickWidth", valid = "numeric")
   .validInput(input = facetbaseSize, name = "facetbaseSize", valid = "numeric")
+  .validInput(input = ShinyArchR, name = "ShinyArchR", valid = c("boolean"))
   geneAnnotation <- .validGeneAnnotation(geneAnnotation)
   .validInput(input = title, name = "title", valid = "character")
 
@@ -855,7 +863,8 @@ plotBrowserTrack <- function(
     if("bulktrack" %in% tolower(plotSummary)){
       .logDiffTime(sprintf("Adding Bulk Tracks (%s of %s)",x,length(region)), t1=tstart, verbose=verbose, logFile=logFile)
       plotList$bulktrack <- .bulkTracks(
-        ArchRProj = ArchRProj, 
+        ArchRProj = ArchRProj,
+        ShinyArchR = ShinyArchR,
         region = region[x], 
         tileSize = tileSize, 
         groupBy = groupBy,
@@ -1034,6 +1043,7 @@ plotBrowserTrack <- function(
 #######################################################
 .bulkTracks <- function(
   ArchRProj = NULL, 
+  ShinyArchR = FALSE,
   region = NULL, 
   tileSize = 100,
   maxCells = 500,
@@ -1060,10 +1070,12 @@ plotBrowserTrack <- function(
 
   .requirePackage("ggplot2", source = "cran")
 
+  
   if(is.null(tstart)){
     tstart <- Sys.time()
   }
   
+  if(!ShinyArchR){
   df <- .groupRegionSumArrows(
     ArchRProj = ArchRProj, 
     groupBy = groupBy, 
@@ -1078,6 +1090,21 @@ plotBrowserTrack <- function(
     verbose = verbose,
     logFile = logFile
   )
+  } else {
+    df <- .groupRegionSumCvg(
+    ArchRProj = ArchRProj, 
+    groupBy = groupBy, 
+    normMethod = normMethod,
+    useGroups = useGroups,
+    sampleLabels = sampleLabels,
+    minCells = minCells,
+    region = region, 
+    tileSize = tileSize, 
+    threads = threads,
+    verbose = verbose,
+    logFile = logFile
+  )
+  }
   .logThis(split(df, df[,3]), ".bulkTracks df", logFile = logFile)
 
   ######################################################
@@ -1355,6 +1382,158 @@ plotBrowserTrack <- function(
 
   return(groupMat)
 
+}
+
+##############################################################################
+# Create Average Tracks from Coverage objects 
+##############################################################################
+.groupRegionSumCvg <- function(
+  ArchRProj = NULL,
+  useGroups = NULL,
+  groupBy = NULL,
+  sampleLabels = "Sample",
+  region = NULL,
+  tileSize = NULL,
+  normMethod = NULL,
+  verbose = FALSE,
+  minCells = 25,
+  maxCells = 500,
+  threads = NULL,
+  logFile = NULL
+){
+  
+  # Group Info
+  cellGroups <- getCellColData(ArchRProj, groupBy, drop = TRUE)
+  tabGroups <- table(cellGroups)
+  
+  groupsBySample <- split(cellGroups, getCellColData(ArchRProj, sampleLabels, drop = TRUE))
+  uniqueGroups <- gtools::mixedsort(unique(cellGroups)) 
+  
+  # Tile Region
+  regionTiles <- (seq(trunc(start(region) / tileSize), 
+                      trunc(end(region) / tileSize) + 1) * tileSize) + 1
+  allRegionTilesGR <- GRanges(
+    seqnames = seqnames(region),
+    ranges = IRanges(start = regionTiles, width=100)
+  )
+  
+  cvgObjs = list.files(path = file.path(getOutputDirectory(ArchRProj),"ShinyCoverage",groupBy), pattern = "*_cvg.rds", full.names = TRUE)
+  
+  if(length(cvgObjs) == 0) {
+    stop(paste0("No coverage files detected. You may not have created them via exportShinyArchR(). Please ensure that *_cvg.rds files exist within ", file.path(getOutputDirectory(ArchRProj),"ShinyCoverage",groupBy)))
+  }
+  allCvgGR = c()
+  for(i in seq_along(cvgObjs)) {
+    cvgrds <- readRDS(cvgObjs[[i]]) 
+    gr <- GRanges(cvgrds) 
+    allCvgGR = c(allCvgGR, gr)
+  }
+  
+  groupMat <- .safelapply(seq_along(allCvgGR), function(i){
+    .logMessage(sprintf("Getting Region From Coverage Objects %s of %s", i, length(allCvgGR)), logFile = logFile)
+    tryCatch({
+      .regionSumCvg(
+        cvgObj = allCvgGR[[i]], 
+        region = region, 
+        regionTiles = regionTiles,
+        allRegionTilesGR = allRegionTilesGR,
+        tileSize = tileSize,
+      )
+    }, error = function(e){
+      errorList <- list(
+        cvgObj = allCvgGR[[i]], 
+        region = region, 
+        regionTiles = regionTiles,
+        allRegionTilesGR = allRegionTilesGR,
+        tileSize = tileSize,
+      )
+    })
+  }, threads = threads) %>% do.call(cbind, .)
+  
+  # Plot DF ------------------------------------------------------------------
+  df <- data.frame(which(groupMat > 0, arr.ind=TRUE))
+  # df$y stores the non-zero scores. 
+  df$y <- groupMat[cbind(df[,1], df[,2])]
+  
+  #Minus 1 Tile Size
+  dfm1 <- df
+  dfm1$row <- dfm1$row - 1
+  dfm1$y <- 0
+  
+  #Plus 1 Size
+  dfp1 <- df
+  dfp1$row <- dfp1$row + 1
+  dfp1$y <- 0
+  
+  #Create plot DF
+  df <- rbind(df, dfm1, dfp1)
+  df <- df[!duplicated(df[,1:2]),]
+  df <- df[df$row > 0,]
+  # df$x are the regionTiles that have a non-zero score. 
+  df$x <- regionTiles[df$row]
+  #NA from below
+  df$group <- uniqueGroups[df$col]
+  
+  #Add In Ends
+  dfs <- data.frame(
+    col = seq_along(uniqueGroups), 
+    row = 1, 
+    y = 0,
+    x = start(region),
+    group = uniqueGroups
+  )
+  
+  dfe <- data.frame(
+    col = seq_along(uniqueGroups),
+    row = length(regionTiles),
+    y = 0,
+    x = end(region),
+    group = uniqueGroups
+  )
+  
+  # Final output
+  plotDF <- rbind(df,dfs,dfe)
+  plotDF <- df[order(df$group,df$x),]
+  plotDF <- df[,c("x", "y", "group")]
+  
+  # Normalization 
+  g <- cellGroups
+  
+  if(tolower(normMethod) %in% c("readsintss","readsinpromoter", "nfrags")) {
+    v <- getCellColData(ArchRProj, normMethod, drop = TRUE)
+    groupNormFactors <- unlist(lapply(split(v, g), sum))
+  }else if(tolower(normMethod) == "ncells"){
+    groupNormFactors <- table(g)
+  }else if(tolower(normMethod) == "none"){
+    groupNormFactors <- rep(10^4, length(g))
+    names(groupNormFactors) <- g
+  }else{
+    stop("Norm Method Not Recognized : ", normMethod)
+  }
+  
+  # Scale with Norm Factors
+  scaleFactors <- 10^4 / groupNormFactors
+  matchGroup <- match(paste0(plotDF$group), names(scaleFactors))
+  plotDF$y <- plotDF$y * as.vector(scaleFactors[matchGroup])
+  
+  return(plotDF)
+  
+}
+
+.regionSumCvg <- function(
+  cvgObj = NULL,
+  region = NULL,
+  regionTiles = NULL,
+  allRegionTilesGR = NULL, 
+  tileSize = NULL,
+  logFile = NULL
+){
+  
+  hits <- findOverlaps(query = allRegionTilesGR, subject = cvgObj)
+  clusterVector <- cvgObj$score[subjectHits(hits)]
+  
+  return(clusterVector)
+  
 }
 
 #######################################################
@@ -2132,10 +2311,3 @@ plotBrowserTrack <- function(
   p
 
 }
-
-
-
-
-
-
-
