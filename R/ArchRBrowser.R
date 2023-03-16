@@ -38,7 +38,6 @@
 #' @export
 ArchRBrowser <- function(
   ArchRProj = NULL,
-  ShinyArchR = FALSE,
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
   minCells = 25,
@@ -50,6 +49,7 @@ ArchRBrowser <- function(
   browserTheme = "cosmo",
   threads = getArchRThreads(),
   verbose = TRUE,
+  ShinyArchR = FALSE,
   logFile = createLogFile("ArchRBrowser")
   ){
 
@@ -65,6 +65,7 @@ ArchRBrowser <- function(
   .validInput(input = browserTheme, name = "browserTheme", valid = c("character"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  .validInput(input = ShinyArchR, name = "ShinyArchR", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
   .startLogging(logFile=logFile)
