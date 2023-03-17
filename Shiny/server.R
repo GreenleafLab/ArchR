@@ -25,8 +25,8 @@ shinyServer <- function(input,output, session){
         )
       
       plotfunctions::emptyPlot(0,0, axes=FALSE)
-      legend_plot <- plotfunctions::gradientLegend(valRange=base::c(base::scale()[[mat]][,input$EMBED1_forComparison][1],base::scale()[[mat]][,input$EMBED1_forComparison][2]), 
-                                    color = raster::color()[[mat]], pos=.5, side=1)
+      legend_plot <- plotfunctions::gradientLegend(valRange=base::c(scale()[[mat]][,input$EMBED1_forComparison][1],scale()[[mat]][,input$EMBED1_forComparison][2]), 
+                                    color = color()[[mat]], pos=.5, side=1)
       
       
       p <- rhdf5::h5read(paste0(subOutDir,"/",mat,"_plotBlank72.h5"), base::paste0(mat, "/", input$EMBED1_forComparison))
@@ -91,8 +91,8 @@ shinyServer <- function(input,output, session){
         )
       
       plotfunctions::emptyPlot(0,0, axes=FALSE)
-      legend_plot <- plotfunctions::gradientLegend(valRange=base::c(base::scale()[[mat]][,input$EMBED2_forComparison][1],base::scale()[[mat]][,input$EMBED2_forComparison][2]), 
-                                    color = raster::color()[[mat]], pos=.5, side=1)
+      legend_plot <- plotfunctions::gradientLegend(valRange=base::c(scale()[[mat]][,input$EMBED2_forComparison][1],scale()[[mat]][,input$EMBED2_forComparison][2]), 
+                                    color = color()[[mat]], pos=.5, side=1)
       
       p <- h5read(base::paste0(subOutDir,"/",mat,"_plotBlank72.h5"), base::paste0(mat, "/", input$EMBED2_forComparison))
       temp_jpg <- t(base::matrix(farver::decode_native(p), nrow = 216))
@@ -238,7 +238,7 @@ shinyServer <- function(input,output, session){
           
         # availableMatrices <- getAvailableMatrices(ArchRProj)
         matName <- availableMatrices[ availableMatrices  %in% input$matrix_EMBED2_forComparison]
-        featureNames <- rdhf5::h5read(file = base::paste0(subOutDir, "/", matName, "_plotBlank72.h5"),
+        featureNames <- rhdf5::h5read(file = base::paste0(subOutDir, "/", matName, "_plotBlank72.h5"),
                name = matName)
                              
         Feature_dropdown2 = base::names(featureNames)
@@ -383,4 +383,3 @@ shinyServer <- function(input,output, session){
     }
   })
 }
-z

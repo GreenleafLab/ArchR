@@ -17,6 +17,27 @@
 #' @param force A boolean value that indicates whether to overwrite any relevant files during the `exportShinyArchR()` process.
 #' @param threads The number of threads to use for parallel execution.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#' 
+#' proj <- getTestProject(version = 2)
+#' proj@geneAnnotation$genes <- proj@geneAnnotation$genes[which(proj@geneAnnotation$genes$symbol %in% c("CD14","CD3D","MS4A1","CD74"))]
+#' proj <- addGeneScoreMatrix(input = proj, force = TRUE)
+#' ArchR:::.dropGroupsFromArrow(ArrowFile = getArrowFiles(proj)[1], dropGroups = c("GeneIntegrationMatrix","MotifMatrix"))
+#' proj <- addImputeWeights(proj)
+#'
+#' ArchR:::exportShinyArchR(ArchRProj = proj,
+#'                  mainDir = "Shiny",
+#'                  subOutDir = "inputData",
+#'                  savedArchRProjFile = "Save-ArchR-Project.rds",
+#'                  groupBy = "Clusters",
+#'                  cellColEmbeddings = "Clusters",
+#'                  embedding = "UMAP",
+#'                  tileSize = 100,
+#'                  force = FALSE,
+#'                  threads = getArchRThreads(),
+#'                  logFile = createLogFile("exportShinyArchR"))
+#' 
 #' @export
 exportShinyArchR <- function(
   ArchRProj = NULL,

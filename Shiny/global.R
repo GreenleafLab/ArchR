@@ -1,5 +1,6 @@
 # Setting up ----------------------------------------------------------------------
 
+library(shiny)
 library(ggplot2)
 library(gridExtra)
 library(grid)
@@ -7,7 +8,6 @@ library(cowplot)
 library(farver)
 library(rhdf5)
 library(plotfunctions)
-library(raster)
 library(jpeg)
 library(ArchR)
 library(htmltools)
@@ -23,6 +23,7 @@ library(htmltools)
 # library(magick)
 # library(shinycssloaders)
 # library(ggpubr)
+# library(raster)
 
 ############# NEW ADDITIONS (start) ###############################
 
@@ -34,11 +35,6 @@ for (i in base::seq_along(fn)) {
   }, error = function(x) {
   })
 }
-
-# base::source("AllClasses.R")
-# base::source("ArchRBrowser.R")
-# base::source("GgplotUtils.R")
-
 
 # Calling ArchRProj
 ArchRProj <- ArchR::loadArchRProject(path = ".", shiny = TRUE)
