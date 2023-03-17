@@ -89,22 +89,23 @@ exportShinyArchR <- function(
     dir.create(mainOutputDir, showWarnings = TRUE)
     
     ## Check the links for the files
-    # filesUrl <- data.frame(
-    #   fileUrl = c(
-    #     "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/app.R",
-    #     "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/global.R", 
-    #     "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/server.R", 
-    #     "https://jeffgranja.s3.amazonaws.com/ArchR/Shiny/ui.R"
-    #   ),
-    #   md5sum = c(
-    #     "77502e1f195e21d2f7a4e8ac9c96e65e",
-    #     "618613b486e4f8c0101f4c05c69723b0",
-    #     "a8d5ae747841055ef230ba496bcfe937"
-    #   ),
-    #   stringsAsFactors = FALSE
-    # )
+    filesUrl <- data.frame(
+      fileUrl = c(
+        "https://files.corces.gladstone.org/Users/rcorces/ArchR/Shiny/1.0.3/app.R",
+        "https://files.corces.gladstone.org/Users/rcorces/ArchR/Shiny/1.0.3/global.R",
+        "https://files.corces.gladstone.org/Users/rcorces/ArchR/Shiny/1.0.3/server.R",
+        "https://files.corces.gladstone.org/Users/rcorces/ArchR/Shiny/1.0.3/ui.R"
+      ),
+      md5sum = c(
+        "6453814565316d26a9c83bddebaf41d8",
+        "a07b98a777d374df3639f3c961585a47",
+        "faaf6665647e32e44f62320822868872",
+        "b34874b7d130dc88b579853e297c7e88"
+      ),
+      stringsAsFactors = FALSE
+    )
     
-    # .downloadFiles(filesUrl = filesUrl, pathDownload = mainOutputDir, threads = threads)
+    .downloadFiles(filesUrl = filesUrl, pathDownload = mainOutputDir, threads = threads)
     
   }else{
     message("Using existing Shiny files...")
@@ -564,17 +565,17 @@ exportShinyArchR <- function(
 #       embeds_min_max_list[[mat]] =  embeds_min_max
 #       embeds_pal_list[[mat]] = embeds_points[[length(embeds_points)]][[1]]$pal
       
+      }else{
+        
+        message(mat,".rds file does not exist")
+      }
+        
     }else{
-      
-      message(mat,".rds file does not exist")
+      message(mat,".rds file does not exist. This file should have been created previously be exportShinyArchR. Skipping...")
     }
-      
-  }else{
-    message(mat,".rds file does not exist. This file should have been created previously be exportShinyArchR. Skipping...")
+    
+    
   }
-  
-  
-}
 
 # nms = names(embeds_pal_list)  
   
