@@ -1,52 +1,55 @@
 # Setting up ----------------------------------------------------------------------
 
-library(shinycssloaders)
-library(hexbin)
-library(magick)
+library(ggplot2)
 library(gridExtra)
 library(grid)
-library(patchwork)
-library(shinybusy)
 library(cowplot)
-library(ggpubr)
 library(farver)
 library(rhdf5)
 library(plotfunctions)
 library(raster)
 library(jpeg)
-library(sparseMatrixStats)
-library(BiocManager)
-library(ComplexHeatmap)
 library(ArchR)
 
+#As best I can tell, these are not used explicitly.
+#Some are dependencies of ArchR already. Others not.
+# library(sparseMatrixStats)
+# library(BiocManager)
+# library(ComplexHeatmap)
+# library(shinybusy)
+# library(patchwork)
+# library(hexbin)
+# library(magick)
+# library(shinycssloaders)
+# library(ggpubr)
 
 ############# NEW ADDITIONS (start) ###############################
 
 # Adjusting ArchR functions
-fn <- unclass(lsf.str(envir = asNamespace("ArchR"), all = TRUE))
-for (i in seq_along(fn)) {
-  tryCatch({
-    eval(parse(text = paste0(fn[i], "<-ArchR:::", fn[i])))
+fn <- base::unclass(utils::lsf.str(envir = base::asNamespace("ArchR"), all = TRUE))
+for (i in base::seq_along(fn)) {
+  base::tryCatch({
+    base::eval(base::parse(text = base::paste0(fn[i], "<-ArchR:::", fn[i])))
   }, error = function(x) {
   })
 }
 
-source("AllClasses.R")
-source("ArchRBrowser.R")
-source("GgplotUtils.R")
+base::source("AllClasses.R")
+base::source("ArchRBrowser.R")
+base::source("GgplotUtils.R")
 
 
 # Calling ArchRProj
-ArchRProj=loadArchRProject(path = ".", shiny = TRUE)
-ArchRProj <- addImputeWeights(ArchRProj = ArchRProj)
-mainDir = 'Shiny'
-subOutDir = 'inputData'
-groupBy = 'Clusters'
-cellColEmbeddings = 'Clusters'
-embedding = 'UMAP'
-availableMatrices = c("GeneScoreMatrix", "MotifMatrix", "PeakMatrix", "TileMatrix")
-ShinyArchR = TRUE
-sampleLabels = 'Clusters'
+ArchRProj <- ArchR::loadArchRProject(path = ".", shiny = TRUE)
+ArchRProj <- ArchR::addImputeWeights(ArchRProj = ArchRProj)
+mainDir <- 'Shiny'
+subOutDir <- 'inputData'
+groupBy <- 'Clusters'
+cellColEmbeddings <- 'Clusters'
+embedding <- 'UMAP'
+availableMatrices <- c("GeneScoreMatrix", "MotifMatrix", "PeakMatrix", "TileMatrix")
+ShinyArchR <- TRUE
+sampleLabels <- 'Clusters'
 
 
 
@@ -55,34 +58,34 @@ sampleLabels = 'Clusters'
 # EMBED Visualization ------------------------------------------------------------
 
 # create a list of dropdown options for EMBED tab
-EMBEDs_dropdown=colnames(ArchRProj@cellColData)[colnames(ArchRProj@cellColData) %in% groupBy]
-matrices_dropdown = names(readRDS(file.path(subOutDir, "scale.rds")))
+EMBEDs_dropdown = base::colnames(ArchRProj@cellColData)[base::colnames(ArchRProj@cellColData) %in% groupBy]
+matrices_dropdown = base::names(base::readRDS(base::file.path(subOutDir, "scale.rds")))
 
-for(i in 1:length(matrices_dropdown)){
+for(i in 1:base::length(matrices_dropdown)){
   
-  if(file.exists(paste0(subOutDir, "/", paste0(matrices_dropdown[i], "/", matrices_dropdown[i],"_names"), ".rds"))){
+  if(base::file.exists(base::paste0(subOutDir, "/", base::paste0(matrices_dropdown[i], "/", matrices_dropdown[i],"_names"), ".rds"))){
     
-    assign(paste0(matrices_dropdown[i], "_dropdown"), readRDS(paste0(subOutDir, "/", paste0(matrices_dropdown[i], "/", matrices_dropdown[i],"_names"), ".rds")))
+    base::assign(base::paste0(matrices_dropdown[i], "_dropdown"), base::readRDS(base::paste0(subOutDir, "/", base::paste0(matrices_dropdown[i], "/", matrices_dropdown[i],"_names"), ".rds")))
     
   }
   
 }
 
-embed_legend = readRDS(paste0(subOutDir, "/embed_legend_names.rds"))
-color_embeddings = readRDS(paste0(subOutDir, "/embed_color.rds"))
+embed_legend = base::readRDS(base::paste0(subOutDir, "/embed_legend_names.rds"))
+color_embeddings = base::readRDS(base::paste0(subOutDir, "/embed_color.rds"))
 
 # define a function to get the EMBED for a feature/gene
 getEMBEDplotWithCol<-function(gene,EMBEDList,scaffoldName,matrixType)
 {
   gene_plot=EMBEDList[[gene]]
   
-  p_template1=readRDS(paste0(subOutDir, "/" ,scaffoldName,".rds"))
+  p_template1=base::readRDS(base::paste0(subOutDir, "/" ,scaffoldName,".rds"))
   
   p_template1$scales$scales <- gene_plot$scale
   
-  title=paste("EMBED of IterativeLSI colored by\n",matrixType," : ",sep="")
+  title=base::paste("EMBED of IterativeLSI colored by\n",matrixType," : ",sep="")
   
-  p_template1$labels$title <- paste0(title, gene)
+  p_template1$labels$title <- base::paste0(title, gene)
   
   return(p_template1)
 }
@@ -92,11 +95,11 @@ getEMBEDplotWithCol<-function(gene,EMBEDList,scaffoldName,matrixType)
 getEMBED<-function(gene,fileIndexer,folderName,scaffoldName,matrixType)
 {
   # getFilename
-  for(file in names(fileIndexer))
+  for(file in base::names(fileIndexer))
   {
     if(gene %in% fileIndexer[[file]])
     {
-      EMBEDs_data_subset=readRDS(paste(paste0(subOutDir, "/" ,folderName),file,sep="/"))
+      EMBEDs_data_subset=base::readRDS(base::paste(base::paste0(subOutDir, "/" ,folderName),file,sep="/"))
       
       return(getEMBEDplotWithCol(gene,EMBEDs_data_subset,scaffoldName,matrixType))
     }
@@ -106,6 +109,6 @@ getEMBED<-function(gene,fileIndexer,folderName,scaffoldName,matrixType)
 # PlotBrowser ------------------------------------------------------------------
 
 # create a list of dropdown options for plotbroswer tab
-gene_names=readRDS(paste0(subOutDir, "/GeneScoreMatrix/GeneScoreMatrix_names.rds"))
+gene_names=base::readRDS(base::paste0(subOutDir, "/GeneScoreMatrix/GeneScoreMatrix_names.rds"))
 
 

@@ -392,7 +392,7 @@ exportShinyArchR <- function(
            plot = embed_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
     
     #read back in that jpg because we need vector in native format
-    blank_jpg72 <- readJPEG(source = file.path(outDirEmbed, paste0(names(embeds)[[i]],"_blank72.jpg")), native = TRUE)
+    blank_jpg72 <- jpeg::readJPEG(source = file.path(outDirEmbed, paste0(names(embeds)[[i]],"_blank72.jpg")), native = TRUE)
     
     # save the native raster vectors 
     h5createDataset(file = points, dataset = names(embeds)[i], dims = c(46656,1), storage.mode = "integer")
@@ -520,7 +520,7 @@ exportShinyArchR <- function(
                    plot = gene_plot_blank, device = "jpg", width = 3, height = 3, units = "in", dpi = 72)
             
             #read back in that jpg because we need vector in native format
-            blank_jpg72 <- readJPEG(source = file.path(outDirEmbed, mat, "embeds", paste0(featureNames[x],"_blank72.jpg")),
+            blank_jpg72 <- jpeg::readJPEG(source = file.path(outDirEmbed, mat, "embeds", paste0(featureNames[x],"_blank72.jpg")),
                                                         native = TRUE)
             
             g <- ggplot_build(gene_plot)
