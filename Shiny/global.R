@@ -10,6 +10,7 @@ library(plotfunctions)
 library(raster)
 library(jpeg)
 library(ArchR)
+library(htmltools)
 
 #As best I can tell, these are not used explicitly.
 #Some are dependencies of ArchR already. Others not.
@@ -34,9 +35,9 @@ for (i in base::seq_along(fn)) {
   })
 }
 
-base::source("AllClasses.R")
-base::source("ArchRBrowser.R")
-base::source("GgplotUtils.R")
+# base::source("AllClasses.R")
+# base::source("ArchRBrowser.R")
+# base::source("GgplotUtils.R")
 
 
 # Calling ArchRProj
