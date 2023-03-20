@@ -777,7 +777,7 @@ addIterativeLSI <- function(
 
   if(sampleCells < length(cellNames)){
 
-    sampleN <- ceiling(sampleCells * table(sampleNames) / length(sampleNames))
+    sampleN <- ceiling((sampleCells / length(sampleNames)) * table(sampleNames))
     splitCells <- split(cellNames, sampleNames)
     splitDepth <- split(cellDepth, sampleNames)
 
