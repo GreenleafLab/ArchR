@@ -588,8 +588,8 @@ getGroupFragments <- function(
 .exportGroupFragmentsRDS <- function(
   ArchRProj = NULL,
   groupBy = NULL,
-  threads = getArchRThreads(),
-  outDir = file.path(getOutputDirectory(ArchRProj), "fragments")
+  outDir = file.path(getOutputDirectory(ArchRProj), "fragments"),
+  threads = getArchRThreads()
 ){
   dir.create(outDir, showWarnings = FALSE)
   
