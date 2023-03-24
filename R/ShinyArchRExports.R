@@ -291,7 +291,7 @@ exportShinyArchR <- function(
               "cellColEmbeddings = ", "c(",paste(shQuote(cellColEmbeddings, type = "cmd"), collapse=", "),")",'\n',
               "embedding = ", "'",embedding,"'",'\n', 
               "availableMatrices = ", "c(",paste(shQuote(allMatrices, type = "cmd"), collapse=", "),")",'\n',
-              "shiny::runApp('", mainDir, "')"
+              "shiny::runApp('", mainOutputDir, "')"
           
           )
 
@@ -549,8 +549,6 @@ exportShinyArchR <- function(
         H5Gcreate(points, mat)
         
         for(i in 1:length(embeds_points)){
-          
-          print(paste0("Getting H5 files for embeds_points: ",i,": ",round((i/length(embeds_points))*100,3), "%"))
           h5createDataset(file = points, dataset = paste0(mat,"/",featureNames[i]), dims = c(46656,1), storage.mode = "integer")
           h5writeDataset(obj = embeds_points[[i]][[1]]$plot, h5loc = points, name=paste0(mat,"/",featureNames[i]))
           embeds_min_max[1,i] = embeds_points[[i]][[1]]$min
