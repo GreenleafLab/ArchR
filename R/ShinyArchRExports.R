@@ -113,7 +113,7 @@ exportShinyArchR <- function(
   
   
   # Make directory for Shiny App  and download the app, global, server, and ui files if they dont already exist
-  dir.create(mainOutputDir, showWarnings = TRUE)
+  dir.create(mainOutputDir, showWarnings = FALSE)
   
   ## Check the links for the files
   filesUrl <- data.frame(
@@ -412,6 +412,7 @@ exportShinyArchR <- function(
     
   }
   
+  h5closeAll()
   saveRDS(embed_color, file.path(outDirEmbed, "embed_color.rds"))
   saveRDS(embed_legend, file.path(outDirEmbed, "embed_legend_names.rds"))
 }
@@ -462,6 +463,7 @@ exportShinyArchR <- function(
   if (file.exists(file.path(outDirEmbed, "plotBlank72.h5"))){
     file.remove(file.path(outDirEmbed, "plotBlank72.h5"))
   }
+  h5closeAll()
   
   # save the scale
   embeds_min_max_list = list()
@@ -594,6 +596,7 @@ for(i in 1:length(embeds_pal_list)){
 scale <- embeds_min_max_list
 pal <- embeds_pal_list
 
+h5closeAll()
 saveRDS(scale, file.path(outDirEmbed, "scale.rds"))
 saveRDS(pal, file.path(outDirEmbed, "pal.rds"))
 
