@@ -334,6 +334,9 @@ addPeakAnnotations <- function(
 #' NOTE: vierstra archetype motifs are currently in beta and have not been finalized by Jeff Vierstra.
 #' @param motifPWMs A custom set of motif PWMs as a PWMatrixList to be used instead of `motifSet` for adding motif annotations.
 #' If `motifPWMs` is used, `motifSet` will be ignored.
+#' @param annoPath An optional full path to where the annotation database file should be stored on your file system. In most cases,
+#' this parameter should not be changed. However, if you do not have write access to the R package directory containing ArchR, then
+#' you can use this parameter to specify where ArchR should store the annotation files.
 #' @param cutOff The p-value cutoff to be used for motif search. The p-value is determined vs a background set of sequences
 #' (see `MOODS` for more details on this determination).
 #' @param width The width in basepairs to consider for motif matches. See the `motimatchr` package for more information.
@@ -359,6 +362,7 @@ addMotifAnnotations <- function(
   species = NULL,
   collection = "CORE",
   motifPWMs = NULL,
+  annoPath = NULL,
   cutOff = 5e-05, 
   width = 7,
   version = 2,
@@ -372,6 +376,8 @@ addMotifAnnotations <- function(
   .validInput(input = annoName, name = "annoName", valid = c("character"))
   .validInput(input = species, name = "species", valid = c("character", "null"))
   .validInput(input = collection, name = "collection", valid = c("character", "null"))
+  #.validInput(input = motifPWMs, name = "motifPWMs", valid = c("PWMatrixList", "null"))
+  .validInput(input = annoPath, name = "annoPath", valid = c("character", "null"))
   .validInput(input = cutOff, name = "cutOff", valid = c("numeric"))
   .validInput(input = width, name = "width", valid = c("integer"))
   .validInput(input = force, name = "force", valid = c("boolean"))
@@ -533,7 +539,9 @@ addMotifAnnotations <- function(
         ". Accepted values are 'individual' and 'archetype'"))
     }
 
-    annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
+    if(is.null(annoPath)){
+      annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
+    }    
     dir.create(annoPath, showWarnings = FALSE)
 
     #Download
@@ -750,6 +758,9 @@ addMotifAnnotations <- function(
 #' For ArchR, options are "ATAC", "EncodeTFBS", "CistromeTFBS", or "Codex".
 #' For LOLA, options include "EncodeTFBS" "CistromeTFBS", "CistromeEpigenome", "Codex", or "SheffieldDnase".
 #' If supplying a custom `ArchRAnno` file please select a valid collection from within that database.
+#' @param annoPath An optional full path to where the annotation database file should be stored on your file system. In most cases,
+#' this parameter should not be changed. However, if you do not have write access to the R package directory containing ArchR, then
+#' you can use this parameter to specify where ArchR should store the annotation files.
 #' @param name The name of the `peakAnnotation` object to be stored in the `ArchRProject`.
 #' @param force A boolean value indicating whether to force the `peakAnnotation` object indicated by `name` to be
 #' overwritten if it already exists in the given `ArchRProject`.
@@ -768,6 +779,7 @@ addArchRAnnotations <- function(
   ArchRProj = NULL,
   db = "ArchR",
   collection = "EncodeTFBS",
+  annoPath,
   name = collection,
   force = FALSE,
   logFile = createLogFile("addArchRAnnotations")
@@ -776,6 +788,7 @@ addArchRAnnotations <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = db, name = "db", valid = c("character"))
   .validInput(input = collection, name = "collection", valid = c("character"))
+  .validInput(input = annoPath, name = "annoPath", valid = c("character", "null"))
   .validInput(input = name, name = "name", valid = c("character"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
@@ -798,7 +811,9 @@ addArchRAnnotations <- function(
     strsplit(validBSgenome(getGenome(ArchRProj))@pkgname,"\\.")[[1]][4]
   }))
 
-  annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
+  if(is.null(annoPath)){
+      annoPath <- file.path(find.package("ArchR", NULL, quiet = TRUE), "data", "Annotations")
+  }
   dir.create(annoPath, showWarnings = FALSE)
   
   if(tolower(db) == "lola"){
