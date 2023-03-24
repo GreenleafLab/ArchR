@@ -124,10 +124,10 @@ exportShinyArchR <- function(
       "https://files.corces.gladstone.org/Users/rcorces/ArchR/Shiny/1.0.3/ui.R"
     ),
     md5sum = c(
-      "6453814565316d26a9c83bddebaf41d8",
-      "a07b98a777d374df3639f3c961585a47",
-      "faaf6665647e32e44f62320822868872",
-      "b34874b7d130dc88b579853e297c7e88"
+      "fe63ffcd28d04001997fe1efb900ac42",
+      "df9a4773d7dd4b3954446618e29aa197",
+      "8aa79954bfc191c0189d7ac657cb2b61",
+      "95a811550e8b8577ead13c3a010c9939"
     ),
     stringsAsFactors = FALSE
   )
@@ -412,7 +412,6 @@ exportShinyArchR <- function(
     
   }
   
-  h5closeAll()
   saveRDS(embed_color, file.path(outDirEmbed, "embed_color.rds"))
   saveRDS(embed_legend, file.path(outDirEmbed, "embed_legend_names.rds"))
 }
@@ -463,8 +462,7 @@ exportShinyArchR <- function(
   if (file.exists(file.path(outDirEmbed, "plotBlank72.h5"))){
     file.remove(file.path(outDirEmbed, "plotBlank72.h5"))
   }
-  h5closeAll()
-  
+
   # save the scale
   embeds_min_max_list = list()
   # save the palette
@@ -548,7 +546,7 @@ exportShinyArchR <- function(
         
         h5closeAll()
         points =  H5Fcreate(name = file.path(outDirEmbed, paste0(mat,"_plotBlank72.h5")))
-        h5createGroup(file.path(outDirEmbed, paste0(mat,"_plotBlank72.h5")), mat)
+        H5Gcreate(points, mat)
         
         for(i in 1:length(embeds_points)){
           
@@ -596,7 +594,6 @@ for(i in 1:length(embeds_pal_list)){
 scale <- embeds_min_max_list
 pal <- embeds_pal_list
 
-h5closeAll()
 saveRDS(scale, file.path(outDirEmbed, "scale.rds"))
 saveRDS(pal, file.path(outDirEmbed, "pal.rds"))
 
