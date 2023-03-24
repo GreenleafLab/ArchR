@@ -25,7 +25,6 @@
 #' proj <- getTestProject(version = 2)
 #' proj@geneAnnotation$genes <- proj@geneAnnotation$genes[which(proj@geneAnnotation$genes$symbol %in% c("CD14","CD3D","MS4A1","CD74"))]
 #' proj <- addGeneScoreMatrix(input = proj, force = TRUE)
-#' ArchR:::.dropGroupsFromArrow(ArrowFile = getArrowFiles(proj)[1], dropGroups = c("GeneIntegrationMatrix","MotifMatrix"))
 #' proj <- addImputeWeights(proj)
 #'
 #' exportShinyArchR(ArchRProj = proj,
@@ -35,6 +34,7 @@
 #'                  groupBy = "Clusters",
 #'                  cellColEmbeddings = "Clusters",
 #'                  embedding = "UMAP",
+#'                  matsToUse = "GeneScoreMatrix",
 #'                  tileSize = 100,
 #'                  force = FALSE,
 #'                  threads = getArchRThreads(),
