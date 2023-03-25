@@ -655,7 +655,8 @@ getGroupFragments <- function(
   chrRegions <- getChromSizes(ArchRProj)
   genome <- getGenome(ArchRProj)
   
-  for (file in fragFiles){
+  .safelapply(seq_along(fragFiles), function(x){
+
     fragments <- readRDS(file)
     left <- GRanges(seqnames = seqnames(fragments),
                     ranges = IRanges(start(fragments), width = 1))
@@ -686,5 +687,5 @@ getGroupFragments <- function(
 
     binnedCoverage <- coverage(bins, weight = bins$reads * scaleFactor )
     saveRDS(binnedCoverage, file.path(outDir, paste0(groupID, "_cvg.rds")))
-  }  
+  }, threads = threads)  
 }
