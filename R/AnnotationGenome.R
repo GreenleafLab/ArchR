@@ -2,7 +2,7 @@
 #' 
 #' This function will create a genome annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
 #' 
-#' @param genome Either (i) a string that is a valid `BSgenome` or (ii) a `BSgenome` object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38").
+#' @param genome Either (i) a string that is a valid `BSgenome` or (ii) a `BSgenome` object (ie "hg38" or "BSgenome.Hsapiens.UCSC.hg38"). # nolint
 #' @param chromSizes A `GRanges` object containing chromosome start and end coordinates.
 #' @param blacklist A `GRanges` object containing regions that should be excluded from analyses due to unwanted biases.
 #' @param filter A boolean value indicating whether non-standard chromosome scaffolds should be excluded.
@@ -392,9 +392,7 @@ createGeneAnnotation <- function(
 #' @param gr A GRanges object.
 #' @param genome See the genome parameter for validBSgenome(). This option must be one of the following: (i) the name of a valid ArchR-supported genome ("hg38", "hg19", or "mm10"),
 #' (ii) the name of a BSgenome package (for ex. "BSgenome.Hsapiens.UCSC.hg19"), or (iii) a BSgenome object.
-#'
-#' @export
-addSeqLengths <- function (gr, genome) {
+.addSeqLengths <- function (gr, genome) {
   gr <- .validGRanges(gr)
   genome <- validBSgenome(genome)
   stopifnot(all(as.character(seqnames(gr)) %in% as.character(seqnames(genome))))
