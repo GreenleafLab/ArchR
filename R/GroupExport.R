@@ -687,5 +687,6 @@ getGroupFragments <- function(
 
     binnedCoverage <- coverage(bins, weight = bins$reads * scaleFactor )
     saveRDS(binnedCoverage, file.path(outDir, paste0(groupID, "_cvg.rds")))
+    return(NULL)
   }, threads = threads)  
 }
