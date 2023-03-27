@@ -220,7 +220,7 @@ exportShinyArchR <- function(
           imputeMatrices[[matName]] <- imputeMat
           
         }else{
-          message(matName, " is NULL.")
+          stop(matName, " is NULL.")
         }
       }
     }
