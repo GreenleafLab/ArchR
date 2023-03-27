@@ -142,7 +142,7 @@ exportShinyArchR <- function(
   ArchRProjShiny@projectMetadata[["groupBy"]] <- groupBy
   ArchRProjShiny@projectMetadata[["tileSize"]] <- tileSize
   units <- tryCatch({
-    .h5read(getArrowFiles(ArchRProjShiny)[1], paste0(colorBy, "/Info/Units"))[1]
+    .h5read(getArrowFiles(ArchRProj)[1], paste0(colorBy, "/Info/Units"))[1]
   },error=function(e){
     "values"
   })
