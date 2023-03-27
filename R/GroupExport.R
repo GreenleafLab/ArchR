@@ -655,9 +655,9 @@ getGroupFragments <- function(
   chrRegions <- getChromSizes(ArchRProj)
   genome <- getGenome(ArchRProj)
   
-  .safelapply(seq_along(fragFiles), function(x){
+  fragOut <- .safelapply(seq_along(fragFiles), function(x){
 
-    fragments <- readRDS(file)
+    fragments <- readRDS(fragFiles[x])
     left <- GRanges(seqnames = seqnames(fragments),
                     ranges = IRanges(start(fragments), width = 1))
     right <- GRanges(seqnames = seqnames(fragments),
@@ -665,7 +665,7 @@ getGroupFragments <- function(
     # call sort() after sortSeqlevels() to sort also the ranges in addition to the chromosomes.
     insertions <- c(left, right) %>% sortSeqlevels() %>% sort()
     
-    groupID <- file %>% basename() %>% gsub(".{4}$", "", .)
+    groupID <- fragFiles[x] %>% basename() %>% gsub(".{4}$", "", .)
     # binnedCoverage
     message("Creating bins for group ", groupID, "...")
     bins <-
