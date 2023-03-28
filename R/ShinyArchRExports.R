@@ -354,7 +354,6 @@ exportShinyArchR <- function(
 #' @param outDirEmbed Where the HDF5 and the jpgs will be saved.
 #' @param colorBy A string indicating whether points in the plot should be colored by a column in `cellColData` ("cellColData") or by
 #' a data matrix in the corresponding ArrowFiles (i.e. "GeneScoreMatrix", "MotifMatrix", "PeakMatrix"). 
-#' @param supportedMatrices
 #' @param embedding The embedding to use. Default is "UMAP".
 #' @param threads The number of threads to use for parallel execution.
 #' @param verbose A boolean value that determines whether standard output should be printed.
@@ -363,12 +362,8 @@ exportShinyArchR <- function(
 .matrixEmbeds <- function(
   ArchRProj = NULL,
   outDirEmbed = NULL,
-  colorBy = "cellColData",
-  supportedMatrices = c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix"),
+  colorBy = NULL,
   embedding = "UMAP",
-  embeddingDF = NULL,
-  matrices = NULL,
-  imputeMatrices = NULL,
   threads = getArchRThreads(),
   verbose = TRUE,
   logFile = createLogFile("matrixEmbeds")
@@ -376,11 +371,7 @@ exportShinyArchR <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = outDirEmbed, name = "outDirEmbed", valid = c("character"))
   .validInput(input = colorBy, name = "colorBy", valid = c("character"))
-  .validInput(input = supportedMatrices, name = "supportedMatrices", valid = c("character"))
   .validInput(input = embedding, name = "embedding", valid = c("character"))
-  .validInput(input = embeddingDF, name = "embeddingDF", valid = c("data.frame"))
-  .validInput(input = matrices, name = "matrices", valid = c("list"))
-  .validInput(input = imputeMatrices, name = "imputeMatrices", valid = c("list"))
   .validInput(input = threads, name = "threads", valid = c("numeric"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
