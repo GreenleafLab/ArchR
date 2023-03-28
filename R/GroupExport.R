@@ -576,6 +576,7 @@ getGroupFragments <- function(
 #' user-supplied `cellColData` metadata columns (for example, "Clusters"). Cells with the same value annotated in this metadata
 #' column will be grouped together and their fragments exported to `outputDirectory`/GroupFragments.
 #' @param outDir the directory to output the group fragment files.
+#' @param threads An integer specifying the number of threads for parallel.
 #' 
 #' @examples
 #'
@@ -629,6 +630,7 @@ getGroupFragments <- function(
 #' column will be grouped together and the average signal will be plotted.
 #' @param fragDir The path to the directory containing fragment files.
 #' @param outDir The path to the desired output directory for storage of coverage files.
+#' @param threads An integer specifying the number of threads for parallel.
 #'
 .exportClusterCoverageRDS <- function(
   ArchRProj = NULL,
@@ -636,7 +638,8 @@ getGroupFragments <- function(
   scaleFactor = 1,
   groupBy = "Clusters",
   fragDir = file.path(getOutputDirectory(ArchRProj), "fragments"),
-  outDir = file.path(getOutputDirectory(ArchRProj), "coverage")
+  outDir = file.path(getOutputDirectory(ArchRProj), "coverage"),
+  threads = getArchRThreads()
 ){
   fragFiles = list.files(path = fragDir, pattern = "_frags.rds", full.names = TRUE)
   if(length(fragFiles) < 1){
@@ -687,5 +690,6 @@ getGroupFragments <- function(
 
     binnedCoverage <- coverage(bins, weight = bins$reads * scaleFactor )
     saveRDS(binnedCoverage, file.path(outDir, paste0(groupID, "_cvg.rds")))
-  }, threads = threads)  
+  }, threads = threads)
+  return(NULL)
 }

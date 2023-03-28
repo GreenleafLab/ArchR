@@ -171,7 +171,7 @@ exportShinyArchR <- function(
   covOut <- .safelapply(seq_along(groups), function(x){
     groupsx <- groups[x]
     if(!file.exists(file.path(covDir,paste0(groupsx,"_cvg.rds"))) | force){
-      .exportClusterCoverageRDS(ArchRProj = ArchRProjShiny, tileSize = tileSize, groupBy = groupBy, outDir = covDir, fragDir = fragDir)
+      .exportClusterCoverageRDS(ArchRProj = ArchRProjShiny, tileSize = tileSize, groupBy = groupBy, outDir = covDir, fragDir = fragDir, threads = threads)
     } else {
       message(paste0("Coverage file for ", groupsx," already exist. Skipping coverage file generation..."))
     }
