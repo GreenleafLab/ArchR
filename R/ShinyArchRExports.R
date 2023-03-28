@@ -389,13 +389,12 @@ exportShinyArchR <- function(
   embeds_pal_list = list()
   
   for(mat in colorBy){
-      
-    dir.create(paste0(outDirEmbed, "/",mat, "/embeds"), showWarnings = FALSE)
+    dir.create(file.path(outDirEmbed, mat), showWarnings = FALSE)
+    dir.create(file.path(outDirEmbed, mat, "/embeds"), showWarnings = FALSE)
     
     featureNames <- getFeatures(ArchRProj = ArchRProj, useMatrix = mat)
     featureNames <- featureNames[which(!is.na(featureNames))]
-    dir.create(file.path(subOutputDir, mat), showWarnings = FALSE)
-    saveRDS(featuresNames, file.path(subOutputDir, mat, paste0(mat, "_names.rds")))
+    saveRDS(featuresNames, file.path(outDirEmbed, mat, paste0(mat, "_names.rds")))
 
     message(paste0("Creating plots for ", mat,"..."))
 
