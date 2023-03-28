@@ -97,7 +97,7 @@ exportShinyArchR <- function(
   
   supportedMatrices <- c("GeneScoreMatrix", "GeneIntegrationMatrix", "MotifMatrix") #only these matrices are currently supported for ShinyArchR
   #subset matrices for use in Shiny app
-  allMatrices <- getAvailableMatrices(ArchRProjShiny)
+  allMatrices <- getAvailableMatrices(ArchRProj)
   if(!is.null(matsToUse)){
     if(!all(matsToUse %in% allMatrices)){
       stop("Not all matrices defined in matsToUse exist in your ArchRProject. See getAvailableMatrices().")
