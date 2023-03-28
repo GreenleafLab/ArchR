@@ -255,7 +255,7 @@ exportShinyArchR <- function(
   
   message("Generating raster embedding images for matrix data...")
   
-  # matrixEmbeds will create an HDF5 file containing he nativeRaster vectors for data stored in matrices
+  # matrixEmbeds will create an HDF5 file containing the nativeRaster vectors for data stored in matrices
   if(!file.exists(file.path(subOutputDir, "plotBlank72.h5"))){
     embeddingDF = df
     
