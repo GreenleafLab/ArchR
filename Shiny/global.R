@@ -27,15 +27,6 @@ library(htmltools)
 
 ############# NEW ADDITIONS (start) ###############################
 
-# Adjusting ArchR functions
-fn <- base::unclass(utils::lsf.str(envir = base::asNamespace("ArchR"), all = TRUE))
-for (i in base::seq_along(fn)) {
-  base::tryCatch({
-    base::eval(base::parse(text = base::paste0(fn[i], "<-ArchR:::", fn[i])))
-  }, error = function(x) {
-  })
-}
-
 # Calling ArchRProj
 ArchRProj <- ArchR::loadArchRProject(path = ".", shiny = TRUE)
 ArchRProj <- ArchR::addImputeWeights(ArchRProj = ArchRProj)
