@@ -150,14 +150,15 @@ exportShinyArchR <- function(
   fragFiles <- list.files(path = file.path(fragDir, pattern = "\\_frags.rds$"))
   dir.create(file.path(mainOutputDir, "ShinyFragments"), showWarnings = FALSE)
 
+  groups <- unique(ArchRProj@cellColData[,groupBy])
+
   #check for the existence of each expected fragment file and create if not found
-  fragGroups <- unique(ArchRProj@cellColData[,groupBy])
-  fragOut <- .safelapply(seq_along(fragGroups), function(x){
-    fragGroupsx <- fragGroups[x]
-    if(!file.exists(file.path(fragDir,paste0(fragGroupsx,"_frags.rds"))) | force){
+  fragOut <- .safelapply(seq_along(groups), function(x){
+    groupsx <- groups[x]
+    if(!file.exists(file.path(fragDir,paste0(groupsx,"_frags.rds"))) | force){
       .exportGroupFragmentsRDS(ArchRProj = ArchRProjShiny, groupBy = groupBy, outDir = fragDir, threads = threads)
     } else {
-      message(paste0("Fragment file for ", fragGroupsx," already exist. Skipping fragment file generation..."))
+      message(paste0("Fragment file for ", groupsx," already exist. Skipping fragment file generation..."))
     }
     return(NULL)
   }, threads = threads)
