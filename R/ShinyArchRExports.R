@@ -394,6 +394,8 @@ exportShinyArchR <- function(
     
     featureNames <- getFeatures(ArchRProj = ArchRProj, useMatrix = mat)
     featureNames <- featureNames[which(!is.na(featureNames))]
+    dir.create(file.path(subOutputDir, mat), showWarnings = FALSE)
+    saveRDS(featuresNames, file.path(subOutputDir, mat, paste0(mat, "_names.rds")))
 
     message(paste0("Creating plots for ", mat,"..."))
 
