@@ -280,6 +280,8 @@ exportShinyArchR <- function(
           embedding = embedding,
           rastr = FALSE,
           size = 0.5,
+          threads = threads,
+          logFile = logFile
         ) + ggtitle(paste0("Colored by ", cellColEmbeddings[x])) + 
         theme(
           text = element_text(size=12),
@@ -408,7 +410,8 @@ exportShinyArchR <- function(
           imputeWeights = getImputeWeights(ArchRProj = ArchRProj),
           plotAs = "points",
           rastr = TRUE,
-          threads = threads
+          threads = threads,
+          logFile = logFile
         )
         
         embeds_points <- .safelapply(seq_along(featurePlots), function(x){
