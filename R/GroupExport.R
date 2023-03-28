@@ -683,7 +683,7 @@ getGroupFragments <- function(
         minoverlap = 0L,
         type = "any"
       )
-    addSeqLengths(bins, genome)
+    .addSeqLengths(bins, genome)
     
     groupReadsInTSS <-
       ArchRProj@cellColData$ReadsInTSS[cells %in% cellGroups$groupID]
