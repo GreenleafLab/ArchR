@@ -412,6 +412,9 @@ exportShinyArchR <- function(
         )
         
         embeds_points <- .safelapply(seq_along(featurePlots), function(x){
+          if((x %% 100) == 0) {
+            message("Processing feature #",x," of ",length(featurePlots)," for ", mat,".")
+          }
           featurePlotx <- featurePlots[x][[1]]
           if(!is.null(featurePlotx)){
             
