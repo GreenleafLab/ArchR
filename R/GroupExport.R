@@ -223,7 +223,8 @@ getPBGroupSE <- function(
     logFile = logFile
   )
   sePB <- sePB[,colnames(sePB) != "NA"]
-  colData(sePB)$Group <- stringr::str_split(colnames(sePB), pattern="\\.Rep", simplify=TRUE)[,1]
+  colData(sePB)$PBGroup <- stringr::str_split(colnames(sePB), pattern="\\.Rep", simplify=TRUE)[,1]
+  colData(sePB)$Group <- sapply(stringr::str_split(colnames(sePB), pattern="\\."), `[`, 1)
 
   sePB
 
