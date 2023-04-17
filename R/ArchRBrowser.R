@@ -670,6 +670,8 @@ ArchRBrowserTrack <- function(...){
 #' @param ylim The numeric quantile y-axis limit to be used for for "bulkTrack" plotting. This should be expressed as `c(lower limit, upper limit)` such as `c(0,0.99)`. If not provided, the y-axis limit will be c(0, 0.999).
 #' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override coloring for groups.
 #' @param baseSize The numeric font size to be used in the plot. This applies to all plot labels.
+#' @param featurefontSize The numeric font size to be used in the featureTrack.
+#' @param loopfontSize The numeric font size to be used in the loopTrack.
 #' @param scTileSize The width of the tiles in scTracks. Larger numbers may make cells overlap more. Default is 0.5 for about 100 cells.
 #' @param scCellsMax The maximum number of cells for scTracks.
 #' @param borderWidth The numeric line width to be used for plot borders.
@@ -701,6 +703,8 @@ plotBrowserTrack <- function(
   ylim = NULL,
   pal = NULL,
   baseSize = 7,
+  featurefontSize = 9,
+  loopfontSize = 9,
   scTileSize = 0.5,
   scCellsMax = 100,
   borderWidth = 0.4,
@@ -732,6 +736,8 @@ plotBrowserTrack <- function(
   .validInput(input = ylim, name = "ylim", valid = c("numeric", "null"))
   .validInput(input = pal, name = "pal", valid = c("palette", "null"))
   .validInput(input = baseSize, name = "baseSize", valid = "numeric")
+  .validInput(input = featurefontSize, name = "featurefontSize", valid = "numeric")
+  .validInput(input = loopfontSize, name = "loopfontSize", valid = "numeric")
   .validInput(input = scTileSize, name = "scTileSize", valid = "numeric")
   .validInput(input = scCellsMax, name = "scCellsMax", valid = "integer")
   .validInput(input = borderWidth, name = "borderWidth", valid = "numeric")
@@ -844,6 +850,7 @@ plotBrowserTrack <- function(
         plotList$featuretrack <- .featureTracks(
             features = features, 
             region = region[x], 
+            baseSize = featurefontSize,
             facetbaseSize = facetbaseSize,
             hideX = TRUE, 
             title = "Peaks",
@@ -860,6 +867,7 @@ plotBrowserTrack <- function(
         plotList$looptrack <- .loopTracks(
             loops = loops, 
             region = region[x], 
+            baseSize = loopfontSize,
             facetbaseSize = facetbaseSize,
             hideX = TRUE, 
             hideY = TRUE,
@@ -1401,7 +1409,7 @@ plotBrowserTrack <- function(
   region = NULL, 
   title = "FeatureTrack", 
   pal = NULL,
-  baseSize = 9, 
+  baseSize = NULL, 
   facetbaseSize = NULL,
   featureWidth = 2, 
   borderWidth = 0.4, 
@@ -1515,7 +1523,7 @@ plotBrowserTrack <- function(
   region = NULL, 
   title = "LoopTrack", 
   pal = NULL,
-  baseSize = 9, 
+  baseSize = NULL, 
   facetbaseSize = 9,
   featureWidth = 2, 
   borderWidth = 0.4, 
