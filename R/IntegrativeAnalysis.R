@@ -957,6 +957,7 @@ getCoAccessibility <- function(
 #' `reducedDims` were originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
 #' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param cellsToUse A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
@@ -981,6 +982,7 @@ addPeak2GeneLinks <- function(
   dimsToUse = 1:30,
   scaleDims = NULL,
   corCutOff = 0.75,
+  excludeChr = c(),
   cellsToUse = NULL,
   k = 100, 
   knnIteration = 500, 
@@ -1002,6 +1004,7 @@ addPeak2GeneLinks <- function(
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("numeric", "null"))
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = cellsToUse, name = "cellsToUse", valid = c("character", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
@@ -1060,10 +1063,12 @@ addPeak2GeneLinks <- function(
 
   #Get Peak Set
   peakSet <- getPeakSet(ArchRProj)
+  peakSet <- peakSet[BiocGenerics::which(seqnames(peakSet) %bcni% excludeChr)]
   .logThis(peakSet, "peakSet", logFile = logFile)
 
   #Gene Info
   geneSet <- .getFeatureDF(ArrowFiles, useMatrix, threads = threads)
+  geneSet <- geneSet[BiocGenerics::which(geneSet$seqnames %bcni% excludeChr),]
   geneStart <- GRanges(geneSet$seqnames, IRanges(geneSet$start, width = 1), name = geneSet$name, idx = geneSet$idx)
   .logThis(geneStart, "geneStart", logFile = logFile)
 
@@ -1108,7 +1113,9 @@ addPeak2GeneLinks <- function(
   .logDiffTime(main="Getting Group RNA Matrix", t1=tstart, verbose=verbose, logFile=logFile)
   groupMatRNA <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
-    featureDF = geneDF, 
+    featureDF = geneDF,
+    groupList = knnObj,
+    excludeSeqnames = excludeChr,
     groupList = knnObj, 
     useMatrix = useMatrix,
     threads = threads,
@@ -1121,7 +1128,9 @@ addPeak2GeneLinks <- function(
   .logDiffTime(main="Getting Group ATAC Matrix", t1=tstart, verbose=verbose, logFile=logFile)
   groupMatATAC <- .getGroupMatrix(
     ArrowFiles = getArrowFiles(ArchRProj), 
-    featureDF = peakDF, 
+    featureDF = peakDF,
+    groupList = knnObj,
+    excludeSeqnames = excludeChr,
     groupList = knnObj, 
     useMatrix = "PeakMatrix",
     threads = threads,
