@@ -17,6 +17,7 @@
 #' @param minReplicates The minimum number of pseudo-bulk replicates to be generated.
 #' @param maxReplicates The maximum number of pseudo-bulk replicates to be generated.
 #' @param sampleRatio The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param kmerLength The length of the k-mer used for estimating Tn5 bias.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param returnGroups A boolean value that indicates whether to return sample-guided cell-groupings without creating coverages.
@@ -39,6 +40,7 @@ addGroupCoverages <- function(
   minReplicates = 2,
   maxReplicates = 5,
   sampleRatio = 0.8,
+  excludeChr = c(),
   kmerLength = 6,
   threads = getArchRThreads(),
   returnGroups = FALSE,
@@ -58,6 +60,7 @@ addGroupCoverages <- function(
   .validInput(input = minReplicates, name = "minReplicates", valid = c("integer"))
   .validInput(input = maxReplicates, name = "maxReplicates", valid = c("integer"))
   .validInput(input = sampleRatio, name = "sampleRatio", valid = c("numeric"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = kmerLength, name = "kmerLength", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = returnGroups, name = "returnGroups", valid = c("boolean"))
@@ -204,6 +207,10 @@ addGroupCoverages <- function(
   args$kmerLength <- kmerLength
   args$ArrowFiles <- getArrowFiles(ArchRProj)
   args$availableChr <- .availableSeqnames(getArrowFiles(ArchRProj))
+  #Filter Chromosomes
+  if(length(excludeChr) > 0){
+    args$availableChr <- args$availableChr[BiocGenerics::which(args$availableChr %ni% excludeChr)]
+  }
   args$chromLengths <- getChromLengths(ArchRProj)
   #args$cellsInArrow <- split(rownames(getCellColData(ArchRProj)), getCellColData(ArchRProj)$Sample)
   args$cellsInArrow <-   cellsInArrow <- split(
