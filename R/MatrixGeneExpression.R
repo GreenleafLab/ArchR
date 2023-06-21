@@ -262,7 +262,7 @@ addGeneExpressionMatrix <- function(
   )
 
   ######################################
-  # Normalize and Insert Log2 Normalized Counts
+  # Normalize and Insert Normalized Counts
   ######################################
 
   assay(seRNA) <- .normalizeCols(assay(seRNA), scaleTo = scaleTo)
