@@ -802,7 +802,8 @@ subsetArchRProject <- function(
   if(!missing(j)){
     message("Subsetting columns not supported this way to remove columns set them to NULL.\nEx. ArchRProj$Clusters <- NULL\nContinuing just with cell subsetting.")
   }
-  
+
+  i <- as.vector(i)
   if (is.logical(i)) {
     if (length(i) != nrow(cD)) {
       stop("Incorrect number of logical values provided to subset cells")
