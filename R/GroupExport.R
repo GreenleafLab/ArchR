@@ -339,7 +339,7 @@ getGroupBW <- function(
   availableChr <- .availableSeqnames(head(getArrowFiles(ArchRProj)))
   chromLengths <- getChromLengths(ArchRProj)
   chromSizes <- getChromSizes(ArchRProj)
-  tiles <- unlist(slidingWindows(chromSizes, width = tileSize, step = tileSize))
+  #tiles <- unlist(slidingWindows(chromSizes, width = tileSize, step = tileSize))
 
   #H5 File Lock Check
   h5lock <- setArchRLocking()
@@ -363,6 +363,7 @@ getGroupBW <- function(
       cellsInArrow = cellsInArrow, 
       availableChr = availableChr,
       chromLengths = chromLengths,
+      chromSizes = chromSizes,
       normMethod = normMethod,
       normBy = normBy,
       ceiling = ceiling,
@@ -391,7 +392,8 @@ getGroupBW <- function(
   ArrowFiles = NULL, 
   cellsInArrow = NULL, 
   availableChr = NULL,
-  chromLengths = NULL, 
+  chromLengths = NULL,
+  chromSizes = NULL,
   tiles = NULL,
   ceiling = NULL,
   tileSize = 100,
@@ -430,7 +432,9 @@ getGroupBW <- function(
       }
     }
 
-    tilesk <- tiles[BiocGenerics::which(seqnames(tiles) %bcin% availableChr[k])]
+    chromSizesk <- chromSizes[BiocGenerics::which(seqnames(chromSizes) %bcin% availableChr[k])]
+    tilesk <- unlist(slidingWindows(chromSizesk, width = tileSize, step = tileSize))
+    #tilesk <- tiles[BiocGenerics::which(seqnames(tiles) %bcin% availableChr[k])]
 
     if(length(fragik) == 0){
 
