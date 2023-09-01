@@ -1,5 +1,6 @@
 <p align="center"><a href ="https://www.archrproject.com"><img src="Figures/ArchR_Logo_Integrated.png" alt="" width="350"></a></p>
 <hr>
+
 [![rworkflows](https://github.com/GreenleafLab/ArchR/workflows/rworkflows/badge.svg)](https://github.com/GreenleafLab/ArchR/actions)  
 
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
