@@ -239,13 +239,19 @@ getFragmentsFromArrow <- function(
 
 #' Get a data matrix stored in an ArchRProject
 #' 
-#' This function gets a given data matrix from an `ArchRProject`.
+#' This function gets a given data matrix from an `ArchRProject` and returns it as a `SummarizedExperiment`.
+#' This function will return the matrix you ask it for, without altering that matrix unless you tell it to.
+#' For example, if you added your `PeakMatrix` using `addPeakMatrix()` with `binarize = TRUE`, then
+#' `getMatrixFromProject()` will return a binarized `PeakMatrix`. Alternatively, you could set `binarize = TRUE`
+#' in the parameters passed to `getMatrixFromProject()` and the `PeakMatrix` will be binarized as you pull
+#' it out. No other normalization is applied to the matrix by this function.
 #'
 #' @param ArchRProj An `ArchRProject` object to get data matrix from.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
-#' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
+#' @param binarize A boolean value indicating whether the matrix should be binarized before return.
+#' This is often desired when working with insertion counts. Note that if the matrix has already been binarized previously, this should be set to `TRUE`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 getMatrixFromProject <- function(
@@ -352,6 +358,7 @@ getMatrixFromProject <- function(
   .logDiffTime("Constructing SummarizedExperiment", t1 = tstart, verbose = verbose, logFile = logFile)
   if(!is.null(rR1)){
     se <- SummarizedExperiment(assays = asy, colData = cD, rowRanges = rR1)
+    se <- sort(se)
   }else{
     se <- SummarizedExperiment(assays = asy, colData = cD, rowData = rD1)
   }
@@ -719,7 +726,8 @@ getMatrixFromArrow <- function(
   tmpPath = .tempfile(pattern = paste0("tmp-partial-mat")), 
   useIndex = FALSE,
   tstart = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  logFile = NULL
   ){
 
   #########################################
@@ -783,7 +791,7 @@ getMatrixFromArrow <- function(
 
     matFiles <- lapply(mat, function(x) x[[2]]) %>% Reduce("c", .)
     mat <- lapply(mat, function(x) x[[1]]) %>% Reduce("cbind", .)
-    if(!all(cellNames %in% colnames(mat))){
+    if(!all(sampledCellNames %in% colnames(mat))){
       .logThis(sampledCellNames, "cellNames supplied", logFile = logFile)
       .logThis(colnames(mat), "cellNames from matrix", logFile = logFile)
       stop("Error not all cellNames found in partialMatrix")
@@ -915,7 +923,7 @@ getMatrixFromArrow <- function(
     #Check if samples have NAs due to N = 1 sample or some other weird thing.
     #Set it to min non NA variance
     dfVars <- lapply(seq_len(nrow(dfVars)), function(x){
-      vx <- dfVars[x, ]
+      vx <- dfVars[x, , drop = FALSE]
       if(any(is.na(vx))){
         vx[is.na(vx)] <- min(vx[!is.na(vx)])
       }
@@ -1020,7 +1028,7 @@ getMatrixFromArrow <- function(
   ){
 
   if(tolower(method) == "fast" & is.null(index) & is.null(start) & is.null(block) & is.null(count)){
-    fid <- H5Fopen(file)
+    fid <- H5Fopen(file, "H5F_ACC_RDONLY")
     dapl <- H5Pcreate("H5P_DATASET_ACCESS")
     did <- .Call("_H5Dopen", fid@ID, name, dapl@ID, PACKAGE='rhdf5')
     res <- .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, fid@native, PACKAGE='rhdf5')

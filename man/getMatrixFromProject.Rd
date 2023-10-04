@@ -23,10 +23,16 @@ getMatrixFromProject(
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 
-\item{binarize}{A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.}
+\item{binarize}{A boolean value indicating whether the matrix should be binarized before return.
+This is often desired when working with insertion counts. Note that if the matrix has already been binarized previously, this should be set to \code{TRUE}.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 }
 \description{
-This function gets a given data matrix from an \code{ArchRProject}.
+This function gets a given data matrix from an \code{ArchRProject} and returns it as a \code{SummarizedExperiment}.
+This function will return the matrix you ask it for, without altering that matrix unless you tell it to.
+For example, if you added your \code{PeakMatrix} using \code{addPeakMatrix()} with \code{binarize = TRUE}, then
+\code{getMatrixFromProject()} will return a binarized \code{PeakMatrix}. Alternatively, you could set \code{binarize = TRUE}
+in the parameters passed to \code{getMatrixFromProject()} and the \code{PeakMatrix} will be binarized as you pull
+it out. No other normalization is applied to the matrix by this function.
 }

@@ -47,8 +47,10 @@ plotTSSEnrichment <- function(
 
   chr <- paste0(seqnames(chromSizes))
   chr <- gtools::mixedsort(intersect(chr, paste0(seqnames(TSS))))
+  .logThis(chr, paste0("chr"), logFile = logFile)
   TSS <- sort(sortSeqlevels(TSS))
-  splitTSS <- split(resize(TSS,1,"start"), seqnames(TSS))[chr]
+  splitTSS <- split(GenomicRanges::resize(TSS,1,"start"), seqnames(TSS))[chr]
+  .logThis(splitTSS, paste0("splitTSS"), logFile = logFile)
   window <- 2 * flank + 1
   groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = FALSE)
   uniqGroups <- gtools::mixedsort(unique(groups[,1]))
@@ -57,50 +59,68 @@ plotTSSEnrichment <- function(
      h5disableFileLocking()
   }
 
-  dfTSS <- .safelapply(seq_along(uniqGroups), function(x){
+  dfTSS <- .safelapply(seq_along(uniqGroups), function(z){
 
-    .logDiffTime(paste0(uniqGroups[x], " Computing TSS (",x," of ",length(uniqGroups),")!"), t1 = tstart, logFile = logFile)
+    .logDiffTime(paste0(uniqGroups[z], " Computing TSS (",z," of ",length(uniqGroups),")!"), t1 = tstart, logFile = logFile)
 
-    cellx <- rownames(groups)[which(paste0(groups[,1]) == uniqGroups[x])]
+    cellx <- rownames(groups)[which(paste0(groups[,1]) == uniqGroups[z])]
 
-    for(i in seq_along(chr)){
+    for(k in seq_along(chr)){
 
-      TSSi <- splitTSS[[chr[i]]]
+      #TSS for Chr
+      TSSi <- splitTSS[[chr[k]]]
 
-      covi <- unlist(suppressMessages(getFragmentsFromProject(
+      #Set TSS To be a dummy chr1
+      TSSi <- GRanges(seqnames=rep("chr1",length(TSSi)), ranges = ranges(TSSi), strand = strand(TSSi))
+      .logThis(TSSi, paste0(uniqGroups[z], " : TSSi : ", chr[k]), logFile = logFile)
+
+      #Extract Fragments
+      covi <- suppressMessages(getFragmentsFromProject(
         ArchRProj = ArchRProj,
-        subsetBy = chromSizes[paste0(seqnames(chromSizes)) %in% chr[i]],
+        subsetBy = chromSizes[paste0(seqnames(chromSizes)) %in% chr[k]],
         cellNames = cellx,
         logFile = logFile
-      )), use.names=FALSE) %>% 
-        sort %>% 
-          {coverage(IRanges(c(start(.), end(.)), width = 1))}
+      ) %>% unlist(use.names = FALSE))
+      .logThis(covi, paste0(uniqGroups[z], " : Fragments : ", chr[k]), logFile = logFile)
+     
+      #Get Insertions
+      covi <- sort(c(start(covi), end(covi)))
+      .logThis(covi, paste0(uniqGroups[z], " : Insertions : ", chr[k]), logFile = logFile)
 
-      .logThis(covi, paste0(uniqGroups[x], " : Cov : ", chr[i]), logFile = logFile)
+      #IRanges
+      covi <- IRanges(start = covi, width = 1)
+      .logThis(covi, paste0(uniqGroups[z], " : Insertions2 : ", chr[k]), logFile = logFile)
 
-      if(i == 1){
-        sumTSS <- rleSumsStranded(list(chr1=covi), list(chr1=TSSi), window, as.integer)
+      #Coverage
+      covi <- IRanges::coverage(covi)
+      .logThis(covi, paste0(uniqGroups[z], " : Cov : ", chr[k]), logFile = logFile)
+
+      #Compute Sum
+      sumTSSi <- rleSumsStranded(list(chr1=covi), list(chr1=TSSi), window, as.integer)
+      .logThis(sumTSSi, paste0(uniqGroups[z], " : SumTSS 1 : ", chr[k]), logFile = logFile)
+
+      if(k == 1){
+        sumTSS <- sumTSSi
       }else{
-        sumTSS <- sumTSS + rleSumsStranded(list(chr1=covi), list(chr1=TSSi), window, as.integer)
+        sumTSS <- sumTSS + sumTSSi
       }
-
-      .logThis(sumTSS, paste0(uniqGroups[x], " : SumTSS : ", chr[i]), logFile = logFile)
+      .logThis(sumTSS, paste0(uniqGroups[z], " : SumTSS : ", chr[k]), logFile = logFile)
 
     }
 
     normBy <- mean(sumTSS[c(1:norm,(flank*2-norm+1):(flank*2+1))])
 
     df <- DataFrame(
-      group = uniqGroups[x],
+      group = uniqGroups[z],
       x = seq_along(sumTSS) - flank - 1, 
       value = sumTSS, 
       normValue = sumTSS / normBy,
       smoothValue = .centerRollMean(sumTSS/normBy, 11)
     )
 
-    .logThis(df, paste0(uniqGroups[x], " : TSSDf"), logFile = logFile)
+    .logThis(df, paste0(uniqGroups[z], " : TSSDf"), logFile = logFile)
 
-    .logDiffTime(paste0(uniqGroups[x], " Finished Computing TSS (",x," of ",length(uniqGroups),")!"), t1 = tstart, logFile = logFile)
+    .logDiffTime(paste0(uniqGroups[z], " Finished Computing TSS (",z," of ",length(uniqGroups),")!"), t1 = tstart, logFile = logFile)
 
     df
 

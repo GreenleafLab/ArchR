@@ -13,6 +13,8 @@
 #' to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param name The name to store harmony output as a `reducedDims` in the `ArchRProject` object.
 #' @param groupBy The name of the column in `cellColData` to use for grouping cells together for vars in harmony batch correction.
+#' The value of `groupBy` is passed to the `vars_use` parameter in `harmony::HarmonyMatrix()`. When run through ArchR, this parameter
+#' defines which variables to correct for during batch correction. See `harmony::HarmonyMatrix()` for more information.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param force A boolean value that indicates whether or not to overwrite data in a given column when the value passed to `name` already
 #' exists as a column name in `cellColData`.

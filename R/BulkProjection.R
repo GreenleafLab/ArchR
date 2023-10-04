@@ -3,12 +3,13 @@
 #' This function will Project Bulk ATAC-seq data into single cell subspace.
 #' 
 #' @param ArchRProj An `ArchRProject` object containing the dimensionality reduction matrix passed by `reducedDims`.
-#' @param seATAC Bulk ATAC Summarized Experiment.
-#' @param reducedDims A string specifying the reducedDims.
-#' @param embedding A string specifying embedding.
+#' @param seATAC A `SummarizedExperiment` object containing bulk ATAC-seq data.
+#' @param reducedDims A string specifying the name of the `reducedDims` object to be used.
+#' @param embedding A string specifying the name of the `embedding` object to be used.
 #' @param n An integer specifying the number of subsampled "pseudo single cells" per bulk sample.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param threads The number of threads used for parallel execution
+#' @param force A boolean value indicating whether to force the projection of bulk ATAC data even if fewer than 25% of the features are present in the bulk ATAC data set.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
 #'
@@ -20,6 +21,7 @@ projectBulkATAC <- function(
   n = 250,
   verbose = TRUE,
   threads = getArchRThreads(),
+  force = FALSE,
   logFile = createLogFile("projectBulkATAC")
   ){
 
@@ -30,8 +32,9 @@ projectBulkATAC <- function(
   .validInput(input = n, name = "n", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
+  .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
-
+  
   tstart <- Sys.time()
 
   .startLogging(logFile = logFile)
@@ -150,7 +153,7 @@ projectBulkATAC <- function(
     }
 
     if(embedding$params$nc != ncol(simRD)){
-      .logMessage("Error incosistency found with matching LSI dimensions to those used in addEmbedding",
+      .logMessage("Error! Inconsistency found with matching LSI dimensions to those used in addUMAP or addTSNE",
         "\nReturning with simulated reduced dimension coordinates...", verbose = TRUE, logFile = logFile)
       out <- SimpleList(
         simulatedReducedDims = simRD

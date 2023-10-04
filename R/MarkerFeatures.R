@@ -129,7 +129,7 @@ getMarkerFeatures <- function(
     .logThis(range(as.vector(table(paste0(featureDF$seqnames)))), "FeaturesPerSeqnames", logFile = logFile)
 
     isDeviations <- FALSE
-    if(all(unique(paste0(featureDF$seqnames)) %in% c("z", "dev"))){
+    if(all(unique(paste0(featureDF$seqnames)) %in% c("z", "deviations"))){
       isDeviations <- TRUE
     }
 
@@ -191,11 +191,14 @@ getMarkerFeatures <- function(
     #####################################################
     # Pairwise Test Per Seqnames
     #####################################################
+    #ColSums
     mColSums <- tryCatch({
-      suppressMessages(.getColSums(ArrowFiles, seqnames = featureDF$seqnames@values, useMatrix = useMatrix, threads = threads))
+      suppressMessages(tmpColSum <- .getColSums(ArrowFiles, seqnames = featureDF$seqnames@values, useMatrix = useMatrix, threads = threads))
+      tmpColSum[ArchRProj$cellNames]
     }, error = function(x){
       rep(1, nCells(ArchRProj))
     })
+
     if(all(mColSums==1) & is.null(normBy)){
       normBy <- "none"
     }
@@ -216,7 +219,12 @@ getMarkerFeatures <- function(
     }else{
       if(tolower(normBy) == "none"){
         normFactors <- NULL
+      }else if(normBy %in% colnames(ArchRProj@cellColData)) {
+        normFactors <- getCellColData(ArchRProj, normBy, drop=FALSE)
+        normFactors[,1] <- median(normFactors[,1]) / normFactors[,1]
       }else{
+        .logMessage("Warning! Parameter 'normBy' was set to ", normBy," but no matching column was found in cellColData.\n",
+                    "Continuing with normalization based on column sums of matrix!", verbose = verbose, logFile = logFile)
         normFactors <- scaleTo / mColSums
         normFactors <- DataFrame(normFactors)
       }
@@ -416,7 +424,16 @@ getMarkerFeatures <- function(
 
   }) %>% Reduce("rbind", .)
 
-  idxFilter <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
+  #Check for Mean being 0 for both Mean1 and Mean2
+  idxFilter1 <- rowSums(pairwiseDF[,c("mean1","mean2")]) != 0
+
+  #Check For NA in Either Mean1 Mean2
+  idxFilter2 <- rowSums(is.na(pairwiseDF[,c("mean1","mean2")])) == 0
+  
+  #Combo Check
+  idxFilter <- idxFilter1 & idxFilter2
+
+  #FDR
   pairwiseDF$fdr <- NA
   pairwiseDF$fdr[idxFilter] <- p.adjust(pairwiseDF$pval[idxFilter], method = "fdr")
   pairwiseDF <- pairwiseDF[rownames(featureDF), , drop = FALSE]
@@ -806,9 +823,13 @@ markerHeatmap <- function(...){
 #' @param pal A custom continuous palette from `ArchRPalettes` (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
 #' @param binaryClusterRows A boolean value that indicates whether a binary sorting algorithm should be used for fast clustering of heatmap rows.
 #' @param clusterCols A boolean value that indicates whether the columns of the marker heatmap should be clustered.
+#' @param subsetMarkers A vector of rownames from seMarker to use for subsetting of seMarker to only plot specific features on the heatmap.
+#' Note that these rownames are expected to be integers that come from `rownames(rowData(seMarker))`. If this parameter is used for
+#' subsetting, then the values provided to `cutOff` are effectively ignored.
 #' @param labelMarkers A character vector listing the `rownames` of `seMarker` that should be labeled on the side of the heatmap.
-#' @param nLabel An integer value that indicates whether the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
-#' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.
+#' @param nLabel An integer value that indicates how many of the top `n` features for each column in `seMarker` should be labeled on the side of the heatmap.
+#' To remove all feature labels, set `nLabel = 0`.
+#' @param nPrint If provided `seMarker` is from "GeneScoreMatrix" print the top `n` genes for each group based on how uniquely up-regulated the gene is.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
 #' @param returnMatrix A boolean value that indicates whether the final heatmap matrix should be returned in lieu of plotting the actual heatmap.
 #' @param transpose A boolean value that indicates whether the heatmap should be transposed prior to plotting or returning.
@@ -830,6 +851,7 @@ plotMarkerHeatmap <- function(
   pal = NULL,
   binaryClusterRows = TRUE,
   clusterCols = TRUE,
+  subsetMarkers = NULL,
   labelMarkers = NULL,
   nLabel = 15,
   nPrint = 15,
@@ -851,9 +873,10 @@ plotMarkerHeatmap <- function(
   .validInput(input = pal, name = "pal", valid = c("character", "null"))
   .validInput(input = binaryClusterRows, name = "binaryClusterRows", valid = c("boolean"))
   .validInput(input = clusterCols, name = "clusterCols", valid = c("boolean"))
+  .validInput(input = subsetMarkers, name = "subsetMarkers", valid = c("integer", "null"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
-  .validInput(input = nLabel, name = "nLabel", valid = c("integer", "null"))
-  .validInput(input = nPrint, name = "nPrint", valid = c("integer", "null"))
+  .validInput(input = nLabel, name = "nLabel", valid = c("integer"))
+  .validInput(input = nPrint, name = "nPrint", valid = c("integer"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
   .validInput(input = returnMatrix, name = "returnMatrix", valid = c("boolean"))
   .validInput(input = transpose, name = "transpose", valid = c("boolean"))
@@ -902,6 +925,16 @@ plotMarkerHeatmap <- function(
   }else{
     idx <- which(rowSums(passMat, na.rm = TRUE) > 0 & matrixStats::rowVars(mat) != 0 & !is.na(matrixStats::rowVars(mat)))
   }
+
+  if(!is.null(subsetMarkers)) {
+    if(length(which(subsetMarkers %ni% 1:nrow(mat))) == 0){
+      idx <- subsetMarkers
+    } else {
+      stop("Rownames / indices provided to the subsetMarker parameter are outside of the boundaries of seMarker.")
+    }
+    
+  }
+
   mat <- mat[idx,,drop=FALSE]
   passMat <- passMat[idx,,drop=FALSE]
 
@@ -934,14 +967,18 @@ plotMarkerHeatmap <- function(
   }
 
   spmat <- passMat / rowSums(passMat)
-  if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
-    message("Printing Top Marker Genes:")
-    for(x in seq_len(ncol(spmat))){
-      genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
-      message(colnames(spmat)[x], ":")
-      message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
+  #only print out identified marker genes if subsetMarkers is NULL
+  if(is.null(subsetMarkers)) {
+    if(metadata(seMarker)$Params$useMatrix == "GeneScoreMatrix"){
+      message("Printing Top Marker Genes:")
+      for(x in seq_len(ncol(spmat))){
+        genes <- head(order(spmat[,x], decreasing = TRUE), nPrint)
+        message(colnames(spmat)[x], ":")
+        message("\t", paste(as.vector(rownames(mat)[genes]), collapse = ", "))
+      }
     }
   }
+
 
   if(is.null(labelMarkers)){
     labelMarkers <- lapply(seq_len(ncol(spmat)), function(x){
@@ -962,7 +999,9 @@ plotMarkerHeatmap <- function(
       mat <- bS[[1]][,colnames(mat),drop=FALSE]
     }
     clusterRows <- FALSE
-    clusterCols <- bS[[2]]
+    if (clusterCols) {
+      clusterCols <- bS[[2]]
+    }
   }else{
     clusterRows <- TRUE
     clusterCols <- TRUE
@@ -1214,13 +1253,16 @@ markerPlot <- function(...){
 #' @param cutOff A valid-syntax logical statement that defines which marker features from `seMarker` will be plotted.
 #' `cutoff` can contain any of the `assayNames` from `seMarker`.
 #' @param plotAs A string indicating whether to plot a volcano plot ("Volcano") or an MA plot ("MA").
+#' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
+#' lines and labels, just the internal portions of the plot.
 #' @export
 plotMarkers <- function(
   seMarker = NULL,
   name = NULL,
   cutOff = "FDR <= 0.01 & abs(Log2FC) >= 0.5",
   plotAs = "Volcano",
-  scaleTo = 10^4
+  scaleTo = 10^4,
+  rastr = TRUE
   ){
 
   .validInput(input = seMarker, name = "seMarker", valid = c("SummarizedExperiment"))
@@ -1228,6 +1270,7 @@ plotMarkers <- function(
   .validInput(input = cutOff, name = "cutOff", valid = c("character"))
   .validInput(input = plotAs, name = "plotAs", valid = c("character"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
+  .validInput(input = rastr, name = "rastr", valid = c("boolean"))
 
   #Evaluate AssayNames
   assayNames <- names(SummarizedExperiment::assays(seMarker))
@@ -1282,7 +1325,7 @@ plotMarkers <- function(
       ylim = c(-qLFC, qLFC),
       size = 1,
       extend = 0,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,
@@ -1299,7 +1342,7 @@ plotMarkers <- function(
       xlim = c(-qLFC, qLFC),
       extend = 0,
       size = 1,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,
@@ -1316,7 +1359,7 @@ plotMarkers <- function(
       xlim = c(-qDiff, qDiff),
       extend = 0,
       size = 1,
-      rastr = TRUE, 
+      rastr = rastr, 
       labelMeans = FALSE,
       labelAsFactors = FALSE,
       pal = pal,

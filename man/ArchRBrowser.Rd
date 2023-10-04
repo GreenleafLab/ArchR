@@ -55,5 +55,6 @@ To install try devtools::install_github("rstudio/shinythemes").}
 }
 \description{
 This function will open an interactive shiny session in style of a browser track. It allows for normalization of the signal which
-enables direct comparison across samples.
+enables direct comparison across samples. Note that the genes displayed in this browser are derived from your \code{geneAnnotation}
+(i.e. the \code{BSgenome} object you used) so they may not match other online genome browsers that use different gene annotations.
 }

@@ -5,7 +5,6 @@
 #' Add TileMatrix to ArrowFiles or an ArchRProject
 #' 
 #' This function, for each sample, will independently compute counts for each tile
-#' per cell in the ArrowFile
 #'
 #' @param input An `ArchRProject` object or character vector of ArrowFiles.
 #' @param chromSizes A named numeric vector containing the chromsome names and lengths. The default behavior is to retrieve
@@ -204,6 +203,29 @@ addTileMatrix <- function(
       .logThis(min(matchID), paste0("MinCell_TileMatrix_",z,"_",chr), logFile = logFile)
       .logThis(max(matchID), paste0("MaxCell_TileMatrix_",z,"_",chr), logFile = logFile)
 
+      #Check Fragments for validity in case
+      nf1 <- length(fragments)
+
+      #Check 1
+      fragmentsBad1 <- fragments[!(start(fragments) >= 1)]
+      fragments <- fragments[start(fragments) >= 1]
+
+      #Check 2
+      fragmentsBad2 <- fragments[!(end(fragments) <= chromLengths[z])]
+      fragments <- fragments[end(fragments) <= chromLengths[z]]
+
+      #Check N
+      nf2 <- length(fragments)
+      if(nf2 < nf1){
+        warning("Skipping over fragments not within chromosome range on Chr:", chr)
+        .logThis(fragmentsBad1, "fragmentsBad1", logFile = logFile)
+        print("Bad1 (Start not greater than 0): ")
+        print(fragmentsBad1)
+        print("Bad2 (End greater than chromsome length): ")
+        .logThis(fragmentsBad2, "fragmentsBad2", logFile = logFile)
+        print(fragmentsBad2)
+      }
+
       #Create Sparse Matrix
       mat <- Matrix::sparseMatrix(
           i = c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1,
@@ -244,7 +266,8 @@ addTileMatrix <- function(
         Group = paste0("TileMatrix/", chr), 
         binarize = binarize,
         addColSums = TRUE,
-        addRowSums = TRUE
+        addRowSums = TRUE,
+        addRowVarsLog2 = TRUE
         )
 
       gc()

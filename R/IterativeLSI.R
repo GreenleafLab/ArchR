@@ -11,9 +11,10 @@
 #' "TileMatrix" or "PeakMatrix".
 #' @param name The name to use for storage of the IterativeLSI dimensionality reduction in the `ArchRProject` as a `reducedDims` object.
 #' @param iterations The number of LSI iterations to perform.
-#' @param clusterParams A list of Additional parameters to be passed to `addClusters()` for clustering within each iteration. 
+#' @param clusterParams A list of additional parameters to be passed to `addClusters()` for clustering within each iteration. 
 #' These params can be constant across each iteration, or specified for each iteration individually. Thus each param must be of
-#' length == 1 or the total number of `iterations` - 1. PLEASE NOTE - We have updated these params to `resolution=2` and `maxClusters=6`! To use previous settings use `resolution=0.2` and `maxClusters=NULL`.
+#' length == 1 or the total number of `iterations` - 1. If you want to use `scran` for clustering, you would pass this as `method="scran"`.
+#` PLEASE NOTE - We have updated these params to `resolution=2` and `maxClusters=6`! To use previous settings use `resolution=0.2` and `maxClusters=NULL`.
 #' @param firstSelection First iteration selection method for features to use for LSI. Either "Top" for the top accessible/average or "Var" for the top variable features. 
 #' "Top" should be used for all scATAC-seq data (binary) while "Var" should be used for all scRNA/other-seq data types (non-binary).
 #' @param depthCol A column in the `ArchRProject` that represents the coverage (scATAC = unique fragments, scRNA = unique molecular identifiers) per cell.
@@ -24,8 +25,7 @@
 #' Possible values are: 1 or "tf-logidf", 2 or "log(tf-idf)", and 3 or "logtf-logidf".
 #' @param scaleDims A boolean that indicates whether to z-score the reduced dimensions for each cell. This is useful forminimizing the contribution
 #' of strong biases (dominating early PCs) and lowly abundant populations. However, this may lead to stronger sample-specific biases since
-#' it is over-weighting latent PCs. If set to `NULL` this will scale the dimensions based on the value of `scaleDims` when the `reducedDims` were
-#' originally created during dimensionality reduction. This idea was introduced by Timothy Stuart.
+#' it is over-weighting latent PCs.
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before running LSI. This is often desired when working with insertion counts.
@@ -47,9 +47,9 @@
 #' @param totalFeatures The number of features to consider for use in LSI after ranking the features by the total number of insertions.
 #' These features are the only ones used throught the variance identification and LSI. These are an equivalent when using a `TileMatrix` to a defined peakSet.
 #' @param filterQuantile A number [0,1] that indicates the quantile above which features should be removed based on insertion counts prior
-#' @param excludeChr A string of chromosomes to exclude for iterativeLSI procedure.
 #' to the first iteration of the iterative LSI paradigm. For example, if `filterQuantile = 0.99`, any features above the 99th percentile in
 #' insertion counts will be ignored for the first LSI iteration.
+#' @param excludeChr A string of chromosomes to exclude for iterativeLSI procedure.
 #' @param saveIterations A boolean value indicating whether the results of each LSI iterations should be saved as compressed `.rds` files in
 #' the designated `outDir`.
 #' @param UMAPParams The list of parameters to pass to the UMAP function if "UMAP" if `saveIterations=TRUE`. See the function `uwot::umap()`.
@@ -117,7 +117,7 @@ addIterativeLSI <- function(
   .validInput(input = varFeatures, name = "varFeatures", valid = c("integer"))
   .validInput(input = dimsToUse, name = "dimsToUse", valid = c("integer"))
   .validInput(input = LSIMethod, name = "LSIMethod", valid = c("integer", "character"))
-  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
+  .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = outlierQuantiles, name = "outlierQuantiles", valid = c("numeric", "null"))
@@ -211,7 +211,10 @@ addIterativeLSI <- function(
   if(tolower(firstSelection) == "top"){
     
     if(!binarize){
-      stop("Please binarize data if using top selection for first iteration! Set binarize = TRUE!")
+      matClass <- h5read(ArrowFiles[1], paste0(useMatrix,"/Info/Class"))
+      if(matClass != "Sparse.Binary.Matrix"){
+        stop("Input matrix is not binarized and binarize != TRUE. Please use binarized data if using top selection for first iteration! Set binarize = TRUE!")
+      }
     }
 
     #Compute Row Sums Across All Samples
@@ -265,7 +268,7 @@ addIterativeLSI <- function(
     .logDiffTime("Computing Variable Features", tstart, addHeader = FALSE, verbose = verbose, logFile = logFile)
     nFeature <- varFeatures[1]
     if(nFeature > 0.5 * nrow(totalAcc)){
-      stop("nFeature for variable selection must be at leat 1/2 the total features!")
+      stop("nFeature for variable selection must be less than 1/2 the total features!")
     }
     topIdx <- head(order(totalAcc$combinedVars, decreasing=TRUE), nFeature)
     topFeatures <- totalAcc[sort(topIdx),]
@@ -285,7 +288,7 @@ addIterativeLSI <- function(
       v
     }, error = function(e){
       tryCatch({
-        .getColSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)
+        .getColSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix, seqnames = chrToRun)[ArchRProj$cellNames]
       }, error = function(y){
         stop("Could not determine depth from depthCol or colSums!")
       })
@@ -544,7 +547,8 @@ addIterativeLSI <- function(
         cellNames = cellNames,
         doSampleCells = FALSE,
         threads = threads,
-        verbose = FALSE
+        verbose = FALSE,
+        logFile = logFile
       )
 
       #Compute LSI
@@ -591,7 +595,8 @@ addIterativeLSI <- function(
           cellNames = sampledCellNames,
           doSampleCells = FALSE,
           threads = threads,
-          verbose = FALSE
+          verbose = FALSE,
+          logFile = logFile
         )
 
         #Compute LSI
@@ -628,7 +633,8 @@ addIterativeLSI <- function(
             tmpPath = tmpPath,
             useIndex = useIndex,
             threads = threads,
-            verbose = FALSE
+            verbose = FALSE,
+            logFile = logFile
           )
         gc()
 
@@ -1096,7 +1102,7 @@ addIterativeLSI <- function(
         #.safeSaveRDS(mat, "temp.rds", compress = FALSE)
         matO <- mat[, idxOutlier, drop = FALSE]
         mat <- mat[, -idxOutlier, drop = FALSE]
-        mat2 <- mat[, head(seq_len(ncol(mat)), 10), drop = FALSE] # A 2nd Matrix to Check Projection is Working
+        mat2 <- mat[, head(seq_len(ncol(mat)), 50), drop = FALSE] # A 2nd Matrix to Check Projection is Working
         colSm <- colSm[-idxOutlier]
         filterOutliers <- 1       
       }
@@ -1196,7 +1202,10 @@ addIterativeLSI <- function(
         cor(pCheck[,x], pCheck2[,x])
       }) %>% unlist
       if(min(pCheck3) < 0.95){
-        stop("Error with LSI-projection! Cor less than 0.95 of re-projection. Please report bug to github!")
+        .logThis(pCheck, "pCheck", logFile=logFile)
+        .logThis(pCheck2, "pCheck2", logFile=logFile)
+        .logThis(pCheck3, "pCheck3", logFile=logFile)
+        warning("Warning with LSI-projection! Cor less than 0.95 of re-projection. Please report this to github with logFile!")
       }
       #Project LSI Outliers
       out$outliers <- colnames(matO)

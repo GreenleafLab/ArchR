@@ -20,7 +20,7 @@
 #' This is important to allow for exclusion of pseudo-bulk replicates derived from very low cell numbers.
 #' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from peak calling.
 #' @param pathToMacs2 The full path to the MACS2 executable.
-#' @param genomeSize The genome size to be used for MACS2 peak calling (see MACS2 documentation).
+#' @param genomeSize The genome size to be used for MACS2 peak calling (see MACS2 documentation). This is required if genome is not hg19, hg38, mm9, or mm10.
 #' @param shift The number of basepairs to shift each Tn5 insertion. When combined with `extsize` this allows you to create proper fragments,
 #' centered at the Tn5 insertion site, for use with MACS2 (see MACS2 documentation).
 #' @param extsize The number of basepairs to extend the MACS2 fragment after `shift` has been applied. When combined with `extsize` this
@@ -166,6 +166,8 @@ addReproduciblePeakSet <- function(
 				genomeSize <- 2.7e9
 			}else if(grepl("mm9|mm10", getGenome(ArchRProj), ignore.case = TRUE)){
 				genomeSize <- 1.87e9
+			}else {
+				stop("Non-standard genome detected. Argument genomeSize is required!")
 			}
 		}
 
@@ -211,7 +213,6 @@ addReproduciblePeakSet <- function(
 		#####################################################
 		# BSgenome for Add Nucleotide Frequencies!
 		#####################################################
-		.requirePackage(genomeAnnotation$genome)
 		.requirePackage("Biostrings",source="bioc")
 		BSgenome <- eval(parse(text = genomeAnnotation$genome))
 		BSgenome <- validBSgenome(BSgenome)
@@ -596,7 +597,7 @@ addReproduciblePeakSet <- function(
 
 	#Validate
 	peaks <- .validGRanges(peaks)
-	peakSummits <- resize(peaks,1,"center")
+	peakSummits <- GenomicRanges::resize(peaks,1,"center")
 	geneAnnotation$genes <- .validGRanges(geneAnnotation$genes)
 	geneAnnotation$exons <- .validGRanges(geneAnnotation$exons)
 	geneAnnotation$TSS <- .validGRanges(geneAnnotation$TSS)
@@ -604,11 +605,11 @@ addReproduciblePeakSet <- function(
 
 	#First Lets Get Distance to Nearest Gene Start
 	.logMessage("Annotating Peaks : Nearest Gene", logFile = logFile)
-	distPeaks <- distanceToNearest(peakSummits, resize(geneAnnotation$genes, 1, "start"), ignore.strand = TRUE)
+	distPeaks <- distanceToNearest(peakSummits, GenomicRanges::resize(geneAnnotation$genes, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToGeneStart <- mcols(distPeaks)$distance
 	mcols(peaks)$nearestGene <- mcols(geneAnnotation$genes)$symbol[subjectHits(distPeaks)]
 	.logMessage("Annotating Peaks : Gene", logFile = logFile)
-	promoters <- extendGR(resize(geneAnnotation$genes, 1, "start"), upstream = promoterRegion[1], downstream = promoterRegion[2])
+	promoters <- extendGR(GenomicRanges::resize(geneAnnotation$genes, 1, "start"), upstream = promoterRegion[1], downstream = promoterRegion[2])
 	op <- overlapsAny(peakSummits, promoters, ignore.strand = TRUE)
 	og <- overlapsAny(peakSummits, geneAnnotation$genes, ignore.strand = TRUE)
 	oe <- overlapsAny(peakSummits, geneAnnotation$exons, ignore.strand = TRUE)
@@ -620,12 +621,12 @@ addReproduciblePeakSet <- function(
 
 	#First Lets Get Distance to Nearest TSS's
 	.logMessage("Annotating Peaks : TSS", logFile = logFile)
-	distTSS <- distanceToNearest(peakSummits, resize(geneAnnotation$TSS, 1, "start"), ignore.strand = TRUE)
+	distTSS <- distanceToNearest(peakSummits, GenomicRanges::resize(geneAnnotation$TSS, 1, "start"), ignore.strand = TRUE)
 	mcols(peaks)$distToTSS <- mcols(distTSS)$distance
 	if("symbol" %in% colnames(mcols(geneAnnotation$TSS))){
-		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$symbol[subjectHits(distPeaks)]
+		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$symbol[subjectHits(distTSS)]
 	}else if("tx_name" %in% colnames(mcols(geneAnnotation$TSS))){
-		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$tx_name[subjectHits(distPeaks)]
+		mcols(peaks)$nearestTSS <- mcols(geneAnnotation$TSS)$tx_name[subjectHits(distTSS)]
 	}
 
 	#Get NucleoTide Content
@@ -661,7 +662,7 @@ addReproduciblePeakSet <- function(
 	  summits <- Reduce("c", as(summits, "GRangesList"))
 
 		.logMessage(paste0(prefix, " Extending Summits"), logFile = logFile)
-	  extendedSummits <- resize(summits, extendSummits * 2 + 1, "center")
+	  extendedSummits <- GenomicRanges::resize(summits, extendSummits * 2 + 1, "center")
 	  extendedSummits <- lapply(split(extendedSummits, extendedSummits$GroupReplicate), function(x){
 	    nonES <- nonOverlappingGR(x, by = "score", decreasing = TRUE)
 	    nonES$replicateScoreQuantile <- round(.getQuantiles(nonES$score),3)
@@ -834,7 +835,7 @@ findMacs2 <- function(){
 	  if(search2[1] != "ERROR"){
 		  path2Install <- gsub("Location: ","",search2[grep("Location", search2, ignore.case=TRUE)])
 		  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-		  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+		  if(.suppressAll(.checkPath(path2Bin, throwError = FALSE))){
 		  	message("Found with pip!")
 		    return(path2Bin)
 		  }
@@ -847,7 +848,7 @@ findMacs2 <- function(){
 	  if(search3[1] != "ERROR"){
 		  path2Install <- gsub("Location: ","",search3[grep("Location", search3, ignore.case=TRUE)])
 		  path2Bin <- gsub("lib/python/site-packages", "bin/macs2",path2Install)
-		  if(.suppressAll(.checkPath(path2Bin, throwError = error))){
+		  if(.suppressAll(.checkPath(path2Bin, throwError = FALSE))){
 		  	message("Found with pip3!")
 		    return(path2Bin)
 		  }

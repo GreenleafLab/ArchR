@@ -14,6 +14,8 @@ createArrowFiles(
   minTSS = 4,
   minFrags = 1000,
   maxFrags = 1e+05,
+  minFragSize = 10,
+  maxFragSize = 2000,
   QCDir = "QualityControl",
   nucLength = 147,
   promoterRegion = c(2000, 100),
@@ -69,6 +71,10 @@ Cells containing greater than or equal to \code{minFrags} total fragments wll be
 \item{maxFrags}{The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
 Cells containing greater than or equal to \code{maxFrags} total fragments wll be retained.}
 
+\item{minFragSize}{The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.}
+
+\item{maxFragSize}{The maximum fragment size to be included into Arrow File. Fragments above than this number are discarded. Must be greater than maxFragSize.}
+
 \item{QCDir}{The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.}
 
 \item{nucLength}{The length in basepairs that wraps around a nucleosome. This number is used for identifying fragments as
@@ -100,9 +106,11 @@ gsubExpression would be ":.*". This would retrieve the string after the colon as
 \code{scanBamFlag} passed to \code{ScanBam} in Rsamtools.}
 
 \item{offsetPlus}{The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site.
+This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 See Buenrostro et al. Nature Methods 2013.}
 
 \item{offsetMinus}{The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site.
+This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 See Buenrostro et al. Nature Methods 2013.}
 
 \item{addTileMat}{A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that,
