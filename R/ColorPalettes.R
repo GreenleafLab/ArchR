@@ -112,6 +112,7 @@ paletteDiscrete <- function(
   .validInput(input = values, name = "values", valid = c("character", "factor"))
   .validInput(input = reverse, name = "reverse", valid = c("boolean"))
   
+  values <- unique(values)
   values <- gtools::mixedsort(values)
   n <- length(unique(values))
   pal <- ArchRPalettes[[set]]

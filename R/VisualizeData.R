@@ -173,7 +173,13 @@ plotPDF <- function(
 #' @param log2Norm A boolean value indicating whether a log2 transformation should be performed on the values (if continuous) in plotting.
 #' @param imputeWeights The weights to be used for imputing numerical values for each cell as a linear combination of other cells values.
 #' See `addImputationWeights()` and `getImutationWeights()` for more information.
-#' @param pal A custom palette (see `paletteDiscrete` or `ArchRPalettes`) used to override discreteSet/continuousSet for coloring vector.
+#' @param pal A custom palette used to override discreteSet/continuousSet for coloring cells. Typically created using `paletteDiscrete()` or `paletteContinuous()`.
+#' To make a custom palette, you must construct this following strict specifications. If the coloring is for discrete data (i.e. "Clusters"),
+#' then this palette must be a named vector of colors where each color is named for the corresponding group (e.g. `"C1" = "#F97070"`). If the coloring
+#' for continuous data, then it just needs to be a vector of colors. If you are using `pal` in conjuction with `highlightCells`, your palette
+#' must be a named vector with two entries, one named for the value of the cells in the `name` column of `cellColData` and the other named
+#' "Non.Highlighted". For example, `pal=c("Mono" = "green", "Non.Highlighted" = "lightgrey")` would be used to change the color of cells with the value
+#' "Mono" in the `cellColData` column indicated by `name`. Because of this, the cells indicated by `highlightCells` must also match this value in the `name` column.
 #' @param size A number indicating the size of the points to plot if `plotAs` is set to "points".
 #' @param sampleCells A numeric describing number of cells to use for plot. If using impute weights, this will occur after imputation.
 #' @param highlightCells A character vector of cellNames describing which cells to hightlight if using `plotAs = "points"` (default if discrete). 
@@ -415,8 +421,10 @@ plotEmbedding <- function(
 
     if(!plotParamsx$discrete){
 
-      plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
-
+      if(!is.null(quantCut)){
+        plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
+      }
+      
       plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
 
       if(!is.null(pal)){

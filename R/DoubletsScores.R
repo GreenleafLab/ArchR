@@ -378,7 +378,7 @@ addDoubletScores <- function(
         scale_colour_gradientn(colors = pal) + 
         xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
         labs(color = "Simulated Doublet Density") +
-        guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
+        guides(fill = "none") + theme_ArchR(baseSize = 10) +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
               axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
         coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +
@@ -395,7 +395,7 @@ addDoubletScores <- function(
     #     geom_point(data = dfDoub, aes(x=x,y=y,colour=color), size = 0.5) + 
     #       scale_colour_gradientn(colors = pal) + 
     #       xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
-    #       guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
+    #       guides(fill = "none") + theme_ArchR(baseSize = 10) +
     #       labs(color = "Simulated Doublet Density") +
     #       theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
     #             axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
@@ -413,7 +413,7 @@ addDoubletScores <- function(
     #       scale_colour_gradientn(colors = pal) + 
     #       xlab("UMAP Dimension 1") + ylab("UMAP Dimension 2") +
     #       labs(color = "Simulated Doublet Density") +
-    #       guides(fill = FALSE) + theme_ArchR(baseSize = 10) +
+    #       guides(fill = "none") + theme_ArchR(baseSize = 10) +
     #       theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
     #             axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
     #       coord_equal(ratio = diff(xlim)/diff(ylim), xlim = xlim, ylim = ylim, expand = FALSE) +

@@ -34,7 +34,9 @@ to sequencing depth that is greater than the \code{corCutOff}, it will be exclud
 
 \item{name}{The name to store harmony output as a \code{reducedDims} in the \code{ArchRProject} object.}
 
-\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for vars in harmony batch correction.}
+\item{groupBy}{The name of the column in \code{cellColData} to use for grouping cells together for vars in harmony batch correction.
+The value of \code{groupBy} is passed to the \code{vars_use} parameter in \code{harmony::HarmonyMatrix()}. When run through ArchR, this parameter
+defines which variables to correct for during batch correction. See \code{harmony::HarmonyMatrix()} for more information.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
 

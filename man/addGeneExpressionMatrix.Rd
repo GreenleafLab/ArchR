@@ -13,6 +13,7 @@ addGeneExpressionMatrix(
   verbose = TRUE,
   threads = getArchRThreads(),
   parallelParam = NULL,
+  strictMatch = FALSE,
   force = TRUE,
   logFile = createLogFile("addGeneExpressionMatrix")
 )
@@ -35,6 +36,10 @@ for Seurat Objects (see \code{Seurat::as.SingleCellExperiment}). The provided va
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
+
+\item{strictMatch}{A boolean value indicating whether every cell in \code{input} must be represented in \code{seRNA}. If set to \code{FALSE},
+this and this \code{GeneExpressionMatrix} is used for certain downstream analyses such as \code{addIterativeLSI()}, then errors may occur
+because not all cells will have relevant information.}
 
 \item{force}{A boolean value indicating whether to force the matrix indicated by \code{matrixName} to be overwritten if it already exist in the given \code{input}.}
 

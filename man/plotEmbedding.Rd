@@ -46,7 +46,13 @@ is "GeneScoreMatrix" then \code{name} refers to a gene name which can be listed 
 \item{imputeWeights}{The weights to be used for imputing numerical values for each cell as a linear combination of other cells values.
 See \code{addImputationWeights()} and \code{getImutationWeights()} for more information.}
 
-\item{pal}{A custom palette (see \code{paletteDiscrete} or \code{ArchRPalettes}) used to override discreteSet/continuousSet for coloring vector.}
+\item{pal}{A custom palette used to override discreteSet/continuousSet for coloring cells. Typically created using \code{paletteDiscrete()} or \code{paletteContinuous()}.
+To make a custom palette, you must construct this following strict specifications. If the coloring is for discrete data (i.e. "Clusters"),
+then this palette must be a named vector of colors where each color is named for the corresponding group (e.g. \code{"C1" = "#F97070"}). If the coloring
+for continuous data, then it just needs to be a vector of colors. If you are using \code{pal} in conjuction with \code{highlightCells}, your palette
+must be a named vector with two entries, one named for the value of the cells in the \code{name} column of \code{cellColData} and the other named
+"Non.Highlighted". For example, \code{pal=c("Mono" = "green", "Non.Highlighted" = "lightgrey")} would be used to change the color of cells with the value
+"Mono" in the \code{cellColData} column indicated by \code{name}. Because of this, the cells indicated by \code{highlightCells} must also match this value in the \code{name} column.}
 
 \item{size}{A number indicating the size of the points to plot if \code{plotAs} is set to "points".}
 

@@ -555,6 +555,9 @@ ggHex <- function(
     .validInput(input = hexCut, name = "quantCut", valid = c("numeric", "null"))
     .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
+     #require hexbin to be installed. otherwise, this section wont work properly
+    .requirePackage(x = "hexbin", source = "CRAN")
+    
     df <- data.frame(x = x, y = y)
     include <- which(is.finite(x) & is.finite(y))
 
@@ -699,8 +702,8 @@ ggGroup <- function(
   df$x <- factor(df$x, groupOrder)
   
   p <- ggplot(df, aes(x = x, y = y, color = x)) +
-      scale_color_manual(values = pal, guide = FALSE) + 
-      scale_fill_manual(values = pal, guide = FALSE) +
+      scale_color_manual(values = pal, guide = "none") + 
+      scale_fill_manual(values = pal, guide = "none") +
       ggtitle(title)
 
   if(tolower(plotAs) == "ridges" | tolower(plotAs) == "ggridges"){
@@ -728,7 +731,7 @@ ggGroup <- function(
       val <- 1/length(unique(x))
       p <- p + geom_density_ridges(data = df,
         aes(x = y, y = x, color = x, fill = x), scale = ridgeScale,
-        alpha = alpha, color = "black") + scale_y_discrete(expand = expand_scale(mult = c(0.01, val)))
+        alpha = alpha, color = "black") + scale_y_discrete(expand = expansion(mult = c(0.01, val)))
     }
   }else{
     type <- "violin"
