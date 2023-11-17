@@ -1,5 +1,5 @@
 ^.*\.Rproj$
-^\.Rproj\.user$
+^\.Rproj\.user$.
 
 ^node_modules$
 ^package-lock\.json$
