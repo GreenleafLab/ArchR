@@ -196,7 +196,7 @@ addPeakAnnotations <- function(
   if(is.null(peakSet)){
     .logStop("peakSet is NULL. You need a peakset to run addMotifAnnotations! See addReproduciblePeakSet!", logFile = logFile)
   }
-  allPositions <- unlist(regionPositions, use.names=TRUE)
+  allPositions <- unlist(regionPositions, use.names=FALSE)
 
   .logDiffTime("Creating Peak Overlap Matrix", t1 = tstart, verbose = TRUE, logFile = logFile)
 
