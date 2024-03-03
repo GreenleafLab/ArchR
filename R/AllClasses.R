@@ -107,13 +107,7 @@ ArchRProject <- function(
   .validInput(input = showLogo, name = "showLogo", valid = "boolean")
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
-  if(grepl(" ", outputDirectory)){
-    stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
-  }
   dir.create(outputDirectory,showWarnings=FALSE)
-  if(grepl(" ", normalizePath(outputDirectory))){
-    stop("outputDirectory cannot have a space in the full path! Full path : ", normalizePath(outputDirectory))
-  }
   sampleDirectory <- file.path(normalizePath(outputDirectory), "ArrowFiles")
   dir.create(sampleDirectory,showWarnings=FALSE)
 
@@ -497,10 +491,6 @@ saveArchRProject <- function(
   .validInput(input = outputDirectory, name = "outputDirectory", valid = "character")
   .validInput(input = overwrite, name = "overwrite", valid = "boolean")
   .validInput(input = load, name = "load", valid = "boolean")
-
-  if(grepl(" ", outputDirectory)){
-    stop("outputDirectory cannot have a space in the path! Path : ", outputDirectory)
-  }
 
   dir.create(outputDirectory, showWarnings=FALSE)
   outputDirectory <- normalizePath(outputDirectory)
