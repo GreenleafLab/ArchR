@@ -361,7 +361,6 @@ getGroupBW <- function(
       }else{
         stop("NormMethod not recognized!")
       }
-
     }
 
     tilesk <- coverage(tilesk, weight = tilesk$reads)[[availableChr[k]]]
@@ -380,4 +379,209 @@ getGroupBW <- function(
 
 }
 
+#' Export to Monocle3
+#' 
+#' This function will return a monocle3 cell_data_set for a assay in a ArchRProject.
+#'
+#' @param ArchRProj An `ArchRProject` object.
+#' @param useMatrix The name of the matrix in the ArrowFiles. See getAvailableMatrices to see options
+#' @param threads An integer specifying the number of threads for parallel.
+#' @param verbose A boolean specifying to print messages during computation.
+#' @param logFile The path to a file to be used for logging ArchR output.
+#' @import monocle3
+#' @import SingleCellExperiment
+#' @export
 
+exportMonocle3 <- function(
+  ArchRProj = NULL,
+  useMatrix = NULL,
+  threads = getArchRThreads(),
+  verbose = TRUE,
+  binarize = T,
+  logFile = createLogFile("exportMonocle3")
+){
+  require(SingleCellExperiment)
+  require(monocle3)
+  ArchR:::.validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
+  ArchR:::.validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
+  ArchR:::.validInput(input = threads, name = "threads", valid = c("integer"))
+  ArchR:::.validInput(input = verbose, name = "verbose", valid = c("boolean"))
+  ArchR:::.validInput(input = logFile, name = "logFile", valid = c("character"))
+  ArchR:::.startLogging(logFile = logFile)
+  ArchR:::.logThis(mget(names(formals()),sys.frame(sys.nframe())), "exportMonocle3 Input-Parameters", logFile = logFile)
+  
+  ArrowFiles <- getArrowFiles(ArchRProj)
+  ArrowFiles <- sapply(ArrowFiles, function(file) ArchR:::.validArrow(file))
+  featureDF <- ArchR:::.getFeatureDF(ArrowFiles, subGroup = useMatrix)
+  Groups <- getCellColData(ArchRProj = ArchRProj)
+  Cells <- ArchRProj$cellNames
+  if(is.null(featureDF$end)){
+    starts<-featureDF[as.character(featureDF$seqnames) %in% as.character(featureDF$seqnames)[1],]$start
+    width<-getmode(starts[-1]-starts[-length(starts)])
+    ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, width = width), names=featureDF$idx)
+  }else{
+    ranges<-GRanges(seqnames = featureDF$seqnames, ranges = IRanges(start = featureDF$start, end = featureDF$end), names=featureDF$idx)
+  }
+  ArchR:::.logMessage("Getting Group Matrix", logFile=logFile)
+  mat <- tryCatch({
+    getMatrixFromArrow(ArrowFiles, useMatrix = useMatrix, binarize = binarize, cellNames = Cells, useSeqnames = as.character(seqnames(ranges)))
+  }, error = function(e){
+    errorList <- list(
+      ArrowFiles = ArrowFiles, 
+      featureDF = featureDF,
+      useMatrix = useMatrix, 
+      threads = threads,
+      verbose = verbose
+    )
+    ArchR:::.logError(e, fn = ".getMatrixFromArrow", info = "", errorList = errorList, logFile = logFile)
+  })
+  o <- h5read(file = ArrowFiles, name = paste0("/", useMatrix,"/Info/Params"))
+  h5closeAll()
+  window_size<-getmode(o$tileSize)
+  mat@assays@data$counts<-mat@assays@data[[useMatrix]]
+  mat@assays@data[[useMatrix]]<-NULL
+  rs<-ArchR:::.getRowSums(ArrowFiles = ArrowFiles, useMatrix = useMatrix)
+  rowRanges(mat)<-ranges
+  mat<-mat[, match(rownames(ArchRProj@reducedDims$IterativeLSI$matSVD), colnames(mat))]
+  cds<-new_cell_data_set(expression_data = mat@assays@data$counts, cell_metadata = colData(mat))
+  rowRanges(cds)<-rowRanges(mat)
+  cds<-cds[,rownames(ArchRProj@reducedDims$IterativeLSI$matSVD)]
+  reducedDims(cds)<-SimpleList(LSI=ArchRProj@reducedDims$IterativeLSI$matSVD, 
+                               UMAP=ArchRProj@embeddings$UMAP$df)
+  # irlba_rotation = ArchRProj@reducedDims$IterativeLSI$svd$u
+  # rownames(irlba_rotation) = ArchRProj@reducedDims$IterativeLSI$LSIFeatures$idx
+  iLSI<-SimpleList(svd=ArchRProj@reducedDims$IterativeLSI$svd,
+                   features=ArchRProj@reducedDims$IterativeLSI$LSIFeatures, 
+                   row_sums = ArchRProj@reducedDims$IterativeLSI$rowSm,
+                   seed=ArchRProj@reducedDims$IterativeLSI$seed,
+                   binarize=ArchRProj@reducedDims$IterativeLSI$binarize,
+                   scale_to=ArchRProj@reducedDims$IterativeLSI$scaleTo,
+                   num_dim=ArchRProj@reducedDims$IterativeLSI$nDimensions, 
+                   resolution=NULL, 
+                   granges=ArchRProj@reducedDims$IterativeLSI$LSIFeatures, 
+                   LSI_method=ArchRProj@reducedDims$IterativeLSI$LSIMethod, outliers=NULL)
+  pp_aux <- SimpleList(iLSI=iLSI, gene_loadings=NULL)
+  cds@preprocess_aux <- pp_aux
+  if(is.null(cds@preprocess_aux$iLSI$granges$end)){
+    starts<-cds@preprocess_aux$iLSI$granges[as.character(cds@preprocess_aux$iLSI$granges$seqnames) %in% as.character(cds@preprocess_aux$iLSI$granges$seqnames)[1],]$start
+    width<-getmode(starts[-1]-starts[-length(starts)])
+    ranges<-GRanges(seqnames = cds@preprocess_aux$iLSI$granges$seqnames, ranges = IRanges(start = cds@preprocess_aux$iLSI$granges$start, width = width), names=cds@preprocess_aux$iLSI$granges$idx)
+  }else{
+    ranges<-GRanges(seqnames = cds@preprocess_aux$iLSI$granges$seqnames, ranges = IRanges(start = cds@preprocess_aux$iLSI$granges$start, end = cds@preprocess_aux$iLSI$granges$end), names=cds@preprocess_aux$iLSI$granges$idx)
+  }
+  cds@preprocess_aux$iLSI$granges<-ranges
+  cds@clusters[["UMAP"]]$clusters[colnames(exprs(cds))]<-as.character(ArchRProj@cellColData[colnames(exprs(cds)),]$Clusters)
+  cds@reduce_dim_aux<-SimpleList(UMAP=SimpleList(scale_info=NULL, model_file=ArchRProj@embeddings$UMAP$params$uwotModel, num_dim=cds@preprocess_aux$iLSI$num_dim))
+  cds
+  
+}
+
+#' @export
+getmode<-function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+
+.createGroupBW <- function(
+  i = NULL, 
+  cellGroups = NULL,
+  ArrowFiles = NULL, 
+  cellsInArrow = NULL, 
+  availableChr = NULL,
+  chromLengths = NULL, 
+  tiles = NULL,
+  ceiling = NULL,
+  tileSize = 100,
+  normMethod = NULL,
+  normBy = NULL,
+  bwDir = "bigwigs",
+  tstart = NULL, 
+  verbose = TRUE,
+  logFile = NULL,
+  threads = 1
+){
+  
+  .logDiffTime(sprintf("%s (%s of %s) : Creating BigWig for Group", names(cellGroups)[i], i, length(cellGroups)), tstart, logFile = logFile, verbose = verbose)
+  
+  #Cells
+  cellGroupi <- cellGroups[[i]]
+  #print(sum(normBy[cellGroupi, 1]))
+  
+  #Bigwig File!
+  covFile <- file.path(bwDir, paste0(make.names(names(cellGroups)[i]), "-TileSize-",tileSize,"-normMethod-",normMethod,"-ArchR.bw"))
+  rmf <- .suppressAll(file.remove(covFile))
+  
+  covList <- .safelapply(seq_along(availableChr), function(k){
+    
+    it <- 0
+    
+    for(j in seq_along(ArrowFiles)){
+      cellsInI <- sum(cellsInArrow[[names(ArrowFiles)[j]]] %in% cellGroupi)
+      if(cellsInI > 0){
+        it <- it + 1
+        if(it == 1){
+          fragik <- .getFragsFromArrow(ArrowFiles[j], chr = availableChr[k], out = "GRanges", cellNames = cellGroupi)
+        }else{
+          fragik <- c(fragik, .getFragsFromArrow(ArrowFiles[j], chr = availableChr[k], out = "GRanges", cellNames = cellGroupi))
+        }
+      }
+    }
+    
+    tilesk <- tiles[BiocGenerics::which(seqnames(tiles) %bcin% availableChr[k])]
+    
+    if(length(fragik) == 0){
+      
+      tilesk$reads <- 0
+      
+    }else{
+      
+      #N Tiles
+      nTiles <- trunc(chromLengths[availableChr[k]] / tileSize) + 1
+      
+      #Create Sparse Matrix
+      matchID <- S4Vectors::match(mcols(fragik)$RG, cellGroupi)
+      
+      mat <- Matrix::sparseMatrix(
+        i = c(trunc(start(fragik) / tileSize), trunc(end(fragik) / tileSize)) + 1,
+        j = as.vector(c(matchID, matchID)),
+        x = rep(1,  2*length(fragik)),
+        dims = c(nTiles, length(cellGroupi))
+      )
+      
+      if(!is.null(ceiling)){
+        mat@x[mat@x > ceiling] <- ceiling
+      }
+      
+      mat <- Matrix::rowSums(mat)
+      
+      rm(fragik, matchID)
+      
+      tilesk$reads <- mat
+      
+      if(tolower(normMethod) %in% c("readsintss", "readsinpromoter", "nfrags")){
+        tilesk$reads <- tilesk$reads * 10^4 / sum(normBy[cellGroupi, 1])
+      }else if(tolower(normMethod) %in% c("ncells")){
+        tilesk$reads <- tilesk$reads / length(cellGroupi)
+      }else if(tolower(normMethod) %in% c("none")){
+      }else{
+        stop("NormMethod not recognized!")
+      }
+      
+    }
+    
+    tilesk <- coverage(tilesk, weight = tilesk$reads)[[availableChr[k]]]
+    
+    tilesk
+    
+  }, threads = threads)
+  
+  names(covList) <- availableChr
+  
+  covList <- as(covList, "RleList")
+  
+  rtracklayer::export.bw(object = covList, con = covFile)
+  
+  return(covFile)
+  
+}

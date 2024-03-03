@@ -772,7 +772,7 @@ addReproduciblePeakSet <- function(
 
 	#Create MACS2 Command
 	cmd <- sprintf("callpeak -g %s --name %s --treatment %s --outdir %s --format BED --call-summits --keep-dup all %s", 
-		genomeSize, basename(bedName), bedFile, dirname(bedName), additionalParams)
+		genomeSize, basename(bedName), .cl_safe(bedFile), .cl_safe(dirname(bedName)), additionalParams)
 
 	if(!is.null(shift) & !is.null(extsize)){
 		cmd <- sprintf("%s --shift %s --extsize %s", cmd , shift, extsize)
@@ -859,4 +859,14 @@ findMacs2 <- function(){
 
   stop("Could Not Find Macs2! Please install w/ pip, add to your $PATH, or just supply the macs2 path directly and avoid this function!")
 
+}
+
+.cl_safe<-function(string){
+  #this is a simple function for system calls from R to a command line tool that will check for any spaces and enclose the string with single
+  #quote if the string contains a space
+  if(grepl("\\s+", string, perl = TRUE)){
+    return(sQuote(string, q="'"))
+  }else{
+    return(string)
+  }
 }

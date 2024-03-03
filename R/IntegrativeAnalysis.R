@@ -813,7 +813,6 @@ addCoAccessibility <- function(
     o[idx,]$correlation <- as.numeric(corVals)
     o[idx,]$Variability1 <- rowVars[o[idx,]$idx1]
     o[idx,]$Variability2 <- rowVars[o[idx,]$idx2]
-
     .logThis(groupMat, paste0("SubsetGroupMat-", x), logFile = logFile)
     .logThis(o[idx,], paste0("SubsetCoA-", x), logFile = logFile)
 
