@@ -22,3 +22,19 @@ order. If \code{TRUE}, the higher value in \code{by} will be retained.}
 \description{
 This function returns a GRanges object containing a non-overlapping set regions derived from a supplied Genomic Ranges object.
 }
+\examples{
+
+# Dummy GR
+gr <- GRanges(
+  seqnames = "chr1",
+  ranges = IRanges(
+    start = c(1, 4, 11),
+    end = c(10, 12, 20)
+  ),
+  score = c(1, 2, 3)
+)
+
+# Non Overlapping
+nonOverlappingGR(gr)
+
+}

@@ -30,3 +30,23 @@ lines and labels, just the internal portions of the plot.}
 \description{
 This function will plot one group/column of a differential markers as an MA or Volcano plot.
 }
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
+#Plot Markers
+p <- plotMarkers(seMarker, name = "C1")
+
+#PDF
+plotPDF(p, name = "Marker-Plot", ArchRProj = proj)
+
+}

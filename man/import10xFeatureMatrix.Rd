@@ -9,7 +9,8 @@ import10xFeatureMatrix(
   names = NULL,
   strictMatch = TRUE,
   verbose = TRUE,
-  featureType = "Gene Expression"
+  featureType = "Gene Expression",
+  features = NULL
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ cannot tolerate mismatched gene names, only mismatched metadata for the same gen
 
 \item{featureType}{The name of the feature to extract from the 10x feature file.
 See https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/h5_matrices for more information.}
+
+\item{features}{A genomic ranges object containing a "name" column to help fill missing 10x intervals for RSE.
+For example, in hg38 features provided could be using Bioconductors \code{genes(EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86)}.}
 }
 \description{
 This function will import the feature matrix from a 10x feature hdf5 file.

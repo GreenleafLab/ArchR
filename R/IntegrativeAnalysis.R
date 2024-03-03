@@ -34,6 +34,21 @@
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Correlate Matrices
+#' dfCor <- correlateMatrices(
+#'   ArchRProj = proj, 
+#'   useMatrix1 = "GeneScoreMatrix", 
+#'   useMatrix2 = "GeneIntegrationMatrix",
+#'   dimsToUse = 1:5,
+#'   k = 20
+#' )
+#'
 #' @export
 correlateMatrices <- function(
   ArchRProj = NULL,
@@ -381,6 +396,22 @@ correlateMatrices <- function(
 #' @param force A boolean value that determines whether analysis should continue if resizing coordinates in `seTrajectory1` or 
 #' `seTrajectory2` does not align with the strandedness. Only when `useRanges = TRUE`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
+#' #Get Trajectories
+#' seTraj1 <- getTrajectory(proj, useMatrix = "GeneScoreMatrix")
+#' seTraj2 <- getTrajectory(proj, useMatrix = "GeneIntegrationMatrix")
+#'
+#' #Correlate
+#' corTraj <- correlateTrajectories(seTraj1, seTraj2, corCutOff = 0.35, varCutOff1 = 0.6, varCutOff2 = 0.6)
+#'
 #' @export
 correlateTrajectories <- function(
   seTrajectory1 = NULL,
@@ -669,6 +700,7 @@ correlateTrajectories <- function(
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a correlation to
 #' sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param cellsToUse A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current group be
@@ -682,6 +714,15 @@ correlateTrajectories <- function(
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Co-Accessibility
+#' proj <- addCoAccessibility(proj, k = 20)
+#'
 #' @export
 addCoAccessibility <- function(
   ArchRProj = NULL,
@@ -690,6 +731,7 @@ addCoAccessibility <- function(
   scaleDims = NULL,
   corCutOff = 0.75,
   cellsToUse = NULL,
+  excludeChr = NULL,
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
@@ -708,6 +750,7 @@ addCoAccessibility <- function(
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = cellsToUse, name = "cellsToUse", valid = c("character", "null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
   .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
@@ -758,6 +801,12 @@ addCoAccessibility <- function(
   chrj <- gtools::mixedsort(unique(paste0(seqnames(getPeakSet(ArchRProj)))))
   stopifnot(identical(chri,chrj))
 
+  #Filter Chromosomes
+  if(!is.null(excludeChr)){
+    chri <- chri[which(paste0(chri) %ni% excludeChr)]
+    chrj <- chrj[which(paste0(chrj) %ni% excludeChr)]
+  }
+
   #Create Ranges
   peakSummits <- resize(peakSet, 1, "center")
   peakWindows <- resize(peakSummits, 2*maxDist + 1, "center")
@@ -783,7 +832,7 @@ addCoAccessibility <- function(
     .logDiffTime(sprintf("Computing Co-Accessibility %s (%s of %s)", chri[x], x, length(chri)), t1=tstart, verbose=verbose, logFile=logFile)
 
     #Features
-    featureDF <- mcols(peakSet)[BiocGenerics::which(seqnames(peakSet) == chri[x]),]
+    featureDF <- mcols(peakSet)[BiocGenerics::which(seqnames(peakSet) == chri[x]),,drop=FALSE]
     featureDF$seqnames <- chri[x]
 
     #Group Matrix
@@ -850,6 +899,18 @@ addCoAccessibility <- function(
 #'  This only takes affect if `returnLoops = TRUE`.
 #' @param returnLoops A boolean indicating to return the co-accessibility signal as a `GRanges` "loops" object designed for use with
 #' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Co Accessibility
+#' proj <- addCoAccessibility(proj, k = 20)
+#'
+#' # Get Co Accessibility
+#' CoA <- getCoAccessibility(proj)
+#'
 #' @export
 getCoAccessibility <- function(
   ArchRProj = NULL, 
@@ -958,6 +1019,7 @@ getCoAccessibility <- function(
 #' @param corCutOff A numeric cutoff for the correlation of each dimension to the sequencing depth. If the dimension has a
 #' correlation to sequencing depth that is greater than the `corCutOff`, it will be excluded from analysis.
 #' @param cellsToUse A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param k The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.
 #' @param knnIteration The number of k-nearest neighbor groupings to test for passing the supplied `overlapCutoff`.
 #' @param overlapCutoff The maximum allowable overlap between the current group and all previous groups to permit the current
@@ -968,11 +1030,26 @@ getCoAccessibility <- function(
 #' @param log2Norm A boolean value indicating whether to log2 transform the single-cell groups prior to computing co-accessibility correlations.
 #' @param predictionCutoff A numeric describing the cutoff for RNA integration to use when picking cells for groupings.
 #' @param addEmpiricalPval Add empirical p-values based on randomly correlating peaks and genes not on the same seqname.
+#' @param addPermutedPval Add permuted p-values based on shuffle sample correlating peaks and genes. This approach was adapted from
+#' Regner et al 2021 "A multi-omic single-cell landscape of human gynecologic malignancies".
+#' @param nperm An integer representing the number of permutations to run for Regner et al 2021 approach.
 #' @param seed A number to be used as the seed for random number generation required in knn determination. It is recommended
 #' to keep track of the seed used so that you can reproduce results downstream.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add P2G Links
+#' proj <- addPeak2GeneLinks(proj, k = 20)
+#'
+#' # Get P2G Links
+#' p2g <- getPeak2GeneLinks(proj)
+#'
 #' @export
 addPeak2GeneLinks <- function(
   ArchRProj = NULL,
@@ -982,6 +1059,7 @@ addPeak2GeneLinks <- function(
   scaleDims = NULL,
   corCutOff = 0.75,
   cellsToUse = NULL,
+  excludeChr = NULL,
   k = 100, 
   knnIteration = 500, 
   overlapCutoff = 0.8, 
@@ -990,6 +1068,8 @@ addPeak2GeneLinks <- function(
   log2Norm = TRUE,
   predictionCutoff = 0.4,
   addEmpiricalPval = FALSE,
+  addPermutedPval = FALSE,
+  nperm = 100,
   seed = 1, 
   threads = max(floor(getArchRThreads() / 2), 1),
   verbose = TRUE,
@@ -1003,12 +1083,17 @@ addPeak2GeneLinks <- function(
   .validInput(input = scaleDims, name = "scaleDims", valid = c("boolean", "null"))
   .validInput(input = corCutOff, name = "corCutOff", valid = c("numeric", "null"))
   .validInput(input = cellsToUse, name = "cellsToUse", valid = c("character", "null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = k, name = "k", valid = c("integer"))
   .validInput(input = knnIteration, name = "knnIteration", valid = c("integer"))
   .validInput(input = overlapCutoff, name = "overlapCutoff", valid = c("numeric"))
   .validInput(input = maxDist, name = "maxDist", valid = c("integer"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric"))
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
+  .validInput(input = predictionCutoff, name = "predictionCutoff", valid = c("numeric", "null"))
+  .validInput(input = addEmpiricalPval, name = "addEmpiricalPval", valid = c("boolean"))
+  .validInput(input = addPermutedPval, name = "addPermutedPval", valid = c("boolean"))
+  .validInput(input = nperm, name = "nperm", valid = c("integer"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
@@ -1060,10 +1145,16 @@ addPeak2GeneLinks <- function(
 
   #Get Peak Set
   peakSet <- getPeakSet(ArchRProj)
+  if(!is.null(excludeChr)){
+    peakSet <- peakSet[BiocGenerics::which(paste0(seqnames(peakSet)) %bcni% excludeChr)]
+  }
   .logThis(peakSet, "peakSet", logFile = logFile)
 
   #Gene Info
   geneSet <- .getFeatureDF(ArrowFiles, useMatrix, threads = threads)
+  if(!is.null(excludeChr)){
+    geneSet <- geneSet[BiocGenerics::which(geneSet$seqnames %bcni% excludeChr),,drop=FALSE]
+  }
   geneStart <- GRanges(geneSet$seqnames, IRanges(geneSet$start, width = 1), name = geneSet$name, idx = geneSet$idx)
   .logThis(geneStart, "geneStart", logFile = logFile)
 
@@ -1110,6 +1201,7 @@ addPeak2GeneLinks <- function(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = geneDF, 
     groupList = knnObj, 
+    excludeSeqnames = excludeChr,
     useMatrix = useMatrix,
     threads = threads,
     verbose = FALSE
@@ -1123,6 +1215,7 @@ addPeak2GeneLinks <- function(
     ArrowFiles = getArrowFiles(ArchRProj), 
     featureDF = peakDF, 
     groupList = knnObj, 
+    excludeSeqnames = excludeChr,
     useMatrix = "PeakMatrix",
     threads = threads,
     verbose = FALSE
@@ -1175,12 +1268,7 @@ addPeak2GeneLinks <- function(
   o$distance <- distance(rowRanges(seRNA)[o[,1]] , rowRanges(seATAC)[o[,2]] )
   colnames(o) <- c("B", "A", "distance")
 
-  #Null Correlations
-  if(addEmpiricalPval){
-    .logDiffTime(main="Computing Background Correlations", t1=tstart, verbose=verbose, logFile=logFile)
-    nullCor <- .getNullCorrelations(seATAC, seRNA, o, 1000)
-  }
-
+  #Compute PVal Stats
   .logDiffTime(main="Computing Correlations", t1=tstart, verbose=verbose, logFile=logFile)
   o$Correlation <- rowCorCpp(as.integer(o$A), as.integer(o$B), assay(seATAC), assay(seRNA))
   o$VarAssayA <- .getQuantiles(matrixStats::rowVars(assay(seATAC)))[o$A]
@@ -1195,11 +1283,33 @@ addPeak2GeneLinks <- function(
   metadata(out)$peakSet <- peakSet
   metadata(out)$geneSet <- geneStart
 
+  #Null Correlations
   if(addEmpiricalPval){
+    .logDiffTime(main="Computing Background Correlations", t1=tstart, verbose=verbose, logFile=logFile)
+    nullCor <- .getNullCorrelations(seATAC, seRNA, o, 1000)
     out$EmpPval <- 2*pnorm(-abs(((out$Correlation - mean(nullCor[[2]])) / sd(nullCor[[2]]))))
     out$EmpFDR <- p.adjust(out$EmpPval, method = "fdr")
   }
-  
+
+  #Permuted Pval
+  if(addPermutedPval){
+    message("Performing Permuted P-values similar to Regner et al., 2021")
+    #Permute
+    p <- o
+    o$PermPval <- 0
+    for(i in seq_len(nperm)){
+      message("Running Permutation ", i, " of ", nperm)
+      idx <- sample(ncol(seATAC))
+      p$Correlation <- rowCorCpp(as.integer(p$A), as.integer(p$B), assay(seATAC)[,idx,drop=FALSE], assay(seRNA))
+      p$TStat <- (p$Correlation / sqrt((1-p$Correlation^2)/(ncol(seATAC)-2))) #T-statistic P-value
+      p$Pval <- 2*pt(-abs(p$TStat), ncol(seATAC) - 2)
+      cdf <- ecdf(p$Pval)
+      o$PermPval <- o$PvalPerm + p$Pval
+    }
+    o$PermPval <- (o$PermPval / nperm) #Average
+    o$PermFDR <- pmin(ecdf(o$PermPval)(o$Pval) / ecdf(o$Pval)(o$Pval), 1)
+  }
+
   #Save Group Matrices
   dir.create(file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks"), showWarnings = FALSE)
   outATAC <- file.path(getOutputDirectory(ArchRProj), "Peak2GeneLinks", "seATAC-Group-KNN.rds")
@@ -1277,6 +1387,18 @@ addPeak2GeneLinks <- function(
 #' @param resolution A numeric describing the bp resolution to return loops as. This helps with overplotting of correlated regions.
 #' @param returnLoops A boolean indicating to return the peak-to-gene links as a `GRanges` "loops" object designed for use with
 #' the `ArchRBrowser()` or as an `ArchRBrowserTrack()`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add P2G Links
+#' proj <- addPeak2GeneLinks(proj, k = 20)
+#'
+#' # Get P2G Links
+#' p2g <- getPeak2GeneLinks(proj)
+#'
 #' @export
 getPeak2GeneLinks <- function(
   ArchRProj = NULL, 
@@ -1385,6 +1507,22 @@ peak2GeneHeatmap <- function(...){
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add P2G Links
+#' proj <- addPeak2GeneLinks(proj, k = 20)
+#'
+#' # Get P2G Links
+#' p2g <- getPeak2GeneLinks(proj)
+#'
+#' # Plot P2G
+#' p <- plotPeak2GeneHeatmap(proj)
+#' plotPDF(p, name = "P2G-Heatmap", ArchRProj = proj)
+#' 
 #' @export
 plotPeak2GeneHeatmap <- function(
   ArchRProj = NULL, 

@@ -16,3 +16,12 @@ addProjectSummary(ArchRProj = NULL, name = NULL, summary = NULL)
 \description{
 This function adds info to the projectSummary of an ArchRProject
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Project Summary
+addProjectSummary(proj, name = "test", summary = "test successful")
+
+}

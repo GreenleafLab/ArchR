@@ -21,6 +21,8 @@ plotBrowserTrack(
   tileSize = 250,
   minCells = 25,
   normMethod = "ReadsInTSS",
+  highlight = NULL,
+  highlightFill = "firebrick3",
   threads = getArchRThreads(),
   ylim = NULL,
   pal = NULL,
@@ -57,8 +59,10 @@ Blue-colored genes are on the minus strand and red-colored genes are on the plus
 \item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}.
 The order must be the same as \code{plotSummary}.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
-bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} (for a single feature track) or \code{GRangesList} (for multiple feature tracks) object containing the "features" to
+be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.
+If you provide a \code{GRangesList}, then each element of that object must be named and this name will be used on the plot.
+For example - \code{GRangesList("peaks" = peak_gr, "other" = other_gr)}.}
 
 \item{loops}{A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack".
 This \code{GRanges} object start represents the center position of one loop anchor and the end represents the center position of another loop anchor.
@@ -84,6 +88,10 @@ used to exclude pseudo-bulk replicates generated from low numbers of cells.}
 
 \item{normMethod}{The name of the column in \code{cellColData} by which normalization should be performed. The recommended and default value
 is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
+
+\item{highlight}{A \code{GRanges} object containing regions to highlight.}
+
+\item{highlightFill}{A \code{character} color for filling highlihgted regions.}
 
 \item{threads}{The number of threads to use for parallel execution.}
 
@@ -115,4 +123,20 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal
 which enables direct comparison across samples. Note that the genes displayed in these plots are derived from your \code{geneAnnotation}
 (i.e. the \code{BSgenome} object you used) so they may not match other online genome browsers that use different gene annotations.
+}
+\examples{
+
+#Get Test ArchR Project
+proj <- getTestProject()
+
+#Highlight
+genes <- getGenes()
+genes <- genes[which(genes$symbol \%in\% c("CD3D", "MS4A1"))]
+
+#Plot Track
+p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType", highlight = genes, highlightFill = "dodgerblue3")
+
+#Plot PDF
+plotPDF(p, name = "Track-CD3D-MS4A1", ArchRProj = proj)
+
 }

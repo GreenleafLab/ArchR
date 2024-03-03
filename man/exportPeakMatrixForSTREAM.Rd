@@ -27,3 +27,12 @@ exportPeakMatrixForSTREAM(
 \description{
 This function gets a PeakMatrix from an \code{ArchRProject} and writes it to a set of files for STREAM (https://github.com/pinellolab/STREAM)
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Export Matrix For Stream
+exportPeakMatrixForSTREAM(proj)
+
+}

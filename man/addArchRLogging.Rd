@@ -12,3 +12,9 @@ addArchRLogging(useLogs = TRUE)
 \description{
 This function will set ArchR logging
 }
+\examples{
+
+# Add ArchR Logging
+addArchRLogging()
+
+}

@@ -15,6 +15,15 @@
 #' @param pruningMode The name of the pruning method to use (from`GenomeInfoDb::seqinfo()`) when seqlevels must be removed from a `GRanges` object.
 #' When some of the seqlevels to drop from the given `GRanges` object are in use (i.e. have ranges on them), the ranges on these sequences need
 #' to be removed before the seqlevels can be dropped. Four pruning modes are currently defined: "error", "coarse", "fine", and "tidy".
+#' 
+#' @examples
+#'
+#' # Add ArchR Genome
+#' addArchRGenome("hg19test2")
+#'
+#' # Filter Chr
+#' filterChrGR(getChromSizes(), remove = "chr5")
+#'
 #' @export
 filterChrGR <- function(
     gr = NULL, 
@@ -24,7 +33,7 @@ filterChrGR <- function(
     pruningMode="coarse"
   ){
 
-  .validInput(input = gr, name = "gr", valid = c("GRanges"))
+  .validInput(input = gr, name = "gr", valid = c("GRanges", "TxDb"))
   .validInput(input = remove, name = "remove", valid = c("character", "null"))
   .validInput(input = underscore, name = "underscore", valid = c("boolean"))
   .validInput(input = standard, name = "standard", valid = c("boolean"))
@@ -69,6 +78,22 @@ filterChrGR <- function(
 #' @param decreasing A boolean value indicating whether the values in the column indicated via `by` should be ordered in decreasing
 #' order. If `TRUE`, the higher value in `by` will be retained.
 #' @param verbose A boolean value indicating whether the output should include extra reporting.
+#' 
+#' @examples
+#'
+#' # Dummy GR
+#' gr <- GRanges(
+#'   seqnames = "chr1",
+#'   ranges = IRanges(
+#'     start = c(1, 4, 11),
+#'     end = c(10, 12, 20)
+#'   ),
+#'   score = c(1, 2, 3)
+#' )
+#' 
+#' # Non Overlapping
+#' nonOverlappingGR(gr)
+#' 
 #' @export
 nonOverlappingGR <- function(
 	gr = NULL, 
@@ -147,6 +172,22 @@ nonOverlappingGR <- function(
 #' @param gr A `GRanges` object.
 #' @param upstream The number of basepairs upstream (5') to extend each region in `gr` in a strand-aware fashion.
 #' @param downstream The number of basepairs downstream (3') to extend each region in `gr` in a strand-aware fashion.
+#' 
+#' @examples
+#'
+#' # Dummy GR
+#' gr <- GRanges(
+#'   seqnames = "chr1",
+#'   ranges = IRanges(
+#'     start = c(1, 4, 11),
+#'     end = c(10, 12, 20)
+#'   ),
+#'   score = c(1, 2, 3)
+#' )
+#' 
+#' # Non Overlapping
+#' extendGR(gr, 1, 2)
+#' 
 #' @export
 extendGR <-  function(gr = NULL, upstream = NULL, downstream = NULL){
   .validInput(input = gr, name = "gr", valid = c("GRanges"))

@@ -41,3 +41,18 @@ in \code{cellColData}. This limits the groups used to identify trajectories.}
 This function will use monocle3 to find trajectories and then returns a monocle CDS object that can be used as
 input for \code{addMonocleTrajectory}.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Create Monocole Trajectory
+cds <- getMonocleTrajectories(
+  ArchRProj = proj, 
+  useGroups = c("C1", "C2", "C3"), 
+  principalGroup = "C1", 
+  groupBy = "Clusters", 
+  embedding = "UMAP"
+)
+
+}

@@ -16,13 +16,16 @@
 #' @param verbose Only relevant when multiple input files are used. A boolean that indicates whether messaging about mismatches should be verbose (`TRUE`) or minimal (`FALSE`)
 #' @param featureType The name of the feature to extract from the 10x feature file. 
 #' See https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/h5_matrices for more information.
+#' @param features A genomic ranges object containing a "name" column to help fill missing 10x intervals for RSE.
+#' For example, in hg38 features provided could be using Bioconductors `genes(EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86)`.
 #' @export
 import10xFeatureMatrix <- function(
   input = NULL, 
   names = NULL,
   strictMatch = TRUE,
   verbose = TRUE,
-  featureType = "Gene Expression"
+  featureType = "Gene Expression",
+  features = NULL
 ){
   
   .validInput(input = input, name = "input", valid = c("character"))
@@ -30,42 +33,51 @@ import10xFeatureMatrix <- function(
   .validInput(input = strictMatch, name = "strictMatch", valid = c("boolean"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = featureType, name = "featureType", valid = c("character"))
+  .validInput(input = features, name = "features", valid = c("GRanges", "NULL"))
   
   if (!all(file.exists(input))) {
     stop("Not all input file paths exist!")
   }
-  featureMats <- lapply(seq_along(input), function(y) {
-    message("Importing Feature Matrix ", y, " of ", length(input))
-    .importFM(featureMatrix = input[y], featureType = featureType, 
-              name = names[y])
-  })
-  
-  message("Re-ordering RNA matricies for consistency.")
-  for(j in 1:length(featureMats)) {
-    featureMats[[j]] <- sort.GenomicRanges(sortSeqlevels(featureMats[[j]]), ignore.strand = TRUE)
-  }
+
+  message("Importing Feature Matrix ", 1, " of ", length(input))
+  rse_final <- .import10xToSE(
+    h5 = input[1], 
+    type10x = featureType, 
+    name = names[1],
+    ranges = features
+  )
   
   #if more than one filtered feature barcode matrix is supplied, then merge the RSE objects
-  if (length(featureMats) > 1) {
+  if (length(input) > 1) {
     message("Merging individual RNA objects...")
-    #make the first matrix the base matrix and merge all others into it
-    rse_final <- featureMats[[1]]
+    
+    #merge all others into 1st
     
     rowsToRemove <- c() #rows that have previously been removed from rse_final
     
     #for each additional feature matrix (starting with the second), look for mismatches with rse_final and merge accordingly
-    for (i in 2:length(featureMats)) {
-      mismatchWarning <- TRUE #a boolean to prevent output of the warning message many times and only output it once
-      
+    for (i in seq(2, length(input))){
+
       message(sprintf("\nMerging %s", names[i]))
-      
-      if (!identical(rownames(rse_final), rownames(featureMats[[i]]))) {
+      message("Importing Feature Matrix ", i, " of ", length(input))
+
+      #Read RSE
+      res_i <- .import10xToSE(
+        h5 = input[i], 
+        type10x = featureType, 
+        name = names[i],
+        ranges = features
+      )
+
+      mismatchWarning <- TRUE #a boolean to prevent output of the warning message many times and only output it once
+            
+      if (!identical(rownames(rse_final), rownames(res_i))) {
         stop("Error - rownames (genes) of individual RNA objects are not equivalent.")
       }
-      if (!identical(colnames(rowData(rse_final)), colnames(rowData(featureMats[[i]])))) {
+      if (!identical(colnames(rowData(rse_final)), colnames(rowData(res_i)))) {
         stop("Error - rowData (gene metadata) of individual RNA objects have different columns. This is highly unusual and merging has been aborted.")
       }
-      if (!identical(names(assays(rse_final)), names(assays(featureMats[[i]])))) {
+      if (!identical(names(assays(rse_final)), names(assays(res_i)))) {
         stop("Error - available assays of individual RNA objects are not equivalent. Each object is expected to only have one assay named 'counts'.")
       }
       
@@ -73,8 +85,8 @@ import10xFeatureMatrix <- function(
       #occasionally, it seems like 10x is annotating different ensembl IDs to the same gene which seems like a bad way to go
       #this is a bit heavy-handed but it seems like the safest thing to do is report any mismatch rather than merge blindly
       
-      for (x in 1:ncol(rowData(rse_final))) {
-        if (!identical(rowData(rse_final)[,x], rowData(featureMats[[i]])[,x])) {
+      for (x in seq_len(ncol(rowData(rse_final)))){
+        if (!identical(rowData(rse_final)[,x], rowData(res_i)[,x])) {
           if(mismatchWarning) {
             message(sprintf("Warning! Some values within column \"%s\" of the rowData (gene metadata) of your objects do not precisely match!", colnames(rowData(rse_final))[x]))
             message("This is often caused by slight variations in Ensembl IDs and gene locations used by cellranger across different samples. ArchR will ignore these mismatches and allow merging to proceed but you should check to make sure that these are ok for your data.\n")
@@ -82,7 +94,7 @@ import10xFeatureMatrix <- function(
           }
           
           #detect all of the mismatches betwenn rse_final and the current featureMat
-          mismatch <- which(rowData(rse_final)[,x] != rowData(featureMats[[i]])[,x])
+          mismatch <- which(rowData(rse_final)[,x] != rowData(res_i)[,x])
           #for each detected mismatch, handle the mismatch according to the value of strictMatch
           for (y in 1:length(mismatch)) {
             if (verbose) {
@@ -94,105 +106,174 @@ import10xFeatureMatrix <- function(
               }
               rowsToRemove <- unique(c(rowsToRemove, mismatch[y]))
               #temporarily force the data to match so that merging can occur easily. Mismatched rows will be removed later
-              rowData(featureMats[[i]])[mismatch[y],] <- rowData(rse_final)[mismatch[y],]
-              rowRanges(featureMats[[i]])[mismatch[y]] <- rowRanges(rse_final)[mismatch[y]]
+              rowData(res_i)[mismatch[y],] <- rowData(rse_final)[mismatch[y],]
+              rowRanges(res_i)[mismatch[y]] <- rowRanges(rse_final)[mismatch[y]]
             } else {
               if (verbose) {
                 message("strictMatch = FALSE so mismatching information will be coerced to match the first sample provided.")
               }
-              rowData(featureMats[[i]])[mismatch[y],] <- rowData(rse_final)[mismatch[y],]
-              rowRanges(featureMats[[i]])[mismatch[y]] <- rowRanges(rse_final)[mismatch[y]]
+              rowData(res_i)[mismatch[y],] <- rowData(rse_final)[mismatch[y],]
+              rowRanges(res_i)[mismatch[y]] <- rowRanges(rse_final)[mismatch[y]]
             }
           }
         }
       }
 
-      rse_final <- SummarizedExperiment::cbind(rse_final, featureMats[[i]])
+      rse_final <- SummarizedExperiment::cbind(rse_final, res_i)
+      gc()
     }
-    if (strictMatch) {
-      if(length(rowsToRemove) > 0) {
-        rse_final <- rse_final[-rowsToRemove,]
-      }
+
+  }
+
+  if (strictMatch) {
+    if(length(rowsToRemove) > 0) {
+      rse_final <- rse_final[-rowsToRemove,]
     }
-    return(rse_final)
   }
-  else {
-    return(featureMats[[1]])
-  }
+
+  rse_final
+    
 }
 
+.import10xToSE <- function(
+  h5 = NULL, 
+  type10x = NULL, 
+  name = NULL,
+  ranges = NULL
+  ){
+ 
+  #Shape
+  shape <- h5read(h5, "/matrix/shape")
 
-.importFM <- function(featureMatrix = NULL, featureType = NULL, name = NULL){
-
-  o <- h5closeAll()
-  barcodes <- h5read(featureMatrix, "/matrix/barcodes")
-  data <- h5read(featureMatrix, "/matrix/data")
-  indices <- h5read(featureMatrix, "/matrix/indices")
-  indptr <- h5read(featureMatrix, "/matrix/indptr")
-  shape <- h5read(featureMatrix, "/matrix/shape")
-
-  spMat <- sparseMatrix(
-    i = indices, 
-    p = indptr, 
-    x = data, 
-    dims = shape,
-    index1 = FALSE
-  )
-
-  colnames(spMat) <- paste0(name, "#", barcodes)
-
-  features <- h5read(featureMatrix, "/matrix/features")
-  features <- lapply(seq_along(features), function(x){
-    if(length(features[[x]]) == nrow(spMat)){
-      if(object.size(features[[x]]) > object.size(Rle(features[[x]]))){
-        df <- DataFrame(x = Rle(features[[x]]))
+  #Read features10x
+  features10x <- h5read(h5, "/matrix/features")
+  features10x <- lapply(seq_along(features10x), function(x){
+    if(length(features10x[[x]]) == shape[1]){
+      if(object.size(features10x[[x]]) > object.size(Rle(features10x[[x]]))){
+        df <- DataFrame(x = Rle(as.vector(features10x[[x]])))
       }else{
-        df <- DataFrame(x = features[[x]])
+        df <- DataFrame(x = as.vector(features10x[[x]]))
       }
-      colnames(df) <- names(features)[x]
+      colnames(df) <- names(as.vector(features10x))[x]
       df
     }else{
       NULL
     }
   })
-  features <- Reduce("cbind",features[!unlist(lapply(features,is.null))])
+  features10x <- Reduce("cbind",features10x[!unlist(lapply(features10x,is.null))])
 
-  se <- SummarizedExperiment(assays = SimpleList(counts = spMat), rowData = features)
-
-  rownames(se) <- features$name
-
-  if("feature_type" %in% colnames(rowData(se))){
-    if(!is.null(featureType)){
-      idx <- BiocGenerics::which(rowData(se)$feature_type %bcin% featureType)
-      if(length(idx) == 0){
-        stop("Error featureType not within provided features!")
-      }
-      se <- se[idx]
-    }
+  #Determine Idx
+  if(!is.null(type10x)){
+    idx <- which(paste0(features10x$feature_type) %in% type10x)
+  }else{
+    idx <- seq_len(nrow(features10x))
+  }
+  if(length(idx)==0){
+    stop(
+      paste0(
+        h5,
+        "\nMissing `type10x`! Feature Types in h5:\n",
+        "\t", paste0(unique(features10x$feature_type),collapse="; ")
+      )
+    )
   }
 
-  if("interval" %in% colnames(rowData(se))){
-    idxNA <- which(rowData(se)$interval=="NA")
+  #Subset
+  features10x <- features10x[idx, , drop=FALSE]
+
+  #Interval
+  if("interval" %in% colnames(features10x)){
+
+    idxNA <- which(features10x$interval=="NA")
+
     if(length(idxNA) > 0){
-      se <- se[-idxNA, ]
+
+      #Fix ranges
+      idx1 <- paste0(seqnames(ranges)) %in% c(1:22, "X", "Y", "MT")
+      if(length(idx1) > 0){
+        ranges2 <- GRanges(
+          seqnames = ifelse(idx1, paste0("chr",seqnames(ranges)), paste0(seqnames(ranges))),
+          ranges = GenomicRanges::ranges(ranges)
+        )
+        mcols(ranges2) <- mcols(ranges)
+      }
+
+      #Try To Use Ranges To Match
+      features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
+      namesNA <- features10xNA$name
+      idxFix <- match(namesNA, mcols(ranges2)[, grep("name", colnames(mcols(ranges)), ignore.case=TRUE)])
+      if(length(idxFix[!is.na(idxFix)]) > 0){
+        message("Correcting missing intervals...")
+        idx2 <- which(!is.na(idxFix))
+        rangesFix <- ranges2[idxFix[idx2]]
+        strand(rangesFix) <- "*"
+        features10xNA$interval[idx2] <- paste0(rangesFix)
+        features10x[which(features10x$interval=="NA"), ] <- features10xNA
+      }
+
+      #NA add Fake Chromosome
+      features10xNA <- features10x[which(features10x$interval=="NA"),,drop=FALSE]
+      if(nrow(features10xNA) > 0){
+        features10xNA$interval <- paste0("chrUNK:1-1")
+        features10x[which(features10x$interval=="NA"), ] <- features10xNA
+      }
+
     }
-    rr <- GRanges(paste0(rowData(se)$interval))
-    mcols(rr) <- rowData(se)
-    se <- SummarizedExperiment(assays = SimpleList(counts = assay(se)), rowRanges = rr)
+
+    features10x$ranges <- GRanges(paste0(features10x$interval))
+    features10x$interval <- NULL
+
   }
 
-  idxDup <- which(rownames(se) %in% rownames(se[duplicated(rownames(se))]))
-  names(idxDup) <- rownames(se)[idxDup]
-  if(length(idxDup) > 0){
-    dupOrder <- idxDup[order(Matrix::rowSums(assay(se[idxDup])),decreasing=TRUE)]
-    dupOrder <- dupOrder[!duplicated(names(dupOrder))]
-    se <- se[-as.vector(idxDup[idxDup %ni% dupOrder])]
+  #Read Matrix
+  mat <- sparseMatrix(
+    i = h5read(h5, "/matrix/indices"), 
+    p = h5read(h5, "/matrix/indptr"), 
+    x = h5read(h5, "/matrix/data"), 
+    dims = shape,
+    index1 = FALSE
+  )
+  barcodes <- h5read(h5, "/matrix/barcodes")
+  if(!is.null(name)){
+    colnames(mat) <- paste0(name, "#", barcodes)
+  }else{
+    colnames(mat) <- barcodes
   }
 
+  #Subset
+  mat <- mat[idx, , drop = FALSE]
   gc()
 
-  se
+  #Summarized Experiment
+  if("ranges" %in% colnames(features10x)){
+    mat <- SummarizedExperiment(
+      assays = SimpleList(
+        data = mat
+      ),
+      rowRanges = features10x$ranges
+    )
+    rowData(mat) <- features10x
+    rowData(mat)$ranges <- NULL
+  }else{
+    mat <- SummarizedExperiment(
+      assays = SimpleList(
+        data = mat
+      ),
+      rowData = features10x
+    )    
+  }
 
+  rownames(mat) <- rowData(mat)$name
+  .sortRSE(mat)
+
+}
+
+.sortRSE <- function(rse){
+  if(!is.null(rowRanges(rse))){
+    sort.GenomicRanges(sortSeqlevels(rse), ignore.strand = TRUE)
+  }else{
+    rse[order(rowData(rse)$name)]
+  }
 }
 
 ####################################################################

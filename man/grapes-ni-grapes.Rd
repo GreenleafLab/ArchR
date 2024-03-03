@@ -14,3 +14,9 @@ x \%ni\% table
 \description{
 This function is the reciprocal of \%in\%. See the match funciton in base R.
 }
+\examples{
+
+#Test
+c("A", "B", "C") \%ni\% c("A", "C")
+
+}

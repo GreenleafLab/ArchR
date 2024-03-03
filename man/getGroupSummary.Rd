@@ -26,3 +26,12 @@ getGroupSummary(
 \description{
 This function summarizes a numeric cellColData entry across groupings in a ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Group Summary
+getGroupSummary(proj, groupBy = "Clusters", select = "TSSEnrichment", summary = "mean")
+
+}

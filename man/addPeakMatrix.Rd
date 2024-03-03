@@ -37,3 +37,12 @@ for downstream analyses when working with insertion counts.}
 This function, for each sample, will independently compute counts for each peak
 per cell in the provided ArchRProject using the "PeakMatrix".
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Peak Matrix
+proj <- addPeakMatrix(proj)
+
+}

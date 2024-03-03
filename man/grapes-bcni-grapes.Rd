@@ -14,3 +14,9 @@ x \%bcni\% table
 \description{
 This function provides the reciprocal of \%bcin\% for S4Vector objects primarily to avoid ambiguity.
 }
+\examples{
+
+#Test
+Rle(c("A", "B", "C")) \%bcni\% Rle(c("A", "C"))
+
+}

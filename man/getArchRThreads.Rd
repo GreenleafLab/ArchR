@@ -9,3 +9,9 @@ getArchRThreads()
 \description{
 This function will get the number of threads to be used for parallel execution across all ArchR functions.
 }
+\examples{
+
+# Get ArchR Threads
+getArchRThreads()
+
+}

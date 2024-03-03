@@ -16,3 +16,9 @@ paletteContinuous(set = "solarExtra", n = 256, reverse = FALSE)
 \description{
 Continuous Color Palette
 }
+\examples{
+
+# Color Palette
+pal <- paletteContinuous()
+
+}

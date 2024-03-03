@@ -13,6 +13,15 @@
 #' from the provided ArrowFile using `getCellNames()`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#'
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#'
+#' # Get Fragments
+#' frags <- getFragmentsFromProject(proj)
+#'
 #' @export
 getFragmentsFromProject <- function(
   ArchRProj = NULL,
@@ -69,6 +78,15 @@ getFragmentsFromProject <- function(
 #' from the provided ArrowFile using `getCellNames()`.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to `FALSE` for a cleaner output.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#'
+#' @examples
+#'
+#' #Get Test Arrow
+#' arrow <- getTestArrow()
+#'
+#' # Get Fragments
+#' frags <- getFragmentsFromArrow(arrow)
+#'
 #' @export
 getFragmentsFromArrow <- function(
   ArrowFile = NULL, 
@@ -249,15 +267,26 @@ getFragmentsFromArrow <- function(
 #' @param ArchRProj An `ArchRProject` object to get data matrix from.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return.
 #' This is often desired when working with insertion counts. Note that if the matrix has already been binarized previously, this should be set to `TRUE`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#'
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#'
+#' # Get Fragments
+#' se <- getMatrixFromProject(proj)
+#'
 #' @export
 getMatrixFromProject <- function(
   ArchRProj = NULL,
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = NULL,
   verbose = TRUE,
   binarize = FALSE,
   threads = getArchRThreads(),
@@ -267,6 +296,7 @@ getMatrixFromProject <- function(
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
   .validInput(input = useMatrix, name = "useMatrix", valid = c("character"))
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
   .validInput(input = binarize, name = "binarize", valid = c("boolean"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
@@ -298,6 +328,7 @@ getMatrixFromProject <- function(
         ArrowFile = ArrowFiles[x],
         useMatrix = useMatrix,
         useSeqnames = useSeqnames,
+        excludeChr = excludeChr,
         cellNames = allCells, 
         ArchRProj = ArchRProj,
         verbose = FALSE,
@@ -378,6 +409,7 @@ getMatrixFromProject <- function(
 #' @param ArrowFile The path to an ArrowFile from which the selected data matrix should be obtained.
 #' @param useMatrix The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.
 #' @param useSeqnames A character vector of chromosome names to be used to subset the data matrix being obtained.
+#' @param excludeChr A character vector containing the `seqnames` of the chromosomes that should be excluded from this analysis.
 #' @param cellNames A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
 #' This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
 #' the provided ArrowFile using `getCellNames()`.
@@ -387,11 +419,21 @@ getMatrixFromProject <- function(
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#'
+#' @examples
+#'
+#' #Get Test Arrow
+#' arrow <- getTestArrow()
+#'
+#' # Get Fragments
+#' se <- getMatrixFromArrow(arrow)
+#'
 #' @export
 getMatrixFromArrow <- function(
   ArrowFile = NULL, 
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = NULL,
   cellNames = NULL, 
   ArchRProj = NULL,
   verbose = TRUE,
@@ -402,6 +444,7 @@ getMatrixFromArrow <- function(
   .validInput(input = ArrowFile, name = "ArrowFile", valid = "character")
   .validInput(input = useMatrix, name = "useMatrix", valid = "character")
   .validInput(input = useSeqnames, name = "useSeqnames", valid = c("character","null"))
+  .validInput(input = excludeChr, name = "excludeChr", valid = c("character", "null"))
   .validInput(input = cellNames, name = "cellNames", valid = c("character","null"))
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj","null"))
   .validInput(input = verbose, name = "verbose", valid = c("boolean"))
@@ -422,11 +465,27 @@ getMatrixFromArrow <- function(
     seqnames <- seqnames[seqnames %in% useSeqnames]
   }
 
+  if(!is.null(excludeChr)){
+    seqnames <- seqnames[seqnames %ni% excludeChr]
+  }
+
   if(length(seqnames) == 0){
     stop("No seqnames available!")
   }
 
-  featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames), ]
+  # if(!force){
+  #   #Check that the seqnames that will be used actually exist in the ArrowFiles
+  #   missSeq <- .validateSeqNotEmpty(ArrowFile = ArrowFile, seqnames = seqnames)
+  #     if(!is.null(missSeq)) {
+  #     stop("The following seqnames do not have fragment information in ArrowFile ",ArrowFile,":\n",
+  #       paste(missSeq, collapse = ","),
+  #       "\nYou can proceed with the analysis by ignoring these seqnames by passing them to the 'excludeChr' parameter.")
+  #   }
+  # }else{
+  #   message("Skipping validation of empty chromosomes since `force` = TRUE!")
+  # }
+
+  featureDF <- featureDF[BiocGenerics::which(paste0(featureDF$seqnames) %bcin% seqnames), ]
 
   .logDiffTime(paste0("Getting ",useMatrix," from ArrowFile : ", basename(ArrowFile)), 
     t1 = tstart, verbose = verbose, logFile = logFile)
@@ -435,6 +494,10 @@ getMatrixFromArrow <- function(
     allCells <- .availableCells(ArrowFile = ArrowFile, subGroup = useMatrix)
     if(!all(cellNames %in% allCells)){
       stop("cellNames must all be within the ArrowFile!!!!")
+    }
+    if(sum(allCells %in% cellNames) == 0){
+      message("Warning: No cellNames in ",useMatrix," for ",basename(ArrowFile)," returning NULL")
+      return(NULL)
     }
   }
 
@@ -446,6 +509,9 @@ getMatrixFromArrow <- function(
     binarize = binarize,
     useIndex = FALSE
   )
+  if(is.null(mat)){
+    return(NULL)
+  }
   .logThis(mat, paste0("mat ", sampleName), logFile = logFile)
 
   .logDiffTime(paste0("Organizing SE ",useMatrix," from ArrowFile : ", basename(ArrowFile)), 
@@ -539,49 +605,142 @@ getMatrixFromArrow <- function(
     idxCols <- seq_along(matColNames)
   }
 
+  #Check Any Cells Are Present Exist
+  if(length(idxCols) == 0){
+    message("Warning: No CellNames found in ", basename(ArrowFile), " Returning NULL")
+    return(NULL)
+  }
+
   seqnames <- unique(featureDF$seqnames)
+
+  h5df <- h5ls(ArrowFile)
+  if(all(c("indptr", "indices", "data") %in% h5df[,2])){
+    version <- 2
+  }else if(all(c("i", "jValues", "jLengths") %in% h5df[,2])){
+    version <- 1
+  }else{
+    version <- 1 #Lets Test this out more before throwing a version error
+  }
 
   mat <- .safelapply(seq_along(seqnames), function(x){
 
+    #Feature Info
     seqnamex <- seqnames[x]
     featureDFx <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnamex),]
     idxRows <- featureDFx$idx
 
-    j <- Rle(
-      values = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jValues")), 
-      lengths = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jLengths"))
+    #Version 1 vs Version 2
+    if(version == 1){
+
+      #Get J
+      j <- tryCatch({
+        Rle(
+          values = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jValues")), 
+          lengths = h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/jLengths"))
+        )
+      }, error = function(e){
+        NULL
+      })
+      if(is.null(j)){
+        message("Found 0 Column in ", seqnamex, " for ", basename(ArrowFile)," creating 0 value sparseMatrix!")
+        #Make 0 matrix
+        mat <- Matrix::sparseMatrix(
+          i=1,
+          j=1,
+          x=0,
+          dims = c(length(idxRows), length(idxCols))
+        )
+        rownames(mat) <- rownames(featureDFx)
+        return(mat)
+      }
+
+      #Match J
+      matchJ <- S4Vectors::match(j, idxCols, nomatch = 0)
+      idxJ <- BiocGenerics::which(matchJ > 0)
+      if(useIndex){
+        i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/i"), index = list(idxJ, 1))
+      }else{
+        i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/i"))[idxJ]
+      }
+      j <- matchJ[idxJ]
+
+      #Match I
+      matchI <- match(i, idxRows, nomatch = 0)
+      idxI <- which(matchI > 0)
+      i <- i[idxI]
+      j <- j[idxI]
+      i <- matchI[idxI]
+      
+      if(!binarize){
+        x <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/x"))[idxJ][idxI]
+      }else{
+        x <- rep(1, length(j))
+      }
+
+      mat <- Matrix::sparseMatrix(
+        i=as.vector(i),
+        j=as.vector(j),
+        x=as.numeric(x),
+        dims = c(length(idxRows), length(idxCols))
       )
+      rownames(mat) <- rownames(featureDFx)
 
-    #Match J
-    matchJ <- S4Vectors::match(j, idxCols, nomatch = 0)
-    idxJ <- BiocGenerics::which(matchJ > 0)
-    if(useIndex){
-      i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/i"), index = list(idxJ, 1))
-    }else{
-      i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/i"))[idxJ]
+    }else if(version == 2){
+
+      #Get J
+      j <- tryCatch({
+        .sparseMatrixPToJRle(
+          h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/indptr"))
+        )
+      }, error = function(e){
+        NULL
+      })
+      if(is.null(j)){
+        message("Found 0 Column in ", seqnamex, " for ", basename(ArrowFile)," creating 0 value sparseMatrix!")
+        #Make 0 matrix
+        mat <- Matrix::sparseMatrix(
+          i=1,
+          j=1,
+          x=0, #Set 0
+          dims = c(length(idxRows), length(idxCols))
+        )
+        rownames(mat) <- rownames(featureDFx)
+        return(mat)
+      }
+
+      #Match J
+      matchJ <- S4Vectors::match(j, idxCols, nomatch = 0)
+      idxJ <- BiocGenerics::which(matchJ > 0)
+      #I is no longer 1 indexed in this version
+      if(useIndex){
+        i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/indices"), index = list(idxJ, 1)) + 1
+      }else{
+        i <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/indices"))[idxJ] + 1
+      }
+      j <- matchJ[idxJ]
+
+      #Match I
+      matchI <- match(i, idxRows, nomatch = 0)
+      idxI <- which(matchI > 0)
+      i <- i[idxI]
+      j <- j[idxI]
+      i <- matchI[idxI]
+      
+      if(!binarize){
+        x <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/data"))[idxJ][idxI]
+      }else{
+        x <- rep(1, length(j))
+      }
+
+      mat <- Matrix::sparseMatrix(
+        i=as.vector(i),
+        j=as.vector(j),
+        x=as.numeric(x),
+        dims = c(length(idxRows), length(idxCols))
+      )
+      rownames(mat) <- rownames(featureDFx)
+
     }
-    j <- matchJ[idxJ]
-
-    #Match I
-    matchI <- match(i, idxRows, nomatch = 0)
-    idxI <- which(matchI > 0)
-    i <- i[idxI]
-    j <- j[idxI]
-    i <- matchI[idxI]
-    
-    if(!binarize){
-      x <- h5read(ArrowFile, paste0(useMatrix,"/",seqnamex,"/x"))[idxJ][idxI]
-    }else{
-      x <- rep(1, length(j))
-    }
-
-    mat <- Matrix::sparseMatrix(
-      i=as.vector(i),
-      j=j,
-      x=x,
-      dims = c(length(idxRows), length(idxCols))
-    )
-    rownames(mat) <- rownames(featureDFx)
 
     rm(matchI, idxI, matchJ, idxJ, featureDFx, idxRows)
 
@@ -605,6 +764,14 @@ getMatrixFromArrow <- function(
 
 }
 
+#Adapted from
+#https://github.com/mojaveazure/seurat-disk/blob/master/R/sparse_matrix.R
+.sparseMatrixPToJRle <- function(p) {
+  dp <- diff(x = p)
+  j <- Rle(rep.int(x = seq_along(along.with = dp), times = dp))
+  return(j)
+}
+
 ####################################################################
 # Helper read functioning
 ####################################################################
@@ -612,6 +779,7 @@ getMatrixFromArrow <- function(
   ArrowFiles = NULL, 
   featureDF = NULL, 
   groupList = NULL,
+  excludeSeqnames = NULL,
   threads = 1, 
   useIndex = FALSE, 
   verbose = TRUE, 
@@ -631,6 +799,11 @@ getMatrixFromArrow <- function(
   # Construct Matrix
   #########################################
   seqnames <- unique(featureDF$seqnames)
+  if(!is.null(excludeSeqnames)) {
+    seqnames <- seqnames[which(seqnames %ni% excludeSeqnames)]
+    featureDF <- featureDF[BiocGenerics::which(paste0(featureDF$seqnames) %bcni% excludeSeqnames),,drop=FALSE]
+  }
+
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
   cellNames <- unlist(groupList, use.names = FALSE) ### UNIQUE here? doublet check QQQ
 
@@ -658,7 +831,7 @@ getMatrixFromArrow <- function(
 
     for(y in seq_along(ArrowFiles)){
 
-      allCells <- allCellsList[[y]]
+      allCells <- allCellsList[[y]] #These should be at least 1 cell so getMatFromArrow should never be NULL
       
       if(!is.null(allCells)){
 
@@ -748,6 +921,7 @@ getMatrixFromArrow <- function(
     allCells <- .availableCells(ArrowFile = ArrowFiles[x], subGroup = useMatrix)
     allCells <- allCells[allCells %in% cellNames]
 
+    #Handled 0 Cells
     if(length(allCells) == 0){
       if(doSampleCells){
         return(list(mat = NULL, out = NULL))
@@ -909,39 +1083,18 @@ getMatrixFromArrow <- function(
   seqnames = NULL,
   useMatrix = NULL,
   useLog2 = FALSE,
+  useGeo = FALSE,
+  useLog2Norm = FALSE,
   threads = 1
   ){
   
-  .combineVariances <- function(dfMeans = NULL, dfVars = NULL, ns = NULL){
+  stopifnot(useLog2 + useGeo + useLog2Norm <= 1)
 
-    #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
-
-    if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
-      stop("Means Variances and Ns lengths not identical")
-    }
-
-    #Check if samples have NAs due to N = 1 sample or some other weird thing.
-    #Set it to min non NA variance
-    dfVars <- lapply(seq_len(nrow(dfVars)), function(x){
-      vx <- dfVars[x, , drop = FALSE]
-      if(any(is.na(vx))){
-        vx[is.na(vx)] <- min(vx[!is.na(vx)])
-      }
-      vx
-    }) %>% Reduce("rbind", .)
-
-    combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
-    summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
-    combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
-
-    data.frame(combinedVars = combinedVars, combinedMeans = combinedMeans)
-
-  }
-
+  #Feature DF
   featureDF <- .getFeatureDF(ArrowFiles, useMatrix)
 
   if(!is.null(seqnames)){
-    featureDF <- featureDF[BiocGenerics::which(featureDF$seqnames %bcin% seqnames),]
+    featureDF <- featureDF[BiocGenerics::which(paste0(featureDF$seqnames) %bcin% seqnames),]
   }
 
   rownames(featureDF) <- paste0("f", seq_len(nrow(featureDF)))
@@ -966,6 +1119,12 @@ getMatrixFromArrow <- function(
       if(useLog2){
         meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeansLog2"))
         varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVarsLog2")) 
+      }else if(useGeo){
+        meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeansGeo"))
+        varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVarsGeo"))
+      }else if(useLog2Norm){
+        meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeansLog2Norm"))
+        varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVarsLog2Norm"))
       }else{
         meanx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowMeans"))
         varx[, y] <- h5read(ArrowFiles[y], paste0(useMatrix, "/", seqx, "/rowVars"))
@@ -980,6 +1139,33 @@ getMatrixFromArrow <- function(
   summaryDF <- summaryDF[fnames, , drop = FALSE]
   
   return(summaryDF)
+
+}
+
+.combineVariances <- function(dfMeans = NULL, dfVars = NULL, ns = NULL){
+
+  #https://rdrr.io/cran/fishmethods/src/R/combinevar.R
+
+  if(ncol(dfMeans) != ncol(dfVars) | ncol(dfMeans) != length(ns)){
+    stop("Means Variances and Ns lengths not identical")
+  }
+
+  #Check if samples have NAs due to N = 1 sample or some other weird thing.
+  #Set it to 0
+  if(any(is.na(dfVars))){
+    idx <- which(rowSums(is.na(dfVars)) > 0)
+    dfVars[is.na(dfVars)] <- 0
+  }
+
+  #Compute
+  combinedMeans <- rowSums(t(t(dfMeans) * ns)) / sum(ns)
+  summedVars <- rowSums(t(t(dfVars) * (ns - 1)) + t(t(dfMeans^2) * ns))
+  combinedVars <- (summedVars - sum(ns)*combinedMeans^2)/(sum(ns)-1)
+
+  data.frame(
+    combinedVars = combinedVars, 
+    combinedMeans = combinedMeans
+  )
 
 }
 
@@ -1083,6 +1269,5 @@ getMatrixFromArrow <- function(
   matrixUnits
 
 }
-
 
 

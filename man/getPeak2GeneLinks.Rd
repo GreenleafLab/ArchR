@@ -7,7 +7,7 @@
 getPeak2GeneLinks(
   ArchRProj = NULL,
   corCutOff = 0.45,
-  FDRCutOff = 1e-04,
+  FDRCutOff = 0.0001,
   varCutOffATAC = 0.25,
   varCutOffRNA = 0.25,
   resolution = 1,
@@ -32,4 +32,16 @@ the \code{ArchRBrowser()} or as an \code{ArchRBrowserTrack()}.}
 }
 \description{
 This function obtains peak-to-gene links from an ArchRProject.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add P2G Links
+proj <- addPeak2GeneLinks(proj, k = 20)
+
+# Get P2G Links
+p2g <- getPeak2GeneLinks(proj)
+
 }

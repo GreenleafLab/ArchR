@@ -11,7 +11,8 @@ createGeneAnnotation(
   genes = NULL,
   exons = NULL,
   TSS = NULL,
-  annoStyle = NULL
+  annoStyle = NULL,
+  singleStrand = FALSE
 )
 }
 \arguments{
@@ -31,7 +32,29 @@ For example, from \code{orgdb <- org.Hs.eg.db}.}
 \item{TSS}{A \code{GRanges} object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.}
 
 \item{annoStyle}{annotation style to map between gene names and various gene identifiers e.g. "ENTREZID", "ENSEMBL".}
+
+\item{singleStrand}{A boolean for GenomicFeatures::genes(\code{single.strand.genes.only}) parameter}
 }
 \description{
 This function will create a gene annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
+}
+\examples{
+
+if (!require("TxDb.Hsapiens.UCSC.hg19.knownGene", quietly = TRUE)) BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene")
+if (!require("org.Hs.eg.db", quietly = TRUE)) BiocManager::install("org.Hs.eg.db")
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+
+# Get Txdb
+TxDb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+
+# Get OrgDb
+OrgDb <- org.Hs.eg.db
+
+# Create Genome Annotation
+geneAnno <- createGeneAnnotation(TxDb=TxDb, OrgDb=OrgDb)
+
+# Also can create from a string if BSgenome exists
+geneAnno <- createGeneAnnotation("hg19")
+
 }

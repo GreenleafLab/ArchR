@@ -7,7 +7,7 @@
 plotPeak2GeneHeatmap(
   ArchRProj = NULL,
   corCutOff = 0.45,
-  FDRCutOff = 1e-04,
+  FDRCutOff = 0.0001,
   varCutOffATAC = 0.25,
   varCutOffRNA = 0.25,
   k = 25,
@@ -62,4 +62,20 @@ reproduce results downstream.}
 }
 \description{
 This function plots side by side heatmaps of linked ATAC and Gene regions from \code{addPeak2GeneLinks}.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add P2G Links
+proj <- addPeak2GeneLinks(proj, k = 20)
+
+# Get P2G Links
+p2g <- getPeak2GeneLinks(proj)
+
+# Plot P2G
+p <- plotPeak2GeneHeatmap(proj)
+plotPDF(p, name = "P2G-Heatmap", ArchRProj = proj)
+
 }

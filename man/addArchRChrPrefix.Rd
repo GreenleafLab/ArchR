@@ -12,3 +12,9 @@ addArchRChrPrefix(chrPrefix = TRUE)
 \description{
 This function will set the default requirement of chromosomes to have a "chr" prefix.
 }
+\examples{
+
+# Add ArchR Chr Prefix
+addArchRChrPrefix()
+
+}

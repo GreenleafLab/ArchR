@@ -42,3 +42,12 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 \description{
 This function will group, summarize and export a bigwig for each group in an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Group BW
+bw <- getGroupBW(proj, groupBy = "Clusters")
+
+}

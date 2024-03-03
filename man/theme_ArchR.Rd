@@ -44,3 +44,18 @@ theme_ArchR(
 \description{
 This function returns a ggplot2 theme that is black borded with black font.
 }
+\examples{
+
+# Create Random Data
+m <- data.frame(x=matrix(rnorm(10, 2),ncol=1))
+m$color <- sample(c("A", "B"), 10, replace = TRUE)
+
+# Plot
+p <- ggGroup(x = m$color, y = m$x) + theme_ArchR()
+
+# To PDF
+pdf("test.pdf", width = 4, height = 7)
+p
+dev.off()
+
+}

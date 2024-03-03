@@ -18,3 +18,12 @@ given a unique color from the designated palette set.}
 This function assesses the number of inputs and returns a discrete color palette that is tailored to provide the most
 possible color contrast from the designated color set.
 }
+\examples{
+
+# Vector
+v <- c("A", "B")
+
+# Color Palette
+pal <- paletteDiscrete(values = v)
+
+}

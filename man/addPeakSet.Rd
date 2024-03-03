@@ -25,3 +25,12 @@ whether or not to overwrite this \code{peakSet}.}
 \description{
 This function adds a peak set as a GRanges object to a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add PeakSet
+addPeakSet(proj, peakSet = getPeakSet(proj), force = TRUE)
+
+}

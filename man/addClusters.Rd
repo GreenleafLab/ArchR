@@ -114,3 +114,12 @@ exists as a column name in \code{cellColData}.}
 \description{
 This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Peak Annotations
+proj <- addClusters(proj, force = TRUE)
+
+}

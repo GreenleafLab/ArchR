@@ -9,3 +9,9 @@ findMacs2()
 \description{
 This function attempts to find the path to the MACS2 executable by serting the path and python's pip.
 }
+\examples{
+
+# Get Macs2
+findMacs2()
+
+}

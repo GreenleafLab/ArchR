@@ -225,7 +225,11 @@ validBSgenome <- function(genome = NULL, masked = FALSE){
   }else if(is.character(genome)){
     genome <- tryCatch({
       .requirePackage(genome)
-      bsg <- eval(parse(text = genome))
+      bsg <- tryCatch({
+        eval(parse(text = paste0(genome)))
+      }, error = function(e){
+        eval(parse(text = paste0(genome,"::",genome)))
+      })
       if(inherits(bsg, "BSgenome")){
         return(bsg)
       }else{

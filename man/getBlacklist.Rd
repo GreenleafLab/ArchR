@@ -12,3 +12,15 @@ getBlacklist(ArchRProj = NULL)
 \description{
 This function gets the blacklist (the regions to be excluded from analysis) as a GRanges object from the genomeAnnotation of a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Blacklist in ArchRProj
+getBlacklist(proj)
+
+# Get Blacklist loaded globally
+getBlacklist()
+
+}

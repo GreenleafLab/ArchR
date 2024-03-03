@@ -12,3 +12,15 @@ getTSS(ArchRProj = NULL)
 \description{
 This function gets the transcription start sites (TSSs) as a GRanges object of all genes from the geneAnnotation of a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get TSS in ArchRProj
+getTSS(proj)
+
+# Get TSS loaded globally
+getTSS()
+
+}

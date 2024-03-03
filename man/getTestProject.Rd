@@ -4,8 +4,18 @@
 \alias{getTestProject}
 \title{Get PBMC Small Test Project}
 \usage{
-getTestProject()
+getTestProject(version = 2)
+}
+\arguments{
+\item{version}{version of test fragments to return}
 }
 \description{
-This function will download an ArchRProject for a small PBMC test dataset (2k Cells) spanning chr1 and 2 (~2-300MB).
+V1 : This function will download an ArchRProject for a small PBMC test dataset.
+V2 : This function will return an ArchRProject for a small PBMC test dataset in your cwd.
+}
+\examples{
+
+# Get Test Project
+proj <- getTestProject()
+
 }

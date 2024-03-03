@@ -1,5 +1,6 @@
 #' @useDynLib ArchR
 #' @importFrom Rcpp sourceCpp
+#' @importClassesFrom GenomicRanges GRanges
 #' @importFrom GenomicRanges GRanges
 #' @import data.table
 NULL
@@ -87,6 +88,15 @@ setMethod("show", "ArchRProject",
 #' genome information such as nucleotide information or chromosome sizes.
 #' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
 #' @param threads The number of threads to use for parallel execution.
+#'
+#' @examples
+#'
+#' # Get Test Arrow
+#' arrow <- getTestArrow()
+#'
+#' # Create ArchR Project for Analysis
+#' proj <- ArchRProject(arrow)   
+#'
 #' @export
 ArchRProject <- function(
   ArrowFiles = NULL, 
@@ -209,6 +219,15 @@ ArchRProject <- function(
 #' This function will recover an ArchRProject if it has broken sampleColData or cellColData due to different versions of bioconductor s4vectors.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test Project
+#' proj <- getTestProject()
+#'
+#' # Try to Recover ArchR Project
+#' proj <- recoverArchRProject(proj)
+#'
 #' @export
 recoverArchRProject <- function(ArchRProj){
 
@@ -229,6 +248,11 @@ recoverArchRProject <- function(ArchRProj){
       stop("Unrecognized object for DataFrame in sampleColData")
     }
   }
+
+  #Try to make sure that DataFrame matches currently loaded
+  #S4Vectors Package
+  ArchRProj@cellColData <- DataFrame(ArchRProj@cellColData)
+  ArchRProj@sampleColData <- DataFrame(ArchRProj@sampleColData)
 
   if(inherits(ArchRProj@peakSet, "GRanges")){
 
@@ -355,6 +379,24 @@ recoverArchRProject <- function(ArchRProj){
 #' background peaks) should be ignored when re-normalizing file paths. If set to `FALSE` loading of the `ArchRProject`
 #' will fail unless all components can be found.
 #' @param showLogo A boolean value indicating whether to show the ascii ArchR logo after successful creation of an `ArchRProject`.
+#' 
+#' @examples
+#'
+#' # Get Small PBMC Project Location
+#' zipProj <- file.path(system.file("testdata", package="ArchR"), "PBSmall.zip")
+#'
+#' # Copy to current directory
+#' file.copy(zipProj, basename(zipProj), overwrite = TRUE)
+#' 
+#' # Unzip
+#' unzip(basename(zipProj), overwrite = TRUE)
+#' 
+#' # Remove
+#' file.remove(basename(zipProj))
+#'
+#' # Load
+#' loadArchRProject("PBSmall")
+#'
 #' @export
 loadArchRProject <- function(
   path = "./", 
@@ -482,6 +524,14 @@ loadArchRProject <- function(
 #' @param dropCells A boolean indicating whether to drop cells that are not in `ArchRProject` from corresponding Arrow Files.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param threads The number of threads to use for parallel execution.
+#' @examples
+#'
+#' # Get Small Test Project
+#' proj <- getTestProject()
+#'
+#' # Save
+#' saveArchRProject(proj)
+#'
 #' @export
 saveArchRProject <- function(
   ArchRProj = NULL,
@@ -617,6 +667,15 @@ saveArchRProject <- function(
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param threads The number of threads to use for parallel execution. 
 #' @param force If output directory exists overwrite.
+#' 
+#' @examples
+#'
+#' # Get Small Test Project
+#' proj <- getTestProject()
+#' 
+#' #Subset
+#' proj <- subsetArchRProject(proj, cells = getCellNames(proj)[1:50])
+#' 
 #' @export
 subsetArchRProject <- function(
   ArchRProj = NULL,
@@ -783,7 +842,6 @@ subsetArchRProject <- function(
   return(x)
 
 }
-
 
 setMethod(
   f = "colnames",

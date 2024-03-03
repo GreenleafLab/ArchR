@@ -14,3 +14,12 @@ subsetCells(ArchRProj = NULL, cellNames = NULL)
 \description{
 This function returns an ArchRProject object that contains a specified subset of cells.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Peak Annotations
+proj <- subsetCells(proj, getCellNames(proj)[1:50])
+
+}

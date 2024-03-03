@@ -15,3 +15,9 @@ createLogFile(name = NULL, logDir = "ArchRLogs", useLogs = getArchRLogging())
 This function will create a log file for ArchR functions. If ArchRLogging is not TRUE
 this function will return NULL.
 }
+\examples{
+
+# Create Log File
+createLogFile(name = "test")
+
+}

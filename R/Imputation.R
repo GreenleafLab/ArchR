@@ -31,6 +31,15 @@
 #' @param seed A number to be used as the seed for random number generation. It is recommended to keep track of the seed used so that you can
 #' reproduce results downstream.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Impute Weights
+#' proj <- addImputeWeights(proj)
+#'
 #' @export
 addImputeWeights <- function(
   ArchRProj = NULL,
@@ -180,8 +189,8 @@ addImputeWeights <- function(
 
       if(useHdf5){
         o <- .suppressAll(h5createGroup(file = weightFile, paste0("block", x)))      
-        o <- .suppressAll(h5write(obj = ix, file = weightFile, name = paste0("block", x, "/Names"), level = 0))
-        o <- .suppressAll(h5write(obj = as.matrix(Wt), file = weightFile, name = paste0("block", x, "/Weights"), level = 0))
+        o <- .suppressAll(h5write(obj = ix, file = weightFile, name = paste0("block", x, "/Names"), level = getArchRH5Level()))
+        o <- .suppressAll(h5write(obj = as.matrix(Wt), file = weightFile, name = paste0("block", x, "/Weights"), level = getArchRH5Level()))
         return(weightFile)
       }else{
         Wt
@@ -222,6 +231,18 @@ addImputeWeights <- function(
 #' This function gets imputation weights from an ArchRProject to impute numeric values.
 #' 
 #' @param ArchRProj An `ArchRProject` object.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Impute Weights
+#' proj <- addImputeWeights(proj)
+#'
+#' # Get Impute Weights
+#' getImputeWeights(proj)
+#'
 #' @export
 getImputeWeights <- function(ArchRProj = NULL){
   .validInput(input = ArchRProj, name = "ArchRProj", valid = c("ArchRProj"))
@@ -242,6 +263,24 @@ getImputeWeights <- function(ArchRProj = NULL){
 #' @param threads The number of threads to be used for parallel computing.
 #' @param verbose A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Add Impute Weights
+#' proj <- addImputeWeights(proj)
+#'
+#' # Get Impute Weights
+#' iW <- getImputeWeights(proj)
+#'
+#' # Get Matrix
+#' se <- getMatrixFromProject(proj, useMatrix = "GeneScoreMatrix")
+#'
+#' # Impute
+#' mat <- imputeMatrix(assay(se), iW)
+#'
 #' @export
 imputeMatrix <- function(
   mat = NULL, 

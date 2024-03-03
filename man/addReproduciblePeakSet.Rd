@@ -102,3 +102,15 @@ peak calling (not for MACS2). See \code{addGroupCoverages()} for more info.}
 This function will get insertions from coverage files, call peaks,
 and merge peaks to get a "Union Reproducible Peak Set".
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Peak Matrix Tiles
+proj <- addReproduciblePeakSet(proj, peakMethod = "tiles")
+
+# Add Peak Matrix Macs2 (Preferred)
+proj <- addReproduciblePeakSet(proj, peakMethod = "macs2")
+
+}

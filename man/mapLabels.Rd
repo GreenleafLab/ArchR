@@ -17,3 +17,12 @@ mapLabels(labels = NULL, newLabels = NULL, oldLabels = names(newLabels))
 This function takes a character vector of labels and uses a set of old and new labels
 to re-map from the old label set to the new label set.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Peak Annotations
+proj$ClusterLabels <- mapLabels(proj$Clusters, c("T", "B", "M"), c("C1", "C2", "C3"))
+
+}

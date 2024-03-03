@@ -18,3 +18,12 @@ getVarDeviations(ArchRProj = NULL, name = "MotifMatrix", plot = TRUE, n = 25)
 \description{
 This function will rank the variability of the deviations computed by ArchR and label the top variable annotations.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Variable Motif Deviations
+varDev <- getVarDeviations(proj)
+
+}

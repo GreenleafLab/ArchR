@@ -20,3 +20,18 @@ ggAlignPlots(..., plotList = NULL, sizes = NULL, type = "v", draw = TRUE)
 \description{
 This function aligns ggplots vertically or horizontally
 }
+\examples{
+
+# Create Random Data
+m <- data.frame(x=matrix(rnorm(10, 2),ncol=1))
+m$color <- sample(c("A", "B"), 10, replace = TRUE)
+
+# Plot
+p <- ggGroup(x = m$color, y = m$x)
+
+# To PDF
+pdf("test.pdf", width = 4, height = 7)
+ggAlignPlots(p, p)
+dev.off()
+
+}

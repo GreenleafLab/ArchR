@@ -48,3 +48,15 @@ instead of plotting the TSS enrichment plot.}
 This function will plot a TSS enrichment plot for each sample. Cells in \code{ArchRProject} are the only ones
 used when making this plot.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Plot TSS
+p <- plotTSSEnrichment(proj, groupBy = "Clusters")
+
+# PDF
+plotPDF(p, name = "TSS-Enrich", ArchRProj = proj)
+
+}

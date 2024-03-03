@@ -9,3 +9,9 @@ getArchRDebugging()
 \description{
 This function will get ArchR Debugging which will save an RDS if an error is encountered.
 }
+\examples{
+
+# Get ArchR Debugging
+getArchRDebugging()
+
+}

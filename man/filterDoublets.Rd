@@ -28,3 +28,15 @@ The higher the \code{filterRatio}, the greater the number of cells potentially r
 \description{
 This function will filter doublets from an ArchRProject after addDoubletScores() has been run.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Doublet Scores for Small Project
+proj <- addDoubletScores(proj, dimsToUse = 1:5, LSIParams = list(dimsToUse = 1:5, varFeatures=1000, iterations = 2))
+
+# Filter Doublets (Since Low Cells filterRatio has to be high before removing 1 cell!)
+proj <- filterDoublets(proj, filterRatio=10)
+
+}

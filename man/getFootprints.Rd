@@ -46,3 +46,15 @@ object will be considered for the footprint.}
 \description{
 This function will get footprints for all samples in a given ArchRProject and return a summarized experiment object that can be used for downstream analyses
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Motif Positions
+positions <- getPositions(proj)
+
+# Get Footprints
+seFoot <- getFootprints(ArchRProj = proj, positions = positions, groupBy = "Clusters", minCells = 10)
+
+}

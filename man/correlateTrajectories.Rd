@@ -62,3 +62,19 @@ computing correlations.}
 \description{
 This function will correlate 2 trajectory matrices from getTrajectory.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Add Trajectory
+proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+
+#Get Trajectories
+seTraj1 <- getTrajectory(proj, useMatrix = "GeneScoreMatrix")
+seTraj2 <- getTrajectory(proj, useMatrix = "GeneIntegrationMatrix")
+
+#Correlate
+corTraj <- correlateTrajectories(seTraj1, seTraj2, corCutOff = 0.35, varCutOff1 = 0.6, varCutOff2 = 0.6)
+
+}

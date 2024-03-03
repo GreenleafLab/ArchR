@@ -16,3 +16,12 @@ getSampleColData(ArchRProj = NULL, select = NULL, drop = FALSE)
 \description{
 This function gets the sampleColData from a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Sample Column Data
+getSampleColData(proj)
+
+}

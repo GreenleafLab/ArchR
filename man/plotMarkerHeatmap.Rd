@@ -16,6 +16,7 @@ plotMarkerHeatmap(
   pal = NULL,
   binaryClusterRows = TRUE,
   clusterCols = TRUE,
+  subsetMarkers = NULL,
   labelMarkers = NULL,
   nLabel = 15,
   nPrint = 15,
@@ -51,11 +52,16 @@ rownames from \code{seMarker} to be excluded from the heatmap.}
 
 \item{clusterCols}{A boolean value that indicates whether the columns of the marker heatmap should be clustered.}
 
+\item{subsetMarkers}{A vector of rownames from seMarker to use for subsetting of seMarker to only plot specific features on the heatmap.
+Note that these rownames are expected to be integers that come from \code{rownames(rowData(seMarker))}. If this parameter is used for
+subsetting, then the values provided to \code{cutOff} are effectively ignored.}
+
 \item{labelMarkers}{A character vector listing the \code{rownames} of \code{seMarker} that should be labeled on the side of the heatmap.}
 
-\item{nLabel}{An integer value that indicates whether the top \code{n} features for each column in \code{seMarker} should be labeled on the side of the heatmap.}
+\item{nLabel}{An integer value that indicates how many of the top \code{n} features for each column in \code{seMarker} should be labeled on the side of the heatmap.
+To remove all feature labels, set \code{nLabel = 0}.}
 
-\item{nPrint}{If provided \code{seMarker} is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.}
+\item{nPrint}{If provided \code{seMarker} is from "GeneScoreMatrix" print the top \code{n} genes for each group based on how uniquely up-regulated the gene is.}
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
@@ -72,4 +78,24 @@ looking for down-regulated markers (\verb{log2(fold change) < 0}) instead of up-
 }
 \description{
 This function will plot a heatmap of the results from markerFeatures
+}
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
+#Plot Markers
+p <- plotMarkerHeatmap(seMarker)
+
+#PDF
+plotPDF(p, name = "Marker-Heatmap", ArchRProj = proj)
+
 }

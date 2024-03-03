@@ -54,6 +54,34 @@
 #' @param force A boolean value indicating whether to force the matrix indicated by `matrixName` to be overwritten if it already exists in the given `input`.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional params to be added to `Seurat::FindTransferAnchors`
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Get RNA Matrix
+#' sePBMC <- readRDS(
+#'   file.path(system.file("testdata", package = "ArchR"), "seRNA_PBMC.rds")
+#' )
+#' 
+#' #Gene Integration Matrix
+#' proj <- addGeneIntegrationMatrix(
+#'     ArchRProj = proj, 
+#'     useMatrix = "GeneScoreMatrix",
+#'     matrixName = "GeneIntegrationMatrix",
+#'     reducedDims = "IterativeLSI",
+#'     seRNA = sePBMC,
+#'     addToArrow = FALSE,
+#'     groupRNA = "CellType",
+#'     nameCell = "predictedCell_Un2",
+#'     nameGroup = "predictedGroup_Un2",
+#'     nameScore = "predictedScore_Un2",
+#'     dimsToUse = 1:10,
+#'     nGenes = 250,
+#'     force = TRUE
+#' )
+#' 
 #' @export
 addGeneIntegrationMatrix <- function(
   ArchRProj = NULL,
@@ -353,8 +381,17 @@ addGeneIntegrationMatrix <- function(
   tmpFile <- .tempfile()
   o <- suppressWarnings(file.remove(paste0(tmpFile, "-IntegrationBlock-", seq_along(blockList), ".h5")))
 
-  if(threads > 1){
-    h5disableFileLocking()
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(threads > 1){
+      message("subThreadhing Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      threads <- 1
+    }
+  }else{
+    if(threads > 1){
+      message("subThreadhing Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
   }
 
   rD <- getReducedDims(ArchRProj = ArchRProj, reducedDims = reducedDims, corCutOff = corCutOff, dimsToUse = dimsToUse)
@@ -540,6 +577,8 @@ addGeneIntegrationMatrix <- function(
         subsetCols = matchDF$cellNames
       )
 
+      #Since this is a temporary addition this does not need the ArchR Arrow version update!
+
       for(z in seq_along(uniqueSamples)){
 
         mat <- matchedRNA[, which(sampleNames == uniqueSamples[z]), drop = FALSE]
@@ -557,16 +596,16 @@ addGeneIntegrationMatrix <- function(
 
         #Create Data Set
         o <- .suppressAll(h5createDataset(tmpFilei, paste0(Group,"/i"), storage.mode = "integer", 
-          dims = c(lengthI, 1), level = 0))
+          dims = c(lengthI, 1), level = getArchRH5Level()))
 
         o <- .suppressAll(h5createDataset(tmpFilei, paste0(Group,"/jLengths"), storage.mode = "integer", 
-          dims = c(lengthRle, 1), level = 0))
+          dims = c(lengthRle, 1), level = getArchRH5Level()))
 
         o <- .suppressAll(h5createDataset(tmpFilei, paste0(Group,"/jValues"), storage.mode = "integer", 
-          dims = c(lengthRle, 1), level = 0))
+          dims = c(lengthRle, 1), level = getArchRH5Level()))
 
         o <- .suppressAll(h5createDataset(tmpFilei, paste0(Group, "/x"), storage.mode = "double", 
-          dims = c(lengthI, 1), level = 0))
+          dims = c(lengthI, 1), level = getArchRH5Level()))
 
         #Write Data Set
         o <- .suppressAll(h5write(obj = mat@i + 1, file = tmpFilei, name = paste0(Group,"/i")))

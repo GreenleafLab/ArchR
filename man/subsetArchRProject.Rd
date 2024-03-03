@@ -32,3 +32,12 @@ subsetArchRProject(
 \description{
 This function will subset and ArchRProject by cells and save the output to a new directory and re-load the subsetted ArchRProject.
 }
+\examples{
+
+# Get Small Test Project
+proj <- getTestProject()
+
+#Subset
+proj <- subsetArchRProject(proj, cells = getCellNames(proj)[1:50])
+
+}

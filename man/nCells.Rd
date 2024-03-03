@@ -12,3 +12,12 @@ nCells(input = NULL)
 \description{
 This function gets number of cells from an ArchRProject or ArrowFile
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Number of Cells
+nCells(proj)
+
+}

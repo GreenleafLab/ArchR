@@ -8,6 +8,7 @@ getMatrixFromProject(
   ArchRProj = NULL,
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = NULL,
   verbose = TRUE,
   binarize = FALSE,
   threads = getArchRThreads(),
@@ -20,6 +21,8 @@ getMatrixFromProject(
 \item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
 \item{useSeqnames}{A character vector of chromosome names to be used to subset the data matrix being obtained.}
+
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.}
 
@@ -35,4 +38,13 @@ For example, if you added your \code{PeakMatrix} using \code{addPeakMatrix()} wi
 \code{getMatrixFromProject()} will return a binarized \code{PeakMatrix}. Alternatively, you could set \code{binarize = TRUE}
 in the parameters passed to \code{getMatrixFromProject()} and the \code{PeakMatrix} will be binarized as you pull
 it out. No other normalization is applied to the matrix by this function.
+}
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+# Get Fragments
+se <- getMatrixFromProject(proj)
+
 }

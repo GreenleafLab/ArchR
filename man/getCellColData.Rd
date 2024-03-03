@@ -16,3 +16,12 @@ getCellColData(ArchRProj = NULL, select = NULL, drop = FALSE)
 \description{
 This function gets the cellColData from a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Cell Column Data
+getCellColData(proj)
+
+}

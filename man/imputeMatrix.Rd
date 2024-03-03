@@ -26,3 +26,21 @@ imputeMatrix(
 \description{
 This function gets imputation weights from an ArchRProject to impute a numerical matrix
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Impute Weights
+proj <- addImputeWeights(proj)
+
+# Get Impute Weights
+iW <- getImputeWeights(proj)
+
+# Get Matrix
+se <- getMatrixFromProject(proj, useMatrix = "GeneScoreMatrix")
+
+# Impute
+mat <- imputeMatrix(assay(se), iW)
+
+}

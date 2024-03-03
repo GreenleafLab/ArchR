@@ -12,3 +12,12 @@ getPeakSet(ArchRProj = NULL)
 \description{
 This function gets the peak set as a GRanges object from an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get PeakSet
+getPeakSet(proj)
+
+}

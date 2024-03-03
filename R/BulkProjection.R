@@ -12,7 +12,6 @@
 #' @param force A boolean value indicating whether to force the projection of bulk ATAC data even if fewer than 25% of the features are present in the bulk ATAC data set.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-#'
 projectBulkATAC <- function(
   ArchRProj = NULL,
   seATAC = NULL,

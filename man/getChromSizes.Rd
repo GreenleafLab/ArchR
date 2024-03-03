@@ -12,3 +12,15 @@ getChromSizes(ArchRProj = NULL)
 \description{
 This function gets the chromosome lengths as a GRanges object from the genomeAnnotation of a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get chromSizes in ArchRProj
+getChromSizes(proj)
+
+# Get chromSizes loaded globally
+getChromSizes()
+
+}

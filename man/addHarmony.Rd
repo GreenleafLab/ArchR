@@ -48,3 +48,15 @@ exists as a column name in \code{cellColData}.}
 \description{
 This function will add the Harmony batch-corrected reduced dimensions to an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Confounder
+proj <- addCellColData(proj, data = proj$TSSEnrichment > 10, name = "TSSQC", cells = getCellNames(proj))
+
+# Run Harmony
+proj <- addHarmony(proj, groupBy = "TSSQC")
+
+}

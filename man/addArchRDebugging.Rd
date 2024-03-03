@@ -12,3 +12,9 @@ addArchRDebugging(debug = FALSE)
 \description{
 This function will set ArchR Debugging which will save an RDS if an error is encountered.
 }
+\examples{
+
+# Add ArchR Debugging
+addArchRDebugging()
+
+}

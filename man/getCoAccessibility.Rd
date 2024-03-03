@@ -25,3 +25,15 @@ the \code{ArchRBrowser()} or as an \code{ArchRBrowserTrack()}.}
 \description{
 This function obtains co-accessibility data from an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Co Accessibility
+proj <- addCoAccessibility(proj, k = 20)
+
+# Get Co Accessibility
+CoA <- getCoAccessibility(proj)
+
+}

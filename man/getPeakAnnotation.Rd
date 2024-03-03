@@ -14,3 +14,12 @@ getPeakAnnotation(ArchRProj = NULL, name = NULL)
 \description{
 This function gets a peakAnnotation from a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Peak Annotations
+peakAnno <- getPeakAnnotation(proj)
+
+}

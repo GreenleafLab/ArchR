@@ -19,3 +19,12 @@ reformatFragmentFiles(
 This function provides help in reformatting Fragment Files for reading in createArrowFiles.
 It will handle weird anomalies found that cause errors in reading tabix bgzip'd fragment files.
 }
+\examples{
+
+# Get Test Fragments
+fragments <- getTestFragments()
+
+# Get Peak Annotations
+fragments2 <- reformatFragmentFiles(fragments)
+
+}

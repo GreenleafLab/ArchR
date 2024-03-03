@@ -68,3 +68,17 @@ them to the value of the 97.5th and 2.5th percentile values respectively.}
 \description{
 This function will plot x,y coordinate values summarized in hexagons in a standardized manner
 }
+\examples{
+
+# Create Random Data
+m <- data.frame(matrix(rnorm(300, 2),ncol=3))
+
+# Plot
+p <- ggHex(x = m[,1], y = m[,2], color = m[,3])
+
+# To PDF
+pdf("test.pdf", width = 4, height = 4)
+p
+dev.off()
+
+}

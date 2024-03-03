@@ -11,7 +11,7 @@ addMotifAnnotations(
   species = NULL,
   collection = "CORE",
   motifPWMs = NULL,
-  cutOff = 5e-05,
+  cutOff = 0.00005,
   width = 7,
   version = 2,
   force = FALSE,
@@ -51,9 +51,18 @@ it already exists in the given \code{ArchRProject}.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 
-\item{...}{Additional parameters to be passed to \code{TFBSTools::getMatrixSet} for getting a PWM object.}
+\item{...}{Additional parameters to be passed to \code{TFBSTools::getMatrixSet} for getting a JASPAR PWM object.}
 }
 \description{
 This function adds information about which peaks contain motifs to a given ArchRProject. For each peak, a binary value
 is stored indicating whether each motif is observed within the peak region.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Motif Annotations
+proj <- addMotifAnnotations(proj, motifSet = "cisbptest", annoName = "test")
+
 }

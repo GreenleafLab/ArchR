@@ -30,3 +30,12 @@ to be removed before the seqlevels can be dropped. Four pruning modes are curren
 \description{
 This function allows for removal of manually designated or more broadly undesirable seqlevels from a Genomic Ranges object or similar object
 }
+\examples{
+
+# Add ArchR Genome
+addArchRGenome("hg19test2")
+
+# Filter Chr
+filterChrGR(getChromSizes(), remove = "chr5")
+
+}

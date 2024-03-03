@@ -17,3 +17,12 @@ getMatches(ArchRProj = NULL, name = NULL, annoName = NULL)
 This function gets peak annotation matches from a given ArchRProject. The peaks in the returned object are in the
 same order as the peaks returned by \code{getPeakSet()}.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Annotation Matches
+matches <- getMatches(proj)
+
+}

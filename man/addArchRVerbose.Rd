@@ -12,3 +12,9 @@ addArchRVerbose(verbose = TRUE)
 \description{
 This function will set ArchR logging verbosity.
 }
+\examples{
+
+# Add ArchR Verbose
+addArchRVerbose()
+
+}

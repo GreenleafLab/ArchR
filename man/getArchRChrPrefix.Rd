@@ -9,3 +9,9 @@ getArchRChrPrefix()
 \description{
 This function will get the default requirement of chromosomes to have a "chr" prefix.
 }
+\examples{
+
+# Get ArchR Chr Prefix
+getArchRChrPrefix()
+
+}

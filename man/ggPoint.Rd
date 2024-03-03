@@ -126,3 +126,18 @@ lines and labels, just the internal portions of the plot.}
 \description{
 This function is a wrapper around ggplot geom_point to allow for a more intuitive plotting of ArchR data.
 }
+\examples{
+
+# Create Random Data
+m <- data.frame(matrix(rnorm(20, 2),ncol=2))
+m$color <- sample(c("A", "B"), 10, replace = TRUE)
+
+# Plot
+p <- ggPoint(x = m[,1], y = m[,2], color = m[,3])
+
+# To PDF
+pdf("test.pdf", width = 4, height = 4)
+p
+dev.off()
+
+}

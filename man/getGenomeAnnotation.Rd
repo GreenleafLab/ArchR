@@ -12,3 +12,15 @@ getGenomeAnnotation(ArchRProj = NULL)
 \description{
 This function gets the genomeAnnotation from a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Genome Annotation in ArchRProj
+getGenomeAnnotation(proj)
+
+# Get Genome Annotation loaded globally
+getGenomeAnnotation()
+
+}

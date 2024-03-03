@@ -14,3 +14,9 @@ x \%bcin\% table
 \description{
 This function provides a generic matching function for S4Vector objects primarily to avoid ambiguity.
 }
+\examples{
+
+#Test
+Rle(c("A", "B", "C")) \%bcin\% Rle(c("A", "C"))
+
+}

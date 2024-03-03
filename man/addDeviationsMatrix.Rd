@@ -52,3 +52,19 @@ already exists in the ArrowFiles associated with the given \code{ArchRProject}.}
 \description{
 This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Background Peaks
+proj <- addBgdPeaks(proj, force = TRUE)
+
+# Add Motif Deviations
+proj <- addDeviationsMatrix(
+  ArchRProj = proj, 
+  peakAnnotation = "Motif",
+  force = TRUE
+)
+
+}

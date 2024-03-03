@@ -2,10 +2,17 @@
 #' 
 #' This function will download data for a given tutorial and return the input files required for ArchR.
 #' 
-#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. Currently, the only available option is "Hematopoiesis".
+#' @param tutorial The name of the available tutorial for which to retreive the tutorial data. The main option is "Hematopoiesis".
 #' "Hematopoiesis" is a small scATAC-seq dataset that spans the hematopoieitic hierarchy from stem cells to differentiated cells.
-#' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow.
+#' This dataset is made up of cells from peripheral blood, bone marrow, and CD34+ sorted bone marrow. The second option is "Test"
+#' which is downloading a small test PBMC fragments file mainly used to test the url capabilities of this function.
 #' @param threads The number of threads to be used for parallel computing.
+#'
+#' @examples
+#'
+#' # Get Tutorial Fragments using `test` since its smaller
+#' fragments <- getTutorialData(tutorial = "test")
+#' 
 #' @export
 getTutorialData <- function(
   tutorial = "hematopoiesis", 
@@ -13,8 +20,8 @@ getTutorialData <- function(
   ){
   
   #Validate
-  .validInput(input = tutorial, name = "tutorial", valid = "character")
-  .validInput(input = threads, name = "threads", valid = c("integer"))
+  ArchR:::.validInput(input = tutorial, name = "tutorial", valid = "character")
+  ArchR:::.validInput(input = threads, name = "threads", valid = c("integer"))
   #########
   
   #Make Sure URL doesnt timeout
@@ -79,7 +86,29 @@ getTutorialData <- function(
     
     inputFiles <- c(fragFiles, geneFiles)
     
-  } else{
+  }else if(tolower(tutorial) == "test"){
+
+    filesUrl <- data.frame(
+      fileUrl = c(
+        "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.tsv.gz"
+      ),
+      md5sum = c(
+        "0a7a7052b83218667e525127c684aa83"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    pathDownload <- "TestFragments"
+
+    dir.create(pathDownload, showWarnings = FALSE)
+    
+    downloadFiles <- .downloadFiles(filesUrl = filesUrl, pathDownload = pathDownload, threads = threads)
+    
+    inputFiles <- list.files(pathDownload, pattern = "\\.gz$", full.names = TRUE)
+    names(inputFiles) <- gsub(".fragments.tsv.gz|.tsv.gz", "", list.files(pathDownload, pattern = "\\.gz$"))
+    inputFiles <- inputFiles[!grepl(".tbi", inputFiles)]
+
+  }else{
     
     stop("There is no tutorial data for : ", tutorial)
     
@@ -94,34 +123,42 @@ getTutorialData <- function(
 
 #helper for file downloads
 .downloadFiles <- function(filesUrl = NULL, pathDownload = NULL, threads = 1){
+ 
   if(is.null(filesUrl)) {
     stop("No value supplied to filesUrl in .downloadFiles()!")
   }
+
   if(is.null(pathDownload)) {
     stop("No value supplied to pathDownload in .downloadFiles()!")
   }
+
   if(length(which(c("fileUrl","md5sum") %ni% colnames(filesUrl))) != 0) {
     cat(colnames(filesUrl))
     stop("File download dataframe does not include columns named 'fileUrl' and 'md5sum' which are required!")
   }
+
   message(paste0("Downloading files to ",pathDownload,"..."))
-  downloadFiles <- .safelapply(seq_along(filesUrl$fileUrl), function(x){
+ 
+  downloadFiles <- ArchR:::.safelapply(seq_along(filesUrl$fileUrl), function(x){
+    
     if(file.exists(file.path(pathDownload, basename(filesUrl$fileUrl[x])))){
       if(tools::md5sum(file.path(pathDownload, basename(filesUrl$fileUrl[x]))) != filesUrl$md5sum[x]) {
         message(paste0("File ",basename(filesUrl$fileUrl[x])," exists but has an incorrect md5sum. Removing..."))
         file.remove(file.path(pathDownload, basename(filesUrl$fileUrl[x])))
       }
     }
+    
     if(!file.exists(file.path(pathDownload, basename(filesUrl$fileUrl[x])))){
       message(paste0("Downloading file ", basename(filesUrl$fileUrl[x]),"..."))
       download.file(
         url = filesUrl$fileUrl[x], 
         destfile = file.path(pathDownload, basename(filesUrl$fileUrl[x]))
       ) 
-    } else {
+    }else{
       message(paste0("File exists! Skipping file ", basename(filesUrl$fileUrl[x]),"..."))
     }
-  }, threads = min(threads, length(filesUrl)))
+
+  }, threads = min(threads, nrow(filesUrl)))
   
   #check for success of file download
   if(!all(unlist(downloadFiles) == 0)) {
@@ -132,38 +169,100 @@ getTutorialData <- function(
   
 }
 
-#' Get PBMC Small Test Fragments
+#' Get PBMC Small Test Arrow file
 #' 
-#' This function will download fragments for a small PBMC test dataset (2k Cells) spanning chr1 and 2 (~20MB).
+#' V2 : This function will return a test arrow file in your cwd.
+#' 
+#' @param version version of test arrow to return
+#'
+#' @examples
+#'
+#' # Get Test Arrow
+#' arrow <- getTestArrow()
 #' 
 #' @export
-getTestFragments <- function(x){
+getTestArrow <- function(version = 2){
 
-  #Make Sure URL doesnt timeout
-  oldTimeout <- getOption('timeout')
-  options(timeout=100000)
-
-  if(!file.exists("PBMCSmall.tsv.gz")){
-    download.file(
-      url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.tsv.gz",
-      destfile = "PBMCSmall.tsv.gz"
-    )
+  if(version == 2){
+    #Add Genome Return Arrow
+    addArchRGenome("hg19test2")
+    arrow <- file.path(system.file("testdata", package="ArchR"), "PBSmall.arrow")
+    file.copy(arrow, basename(arrow), overwrite = TRUE)
+    basename(arrow)
+  }else{
+    stop("test version doesnt exist!")
   }
-  #Set back URL Options
-  options(timeout=oldTimeout)
-
-  #Add Genome Return Name Vector
-  addArchRGenome("hg19test")
-  c("PBMC" = "PBMCSmall.tsv.gz")
 
 }
 
-#' Get PBMC Small Test Project
+#' Get PBMC Small Test Fragments
 #' 
-#' This function will download an ArchRProject for a small PBMC test dataset (2k Cells) spanning chr1 and 2 (~2-300MB).
+#' V1 : This function will download fragments for a small PBMC test dataset.
+#' V2 : This function will return test fragments for a small PBMC test dataset in your cwd.
+#' 
+#' @param version version of test fragments to return
+#'
+#' @examples
+#'
+#' # Get Test Fragments
+#' fragments <- getTestFragments()
 #' 
 #' @export
-getTestProject <- function(){
+getTestFragments <- function(version = 2){
+
+  if(version == 1){
+
+    #Make Sure URL doesnt timeout
+    oldTimeout <- getOption('timeout')
+    options(timeout=100000)
+
+    if(!file.exists("PBMCSmall.tsv.gz")){
+      download.file(
+        url = "https://jeffgranja.s3.amazonaws.com/ArchR/TestData/PBMCSmall.tsv.gz",
+        destfile = "PBMCSmall.tsv.gz"
+      )
+    }
+    #Set back URL Options
+    options(timeout=oldTimeout)
+
+    #Add Genome Return Name Vector
+    addArchRGenome("hg19test")
+    c("PBMC" = "PBMCSmall.tsv.gz")
+
+  }else if(version == 2){
+
+    #Add Genome Return Name Vector
+    addArchRGenome("hg19test2")
+    fragments <- file.path(system.file("testdata", package="ArchR"), "PBSmall.tsv.gz")
+    file.copy(fragments, basename(fragments), overwrite = TRUE)
+    c("PBMC" = basename(fragments))
+
+  }else{
+  
+  stop("test version doesnt exist!")
+  
+  }
+
+}
+
+
+#' Get PBMC Small Test Project
+#' 
+#' V1 : This function will download an ArchRProject for a small PBMC test dataset.
+#' V2 : This function will return an ArchRProject for a small PBMC test dataset in your cwd.
+#' 
+#' @param version version of test fragments to return
+#'
+#' @examples
+#'
+#' # Get Test Project
+#' proj <- getTestProject()
+#' 
+#' @export
+getTestProject <- function(version = 2){
+
+  if(version == 1){
+
   #Make Sure URL doesnt timeout
   oldTimeout <- getOption('timeout')
   options(timeout=100000)
@@ -181,6 +280,24 @@ getTestProject <- function(){
   #Load
   addArchRGenome("hg19test")
   loadArchRProject("PBMCSmall")
+
+
+  }else if(version == 2){
+
+    #Add Genome Return Name Vector
+    addArchRGenome("hg19test2")
+    archrproj <- file.path(system.file("testdata", package="ArchR"), "PBSmall.zip")
+    file.copy(archrproj, basename(archrproj), overwrite = TRUE)
+    unzip(basename(archrproj), overwrite = TRUE)
+    file.remove(basename(archrproj))
+    loadArchRProject("PBSmall")
+
+  }else{
+  
+  stop("test version doesnt exist!")
+  
+  }
+
 }
 
 #' Get Input Files from paths to create arrows
@@ -247,14 +364,20 @@ getValidBarcodes <- function(
   }
 
   barcodeList <- lapply(seq_along(csvFiles), function(x){
-    df <- .suppressAll(data.frame(readr::read_csv(csvFiles[x])))
-    if("cell_id" %ni% colnames(df)){
-      stop("cell_id not in colnames of 10x singlecell.csv file! Are you sure inut is correct?")
+    df <- ArchR:::.suppressAll(data.frame(readr::read_csv(csvFiles[x])))
+    if("cell_id" %in% colnames(df)){
+      as.character(df[which(paste0(df$cell_id) != "None"),]$barcode)
+    }else if("is__cell_barcode" %in% colnames(df)){
+      as.character(df[which(paste0(df$is__cell_barcode) == 1),]$barcode)
+    }else{
+      stop("cell_id and is__cell_barcode not in colnames of 10x singlecell.csv file! Are you sure inut is correct?")
     }
-    as.character(df[which(paste0(df$cell_id) != "None"),]$barcode)
   }) %>% SimpleList
   names(barcodeList) <- sampleNames
 
   barcodeList
 
 }
+
+
+

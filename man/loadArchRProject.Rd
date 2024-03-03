@@ -18,3 +18,21 @@ will fail unless all components can be found.}
 \description{
 This function will load a previously saved ArchRProject and re-normalize paths for usage.
 }
+\examples{
+
+# Get Small PBMC Project Location
+zipProj <- file.path(system.file("testdata", package="ArchR"), "PBSmall.zip")
+
+# Copy to current directory
+file.copy(zipProj, basename(zipProj), overwrite = TRUE)
+
+# Unzip
+unzip(basename(zipProj), overwrite = TRUE)
+
+# Remove
+file.remove(basename(zipProj))
+
+# Load
+loadArchRProject("PBSmall")
+
+}

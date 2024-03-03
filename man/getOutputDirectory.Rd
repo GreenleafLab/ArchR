@@ -12,3 +12,12 @@ getOutputDirectory(ArchRProj = NULL)
 \description{
 This function gets the outputDirectory from a given ArchRProject. If null this returns "QualityControl" directory.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Output Directory
+getOutputDirectory(proj)
+
+}

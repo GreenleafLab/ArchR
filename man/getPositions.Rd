@@ -16,3 +16,12 @@ getPositions(ArchRProj = NULL, name = NULL, annoName = NULL)
 \description{
 This function gets the peak annotation positions (i.e. Motifs) from a given ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Annotation Positions
+positions <- getPositions(proj)
+
+}

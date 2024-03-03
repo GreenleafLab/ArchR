@@ -1,8 +1,8 @@
 Package: ArchR
 Type: Package
-Date: 2022-04-03
+Date: 2022-07-17
 Title: Analyzing single-cell regulatory chromatin in R.
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: c(
     person("Jeffrey", "Granja", email = "jgranja.stanford@gmail.com", role = c("aut","cre")),
     person("Ryan", "Corces", role = "aut"))
@@ -14,6 +14,7 @@ LazyData: TRUE
 RoxygenNote: 7.1.2
 Encoding: UTF-8
 Imports:
+    devtools,
     ggplot2,
     SummarizedExperiment,
     data.table,
@@ -83,6 +84,7 @@ Collate:
     'RNAIntegration.R'
     'RcppExports.R'
     'ReproduciblePeakSet.R'
+    'SparseUtils.R'
     'Trajectory.R'
     'ValidationUtils.R'
     'VisualizeData.R'

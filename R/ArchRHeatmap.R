@@ -1,6 +1,101 @@
 ########################################################################################################
 # Helpers for Nice Heatmap with Bioconductors ComplexHeamtap
 ########################################################################################################
+#' Plot Nice Lookng Heatmap Using Complex Heatmap
+#' @param mat A matrix to plot heatmap from.
+#' @param scale A boolean whether to convert to row Z-scores
+#' @param limits A vector of two values describing min and mix limits to plot
+#' @param colData A DataFrame matching the columns of the input matrix to overlay on the columns of the heatmap
+#' @param color A palette to use for heatmap continuous color scheme. See `paletteContinuous`.
+#' @param clusterCols A boolean describing whether to cluster columns for heatmap.
+#' @param clusterRows A boolean describing whether to cluster rows for heatmap.
+#' @param colorMap A list of color mappings matching the column names in colData.
+#' @param useRaster A boolean whether to use rastering when plotting heatmap.
+#' @param rasterQuality Raster resolution of raster. Default is set to 5 higher numbers increase resolution.
+#' @param split A vector of groupings that will split the rows of heatmap (must be equal to nrow(mat)).
+#' @param fontSizeRows A numeric value representing the font size for rownames.
+#' @param fontSizeCols A numeric value representing the font size for colnames.
+#' @param fontSizeLabels A numeric value representing the font size for labels.
+#' @param colAnnoPerRow An integer value describing the number of column annotations per row in the legend.
+#' @param showRowDendrogram A boolean whether to show row dendrogram in heatmap.
+#' @param showColDendrogram A boolean whether to show column dendrogram in heatmap.
+#' @param customRowLabel A vector of indices to custom label from rows.
+#' @param customRowLabelIDs A vector of custom labels to overlay. Should match length of `customRowLabel`.
+#' @param customColLabel A vector of indices to custom label from columns.
+#' @param customColLabelIDs A vector of custom labels to overlay. Should match length of `customColLabel`.
+#' @param customLabelWidth A numeric describing the width of the column labels.
+#' @param rasterDevice Which device to use for rastering see `ComplexHeatmap`.
+#' @param padding A numeric (in cm) to pad the heatmap ie adding white space so that the final plot doesnt cutoff.
+#' @param borderColor A character representing the border color for each cell in the heatmap.
+#' @param draw A boolean whether to draw the heatmap immediately. If FALSE this will return a ComplexHeatmap object.
+#' @param name A character that will appear above color bar legend in heatmap.
+#' @export
+ArchRHeatmap <- function(
+  mat = NULL, 
+  scale = FALSE,
+  limits = c(min(mat), max(mat)),
+  colData = NULL, 
+  color = paletteContinuous(set = "solarExtra", n = 100),
+  clusterCols = TRUE,
+  clusterRows = FALSE,
+  labelCols = FALSE,
+  labelRows = FALSE,
+  colorMap = NULL,
+  useRaster = TRUE,
+  rasterQuality = 5,
+  split = NULL,
+  fontSizeRows = 10,
+  fontSizeCols = 10,
+  fontSizeLabels = 8,
+  colAnnoPerRow = 4,
+  showRowDendrogram = FALSE,
+  showColDendrogram = FALSE,
+  customRowLabel = NULL,
+  customRowLabelIDs = NULL,
+  customColLabel = NULL,
+  customColLabelIDs = NULL,
+  customLabelWidth = 0.75,
+  rasterDevice = "png",
+  padding = 45,
+  borderColor = NA,
+  draw = TRUE,
+  name = "Heatmap"
+  ){
+
+  .ArchRHeatmap(
+    mat = mat, 
+    scale = scale,
+    limits = limits,
+    colData = colData, 
+    color = color,
+    clusterCols = clusterCols,
+    clusterRows = clusterRows,
+    labelCols = labelCols,
+    labelRows = labelRows,
+    colorMap = colorMap,
+    useRaster = useRaster,
+    rasterQuality = rasterQuality,
+    split = split,
+    fontSizeRows = fontSizeRows,
+    fontSizeCols = fontSizeCols,
+    fontSizeLabels = fontSizeLabels,
+    colAnnoPerRow = colAnnoPerRow,
+    showRowDendrogram = showRowDendrogram,
+    showColDendrogram = showColDendrogram,
+    customRowLabel = customRowLabel,
+    customRowLabelIDs = customRowLabelIDs,
+    customColLabel = customColLabel,
+    customColLabelIDs = customColLabelIDs,
+    customLabelWidth = customLabelWidth,
+    rasterDevice = rasterDevice,
+    padding = padding,
+    borderColor = borderColor,
+    draw = draw,
+    name = name
+  )
+
+}
+
 .ArchRHeatmap <- function(
   mat = NULL, 
   scale = FALSE,

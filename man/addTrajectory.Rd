@@ -59,3 +59,12 @@ is above the provided quantile will be excluded.}
 This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Add Trajectory
+proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+
+}

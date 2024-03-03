@@ -11,10 +11,11 @@ addCoAccessibility(
   scaleDims = NULL,
   corCutOff = 0.75,
   cellsToUse = NULL,
+  excludeChr = NULL,
   k = 100,
   knnIteration = 500,
   overlapCutoff = 0.8,
-  maxDist = 1e+05,
+  maxDist = 100000,
   scaleTo = 10^4,
   log2Norm = TRUE,
   seed = 1,
@@ -39,6 +40,8 @@ biases since it is over-weighting latent PCs. If set to \code{NULL} this will sc
 sequencing depth that is greater than the \code{corCutOff}, it will be excluded from analysis.}
 
 \item{cellsToUse}{A character vector of cellNames to compute coAccessibility on if desired to run on a subset of the total cells.}
+
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
 \item{k}{The number of k-nearest neighbors to use for creating single-cell groups for correlation analyses.}
 
@@ -65,4 +68,13 @@ of the seed used so that you can reproduce results downstream.}
 }
 \description{
 This function will add co-accessibility scores to peaks in a given ArchRProject
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Co-Accessibility
+proj <- addCoAccessibility(proj, k = 20)
+
 }
