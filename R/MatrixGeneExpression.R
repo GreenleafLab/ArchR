@@ -34,7 +34,8 @@ addGeneExpressionMatrix <- function(
   parallelParam = NULL,
   strictMatch = FALSE,
   force = TRUE,
-  logFile = createLogFile("addGeneExpressionMatrix")
+  logFile = createLogFile("addGeneExpressionMatrix"),
+  version = 2
   ){
 
   .validInput(input = input, name = "input", valid = c("ArchRProj", "character"))
@@ -201,7 +202,8 @@ addGeneExpressionMatrix <- function(
   subThreads = 1,
   force = FALSE,
   verbose = TRUE,
-  logFile = NULL
+  logFile = NULL,
+  version = 2
   ){
 
   ArrowFile <- ArrowFiles[i]
@@ -286,7 +288,8 @@ addGeneExpressionMatrix <- function(
         binarize = FALSE,
         addColSums = TRUE,
         addRowSums = TRUE,
-        addRowVarsLog2 = TRUE #add for integration analyses
+        addRowVarsLog2 = TRUE, #add for integration analyses
+        version = version
       )
       gc()
 
