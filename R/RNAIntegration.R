@@ -438,6 +438,7 @@ addGeneIntegrationMatrix <- function(
 
     #Log-Normalize 
     mat <- log(mat + 1) #use natural log
+    rownames(mat) <- as.character(rownames(mat)) # The Seurat::CreateSeuratObject function requires that the rownames of mat must be vector, not matrix. But the rownames passed to mat in the previous code was actually a matrix, so you only need to add a command line before this code, this will cast the rownames of mat to a vector
     seuratATAC <- Seurat::CreateSeuratObject(counts = mat[head(seq_len(nrow(mat)), 5), , drop = FALSE])
     seuratATAC[["GeneScore"]] <- Seurat::CreateAssayObject(counts = mat)
     
