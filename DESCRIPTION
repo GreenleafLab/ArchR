@@ -47,7 +47,9 @@ Imports:
     sparseMatrixStats,
     stringr,
     SummarizedExperiment,
-    uwot
+    uwot,
+    methods,
+    utils
 Depends:
 Suggests:
     Cairo,
