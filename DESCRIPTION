@@ -38,7 +38,9 @@ Imports:
     gridExtra,
     Biostrings,
     ComplexHeatmap,
-    GenomicRanges
+    GenomicRanges,
+    methods,
+    utils
 Depends:
 Collate: 
     'AllClasses.R'
