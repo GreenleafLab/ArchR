@@ -1,6 +1,8 @@
 #' @useDynLib ArchR
 #' @importFrom Rcpp sourceCpp
 #' @importFrom GenomicRanges GRanges
+#' @importFrom methods setClassUnion setClass representation setValidity setMethod
+#' @importFrom utils packageVersion
 #' @import data.table
 NULL
 
