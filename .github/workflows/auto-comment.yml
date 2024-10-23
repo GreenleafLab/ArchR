@@ -1,0 +1,36 @@
+name: Auto Comment
+on: [issues]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wow-actions/auto-comment@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          issuesOpened: |
+            Hi @{{ author }}! Thanks for using ArchR! Lately, it has been very challenging for me to keep up with maintenance of this package and all of my other 
+            responsibilities as a PI. I have not been responding to issue posts and I have not been pushing updates to the software. We are actively searching to hire
+            a computational biologist to continue to develop and maintain ArchR and related tools. If you know someone who might be a good fit, please let us know!
+            In the meantime, your issue will likely go without a reply. Most issues with ArchR right not relate to compatibility. Try reverting to R 4.1 and Bioconductor 3.15.
+            Newer versions of Seurat and Matrix also are causing issues. Sorry for not being able to provide active support for this package at this time.
+            
+#          issuesOpened: |
+#            Hi @{{ author }}! Thanks for using ArchR! Please make sure that your post belongs in the Issues section. Only bugs and error reports belong in the Issues section. Usage questions and feature requests should be posted in the [Discussions](https://github.com/GreenleafLab/ArchR/discussions) section, not in Issues.<br />
+#            It is worth noting that there are very few actual bugs in ArchR. If you are getting an error, it is probably something specific to your dataset, usage, or computational environment, all of which are extremely challenging to troubleshoot. As such, we require [reproducible examples](https://reprex.tidyverse.org/articles/reprex-dos-and-donts.html) (preferably using the tutorial dataset) from users who want assistance. If you cannot reproduce your error, we will not be able to help.
+#            Before going through the work of making a reproducible example, search the previous [Issues](https://github.com/GreenleafLab/ArchR/issues), [Discussions](https://github.com/GreenleafLab/ArchR/discussions), [function definitions](https://www.archrproject.com/reference/index.html), or the [ArchR manual](https://www.archrproject.com/bookdown/index.html) and you will likely find the answers you are looking for.
+#            If your post does not contain a reproducible example, it is unlikely to receive a response.<br />
+#            __In addition to a reproducible example, you must do the following things before we help you, unless your original post already contained this information:
+#            __1.__ If you've encountered an error, have you already searched previous Issues to make sure that this hasn't already been solved?
+#            __2.__ Did you post your log file? If not, add it now.
+#            __3.__ Remove any screenshots that contain text and instead copy and paste the text using markdown's codeblock syntax (three consecutive backticks). You can do this by editing your original post.
+         
+#          issuesOpened: |
+#            Hi @{{ author }}! Thanks for using ArchR! I am currently on vacation and will not be responding to any issues or discussion threads until 5/5.<br />
+#            Please make sure that your post belongs in the Issues section. Only bugs and error reports belong in the Issues section. Usage questions and feature requests should be posted in the [Discussions](https://github.com/GreenleafLab/ArchR/discussions) section, not in Issues.<br />
+#            It is worth noting that there are very few actual bugs in ArchR. If you are getting an error, it is probably something specific to your dataset, usage, or computational environment, all of which are extremely challenging to troubleshoot. As such, we require [reproducible examples](https://reprex.tidyverse.org/articles/reprex-dos-and-donts.html) (preferably using the tutorial dataset) from users who want assistance. If you cannot reproduce your error, how will we be able to help?
+#            Before going through the work of making a reproducible example, search the previous [Issues](https://github.com/GreenleafLab/ArchR/issues), [Discussions](https://github.com/GreenleafLab/ArchR/discussions), [function definitions](https://www.archrproject.com/reference/index.html), or the [ArchR manual](https://www.archrproject.com/bookdown/index.html) and you will likely find the answers you are looking for.
+#            If your post does not contain a reproducible example, it is unlikely to receive a response.<br />
+#            __1.__ If you've encountered an error, have you already searched previous Issues to make sure that this hasn't already been solved?
+#            __2.__ Can you recapitulate your error using the tutorial code and dataset? If so, provide a reproducible example.
+#            __3.__ Did you post your log file? If not, add it now.
+#            __4.__ Remove any screenshots that contain text and instead copy and paste the text using markdown's codeblock syntax (three consecutive backticks). You can do this by editing your original post.
