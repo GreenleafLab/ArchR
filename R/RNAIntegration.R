@@ -220,7 +220,7 @@ addGeneIntegrationMatrix <- function(
 
   #Set up RNA
   if(inherits(seRNA, "SummarizedExperiment")){
-    seuratRNA <- CreateSeuratObject(counts = assay(seRNA))
+    seuratRNA <- suppressWarnings(CreateSeuratObject(counts = assay(seRNA)))
     if(groupRNA %ni% colnames(colData(seRNA))){
       .logMessage("groupRNA not in colData of seRNA", logFile = logFile)
       stop("groupRNA not in colData of seRNA")
@@ -475,7 +475,7 @@ addGeneIntegrationMatrix <- function(
 
     #Log-Normalize 
     mat <- log(mat + 1) #use natural log
-    seuratATAC <- Seurat::CreateSeuratObject(counts = mat[head(seq_len(nrow(mat)), 5), , drop = FALSE])
+    seuratATAC <- supressWarninggs(Seurat::CreateSeuratObject(counts = as.matrix(mat[head(seq_len(nrow(mat)), 5), , drop = FALSE])))
     seuratATAC[["GeneScore"]] <- Seurat::CreateAssayObject(counts = mat)
     
     #Clean Memory

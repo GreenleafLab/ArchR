@@ -80,7 +80,7 @@ addHarmony <- function(
   harmonyParams$plot_convergence <- FALSE
 
   #Call Harmony
-  harmonyMat <- do.call(HarmonyMatrix, harmonyParams)
+  harmonyMat <- suppressWarnings(do.call(HarmonyMatrix, harmonyParams))
   harmonyParams$data_mat <- NULL
   ArchRProj@reducedDims[[name]] <- SimpleList(
     matDR = harmonyMat, 
@@ -89,7 +89,6 @@ addHarmony <- function(
     scaleDims = NA, #Do not scale dims after
     corToDepth = NA
   )
-
   ArchRProj
 
 }
