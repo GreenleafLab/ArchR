@@ -882,11 +882,14 @@ plotGroups <- function(
 
   #adapted from https://github.com/jwdink/egg/blob/master/R/set_panel_size.r
   g <- ggplotGrob(p)
-  
   legend_indices <- grep("guide-box", g$layout$name)
   # ggplot versions > 3.5 can have multiple guide boxes, and are non automatically removed if is a "zeroGrob"
   # Do filtering wrt only non "zeroGrob" legends
-  legend <- legend_indices[sapply(legend_indices, function(idx) class(g$grobs[[idx]])[1] != "zeroGrob")]
+  if (length(legend_indices) != 0) {
+    legend <- legend_indices[unlist(lapply(legend_indices, function(idx) class(g$grobs[[idx]])[1] != "zeroGrob"))]
+  } else {
+    legend <- legend_indices
+  }
   # add correct ones to legend
   if(length(legend)!=0){
     gl <- g$grobs[[legend]]
