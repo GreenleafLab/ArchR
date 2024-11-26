@@ -220,7 +220,7 @@ addGeneIntegrationMatrix <- function(
 
   #Set up RNA
   if(inherits(seRNA, "SummarizedExperiment")){
-    seuratRNA <- CreateSeuratObject(counts = assay(seRNA))
+    seuratRNA <- suppressWarnings(CreateSeuratObject(counts = assay(seRNA)))
     if(groupRNA %ni% colnames(colData(seRNA))){
       .logMessage("groupRNA not in colData of seRNA", logFile = logFile)
       stop("groupRNA not in colData of seRNA")
@@ -472,10 +472,13 @@ addGeneIntegrationMatrix <- function(
       o <- suppressWarnings(file.remove(unlist(getImputeWeights(subProj)[[1]]))) #Clean Up Space
       .logThis(mat, paste0("GeneScoreMat-Block-Impute-",i), logFile=logFile)
     }
-
+    # Seurat v5 requires character type row/colnames
+    # sparse matrices occasionally convert names to array type, so convert back to create seurat obj
+    rownames(mat) <- as.character(rownames(mat))
+    colnames(mat) <- as.character(colnames(mat))
     #Log-Normalize 
     mat <- log(mat + 1) #use natural log
-    seuratATAC <- Seurat::CreateSeuratObject(counts = mat[head(seq_len(nrow(mat)), 5), , drop = FALSE])
+    seuratATAC <- supressWarninggs(Seurat::CreateSeuratObject(counts = as.matrix(mat[head(seq_len(nrow(mat)), 5), , drop = FALSE])))
     seuratATAC[["GeneScore"]] <- Seurat::CreateAssayObject(counts = mat)
     
     #Clean Memory
