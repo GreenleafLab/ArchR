@@ -435,7 +435,7 @@ addClusters <- function(
 
   clustParams <- tryCatch({
 
-    obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
+    obj <- suppressWarnings(Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0))
     obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
     clustParams$object <- obj
     clustParams$reduction <- "pca"
@@ -469,7 +469,7 @@ addClusters <- function(
         colnames(tmp) <- rownames(mat)
         rownames(tmp) <- paste0("t",seq_len(nrow(tmp)))
 
-        obj <- Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0)
+        obj <- suppressWarnings(Seurat::CreateSeuratObject(tmp, project='scATAC', min.cells=0, min.features=0))
         obj[['pca']] <- Seurat::CreateDimReducObject(embeddings=mat, key='PC_', assay='RNA')
         clustParams$object <- obj
         clustParams$reduction <- "pca"
