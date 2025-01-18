@@ -38,6 +38,9 @@ ArchRDependency <- c(
 )
 
 .onAttach <- function(libname, pkgname){
+
+  #Allow S3/S4 exports to be larger than 500 mb
+  options(future.globals.maxSize = 2097152000)
   
   #Logo
   .ArchRLogo()
