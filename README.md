@@ -57,9 +57,13 @@ If any of these steps fails, you should identify the offending package and troub
 
 # Issues using ArchR?
 
-ArchR is currently in __beta__. We expect there to be bumps in the road. If you think you have found a bug, please first install the latest version of ArchR via
+ArchR is currently in __beta__. We expect there to be bumps in the road. If you think you have found a bug, please first install the latest version of ArchR `(1.0.2)` via
 ``` r
 devtools::install_github("GreenleafLab/ArchR", ref="master", repos = BiocManager::repositories())
+```
+However, it is important to note that the master branch of ArchR currently only supports usage with `R 4.1` and Bioconductor version `3.15`. We currently have a large backlog of changes that will be incorporated into main soon, via the development branch `(1.0.3)`.  These include a plethora of bug fixes for common problems, including dependency issues. This can be installed through:
+``` r
+devtools::install_github("GreenleafLab/ArchR", ref="dev", repos = BiocManager::repositories())
 ```
 If this does not fix your problem, please [report an issue on Github](https://github.com/GreenleafLab/ArchR/issues) with the __Bug Report__ form.
 
