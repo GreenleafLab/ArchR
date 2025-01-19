@@ -59,11 +59,13 @@ If any of these steps fails, you should identify the offending package and troub
 We provide two methods in which a user can manage R dependencies.  
 
 ### Using renv to manage dependencies
-The first is by using renv to manage a project's dependencies. To utilize this, make sure that the renv package is installed and loaded.  Before you are ready to use `renv`, you must ensure that you are working on the same R version that we used for the provided renv environment. The R version used for the current master branch is:
+The first is by using renv to manage a project's dependencies. To utilize this, make sure that the renv package is installed and loaded.  Before you are ready to use `renv`, you must ensure that you are working on the same R version that we used for the provided renv environment. 
+The R versions we currently support are:
 ```
-PLACEHOLDER
+- R 4.4
+- R 4.1
 ```
-Secondly, make sure that the renv package is installed and loaded. 
+Secondly, make sure that the renv package is installed and loaded.
 ```
 install.packages("renv")
 library(renv)
@@ -72,10 +74,19 @@ Set a working directory for your project
 ```
 dir.create(path = "./<project_name>", showWarnings = FALSE)
 setwd("./<project_name>")
+```
 Then, lets download the lock file for the current master branch of ArchR.
-download.file(url = <PLACEHOLDER>, destfile = "renv.lock")
+For R 4.4:
+```
+download.file(url = "https://pub-9ae435458ecc412abbbc9420a502ec38.r2.dev/renv.lock", destfile = "./renv.lock")
+```
+For R 4.1:
+```
+download.file(url = "https://pub-9ae435458ecc412abbbc9420a502ec38.r2.dev/renv_4_1.lock", destfile = "./renv.lock")
+```
 
-Now, we can initiate our renv project environment.
+Now, we can initiate our renv project environment, utilizing the renv.lock to bootstrap a new renv environment.
+```
 renv::init()
 ```
 
@@ -84,11 +95,11 @@ We also provide Docker images, built off of `rocker/rstudio`, that already have 
 
 The latest version can be found at:
 ```
-immanuelazn/archr:latest
+greenleaf/archr:latest
 ```
 and other versions, including images built with differing R versions, can be found at:
 ```
-https://hub.docker.com/r/immanuelazn/archr/tags
+https://hub.docker.com/r/greenleaflab/archr/tags
 ```
 
 To utilize these images, the user can first install Docker as mentioned in their [documentation](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
@@ -101,6 +112,10 @@ docker run -it --rm -v <your_workspace>:/workspace -p <your_port_of_interest>:87
 This will spin up a container that has Rstudio turned on by default. Rstudio can be accessed through:
 ```
 localhost:<your_port_of_interest>
+```
+If you would like an interactive bash console instead, the following command can instead be called:
+```
+docker run -it --rm -v <your_workspace>:/workspace -p <your_port_of_interest>:8787 bash
 ```
 
 # Issues using ArchR?
