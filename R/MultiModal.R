@@ -406,25 +406,11 @@ addCombinedDims <- function(
     normV <- 1 / sqrt(sum(cV))
     rD * normV * dimWeights[x]
   }) %>% Reduce("cbind", .)
-
+  colnames(combinedDims) <- paste0('LSI',1:length(colnames(combinedDims)))
   ArchRProj@reducedDims[[name]] <- SimpleList(
     matRD = combinedDims, 
     scaleDims = NA, 
     corToDepth = list(scaled = rep(0, ncol(combinedDims)), none = rep(0, ncol(combinedDims)))
   )
-
   ArchRProj
-
 }
-
-
-
-
-
-
-
-
-
-
-
-

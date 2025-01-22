@@ -208,12 +208,12 @@ mapLabels <- function(labels = NULL, newLabels = NULL, oldLabels = names(newLabe
 #'
 #' @param .expr Expression to be evaluated. 
 #' @param .f String or function. If a string (possibly representing a 
-#'   regular expression), any warning message generated when \code{.expr} is 
-#'   evaluated will be suppressed if \code{grepl{}} finds that the string
-#'   matches the warning message.\cr
-#'     \indent If a function, the warning message will be passed to the 
-#'   function, and the function must return \code{TRUE} or \code{FALSE}. See
-#'   the examples for details.
+#' regular expression), any warning message generated when \code{.expr} is 
+#' evaluated will be suppressed if \code{grepl{}} finds that the string
+#' matches the warning message.
+#' If a function, the warning message will be passed to the 
+#' function, and the function must return \code{TRUE} or \code{FALSE}. See
+#' the examples for details.
 .suppressSpecificWarnings <- function(.expr, .f, ...) {
   eval.parent(
     substitute(
