@@ -9,6 +9,7 @@ plotBrowserTrack(
   region = NULL,
   groupBy = "Clusters",
   useGroups = NULL,
+  sampleLabels = "Sample",
   plotSummary = c("bulkTrack", "featureTrack", "loopTrack", "geneTrack"),
   sizes = c(10, 1.5, 3, 4),
   features = getPeakSet(ArchRProj),
@@ -52,6 +53,11 @@ column will be grouped together and the average signal will be plotted.}
 
 \item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in
 \code{cellColData}. This limits the groups to be plotted.}
+
+\item{sampleLabels}{The name of a column in \code{cellColData} to use to identify samples. In most cases, this parameter should be left as \code{NULL} and you
+should only use this parameter if you do not want to use the default sample labels stored in \code{cellColData$Sample}. However, if your individual Arrow
+files do not map to individual samples, then you should set this parameter to accurately identify your samples. This is the case in (for example)
+multiplexing applications where cells from different biological samples are mixed into the same reaction and demultiplexed based on a lipid barcode or genotype.}
 
 \item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
 "scTrack" (scATAC-seq signal), "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown.

@@ -31,7 +31,7 @@ This function will create a genome annotation object that can be used for creati
 }
 \examples{
 
-if (!require("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+if (!require("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", update = FALSE)
 library(BSgenome.Hsapiens.UCSC.hg19)
 
 # Get Genome

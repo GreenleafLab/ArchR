@@ -105,11 +105,11 @@ gsubExpression would be ":.*". This would retrieve the string after the colon as
 \item{bamFlag}{A vector of bam flags to be used for reading in fragments from input bam files. Should be in the format of a
 \code{scanBamFlag} passed to \code{ScanBam} in Rsamtools.}
 
-\item{offsetPlus}{The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site.
+\item{offsetPlus}{The numeric offset to apply to the start (left-most Tn5 insertion) of a fragment to account for the precise Tn5 binding site.
 This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 See Buenrostro et al. Nature Methods 2013.}
 
-\item{offsetMinus}{The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site.
+\item{offsetMinus}{The numeric offset to apply to the end (right-most Tn5 insertion) of a fragment to account for the precise Tn5 binding site.
 This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 See Buenrostro et al. Nature Methods 2013.}
 

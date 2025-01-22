@@ -22,6 +22,7 @@ addGeneScoreMatrix(
   scaleTo = 10000,
   excludeChr = c("chrY", "chrM"),
   blacklist = getBlacklist(input),
+  saveGeneRegions = NULL,
   threads = getArchRThreads(),
   parallelParam = NULL,
   subThreading = TRUE,
@@ -73,7 +74,8 @@ the relative gene score value.}
 \item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
 \item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist that may be extremeley over-represented and thus
-biasing the geneScores for genes nearby that locus.}
+biasing the geneScores for genes nearby that locus.
+saveGeneRegions The full path to a \code{.rds} file to save the \code{GRanges} object containing the regions used for calculating gene scores for each gene.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 

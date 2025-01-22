@@ -8,6 +8,7 @@ ArchRBrowser(
   ArchRProj = NULL,
   features = getPeakSet(ArchRProj),
   loops = getCoAccessibility(ArchRProj),
+  sampleLabels = "Sample",
   minCells = 25,
   baseSize = 10,
   borderWidth = 0.5,
@@ -30,6 +31,11 @@ bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
 This \code{GRanges} object start represents the center position of one loop anchor and the end represents the center position of another loop anchor.
 A "loopTrack" draws an arc between two genomic regions that show some type of interaction. This type of track can be used
 to display chromosome conformation capture data or co-accessibility links obtained using \code{getCoAccessibility()}.}
+
+\item{sampleLabels}{The name of a column in \code{cellColData} to use to identify samples. In most cases, this parameter should be left as \code{NULL} and you
+should only use this parameter if you do not want to use the default sample labels stored in \code{cellColData$Sample}. However, if your individual Arrow
+files do not map to individual samples, then you should set this parameter to accurately identify your samples. This is the case in (for example)
+multiplexing applications where cells from different biological samples are mixed into the same reaction and demultiplexed based on a lipid barcode or genotype.}
 
 \item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument
 can be used to exclude pseudo-bulk replicates generated from low numbers of cells.}
