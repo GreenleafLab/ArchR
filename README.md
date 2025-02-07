@@ -95,7 +95,7 @@ We also provide Docker images, built off of `rocker/rstudio`, that already have 
 
 The latest version can be found at:
 ```
-greenleaf/archr:latest
+greenleaflab/archr:latest
 ```
 and other versions, including images built with differing R versions, can be found at:
 ```
@@ -106,7 +106,7 @@ To utilize these images, the user can first install Docker as mentioned in their
 
 Following, create a container using the following command:
 ```
-docker image pull immanuelazn/archr:latest
+docker image pull greenleaflab/archr:latest
 docker run -it --rm -v <your_workspace>:/workspace -p <your_port_of_interest>:8787
 ```
 This will spin up a container that has Rstudio turned on by default. Rstudio can be accessed through:
