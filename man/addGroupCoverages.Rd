@@ -15,6 +15,7 @@ addGroupCoverages(
   minReplicates = 2,
   maxReplicates = 5,
   sampleRatio = 0.8,
+  excludeChr = NULL,
   kmerLength = 6,
   threads = getArchRThreads(),
   returnGroups = FALSE,
@@ -31,7 +32,7 @@ addGroupCoverages(
 
 \item{useLabels}{A boolean value indicating whether to use sample labels to create sample-aware subgroupings during as pseudo-bulk replicate generation.}
 
-\item{sampleLabels}{The name of a column in \code{cellColData} to use to identify samples. In most cases, this parameter should be left as \code{NULL} and you
+\item{sampleLabels}{The name of a column in \code{cellColData} to use to identify samples. In most cases, this parameter should be left as \code{Sample} and you
 should only use this parameter if you do not want to use the default sample labels stored in \code{cellColData$Sample}. However, if your individual Arrow
 files do not map to individual samples, then you should set this parameter to accurately identify your samples. This is the case in (for example)
 multiplexing applications where cells from different biological samples are mixed into the same reaction and demultiplexed based on a lipid barcode or genotype.}
@@ -49,6 +50,8 @@ of excessively large files which would negatively impact memory requirements.}
 
 \item{sampleRatio}{The fraction of the total cells that can be sampled to generate any given pseudo-bulk replicate.}
 
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
+
 \item{kmerLength}{The length of the k-mer used for estimating Tn5 bias.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
@@ -59,7 +62,7 @@ TileMatrix (\code{peakMethod = "Tiles"}).}
 
 \item{parallelParam}{A list of parameters to be passed for biocparallel/batchtools parallel computing.}
 
-\item{force}{A boolean value that indicates whether or not to overwrite the relevant data in the \code{ArchRProject} object if
+\item{force}{A boolean value that indicates whether or not to skip validation and overwrite the relevant data in the \code{ArchRProject} object if
 insertion coverage / pseudo-bulk replicate information already exists.}
 
 \item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
@@ -69,4 +72,13 @@ insertion coverage / pseudo-bulk replicate information already exists.}
 \description{
 This function will merge cells within each designated cell group for the generation of pseudo-bulk replicates and then
 merge these replicates into a single insertion coverage file.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Group Coverages
+proj <- addGroupCoverages(proj, force = TRUE)
+
 }

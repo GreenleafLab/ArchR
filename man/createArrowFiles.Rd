@@ -66,10 +66,10 @@ in downstream analyses. Cells with a TSS enrichment score greater than or equal 
 is a measurement of signal-to-background in ATAC-seq.}
 
 \item{minFrags}{The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-Cells containing greater than or equal to \code{minFrags} total fragments wll be retained.}
+Cells containing greater than or equal to \code{minFrags} total fragments will be retained.}
 
 \item{maxFrags}{The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-Cells containing greater than or equal to \code{maxFrags} total fragments wll be retained.}
+Cells containing greater than or equal to \code{maxFrags} total fragments will be retained.}
 
 \item{minFragSize}{The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.}
 
@@ -105,11 +105,11 @@ gsubExpression would be ":.*". This would retrieve the string after the colon as
 \item{bamFlag}{A vector of bam flags to be used for reading in fragments from input bam files. Should be in the format of a
 \code{scanBamFlag} passed to \code{ScanBam} in Rsamtools.}
 
-\item{offsetPlus}{The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site.
+\item{offsetPlus}{The numeric offset to apply to the start (left-most Tn5 insertion) of a fragment to account for the precise Tn5 binding site.
 This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 See Buenrostro et al. Nature Methods 2013.}
 
-\item{offsetMinus}{The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site.
+\item{offsetMinus}{The numeric offset to apply to the end (right-most Tn5 insertion) of a fragment to account for the precise Tn5 binding site.
 This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 See Buenrostro et al. Nature Methods 2013.}
 
@@ -139,4 +139,20 @@ ATAC-seq signal proximal to the TSS to estimate gene activity.}
 }
 \description{
 This function will create ArrowFiles from input files. These ArrowFiles are the main constituent for downstream analysis in ArchR.
+}
+\examples{
+
+# Get Test Fragments
+fragments <- getTestFragments()
+
+# Create Arrow Files
+arrowFiles <- createArrowFiles(
+  inputFiles = fragments,
+  sampleNames = "PBSmall",
+  minFrags = 100,
+  nChunk = 1,
+  TileMatParams=list(tileSize=10000),
+  force = TRUE
+)
+
 }

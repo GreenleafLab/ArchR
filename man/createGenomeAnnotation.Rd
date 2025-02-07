@@ -29,3 +29,18 @@ non-standard chromosomes will still be removed as defined in \code{filterChrGR()
 \description{
 This function will create a genome annotation object that can be used for creating ArrowFiles or an ArchRProject, etc.
 }
+\examples{
+
+if (!require("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", update = FALSE)
+library(BSgenome.Hsapiens.UCSC.hg19)
+
+# Get Genome
+genome <- BSgenome.Hsapiens.UCSC.hg19
+
+# Create Genome Annotation
+genomeAnno <- createGenomeAnnotation(genome)
+
+# Also can create from a string if BSgenome exists
+genomeAnno <- createGenomeAnnotation("hg19")
+
+}

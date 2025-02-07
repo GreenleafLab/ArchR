@@ -2,7 +2,7 @@
 % Please edit documentation in R/Trajectory.R
 \name{getMonocleTrajectories}
 \alias{getMonocleTrajectories}
-\title{Get a Monocle CDS of Trajectories that can be added to an ArchRProject #NEW}
+\title{Get a Monocle CDS of Trajectories that can be added to an ArchRProject}
 \usage{
 getMonocleTrajectories(
   ArchRProj = NULL,
@@ -40,4 +40,19 @@ in \code{cellColData}. This limits the groups used to identify trajectories.}
 \description{
 This function will use monocle3 to find trajectories and then returns a monocle CDS object that can be used as
 input for \code{addMonocleTrajectory}.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Create Monocole Trajectory
+cds <- getMonocleTrajectories(
+  ArchRProj = proj, 
+  useGroups = c("C1", "C2", "C3"), 
+  principalGroup = "C1", 
+  groupBy = "Clusters", 
+  embedding = "UMAP"
+)
+
 }

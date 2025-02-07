@@ -49,3 +49,33 @@ lines and labels, just the internal portions of the plot.}
 \description{
 This function will plot a heatmap of hypergeometric enrichment of a given peakAnnotation within the defined marker peaks.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
+# Get Peak Annotation Enrichment
+annoEnrich <- peakAnnoEnrichment(
+  seMarker = seMarker, 
+  ArchRProj = proj,
+  cutOff = "FDR <= 0.1 & Log2FC >= 0"
+)
+
+# Multiply by 50 since this is a super small test sample
+assay(annoEnrich) <- assay(annoEnrich) * 50
+
+#Plot
+p <- plotEnrichHeatmap(annoEnrich)
+
+#PDF
+plotPDF(p, name = "PeakAnnoEnrich", ArchRProj = proj)
+
+}

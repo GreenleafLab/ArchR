@@ -23,9 +23,20 @@
 #' @param useAll A boolean describing whether to use cells outside of trajectory groups for post-fitting procedure.
 #' @param dof The number of degrees of freedom to be used in the spline fit. See `stats::smooth.spline()` for more information.
 #' @param spar The sparsity to be used in the spline fit. See `stats::smooth.spline()` for more information.
+#' @param saveDF A full or relative path to use for creating a `.RDS` R object file containing a DataFrame with additional information about the trajectory.
+#' This includes the distance of each cell to the splines of the trajectory and the corresponding indicies returned by `nabor::knn`.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
 #' @param seed A number to be used as the seed for random number generation for trajectory creation.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
 #' @export
 addTrajectory <- function(
   ArchRProj = NULL,
@@ -39,6 +50,7 @@ addTrajectory <- function(
   useAll = FALSE, 
   dof = 250,
   spar = 1,
+  saveDF = NULL,
   force = FALSE,
   seed = 1,
   logFile = createLogFile("addTrajectory")
@@ -55,6 +67,7 @@ addTrajectory <- function(
   .validInput(input = useAll, name = "useAll", valid = c("boolean"))
   .validInput(input = dof, name = "dof", valid = c("integer"))
   .validInput(input = spar, name = "spar", valid = c("numeric"))
+  .validInput(input = saveDF, name = "saveDF", valid = c("character", "null"))
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("integer"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
@@ -138,23 +151,25 @@ addTrajectory <- function(
   ######################################################
   .logMessage("Spline Fit", logFile = logFile)
   matSpline <- lapply(seq_len(ncol(matFilter)), function(x){
-    tryCatch({
-      stats::smooth.spline(
+    suppressWarnings(
+      tryCatch({
+        stats::smooth.spline(
+            x = initialTime, 
+            y = matFilter[names(initialTime), x], 
+            df = dof, 
+            spar = spar
+        )[[2]]
+      }, error = function(e){
+        errorList <- list(
+          it = x,
           x = initialTime, 
           y = matFilter[names(initialTime), x], 
           df = dof, 
           spar = spar
-      )[[2]]
-    }, error = function(e){
-      errorList <- list(
-        it = x,
-        x = initialTime, 
-        y = matFilter[names(initialTime), x], 
-        df = dof, 
-        spar = spar
-      )
-      .logError(e, fn = "smooth.spline", info = "", errorList = errorList, logFile = logFile)      
-    })
+        )
+        .logError(e, fn = "smooth.spline", info = "", errorList = errorList, logFile = logFile)      
+      })
+    )
   }) %>% Reduce("cbind",.) %>% data.frame()
 
   ######################################################
@@ -235,6 +250,17 @@ addTrajectory <- function(
       force = force
   )
 
+  if(!is.null(saveDF)){
+    tryCatch(
+      expr = {
+        .logMessage(paste0("Writing trajectory data frame object to ",saveDF), logFile = logFile, verbose = TRUE)
+        saveRDS(object = dfTrajectory3, file = saveDF)
+      },
+      error = function(e){
+        .logMessage("Warning! Unable to write to file designated by saveDF. Skipping trajectory DataFrame output.", logFile = logFile, verbose = TRUE)
+      }
+    )
+  }
   .endLogging(logFile = logFile)
 
   ArchRProj
@@ -261,7 +287,22 @@ addTrajectory <- function(
 #' (for ex. if you are using a "MotifMatrix").
 #' @param smoothWindow An integer value indicating the smoothing window in size (relaive to `groupEvery`) for the sequential 
 #' trajectory matrix to better reveal temporal dynamics.
+#' @param trajectoryLabel The name of a column in `cellColData` to be used for labeling the quantile bins of the trajectory.
+#' This is used in `plotTrajectoryHeatmap()` when you want to create a color label for the columns across the top
+#' of the heatmap. Typically, this should be the same column used in `groupBy` in the `addTrajectory()` function.
 #' @param threads The number of threads to be used for parallel computing.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
+#' #Get Trajectory
+#' seTraj <- getTrajectory(proj)
+#'
 #' @export
 getTrajectory <- function(
   ArchRProj = NULL,
@@ -271,6 +312,7 @@ getTrajectory <- function(
   log2Norm = TRUE,
   scaleTo = 10000,
   smoothWindow = 11,
+  trajectoryLabel = NULL,
   threads = getArchRThreads()
   ){
 
@@ -281,13 +323,14 @@ getTrajectory <- function(
   .validInput(input = log2Norm, name = "log2Norm", valid = c("boolean"))
   .validInput(input = scaleTo, name = "scaleTo", valid = c("numeric", "null"))
   .validInput(input = smoothWindow, name = "smoothWindow", valid = c("integer"))
+  .validInput(input = trajectoryLabel, name = "trajectoryLabel", valid = c("character","null"))
   .validInput(input = threads, name = "threads", valid = c("integer"))
 
   trajectory <- getCellColData(ArchRProj, name)
   trajectory <- trajectory[!is.na(trajectory[,1]),,drop=FALSE]
   breaks <- seq(0, 100, groupEvery)
   if(!all(is.numeric(trajectory[,1]))){
-    stop("Trajectory must be a numeric. Did you add the trajectory with addTrajectory?")
+    stop("Trajectory must be a numeric. Did you add the trajectory with addTrajectory()?")
   }
   if(!all(trajectory[,1] >= 0 & trajectory[,1] <= 100)){
     stop("Trajectory values must be between 0 and 100. Did you add the trajectory with addTrajectory?")
@@ -372,14 +415,33 @@ getTrajectory <- function(
 
   }
 
-  metadata(seTrajectory)$Params <- list(
+  S4Vectors::metadata(seTrajectory)$Params <- list(
     useMatrix = useMatrix, 
     matrixClass = matrixClass,
     scaleTo = scaleTo, 
     log2Norm = log2Norm, 
     smoothWindow = smoothWindow, 
-    date = Sys.Date()
+    date = Sys.Date(),
+    name = name
   )
+
+  #add labels for each trajectory bin in colData
+  if(!is.null(trajectoryLabel)) {
+    message(paste0("Attempting to add labels to the trajectory based on the trajectoryLabel parameter."))
+    #check if a column exists in cellColData for the trajectoryLabel
+    if(trajectoryLabel %in% colnames(getCellColData(ArchRProj))) {
+      #create an entry in colData to store the labels
+      colData(seTrajectory)$label <- rep(NA, ncol(seTrajectory))
+      #for each group of cells in groupList, take a majority vote to get the most common label
+      for (i in seq_along(groupList)) {
+        cellLabels <- getCellColData(ArchRProj = ArchRProj)[groupList[[i]],trajectoryLabel, drop = TRUE]
+        colData(seTrajectory)$label[i] <- names(sort(table(cellLabels), decreasing = TRUE))[1]
+      }
+      
+    } else {
+      message(paste0("Warning! trajectoryLabel \"",trajectoryLabel,"\" does not exist as a column in cellColData. Skipping label generation."))
+    }
+  }
 
   seTrajectory
 
@@ -405,6 +467,12 @@ trajectoryHeatmap <- function(...){
 #' @param grepExclude A character vector or string that indicates the `rownames` or a specific pattern that identifies
 #' rownames from `seTrajectory` to be excluded from the heatmap.
 #' @param pal A custom continuous palette (see `paletteContinuous()`) used to override the default continuous palette for the heatmap.
+#' @param colorColumns A boolean value that indicates whether a color bar should be added to label the columns. The color for each column
+#' will represent the most common label observed in the corresponding trajectory quantile as the heatmap is divided into quantile bins
+#' and thus does not display information for each cell. `colorColumns` can only be set to `TRUE` if the `trajectoryLabel` parameter was used
+#' in `getTrajectory()`. 
+#' @param columnPal A discrete palette (see `paletteDiscrete()`) that maps the different labels of the trajectory to a unique color. This
+#' parameter is ignored unless `colorColumns = TRUE`. All labels shown in `unique(colData(seTrajectory)$label)` must be represented.
 #' @param labelMarkers A character vector listing the `rownames` of `seTrajectory` that should be labeled on the side of the heatmap.
 #' @param labelTop A number indicating how many of the top N features, based on variance, in `seTrajectory` should be labeled on the side of the heatmap.
 #' @param labelRows A boolean value that indicates whether all rows should be labeled on the side of the heatmap.
@@ -418,6 +486,24 @@ trajectoryHeatmap <- function(...){
 #' @param force If useSeqnames is longer than 1 if matrixClass is "Sparse.Assays.Matrix" to continue. This is not recommended because these matrices
 #' can be in different units.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
+#' #Get Trajectory
+#' seTraj <- getTrajectory(proj)
+#'
+#' #Plot Trajectory Heatmap
+#' p <- plotTrajectoryHeatmap(seTraj)
+#'
+#' #Plot PDF
+#' plotPDF(p, name = "Trajectory-Heatmap", ArchRProj = proj)
+#'
 #' @export
 plotTrajectoryHeatmap <- function(
   seTrajectory = NULL,
@@ -427,6 +513,8 @@ plotTrajectoryHeatmap <- function(
   limits = c(-1.5, 1.5),
   grepExclude = NULL,
   pal = NULL,
+  colorColumns = FALSE,
+  columnPal = NULL,
   labelMarkers = NULL,
   labelTop = 50,
   labelRows = FALSE,
@@ -444,6 +532,8 @@ plotTrajectoryHeatmap <- function(
   .validInput(input = limits, name = "limits", valid = c("numeric"))
   .validInput(input = grepExclude, name = "grepExclude", valid = c("character", "null"))
   .validInput(input = pal, name = "pal", valid = c("palette", "null"))
+  .validInput(input = colorColumns, name = "colorColumns", valid = c("boolean"))
+  .validInput(input = columnPal, name = "columnPal", valid = c("palette", "null"))
   .validInput(input = labelMarkers, name = "labelMarkers", valid = c("character", "null"))
   .validInput(input = labelTop, name = "labelTop", valid = c("integer"))
   .validInput(input = labelRows, name = "labelRows", valid = c("boolean"))
@@ -456,11 +546,11 @@ plotTrajectoryHeatmap <- function(
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "plotTrajectoryHeatmap Input-Parameters", logFile = logFile)
 
-  if(metadata(seTrajectory)$Params$matrixClass == "Sparse.Assays.Matrix"){
+  if(S4Vectors::metadata(seTrajectory)$Params$matrixClass == "Sparse.Assays.Matrix"){
     if(is.null(useSeqnames) || length(useSeqnames) > 1){
       .logMessage("useSeqnames is NULL or greater than 1 with a Sparse.Assays.Matrix trajectory input.", verbose = TRUE, logFile = logFile)
       if(force){
-        .logMessage("force=TRUE thus continuing", verbose = verbose, logFile = logFile)
+        .logMessage("force=TRUE thus continuing", verbose = TRUE, logFile = logFile)
       }else{
         useSeqnames <- rev(unique(rowData(seTrajectory)$seqnames))[1]
         .logMessage(paste0("force=FALSE thus continuing with subsetting useSeqnames = ", useSeqnames) , verbose = TRUE, logFile = logFile)
@@ -548,9 +638,9 @@ plotTrajectoryHeatmap <- function(
   }
 
   if(is.null(pal)){
-    if(is.null(metadata(seTrajectory)$Params$useMatrix)){
+    if(is.null(S4Vectors::metadata(seTrajectory)$Params$useMatrix)){
       pal <- paletteContinuous(set = "solarExtra", n = 100)
-    }else if(tolower(metadata(seTrajectory)$Params$useMatrix)=="genescorematrix"){
+    }else if(tolower(S4Vectors::metadata(seTrajectory)$Params$useMatrix)=="genescorematrix"){
       pal <- paletteContinuous(set = "blueYellow", n = 100)
     }else{
       pal <- paletteContinuous(set = "solarExtra", n = 100)
@@ -564,20 +654,44 @@ plotTrajectoryHeatmap <- function(
   }
   .logThis(idx, "idx", logFile = logFile)
 
+  if(colorColumns){
+    if(!is.null(columnPal)){
+      #check that all trajectory labels are present in the palette
+      if(all(unique(colData(seTrajectory)$label) %in% names(columnPal))){
+        columnPal <- columnPal[unique(colData(seTrajectory)$label)]
+      } else {
+        .logMessage("Warning! Not all trajectory labels are represented in columnPal. Creating default palette instead.", verbose = TRUE, logFile = logFile)
+        columnPal <- paletteDiscrete(values = unique(colData(seTrajectory)$label), set = "stallion")
+      }
+    } else {
+      columnPal <- paletteDiscrete(values = unique(colData(seTrajectory)$label), set = "stallion")
+    }
+    columnData <- colData(seTrajectory)
+    #create colorMap for ArchRHeatmap
+    columnPal <- list(label = columnPal)
+    attr(columnPal[[1]], "discrete") <- TRUE
+  } else {
+    columnPal <- NULL
+    columnData <- NULL
+  }
+
   ht <- tryCatch({
     
     .ArchRHeatmap(
       mat = mat[idx, ],
       scale = FALSE,
       limits = c(min(mat), max(mat)),
-      color = pal, 
-      clusterCols = FALSE, 
+      colData = columnData,
+      color = pal,
+      clusterCols = FALSE,
       clusterRows = FALSE,
       labelRows = labelRows,
       labelCols = FALSE,
+      colorMap = columnPal,
+      colAnnoPerRow = length(columnPal[[1]]),
       customRowLabel = match(idxLabel, rownames(mat[idx,])),
       showColDendrogram = TRUE,
-      name = metadata(seTrajectory)$Params$useMatrix,
+      name = S4Vectors::metadata(seTrajectory)$Params$useMatrix,
       draw = FALSE
     )
   
@@ -587,14 +701,16 @@ plotTrajectoryHeatmap <- function(
       mat = mat[idx, ],
       scale = FALSE,
       limits = c(min(mat), max(mat)),
+      colData = columnData,
       color = pal, 
       clusterCols = FALSE, 
       clusterRows = FALSE,
       labelRows = labelRows,
       labelCols = FALSE,
+      colorMap = columnPal,
       customRowLabel = match(idxLabel, rownames(mat[idx,])),
       showColDendrogram = TRUE,
-      name = metadata(seTrajectory)$Params$useMatrix,
+      name = S4Vectors::metadata(seTrajectory)$Params$useMatrix,
       draw = FALSE
     )
   
@@ -649,6 +765,21 @@ plotTrajectoryHeatmap <- function(
 #' @param smoothWindow An integer value indicating the smoothing window for creating inferred Arrow overlay on to embedding.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add Trajectory
+#' proj <- addTrajectory(proj, trajectory = c("C1", "C2", "C3"), embedding = "UMAP", force = TRUE)
+#'
+#' #Plot Trajectory
+#' p <- plotTrajectory(proj, smoothWindow = 20)
+#'
+#' #PDF
+#' plotPDF(p, name = "Trajcetory", ArchRProj = proj)
+#'
 #' @export
 plotTrajectory <- function(
   ArchRProj = NULL,
@@ -804,7 +935,7 @@ plotTrajectory <- function(
   if(!is.null(continuousSet)){
     plotParams$continuousSet <- continuousSet
   }
-  if(!is.null(continuousSet)){
+  if(!is.null(discreteSet)){
     plotParams$discreteSet <- discreteSet
   }
   plotParams$rastr <- rastr
@@ -850,11 +981,11 @@ plotTrajectory <- function(
       }
       message("Plotting")
       .logThis(plotParams, name = "PlotParams", logFile = logFile)
-      out <- do.call(ggHex, plotParams)
+      out <- suppressWarnings(do.call(ggHex, plotParams))
     }else{
       message("Plotting")
       .logThis(plotParams, name = "PlotParams", logFile = logFile)
-      out <- do.call(ggPoint, plotParams)
+      out <- suppressWarnings(do.call(ggPoint, plotParams))
     }
   
   }else{
@@ -864,7 +995,8 @@ plotTrajectory <- function(
   }
 
   if(!keepAxis){
-    out <- out + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+    out <- out + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), 
+      axis.text.y=element_blank(), axis.ticks.y=element_blank())
   }
 
   .logMessage("Plotting Trajectory", logFile = logFile)
@@ -877,7 +1009,7 @@ plotTrajectory <- function(
   .logThis(dfT, "TrajectoryDF", logFile = logFile)
 
   #Plot Pseudo-Time
-  out2 <- ggPoint(
+  out2 <- suppressWarnings(ggPoint(
     x = dfT$PseudoTime, 
     y = dfT$value, 
     color = dfT$PseudoTime, 
@@ -887,7 +1019,7 @@ plotTrajectory <- function(
     pal = plotParams$pal,
     ratioYX = 0.5, 
     rastr = TRUE
-  ) + geom_smooth(color = "black")
+  ) + geom_smooth(color = "black"))
 
   attr(out2, "ratioYX") <- 0.5
 
@@ -927,7 +1059,7 @@ plotTrajectory <- function(
 # Monocle3
 ###################################################################
 
-#' Get a Monocle CDS of Trajectories that can be added to an ArchRProject #NEW
+#' Get a Monocle CDS of Trajectories that can be added to an ArchRProject
 #' 
 #' This function will use monocle3 to find trajectories and then returns a monocle CDS object that can be used as
 #' input for `addMonocleTrajectory`.
@@ -943,6 +1075,21 @@ plotTrajectory <- function(
 #' @param clusterParams A list of parameters to be added when clustering cells for monocle3 with `monocle3::cluster_cells`.
 #' @param graphParams A list of parameters to be added when learning graphs for monocle3 with `monocle3::learn_graph`.
 #' @param seed A number to be used as the seed for random number generation for trajectory creation.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Create Monocole Trajectory
+#' cds <- getMonocleTrajectories(
+#'   ArchRProj = proj, 
+#'   useGroups = c("C1", "C2", "C3"), 
+#'   principalGroup = "C1", 
+#'   groupBy = "Clusters", 
+#'   embedding = "UMAP"
+#' )
+#'
 #' @export
 getMonocleTrajectories <- function(
   ArchRProj = NULL,
@@ -966,7 +1113,7 @@ getMonocleTrajectories <- function(
   .validInput(input = graphParams, name = "graphParams", valid = c("list"))
   .validInput(input = seed, name = "seed", valid = c("numeric"))
 
-  .requirePackage("monocle3")
+  .requirePackage("monocle3", installInfo = "devtools::install_github('cole-trapnell-lab/monocle3')")
 
   set.seed(seed)
 
@@ -987,12 +1134,12 @@ getMonocleTrajectories <- function(
     int_elementMetadata = int_elementMetadata(sce), 
       int_colData = int_colData(sce), 
       int_metadata = int_metadata(sce), 
-      metadata = metadata(sce), 
+      metadata = S4Vectors::metadata(sce), 
       NAMES = NULL, 
       elementMetadata = elementMetadata(sce)[, 0], 
       rowRanges = rowRanges(sce)
   )
-  metadata(cds)$cds_version <- Biobase::package.version("monocle3")
+  S4Vectors::metadata(cds)$cds_version <- Biobase::package.version("monocle3")
 
   rm(sce)
 
@@ -1019,7 +1166,7 @@ getMonocleTrajectories <- function(
 
   message("Learning Graphs")
   graphParams$cds <- cds
-  cds <- do.call(monocle3::learn_graph, graphParams)
+  cds <- suppressWarnings(do.call(monocle3::learn_graph, graphParams))
   rm(graphParams)
   gc()
 
@@ -1059,7 +1206,7 @@ getMonocleTrajectories <- function(
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
                 axis.text.y = element_blank(), axis.ticks.y = element_blank())
 
-
+  dir.create(file.path(getOutputDirectory(ArchRProj), "Monocole3"), showWarnings=FALSE)
   path <- file.path(getOutputDirectory(ArchRProj), "Monocole3", paste0("Plot-Results-", name, ".pdf"))
 
   message("Plotting Results - ", path)
@@ -1072,7 +1219,7 @@ getMonocleTrajectories <- function(
 
 }
 
-#' Add a Monocle Trajectory to an ArchR Project #NEW
+#' Add a Monocle Trajectory to an ArchR Project
 #' 
 #' This function will add a trajectory from a monocle CDS created from `getMonocleTrajectories` to an
 #' ArchRProject.
@@ -1084,6 +1231,29 @@ getMonocleTrajectories <- function(
 #' `useGroups` to constrain trajectory analysis.
 #' @param monocleCDS A monocle CDS object created from `getMonocleTrajectories`.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Create Monocole Trajectory
+#' cds <- getMonocleTrajectories(
+#'   ArchRProj = proj, 
+#'   useGroups = c("C1", "C2", "C3"), 
+#'   principalGroup = "C1", 
+#'   groupBy = "Clusters", 
+#'   embedding = "UMAP"
+#' )
+#'
+#' # Add Monocole Trajectory
+#' proj <- addMonocleTrajectory(
+#'   ArchRProj = proj, 
+#'   name = "Trajectory_Monocole",
+#'   useGroups = c("C1", "C2", "C3"),
+#'   monocleCDS = cds
+#' )
+#'
 #' @export
 addMonocleTrajectory <- function(
   ArchRProj = NULL,
@@ -1130,7 +1300,7 @@ addMonocleTrajectory <- function(
 ###################################################################
 
 
-#' Add a Slingshot Trajectories to an ArchR Project #NEW
+#' Add a Slingshot Trajectories to an ArchR Project
 #' 
 #' This function will fit a supervised trajectory in a lower dimensional space that 
 #' can then be used for downstream analyses.
@@ -1146,6 +1316,22 @@ addMonocleTrajectory <- function(
 #' @param reducedDims A string indicating the name of the `reducedDims` object from the `ArchRProject` that should be used for trajectory analysis. `embedding` must equal NULL to use.
 #' @param force A boolean value indicating whether to force the trajactory indicated by `name` to be overwritten if it already exists in the given `ArchRProject`.
 #' @param seed A number to be used as the seed for random number generation for trajectory creation.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' #Add SlingShot Trajectory
+#' proj <- addSlingShotTrajectories(
+#'   ArchRProj = proj,
+#'   name = "Trajectory_SlingShot", 
+#'   useGroups = c("C1", "C2", "C3"), 
+#'   principalGroup = "C1", 
+#'   groupBy = "Clusters", 
+#'   embedding = "UMAP"
+#' )
+#'
 #' @export
 addSlingShotTrajectories <- function(
   ArchRProj = NULL,
@@ -1169,7 +1355,7 @@ addSlingShotTrajectories <- function(
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = seed, name = "seed", valid = c("numeric"))
 
-  .requirePackage("slingshot")
+  .requirePackage("slingshot", installInfo = "BiocManager::install('slingshot')")
 
   set.seed(seed)
 
@@ -1229,6 +1415,15 @@ addSlingShotTrajectories <- function(
 #' @param verbose A boolean value indicating whether to use verbose output during execution of  this function. Can be set to FALSE for a cleaner output.
 #' @param binarize A boolean value indicating whether the matrix should be binarized before return. This is often desired when working with insertion counts.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Export Matrix For Stream
+#' exportPeakMatrixForSTREAM(proj)
+#'
 #' @export
 exportPeakMatrixForSTREAM <- function(
   ArchRProj = NULL,
@@ -1249,17 +1444,17 @@ exportPeakMatrixForSTREAM <- function(
     logFile = logFile
   )
 
-  featureDF <- ArchR:::.getFeatureDF(getArrowFiles(ArchRProj)[1], "PeakMatrix")
-
-  stopifnot(all(featureDF$idx == rowData(mat)$idx))
-
   countsDF <- Matrix::summary(assay(mat))
-  peaksDF <- data.frame(as.vector(featureDF[,1]), featureDF[,3], featureDF[,4])
+  peaksDF <- data.frame(rowRanges(mat))[,1:3]
   cellsDF <- data.frame(colnames(mat))
 
-  data.table::fwrite(countsDF, file = "STREAM_Counts.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
-  data.table::fwrite(peaksDF, file = "STREAM_Regions.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
-  data.table::fwrite(cellsDF, file = "STREAM_Sample.tsv.gz", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(countsDF, file = "STREAM_Counts.tsv", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(peaksDF, file = "STREAM_Regions.tsv", sep = "\t", row.names = FALSE, col.names = FALSE)
+  data.table::fwrite(cellsDF, file = "STREAM_Sample.tsv", sep = "\t", row.names = FALSE, col.names = FALSE)
+
+  R.utils::gzip("STREAM_Counts.tsv")
+  R.utils::gzip("STREAM_Regions.tsv")
+  R.utils::gzip("STREAM_Sample.tsv")
 
   return(0)
 

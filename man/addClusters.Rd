@@ -28,6 +28,7 @@ addClusters(
   biasPval = 0.05,
   nPerm = 500,
   prefix = "C",
+  FCmethod = NULL,
   ArchRProj = NULL,
   verbose = TRUE,
   tstart = NULL,
@@ -97,6 +98,8 @@ cluster is biased during testing for bias-enriched clusters.}
 
 \item{prefix}{A character string to be added before each cluster identity. For example, if "Cluster" then cluster results will be "Cluster1", "Cluster2" etc.}
 
+\item{FCmethod}{A character string that will be passed as the method parameter of \code{Seurat::FindClusters()}.}
+
 \item{ArchRProj}{An \code{ArchRProject} object containing the dimensionality reduction matrix passed by \code{reducedDims}. This argument can also be supplied as \code{input}.}
 
 \item{verbose}{A boolean value indicating whether to use verbose output during execution of this function. Can be set to FALSE for a cleaner output.}
@@ -109,8 +112,19 @@ exists as a column name in \code{cellColData}.}
 
 \item{logFile}{The path to a file to be used for logging ArchR output.}
 
-\item{...}{Additional arguments to be provided to Seurat::FindClusters or scran::buildSNNGraph (for example, knn = 50, jaccard = TRUE)}
+\item{...}{Additional arguments to be provided to \code{Seurat::FindClusters()} or \code{scran::buildSNNGraph()} (for example, knn = 50, jaccard = TRUE). Note
+that to pass values to the \code{method} parameter of \code{Seurat::FindClusters()} you should use the \code{FCmethod} parameter in \code{addClusters()} because \code{addClusters()}
+already has a \code{method} parameter.}
 }
 \description{
 This function will identify clusters from a reduced dimensions object in an ArchRProject or from a supplied reduced dimensions matrix.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Peak Annotations
+proj <- addClusters(proj, force = TRUE)
+
 }

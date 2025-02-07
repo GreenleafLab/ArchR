@@ -16,3 +16,19 @@ extendGR(gr = NULL, upstream = NULL, downstream = NULL)
 \description{
 This function extends each region in a Genomic Ranges object by a designated upstream and downstream extension in a strand-aware fashion
 }
+\examples{
+
+# Dummy GR
+gr <- GRanges(
+  seqnames = "chr1",
+  ranges = IRanges(
+    start = c(1, 4, 11),
+    end = c(10, 12, 20)
+  ),
+  score = c(1, 2, 3)
+)
+
+# Non Overlapping
+extendGR(gr, 1, 2)
+
+}

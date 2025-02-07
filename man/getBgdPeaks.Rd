@@ -33,3 +33,12 @@ so that you can reproduce results downstream.}
 \description{
 This function will get/compute background peaks controlling for total accessibility and GC-content from an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Background Peaks
+bgdPeaks <- getBgdPeaks(proj, force = TRUE)
+
+}

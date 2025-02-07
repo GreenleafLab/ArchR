@@ -15,13 +15,14 @@ addGeneScoreMatrix(
   geneDownstream = 0,
   useGeneBoundaries = TRUE,
   useTSS = FALSE,
-  extendTSS = FALSE,
+  extendTSS = TRUE,
   tileSize = 500,
   ceiling = 4,
   geneScaleFactor = 5,
   scaleTo = 10000,
   excludeChr = c("chrY", "chrM"),
   blacklist = getBlacklist(input),
+  saveGeneRegions = NULL,
   threads = getArchRThreads(),
   parallelParam = NULL,
   subThreading = TRUE,
@@ -43,7 +44,7 @@ should be a function of \code{x}, where \code{x} is the stranded distance from t
 activity score calculation.}
 
 \item{extendDownstream}{The minimum and maximum number of basepairs downstream of the transcription start site or transcription termination site
-(based on 'useTSS') to consider for gene activity score calculation.}
+(based on 'useTSS' and 'extendTSS') to consider for gene activity score calculation.}
 
 \item{geneUpstream}{An integer describing the number of bp upstream the gene to extend the gene body. This effectively makes the gene body larger as there
 are proximal peaks that should be weighted equally to the gene body. This parameter is used if 'useTSS=FALSE'.}
@@ -73,7 +74,8 @@ the relative gene score value.}
 \item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
 \item{blacklist}{A \code{GRanges} object containing genomic regions to blacklist that may be extremeley over-represented and thus
-biasing the geneScores for genes nearby that locus.}
+biasing the geneScores for genes nearby that locus.
+saveGeneRegions The full path to a \code{.rds} file to save the \code{GRanges} object containing the regions used for calculating gene scores for each gene.}
 
 \item{threads}{The number of threads to be used for parallel computing.}
 
@@ -88,4 +90,13 @@ biasing the geneScores for genes nearby that locus.}
 \description{
 This function, for each sample, will independently compute counts for each tile
 per cell and then infer gene activity scores.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Gene Score Matrix With New Model
+proj <- addGeneScoreMatrix(proj, matrixName = "GeneScoreMatrix2", geneModel = "exp(-abs(x)/10000) + exp(-1)")
+
 }

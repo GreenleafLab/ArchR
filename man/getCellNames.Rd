@@ -12,3 +12,12 @@ getCellNames(ArchRProj = NULL)
 \description{
 This function gets the cellNames from a given ArchRProject object.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Cell Names
+getCellNames(proj)
+
+}

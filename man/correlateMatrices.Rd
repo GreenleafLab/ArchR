@@ -79,3 +79,18 @@ of the seed used so that you can reproduce results downstream.}
 \description{
 This function will correlate 2 matrices within an ArchRProject by name matching.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Correlate Matrices
+dfCor <- correlateMatrices(
+  ArchRProj = proj, 
+  useMatrix1 = "GeneScoreMatrix", 
+  useMatrix2 = "GeneIntegrationMatrix",
+  dimsToUse = 1:5,
+  k = 20
+)
+
+}

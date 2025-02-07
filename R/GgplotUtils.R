@@ -50,6 +50,21 @@
 #' @param rastr A boolean value that indicates whether the plot should be rasterized using `ggrastr`. This does not rasterize
 #' lines and labels, just the internal portions of the plot.
 #' @param dpi The resolution in dots per inch to use for the plot.
+#' 
+#' @examples
+#'
+#' # Create Random Data
+#' m <- data.frame(matrix(rnorm(20, 2),ncol=2))
+#' m$color <- sample(c("A", "B"), 10, replace = TRUE)
+#'
+#' # Plot
+#' p <- ggPoint(x = m[,1], y = m[,2], color = m[,3])
+#'
+#' # To PDF
+#' pdf("test.pdf", width = 4, height = 4)
+#' p
+#' dev.off()
+#'
 #' @export
 ggPoint <- function(
   x = NULL, 
@@ -267,19 +282,6 @@ ggPoint <- function(
             raster.width = min(par('fin')), 
             raster.height = (ratioYX * min(par('fin')))
           )
-
-      # if(!requireNamespace("ggrastr", quietly = TRUE)){
-      #   message("ggrastr is not available for rastr of points, continuing without rastr!")
-      #   message("To install ggrastr try : devtools::install_github('VPetukhov/ggrastr')")
-      #   p <- p + geom_point(size = size, alpha = alpha)
-      # }else{
-      #   .requirePackage("ggrastr", installInfo = "devtools::install_github('VPetukhov/ggrastr')")
-      #   p <- p + geom_point_rast(
-      #       size = size, raster.dpi = dpi, alpha = alpha, 
-      #       raster.width=par('fin')[1], 
-      #       raster.height = (ratioYX * par('fin')[2])
-      #     )
-      # }
     
     }else{
 
@@ -298,7 +300,7 @@ ggPoint <- function(
             }
             #print(pal)
             p <- p + scale_color_manual(values = pal) +
-              guides(color = guide_legend(override.aes = list(size = legendSize, shape = 15)))
+              .gg_guides(color = guide_legend(override.aes = list(size = legendSize, shape = 15)))
         }
 
         if (labelMeans) {
@@ -394,6 +396,20 @@ ggPoint <- function(
 #' @param rastr A boolean value that indicates whether the plot should be rasterized. This does not rasterize lines and labels, just the internal portions of the plot.
 #' @param pal A custom palette from `ArchRPalettes` used to display the density of points on the plot.
 #' @param ... Additional params to be supplied to ggPoint
+#' 
+#' @examples
+#'
+#' # Create Random Data
+#' m <- data.frame(matrix(rnorm(20, 2),ncol=2))
+#'
+#' # Plot
+#' p <- ggOneToOne(x = m[,1], y = m[,2])
+#'
+#' # To PDF
+#' pdf("test.pdf", width = 4, height = 4)
+#' p
+#' dev.off()
+#'
 #' @export
 ggOneToOne <- function (
   x = NULL,
@@ -516,6 +532,20 @@ ggOneToOne <- function (
 #' them to the value of the 97.5th and 2.5th percentile values respectively.
 #' @param addPoints A boolean value indicating whether individual points should be shown on the hexplot.
 #' @param ... Additional params for plotting
+#' 
+#' @examples
+#'
+#' # Create Random Data
+#' m <- data.frame(matrix(rnorm(300, 2),ncol=3))
+#'
+#' # Plot
+#' p <- ggHex(x = m[,1], y = m[,2], color = m[,3])
+#'
+#' # To PDF
+#' pdf("test.pdf", width = 4, height = 4)
+#' p
+#' dev.off()
+#'
 #' @export
 ggHex <- function(
   x = NULL, 
@@ -552,7 +582,7 @@ ggHex <- function(
     .validInput(input = baseSize, name = "baseSize", valid = c("numeric"))
     .validInput(input = ratioYX, name = "ratioYX", valid = c("numeric"))
     .validInput(input = FUN, name = "FUN", valid = c("character"))
-    .validInput(input = hexCut, name = "quantCut", valid = c("numeric", "null"))
+    .validInput(input = hexCut, name = "hexCut", valid = c("numeric", "null"))
     .validInput(input = addPoints, name = "addPoints", valid = c("boolean"))
 
      #require hexbin to be installed. otherwise, this section wont work properly
@@ -643,6 +673,21 @@ ggHex <- function(
 #' @param addBoxPlot A boolean indicating whether to add a boxplot to the plot if `plotAs="violin"`.
 #' @param plotAs A string indicating how the groups should be plotted. Acceptable values are "ridges" (for a `ggrides`-style plot) or "violin" (for a violin plot).
 #' @param ... Additional parameters to pass to `ggplot2` for plotting.
+#' 
+#' @examples
+#'
+#' # Create Random Data
+#' m <- data.frame(x=matrix(rnorm(10, 2),ncol=1))
+#' m$color <- sample(c("A", "B"), 10, replace = TRUE)
+#'
+#' # Plot
+#' p <- ggGroup(x = m$color, y = m$x)
+#'
+#' # To PDF
+#' pdf("test.pdf", width = 4, height = 4)
+#' p
+#' dev.off()
+#'
 #' @export
 ggGroup <- function(
   x = NULL, 
@@ -787,6 +832,20 @@ ggGroup <- function(
 #' @param sizes A numeric vector or list of values indicating the relative size for each of the objects in `plotList` or supplied in `...`. If the plot is supplied in `...` the order is the same as the input in this function. If set to NULL all plots will be evenly distributed.
 #' @param type A string indicating wheter vertical ("v") or horizontal ("h") alignment should be used for the multi-plot layout.
 #' @param draw A boolean value indicating whether to draw the plot(s) (`TRUE`) or return a graphical object (`FALSE`).
+#' @examples
+#'
+#' # Create Random Data
+#' m <- data.frame(x=matrix(rnorm(10, 2),ncol=1))
+#' m$color <- sample(c("A", "B"), 10, replace = TRUE)
+#'
+#' # Plot
+#' p <- ggGroup(x = m$color, y = m$x)
+#'
+#' # To PDF
+#' pdf("test.pdf", width = 4, height = 7)
+#' ggAlignPlots(p, p)
+#' dev.off()
+#'
 #' @export
 ggAlignPlots <- function(
   ..., 
@@ -887,6 +946,20 @@ ggAlignPlots <- function(
 #' @param axisTickCm The length in centimeters to be used for the axis ticks.
 #' @param xText90 A boolean value indicating whether the x-axis text should be rotated 90 degrees counterclockwise.
 #' @param yText90 A boolean value indicating whether the y-axis text should be rotated 90 degrees counterclockwise.
+#' @examples
+#'
+#' # Create Random Data
+#' m <- data.frame(x=matrix(rnorm(10, 2),ncol=1))
+#' m$color <- sample(c("A", "B"), 10, replace = TRUE)
+#'
+#' # Plot
+#' p <- ggGroup(x = m$color, y = m$x) + theme_ArchR()
+#'
+#' # To PDF
+#' pdf("test.pdf", width = 4, height = 7)
+#' p
+#' dev.off()
+#'
 #' @export
 theme_ArchR <- function(
   color = "black",
@@ -947,12 +1020,32 @@ theme_ArchR <- function(
 
 }
 
-
-
 ##########################################################################################
 # ggplot2 helper functions
 ##########################################################################################
 
+#ggplot2 guides
+#this funciton handles the deprecation of guides scale = FALSE -> 'none'
+#I'm not sure if I change to FALSE if its backwards so this is safer for now
+.gg_guides <- function(...){
+  args2 <- lapply(list(...), function(a){
+    if(is(a, "logical")){
+      if(!a){
+        a <- "none"
+      }
+    }
+    a
+  })
+  tryCatch({
+    guides(...)
+  }, warning = function(w){
+    supppressWarnings(guides(...))
+  }, error = function(e){
+    do.call(guides, args2)
+  })
+}
+
+#Check Cairo
 .checkCairo <- function(){
   tryCatch({
     tmp <- dev.cur()

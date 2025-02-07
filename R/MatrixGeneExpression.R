@@ -49,7 +49,6 @@ addGeneExpressionMatrix <- function(
   .validInput(input = force, name = "force", valid = c("boolean"))
   .validInput(input = logFile, name = "logFile", valid = c("character"))
 
-
   if(inherits(input, "ArchRProject")){
     ArrowFiles <- getArrowFiles(input)
     allCells <- rownames(getCellColData(input))
@@ -73,6 +72,15 @@ addGeneExpressionMatrix <- function(
 
   .startLogging(logFile = logFile)
   .logThis(mget(names(formals()),sys.frame(sys.nframe())), "addGeneExpressionMatrix Input-Parameters", logFile = logFile)
+
+  seqRNA <- paste0(unique(seqnames(seRNA)))
+  if(sum(seqRNA %in% paste0(seqnames(chromSizes))) <= 0.5 * length(seqRNA)){
+    if(force){
+      stop(paste0("Detected less than 50% of seqnames for seRNA in chromSizes! Are you sure the seqnames of your seRNA are correct?!"))
+    }else{
+      message(paste0("Detected less than 50% of seqnames for seRNA in chromSizes! Continuing since `force` = TRUE!"))
+    } 
+  }
 
   cellsInArrows <- unlist(lapply(ArrowFiles, .availableCells), use.names=FALSE)
   if(!is.null(allCells)){
@@ -254,7 +262,7 @@ addGeneExpressionMatrix <- function(
   )
 
   ######################################
-  # Normalize and Insert Log2 Normalized Counts
+  # Normalize and Insert Normalized Counts
   ######################################
 
   assay(seRNA) <- .normalizeCols(assay(seRNA), scaleTo = scaleTo)

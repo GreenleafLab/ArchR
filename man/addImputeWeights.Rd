@@ -70,3 +70,12 @@ reproduce results downstream.}
 \description{
 This function computes imputations weights that describe each cell as a linear combination of many cells based on a MAGIC diffusion matrix.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Impute Weights
+proj <- addImputeWeights(proj)
+
+}

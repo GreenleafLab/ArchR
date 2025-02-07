@@ -34,3 +34,12 @@ genome information such as nucleotide information or chromosome sizes.}
 \description{
 This function will create an ArchRProject from the provided ArrowFiles.
 }
+\examples{
+
+# Get Test Arrow
+arrow <- getTestArrow()
+
+# Create ArchR Project for Analysis
+proj <- ArchRProject(arrow)   
+
+}

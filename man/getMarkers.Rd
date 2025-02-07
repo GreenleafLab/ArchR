@@ -24,3 +24,20 @@ of the \code{assayNames} from \code{seMarker}.}
 \description{
 This function will identify Markers and return a List of Features or a GRangesList for each group of significant marker features.
 }
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
+#Get Markers
+getMarkers(seMarker)
+
+}

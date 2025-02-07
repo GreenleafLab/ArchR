@@ -10,6 +10,21 @@
 #' @param filterChr A character vector indicating the seqlevels that should be removed if manual removal is desired for certain seqlevels.
 #' If no manual removal is desired, `filterChr` should be set to `NULL`. If `filter` is set to `TRUE` but `filterChr` is set to `NULL`,
 #' non-standard chromosomes will still be removed as defined in `filterChrGR()`.
+#' 
+#' @examples
+#'
+#' if (!require("BSgenome.Hsapiens.UCSC.hg19", quietly = TRUE)) BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", update = FALSE)
+#' library(BSgenome.Hsapiens.UCSC.hg19)
+#'
+#' # Get Genome
+#' genome <- BSgenome.Hsapiens.UCSC.hg19
+#'
+#' # Create Genome Annotation
+#' genomeAnno <- createGenomeAnnotation(genome)
+#' 
+#' # Also can create from a string if BSgenome exists
+#' genomeAnno <- createGenomeAnnotation("hg19")
+#'
 #' @export
 createGenomeAnnotation <- function(
   genome = NULL,
@@ -78,6 +93,27 @@ createGenomeAnnotation <- function(
 #' @param exons A `GRanges` object containing gene exon coordinates. Must have a symbols column matching the symbols column of `genes`.
 #' @param TSS A `GRanges` object containing standed transcription start site coordinates for computing TSS enrichment scores downstream.
 #' @param annoStyle annotation style to map between gene names and various gene identifiers e.g. "ENTREZID", "ENSEMBL".
+#' @param singleStrand A boolean for GenomicFeatures::genes(`single.strand.genes.only`) parameter
+#' 
+#' @examples
+#'
+#' if (!require("TxDb.Hsapiens.UCSC.hg19.knownGene", quietly = TRUE)) BiocManager::install("TxDb.Hsapiens.UCSC.hg19.knownGene", update = FALSE)
+#' if (!require("org.Hs.eg.db", quietly = TRUE)) BiocManager::install("org.Hs.eg.db", update = FALSE)
+#' library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+#' library(org.Hs.eg.db)
+#'
+#' # Get Txdb
+#' TxDb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+#'
+#' # Get OrgDb
+#' OrgDb <- org.Hs.eg.db
+#'
+#' # Create Genome Annotation
+#' geneAnno <- createGeneAnnotation(TxDb=TxDb, OrgDb=OrgDb)
+#' 
+#' # Also can create from a string if BSgenome exists
+#' geneAnno <- createGeneAnnotation("hg19")
+#'
 #' @export
 createGeneAnnotation <- function(
   genome = NULL,
@@ -86,7 +122,8 @@ createGeneAnnotation <- function(
   genes = NULL,
   exons = NULL,
   TSS = NULL,
-  annoStyle = NULL
+  annoStyle = NULL,
+  singleStrand = TRUE
   ){
 
   .validInput(input = genome, name = "genome", valid = c("character", "null"))
@@ -96,6 +133,7 @@ createGeneAnnotation <- function(
   .validInput(input = exons, name = "exons", valid = c("GRanges", "null"))
   .validInput(input = TSS, name = "TSS", valid = c("GRanges", "null"))
   .validInput(input = annoStyle, name = "annoStyle", valid = c("character", "null"))
+  .validInput(input = singleStrand, name = "singleStrand", valid = c("boolean"))
 
   if(is.null(genes) | is.null(exons) | is.null(TSS)){
 
@@ -107,7 +145,7 @@ createGeneAnnotation <- function(
 
     if(is.null(genome)) {
       if (is.null(TxDb) | is.null(OrgDb)) {
-          stop("If no provided genome then you need TxDb and OrgDb!")
+          stop("If you have not provided a value to the genome parameter then you need to supply values to both TxDb and OrgDb!")
       }
     }
 
@@ -118,7 +156,18 @@ createGeneAnnotation <- function(
 
     ###########################
     message("Getting Genes..")
-    genes <- GenomicFeatures::genes(TxDb)
+    genes <- tryCatch({ #Legacy Catch In Case
+      if(singleStrand){
+        GenomicFeatures::genes(TxDb, single.strand.genes.only = singleStrand)
+      } else{
+        #if singleStrand = FALSE, GenomicFeatures::genes returns a CompressedGRangesList so we tidy this up to maintain consistency.
+        tempGenes <- unlist(GenomicFeatures::genes(TxDb, single.strand.genes.only = singleStrand))
+        mcols(tempGenes)$gene_id <- names(tempGenes)
+        tempGenes
+      }      
+    }, error = function(e){
+      GenomicFeatures::genes(TxDb)
+    })
 
     if(is.null(annoStyle)){
       isEntrez <- mcols(genes)$symbol <- tryCatch({

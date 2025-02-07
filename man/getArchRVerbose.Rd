@@ -9,3 +9,9 @@ getArchRVerbose()
 \description{
 This function will get ArchR logging verbosity.
 }
+\examples{
+
+# Get ArchR Verbose
+addArchRVerbose()
+
+}

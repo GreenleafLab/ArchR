@@ -37,3 +37,12 @@ is to save this file in the \code{outputDirectory} of the \code{ArchRProject}.}
 \description{
 This function will compute background peaks controlling for total accessibility and GC-content and add this information to an ArchRProject.
 }
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Background Peaks
+proj <- addBgdPeaks(proj, force = TRUE)
+
+}

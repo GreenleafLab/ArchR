@@ -12,7 +12,6 @@
 #' @param force A boolean value indicating whether to force the projection of bulk ATAC data even if fewer than 25% of the features are present in the bulk ATAC data set.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @export
-#'
 projectBulkATAC <- function(
   ArchRProj = NULL,
   seATAC = NULL,
@@ -47,10 +46,15 @@ projectBulkATAC <- function(
   .logThis(names(rD), "reducedDimsNames", logFile = logFile)
   .logThis(rD[[1]], "reducedDimsMat", logFile = logFile)
   rDFeatures <- rD[[grep("Features", names(rD))]]
+  #if the reducedDims object is an LSI based on a PeakMatrix, the features will have a column named "end" and we should use that to define the GRanges
   if("end" %in% colnames(rDFeatures)){
     rDGR <- GRanges(seqnames=rDFeatures$seqnames,IRanges(start=rDFeatures$start, end=rDFeatures$end))
-  }else{
-    rDGR <- GRanges(seqnames=rDFeatures$seqnames,IRanges(start=rDFeatures$start, width = (rDFeatures$start) / (rDFeatures$idx - 1)))
+  }else{#otherwise, the LSI is based on a TileMatrix and we should use the tileSize of rD to define the width
+    if(is.na(rD$tileSize)){
+      stop("reducedDims object appears to be from a TileMatrix but no tileSize value is detected. Please report this to GitHub Issues.")
+    }else{
+      rDGR <- GRanges(seqnames=rDFeatures$seqnames,IRanges(start=rDFeatures$start, width = rD$tileSize))
+    }    
   }
   .logThis(rDGR, "reducedDimsGRanges", logFile = logFile)
   subATAC <- subsetByOverlaps(seATAC, rDGR, ignore.strand = TRUE)

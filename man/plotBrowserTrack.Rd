@@ -9,6 +9,7 @@ plotBrowserTrack(
   region = NULL,
   groupBy = "Clusters",
   useGroups = NULL,
+  sampleLabels = "Sample",
   plotSummary = c("bulkTrack", "featureTrack", "loopTrack", "geneTrack"),
   sizes = c(10, 1.5, 3, 4),
   features = getPeakSet(ArchRProj),
@@ -19,8 +20,11 @@ plotBrowserTrack(
   upstream = 50000,
   downstream = 50000,
   tileSize = 250,
+  maxCells = 500,
   minCells = 25,
   normMethod = "ReadsInTSS",
+  highlight = NULL,
+  highlightFill = "firebrick3",
   threads = getArchRThreads(),
   ylim = NULL,
   pal = NULL,
@@ -50,6 +54,11 @@ column will be grouped together and the average signal will be plotted.}
 \item{useGroups}{A character vector that is used to select a subset of groups by name from the designated \code{groupBy} column in
 \code{cellColData}. This limits the groups to be plotted.}
 
+\item{sampleLabels}{The name of a column in \code{cellColData} to use to identify samples. In most cases, this parameter should be left as \code{NULL} and you
+should only use this parameter if you do not want to use the default sample labels stored in \code{cellColData$Sample}. However, if your individual Arrow
+files do not map to individual samples, then you should set this parameter to accurately identify your samples. This is the case in (for example)
+multiplexing applications where cells from different biological samples are mixed into the same reaction and demultiplexed based on a lipid barcode or genotype.}
+
 \item{plotSummary}{A character vector containing the features to be potted. Possible values include "bulkTrack" (the ATAC-seq signal),
 "scTrack" (scATAC-seq signal), "featureTrack" (i.e. the peak regions), "geneTrack" (line diagrams of genes with introns and exons shown.
 Blue-colored genes are on the minus strand and red-colored genes are on the plus strand), and "loopTrack" (links between a peak and a gene).}
@@ -57,8 +66,10 @@ Blue-colored genes are on the minus strand and red-colored genes are on the plus
 \item{sizes}{A numeric vector containing up to 3 values that indicate the sizes of the individual components passed to \code{plotSummary}.
 The order must be the same as \code{plotSummary}.}
 
-\item{features}{A \code{GRanges} object containing the "features" to be plotted via the "featureTrack". This should be thought of as a
-bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.}
+\item{features}{A \code{GRanges} (for a single feature track) or \code{GRangesList} (for multiple feature tracks) object containing the "features" to
+be plotted via the "featureTrack". This should be thought of as a bed track. i.e. the set of peaks obtained using \verb{getPeakSet(ArchRProj))}.
+If you provide a \code{GRangesList}, then each element of that object must be named and this name will be used on the plot.
+For example - \code{GRangesList("peaks" = peak_gr, "other" = other_gr)}.}
 
 \item{loops}{A \code{GRanges} object containing the "loops" to be plotted via the "loopTrack".
 This \code{GRanges} object start represents the center position of one loop anchor and the end represents the center position of another loop anchor.
@@ -79,11 +90,20 @@ If \code{region} is supplied, this argument is ignored.}
 
 \item{tileSize}{The numeric width of the tile/bin in basepairs for plotting ATAC-seq signal tracks. All insertions in a single bin will be summed.}
 
+\item{maxCells}{The maximum number of cells to use for obtaining data to plot as a bulk track. Using more cells can increase the resolution of your plots
+at the expense of increased processing time.}
+
 \item{minCells}{The minimum number of cells contained within a cell group to allow for this cell group to be plotted. This argument can be
 used to exclude pseudo-bulk replicates generated from low numbers of cells.}
 
 \item{normMethod}{The name of the column in \code{cellColData} by which normalization should be performed. The recommended and default value
 is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth and sample data quality.}
+
+\item{highlight}{A \code{GRanges} object containing a region or regions on the plot to highlight. Multiple highlighted regions within the GRanges object are allowed
+Any highlight region that does not overlap the displayed region will be ignored.}
+
+\item{highlightFill}{The color to be used for the highlighted region designated by \code{highlight}. This can be a valid R color (i.e. "lightblue1")
+or a hex color (i.e. "#bfefff")}
 
 \item{threads}{The number of threads to use for parallel execution.}
 
@@ -115,4 +135,20 @@ is "ReadsInTSS" which simultaneously normalizes tracks based on sequencing depth
 This function will plot the coverage at an input region in the style of a browser track. It allows for normalization of the signal
 which enables direct comparison across samples. Note that the genes displayed in these plots are derived from your \code{geneAnnotation}
 (i.e. the \code{BSgenome} object you used) so they may not match other online genome browsers that use different gene annotations.
+}
+\examples{
+
+#Get Test ArchR Project
+proj <- getTestProject()
+
+#Highlight
+genes <- getGenes()
+genes <- genes[which(genes$symbol \%in\% c("CD3D", "MS4A1"))]
+
+#Plot Track
+p <- plotBrowserTrack(proj, geneSymbol = c("CD3D", "MS4A1"), groupBy = "CellType", highlight = genes, highlightFill = "dodgerblue3")
+
+#Plot PDF
+plotPDF(p, name = "Track-CD3D-MS4A1", ArchRProj = proj)
+
 }

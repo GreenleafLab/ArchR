@@ -17,6 +17,18 @@
 #' instead of plotting the TSS enrichment plot.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Plot TSS
+#' p <- plotTSSEnrichment(proj, groupBy = "Clusters")
+#'
+#' # PDF
+#' plotPDF(p, name = "TSS-Enrich", ArchRProj = proj)
+#'
 #' @export
 plotTSSEnrichment <- function(
   ArchRProj = NULL,
@@ -55,9 +67,20 @@ plotTSSEnrichment <- function(
   groups <- getCellColData(ArchRProj = ArchRProj, select = groupBy, drop = FALSE)
   uniqGroups <- gtools::mixedsort(unique(groups[,1]))
 
-  if(threads > 1){
-     h5disableFileLocking()
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(threads > 1){
+      message("subThreading Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      threads <- 1
+    }
+  }else{
+    if(threads > 1){
+      message("subThreading Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
   }
+
+  chromLengths <- getChromLengths(ArchRProj)
 
   dfTSS <- .safelapply(seq_along(uniqGroups), function(z){
 
@@ -69,6 +92,12 @@ plotTSSEnrichment <- function(
 
       #TSS for Chr
       TSSi <- splitTSS[[chr[k]]]
+
+      #Check All Positions Are at least 50 + flank from chromSize start!
+      idx1 <- start(TSSi) > flank + 50
+
+      #Check End + 50 + flank less than chromSize end!
+      idx2 <- end(TSSi) + flank + 50 < chromLengths[paste0(seqnames(TSSi))]
 
       #Set TSS To be a dummy chr1
       TSSi <- GRanges(seqnames=rep("chr1",length(TSSi)), ranges = ranges(TSSi), strand = strand(TSSi))
@@ -129,10 +158,6 @@ plotTSSEnrichment <- function(
   .logThis(dfTSS, paste0("All : TSSDf"), logFile = logFile)
 
   .endLogging(logFile = logFile)
-
-  if(threads > 1){
-    h5enableFileLocking()
-  }
   
   if(returnDF){
     
@@ -176,6 +201,18 @@ plotTSSEnrichment <- function(
 #' instead of plotting the fragment size distribution.
 #' @param threads An integer specifying the number of threads to use for calculation. By default this uses the number of threads set by `addArchRThreads()`.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test ArchR Project
+#' proj <- getTestProject()
+#'
+#' # Plot Frag Sizes
+#' p <- plotFragmentSizes(proj, groupBy = "Clusters")
+#'
+#' # PDF
+#' plotPDF(p, name = "Frag-Sizes", ArchRProj = proj)
+#'
 #' @export
 plotFragmentSizes <- function(
   ArchRProj = NULL,

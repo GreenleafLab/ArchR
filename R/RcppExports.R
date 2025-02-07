@@ -37,3 +37,11 @@ kmerIDFrequencyCpp <- function(string_vector, id_vector, n_id, window, w, kmer) 
     .Call('_ArchR_kmerIDFrequencyCpp', PACKAGE = 'ArchR', string_vector, id_vector, n_id, window, w, kmer)
 }
 
+find_non_zero_indices <- function(X, col) {
+    .Call('_ArchR_find_non_zero_indices', PACKAGE = 'ArchR', X, col)
+}
+
+deviations_cpp <- function(X, B, anno_mat, expect, CpS, verbose = TRUE, prefix = "", print_every = 100L) {
+    .Call('_ArchR_deviations_cpp', PACKAGE = 'ArchR', X, B, anno_mat, expect, CpS, verbose, prefix, print_every)
+}
+

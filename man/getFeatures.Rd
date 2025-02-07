@@ -16,11 +16,20 @@ getFeatures(
 
 \item{useMatrix}{The name of the data matrix as stored in the ArrowFiles of the \code{ArchRProject}. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
-\item{select}{A string specifying a specific feature name (or rowname) to be found with \code{grep}.}
+\item{select}{A string specifying a specific feature name (or rowname) to be found with \code{grep} or granges to overlap.}
 
 \item{ignoreCase}{A boolean value indicating whether to ignore the case (upper-case / lower-case) when searching via grep for the string passed to \code{select}.}
 }
 \description{
 This function will identify available features from a given data matrix  (i.e. "GeneScoreMatrix", or "TileMatrix") and return
 them for downstream plotting utilities.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Get Features
+getFeatures(proj, useMatrix = "GeneScoreMatrix", select = 'CD3')
+
 }

@@ -16,6 +16,7 @@ plotMarkerHeatmap(
   pal = NULL,
   binaryClusterRows = TRUE,
   clusterCols = TRUE,
+  subsetMarkers = NULL,
   labelMarkers = NULL,
   nLabel = 15,
   nPrint = 15,
@@ -33,12 +34,18 @@ plotMarkerHeatmap(
 in the heatmap. \code{cutoff} can contain any of the \code{assayNames} from \code{seMarker}.}
 
 \item{log2Norm}{A boolean value indicating whether a log2 transformation should be performed on the values in
-\code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like "DeviationsMatrix").}
+\code{seMarker} prior to plotting. Should be set to \code{TRUE} for counts-based assays (but not assays like "DeviationsMatrix").
+This only applies if \code{plotLog2FC = FALSE}.}
 
 \item{scaleTo}{Each column in the assay Mean from \code{seMarker} will be normalized to a column sum designated by \code{scaleTo}
-prior to log2 normalization. If log2Norm is \code{FALSE} this option has no effect.}
+prior to log2 normalization. If \code{log2Norm = FALSE} this option has no effect.}
 
 \item{scaleRows}{A boolean value that indicates whether the heatmap should display row-wise z-scores instead of raw values.}
+
+\item{plotLog2FC}{A boolean value that indicates whether the \verb{log2(fold change)} values should be plotted on the heatmap or not.
+If \code{TRUE}, the \verb{log2(fold change)} value (stored in the assay of \code{seMarker} labeled "Log2FC") is plotted.
+If \code{FALSE}, the mean value (stored in the assay of \code{seMarker} labeled "Mean") is plotted instead, with optional log normalization
+based on the \code{log2Norm} parameter.}
 
 \item{limits}{A numeric vector of two numbers that represent the lower and upper limits of the heatmap color scheme.}
 
@@ -51,11 +58,16 @@ rownames from \code{seMarker} to be excluded from the heatmap.}
 
 \item{clusterCols}{A boolean value that indicates whether the columns of the marker heatmap should be clustered.}
 
+\item{subsetMarkers}{A vector of rownames from seMarker to use for subsetting of seMarker to only plot specific features on the heatmap.
+Note that these rownames are expected to be integers that come from \code{rownames(rowData(seMarker))}. If this parameter is used for
+subsetting, then the values provided to \code{cutOff} are effectively ignored.}
+
 \item{labelMarkers}{A character vector listing the \code{rownames} of \code{seMarker} that should be labeled on the side of the heatmap.}
 
-\item{nLabel}{An integer value that indicates whether the top \code{n} features for each column in \code{seMarker} should be labeled on the side of the heatmap.}
+\item{nLabel}{An integer value that indicates how many of the top \code{n} features for each column in \code{seMarker} should be labeled on the side of the heatmap.
+To remove all feature labels, set \code{nLabel = 0}.}
 
-\item{nPrint}{If provided \code{seMarker} is from "GeneScoreMatrix" print the top n genes for each group based on how uniquely up-regulated the gene is.}
+\item{nPrint}{If provided \code{seMarker} is from "GeneScoreMatrix" print the top \code{n} genes for each group based on how uniquely up-regulated the gene is.}
 
 \item{labelRows}{A boolean value that indicates whether all rows should be labeled on the side of the heatmap.}
 
@@ -72,4 +84,24 @@ looking for down-regulated markers (\verb{log2(fold change) < 0}) instead of up-
 }
 \description{
 This function will plot a heatmap of the results from markerFeatures
+}
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Get Markers
+seMarker <- getMarkerFeatures(
+  ArchRProj = proj, 
+  useMatrix = "PeakMatrix", 
+  testMethod = "binomial", 
+  binarize = TRUE
+)
+
+#Plot Markers
+p <- plotMarkerHeatmap(seMarker)
+
+#PDF
+plotPDF(p, name = "Marker-Heatmap", ArchRProj = proj)
+
 }

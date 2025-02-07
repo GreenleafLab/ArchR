@@ -18,9 +18,9 @@
 #' in downstream analyses. Cells with a TSS enrichment score greater than or equal to `minTSS` will be retained. TSS enrichment score
 #' is a measurement of signal-to-background in ATAC-seq.
 #' @param minFrags The minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-#' Cells containing greater than or equal to `minFrags` total fragments wll be retained.
+#' Cells containing greater than or equal to `minFrags` total fragments will be retained.
 #' @param maxFrags The maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses.
-#' Cells containing greater than or equal to `maxFrags` total fragments wll be retained.
+#' Cells containing greater than or equal to `maxFrags` total fragments will be retained.
 #' @param minFragSize The minimum fragment size to be included into Arrow File. Fragments lower than this number are discarded. Must be less than maxFragSize.
 #' @param maxFragSize The maximum fragment size to be included into Arrow File. Fragments above than this number are discarded. Must be greater than maxFragSize.
 #' @param QCDir The relative path to the output directory for QC-level information and plots for each sample/ArrowFile.
@@ -44,10 +44,10 @@
 #' gsubExpression would be ":.*". This would retrieve the string after the colon as the barcode.
 #' @param bamFlag A vector of bam flags to be used for reading in fragments from input bam files. Should be in the format of a
 #' `scanBamFlag` passed to `ScanBam` in Rsamtools.
-#' @param offsetPlus The numeric offset to apply to a "+" stranded Tn5 insertion to account for the precise Tn5 binding site.
+#' @param offsetPlus The numeric offset to apply to the start (left-most Tn5 insertion) of a fragment to account for the precise Tn5 binding site.
 #' This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 #' See Buenrostro et al. Nature Methods 2013.
-#' @param offsetMinus The numeric offset to apply to a "-" stranded Tn5 insertion to account for the precise Tn5 binding site.
+#' @param offsetMinus The numeric offset to apply to the end (right-most Tn5 insertion) of a fragment to account for the precise Tn5 binding site.
 #' This parameter only applies to bam file input and it is assumed that fragment files have already been offset which is the standard from 10x output.
 #' See Buenrostro et al. Nature Methods 2013.
 #' @param addTileMat A boolean value indicating whether to add a "Tile Matrix" to each ArrowFile. A Tile Matrix is a counts matrix that,
@@ -63,6 +63,22 @@
 #' @param verbose A boolean value that determines whether standard output should be printed.
 #' @param cleamTmp A boolean value that determines whether to clean temp folder of all intermediate ".arrow" files.
 #' @param logFile The path to a file to be used for logging ArchR output.
+#' 
+#' @examples
+#'
+#' # Get Test Fragments
+#' fragments <- getTestFragments()
+#'
+#' # Create Arrow Files
+#' arrowFiles <- createArrowFiles(
+#'   inputFiles = fragments,
+#'   sampleNames = "PBSmall",
+#'   minFrags = 100,
+#'   nChunk = 1,
+#'   TileMatParams=list(tileSize=10000),
+#'   force = TRUE
+#' )
+#'
 #' @export
 #' 
 createArrowFiles <- function(
@@ -202,12 +218,21 @@ createArrowFiles <- function(
   args$registryDir <- file.path(QCDir, "CreateArrowsRegistry")
   args$cleanTmp <- NULL
 
-  if(subThreading){
-    h5disableFileLocking()
-  }else{
+  #H5 File Lock Check
+  h5lock <- setArchRLocking()
+  if(h5lock){
+    if(subThreading){
+      message("subThreading Disabled since ArchRLocking is TRUE see `addArchRLocking`")
+      subThreading <- FALSE
+    }
     args$threads <- min(length(inputFiles), threads)
+  }else{
+    if(subThreading){
+      message("subThreading Enabled since ArchRLocking is FALSE see `addArchRLocking`")
+    }    
   }
 
+  #Default Param
   args$minTSS <- NULL
 
   #Run With Parallel or lapply
@@ -227,10 +252,6 @@ createArrowFiles <- function(
     }
     paste0(args$outputNames,".arrow")[file.exists(paste0(args$outputNames,".arrow"))]
   })
-
-  if(subThreading){
-    h5enableFileLocking()
-  }
 
   .endLogging(logFile = logFile)
 
@@ -1295,10 +1316,10 @@ createArrowFiles <- function(
           chrRGValues <- paste0("Fragments/",chrTmp,"/RGValues")
           lengthRG <- length(RG@lengths)
           o <- h5createGroup(tmpFile, paste0("Fragments/",chrTmp))
-          o <- .suppressAll(h5createDataset(tmpFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
-          o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+          o <- .suppressAll(h5createDataset(tmpFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = getArchRH5Level()))
+          o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = getArchRH5Level()))
           o <- .suppressAll(h5createDataset(tmpFile, chrRGValues, storage.mode = "character", 
-            dims = c(lengthRG, 1), level = 0, size = max(nchar(RG@values)) + 1))
+            dims = c(lengthRG, 1), level = getArchRH5Level(), size = max(nchar(RG@values)) + 1))
           o <- h5write(obj = cbind(dt$V2,dt$V3 - dt$V2 + 1), file = tmpFile, name = chrPos)
           o <- h5write(obj = RG@lengths, file = tmpFile, name = chrRGLengths)
           o <- h5write(obj = RG@values, file = tmpFile, name = chrRGValues)
@@ -1330,10 +1351,10 @@ createArrowFiles <- function(
           chrRGValues <- paste0(chrTmp, "._.RGValues")
           lengthRG <- length(RG@lengths)
 
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+          o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = getArchRH5Level()))
+          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = getArchRH5Level()))
           o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", 
-            dims = c(lengthRG, 1), level = 0, size = max(nchar(RG@values)) + 1))
+            dims = c(lengthRG, 1), level = getArchRH5Level(), size = max(nchar(RG@values)) + 1))
           
           o <- h5write(obj = cbind(dt$V2,dt$V3 - dt$V2 + 1), file = tmpChrFile, name = chrPos)
           o <- h5write(obj = RG@lengths, file = tmpChrFile, name = chrRGLengths)
@@ -1671,10 +1692,10 @@ createArrowFiles <- function(
           chrRGValues <- paste0("Fragments/",chrTmp,"/RGValues")
           lengthRG <- length(RG@lengths)
           o <- h5createGroup(tmpFile, paste0("Fragments/",chrTmp))
-          o <- .suppressAll(h5createDataset(tmpFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
-          o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+          o <- .suppressAll(h5createDataset(tmpFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = getArchRH5Level()))
+          o <- .suppressAll(h5createDataset(tmpFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = getArchRH5Level()))
           o <- .suppressAll(h5createDataset(tmpFile, chrRGValues, storage.mode = "character", 
-                    dims = c(lengthRG, 1), level = 0, size = max(nchar(RG@values)) + 1))
+                    dims = c(lengthRG, 1), level = getArchRH5Level(), size = max(nchar(RG@values)) + 1))
 
           o <- h5write(obj = cbind(dt$start, dt$end - dt$start + 1), file = tmpFile, name = chrPos)
           o <- h5write(obj = RG@lengths, file = tmpFile, name = chrRGLengths)
@@ -1707,10 +1728,10 @@ createArrowFiles <- function(
           chrRGValues <- paste0(chrTmp, "._.RGValues")
           lengthRG <- length(RG@lengths)
 
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = 0))
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
+          o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(nrow(dt), 2), level = getArchRH5Level()))
+          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = getArchRH5Level()))
           o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", 
-                    dims = c(lengthRG, 1), level = 0, size = max(nchar(RG@values)) + 1))
+                    dims = c(lengthRG, 1), level = getArchRH5Level(), size = max(nchar(RG@values)) + 1))
 
           o <- h5write(obj = cbind(dt$start, dt$end - dt$start + 1), file = tmpChrFile, name = chrPos)
           o <- h5write(obj = RG@lengths, file = tmpChrFile, name = chrRGLengths)
@@ -1914,7 +1935,7 @@ createArrowFiles <- function(
       
       #Determine Ranges and RG Pre-Allocation
       chr <- uniqueChr[x]
-      ix <- BiocGenerics::which(chunkChr == chr)
+      ix <- BiocGenerics::which(paste0(chunkChr) == paste0(chr))
 
       if(threads == 1){
 
@@ -1927,9 +1948,9 @@ createArrowFiles <- function(
           chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
           chrRGValues <- paste0("Fragments/",chr,"/RGValues")
           o <- h5createGroup(outArrow, paste0("Fragments/",chr))
-          o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
-          o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
-          o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, size = 4))
+          o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = getArchRH5Level()))
+          o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = getArchRH5Level()))
+          o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = getArchRH5Level(), size = 4))
 
           return(NULL)
 
@@ -1945,9 +1966,11 @@ createArrowFiles <- function(
           mcols(fragments)$RG@values <- stringr::str_split(mcols(fragments)$RG@values, pattern = "#", simplify=TRUE)[,2]
 
           #Order RG RLE based on bcPass
-          fragments <- fragments[BiocGenerics::which(mcols(fragments)$RG %bcin% bcPass)]
-          fragments <- fragments[order(S4Vectors::match(mcols(fragments)$RG, bcPass))]
-
+          fragments <- fragments[BiocGenerics::which(paste0(mcols(fragments)$RG) %bcin% as.character(bcPass))]
+          if(length(fragments) > 0){
+            fragments <- fragments[order(S4Vectors::match(paste0(mcols(fragments)$RG), as.character(bcPass)))]
+          }
+          
           #Check if Fragments are greater than minFragSize and smaller than maxFragSize
           fragments <- fragments[width(fragments) >= minFragSize]
           fragments <- fragments[width(fragments) <= maxFragSize]
@@ -1970,17 +1993,17 @@ createArrowFiles <- function(
             .logMessage(msg = paste0(prefix, " detected 0 Fragments in cells passing filtering threshold for ", chr), logFile = logFile)
           
             o <- h5createGroup(outArrow, paste0("Fragments/",chr))
-            o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
-            o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
-            o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, 
+            o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = getArchRH5Level()))
+            o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = getArchRH5Level()))
+            o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = getArchRH5Level(), 
                     size = 10))
             
           }else{
 
             o <- h5createGroup(outArrow, paste0("Fragments/",chr))
-            o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
-            o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-            o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
+            o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = getArchRH5Level()))
+            o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = getArchRH5Level()))
+            o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = getArchRH5Level(), 
                     size = max(nchar(mcols(fragments)$RG@values)) + 1))
             
             o <- h5write(obj = cbind(start(fragments),width(fragments)), file = outArrow, name = chrPos)
@@ -2013,9 +2036,9 @@ createArrowFiles <- function(
           chrRGLengths <- paste0(chr, "._.RGLengths")
           chrRGValues <- paste0(chr, "._.RGValues")
 
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
-          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, size = 4))
+          o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(0, 2), level = getArchRH5Level()))
+          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = getArchRH5Level()))
+          o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(0, 1), level = getArchRH5Level(), size = 4))
 
           return(tmpChrFile)
 
@@ -2030,9 +2053,17 @@ createArrowFiles <- function(
           }) %>% Reduce("c", .)
           mcols(fragments)$RG@values <- stringr::str_split(mcols(fragments)$RG@values, pattern = "#", simplify=TRUE)[,2]
 
+          if(x == 1){
+            .logThis(fragments, name = paste0(prefix, " .tmpToArrow Fragments0-Chr-(",x," of ",length(uniqueChr),")-", uniqueChr[x]), logFile = logFile)
+            .logThis(data.frame(bc = as.vector(mcols(fragments)$RG@values)), name = paste0(prefix, " .tmpToArrow Barcodes0-Chr-(",x," of ",length(uniqueChr),")-", uniqueChr[x]), logFile = logFile)
+            .logThis(data.frame(bc = as.vector(bcPass)), name = paste0(prefix, " .tmpToArrow bcPass0-Chr-(",x," of ",length(uniqueChr),")-", uniqueChr[x]), logFile = logFile)
+          }
+
           #Order RG RLE based on bcPass
-          fragments <- fragments[BiocGenerics::which(mcols(fragments)$RG %bcin% bcPass)]
-          fragments <- fragments[order(S4Vectors::match(mcols(fragments)$RG, bcPass))]
+          fragments <- fragments[BiocGenerics::which(paste0(mcols(fragments)$RG) %bcin% as.character(bcPass))]
+          if(length(fragments) > 0){
+            fragments <- fragments[order(S4Vectors::match(paste0(mcols(fragments)$RG), as.character(bcPass)))]
+          }
 
           #Check if Fragments are greater than minFragSize and smaller than maxFragSize
           fragments <- fragments[width(fragments) >= minFragSize]
@@ -2053,17 +2084,17 @@ createArrowFiles <- function(
           if(lengthRG == 0){
                    
             #HDF5 Write
-            o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
-            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
-            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, 
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(0, 2), level = getArchRH5Level()))
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = getArchRH5Level()))
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(0, 1), level = getArchRH5Level(), 
                     size = 10))
 
           }else{
            
             #HDF5 Write
-            o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
-            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = getArchRH5Level()))
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = getArchRH5Level()))
+            o <- .suppressAll(h5createDataset(tmpChrFile, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = getArchRH5Level(), 
                     size = max(nchar(mcols(fragments)$RG@values)) + 1))
 
             o <- h5write(obj = cbind(start(fragments),width(fragments)), file = tmpChrFile, name = chrPos)
@@ -2206,9 +2237,9 @@ createArrowFiles <- function(
         chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
         chrRGValues <- paste0("Fragments/",chr,"/RGValues")
         o <- h5createGroup(outArrow, paste0("Fragments/",chr))
-        o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = 0))
-        o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = 0))
-        o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = 0, size = 4))
+        o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(0, 2), level = getArchRH5Level()))
+        o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(0, 1), level = getArchRH5Level()))
+        o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(0, 1), level = getArchRH5Level(), size = 4))
 
       }else{
 
@@ -2225,9 +2256,9 @@ createArrowFiles <- function(
         chrRGLengths <- paste0("Fragments/",chr,"/RGLengths")
         chrRGValues <- paste0("Fragments/",chr,"/RGValues")
         o <- h5createGroup(outArrow, paste0("Fragments/",chr))
-        o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = 0))
-        o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = 0))
-        o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = 0, 
+        o <- .suppressAll(h5createDataset(outArrow, chrPos, storage.mode = "integer", dims = c(length(fragments), 2), level = getArchRH5Level()))
+        o <- .suppressAll(h5createDataset(outArrow, chrRGLengths, storage.mode = "integer", dims = c(lengthRG, 1), level = getArchRH5Level()))
+        o <- .suppressAll(h5createDataset(outArrow, chrRGValues, storage.mode = "character", dims = c(lengthRG, 1), level = getArchRH5Level(), 
                 size = max(nchar(mcols(fragments)$RG@values)) + 1))
         o <- h5write(obj = cbind(start(fragments),width(fragments)), file = outArrow, name = chrPos)
         o <- h5write(obj = mcols(fragments)$RG@lengths, file = outArrow, name = chrRGLengths)

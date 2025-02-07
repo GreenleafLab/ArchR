@@ -8,6 +8,7 @@ getMatrixFromArrow(
   ArrowFile = NULL,
   useMatrix = "GeneScoreMatrix",
   useSeqnames = NULL,
+  excludeChr = NULL,
   cellNames = NULL,
   ArchRProj = NULL,
   verbose = TRUE,
@@ -21,6 +22,8 @@ getMatrixFromArrow(
 \item{useMatrix}{The name of the data matrix to retrieve from the given ArrowFile. Options include "TileMatrix", "GeneScoreMatrix", etc.}
 
 \item{useSeqnames}{A character vector of chromosome names to be used to subset the data matrix being obtained.}
+
+\item{excludeChr}{A character vector containing the \code{seqnames} of the chromosomes that should be excluded from this analysis.}
 
 \item{cellNames}{A character vector indicating the cell names of a subset of cells from which fragments whould be extracted.
 This allows for extraction of fragments from only a subset of selected cells. By default, this function will extract all cells from
@@ -38,4 +41,13 @@ provide the \code{ArchRProject} object here.}
 }
 \description{
 This function gets a given data matrix from an individual ArrowFile.
+}
+\examples{
+
+#Get Test Arrow
+arrow <- getTestArrow()
+
+# Get Fragments
+se <- getMatrixFromArrow(arrow)
+
 }

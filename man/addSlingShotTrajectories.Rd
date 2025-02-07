@@ -2,7 +2,7 @@
 % Please edit documentation in R/Trajectory.R
 \name{addSlingShotTrajectories}
 \alias{addSlingShotTrajectories}
-\title{Add a Slingshot Trajectories to an ArchR Project #NEW}
+\title{Add a Slingshot Trajectories to an ArchR Project}
 \usage{
 addSlingShotTrajectories(
   ArchRProj = NULL,
@@ -40,4 +40,20 @@ in \code{cellColData}. This limits the groups used to identify trajectories.}
 \description{
 This function will fit a supervised trajectory in a lower dimensional space that
 can then be used for downstream analyses.
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+#Add SlingShot Trajectory
+proj <- addSlingShotTrajectories(
+  ArchRProj = proj,
+  name = "Trajectory_SlingShot", 
+  useGroups = c("C1", "C2", "C3"), 
+  principalGroup = "C1", 
+  groupBy = "Clusters", 
+  embedding = "UMAP"
+)
+
 }

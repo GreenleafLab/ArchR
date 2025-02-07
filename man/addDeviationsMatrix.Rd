@@ -12,6 +12,7 @@ addDeviationsMatrix(
   matrixName = NULL,
   out = c("z", "deviations"),
   binarize = FALSE,
+  version = 2,
   threads = getArchRThreads(),
   verbose = TRUE,
   parallelParam = NULL,
@@ -38,6 +39,8 @@ z-scores ("z"), or both (c("deviations","z")).}
 \item{binarize}{A boolean value indicating whether the input matrix should be binarized before calculating deviations.
 This is often desired when working with insertion counts.}
 
+\item{version}{An integer for which deviations algorithm to use (1 = R native or 2 = C++ native).}
+
 \item{threads}{The number of threads to be used for parallel computing.}
 
 \item{verbose}{A boolean value that determines whether standard output includes verbose sections.}
@@ -51,4 +54,20 @@ already exists in the ArrowFiles associated with the given \code{ArchRProject}.}
 }
 \description{
 This function will compute peakAnnotation deviations for each ArrowFiles independently while controlling for global biases (low-memory requirement).
+}
+\examples{
+
+# Get Test ArchR Project
+proj <- getTestProject()
+
+# Add Background Peaks
+proj <- addBgdPeaks(proj, force = TRUE)
+
+# Add Motif Deviations
+proj <- addDeviationsMatrix(
+  ArchRProj = proj, 
+  peakAnnotation = "Motif",
+  force = TRUE
+)
+
 }

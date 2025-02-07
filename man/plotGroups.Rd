@@ -9,8 +9,7 @@ plotGroups(
   groupBy = "Sample",
   colorBy = "colData",
   name = "TSSEnrichment",
-  imputeWeights = if (!grepl("coldata", tolower(colorBy[1])))
-    getImputeWeights(ArchRProj),
+  imputeWeights = if (!grepl("coldata", tolower(colorBy[1]))) getImputeWeights(ArchRProj),
   maxCells = 1000,
   quantCut = c(0.002, 0.998),
   log2Norm = NULL,
@@ -71,4 +70,16 @@ to the value of the 97.5th and 2.5th percentile values respectively.}
 }
 \description{
 This function will group, summarize and then plot data from an ArchRProject for visual comparison.
+}
+\examples{
+
+#Get Test Project
+proj <- getTestProject()
+
+#Plot Groups
+p <- plotGroups(proj, groupBy = "Clusters", colorBy = "colData", name = "TSSEnrichment", plotAs = "violin", alpha = 0.5)
+
+#PDF
+plotPDF(p, name = "Clusters-TSS", ArchRProj = proj)
+
 }

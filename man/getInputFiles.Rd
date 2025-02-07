@@ -11,4 +11,7 @@ getInputFiles(paths = NULL)
 }
 \description{
 This function will look for fragment files and bam files in the input paths and return the full path and sample names.
+Only files that match ".fragments.tsv.gz" and ".bam" will be captured. This function requires there to be a prefix
+before ".fragments.tsv.gz" or ".bam" because this prefix will be used as the sample name. For example, "Sample1.fragments.tsv.gz"
+would be imported with the name "Sample1".
 }

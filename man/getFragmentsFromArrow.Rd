@@ -28,3 +28,12 @@ from the provided ArrowFile using \code{getCellNames()}.}
 \description{
 This function retrieves the fragments from a given ArrowFile as a GRanges object.
 }
+\examples{
+
+#Get Test Arrow
+arrow <- getTestArrow()
+
+# Get Fragments
+frags <- getFragmentsFromArrow(arrow)
+
+}

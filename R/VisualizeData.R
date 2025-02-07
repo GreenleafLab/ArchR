@@ -17,6 +17,18 @@
 #' @param useDingbats A boolean variable that determines wheter to use dingbats characters for plotting points.
 #' @param plotList A `list` of plots to be printed to the output PDF file. Each element of `plotList` should be a printable plot formatted
 #' object (ggplot2, plot, heatmap, etc).
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Plot UMAP
+#' p <- plotEmbedding(proj, name = "Clusters")
+#' 
+#' #PDF
+#' plotPDF(p, name = "UMAP-Clusters", ArchRProj = proj)
+#'
 #' @export
 plotPDF <- function(
   ...,
@@ -86,7 +98,7 @@ plotPDF <- function(
     filename <- file.path(outDir, paste0(name, ".pdf"))
   }
 
-  o <- tryCatch({
+  o <- suppressWarnings(tryCatch({
 
     pdf(filename, width = width, height = height, useDingbats = useDingbats)
     for(i in seq_along(plotList)){
@@ -149,7 +161,7 @@ plotPDF <- function(
 
     if(getArchRVerbose()) message(x)
 
-  })
+  }))
 
   return(invisible(0))
 
@@ -201,6 +213,18 @@ plotPDF <- function(
 #' @param threads The number of threads to be used for parallel computing.
 #' @param logFile The path to a file to be used for logging ArchR output.
 #' @param ... Additional parameters to pass to `ggPoint()` or `ggHex()`.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Plot UMAP
+#' p <- plotEmbedding(proj, name = "Clusters")
+#' 
+#' #PDF
+#' plotPDF(p, name = "UMAP-Clusters", ArchRProj = proj)
+#'
 #' @export
 plotEmbedding <- function(
   ArchRProj = NULL,
@@ -424,7 +448,7 @@ plotEmbedding <- function(
       if(!is.null(quantCut)){
         plotParamsx$color <- .quantileCut(plotParamsx$color, min(quantCut), max(quantCut))
       }
-      
+
       plotParamsx$pal <- paletteContinuous(set = plotParamsx$continuousSet)
 
       if(!is.null(pal)){
@@ -532,6 +556,18 @@ plotEmbedding <- function(
 #' @param plotAs A string that indicates whether a rigdge plot ("ridges") should be plotted or a violin plot ("violin") should be plotted.
 #' @param threads The number of threads to be used for parallel computing.
 #' @param ... Additional parameters to pass to `ggGroup()`.
+#' 
+#' @examples
+#'
+#' #Get Test Project
+#' proj <- getTestProject()
+#' 
+#' #Plot Groups
+#' p <- plotGroups(proj, groupBy = "Clusters", colorBy = "colData", name = "TSSEnrichment", plotAs = "violin", alpha = 0.5)
+#' 
+#' #PDF
+#' plotPDF(p, name = "Clusters-TSS", ArchRProj = proj)
+#'
 #' @export
 plotGroups <- function(
   ArchRProj = NULL,
@@ -846,8 +882,15 @@ plotGroups <- function(
 
   #adapted from https://github.com/jwdink/egg/blob/master/R/set_panel_size.r
   g <- ggplotGrob(p)
-  
-  legend <- grep("guide-box", g$layout$name)
+  legend_indices <- grep("guide-box", g$layout$name)
+  # ggplot versions > 3.5 can have multiple guide boxes, and are non automatically removed if is a "zeroGrob"
+  # Do filtering wrt only non "zeroGrob" legends
+  if (length(legend_indices) != 0) {
+    legend <- legend_indices[unlist(lapply(legend_indices, function(idx) class(g$grobs[[idx]])[1] != "zeroGrob"))]
+  } else {
+    legend <- legend_indices
+  }
+  # add correct ones to legend
   if(length(legend)!=0){
     gl <- g$grobs[[legend]]
     g <- ggplotGrob(p + theme(legend.position = "none"))
@@ -948,7 +991,7 @@ plotGroups <- function(
               legend.spacing.x = unit(0, 'cm'),
               legend.spacing.y = unit(0, 'cm'),
               legend.text = element_text(size = max(size, 2))
-              ) + guides(fill = guide_legend(ncol = 4), color =  guide_legend(ncol = 4))
+              ) + .gg_guides(fill = guide_legend(ncol = 4), color =  guide_legend(ncol = 4))
         )$grobs[[legend]]
 
       slh <- convertHeight(
