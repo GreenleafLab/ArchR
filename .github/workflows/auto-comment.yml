@@ -12,7 +12,7 @@ jobs:
              If you are getting an error, it is likely due to something specific to your dataset, usage, or computational environment, all of which are extremely challenging to troubleshoot. As such, we require [reproducible examples](https://reprex.tidyverse.org/articles/reprex-dos-and-donts.html) (preferably using the tutorial dataset) from users who want assistance. If you cannot reproduce your error, we will not be able to help.
              Before going through the work of making a reproducible example, search the previous [Issues](https://github.com/GreenleafLab/ArchR/issues), [Discussions](https://github.com/GreenleafLab/ArchR/discussions), [function definitions](https://www.archrproject.com/reference/index.html), or the [ArchR manual](https://www.archrproject.com/bookdown/index.html) and you will likely find the answers you are looking for.
              If your post does not contain a reproducible example, it is unlikely to receive a response.<br />
-             __In addition to a reproducible example, you must do the following things before we help you, unless your original post already contained this information:
+             In addition to a reproducible example, you must do the following things before we help you, unless your original post already contained this information:
              __1.__ If you've encountered an error, have you already searched previous Issues to make sure that this hasn't already been solved?
              __2.__ Did you post your log file? If not, add it now.
              __3.__ Remove any screenshots that contain text and instead copy and paste the text using markdown's codeblock syntax (three consecutive backticks). You can do this by editing your original post.
